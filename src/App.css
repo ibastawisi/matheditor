@@ -1,20 +1,37 @@
 @page {
   /* size: A4; */
-  margin: 0.19in 0;
+  /* margin: 0.19in 0; */
 }
 
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.editor-container {
+  margin-top: 1rem;
+}
 .editor-wrapper {
   padding: 1rem;
   box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.5);
-  width: 21cm;
-  min-height: 21cm;
+  max-width: 21cm;
   margin: 0 auto;
 }
 
+.ce-toolbox__button {
+  margin-left: 0;
+}
+
 @media print {
+  .editor-container {
+    margin-top: 0;
+  }
   .editor-wrapper {
     padding: 0;
     box-shadow: none;
+  }
+  .ce-toolbar {
+    display: none;
   }
 }
 

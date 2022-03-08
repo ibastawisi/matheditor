@@ -1,11 +1,11 @@
-import { editorSlice } from "./editor";
+import { appSlice } from "./app";
 
 export const actions = {
-  editor: editorSlice.actions,
+  app: appSlice.actions,
 };
 
 export const reducers = {
-  editor: editorSlice.reducer,
+  app: appSlice.reducer,
 }
 
 export default reducers;
