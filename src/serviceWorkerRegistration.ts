@@ -89,7 +89,7 @@ function registerValidSW(swUrl: string, config?: Config) {
               store.dispatch(actions.app.announce(
                 {
                   message: "New update available! To update, refresh this tab.",
-                  action: { label: "Refresh", onClick: window.location.reload }
+                  action: { label: "Refresh", onClick: "window.location.reload()"}
                 }
               ));
 

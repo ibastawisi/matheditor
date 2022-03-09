@@ -29,7 +29,9 @@ import { EditorDocument } from './slices/app';
 import Modal from '@mui/material/Modal';
 import { Button } from '@mui/material';
 
-const version = process.env.REACT_APP_VERSION || 'dev'
+import packageJson from '../package.json';
+
+const version = packageJson.version;
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const trigger = useScrollTrigger();

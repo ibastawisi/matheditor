@@ -11,7 +11,7 @@ export interface Announcement {
   message: string;
   action?: {
     label: string
-    onClick: () => void
+    onClick: string
   }
   timeout?: number
 }
@@ -22,7 +22,8 @@ function Announcer() {
 
   const handleClose = () => dispatch(actions.app.clearAnnouncement());
   const handleClick = () => {
-    announcement?.action && announcement?.action.onClick()
+    // eslint-disable-next-line no-eval
+    announcement?.action && eval(announcement?.action.onClick);
     dispatch(actions.app.clearAnnouncement());
   }
 
