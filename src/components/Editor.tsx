@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { default as React, useEffect, useRef } from 'react';
-import EditorJS, { LogLevels, OutputData } from '@editorjs/editorjs';
+import EditorJS, { LogLevels } from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import Paragraph from 'editorjs-paragraph-with-alignment';
 import ImageTool from '@editorjs/image';
@@ -14,21 +14,21 @@ import Underline from '@editorjs/underline';
 import List from '@editorjs/list';
 import DragDrop from 'editorjs-drag-drop';
 import MathTool from './MathTool';
-import useLocalStorage from './hooks/useLocalStorage';
-import { useSelector } from 'react-redux';
-import { RootState } from './store';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../store';
+import { actions } from '../slices';
+import Box from '@mui/material/Box';
+import { EditorDocument } from '../slices/app';
 
 declare global {
   interface Window { editor: EditorJS; }
 }
 
 const EDITTOR_HOLDER_ID = 'editorjs';
-const newDocumentData = () => ({ time:  new Date().getTime(), blocks: [{ type: "header", data: { text: "Untitled Document", level: 2 } }] });
 
-const Editor: React.FC = () => {
-  const document = useSelector((state: RootState) => state.app.document);
-  const [editorData, setEditorData] = useLocalStorage<OutputData>(document.id, newDocumentData());
+const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
   const ejInstance = useRef<EditorJS | null>();
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     if (!ejInstance.current) {
@@ -44,7 +44,7 @@ const Editor: React.FC = () => {
     const editor = new EditorJS({
       holder: EDITTOR_HOLDER_ID,
       logLevel: 'ERROR' as LogLevels.ERROR,
-      data: editorData,
+      data: document.data,
       onReady: () => {
         ejInstance.current = editor;
         window.editor = editor;
@@ -52,7 +52,7 @@ const Editor: React.FC = () => {
       },
       onChange: async () => {
         let content = await editor.saver.save();
-        setEditorData(content);
+        dispatch(actions.app.saveDocument(content));
       },
       tools: {
         header: Header,
@@ -71,12 +71,12 @@ const Editor: React.FC = () => {
               uploadByFile(file: File) {
                 return new Promise((resolve, reject) => {
                   const reader = new FileReader();
-                  reader.onload = () => { resolve({ success: 1, file: { url: reader.result as string, } });};
+                  reader.onload = () => { resolve({ success: 1, file: { url: reader.result as string, } }); };
                   reader.readAsDataURL(file);
                 });
               },
               uploadByUrl(url: string) {
-                return new Promise((resolve, reject) => { resolve({ success: 1, file: { url } });});
+                return new Promise((resolve, reject) => { resolve({ success: 1, file: { url } }); });
               }
             },
           }
@@ -103,9 +103,9 @@ const Editor: React.FC = () => {
   };
 
   return (
-    <React.Fragment>
+    <Box className="editor-wrapper">
       <div id={EDITTOR_HOLDER_ID}> </div>
-    </React.Fragment>
+    </Box>
   );
 }
 

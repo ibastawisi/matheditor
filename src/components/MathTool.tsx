@@ -37,7 +37,7 @@ export default class MathTool implements BlockTool {
   constructor({ data, config, api, readOnly }: BlockToolConstructorOptions) {
     this.api = api;
     this.readOnly = readOnly;
-    this.data = data;
+    this.data = {...data};
     this.mathfield = new MathfieldElement();
   }
 
@@ -55,12 +55,6 @@ export default class MathTool implements BlockTool {
     this.mathfield.keypressSound = "none";
     this.mathfield.plonkSound = "none";
     return this.mathfield;
-  }
-
-  rendered() {
-    setTimeout(() => {
-      this.mathfield.focus();
-    }, 50);
   }
 
   save() {
