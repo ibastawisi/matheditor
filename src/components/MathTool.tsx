@@ -37,27 +37,32 @@ export default class MathTool implements BlockTool {
   constructor({ data, config, api, readOnly }: BlockToolConstructorOptions) {
     this.api = api;
     this.readOnly = readOnly;
-    this.data = {...data};
+    this.data = data;
     this.mathfield = new MathfieldElement();
   }
 
-  onInput = (event: any) => {
-    this.data.value = event.currentTarget.value;
-  }
 
   render() {
+    this.mathfield.contentEditable = "true";
     this.mathfield.virtualKeyboardMode = "onfocus";
     this.mathfield.virtualKeyboardTheme = "apple";
+    // eslint-disable-next-line no-useless-escape
+    this.mathfield.mathModeSpace = "\\,"
     this.mathfield.readOnly = this.readOnly;
     this.mathfield.value = this.data.value;
-    this.mathfield.oninput = this.onInput;
     this.mathfield.smartMode = true;
     this.mathfield.keypressSound = "none";
     this.mathfield.plonkSound = "none";
+    this.mathfield.addEventListener('mount', this.mathfield.focus);
     return this.mathfield;
   }
 
+  rendered() {
+    setTimeout(() => {
+      this.mathfield.removeAttribute("contenteditable");
+    }, 0);
+  }
   save() {
-    return this.data;
+    return { value: this.mathfield.value };
   }
 }

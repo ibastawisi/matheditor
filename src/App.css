@@ -23,6 +23,10 @@
 }
 
 @media print {
+  * {
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+  }
   .editor-container {
     margin-top: 0;
   }
