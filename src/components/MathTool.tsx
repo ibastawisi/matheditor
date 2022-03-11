@@ -38,9 +38,10 @@ export default class MathTool implements BlockTool {
     this.api = api;
     this.readOnly = readOnly;
     this.data = data;
+    this.config = config;
+    this.block = api.blocks.getBlockByIndex(api.blocks.getCurrentBlockIndex()) as BlockAPI;
     this.mathfield = new MathfieldElement();
   }
-
 
   render() {
     this.mathfield.contentEditable = "true";
@@ -50,6 +51,7 @@ export default class MathTool implements BlockTool {
     this.mathfield.mathModeSpace = "\\,"
     this.mathfield.readOnly = this.readOnly;
     this.mathfield.value = this.data.value;
+    this.mathfield.oninput = this.block!.dispatchChange;
     this.mathfield.smartMode = true;
     this.mathfield.keypressSound = "none";
     this.mathfield.plonkSound = "none";
@@ -62,7 +64,9 @@ export default class MathTool implements BlockTool {
       this.mathfield.removeAttribute("contenteditable");
     }, 0);
   }
+
   save() {
     return { value: this.mathfield.value };
   }
+
 }

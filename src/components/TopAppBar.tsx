@@ -7,7 +7,6 @@ import PrintIcon from '@mui/icons-material/Print';
 import Fab from '@mui/material/Fab';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import NewIcon from '@mui/icons-material/AddCircle';
-import SaveIcon from '@mui/icons-material/Save';
 import ShareIcon from '@mui/icons-material/Share';
 import OpenIcon from '@mui/icons-material/FolderOpen';
 import Zoom from '@mui/material/Zoom';
@@ -16,9 +15,9 @@ import Logo from '../logo.png';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { actions } from '../slices';
-import { AppDispatch, RootState } from '../store';
+import { AppDispatch } from '../store';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const trigger = useScrollTrigger();
@@ -58,15 +57,8 @@ function ScrollTop({ children }: { children: React.ReactElement }) {
 
 const TopAppBar: React.FC<{}> = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const document = useSelector((state: RootState) => state.app.document);
   const location = useLocation();
   
-  async function saveToLocalStorage() {
-    const data = await window.editor.save();
-    dispatch(actions.app.saveDocument(data));
-    window.localStorage.setItem(document.id, JSON.stringify({ ...document, data }));
-  }
-
   const copyLink = () => {
     const document = window.localStorage.getItem("document");
     const href = window.location.href;
@@ -75,7 +67,6 @@ const TopAppBar: React.FC<{}> = () => {
       dispatch(actions.app.announce({ message: "Link copied to clipboard" }));
     }
   };
-
 
   return (
     <>
@@ -97,9 +88,7 @@ const TopAppBar: React.FC<{}> = () => {
               <OpenIcon />
             </IconButton>
             {location.pathname.startsWith("/edit") && <>
-              <IconButton size="large" aria-label="Save" color="inherit" onClick={saveToLocalStorage}>
-                <SaveIcon />
-              </IconButton>
+
               <IconButton size="large" aria-label="Share" color="inherit" onClick={copyLink}>
                 <ShareIcon />
               </IconButton>
