@@ -18,6 +18,7 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { actions } from '../slices';
 import { AppDispatch } from '../store';
+import JSONCrush from "jsoncrush";
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const trigger = useScrollTrigger();
@@ -63,7 +64,7 @@ const TopAppBar: React.FC<{}> = () => {
     const document = window.localStorage.getItem("document");
     const href = window.location.href;
     if (document) {
-      navigator.clipboard.writeText(href.substring(0, href.lastIndexOf('/') + 1) + encodeURIComponent(document));
+      navigator.clipboard.writeText(href.substring(0, href.lastIndexOf('/') + 1) + encodeURIComponent(JSONCrush.crush(document)));
       dispatch(actions.app.announce({ message: "Link copied to clipboard" }));
     }
   };

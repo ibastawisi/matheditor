@@ -7,6 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Editor from "./Editor";
 import CircularProgress from "@mui/material/CircularProgress";
 import { validate } from "uuid";
+import JSONCrush from "jsoncrush";
 
 const EditDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -31,7 +32,7 @@ const EditDocument: React.FC = () => {
       } else {
         try {
           // parse document from url
-          const document = JSON.parse(params.id);
+          const document = JSON.parse(JSONCrush.uncrush(params.id));
           if (document.id) {
             window.localStorage.setItem(document.id, JSON.stringify(document));
             dispatch(actions.app.loadDocument(document));
