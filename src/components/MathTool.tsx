@@ -56,6 +56,13 @@ export default class MathTool implements BlockTool {
     this.mathfield.keypressSound = "none";
     this.mathfield.plonkSound = "none";
     this.mathfield.addEventListener('mount', this.mathfield.focus);
+    this.mathfield.addEventListener('keystroke', e => e.detail.keystroke === '[Enter]' && this.api.blocks.insert("math"));
+    this.mathfield.addEventListener('focus-out', (e) => {
+      if (e.detail.direction === 'forward' && !this.mathfield.closest('.ce-block')!.nextElementSibling) {
+        e.preventDefault();
+        this.api.blocks.insert("math");
+      }
+    });
     return this.mathfield;
   }
 
