@@ -1,11 +1,11 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
+import { RootState } from "../store";
 
 const Home: React.FC = () => {
-  const storedDocument = window.localStorage.getItem("document");
-  const documentId = storedDocument && JSON.parse(storedDocument)?.id;
-
-  return  <Navigate to={documentId?`/edit/${documentId}`: "/new"} />;
+  const editor = useSelector((state: RootState) => state.app.editor);
+  return  <Navigate to={editor?`/edit/${editor.id}`: "/new"} />;
 };
 
 export default Home;

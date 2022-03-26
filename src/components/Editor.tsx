@@ -45,7 +45,6 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
       holder: EDITTOR_HOLDER_ID,
       logLevel: 'ERROR' as LogLevels.ERROR,
       data: document.data,
-      defaultBlock: "math",
       onReady: () => {
         ejInstance.current = editor;
         window.editor = editor;
@@ -53,7 +52,8 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
       },
       onChange: async () => {
         let content = await editor.saver.save();
-        dispatch(actions.app.saveDocument(content));
+        const isChanged = JSON.stringify(content.blocks) !== JSON.stringify(document.data.blocks);
+        isChanged && dispatch(actions.app.saveDocument(content));
       },
       tools: {
         header: Header,

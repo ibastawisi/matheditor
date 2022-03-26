@@ -7,6 +7,7 @@ import PrintIcon from '@mui/icons-material/Print';
 import Fab from '@mui/material/Fab';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import NewIcon from '@mui/icons-material/AddCircle';
+import DownloadIcon from '@mui/icons-material/Download';
 import ShareIcon from '@mui/icons-material/Share';
 import OpenIcon from '@mui/icons-material/FolderOpen';
 import Zoom from '@mui/material/Zoom';
@@ -15,9 +16,9 @@ import Logo from '../logo.png';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { actions } from '../slices';
-import { AppDispatch } from '../store';
+import { AppDispatch, RootState } from '../store';
 import JSONCrush from "jsoncrush";
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
@@ -59,14 +60,32 @@ function ScrollTop({ children }: { children: React.ReactElement }) {
 const TopAppBar: React.FC<{}> = () => {
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
-  
-  const copyLink = () => {
-    const document = window.localStorage.getItem("document");
-    const href = window.location.href;
-    if (document) {
-      navigator.clipboard.writeText(href.substring(0, href.lastIndexOf('/') + 1) + encodeURIComponent(JSONCrush.crush(document)));
+  const document = useSelector((state: RootState) => state.app.editor);
+
+  const handleShare = () => {
+    dispatch(actions.app.announce({ message: "Generating sharable link" }));
+    setTimeout(() => {
+      navigator.clipboard.writeText(window.location.origin + "/edit/" + encodeURIComponent(JSONCrush.crush(JSON.stringify(document))));
       dispatch(actions.app.announce({ message: "Link copied to clipboard" }));
-    }
+    }, 0);
+  };
+
+  const handleSave = () => {
+    const blob = new Blob([JSON.stringify(document)], { type: "text/json" });
+    const link = window.document.createElement("a");
+
+    link.download = document.name + ".json";
+    link.href = window.URL.createObjectURL(blob);
+    link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
+
+    const evt = new MouseEvent("click", {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    });
+
+    link.dispatchEvent(evt);
+    link.remove()
   };
 
   return (
@@ -82,18 +101,20 @@ const TopAppBar: React.FC<{}> = () => {
             </Link>
 
             <Box sx={{ flexGrow: 1 }} />
-            <IconButton size="large" aria-label="New" color="inherit" component={RouterLink} to="/new">
+            <IconButton size="medium" aria-label="New" color="inherit" component={RouterLink} to="/new">
               <NewIcon />
             </IconButton>
-            <IconButton size="large" aria-label="Load" color="inherit" component={RouterLink} to="/open">
+            <IconButton size="medium" aria-label="Load" color="inherit" component={RouterLink} to="/open">
               <OpenIcon />
             </IconButton>
             {location.pathname.startsWith("/edit") && <>
-
-              <IconButton size="large" aria-label="Share" color="inherit" onClick={copyLink}>
+              <IconButton size="medium" aria-label="Download" color="inherit" onClick={handleSave}>
+                <DownloadIcon />
+              </IconButton>
+              <IconButton size="medium" aria-label="Share" color="inherit" onClick={handleShare}>
                 <ShareIcon />
               </IconButton>
-              <IconButton size="large" aria-label="Print" color="inherit" onClick={window.print}>
+              <IconButton size="medium" aria-label="Print" color="inherit" onClick={window.print}>
                 <PrintIcon />
               </IconButton>
             </>}
@@ -102,7 +123,7 @@ const TopAppBar: React.FC<{}> = () => {
       </HideOnScroll>
       <Toolbar id="back-to-top-anchor" sx={{ displayPrint: "none" }} />
       <ScrollTop>
-        <Fab color="secondary" size="small" aria-label="scroll back to top">
+        <Fab color="secondary" size="small" aria-label="scroll back to top" sx={{ displayPrint: "none" }}>
           <KeyboardArrowUpIcon />
         </Fab>
       </ScrollTop>

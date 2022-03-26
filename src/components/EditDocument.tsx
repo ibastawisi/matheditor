@@ -11,12 +11,13 @@ import JSONCrush from "jsoncrush";
 
 const EditDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const document = useSelector((state: RootState) => state.app.document);
+  const document = useSelector((state: RootState) => state.app.editor);
   const params = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (params.id) {
+      if (document.id === params.id) return;
       if (validate(params.id)) {
         try {
           // load from local storage

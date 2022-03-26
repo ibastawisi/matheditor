@@ -1,0 +1,81 @@
+import * as React from 'react';
+import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
+import CardActions from '@mui/material/CardActions';
+import Avatar from '@mui/material/Avatar';
+import { red } from '@mui/material/colors';
+import { Link as RouterLink } from 'react-router-dom';
+import { EditorDocument } from '../slices/app';
+import ArticleIcon from '@mui/icons-material/Article';
+import Button from '@mui/material/Button';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { AppDispatch } from '../store';
+import JSONCrush from 'jsoncrush';
+import { useDispatch } from 'react-redux';
+import { actions } from '../slices';
+import IconButton from '@mui/material/IconButton';
+import DownloadIcon from '@mui/icons-material/Download';
+import ShareIcon from '@mui/icons-material/Share';
+import { DeleteForever } from '@mui/icons-material';
+
+
+const DocumentCard: React.FC<{ document: EditorDocument }> = ({ document }) => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleShare = () => {
+    dispatch(actions.app.announce({ message: "Generating sharable link" }));
+    setTimeout(() => {
+      navigator.clipboard.writeText(window.location.origin + "/edit/" + encodeURIComponent(JSONCrush.crush(JSON.stringify(document))));
+      dispatch(actions.app.announce({ message: "Link copied to clipboard" }));
+    }, 0);
+  };
+
+  const handleDelete = () => {
+    window.confirm("Are you sure you want to delete this document?") && dispatch(actions.app.deleteDocument(document.id));
+  };
+
+  const handleSave = () => {
+    const blob = new Blob([JSON.stringify(document)], { type: "text/json" });
+    const link = window.document.createElement("a");
+
+    link.download = document.name + ".json";
+    link.href = window.URL.createObjectURL(blob);
+    link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
+
+    const evt = new MouseEvent("click", {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    });
+
+    link.dispatchEvent(evt);
+    link.remove()
+  };
+
+  return (
+    <Card variant="outlined">
+      <CardHeader
+        avatar={
+          <Avatar sx={{ bgcolor: red[500] }}><ArticleIcon /></Avatar>
+        }
+        action={<Button startIcon={<OpenInNewIcon />} component={RouterLink} to={`/edit/${document.id}`}>Open</Button>}
+        title={document.name}
+        subheader={document.timestamp && new Date(document.timestamp).toLocaleString()}
+      />
+      <CardActions>
+        <Button size="small" startIcon={<DeleteForever color="error" />} onClick={handleDelete}>
+          Delete
+        </Button>
+        <IconButton size="medium" aria-label="Download" sx={{ ml: "auto !important" }} color="inherit" onClick={handleSave}>
+          <DownloadIcon />
+        </IconButton>
+        <IconButton size="medium" aria-label="Share" color="inherit" onClick={handleShare}>
+          <ShareIcon />
+        </IconButton>
+
+      </CardActions>
+    </Card>
+  );
+}
+
+export default DocumentCard;

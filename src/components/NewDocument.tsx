@@ -9,6 +9,7 @@ import TextField from '@mui/material/TextField';
 import ArticleIcon from '@mui/icons-material/Article';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import { EditorDocument } from "../slices/app";
 
 const NewDocument: React.FC<{}> = () => {
   const navigate = useNavigate();
@@ -18,10 +19,11 @@ const NewDocument: React.FC<{}> = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const document = {
+    const document: EditorDocument = {
       id: uuidv4(),
       name: formData.get('fileName') as string,
       data: newDocumentData(),
+      timestamp: new Date().getTime(),
     }
     window.localStorage.setItem(document.id, JSON.stringify(document));
     navigate(`/edit/${document.id}`);

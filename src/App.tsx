@@ -12,11 +12,23 @@ import Home from './components/Home';
 import NewDocument from './components/NewDocument';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import EditDocument from './components/EditDocument';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from './store';
+import { actions } from './slices';
+import SplashScreen from './components/SplachScreen';
 
 const theme = createTheme();
 
 function App() {
-  return (
+  const dispatch = useDispatch<AppDispatch>();
+  const isLoading = useSelector((state: RootState) => state.app.ui.isLoading);
+
+  useEffect(() => {
+    dispatch(actions.app.load());
+  }, []);
+
+  return isLoading ? <SplashScreen /> : (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <TopAppBar />
