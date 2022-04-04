@@ -19,6 +19,7 @@ import { AppDispatch } from '../store';
 import { actions } from '../slices';
 import Box from '@mui/material/Box';
 import { EditorDocument } from '../slices/app';
+import Compressor from 'compressorjs';
 
 declare global {
   interface Window { editor: EditorJS; }
@@ -63,17 +64,24 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
         },
         Marker: {
           class: Marker,
-          shortcut: 'CMD+SHIFT+H',
+          shortcut: 'CMD+H',
         },
         image: {
           class: ImageTool,
+          inlineToolbar: true,
           config: {
             uploader: {
               uploadByFile(file: File) {
                 return new Promise((resolve, reject) => {
                   const reader = new FileReader();
                   reader.onload = () => { resolve({ success: 1, file: { url: reader.result as string, } }); };
-                  reader.readAsDataURL(file);
+                  new Compressor(file, {
+                    quality: 0.2,
+                    mimeType: 'image/jpeg',
+                    success: (result) => {
+                      reader.readAsDataURL(result);
+                    },
+                  });
                 });
               },
               uploadByUrl(url: string) {
@@ -84,7 +92,7 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
         },
         math: {
           class: MathTool as any,
-          shortcut: 'CMD+SHIFT+3',
+          shortcut: 'CMD+3',
         },
         alert: Alert,
         delimiter: Delimiter,
