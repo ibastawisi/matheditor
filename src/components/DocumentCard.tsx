@@ -10,7 +10,6 @@ import ArticleIcon from '@mui/icons-material/Article';
 import Button from '@mui/material/Button';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { AppDispatch } from '../store';
-import JSONCrush from 'jsoncrush';
 import { useDispatch } from 'react-redux';
 import { actions } from '../slices';
 import IconButton from '@mui/material/IconButton';
@@ -18,16 +17,23 @@ import DownloadIcon from '@mui/icons-material/Download';
 import ShareIcon from '@mui/icons-material/Share';
 import { DeleteForever } from '@mui/icons-material';
 
+import * as Service from '../services';
 
 const DocumentCard: React.FC<{ document: EditorDocument }> = ({ document }) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const handleShare = () => {
-    dispatch(actions.app.announce({ message: "Generating sharable link" }));
-    setTimeout(() => {
-      navigator.clipboard.writeText(window.location.origin + "/edit/" + encodeURIComponent(JSONCrush.crush(JSON.stringify(document))));
+  const handleShare = async () => {
+    await Service.post(document.id, JSON.stringify(document));
+    const shareData = {
+      title: document.name,
+      url: window.location.origin + "/new/" + document.id
+    }
+    try {
+      await navigator.share(shareData)
+    } catch (err) {
+      navigator.clipboard.writeText(shareData.url);
       dispatch(actions.app.announce({ message: "Link copied to clipboard" }));
-    }, 0);
+    }
   };
 
   const handleDelete = () => {

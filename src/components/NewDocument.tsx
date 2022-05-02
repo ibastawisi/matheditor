@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import { v4 as uuidv4 } from "uuid";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import TextField from '@mui/material/TextField';
@@ -10,9 +10,43 @@ import ArticleIcon from '@mui/icons-material/Article';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { EditorDocument } from "../slices/app";
+import { useDispatch } from "react-redux";
+import { actions } from "../slices";
+import { AppDispatch } from "../store";
+import * as Service from '../services';
+import { useEffect } from "react";
+import SplashScreen from "./SplachScreen";
 
-const NewDocument: React.FC<{}> = () => {
+const NewDocument: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const params = useParams<{ id: string }>();
+
+  useEffect(() => {
+    if (params.id) {
+      (async () => {
+        const document = await Service.get(params.id!);
+        if (document) {
+          try {
+            document.id = uuidv4();
+            document.timestamp = Date.now();
+            window.localStorage.setItem(document.id, JSON.stringify(document));
+            dispatch(actions.app.loadDocument(document));
+            navigate(`/edit/${document.id}`);
+          } catch (error) {
+            dispatch(actions.app.announce({ message: "Invalid document data" }));
+          }
+        } else {
+          dispatch(actions.app.announce({ message: "No document with this id was found" }));
+        }
+      })();
+
+    } else {
+      navigate("/new");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.id]);
+
 
   const newDocumentData = () => ({ time: new Date().getTime(), blocks: [{ type: "header", data: { text: "Untitled Document", level: 2 } }] });
 
@@ -28,6 +62,10 @@ const NewDocument: React.FC<{}> = () => {
     window.localStorage.setItem(document.id, JSON.stringify(document));
     navigate(`/edit/${document.id}`);
   };
+
+  if (params.id) {
+    return <SplashScreen title="Loading Document" />
+  }
 
   return (
     <Container maxWidth="xs">

@@ -7,7 +7,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import Editor from "./Editor";
 import CircularProgress from "@mui/material/CircularProgress";
 import { validate } from "uuid";
-import JSONCrush from "jsoncrush";
 
 const EditDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -31,20 +30,10 @@ const EditDocument: React.FC = () => {
           dispatch(actions.app.announce({ message: "Invalid document data" }));
         }
       } else {
-        try {
-          // parse document from url
-          const document = JSON.parse(JSONCrush.uncrush(params.id));
-          if (document.id) {
-            window.localStorage.setItem(document.id, JSON.stringify(document));
-            dispatch(actions.app.loadDocument(document));
-            navigate(`/edit/${document.id}`);
-          }
-        } catch (error) {
-          dispatch(actions.app.announce({ message: "Invalid document data" }));
-        }
+        dispatch(actions.app.announce({ message: "Document id is malformatted!" }));
+        navigate("/open");
       }
     } else {
-      // create new document
       navigate("/new");
     }
 

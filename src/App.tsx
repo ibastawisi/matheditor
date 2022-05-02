@@ -35,7 +35,9 @@ function App() {
       <Container className='editor-container'>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/new" element={<NewDocument />} />
+          <Route path="/new" element={<NewDocument />}>
+            <Route path=":id" element={<NewDocument />} />
+          </Route>
           <Route path="/edit" element={<EditDocument />} >
             <Route path=":id" element={<EditDocument />} />
           </Route>

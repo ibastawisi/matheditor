@@ -19,7 +19,8 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { actions } from '../slices';
 import { AppDispatch, RootState } from '../store';
-import JSONCrush from "jsoncrush";
+
+import * as Service from '../services';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const trigger = useScrollTrigger();
@@ -63,9 +64,10 @@ const TopAppBar: React.FC<{}> = () => {
   const document = useSelector((state: RootState) => state.app.editor);
 
   const handleShare = async () => {
+    await Service.post(document.id, JSON.stringify(document));
     const shareData = {
       title: document.name,
-      url: window.location.origin + "/edit/" + encodeURIComponent(JSONCrush.crush(JSON.stringify(document)))
+      url: window.location.origin + "/new/" + document.id
     }
     try {
       await navigator.share(shareData)
