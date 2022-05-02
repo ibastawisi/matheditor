@@ -62,12 +62,17 @@ const TopAppBar: React.FC<{}> = () => {
   const location = useLocation();
   const document = useSelector((state: RootState) => state.app.editor);
 
-  const handleShare = () => {
-    dispatch(actions.app.announce({ message: "Generating sharable link" }));
-    setTimeout(() => {
-      navigator.clipboard.writeText(window.location.origin + "/edit/" + encodeURIComponent(JSONCrush.crush(JSON.stringify(document))));
+  const handleShare = async () => {
+    const shareData = {
+      title: document.name,
+      url: window.location.origin + "/edit/" + encodeURIComponent(JSONCrush.crush(JSON.stringify(document)))
+    }
+    try {
+      await navigator.share(shareData)
+    } catch (err) {
+      navigator.clipboard.writeText(shareData.url);
       dispatch(actions.app.announce({ message: "Link copied to clipboard" }));
-    }, 0);
+    }
   };
 
   const handleSave = () => {
