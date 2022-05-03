@@ -3,7 +3,6 @@ import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import CardActions from '@mui/material/CardActions';
 import Avatar from '@mui/material/Avatar';
-import { red } from '@mui/material/colors';
 import { Link as RouterLink } from 'react-router-dom';
 import { EditorDocument } from '../slices/app';
 import ArticleIcon from '@mui/icons-material/Article';
@@ -62,7 +61,7 @@ const DocumentCard: React.FC<{ document: EditorDocument }> = ({ document }) => {
     <Card variant="outlined">
       <CardHeader
         avatar={
-          <Avatar sx={{ bgcolor: red[500] }}><ArticleIcon /></Avatar>
+          <Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>
         }
         action={<Button startIcon={<OpenInNewIcon />} component={RouterLink} to={`/edit/${document.id}`}>Open</Button>}
         title={document.name}

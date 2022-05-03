@@ -40,21 +40,25 @@ const Documents: React.FC = () => {
   }
   return (
     <Box>
-      <Typography variant="h6" component="h2" sx={{ my: 2 }}>
-        Load from Local Storage
-      </Typography>
-      <Grid container spacing={2}>
-        {documents.map(key => <Grid item key={key} xs={12} sm={6} md={4}>
-          <DocumentCard document={JSON.parse(localStorage.getItem(key) || "")} />
-        </Grid>)}
-      </Grid>
-      <Typography variant="h6" component="h2" sx={{ my: 2 }}>
-        Load from File
-      </Typography>
-      <Button variant="outlined" startIcon={<UploadFileIcon />} component="label">
-        Upload a file
-        <input type="file" hidden accept=".json" onChange={handleFilesChange} />
-      </Button>
+      {documents.length > 0 && <>
+        <Typography variant="h6" component="h2" sx={{ my: 2 , textAlign: 'center' }}>
+          Load from Local Storage
+        </Typography>
+        <Grid container spacing={2}>
+          {documents.map(key => <Grid item key={key} xs={12} sm={6} md={4}>
+            <DocumentCard document={JSON.parse(localStorage.getItem(key) || "")} />
+          </Grid>)}
+        </Grid>
+      </>}
+      <Box sx={{ textAlign: 'center', mt: 5 }}>
+        <Typography variant="h6" component="h2" sx={{ my: 2 }}>
+          Load from File
+        </Typography>
+        <Button variant="outlined" startIcon={<UploadFileIcon />} component="label">
+          Upload a file
+          <input type="file" hidden accept=".json" onChange={handleFilesChange} />
+        </Button>        
+      </Box>
     </Box>
   )
 }
