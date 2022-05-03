@@ -1,0 +1,6 @@
+[{
+        "relation": ["delegate_permission/common.handle_all_urls"],
+        "target" : { "namespace": "android_app", "package_name": "ml.matheditor.twa",
+                     "sha256_cert_fingerprints": ["C0:AA:DD:47:5C:B3:FD:F6:EA:E3:26:31:CF:1B:13:38:41:F4:D7:95:3D:7A:D1:A2:E1:52:7F:6F:07:83:11:C5"] }
+      }
+]
