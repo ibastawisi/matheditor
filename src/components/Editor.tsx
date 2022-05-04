@@ -111,11 +111,7 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
     });
   };
 
-  return (
-    <Box className="editor-wrapper">
-      <div id={EDITTOR_HOLDER_ID}> </div>
-    </Box>
-  );
+  return <Box className="editor-wrapper" id={EDITTOR_HOLDER_ID} />
 }
 
 export default Editor;

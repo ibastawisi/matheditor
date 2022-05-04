@@ -64,7 +64,13 @@ const TopAppBar: React.FC<{}> = () => {
   const document = useSelector((state: RootState) => state.app.editor);
 
   const handleShare = async () => {
-    await Service.post(document.id, JSON.stringify(document));
+    dispatch(actions.app.announce({ message: "Generating sharable link" }));
+    try {
+      await Service.post(document.id, JSON.stringify(document));
+    } catch (e) {
+      dispatch(actions.app.announce({ message: "Failed to generate sharable link" }));
+      return;
+    }
     const shareData = {
       title: document.name,
       url: window.location.origin + "/new/" + document.id
