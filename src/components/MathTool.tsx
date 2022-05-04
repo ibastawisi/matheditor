@@ -48,7 +48,7 @@ export default class MathTool implements BlockTool {
   render() {
     this.mathfield.contentEditable = "true";
     this.mathfield.virtualKeyboardMode = "onfocus";
-    this.mathfield.virtualKeyboardTheme = "apple";
+    this.mathfield.virtualKeyboardTheme = "material";
     // eslint-disable-next-line no-useless-escape
     this.mathfield.mathModeSpace = "\\,"
     this.mathfield.readOnly = this.readOnly;

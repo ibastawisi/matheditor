@@ -81,3 +81,16 @@ math-field:focus-within {
     filter: invert(95%);
   }
 }
+
+/* mathlive virtula keyboard styles */
+@media (prefers-color-scheme: light) {
+  div.ML__keyboard.material {
+    --keycap-background: #fff !important;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  div.ML__keyboard.material {
+    --keycap-background-active: #f0f0f0 !important;
+  }
+}
