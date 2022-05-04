@@ -74,7 +74,7 @@ math-field:focus-within {
 /* editorjs dark theme fixes */
 @media (prefers-color-scheme: dark) {
   .ce-block--selected .ce-block__content {
-    background: rgba(222, 240, 255, 0.5)
+    background: #607D8B;
   }
 
   .ce-toolbar {
@@ -85,12 +85,20 @@ math-field:focus-within {
 /* mathlive virtula keyboard styles */
 @media (prefers-color-scheme: light) {
   div.ML__keyboard.material {
-    --keycap-background: #fff !important;
+    --keycap-background: #FFF !important;
   }
 }
 
 @media (prefers-color-scheme: dark) {
   div.ML__keyboard.material {
-    --keycap-background-active: #f0f0f0 !important;
+    --keycap-background-active: #FAFAFA !important;
   }
+
+  math-field {
+    --highlight: #455A64;
+    --contains-highlight: #263238;
+  }
+  ::selection {
+    background-color: #455A64;
+}
 }
