@@ -18,6 +18,22 @@
       "sizes": "512x512"
     }
   ],
+  "file_handlers": [
+    {
+      "action": "/open",
+      "accept": {
+        "application/json": [".json"]
+      },
+      "icons": [
+        {
+          "src": "json-file.png",
+          "sizes": "256x256",
+          "type": "image/png"
+        }
+      ],
+      "launch_type": "single-client"
+    }
+  ],
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#121212",

@@ -15,33 +15,54 @@ const Documents: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
+  React.useEffect(() => {
+    if ("launchQueue" in window && "LaunchParams" in window) {
+      (window as any).launchQueue.setConsumer(
+        async (launchParams: { files: any[] }) => {
+          if (!launchParams.files.length) {
+            return;
+          }
+          const fileHandle = launchParams.files[0];
+          const blob: Blob = await fileHandle.getFile();
+          loadFromBlob(blob);
+        },
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-
     if (files) {
-      const file = files[0];
-      const reader = new FileReader();
-      reader.readAsText(file);
-      reader.onload = () => {
-        const content = reader.result as string;
-        try {
-          // parse document from url
-          const document = JSON.parse(content);
-          if (document.id) {
-            window.localStorage.setItem(document.id, JSON.stringify(document));
-            dispatch(actions.app.loadDocument(document));
-            navigate(`/edit/${document.id}`);
-          }
-        } catch (error) {
-          dispatch(actions.app.announce({ message: "Invalid document data" }));
-        }
-      };
+      loadFromBlob(files[0]);
     }
   }
+
+  function loadFromBlob(blob: Blob) {
+    const file = blob;
+    const reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = () => {
+      const content = reader.result as string;
+      try {
+        const document = JSON.parse(content);
+        if (document.id) {
+          window.localStorage.setItem(document.id, JSON.stringify(document));
+          dispatch(actions.app.loadDocument(document));
+          navigate(`/edit/${document.id}`);
+        } else {
+          dispatch(actions.app.announce({ message: "Invalid document data" }));
+        }
+      } catch (error) {
+        dispatch(actions.app.announce({ message: "Invalid document data" }));
+      }
+    };
+  }
+
   return (
     <Box>
       {documents.length > 0 && <>
-        <Typography variant="h6" component="h2" sx={{ my: 2 , textAlign: 'center' }}>
+        <Typography variant="h6" component="h2" sx={{ my: 2, textAlign: 'center' }}>
           Load from Local Storage
         </Typography>
         <Grid container spacing={2}>
@@ -57,7 +78,7 @@ const Documents: React.FC = () => {
         <Button variant="outlined" startIcon={<UploadFileIcon />} component="label">
           Upload a file
           <input type="file" hidden accept=".json" onChange={handleFilesChange} />
-        </Button>        
+        </Button>
       </Box>
     </Box>
   )
