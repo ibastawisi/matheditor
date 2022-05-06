@@ -2,7 +2,7 @@
 import { default as React, useEffect, useRef } from 'react';
 import EditorJS, { LogLevels } from '@editorjs/editorjs';
 import Header from '@editorjs/header';
-import Paragraph from 'editorjs-paragraph-with-alignment';
+import Paragraph from '@editorjs/paragraph';
 import ImageTool from '@editorjs/image';
 import Alert from 'editorjs-alert';
 import Delimiter from '@editorjs/delimiter';
@@ -20,6 +20,7 @@ import { actions } from '../slices';
 import Box from '@mui/material/Box';
 import { EditorDocument } from '../slices/app';
 import Compressor from 'compressorjs';
+import AlignmentTuneTool from 'editorjs-text-alignment-blocktune';
 
 declare global {
   interface Window { editor: EditorJS; }
@@ -57,10 +58,15 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
         isChanged && dispatch(actions.app.saveDocument(content));
       },
       tools: {
-        header: Header,
+        header: {
+          class: Header,
+          inlineToolbar: true,
+          tunes: ['allignment'],
+        },
         paragraph: {
           class: Paragraph,
           inlineToolbar: true,
+          tunes: ['allignment'],
         },
         Marker: {
           class: Marker,
@@ -94,7 +100,10 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
           class: MathTool as any,
           shortcut: 'CMD+3',
         },
-        alert: Alert,
+        alert: {
+          class: Alert,
+          tunes: ['allignment'],
+        },
         delimiter: Delimiter,
         list: {
           class: List,
@@ -107,6 +116,15 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
           shortcut: 'CMD+SHIFT+C',
         },
         underline: Underline,
+        allignment: {
+          class:AlignmentTuneTool,
+          config:{
+            default: "left",
+            blocks: {
+              header: 'center',
+            }
+          },
+        }
       },
     });
   };

@@ -80,6 +80,11 @@ math-field:focus-within {
   .ce-toolbar {
     filter: invert(95%);
   }
+
+  .cdx-alert.cdx-settings-button,
+  .cdx-math.cdx-settings-button {
+    filter: invert(95%);
+  }
 }
 
 /* mathlive virtula keyboard styles */
@@ -98,7 +103,8 @@ math-field:focus-within {
     --highlight: #455A64;
     --contains-highlight: #263238;
   }
+
   ::selection {
     background-color: #455A64;
-}
+  }
 }

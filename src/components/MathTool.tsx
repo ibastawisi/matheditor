@@ -71,7 +71,7 @@ export default class MathTool implements BlockTool {
   renderSettings() {
     const holder = document.createElement('DIV');
     const computeButton = document.createElement('SPAN');
-    computeButton.classList.add(this.api.styles.settingsButton);
+    computeButton.classList.add("cdx-math", this.api.styles.settingsButton);
     computeButton.innerHTML = `<svg viewBox="0 0 20 20"><path d="M15.33 10l2.17-2.47-3.19-.71.33-3.29-3 1.33L10 2 8.35 4.86l-3-1.33.32 3.29-3.17.71L4.67 10 2.5 12.47l3.19.71-.33 3.29 3-1.33L10 18l1.65-2.86 3 1.33-.32-3.29 3.19-.71zm-2.83 1.5h-5v-1h5zm0-2h-5v-1h5z" fill="#f96932"></path></svg>`
     computeButton.addEventListener('click', () => {
       const value = this.mathfield.getValue(this.mathfield.selection) || this.mathfield.value;
