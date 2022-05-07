@@ -6,10 +6,10 @@ import IconButton from '@mui/material/IconButton';
 import PrintIcon from '@mui/icons-material/Print';
 import Fab from '@mui/material/Fab';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import NewIcon from '@mui/icons-material/AddCircle';
-import DownloadIcon from '@mui/icons-material/Download';
 import ShareIcon from '@mui/icons-material/Share';
 import OpenIcon from '@mui/icons-material/FolderOpen';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Zoom from '@mui/material/Zoom';
 import Link from '@mui/material/Link';
 import Logo from '../logo.png';
@@ -19,7 +19,9 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { actions } from '../slices';
 import { AppDispatch, RootState } from '../store';
-
+import { useContext } from 'react';
+import { ColorModeContext } from './ThemeProvider';
+import useTheme from '@mui/material/styles/useTheme';
 import * as Service from '../services';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
@@ -62,6 +64,8 @@ const TopAppBar: React.FC<{}> = () => {
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
   const document = useSelector((state: RootState) => state.app.editor);
+  const colorMode = useContext(ColorModeContext);
+  const theme = useTheme();
 
   const handleShare = async () => {
     dispatch(actions.app.announce({ message: "Generating sharable link" }));
@@ -112,22 +116,18 @@ const TopAppBar: React.FC<{}> = () => {
                 <Typography variant="h6" component="div" sx={{ marginInlineStart: 2, color: "white" }}>Math Editor</Typography>
               </Box>
             </Link>
-
             <Box sx={{ flexGrow: 1 }} />
-            <IconButton size="medium" aria-label="New" color="inherit" component={RouterLink} to="/new">
-              <NewIcon />
+            <IconButton onClick={colorMode.toggleColorMode} color="inherit">
+              {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
-            <IconButton size="medium" aria-label="Load" color="inherit" component={RouterLink} to="/open">
+            <IconButton aria-label="Load" color="inherit" component={RouterLink} to="/open">
               <OpenIcon />
             </IconButton>
             {location.pathname.startsWith("/edit") && <>
-              <IconButton size="medium" aria-label="Download" color="inherit" onClick={handleSave}>
-                <DownloadIcon />
-              </IconButton>
-              <IconButton size="medium" aria-label="Share" color="inherit" onClick={handleShare}>
+              <IconButton aria-label="Share" color="inherit" onClick={handleShare}>
                 <ShareIcon />
               </IconButton>
-              <IconButton size="medium" aria-label="Print" color="inherit" onClick={window.print}>
+              <IconButton aria-label="Print" color="inherit" onClick={window.print}>
                 <PrintIcon />
               </IconButton>
             </>}
