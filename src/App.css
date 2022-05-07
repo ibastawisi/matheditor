@@ -72,39 +72,33 @@ math-field:focus-within {
 }
 
 /* editorjs dark theme fixes */
-@media (prefers-color-scheme: dark) {
-  .ce-block--selected .ce-block__content {
-    background: #607D8B;
-  }
+[theme=dark] .ce-block--selected .ce-block__content {
+  background: #607D8B;
+}
 
-  .ce-toolbar {
-    filter: invert(95%);
-  }
+[theme=dark] .ce-toolbar {
+  filter: invert(95%);
+}
 
-  .cdx-alert.cdx-settings-button,
-  .cdx-math.cdx-settings-button {
-    filter: invert(95%);
-  }
+[theme=dark] .cdx-alert.cdx-settings-button,
+[theme=dark] .cdx-math.cdx-settings-button {
+  filter: invert(95%);
 }
 
 /* mathlive virtula keyboard styles */
-@media (prefers-color-scheme: light) {
-  div.ML__keyboard.material {
-    --keycap-background: #FFF !important;
-  }
+[theme=light] div.ML__keyboard.material {
+  --keycap-background: #FFF !important;
 }
 
-@media (prefers-color-scheme: dark) {
-  div.ML__keyboard.material {
-    --keycap-background-active: #FAFAFA !important;
-  }
+[theme=dark] div.ML__keyboard.material {
+  --keycap-background-active: #FAFAFA !important;
+}
 
-  math-field {
-    --highlight: #455A64;
-    --contains-highlight: #263238;
-  }
+[theme=dark] math-field {
+  --highlight: #455A64;
+  --contains-highlight: #263238;
+}
 
-  ::selection {
-    background-color: #455A64;
-  }
+[theme=dark] ::selection {
+  background-color: #455A64;
 }
