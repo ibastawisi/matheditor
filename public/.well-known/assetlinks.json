@@ -1,6 +1,15 @@
-[{
-        "relation": ["delegate_permission/common.handle_all_urls"],
-        "target" : { "namespace": "android_app", "package_name": "ml.matheditor.twa",
-                     "sha256_cert_fingerprints": ["C0:AA:DD:47:5C:B3:FD:F6:EA:E3:26:31:CF:1B:13:38:41:F4:D7:95:3D:7A:D1:A2:E1:52:7F:6F:07:83:11:C5"] }
+[
+      {
+            "relation": [
+                  "delegate_permission/common.handle_all_urls"
+            ],
+            "target": {
+                  "namespace": "android_app",
+                  "package_name": "ml.matheditor.twa",
+                  "sha256_cert_fingerprints": [
+                        "C0:AA:DD:47:5C:B3:FD:F6:EA:E3:26:31:CF:1B:13:38:41:F4:D7:95:3D:7A:D1:A2:E1:52:7F:6F:07:83:11:C5",
+                        "8B:35:A7:F6:FB:00:EA:E4:C9:C6:FD:4B:DD:66:C9:53:80:44:E9:9F:7C:59:9E:01:C8:7B:7D:42:22:8F:6C:4D"
+                  ]
+            }
       }
 ]
