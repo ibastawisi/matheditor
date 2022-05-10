@@ -5,8 +5,9 @@ import { actions } from "../slices";
 import { AppDispatch, RootState } from "../store";
 import { useNavigate, useParams } from "react-router-dom";
 import Editor from "./Editor";
-import CircularProgress from "@mui/material/CircularProgress";
+
 import { validate } from "uuid";
+import SplashScreen from "./SplachScreen";
 
 const EditDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -39,7 +40,7 @@ const EditDocument: React.FC = () => {
 
   }, []);
 
-  return document.id === params.id ? <Editor document={document} /> : <CircularProgress />;
+  return document.id === params.id ? <Editor document={document} /> : <SplashScreen title="oops 😕!" />;
 }
 
 export default EditDocument;

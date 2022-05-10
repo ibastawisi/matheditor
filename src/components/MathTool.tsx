@@ -39,7 +39,10 @@ export default class MathTool implements BlockTool {
     this.api = api;
     this.settingsButtons = [];
     this.readOnly = readOnly;
-    this.data = data;
+    this.data = {
+      value: data.value,
+      defaultMode: data.defaultMode || "math",
+    };
     this.config = config;
     this.block = api.blocks.getBlockByIndex(api.blocks.getCurrentBlockIndex()) as BlockAPI;
     this.mathfield = new MathfieldElement();
@@ -53,6 +56,7 @@ export default class MathTool implements BlockTool {
     this.mathfield.mathModeSpace = "\\,"
     this.mathfield.readOnly = this.readOnly;
     this.mathfield.value = this.data.value;
+    this.mathfield.defaultMode = this.data.defaultMode;
     this.mathfield.oninput = this.block!.dispatchChange;
     this.mathfield.smartMode = true;
     this.mathfield.keypressSound = "none";
@@ -65,6 +69,12 @@ export default class MathTool implements BlockTool {
         this.api.blocks.insert("math");
       }
     });
+    const CSS = `.ML__fieldcontainer__field {
+      justify-content: var(--justify-content);
+    }`;
+    const mathfield_style = this.mathfield.shadowRoot!.querySelector('style');
+    mathfield_style?.append(CSS);
+
     return this.mathfield;
   }
 
@@ -72,13 +82,30 @@ export default class MathTool implements BlockTool {
     const holder = document.createElement('DIV');
     const computeButton = document.createElement('SPAN');
     computeButton.classList.add("cdx-math", this.api.styles.settingsButton);
-    computeButton.innerHTML = `<svg viewBox="0 0 20 20"><path d="M15.33 10l2.17-2.47-3.19-.71.33-3.29-3 1.33L10 2 8.35 4.86l-3-1.33.32 3.29-3.17.71L4.67 10 2.5 12.47l3.19.71-.33 3.29 3-1.33L10 18l1.65-2.86 3 1.33-.32-3.29 3.19-.71zm-2.83 1.5h-5v-1h5zm0-2h-5v-1h5z" fill="#f96932"></path></svg>`
+    computeButton.innerHTML = `<svg viewBox="0 0 20 20" height="28"><path d="M15.33 10l2.17-2.47-3.19-.71.33-3.29-3 1.33L10 2 8.35 4.86l-3-1.33.32 3.29-3.17.71L4.67 10 2.5 12.47l3.19.71-.33 3.29 3-1.33L10 18l1.65-2.86 3 1.33-.32-3.29 3.19-.71zm-2.83 1.5h-5v-1h5zm0-2h-5v-1h5z" fill="#f96932"></path></svg>`
     computeButton.addEventListener('click', () => {
       const value = this.mathfield.getValue(this.mathfield.selection) || this.mathfield.value;
       window.open(`https://www.wolframalpha.com/input/?i=${encodeURIComponent(value)}`);
     });
+
+    const mathModeButton = document.createElement('SPAN');
+    mathModeButton.classList.add(this.api.styles.settingsButton);
+    if (this.data.defaultMode === "inline-math") {
+      mathModeButton.classList.add(this.api.styles.settingsButtonActive);
+    }
+    mathModeButton.innerHTML = `<svg viewBox="0 0 48 48" height="24"><path d="M24 42 16 34 18.2 31.8 22.5 36.1V11.9L18.2 16.2L16 14L24 6L32 14L29.8 16.2L25.5 11.9V36.1L29.8 31.8L32 34Z"/></svg>`;
+    mathModeButton.addEventListener('click', () => {
+      const mode = this.data.defaultMode === "inline-math" ? "math" : "inline-math";
+      this.data.defaultMode = mode;
+      this.mathfield.defaultMode = mode as "math" | "inline-math" | "text";
+      mathModeButton.classList.toggle(this.api.styles.settingsButtonActive);
+      this.block!.dispatchChange();
+    });
+
     holder.appendChild(computeButton);
-    this.settingsButtons.push(computeButton);
+    holder.appendChild(mathModeButton);
+
+    this.settingsButtons.push(computeButton, mathModeButton);
     return holder;
   }
 
@@ -89,7 +116,7 @@ export default class MathTool implements BlockTool {
   }
 
   save() {
-    return { value: this.mathfield.value };
+    return { value: this.mathfield.value, defaultMode: this.mathfield.defaultMode };
   }
 
 }

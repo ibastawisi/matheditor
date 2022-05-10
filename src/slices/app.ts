@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Announcement } from '../Announcer';
 import { OutputData } from '@editorjs/editorjs';
+import { validate } from 'uuid';
 
 export interface AppState {
   announcement: Announcement | null;
@@ -34,7 +35,7 @@ export const appSlice = createSlice({
   initialState,
   reducers: {
     load: (state) => {
-      state.documents = Object.keys({ ...localStorage }).filter((key: string) => key !== 'editor' && key !== 'document');
+      state.documents = Object.keys({ ...localStorage }).filter((key: string) => validate(key));
       state.editor = JSON.parse(localStorage.getItem('editor') || '{}');
       state.ui.isLoading = false;
       state.announcement = null;

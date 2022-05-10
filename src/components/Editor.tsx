@@ -21,6 +21,7 @@ import Box from '@mui/material/Box';
 import { EditorDocument } from '../slices/app';
 import Compressor from 'compressorjs';
 import AlignmentTuneTool from 'editorjs-text-alignment-blocktune';
+import equal from "fast-deep-equal";
 
 declare global {
   interface Window { editor: EditorJS; }
@@ -54,7 +55,7 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
       },
       onChange: async () => {
         let content = await editor.saver.save();
-        const isChanged = JSON.stringify(content.blocks) !== JSON.stringify(document.data.blocks);
+        const isChanged = !equal(document.data.blocks, content.blocks);
         isChanged && dispatch(actions.app.saveDocument(content));
       },
       tools: {
@@ -99,6 +100,7 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
         math: {
           class: MathTool as any,
           shortcut: 'CMD+3',
+          tunes: ['allignment'],
         },
         alert: {
           class: Alert,

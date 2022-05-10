@@ -55,7 +55,6 @@ math-field:focus-within {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 9999;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -71,17 +70,30 @@ math-field:focus-within {
   z-index: 9999;
 }
 
+.ce-tune-alignment--right {
+  --justify-content: flex-end;
+}
+.ce-tune-alignment--center {
+  --justify-content: center;
+}
+.ce-tune-alignment--left {
+  --justify-content: flex-start;
+}
+
 /* editorjs dark theme fixes */
 [theme=dark] .ce-block--selected .ce-block__content {
   background: #607D8B;
 }
 
-[theme=dark] .ce-toolbar {
+[theme=dark] .ce-toolbar,
+[theme=dark] .ce-inline-toolbar {
   filter: invert(95%);
+  background-color: #fff;
+  color: rgba(0, 0, 0, 0.87);
 }
 
 [theme=dark] .cdx-alert.cdx-settings-button,
-[theme=dark] .cdx-math.cdx-settings-button {
+[theme=dark] .cdx-math.cdx-settings-button svg {
   filter: invert(95%);
 }
 
