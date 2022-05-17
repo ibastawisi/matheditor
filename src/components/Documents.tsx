@@ -6,16 +6,16 @@ import { AppDispatch, RootState } from "../store";
 import DocumentCard from "./DocumentCard";
 import Button from "@mui/material/Button";
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { actions } from "../slices";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import NewIcon from '@mui/icons-material/AddCircle';
 import { Link as RouterLink } from 'react-router-dom';
+import { EditorDocument } from "../slices/app";
+import { validate } from "uuid";
 
 const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.app.documents);
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
 
   React.useEffect(() => {
     if ("launchQueue" in window && "LaunchParams" in window) {
@@ -36,7 +36,7 @@ const Documents: React.FC = () => {
   const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
-      loadFromBlob(files[0]);
+      Array.from(files).forEach(file => loadFromBlob(file));
     }
   }
 
@@ -45,20 +45,29 @@ const Documents: React.FC = () => {
     const reader = new FileReader();
     reader.readAsText(file);
     reader.onload = () => {
-      const content = reader.result as string;
-      try {
-        const document = JSON.parse(content);
-        if (document.id) {
-          window.localStorage.setItem(document.id, JSON.stringify(document));
-          dispatch(actions.app.loadDocument(document));
-          navigate(`/edit/${document.id}`);
-        } else {
-          dispatch(actions.app.announce({ message: "Invalid document data" }));
-        }
-      } catch (error) {
-        dispatch(actions.app.announce({ message: "Invalid document data" }));
-      }
+      tryParseFile(reader.result as string);
     };
+  }
+
+  function tryParseFile(content: string) {
+    try {
+      const data: EditorDocument | { [key: string]: EditorDocument } = JSON.parse(content);
+      if (validate((data as EditorDocument).id)) {
+        addDocument(data as EditorDocument);
+      } else {
+        Object.values(data).forEach((document: EditorDocument) => {
+          validate(document.id) && addDocument(document);
+        });
+      }
+      // update app state
+      dispatch(actions.app.load());
+    } catch (error) {
+      dispatch(actions.app.announce({ message: "Invalid document data" }));
+    }
+  }
+
+  function addDocument(document: EditorDocument) {
+    dispatch(actions.app.addDocument(document));
   }
 
   return (
@@ -72,7 +81,7 @@ const Documents: React.FC = () => {
         </Button>
         <Button sx={{ mx: 1 }} variant="outlined" startIcon={<UploadFileIcon />} component="label">
           Upload File
-          <input type="file" hidden accept=".json" onChange={handleFilesChange} />
+          <input type="file" hidden accept=".json" multiple onChange={handleFilesChange} />
         </Button>
       </Box>
       <Box sx={{ mt: 5 }}>

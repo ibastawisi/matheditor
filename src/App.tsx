@@ -2,7 +2,7 @@
 import './App.css';
 import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
-import Announcer from './Announcer';
+import Announcer from './components/Announcer';
 import { Route, Routes } from "react-router-dom";
 import TopAppBar from './components/TopAppBar';
 import Footer from './components/Footer';
@@ -39,6 +39,7 @@ function App() {
             <Route path=":id" element={<EditDocument />} />
           </Route>
           <Route path="open" element={<Documents />} />
+          <Route path="*" element={<Home />} />
         </Routes>
       </Container>
       <Footer />

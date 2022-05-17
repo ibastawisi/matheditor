@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Announcement } from '../Announcer';
+import { Announcement } from '../components/Announcer';
 import { OutputData } from '@editorjs/editorjs';
 import { validate } from 'uuid';
 
@@ -49,6 +49,10 @@ export const appSlice = createSlice({
       state.editor.data = action.payload;
       window.localStorage.setItem("editor", JSON.stringify(state.editor));
       window.localStorage.setItem(state.editor.id, JSON.stringify(state.editor));
+    },
+    addDocument: (state, action: PayloadAction<EditorDocument>) => {
+      window.localStorage.setItem(action.payload.id, JSON.stringify(action.payload));
+      !state.documents.includes(action.payload.id) && state.documents.push(action.payload.id);
     },
     deleteDocument: (state, action: PayloadAction<string>) => {
       state.documents = state.documents.filter(key => key !== action.payload);

@@ -40,7 +40,7 @@ const EditDocument: React.FC = () => {
 
   }, []);
 
-  return document.id === params.id ? <Editor document={document} /> : <SplashScreen title="oops 😕!" />;
+  return document.id === params.id ? <Editor document={document} /> : <SplashScreen />;
 }
 
 export default EditDocument;
