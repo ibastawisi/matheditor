@@ -1,19 +1,9 @@
 import { API, BlockAPI, BlockTool, BlockToolConstructorOptions, BlockToolData, ToolConfig } from '@editorjs/editorjs';
-import { default as React } from 'react';
 import { MathfieldElement } from 'mathlive';
 import 'mathlive/dist/mathlive-fonts.css';
 import 'mathlive/dist/mathlive.min';
 
-declare global {
-  /** @internal */
-  namespace JSX {
-    interface IntrinsicElements {
-      'math-field': React.DetailedHTMLProps<React.HTMLAttributes<MathfieldElement>, MathfieldElement>
-    }
-  }
-}
-
-export default class MathTool implements BlockTool {
+export default class MathBlock implements BlockTool {
   api: API;
   data: BlockToolData;
   config?: ToolConfig;

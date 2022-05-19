@@ -13,7 +13,7 @@ import Marker from '@editorjs/marker';
 import Underline from '@editorjs/underline';
 import List from '@editorjs/list';
 import DragDrop from 'editorjs-drag-drop';
-import MathTool from './MathTool';
+import MathBlock from './MathBlock';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../store';
 import { actions } from '../slices';
@@ -22,6 +22,8 @@ import { EditorDocument } from '../slices/app';
 import Compressor from 'compressorjs';
 import AlignmentTuneTool from 'editorjs-text-alignment-blocktune';
 import equal from "fast-deep-equal";
+import MathInline from './MathInline';
+import { renderMathFieldsInScripts } from '../helpers';
 
 declare global {
   interface Window { editor: EditorJS; }
@@ -52,6 +54,7 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
         ejInstance.current = editor;
         window.editor = editor;
         new DragDrop(editor);
+        renderMathFieldsInScripts();
       },
       onChange: async () => {
         let content = await editor.saver.save();
@@ -98,20 +101,28 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
           }
         },
         math: {
-          class: MathTool as any,
+          class: MathBlock as any,
           shortcut: 'CMD+3',
           tunes: ['allignment'],
+        },
+        "inline math": {
+          class: MathInline,
+          shortcut: 'CMD+4',
         },
         alert: {
           class: Alert,
           tunes: ['allignment'],
+          inlineToolbar: true,
         },
         delimiter: Delimiter,
         list: {
           class: List,
           inlineToolbar: true,
         },
-        table: Table,
+        table: {
+          class: Table,
+          inlineToolbar: true,
+        },
         code: CodeTool,
         inlineCode: {
           class: InlineCode,
@@ -135,4 +146,3 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
 }
 
 export default Editor;
-
