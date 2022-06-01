@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from './store';
 import { actions } from './slices';
 import SplashScreen from './components/SplachScreen';
+import { Helmet } from 'react-helmet';
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,6 +28,7 @@ function App() {
 
   return isLoading ? <SplashScreen /> : (
     <ThemeProvider>
+      <Helmet defaultTitle="Math Editor"></Helmet>
       <CssBaseline />
       <TopAppBar />
       <Container className='editor-container'>

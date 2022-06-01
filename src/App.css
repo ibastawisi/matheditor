@@ -4,6 +4,10 @@
   min-height: 100vh;
 }
 
+body {
+  color-scheme: auto;
+}
+
 .editor-container {
   margin-top: 1rem;
 }
@@ -85,10 +89,13 @@ math-field:focus-within {
   background: #607D8B;
 }
 
-[theme=dark] .ce-toolbar,
+[theme=dark] .ce-toolbar .ce-popover,
+[theme=dark] .ce-toolbar .ce-settings,
+[theme=dark] .ce-toolbar .ce-toolbar__plus,
+[theme=dark] .ce-toolbar .ce-toolbar__settings-btn,
+[theme=dark] .tc-toolbox,
 [theme=dark] .ce-inline-toolbar {
   filter: invert(95%);
-  background-color: #fff;
   color: rgba(0, 0, 0, 0.87);
 }
 

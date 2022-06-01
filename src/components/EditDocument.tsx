@@ -8,6 +8,7 @@ import Editor from "./Editor";
 
 import { validate } from "uuid";
 import SplashScreen from "./SplachScreen";
+import { Helmet } from "react-helmet";
 
 const EditDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -40,7 +41,10 @@ const EditDocument: React.FC = () => {
 
   }, []);
 
-  return document.id === params.id ? <Editor document={document} /> : <SplashScreen />;
+  return document.id === params.id ? <>
+    <Helmet><title>{document.name}</title></Helmet>
+    <Editor document={document} />
+  </> : <SplashScreen />;
 }
 
 export default EditDocument;
