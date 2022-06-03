@@ -19,10 +19,12 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { actions } from '../slices';
 import { AppDispatch, RootState } from '../store';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { ColorModeContext } from './ThemeProvider';
 import useTheme from '@mui/material/styles/useTheme';
 import * as Service from '../services';
+import SettingsIcon from '@mui/icons-material/Settings';
+import SettingsDialog from './SettingsDialog';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const trigger = useScrollTrigger();
@@ -66,6 +68,7 @@ const TopAppBar: React.FC<{}> = () => {
   const document = useSelector((state: RootState) => state.app.editor);
   const colorMode = useContext(ColorModeContext);
   const theme = useTheme();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleShare = async () => {
     dispatch(actions.app.announce({ message: "Generating sharable link" }));
@@ -105,6 +108,14 @@ const TopAppBar: React.FC<{}> = () => {
     link.remove()
   };
 
+  const openSettingsDialog = () => {
+    setSettingsOpen(true);
+  };
+
+  const closeSettingsDialog = () => {
+    setSettingsOpen(false);
+  };
+
   return (
     <>
       <HideOnScroll>
@@ -117,6 +128,9 @@ const TopAppBar: React.FC<{}> = () => {
               </Box>
             </Link>
             <Box sx={{ flexGrow: 1 }} />
+            <IconButton onClick={openSettingsDialog} color="inherit">
+              <SettingsIcon />
+            </IconButton>
             <IconButton onClick={colorMode.toggleColorMode} color="inherit">
               {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
@@ -140,6 +154,7 @@ const TopAppBar: React.FC<{}> = () => {
           <KeyboardArrowUpIcon />
         </Fab>
       </ScrollTop>
+      <SettingsDialog open={settingsOpen} onClose={closeSettingsDialog} />
     </>
   );
 };

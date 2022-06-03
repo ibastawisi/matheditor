@@ -10,9 +10,9 @@ import ArticleIcon from '@mui/icons-material/Article';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { EditorDocument } from "../slices/app";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { actions } from "../slices";
-import { AppDispatch } from "../store";
+import { AppDispatch, RootState } from "../store";
 import * as Service from '../services';
 import { useEffect } from "react";
 import SplashScreen from "./SplachScreen";
@@ -21,6 +21,7 @@ const NewDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const params = useParams<{ id: string }>();
+  const config = useSelector((state: RootState) => state.app.config);
 
   useEffect(() => {
     if (params.id) {
@@ -56,6 +57,7 @@ const NewDocument: React.FC = () => {
     const document: EditorDocument = {
       id: uuidv4(),
       name: formData.get('fileName') as string,
+      author: config.author,
       data: newDocumentData(),
       timestamp: new Date().getTime(),
     }

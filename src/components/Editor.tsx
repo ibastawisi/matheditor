@@ -14,8 +14,8 @@ import Underline from '@editorjs/underline';
 import List from '@editorjs/list';
 import DragDrop from 'editorjs-drag-drop';
 import MathBlock from './MathBlock';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../store';
 import { actions } from '../slices';
 import Box from '@mui/material/Box';
 import { EditorDocument } from '../slices/app';
@@ -35,6 +35,8 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
   const ejInstance = useRef<EditorJS | null>();
   const dispatch = useDispatch<AppDispatch>();
 
+  const config = useSelector((state: RootState) => state.app.config);
+
   useEffect(() => {
     if (!ejInstance.current) {
       initEditor();
@@ -43,7 +45,7 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
       ejInstance.current?.destroy();
       ejInstance.current = null;
     }
-  }, []);
+  }, [config]);
 
   const initEditor = () => {
     const editor = new EditorJS({
@@ -132,7 +134,7 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
         allignment: {
           class:AlignmentTuneTool,
           config:{
-            default: "left",
+            default: config.defaultAlignment,
             blocks: {
               header: 'center',
             }

@@ -11,11 +11,16 @@ export interface AppState {
     isLoading: boolean;
     isSaving: boolean;
   };
+  config: {
+    author?: string;
+    defaultAlignment: string;
+  };
 }
 
 export interface EditorDocument {
   id: string;
   name: string;
+  author?: string;
   data: OutputData;
   timestamp: number;
 }
@@ -27,7 +32,10 @@ const initialState: AppState = {
   ui: {
     isLoading: true,
     isSaving: false,
-  }
+  },
+  config: {
+    defaultAlignment: 'left',
+  },
 };
 
 export const appSlice = createSlice({
@@ -37,6 +45,8 @@ export const appSlice = createSlice({
     load: (state) => {
       state.documents = Object.keys({ ...localStorage }).filter((key: string) => validate(key));
       state.editor = JSON.parse(localStorage.getItem('editor') || '{}');
+      const localConfig = localStorage.getItem('config')
+      state.config = localConfig ? JSON.parse(localConfig) : initialState.config;
       state.ui.isLoading = false;
       state.announcement = null;
     },
@@ -63,6 +73,10 @@ export const appSlice = createSlice({
     },
     clearAnnouncement: (state) => {
       state.announcement = null
+    },
+    setConfig: (state, action: PayloadAction<{ defaultAlignment: string }>) => {
+      state.config = action.payload;
+      window.localStorage.setItem("config", JSON.stringify(state.config));
     }
   },
 });
