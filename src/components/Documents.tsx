@@ -9,61 +9,67 @@ import React from "react";
 import { actions } from "../slices";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import NewIcon from '@mui/icons-material/AddCircle';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { EditorDocument } from "../slices/app";
 import { validate } from "uuid";
 
 const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.app.documents);
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     if ("launchQueue" in window && "LaunchParams" in window) {
       (window as any).launchQueue.setConsumer(
-        async (launchParams: { files: any[] }) => {
-          if (!launchParams.files.length) {
-            return;
-          }
-          const fileHandle = launchParams.files[0];
-          const blob: Blob = await fileHandle.getFile();
-          loadFromBlob(blob);
+        async (launchParams: { files: FileSystemFileHandle[] }) => {
+          if (!launchParams.files.length) return;
+          const files = await Promise.all(launchParams.files.map(async file => file.getFile())); 
+          await handleFilesChange(files);
         },
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      Array.from(files).forEach(file => loadFromBlob(file));
+  const handleFilesChange = async (files: FileList | File[] | null) => {
+    if (!files?.length) return;
+    if (files.length === 1) {
+      const id = await loadFromFile(files[0]);
+      id && navigate(`/edit/${id}`);
+    } else {
+      Array.from(files).forEach(async file => await loadFromFile(file));
+      // update app state
+      dispatch(actions.app.load());
     }
   }
 
-  function loadFromBlob(blob: Blob) {
-    const file = blob;
-    const reader = new FileReader();
-    reader.readAsText(file);
-    reader.onload = () => {
-      tryParseFile(reader.result as string);
-    };
+  async function loadFromFile(file: File): Promise<string | undefined> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsText(file);
+      reader.onload = () => {
+        const documentId = tryParseFile(reader.result as string)?.id;
+        resolve(documentId);
+      };
+    });
   }
 
-  function tryParseFile(content: string) {
+  function tryParseFile(content: string): EditorDocument | null {
+    let document: EditorDocument | null = null;
     try {
       const data: EditorDocument | { [key: string]: EditorDocument } = JSON.parse(content);
       if (validate((data as EditorDocument).id)) {
+        document = data as EditorDocument;
         addDocument(data as EditorDocument);
       } else {
         Object.values(data).forEach((document: EditorDocument) => {
           validate(document.id) && addDocument(document);
         });
       }
-      // update app state
-      dispatch(actions.app.load());
     } catch (error) {
       dispatch(actions.app.announce({ message: "Invalid document data" }));
     }
+    return document;
   }
 
   function addDocument(document: EditorDocument) {
@@ -81,7 +87,7 @@ const Documents: React.FC = () => {
         </Button>
         <Button sx={{ mx: 1 }} variant="outlined" startIcon={<UploadFileIcon />} component="label">
           Upload File
-          <input type="file" hidden accept=".json" multiple onChange={handleFilesChange} />
+          <input type="file" hidden accept=".json" multiple onChange={e => handleFilesChange(e.target.files)} />
         </Button>
       </Box>
       <Box sx={{ mt: 5 }}>
