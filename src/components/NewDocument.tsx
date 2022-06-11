@@ -57,7 +57,7 @@ const NewDocument: React.FC = () => {
     const document: EditorDocument = {
       id: uuidv4(),
       name: formData.get('fileName') as string,
-      author: config.author,
+      author: config.editor.author,
       data: newDocumentData(),
       timestamp: new Date().getTime(),
     }

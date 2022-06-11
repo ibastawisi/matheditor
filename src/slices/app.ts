@@ -12,8 +12,20 @@ export interface AppState {
     isSaving: boolean;
   };
   config: {
-    author?: string;
-    defaultAlignment: string;
+    editor: {
+      author?: string;
+    };
+    header: {
+      level: number;
+      alignment: string;
+    }
+    paragraph: {
+      alignment: string;
+    }
+    math: {
+      alignment: string;
+      mode: string;
+    }
   };
 }
 
@@ -34,7 +46,19 @@ const initialState: AppState = {
     isSaving: false,
   },
   config: {
-    defaultAlignment: 'left',
+    editor: {
+    },
+    header: {
+      level: 2,
+      alignment: 'center',
+    },
+    paragraph: {
+      alignment: 'left',
+    },
+    math: {
+      alignment: 'center',
+      mode: 'math'
+    }
   },
 };
 
@@ -45,8 +69,10 @@ export const appSlice = createSlice({
     load: (state) => {
       state.documents = Object.keys({ ...localStorage }).filter((key: string) => validate(key));
       state.editor = JSON.parse(localStorage.getItem('editor') || '{}');
-      const localConfig = localStorage.getItem('config')
-      state.config = localConfig ? JSON.parse(localConfig) : initialState.config;
+      try {
+        const localConfig = localStorage.getItem('config')
+        state.config = { ...initialState.config, ...JSON.parse(localConfig || '{}') };
+      } catch (e) { console.error("couldn't parse saved config: " + e); }
       state.ui.isLoading = false;
       state.announcement = null;
     },
@@ -74,7 +100,7 @@ export const appSlice = createSlice({
     clearAnnouncement: (state) => {
       state.announcement = null
     },
-    setConfig: (state, action: PayloadAction<{ defaultAlignment: string }>) => {
+    setConfig: (state, action: PayloadAction<AppState["config"]>) => {
       state.config = action.payload;
       window.localStorage.setItem("config", JSON.stringify(state.config));
     }

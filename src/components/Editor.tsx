@@ -68,6 +68,9 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
           class: Header,
           inlineToolbar: true,
           tunes: ['allignment'],
+          config: {
+            defaultLevel: config.header.level,
+          }
         },
         paragraph: {
           class: Paragraph,
@@ -106,6 +109,9 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
           class: MathBlock as any,
           shortcut: 'CMD+3',
           tunes: ['allignment'],
+          config: {
+            mode: config.math.mode,
+          }
         },
         "inline math": {
           class: MathInline,
@@ -134,9 +140,10 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
         allignment: {
           class:AlignmentTuneTool,
           config:{
-            default: config.defaultAlignment,
             blocks: {
-              header: 'center',
+              header: config.header.alignment,
+              paragraph: config.paragraph.alignment,
+              math: config.math.alignment,
             }
           },
         }

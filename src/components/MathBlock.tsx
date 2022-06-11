@@ -31,7 +31,7 @@ export default class MathBlock implements BlockTool {
     this.readOnly = readOnly;
     this.data = {
       value: data.value,
-      defaultMode: data.defaultMode || "math",
+      defaultMode: data.defaultMode || config.mode,
     };
     this.config = config;
     this.block = api.blocks.getBlockByIndex(api.blocks.getCurrentBlockIndex()) as BlockAPI;
