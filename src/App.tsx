@@ -17,6 +17,7 @@ import { AppDispatch, RootState } from './store';
 import { actions } from './slices';
 import SplashScreen from './components/SplachScreen';
 import { Helmet } from 'react-helmet';
+import Privacy from './Privacy';
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -41,6 +42,7 @@ function App() {
             <Route path=":id" element={<EditDocument />} />
           </Route>
           <Route path="open" element={<Documents />} />
+          <Route path="privacy" element={<Privacy />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </Container>
