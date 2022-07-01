@@ -25,6 +25,8 @@ import equal from "fast-deep-equal";
 import MathInline from './MathInline';
 import { renderMathFieldsInScripts } from '../helpers';
 
+import "./styles.css";
+
 declare global {
   interface Window { editor: EditorJS; }
 }

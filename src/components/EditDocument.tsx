@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { actions } from "../slices";
 import { AppDispatch, RootState } from "../store";
 import { useNavigate, useParams } from "react-router-dom";
-import Editor from "./Editor";
+import Editor from "../editorjs/Editor";
 
 import { validate } from "uuid";
 import SplashScreen from "./SplachScreen";

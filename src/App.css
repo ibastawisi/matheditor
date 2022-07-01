@@ -8,51 +8,6 @@ body {
   color-scheme: auto;
 }
 
-.editor-container {
-  margin-top: 1rem;
-}
-
-.editor-wrapper {
-  padding: 1rem;
-  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
-  max-width: 21cm;
-  margin: 0 auto;
-}
-
-.ce-toolbox__button {
-  margin-left: 0;
-}
-
-@media print {
-  * {
-    -webkit-print-color-adjust: exact;
-    color-adjust: exact;
-  }
-
-  body {
-    background-color: #fff !important;
-    color: rgba(0, 0, 0, 0.87) !important;
-  }
-
-  .editor-container {
-    margin-top: 0;
-  }
-
-  .editor-wrapper {
-    padding: 0;
-    box-shadow: none;
-  }
-
-  .ce-toolbar {
-    display: none;
-  }
-}
-
-
-math-field:focus-within {
-  outline: none;
-}
-
 .splash-screen {
   position: fixed;
   top: 0;
@@ -74,50 +29,14 @@ math-field:focus-within {
   z-index: 9999;
 }
 
-.ce-tune-alignment--right {
-  --justify-content: flex-end;
-}
-.ce-tune-alignment--center {
-  --justify-content: center;
-}
-.ce-tune-alignment--left {
-  --justify-content: flex-start;
-}
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+  }
 
-/* editorjs dark theme fixes */
-[theme=dark] .ce-block--selected .ce-block__content {
-  background: #607D8B;
-}
-
-[theme=dark] .ce-toolbar .ce-popover,
-[theme=dark] .ce-toolbar .ce-settings,
-[theme=dark] .ce-toolbar .ce-toolbar__plus,
-[theme=dark] .ce-toolbar .ce-toolbar__settings-btn,
-[theme=dark] .tc-toolbox,
-[theme=dark] .ce-inline-toolbar {
-  filter: invert(95%);
-  color: rgba(0, 0, 0, 0.87);
-}
-
-[theme=dark] .cdx-alert.cdx-settings-button,
-[theme=dark] .cdx-math.cdx-settings-button svg {
-  filter: invert(95%);
-}
-
-/* mathlive virtula keyboard styles */
-[theme=light] div.ML__keyboard.material {
-  --keycap-background: #FFF !important;
-}
-
-[theme=dark] div.ML__keyboard.material {
-  --keycap-background-active: #FAFAFA !important;
-}
-
-[theme=dark] math-field {
-  --highlight: #455A64;
-  --contains-highlight: #263238;
-}
-
-[theme=dark] ::selection {
-  background-color: #455A64;
+  body {
+    background-color: #fff !important;
+    color: rgba(0, 0, 0, 0.87) !important;
+  }
 }
