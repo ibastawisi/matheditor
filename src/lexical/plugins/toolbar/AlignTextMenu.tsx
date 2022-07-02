@@ -92,7 +92,7 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
           handleClose();
         }}>
           <ListItemIcon>
-            {isRTL ? <FormatIndentDecreaseIcon fontSize="small" /> : <FormatIndentIncreaseIcon fontSize="small" />}
+            {isRTL ? <FormatIndentIncreaseIcon fontSize="small" /> : <FormatIndentDecreaseIcon fontSize="small" />}
           </ListItemIcon>
           <ListItemText>Outdent</ListItemText>
         </MenuItem>
@@ -101,7 +101,7 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
           handleClose();
         }}>
           <ListItemIcon>
-            {isRTL ? <FormatIndentIncreaseIcon fontSize="small" /> : <FormatIndentDecreaseIcon fontSize="small" />}
+            {isRTL ? <FormatIndentDecreaseIcon fontSize="small" /> : <FormatIndentIncreaseIcon fontSize="small" />}
           </ListItemIcon>
           <ListItemText>Indent</ListItemText>
         </MenuItem>

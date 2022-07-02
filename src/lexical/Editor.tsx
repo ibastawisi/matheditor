@@ -7,14 +7,14 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
-import {TablePlugin} from '@lexical/react/LexicalTablePlugin';
+import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
-import {CheckListPlugin} from '@lexical/react/LexicalCheckListPlugin';
+import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { HorizontalRuleNode } from "@lexical/react/LexicalHorizontalRuleNode";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { TRANSFORMERS } from "@lexical/markdown";
@@ -29,6 +29,8 @@ import TableCellResizer from './plugins/TableCellResizer';
 import TextFormatFloatingToolbarPlugin from "./plugins/TextFormatFloatingToolbarPlugin";
 import ImagesPlugin from "./plugins/ImagesPlugin";
 import HorizontalRulePlugin from "./plugins/HorizontalRulePlugin";
+import MathPlugin from "./plugins/MathPlugin";
+import { MathNode } from "./nodes/MathNode";
 
 import { useSharedHistoryContext } from "./context/SharedHistoryContext";
 import { ImageNode } from "./nodes/ImageNode";
@@ -62,7 +64,7 @@ const editorConfig = {
     LinkNode,
     ImageNode,
     HorizontalRuleNode,
-
+    MathNode,
   ]
 };
 
@@ -70,10 +72,7 @@ const editorConfig = {
 // LexicalOnChangePlugin!
 function onChange(editorState: EditorState, editor: LexicalEditor) {
   const serializedEditorState = JSON.stringify(editor.getEditorState().toJSON());
-  // console.log(serializedEditorState);
-
-
-
+  console.log(serializedEditorState);
   // const newEditorState = editor.parseEditorState(serializedEditorState);
 }
 
@@ -89,7 +88,7 @@ export default function Editor() {
             placeholder={<Placeholder />}
           />
           <HistoryPlugin externalHistoryState={historyState} />
-          <OnChangePlugin onChange={onChange} />
+          <OnChangePlugin ignoreInitialChange ignoreSelectionChange onChange={onChange} />
           <TreeViewPlugin />
           <AutoFocusPlugin />
           <CodeHighlightPlugin />
@@ -103,9 +102,9 @@ export default function Editor() {
           <ImagesPlugin />
           <HorizontalRulePlugin />
           <TablePlugin />
-            <TableCellActionMenuPlugin />
-            <TableCellResizer />
-
+          <TableCellActionMenuPlugin />
+          <TableCellResizer />
+          <MathPlugin />
         </div>
       </div>
     </LexicalComposer>
