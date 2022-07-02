@@ -24,7 +24,7 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
   };
 
   return (
-    <div>
+    <>
       <IconButton
         id="align-button"
         aria-controls={open ? 'align-menu' : undefined}
@@ -106,6 +106,6 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
           <ListItemText>Indent</ListItemText>
         </MenuItem>
       </Menu>
-    </div >
+    </>
   );
 }

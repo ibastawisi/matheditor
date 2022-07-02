@@ -1,6 +1,5 @@
 import { $getNodeByKey, $getSelection, $isRangeSelection, ElementNode, NodeKey, RangeSelection, TextNode } from 'lexical';
 import { $isCodeNode } from '@lexical/code';
-import { $isLinkNode } from '@lexical/link';
 import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
@@ -8,7 +7,6 @@ import { $getSelectionStyleValueForProperty, $isAtNodeEnd, $isParentElementRTL, 
 import { $getNearestNodeOfType, mergeRegister, } from '@lexical/utils';
 import { CAN_REDO_COMMAND, CAN_UNDO_COMMAND, REDO_COMMAND, SELECTION_CHANGE_COMMAND, UNDO_COMMAND, COMMAND_PRIORITY_CRITICAL, } from 'lexical';
 import { useCallback, useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 
 import Box from '@mui/material/Box';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
@@ -21,7 +19,6 @@ import { BlockFormatSelect } from './BlockFormatSelect';
 import InsertToolMenu from './InsertToolMenu';
 import TextFormatToggles from './TextFormatToggles';
 import AlignTextMenu from './AlignTextMenu';
-import { FloatingLinkEditor } from '../FloatingLinkEditor';
 import { IS_APPLE } from '../../../shared/environment';
 
 export const blockTypeToBlockName = {
@@ -109,7 +106,6 @@ export default function ToolbarPlugin(): JSX.Element {
   const [selectedElementKey, setSelectedElementKey] = useState<NodeKey | null>(null);
   const [fontSize, setFontSize] = useState<string>('15px');
   const [fontFamily, setFontFamily] = useState<string>('Arial');
-  const [isLink, setIsLink] = useState(false);
   const [isRTL, setIsRTL] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
@@ -125,14 +121,6 @@ export default function ToolbarPlugin(): JSX.Element {
           : anchorNode.getTopLevelElementOrThrow();
       const elementKey = element.getKey();
       const elementDOM = activeEditor.getElementByKey(elementKey);
-
-      const node = getSelectedNode(selection);
-      const parent = node.getParent();
-      if ($isLinkNode(parent) || $isLinkNode(node)) {
-        setIsLink(true);
-      } else {
-        setIsLink(false);
-      }
 
       setIsRTL($isParentElementRTL(selection));
 
@@ -262,6 +250,7 @@ export default function ToolbarPlugin(): JSX.Element {
     ['Trebuchet MS', 'Trebuchet MS'],
     ['Verdana', 'Verdana'],
   ];
+  
   const FONT_SIZE_MAP = [
     ['10px', '10'],
     ['11px', '11'],
@@ -277,86 +266,36 @@ export default function ToolbarPlugin(): JSX.Element {
   ];
 
   return (
-    <Box className="toolbar"
-      sx={{
-        display: 'flex',
-        displayPrint: 'none',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        '& hr': {
-          mx: 0.5,
-        },
-      }}
-    >
+    <Box className="toolbar" sx={{ display: 'flex', displayPrint: 'none', alignItems: 'center', justifyContent: 'space-between', '& hr': { mx: 0.5, }, }}>
       <Box sx={{ display: "flex" }}>
         <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
-          onClick={() => {
-            activeEditor.dispatchCommand(UNDO_COMMAND, undefined);
-          }}>
-          <UndoIcon />
+          onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}> <UndoIcon />
         </IconButton>
         <IconButton title={IS_APPLE ? 'Redo (⌘Y)' : 'Redo (Ctrl+Y)'} aria-label="Redo" disabled={!canRedo}
-          onClick={() => {
-            activeEditor.dispatchCommand(REDO_COMMAND, undefined);
-          }}>
+          onClick={() => { activeEditor.dispatchCommand(REDO_COMMAND, undefined); }}>
           <RedoIcon />
         </IconButton>
-
-        {/* <Divider orientation="vertical" variant="middle" flexItem /> */}
       </Box>
       <Box sx={{ display: "flex" }}>
-
-        {blockType in blockTypeToBlockName && activeEditor === editor && (
-          <>
-            <BlockFormatSelect blockType={blockType} editor={editor} />
-          </>
-        )}
+        {blockType in blockTypeToBlockName && activeEditor === editor && <BlockFormatSelect blockType={blockType} editor={editor} />}
         {blockType === 'code' ? (
-          <Select size='small' sx={{ mx: 0.25 }}
-            onChange={onCodeLanguageSelect}
-            value={codeLanguage}>
-            {CODE_LANGUAGE_OPTIONS.map(([option, text]) => (
-              <MenuItem key={option} value={option}>
-                {text}
-              </MenuItem>
-            ))}
+          <Select size='small' sx={{ mx: 0.25 }} onChange={onCodeLanguageSelect} value={codeLanguage}>
+            {CODE_LANGUAGE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
           </Select>
-
         ) : (
           <>
-            <Select size='small' sx={{ mx: 0.25, width: 80 }}
-              onChange={onFontFamilySelect}
-              value={fontFamily}
-            >
-              {FONT_FAMILY_MAP.map(([option, text]) => (
-                <MenuItem key={option} value={option}>
-                  {text}
-                </MenuItem>
-              ))}
+            <Select size='small' sx={{ mx: 0.25, width: 80 }} onChange={onFontFamilySelect} value={fontFamily}>
+              {FONT_FAMILY_MAP.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
             </Select>
-            <Select size='small' sx={{ mx: 0.25 }}
-              onChange={onFontSizeSelect}
-              value={fontSize}
-            >
-              {FONT_SIZE_MAP.map(([option, text]) => (
-                <MenuItem key={option} value={option}>
-                  {text}
-                </MenuItem>
-              ))}
+            <Select size='small' sx={{ mx: 0.25 }} onChange={onFontSizeSelect} value={fontSize}>
+              {FONT_SIZE_MAP.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
             </Select>
             <TextFormatToggles editor={activeEditor} sx={{ mx: 1, display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
-            {isLink &&
-              createPortal(
-                <FloatingLinkEditor editor={editor} />,
-                document.body,
-              )}
           </>
         )}
       </Box>
       <Box sx={{ display: "flex" }}>
-        {blockType !== 'code' && <>
-          <InsertToolMenu editor={activeEditor} />
-        </>}
+        {blockType !== 'code' && <InsertToolMenu editor={activeEditor} />}
         <AlignTextMenu editor={activeEditor} isRTL={isRTL} />
       </Box>
     </Box >

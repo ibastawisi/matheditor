@@ -27,7 +27,7 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }): J
   };
 
   return (
-    <div>
+    <>
       <IconButton
         id="insert-button"
         aria-controls={open ? 'insert-menu' : undefined}
@@ -85,6 +85,6 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }): J
         open={tableDialogOpen}
         onClose={() => setTableDialogOpen(false)}
       />
-    </div >
+    </>
   );
 }

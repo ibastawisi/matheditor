@@ -81,7 +81,7 @@ export default function Editor() {
   const { historyState } = useSharedHistoryContext();
   return (
     <LexicalComposer initialConfig={editorConfig}>
-      <div className="editor-container">
+      <div className="editor-shell">
         <ToolbarPlugin />
         <div className="editor-inner">
           <RichTextPlugin

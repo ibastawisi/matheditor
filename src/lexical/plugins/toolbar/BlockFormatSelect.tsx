@@ -1,16 +1,9 @@
 import { LexicalEditor } from 'lexical';
 import { $createCodeNode } from '@lexical/code';
-import {
-  INSERT_CHECK_LIST_COMMAND,
-  INSERT_ORDERED_LIST_COMMAND,
-  INSERT_UNORDERED_LIST_COMMAND, REMOVE_LIST_COMMAND
-} from '@lexical/list';
+import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, REMOVE_LIST_COMMAND } from '@lexical/list';
 import { $createHeadingNode, HeadingTagType } from '@lexical/rich-text';
 import { $wrapLeafNodesInElements } from '@lexical/selection';
-import {
-  $createParagraphNode, $getSelection,
-  $isRangeSelection
-} from 'lexical';
+import { $createParagraphNode, $getSelection, $isRangeSelection } from 'lexical';
 
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
@@ -51,7 +44,6 @@ export function BlockFormatSelect({ editor, blockType }: {
     if (blockType !== 'paragraph') {
       editor.update(() => {
         const selection = $getSelection();
-
         if ($isRangeSelection(selection)) {
           $wrapLeafNodesInElements(selection, () => $createParagraphNode());
         }
@@ -63,7 +55,6 @@ export function BlockFormatSelect({ editor, blockType }: {
     if (blockType !== headingSize) {
       editor.update(() => {
         const selection = $getSelection();
-
         if ($isRangeSelection(selection)) {
           $wrapLeafNodesInElements(selection, () => $createHeadingNode(headingSize)
           );
@@ -100,7 +91,6 @@ export function BlockFormatSelect({ editor, blockType }: {
     if (blockType !== 'code') {
       editor.update(() => {
         const selection = $getSelection();
-
         if ($isRangeSelection(selection)) {
           if (selection.isCollapsed()) {
             $wrapLeafNodesInElements(selection, () => $createCodeNode());
@@ -116,95 +106,73 @@ export function BlockFormatSelect({ editor, blockType }: {
   };
 
   return (
-    <Select
-      value={blockType}
-      aria-label="Formatting options for text style"
-      size='small' sx={{ mx: 0.25, '& .MuiSelect-select': { display: 'flex', alignItems: 'center', py: 0.5 }, '& .MuiListItemIcon-root': { mr: 0.5, minWidth: 20 },
-    '& .MuiListItemText-root': {display: {xs: "none", sm: "flex"}} }}
-    >
-      <MenuItem
-        value='paragraph'
-        onClick={formatParagraph}>
+    <Select value={blockType} aria-label="Formatting options for text style" size='small' sx={{
+      mx: 0.25,
+      '& .MuiSelect-select': { display: 'flex', alignItems: 'center', py: 0.5 },
+      '& .MuiListItemIcon-root': { mr: { sm: 0.5 }, minWidth: 20 },
+      '& .MuiListItemText-root': { display: { xs: "none", sm: "flex" } }
+    }}>
+      <MenuItem value='paragraph' onClick={formatParagraph}>
         <ListItemIcon>
           <ViewHeadlineIcon fontSize="small" />
         </ListItemIcon>
         <ListItemText>Normal</ListItemText>
       </MenuItem>
-      <MenuItem
-        value='h1'
-        onClick={() => formatHeading('h1')}>
+      <MenuItem value='h1' onClick={() => formatHeading('h1')}>
         <ListItemIcon>
           <H1Icon />
         </ListItemIcon>
         <ListItemText>Heading 1</ListItemText>
       </MenuItem>
-      <MenuItem
-        value='h2'
-        onClick={() => formatHeading('h2')}>
+      <MenuItem value='h2' onClick={() => formatHeading('h2')}>
         <ListItemIcon>
           <H2Icon />
         </ListItemIcon>
         <ListItemText>Heading 2</ListItemText>
       </MenuItem>
-      <MenuItem
-        value='h3'
-        onClick={() => formatHeading('h3')}>
+      <MenuItem value='h3' onClick={() => formatHeading('h3')}>
         <ListItemIcon>
           <H3Icon />
         </ListItemIcon>
         <ListItemText>Heading 3</ListItemText>
       </MenuItem>
-      <MenuItem
-        value='h4'
-        onClick={() => formatHeading('h4')}>
+      <MenuItem value='h4' onClick={() => formatHeading('h4')}>
         <ListItemIcon>
           <H4Icon />
         </ListItemIcon>
         <ListItemText>Heading 4</ListItemText>
       </MenuItem>
-      <MenuItem
-        value='h5'
-        onClick={() => formatHeading('h5')}>
+      <MenuItem value='h5' onClick={() => formatHeading('h5')}>
         <ListItemIcon>
           <H5Icon />
         </ListItemIcon>
         <ListItemText>Heading 5</ListItemText>
       </MenuItem>
-      <MenuItem
-        value='h6'
-        onClick={() => formatHeading('h6')}>
+      <MenuItem value='h6' onClick={() => formatHeading('h6')}>
         <ListItemIcon>
           <H6Icon />
         </ListItemIcon>
         <ListItemText>Heading 6</ListItemText>
       </MenuItem>
-      <MenuItem
-        value='bullet'
-        onClick={formatBulletList}>
+      <MenuItem value='bullet' onClick={formatBulletList}>
         <ListItemIcon>
           <FormatListBulletedIcon fontSize="small" />
         </ListItemIcon>
         <ListItemText>Bullet List</ListItemText>
       </MenuItem>
-      <MenuItem
-        value='number'
-        onClick={formatNumberedList}>
+      <MenuItem value='number' onClick={formatNumberedList}>
         <ListItemIcon>
           <FormatListNumberedIcon fontSize="small" />
         </ListItemIcon>
         <ListItemText>Numbered List</ListItemText>
       </MenuItem>
-      <MenuItem
-        value='check'
-        onClick={formatCheckList}>
+      <MenuItem value='check' onClick={formatCheckList}>
         <ListItemIcon>
           <PlaylistAddCheckIcon fontSize="small" />
         </ListItemIcon>
         <ListItemText>Check List</ListItemText>
       </MenuItem>
-      <MenuItem
-        value='code'
-        onClick={formatCode}>
+      <MenuItem value='code' onClick={formatCode}>
         <ListItemIcon>
           <CodeIcon fontSize="small" />
         </ListItemIcon>

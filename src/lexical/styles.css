@@ -5,7 +5,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.editor-container {
+.editor-shell {
   position: relative;
 }
 

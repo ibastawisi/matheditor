@@ -7,7 +7,6 @@
  */
 
 import { $isCodeHighlightNode } from '@lexical/code';
-import { $isLinkNode } from '@lexical/link';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isAtNodeEnd } from '@lexical/selection';
 import { mergeRegister } from '@lexical/utils';
@@ -166,7 +165,6 @@ function useTextFormatFloatingToolbar(
   editor: LexicalEditor,
 ): JSX.Element | null {
   const [isText, setIsText] = useState(false);
-  const [isLink, setIsLink] = useState(false);
 
   const updatePopup = useCallback(() => {
     editor.getEditorState().read(() => {
@@ -194,14 +192,6 @@ function useTextFormatFloatingToolbar(
 
       const node = getSelectedNode(selection);
 
-      // Update links
-      const parent = node.getParent();
-      if ($isLinkNode(parent) || $isLinkNode(node)) {
-        setIsLink(true);
-      } else {
-        setIsLink(false);
-      }
-
       if (
         !$isCodeHighlightNode(selection.anchor.getNode()) &&
         selection.getTextContent() !== ''
@@ -226,7 +216,7 @@ function useTextFormatFloatingToolbar(
     });
   }, [editor, updatePopup]);
 
-  if (!isText || isLink) {
+  if (!isText) {
     return null;
   }
 
