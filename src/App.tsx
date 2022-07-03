@@ -18,7 +18,6 @@ import { actions } from './slices';
 import SplashScreen from './components/SplachScreen';
 import { Helmet } from 'react-helmet';
 import Privacy from './Privacy';
-import LexicalEditor from './lexical/Editor';
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -44,7 +43,6 @@ function App() {
           </Route>
           <Route path="open" element={<Documents />} />
           <Route path="privacy" element={<Privacy />} />
-          <Route path="lexical" element={<LexicalEditor />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </Container>

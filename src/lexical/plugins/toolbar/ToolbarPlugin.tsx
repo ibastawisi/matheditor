@@ -15,11 +15,18 @@ import IconButton from '@mui/material/IconButton';
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
 
+import * as React from 'react';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import useScrollTrigger from '@mui/material/useScrollTrigger';
+
 import { BlockFormatSelect } from './BlockFormatSelect';
 import InsertToolMenu from './InsertToolMenu';
 import TextFormatToggles from './TextFormatToggles';
 import AlignTextMenu from './AlignTextMenu';
 import { IS_APPLE } from '../../../shared/environment';
+
+import "./ToolbarPlugin.css";
 
 export const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -250,7 +257,7 @@ export default function ToolbarPlugin(): JSX.Element {
     ['Trebuchet MS', 'Trebuchet MS'],
     ['Verdana', 'Verdana'],
   ];
-  
+
   const FONT_SIZE_MAP = [
     ['10px', '10'],
     ['11px', '11'],
@@ -266,38 +273,68 @@ export default function ToolbarPlugin(): JSX.Element {
   ];
 
   return (
-    <Box className="toolbar" sx={{ display: 'flex', displayPrint: 'none', alignItems: 'center', justifyContent: 'space-between', '& hr': { mx: 0.5, }, }}>
-      <Box sx={{ display: "flex" }}>
-        <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
-          onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}> <UndoIcon />
-        </IconButton>
-        <IconButton title={IS_APPLE ? 'Redo (⌘Y)' : 'Redo (Ctrl+Y)'} aria-label="Redo" disabled={!canRedo}
-          onClick={() => { activeEditor.dispatchCommand(REDO_COMMAND, undefined); }}>
-          <RedoIcon />
-        </IconButton>
-      </Box>
-      <Box sx={{ display: "flex" }}>
-        {blockType in blockTypeToBlockName && activeEditor === editor && <BlockFormatSelect blockType={blockType} editor={editor} />}
-        {blockType === 'code' ? (
-          <Select size='small' sx={{ mx: 0.25 }} onChange={onCodeLanguageSelect} value={codeLanguage}>
-            {CODE_LANGUAGE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
-          </Select>
-        ) : (
-          <>
-            <Select size='small' sx={{ mx: 0.25, width: 80 }} onChange={onFontFamilySelect} value={fontFamily}>
-              {FONT_FAMILY_MAP.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
-            </Select>
-            <Select size='small' sx={{ mx: 0.25 }} onChange={onFontSizeSelect} value={fontSize}>
-              {FONT_SIZE_MAP.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
-            </Select>
-            <TextFormatToggles editor={activeEditor} sx={{ mx: 1, display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
-          </>
-        )}
-      </Box>
-      <Box sx={{ display: "flex" }}>
-        {blockType !== 'code' && <InsertToolMenu editor={activeEditor} />}
-        <AlignTextMenu editor={activeEditor} isRTL={isRTL} />
-      </Box>
-    </Box >
+    <ElevationScroll>
+      <AppBar className='toolbar-appbar'>
+        <Toolbar className="toolbar" sx={{ displayPrint: 'none' }}>
+          <Box sx={{ display: "flex" }}>
+            <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
+              onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}> <UndoIcon />
+            </IconButton>
+            <IconButton title={IS_APPLE ? 'Redo (⌘Y)' : 'Redo (Ctrl+Y)'} aria-label="Redo" disabled={!canRedo}
+              onClick={() => { activeEditor.dispatchCommand(REDO_COMMAND, undefined); }}>
+              <RedoIcon />
+            </IconButton>
+          </Box>
+          <Box sx={{ display: "flex" }}>
+            {blockType in blockTypeToBlockName && activeEditor === editor && <BlockFormatSelect blockType={blockType} editor={editor} />}
+            {blockType === 'code' ? (
+              <Select size='small' sx={{ mx: 0.25 }} onChange={onCodeLanguageSelect} value={codeLanguage}>
+                {CODE_LANGUAGE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
+              </Select>
+            ) : (
+              <>
+                <Select size='small' sx={{ mx: 0.25, width: 80 }} onChange={onFontFamilySelect} value={fontFamily}>
+                  {FONT_FAMILY_MAP.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
+                </Select>
+                <Select size='small' sx={{ mx: 0.25 }} onChange={onFontSizeSelect} value={fontSize}>
+                  {FONT_SIZE_MAP.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
+                </Select>
+                <TextFormatToggles editor={activeEditor} sx={{ mx: 1, display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
+              </>
+            )}
+          </Box>
+          <Box sx={{ display: "flex" }}>
+            {blockType !== 'code' && <InsertToolMenu editor={activeEditor} />}
+            <AlignTextMenu editor={activeEditor} isRTL={isRTL} />
+          </Box>
+        </Toolbar >
+      </AppBar>
+    </ElevationScroll>
   );
+}
+
+interface Props {
+  /**
+   * Injected by the documentation to work in an iframe.
+   * You won't need it on your project.
+   */
+  window?: () => Window;
+  children: React.ReactElement;
+}
+
+function ElevationScroll(props: Props) {
+  const { children, window } = props;
+  // Note that you normally won't need to set the window ref as useScrollTrigger
+  // will default to window.
+  // This is only being set here because the demo is in an iframe.
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 100,
+    target: window ? window() : undefined,
+  });
+
+  return React.cloneElement(children, {
+    elevation: trigger ? 4 : 0,
+    position: trigger ? 'fixed' : 'static',
+  });
 }

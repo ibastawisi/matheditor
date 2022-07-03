@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { actions } from "../slices";
 import { AppDispatch, RootState } from "../store";
 import { useNavigate, useParams } from "react-router-dom";
-import Editor from "../editorjs/Editor";
+import Editor from "../lexical/Editor";
 
 import { validate } from "uuid";
 import SplashScreen from "./SplachScreen";
@@ -24,7 +24,8 @@ const EditDocument: React.FC = () => {
           // load from local storage
           const storedDocument = window.localStorage.getItem(params.id);
           if (storedDocument) {
-            dispatch(actions.app.loadDocument(JSON.parse(storedDocument)));
+            const editorDocument = JSON.parse(storedDocument);
+            dispatch(actions.app.loadDocument(editorDocument));
           } else {
             dispatch(actions.app.announce({ message: "No document with this id was found" }));
           }

@@ -118,3 +118,47 @@ pre::-webkit-scrollbar-thumb {
     display: none;
   }
 }
+
+.editor-container {
+  margin-top: 1rem;
+}
+
+.editor-wrapper {
+  padding: 1rem;
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
+  max-width: 21cm;
+  margin: 0 auto;
+}
+
+math-field:focus-within {
+  outline: none;
+}
+
+/* mathlive virtula keyboard styles */
+[theme=light] div.ML__keyboard.material {
+  --keycap-background: #FFF !important;
+}
+
+[theme=dark] div.ML__keyboard.material {
+  --keycap-background-active: #FAFAFA !important;
+}
+
+[theme=dark] math-field {
+  --highlight: #455A64;
+  --contains-highlight: #263238;
+}
+
+[theme=dark] ::selection {
+  background-color: #455A64;
+}
+
+@media print {
+  .editor-container {
+    margin-top: 0;
+  }
+
+  .editor-wrapper {
+    padding: 0;
+    box-shadow: none;
+  }
+}

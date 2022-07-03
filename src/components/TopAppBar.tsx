@@ -90,24 +90,6 @@ const TopAppBar: React.FC<{}> = () => {
     }
   };
 
-  const handleSave = () => {
-    const blob = new Blob([JSON.stringify(document)], { type: "text/json" });
-    const link = window.document.createElement("a");
-
-    link.download = document.name + ".json";
-    link.href = window.URL.createObjectURL(blob);
-    link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
-
-    const evt = new MouseEvent("click", {
-      view: window,
-      bubbles: true,
-      cancelable: true,
-    });
-
-    link.dispatchEvent(evt);
-    link.remove()
-  };
-
   const openSettingsDialog = () => {
     setSettingsOpen(true);
   };
@@ -119,7 +101,7 @@ const TopAppBar: React.FC<{}> = () => {
   return (
     <>
       <HideOnScroll>
-        <AppBar sx={{ displayPrint: "none" }}>
+        <AppBar sx={{ displayPrint: "none", zIndex: 1111 }}>
           <Toolbar>
             <Link component={RouterLink} to="/">
               <Box sx={{ display: "flex" }}>

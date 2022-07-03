@@ -1,4 +1,3 @@
-import theme from "./theme";
 import { LexicalEditor, EditorState } from 'lexical';
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
@@ -17,8 +16,10 @@ import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { HorizontalRuleNode } from "@lexical/react/LexicalHorizontalRuleNode";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { TRANSFORMERS } from "@lexical/markdown";
 
+import { useSharedHistoryContext } from "./context/SharedHistoryContext";
 import TreeViewPlugin from "./plugins/TreeViewPlugin";
 import ToolbarPlugin from "./plugins/toolbar/ToolbarPlugin";
 import ListMaxIndentLevelPlugin from "./plugins/ListMaxIndentLevelPlugin";
@@ -31,15 +32,16 @@ import ImagesPlugin from "./plugins/ImagesPlugin";
 import HorizontalRulePlugin from "./plugins/HorizontalRulePlugin";
 import MathPlugin from "./plugins/MathPlugin";
 import { MathNode } from "./nodes/MathNode";
-
-import { useSharedHistoryContext } from "./context/SharedHistoryContext";
 import { ImageNode } from "./nodes/ImageNode";
 
-import "./styles.css";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../store";
+import { actions } from "../slices";
+import { EditorDocument } from "../slices/app";
 
-function Placeholder() {
-  return <div className="editor-placeholder">Enter some rich text...</div>;
-}
+import theme from "./theme";
+import "./styles.css";
+import { migrateData } from './utils';
 
 const editorConfig = {
   namespace: "matheditor",
@@ -68,28 +70,26 @@ const editorConfig = {
   ]
 };
 
-// When the editor changes, you can get notified via the
-// LexicalOnChangePlugin!
-function onChange(editorState: EditorState, editor: LexicalEditor) {
-  const serializedEditorState = JSON.stringify(editor.getEditorState().toJSON());
-  console.log(serializedEditorState);
-  // const newEditorState = editor.parseEditorState(serializedEditorState);
-}
+const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
 
-export default function Editor() {
   const { historyState } = useSharedHistoryContext();
+  const config = useSelector((state: RootState) => state.app.config.editor);
+  const dispatch = useDispatch<AppDispatch>();
+
+  function onChange(editorState: EditorState, editor: LexicalEditor) {
+    const serializedEditorState = editor.getEditorState().toJSON();
+    dispatch(actions.app.saveDocument(serializedEditorState));
+  }
+
   return (
-    <LexicalComposer initialConfig={editorConfig}>
+    <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(migrateData(document.data)) }}>
       <div className="editor-shell">
         <ToolbarPlugin />
         <div className="editor-inner">
-          <RichTextPlugin
-            contentEditable={<ContentEditable className="editor-input" />}
-            placeholder={<Placeholder />}
-          />
+          <RichTextPlugin contentEditable={<ContentEditable className="editor-input" />} placeholder="" />
           <HistoryPlugin externalHistoryState={historyState} />
           <OnChangePlugin ignoreInitialChange ignoreSelectionChange onChange={onChange} />
-          <TreeViewPlugin />
+          {config.debug && <TreeViewPlugin />}
           <AutoFocusPlugin />
           <CodeHighlightPlugin />
           <ListPlugin />
@@ -110,3 +110,5 @@ export default function Editor() {
     </LexicalComposer>
   );
 }
+
+export default Editor;

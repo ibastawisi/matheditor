@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Announcement } from '../components/Announcer';
-import { OutputData } from '@editorjs/editorjs';
 import { validate } from 'uuid';
+import { SerializedEditorState } from 'lexical';
 
 export interface AppState {
   announcement: Announcement | null;
@@ -13,7 +13,8 @@ export interface AppState {
   };
   config: {
     editor: {
-      author?: string;
+      author: string;
+      debug: boolean;
     };
     header: {
       level: number;
@@ -33,7 +34,7 @@ export interface EditorDocument {
   id: string;
   name: string;
   author?: string;
-  data: OutputData;
+  data: SerializedEditorState;
   timestamp: number;
 }
 
@@ -47,6 +48,8 @@ const initialState: AppState = {
   },
   config: {
     editor: {
+      author: '',
+      debug: false,
     },
     header: {
       level: 2,
@@ -81,7 +84,7 @@ export const appSlice = createSlice({
       window.localStorage.setItem("editor", JSON.stringify(action.payload));
       !state.documents.includes(action.payload.id) && state.documents.push(action.payload.id);
     },
-    saveDocument: (state, action: PayloadAction<OutputData>) => {
+    saveDocument: (state, action: PayloadAction<SerializedEditorState>) => {
       state.editor.data = action.payload;
       window.localStorage.setItem("editor", JSON.stringify(state.editor));
       window.localStorage.setItem(state.editor.id, JSON.stringify(state.editor));
@@ -92,6 +95,10 @@ export const appSlice = createSlice({
     },
     deleteDocument: (state, action: PayloadAction<string>) => {
       state.documents = state.documents.filter(key => key !== action.payload);
+      if (state.editor.id === action.payload) {
+        state.editor = { ...initialState.editor };
+        window.localStorage.removeItem("editor");
+      }
       window.localStorage.removeItem(action.payload);
     },
     announce: (state, action: PayloadAction<Announcement>) => {

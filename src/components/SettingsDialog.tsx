@@ -12,15 +12,17 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import TextField from '@mui/material/TextField/TextField';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
+// import FormControl from '@mui/material/FormControl';
+// import InputLabel from '@mui/material/InputLabel';
+// import Select from '@mui/material/Select';
+// import MenuItem from '@mui/material/MenuItem';
+// import Accordion from '@mui/material/Accordion';
+// import AccordionSummary from '@mui/material/AccordionSummary';
+// import AccordionDetails from '@mui/material/AccordionDetails';
+// import Typography from '@mui/material/Typography';
+// import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 export default function SettingsDialog({ open, onClose }: { open: boolean; onClose: () => void; }) {
   const theme = useTheme();
@@ -39,6 +41,12 @@ export default function SettingsDialog({ open, onClose }: { open: boolean; onClo
     const { name, value } = event.target;
     const [parentKey, childKey]: [keyof typeof formData, string] = name.split('.');
     setFormData({ ...formData, [parentKey]: { ...formData[parentKey], [childKey]: value } });
+  };
+
+  const updateSwitchFormData = (event: any) => {
+    const { name, checked } = event.target;
+    const [parentKey, childKey]: [keyof typeof formData, string] = name.split('.');
+    setFormData({ ...formData, [parentKey]: { ...formData[parentKey], [childKey]: checked } });
   };
 
   const handleSubmit = () => {
@@ -63,8 +71,10 @@ export default function SettingsDialog({ open, onClose }: { open: boolean; onClo
         </DialogContentText>
 
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-          <TextField margin="normal" size="small" fullWidth id="author" value={config.editor.author} onChange={updateFormData} label="Author Name" name="editor.author" autoComplete="author" autoFocus />
-          <Accordion>
+          <TextField margin="normal" size="small" fullWidth id="author" value={formData.editor.author} onChange={updateFormData} label="Author Name" name="editor.author" autoComplete="author" autoFocus />
+          <FormControlLabel control={<Switch name='editor.debug' checked={formData.editor.debug} onChange={updateSwitchFormData} />} label="Show Debug View" />
+          
+          {/* <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography>Header</Typography>
             </AccordionSummary>
@@ -127,7 +137,7 @@ export default function SettingsDialog({ open, onClose }: { open: boolean; onClo
                 </Select>
               </FormControl>
             </AccordionDetails>
-          </Accordion>
+          </Accordion> */}
         </Box>
       </DialogContent>
       <DialogActions>

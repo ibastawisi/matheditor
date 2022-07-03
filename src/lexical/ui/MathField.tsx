@@ -1,5 +1,7 @@
-import { MathfieldElement } from "mathlive";
 import { useEffect } from "react";
+import { MathfieldElement } from "mathlive";
+import 'mathlive/dist/mathlive-fonts.css';
+import 'mathlive/dist/mathlive.min';
 
 declare global {
   /** @internal */

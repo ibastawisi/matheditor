@@ -23,7 +23,7 @@ const Documents: React.FC = () => {
       (window as any).launchQueue.setConsumer(
         async (launchParams: { files: FileSystemFileHandle[] }) => {
           if (!launchParams.files.length) return;
-          const files = await Promise.all(launchParams.files.map(async file => file.getFile())); 
+          const files = await Promise.all(launchParams.files.map(async file => file.getFile()));
           await handleFilesChange(files);
         },
       );

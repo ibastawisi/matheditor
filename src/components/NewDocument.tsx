@@ -16,6 +16,7 @@ import { AppDispatch, RootState } from "../store";
 import * as Service from '../services';
 import { useEffect } from "react";
 import SplashScreen from "./SplachScreen";
+import { SerializedEditorState } from "lexical";
 
 const NewDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -49,16 +50,36 @@ const NewDocument: React.FC = () => {
   }, [params.id]);
 
 
-  const newDocumentData = () => ({ time: new Date().getTime(), blocks: [{ type: "header", data: { text: "Untitled Document", level: 2 } }] });
+  const newDocumentData = (name?: string): SerializedEditorState => {
+    const editorState: any = {
+      root: {
+        type: "root",
+        children: [
+          {
+            type: 'heading', "format": "center", "tag": "h2",
+            children: [
+              {
+                type: 'text',
+                text: name || 'New Document',
+                mode: "normal",
+              }
+            ]
+          }
+        ],
+      }
+    };
+    return editorState;
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const documentName = formData.get("fileName") as string;
     const document: EditorDocument = {
       id: uuidv4(),
-      name: formData.get('fileName') as string,
+      name: documentName,
       author: config.editor.author,
-      data: newDocumentData(),
+      data: newDocumentData(documentName),
       timestamp: new Date().getTime(),
     }
     window.localStorage.setItem(document.id, JSON.stringify(document));
