@@ -49,7 +49,6 @@ function mapEditorBlocksToLexicalNodes(blocks: any[]): any {
               src: data.file.url,
               width: 0,
               height: 0,
-              maxWidth: 500,
               showCaption: false,
               caption: {
                 editorState: {

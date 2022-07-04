@@ -56,7 +56,6 @@ export interface ImagePayload {
   caption?: LexicalEditor;
   height?: number;
   key?: NodeKey;
-  maxWidth?: number;
   showCaption?: boolean;
   src: string;
   width?: number;
@@ -93,13 +92,11 @@ function LazyImage({
   src,
   width,
   height,
-  maxWidth,
 }: {
   altText: string;
   className: string | null;
   height: 'inherit' | number;
   imageRef: { current: null | HTMLImageElement };
-  maxWidth: number;
   src: string;
   width: 'inherit' | number;
 }): JSX.Element {
@@ -112,7 +109,6 @@ function LazyImage({
       ref={imageRef}
       style={{
         height,
-        maxWidth,
         width,
       }}
       draggable="false"
@@ -126,7 +122,6 @@ function ImageComponent({
   nodeKey,
   width,
   height,
-  maxWidth,
   resizable,
   showCaption,
   caption,
@@ -134,7 +129,6 @@ function ImageComponent({
   altText: string;
   caption: LexicalEditor;
   height: 'inherit' | number;
-  maxWidth: number;
   nodeKey: NodeKey;
   resizable: boolean;
   showCaption: boolean;
@@ -258,7 +252,6 @@ function ImageComponent({
             imageRef={ref}
             width={width}
             height={height}
-            maxWidth={maxWidth}
           />
         </div>
         {showCaption && (
@@ -288,7 +281,6 @@ function ImageComponent({
             setShowCaption={setShowCaption}
             editor={editor}
             imageRef={ref}
-            maxWidth={maxWidth}
             onResizeStart={onResizeStart}
             onResizeEnd={onResizeEnd}
           />
@@ -303,7 +295,6 @@ export type SerializedImageNode = Spread<
     altText: string;
     caption: SerializedEditor;
     height?: number;
-    maxWidth: number;
     showCaption: boolean;
     src: string;
     width?: number;
@@ -318,7 +309,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   __altText: string;
   __width: 'inherit' | number;
   __height: 'inherit' | number;
-  __maxWidth: number;
   __showCaption: boolean;
   __caption: LexicalEditor;
 
@@ -330,7 +320,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return new ImageNode(
       node.__src,
       node.__altText,
-      node.__maxWidth,
       node.__width,
       node.__height,
       node.__showCaption,
@@ -340,12 +329,11 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   }
 
   static importJSON(serializedNode: SerializedImageNode): ImageNode {
-    const { altText, height, width, maxWidth, caption, src, showCaption } =
+    const { altText, height, width, caption, src, showCaption } =
       serializedNode;
     const node = $createImageNode({
       altText,
       height,
-      maxWidth,
       showCaption,
       src,
       width,
@@ -377,7 +365,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   constructor(
     src: string,
     altText: string,
-    maxWidth: number,
     width?: 'inherit' | number,
     height?: 'inherit' | number,
     showCaption?: boolean,
@@ -387,7 +374,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     super(key);
     this.__src = src;
     this.__altText = altText;
-    this.__maxWidth = maxWidth;
     this.__width = width || 'inherit';
     this.__height = height || 'inherit';
     this.__showCaption = showCaption || false;
@@ -399,7 +385,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       altText: this.getAltText(),
       caption: this.__caption.toJSON(),
       height: this.__height === 'inherit' ? 0 : this.__height,
-      maxWidth: this.__maxWidth,
       showCaption: this.__showCaption,
       src: this.getSrc(),
       type: 'image',
@@ -453,7 +438,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
         altText={this.__altText}
         width={this.__width}
         height={this.__height}
-        maxWidth={this.__maxWidth}
         nodeKey={this.getKey()}
         showCaption={this.__showCaption}
         caption={this.__caption}
@@ -466,7 +450,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 export function $createImageNode({
   altText,
   height,
-  maxWidth = 500,
   src,
   width,
   showCaption,
@@ -476,7 +459,6 @@ export function $createImageNode({
   return new ImageNode(
     src,
     altText,
-    maxWidth,
     width,
     height,
     showCaption,
