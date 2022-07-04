@@ -4,7 +4,6 @@ import { $getNodeByKey, DecoratorNode, } from 'lexical';
 import { useRef } from 'react';
 import MathField from '../ui/MathField';
 
-import "./MathNode.css";
 import { MathfieldElement } from 'mathlive';
 
 type MathComponentProps = { value: string; nodeKey: NodeKey; };

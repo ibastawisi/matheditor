@@ -16,7 +16,6 @@ import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { HorizontalRuleNode } from "@lexical/react/LexicalHorizontalRuleNode";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { TRANSFORMERS } from "@lexical/markdown";
 
 import { useSharedHistoryContext } from "./context/SharedHistoryContext";

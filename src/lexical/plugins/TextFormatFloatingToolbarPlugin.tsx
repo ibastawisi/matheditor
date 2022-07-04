@@ -139,7 +139,7 @@ function TextFormatFloatingToolbar({
   }, [editor, updateTextFormatFloatingToolbar]);
 
   return (
-    <Paper ref={popupCharStylesEditorRef} sx={{ position: "absolute" }}>
+    <Paper ref={popupCharStylesEditorRef} sx={{ position: "absolute", displayPrint: "none" }}>
       <TextFormatToggles editor={editor} sx={{ flexWrap: "wrap" }} />
     </Paper>
   );

@@ -26,8 +26,6 @@ import TextFormatToggles from './TextFormatToggles';
 import AlignTextMenu from './AlignTextMenu';
 import { IS_APPLE } from '../../../shared/environment';
 
-import "./ToolbarPlugin.css";
-
 export const blockTypeToBlockName = {
   bullet: 'Bulleted List',
   check: 'Check List',
@@ -275,7 +273,7 @@ export default function ToolbarPlugin(): JSX.Element {
   return (
     <ElevationScroll>
       <AppBar className='toolbar-appbar'>
-        <Toolbar className="toolbar" sx={{ displayPrint: 'none' }}>
+        <Toolbar className="toolbar" sx={{ displayPrint: 'none',px:0, justifyContent: "space-between", alignItems: "center" }}>
           <Box sx={{ display: "flex" }}>
             <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
               onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}> <UndoIcon />

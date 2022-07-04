@@ -12,21 +12,6 @@ declare global {
   }
 }
 
-export function createMathField(value: string, inline: boolean = false): MathfieldElement {
-  const mathfield = new MathfieldElement();
-  mathfield.virtualKeyboardMode = "onfocus";
-  mathfield.virtualKeyboardTheme = "material";
-  // eslint-disable-next-line no-useless-escape
-  mathfield.mathModeSpace = "\\,"
-  mathfield.value = value;
-  mathfield.smartMode = true;
-  mathfield.keypressSound = "none";
-  mathfield.plonkSound = "none";
-  inline && (mathfield.style.display = "inline-flex");
-
-  return mathfield;
-}
-
 type MathFieldProps = {
   value: string;
   onInput: (value: string) => void;
@@ -44,8 +29,6 @@ export default function MathField({ value, mathfieldRef, onInput }: MathFieldPro
     mathfield.smartMode = true;
     mathfield.keypressSound = "none";
     mathfield.plonkSound = "none";
-
-    mathfield.style.display = "inline-flex";
     
     mathfield.oninput = e => onInput(mathfield.value);
     !mathfield.value && mathfield.focus()

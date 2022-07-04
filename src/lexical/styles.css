@@ -112,13 +112,6 @@ pre::-webkit-scrollbar-thumb {
   text-decoration: underline;
 }
 
-@media print {
-  .toolbar,
-  .tree-view-output {
-    display: none;
-  }
-}
-
 .editor-container {
   margin-top: 1rem;
 }
@@ -128,6 +121,21 @@ pre::-webkit-scrollbar-thumb {
   box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
   max-width: 21cm;
   margin: 0 auto;
+}
+
+.toolbar {
+  background-color: #fff;
+}
+
+[theme="dark"] .toolbar {
+  background-color: #121212;
+}
+
+math-field {
+  display: inline-block;
+  white-space: initial;
+  word-break: initial;
+  max-width: calc(100vw - 52px);
 }
 
 math-field:focus-within {
@@ -160,5 +168,13 @@ math-field:focus-within {
   .editor-wrapper {
     padding: 0;
     box-shadow: none;
+  }
+
+  .tree-view-output {
+    display: none;
+  }
+
+  *, *:before, *:after {
+    filter: unset !important;
   }
 }
