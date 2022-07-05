@@ -87,7 +87,7 @@ const Documents: React.FC = () => {
         </Button>
         <Button sx={{ mx: 1 }} variant="outlined" startIcon={<UploadFileIcon />} component="label">
           Upload File
-          <input type="file" hidden accept=".json" multiple onChange={e => handleFilesChange(e.target.files)} />
+          <input type="file" hidden accept=".me" multiple onChange={e => handleFilesChange(e.target.files)} />
         </Button>
       </Box>
       <Box sx={{ mt: 5 }}>

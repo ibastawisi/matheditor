@@ -13,6 +13,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import TextField from '@mui/material/TextField/TextField';
 
+import Compressor from 'compressorjs';
+
 export default function InsertImageDialog({ editor, open, onClose }: { editor: LexicalEditor; open: boolean; onClose: () => void; }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -34,7 +36,15 @@ export default function InsertImageDialog({ editor, open, onClose }: { editor: L
       return '';
     };
     if (files !== null) {
-      reader.readAsDataURL(files[0]);
+      new Compressor(files![0], {
+        quality: 0.6,
+        success(result: File) {
+          reader.readAsDataURL(result);
+        },
+        error(err: Error) {
+          console.log(err.message);
+        },
+      });
     }
   };
 

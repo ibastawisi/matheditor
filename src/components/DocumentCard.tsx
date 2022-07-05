@@ -49,7 +49,7 @@ const DocumentCard: React.FC<{ document: EditorDocument }> = ({ document }) => {
     const blob = new Blob([JSON.stringify(document)], { type: "text/json" });
     const link = window.document.createElement("a");
 
-    link.download = document.name + ".json";
+    link.download = document.name + ".me";
     link.href = window.URL.createObjectURL(blob);
     link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
 

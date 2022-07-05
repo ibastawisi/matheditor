@@ -132,7 +132,7 @@ const TopAppBar: React.FC<{}> = () => {
       </HideOnScroll>
       <Toolbar id="back-to-top-anchor" sx={{ displayPrint: "none" }} />
       <ScrollTop>
-        <Fab color="secondary" size="small" aria-label="scroll back to top" sx={{ displayPrint: "none" }}>
+        <Fab color="secondary" size="small" aria-label="scroll back to top" sx={{ displayPrint: "none", zIndex: 1 }}>
           <KeyboardArrowUpIcon />
         </Fab>
       </ScrollTop>

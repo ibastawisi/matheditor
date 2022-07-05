@@ -1,6 +1,6 @@
 import React from 'react';
 import './index.css';
-import App from './App';
+import App from './components/App';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
 import { Provider } from 'react-redux';

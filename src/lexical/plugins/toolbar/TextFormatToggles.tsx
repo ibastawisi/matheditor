@@ -5,13 +5,10 @@ import { $getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND, LexicalEditor, C
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
-import FormatColorTextIcon from '@mui/icons-material/FormatColorText';
-import FormatColorFillIcon from '@mui/icons-material/FormatColorFill';
 import CodeIcon from '@mui/icons-material/Code';
 import FormatStrikethroughIcon from '@mui/icons-material/FormatStrikethrough';
 import SubscriptIcon from '@mui/icons-material/Subscript';
 import SuperscriptIcon from '@mui/icons-material/Superscript';
-import { $getSelectionStyleValueForProperty, $patchStyleText, } from '@lexical/selection';
 import { mergeRegister, } from '@lexical/utils';
 
 import { IS_APPLE } from '../../../shared/environment';
@@ -40,9 +37,6 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
       setIsSuperscript(selection.hasFormat('superscript'));
       setIsCode(selection.hasFormat('code'));
 
-      // Handle buttons
-      setFontColor($getSelectionStyleValueForProperty(selection, 'color', '#000000'));
-      setBgColor($getSelectionStyleValueForProperty(selection, 'background-color', '#ffffff'));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
@@ -68,58 +62,12 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
     );
   }, [editor, updateToolbar]);
 
-  const applyStyleText = useCallback(
-    (styles: Record<string, string>) => {
-      editor.update(() => {
-        const selection = $getSelection();
-        if ($isRangeSelection(selection)) {
-          $patchStyleText(selection, styles);
-        }
-      });
-    },
-    [editor],
-  );
-
-
-  const [fontColor, setFontColor] = useState<string>('#000000');
-  const [bgColor, setBgColor] = useState<string>('#ffffff');
-
-  const fontColorRef = React.useRef<HTMLInputElement>(null);
-  const bgColorRef = React.useRef<HTMLInputElement>(null);
-
-
-  const onColorChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    if (name === 'color') {
-      setFontColor(value);
-    }
-    if (name === 'background-Color') {
-      setBgColor(value);
-    }
-    applyStyleText({ [name]: value });
-  }, [applyStyleText]);
-
   const handleFormat = (
     event: React.MouseEvent<HTMLElement>,
     newFormats: string[],
   ) => {
     const button = event.currentTarget as HTMLButtonElement;
-    switch (button.value) {
-      case 'color': {
-        if (fontColorRef.current) {
-          fontColorRef.current.click();
-        }
-        break;
-      }
-      case 'background-color': {
-        if (bgColorRef.current) {
-          bgColorRef.current.click();
-        }
-        break;
-      }
-      default:
-        editor.dispatchCommand(FORMAT_TEXT_COMMAND, button.value);
-    };
+    editor.dispatchCommand(FORMAT_TEXT_COMMAND, button.value);
   };
 
   const formatObj = { isBold, isItalic, isUnderline, isStrikethrough, isSubscript, isSuperscript, isCode };
@@ -156,14 +104,5 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
     <ToggleButton value="superscript" title='Format text with superscript' aria-label='Format text with superscript'>
       <SuperscriptIcon />
     </ToggleButton>
-    <ToggleButton value="color" title="text color" aria-label="text color">
-      <input type="color" style={{ position: 'absolute', width: 0, height: 0, opacity: 0 }} name='color' ref={fontColorRef} value={fontColor} onChange={onColorChange} />
-      <FormatColorTextIcon />
-    </ToggleButton>
-    <ToggleButton value="background-color" title="background color" aria-label="background color">
-      <input type="color" style={{ position: 'absolute', width: 0, height: 0, opacity: 0 }} ref={bgColorRef} name='background-color' value={bgColor} onChange={onColorChange} />
-      <FormatColorFillIcon />
-    </ToggleButton>
-
   </ToggleButtonGroup>)
 }

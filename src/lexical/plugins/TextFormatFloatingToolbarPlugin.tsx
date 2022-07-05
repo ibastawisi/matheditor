@@ -32,7 +32,7 @@ function setPopupPosition(
   rootElementRect: ClientRect,
 ): void {
   let top = rect.top + rect.height + 4 + window.pageYOffset;
-  let left = rect.left + 340 + window.pageXOffset - editor.offsetWidth + rect.width;
+  let left = rect.left + rect.width + window.pageXOffset;
 
   if (left + editor.offsetWidth > rootElementRect.right) {
     left = rect.right - editor.offsetWidth;
@@ -54,7 +54,7 @@ function setPopupPosition(
   editor.style.top = `${top}px`;
   editor.style.left = `${left}px`;
 
-  if (left + rootElementRect.width + 32 > window.innerWidth) {
+  if (left + rect.width + 32 > window.innerWidth) {
     editor.style.maxWidth = window.innerWidth - 32 + 'px';
     editor.style.left = "16px";
   }
