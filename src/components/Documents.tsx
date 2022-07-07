@@ -13,6 +13,9 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { EditorDocument } from "../slices/app";
 import { validate } from "uuid";
 
+import templates from "../templates";
+import TemplateCard from "./TemplateCard";
+
 const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.app.documents);
   const dispatch = useDispatch<AppDispatch>();
@@ -83,12 +86,20 @@ const Documents: React.FC = () => {
           Create a new document
         </Typography>
         <Button sx={{ mx: 1 }} variant="outlined" startIcon={<NewIcon />} component={RouterLink} to="/new">
-          Create New
+          Blank Document
         </Button>
         <Button sx={{ mx: 1 }} variant="outlined" startIcon={<UploadFileIcon />} component="label">
           Upload File
           <input type="file" hidden accept=".me" multiple onChange={e => handleFilesChange(e.target.files)} />
         </Button>
+        <Typography variant="h6" component="h2" sx={{ my: 2 }}>
+          Get started using a template
+        </Typography>
+        <Grid container spacing={2}>
+          {Object.keys(templates).map(key => <Grid item key={key} xs={12} sm={6} md={4}>
+            <TemplateCard template={templates[key]} />
+          </Grid>)}
+        </Grid>
       </Box>
       <Box sx={{ mt: 5 }}>
         {documents.length > 0 && <>

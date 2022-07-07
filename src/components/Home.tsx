@@ -5,7 +5,7 @@ import { RootState } from "../store";
 
 const Home: React.FC = () => {
   const editor = useSelector((state: RootState) => state.app.editor);
-  return <Navigate to={editor.id ? `/edit/${editor.id}` : "/new"} />;
+  return <Navigate to={editor.id ? `/edit/${editor.id}` : "/open"} />;
 };
 
 export default Home;

@@ -54,7 +54,7 @@ function ScrollTop({ children }: { children: React.ReactElement }) {
       <Box
         onClick={handleClick}
         role="presentation"
-        sx={{ position: 'fixed', bottom: 16, right: 16 }}
+        sx={{ position: 'fixed', bottom: 16, right: 16, zIndex: 1, displayPrint: "none" }}
       >
         {children}
       </Box>
@@ -132,7 +132,7 @@ const TopAppBar: React.FC<{}> = () => {
       </HideOnScroll>
       <Toolbar id="back-to-top-anchor" sx={{ displayPrint: "none" }} />
       <ScrollTop>
-        <Fab color="secondary" size="small" aria-label="scroll back to top" sx={{ displayPrint: "none", zIndex: 1 }}>
+        <Fab color="secondary" size="small" aria-label="scroll back to top">
           <KeyboardArrowUpIcon />
         </Fab>
       </ScrollTop>

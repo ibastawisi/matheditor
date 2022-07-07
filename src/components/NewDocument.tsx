@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import { v4 as uuidv4 } from "uuid";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import TextField from '@mui/material/TextField';
@@ -22,6 +22,7 @@ const NewDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const params = useParams<{ id: string }>();
+  const location = useLocation();
   const config = useSelector((state: RootState) => state.app.config);
 
   useEffect(() => {
@@ -42,9 +43,6 @@ const NewDocument: React.FC = () => {
           dispatch(actions.app.announce({ message: "No document with this id was found" }));
         }
       })();
-
-    } else {
-      navigate("/new");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
@@ -75,11 +73,12 @@ const NewDocument: React.FC = () => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const documentName = formData.get("fileName") as string;
+    const locationData = (location.state as { data: SerializedEditorState | undefined }).data;
     const document: EditorDocument = {
       id: uuidv4(),
       name: documentName,
       author: config.editor.author,
-      data: newDocumentData(documentName),
+      data: locationData ? locationData : newDocumentData(documentName),
       timestamp: new Date().getTime(),
     }
     window.localStorage.setItem(document.id, JSON.stringify(document));
