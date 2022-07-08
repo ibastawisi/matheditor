@@ -7,8 +7,6 @@ import { INSERT_IMAGE_COMMAND } from '../ImagePlugin';
 
 const parameters = {
   id: "ggbApplet",
-  width: 800,
-  height: 600,
   showToolBar: true,
   borderColor: null,
   showMenuBar: false,
@@ -26,6 +24,11 @@ const parameters = {
 
 const applet = new (window as any).GGBApplet(parameters, '5.0');
 
+window.addEventListener('resize', () => {
+  const app = (window as any).ggbApplet;
+  app?.setSize(window.innerWidth, window.innerHeight - 52.5);
+ })
+
 export default function InsertGraphDialog({ editor, open, onClose }: { editor: LexicalEditor; open: boolean; onClose: () => void; }) {
 
   const handleSubmit = () => {
@@ -39,9 +42,7 @@ export default function InsertGraphDialog({ editor, open, onClose }: { editor: L
 
   return (
     <Dialog open={open} fullScreen={true} onClose={onClose}>
-      <DialogContent sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 0 }}>
-        <div ref={el => el && applet.inject(el)} />
-      </DialogContent>
+      <DialogContent sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 0, overflow: "hidden" }} ref={el => el && applet.inject(el)} />
       <DialogActions>
         <Button autoFocus onClick={onClose}>
           Cancel

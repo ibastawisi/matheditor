@@ -184,3 +184,8 @@ math-field:empty:not(:focus-within) {
     filter: unset !important;
   }
 }
+
+.applet_scaler.ggbTransform {
+  width: 100% !important;
+  height: 100% !important;
+}
