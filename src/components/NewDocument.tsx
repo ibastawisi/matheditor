@@ -73,7 +73,7 @@ const NewDocument: React.FC = () => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const documentName = formData.get("fileName") as string;
-    const locationData = (location.state as { data: SerializedEditorState | undefined }).data;
+    const locationData = (location.state as { data: SerializedEditorState } | null )?.data;
     const document: EditorDocument = {
       id: uuidv4(),
       name: documentName,

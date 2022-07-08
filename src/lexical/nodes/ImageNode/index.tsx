@@ -45,11 +45,11 @@ import {
 
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
-import ImagesPlugin from '../plugins/ImagesPlugin';
-import ContentEditable from '../ui/ContentEditable';
-import ImageResizer from '../ui/ImageResizer';
-import Placeholder from '../ui/Placeholder';
-import { useSharedHistoryContext } from '../context/SharedHistoryContext';
+import ImagesPlugin from '../../plugins/ImagePlugin';
+import ContentEditable from '../../ui/ContentEditable';
+import ImageResizer from '../../ui/ImageResizer';
+import Placeholder from '../../ui/Placeholder';
+import { useSharedHistoryContext } from '../../context/SharedHistoryContext';
 
 export interface ImagePayload {
   altText: string;

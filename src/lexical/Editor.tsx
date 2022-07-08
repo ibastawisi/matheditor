@@ -27,7 +27,7 @@ import AutoLinkPlugin from "./plugins/AutoLinkPlugin";
 import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableCellResizer from './plugins/TableCellResizer';
 import TextFormatFloatingToolbarPlugin from "./plugins/TextFormatFloatingToolbarPlugin";
-import ImagesPlugin from "./plugins/ImagesPlugin";
+import ImagePlugin from "./plugins/ImagePlugin";
 import HorizontalRulePlugin from "./plugins/HorizontalRulePlugin";
 import MathPlugin from "./plugins/MathPlugin";
 import { MathNode } from "./nodes/MathNode";
@@ -98,7 +98,7 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
           <ListMaxIndentLevelPlugin maxDepth={7} />
           <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
           <TextFormatFloatingToolbarPlugin />
-          <ImagesPlugin />
+          <ImagePlugin />
           <HorizontalRulePlugin />
           <TablePlugin />
           <TableCellActionMenuPlugin />

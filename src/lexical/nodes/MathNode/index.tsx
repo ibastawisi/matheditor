@@ -2,7 +2,7 @@ import { EditorConfig, LexicalNode, NodeKey, SerializedLexicalNode, Spread, } fr
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey, DecoratorNode, } from 'lexical';
 import { useRef } from 'react';
-import MathField from '../ui/MathField';
+import MathField from './MathField';
 
 import { MathfieldElement } from 'mathlive';
 

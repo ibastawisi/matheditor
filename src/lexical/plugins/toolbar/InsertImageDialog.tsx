@@ -1,5 +1,5 @@
-import { InsertImagePayload } from '../ImagesPlugin';
-import { INSERT_IMAGE_COMMAND } from '../ImagesPlugin';
+import { InsertImagePayload } from '../ImagePlugin';
+import { INSERT_IMAGE_COMMAND } from '../ImagePlugin';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { LexicalEditor } from 'lexical';
 import Box from '@mui/material/Box';
