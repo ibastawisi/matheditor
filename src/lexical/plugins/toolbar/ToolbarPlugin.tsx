@@ -1,4 +1,4 @@
-import { $getNodeByKey, $getSelection, $isRangeSelection, ElementNode, NodeKey, RangeSelection, TextNode } from 'lexical';
+import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, ElementNode, NodeKey, RangeSelection, TextNode } from 'lexical';
 import { $isCodeNode } from '@lexical/code';
 import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -25,6 +25,8 @@ import InsertToolMenu from './InsertToolMenu';
 import TextFormatToggles from './TextFormatToggles';
 import AlignTextMenu from './AlignTextMenu';
 import { IS_APPLE } from '../../../shared/environment';
+import { $isMathNode } from '../../nodes/MathNode';
+import MathTools from './MathTools';
 
 export const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -112,6 +114,8 @@ export default function ToolbarPlugin(): JSX.Element {
   const [fontSize, setFontSize] = useState<string>('15px');
   const [fontFamily, setFontFamily] = useState<string>('Arial');
   const [isRTL, setIsRTL] = useState(false);
+  const [isMath, setIsMath] = useState(false);
+  const [mathValue, setMathValue] = useState("");
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState<string>('');
@@ -164,6 +168,14 @@ export default function ToolbarPlugin(): JSX.Element {
       setFontFamily(
         $getSelectionStyleValueForProperty(selection, 'font-family', 'Arial'),
       );
+      setIsMath(false);
+    }
+
+    if ($isNodeSelection(selection)) {
+      const node = selection.getNodes()[0];
+      const isMathfield = $isMathNode(node);
+      setIsMath(isMathfield);
+      isMathfield && setMathValue(node.getValue());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeEditor]);
@@ -273,7 +285,7 @@ export default function ToolbarPlugin(): JSX.Element {
   return (
     <ElevationScroll>
       <AppBar className='toolbar-appbar'>
-        <Toolbar className="toolbar" sx={{ displayPrint: 'none',px:0, justifyContent: "space-between", alignItems: "center" }}>
+        <Toolbar className="toolbar" sx={{ displayPrint: 'none', px: 0, justifyContent: "space-between", alignItems: "center" }}>
           <Box sx={{ display: "flex" }}>
             <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
               onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}> <UndoIcon />
@@ -284,22 +296,26 @@ export default function ToolbarPlugin(): JSX.Element {
             </IconButton>
           </Box>
           <Box sx={{ display: "flex" }}>
-            {blockType in blockTypeToBlockName && activeEditor === editor && <BlockFormatSelect blockType={blockType} editor={editor} />}
-            {blockType === 'code' ? (
-              <Select size='small' sx={{ mx: 0.25 }} onChange={onCodeLanguageSelect} value={codeLanguage}>
-                {CODE_LANGUAGE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
-              </Select>
-            ) : (
-              <>
-                <Select size='small' sx={{ mx: 0.25, width: 80 }} onChange={onFontFamilySelect} value={fontFamily}>
-                  {FONT_FAMILY_MAP.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
-                </Select>
-                <Select size='small' sx={{ mx: 0.25 }} onChange={onFontSizeSelect} value={fontSize}>
-                  {FONT_SIZE_MAP.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
-                </Select>
-                <TextFormatToggles editor={activeEditor} sx={{ mx: 1, display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
+            {isMath ? <MathTools editor={activeEditor} value={mathValue} sx={{ mx: 1 }} />
+              : <>
+                {blockType in blockTypeToBlockName && activeEditor === editor && <BlockFormatSelect blockType={blockType} editor={editor} />}
+                {blockType === 'code' ? (
+                  <Select size='small' sx={{ mx: 0.25 }} onChange={onCodeLanguageSelect} value={codeLanguage}>
+                    {CODE_LANGUAGE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
+                  </Select>
+                ) : (
+                  <>
+                    <Select size='small' sx={{ mx: 0.25, width: 80 }} onChange={onFontFamilySelect} value={fontFamily}>
+                      {FONT_FAMILY_MAP.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
+                    </Select>
+                    <Select size='small' sx={{ mx: 0.25 }} onChange={onFontSizeSelect} value={fontSize}>
+                      {FONT_SIZE_MAP.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
+                    </Select>
+                    <TextFormatToggles editor={activeEditor} sx={{ mx: 1, display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
+                  </>
+                )}
               </>
-            )}
+            }
           </Box>
           <Box sx={{ display: "flex" }}>
             {blockType !== 'code' && <InsertToolMenu editor={activeEditor} />}

@@ -1,15 +1,20 @@
-import { EditorConfig, LexicalNode, NodeKey, SerializedLexicalNode, Spread, } from 'lexical';
+import { $getSelection, $isNodeSelection, CLICK_COMMAND, COMMAND_PRIORITY_LOW, EditorConfig, KEY_BACKSPACE_COMMAND, KEY_DELETE_COMMAND, LexicalNode, NodeKey, SerializedLexicalNode, Spread, } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey, DecoratorNode, } from 'lexical';
-import { useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import MathField from './MathField';
 
 import { MathfieldElement } from 'mathlive';
+import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
+import { mergeRegister } from '@lexical/utils';
 
 type MathComponentProps = { value: string; nodeKey: NodeKey; };
 
 function MathComponent({ value, nodeKey, }: MathComponentProps): JSX.Element {
   const [editor] = useLexicalComposerContext();
+  const [isSelected, setSelected, clearSelection] =
+    useLexicalNodeSelection(nodeKey);
+
   const mathfieldRef = useRef<MathfieldElement>(null);
 
   const handleInput = (value: string) => {
@@ -21,7 +26,62 @@ function MathComponent({ value, nodeKey, }: MathComponentProps): JSX.Element {
     });
   };
 
-  return <MathField value={value} onInput={handleInput} mathfieldRef={mathfieldRef} />
+  const onDelete = useCallback(
+    (payload: KeyboardEvent) => {
+      if (isSelected && $isNodeSelection($getSelection())) {
+        const event: KeyboardEvent = payload;
+        event.preventDefault();
+        const node = $getNodeByKey(nodeKey);
+        if ($isMathNode(node)) {
+          node.remove();
+        }
+        setSelected(false);
+      }
+      return false;
+    },
+    [isSelected, nodeKey, setSelected],
+  );
+
+  const onClick = useCallback((event: Event) => {
+    const rootElement = editor.getRootElement();
+
+    if (rootElement?.contains(event.target as Node) && event.target === mathfieldRef.current) {
+      if (event instanceof MouseEvent && !event.shiftKey) {
+        clearSelection();
+      }
+      setSelected(mathfieldRef.current === document.activeElement);
+      return true;
+    }
+
+    return false;
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
+  useEffect(() => {
+    return mergeRegister(
+      editor.registerCommand<MouseEvent>(
+        CLICK_COMMAND,
+        (payload) => {
+          return onClick(payload);
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand(
+        KEY_DELETE_COMMAND,
+        onDelete,
+        COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand(
+        KEY_BACKSPACE_COMMAND,
+        onDelete,
+        COMMAND_PRIORITY_LOW,
+      ),
+    );
+  }, [clearSelection, editor, isSelected, nodeKey, onClick, onDelete, setSelected]);
+
+  return <MathField value={value} onInput={handleInput} onFocus={onClick} mathfieldRef={mathfieldRef} />
 }
 
 export type SerializedMathNode = Spread<{ type: 'math'; value: string; }, SerializedLexicalNode>;

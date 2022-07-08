@@ -15,10 +15,11 @@ declare global {
 type MathFieldProps = {
   value: string;
   onInput: (value: string) => void;
+  onFocus: (event: FocusEvent) => void;
   mathfieldRef: { current: null | MathfieldElement };
 };
 
-export default function MathField({ value, mathfieldRef, onInput }: MathFieldProps): JSX.Element {
+export default function MathField({ value, mathfieldRef, onInput, onFocus }: MathFieldProps): JSX.Element {
   useEffect(() => {
     const mathfield = mathfieldRef.current;
     if (!mathfield) return;
@@ -29,10 +30,19 @@ export default function MathField({ value, mathfieldRef, onInput }: MathFieldPro
     mathfield.smartMode = true;
     mathfield.keypressSound = "none";
     mathfield.plonkSound = "none";
-    
-    mathfield.oninput = e => onInput(mathfield.value);
-    !mathfield.value && mathfield.focus()
 
+    mathfield.oninput = e => onInput(mathfield.value);
+
+    mathfield.addEventListener('focus', e => {
+      onFocus(e);
+    });
+    mathfield.addEventListener('blur', e => {
+      onFocus(e);
+    });
+    
+    if (!mathfield.value && !mathfield.hasFocus()) {
+      mathfield.focus();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mathfieldRef]);
 
