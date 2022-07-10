@@ -23,11 +23,15 @@ export default function InsertSketchDialog({ editor, open, onClose }: { editor: 
       files: null,
       exportPadding: 16,
     });
-    const serialized = new XMLSerializer().serializeToString(element!);
-    const decoded = decodeURIComponent(encodeURIComponent(serialized));
-    const base64 = btoa(decoded);
-    editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src: "data:image/svg+xml;base64," + base64 },);
-    onClose();
+
+    const blob = new Blob([element.outerHTML], { type: 'image/svg+xml' });
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src: dataUrl },);
+      onClose();
+    }
   };
 
   const onChange = (els: ReadonlyArray<ExcalidrawElementFragment>) => {

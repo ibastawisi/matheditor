@@ -34,12 +34,14 @@ export default function InsertGraphDialog({ editor, open, onClose }: { editor: L
   const handleSubmit = () => {
     const app = (window as any).ggbApplet;
     app.exportSVG((html: string) => {
-      const element = new DOMParser().parseFromString(html, "text/html").body.firstElementChild;
-      const serialized = new XMLSerializer().serializeToString(element!);
-      const decoded = decodeURIComponent(encodeURIComponent(serialized));
-      const base64 = btoa(decoded);
-      editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src: "data:image/svg+xml;base64," + base64 },);
-      onClose();
+      const blob = new Blob([html], { type: 'image/svg+xml' });
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src: dataUrl },);
+        onClose();
+      }
     });
   };
 
