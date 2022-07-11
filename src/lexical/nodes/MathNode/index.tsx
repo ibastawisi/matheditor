@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { $getSelection, $isNodeSelection, EditorConfig, GridSelection, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
+import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, COMMAND_PRIORITY_EDITOR, EditorConfig, GridSelection, KEY_ARROW_LEFT_COMMAND, KEY_ARROW_RIGHT_COMMAND, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey, DecoratorNode, } from 'lexical';
 import { useEffect, useRef, useState } from 'react';
@@ -29,10 +29,64 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
   const [selection, setSelection] = useState<RangeSelection | NodeSelection | GridSelection | null>(null);
 
   useEffect(() => {
+    const mathfield = ref.current;
     mergeRegister(
       editor.registerUpdateListener(({ editorState }) => {
         setSelection(editorState.read(() => $getSelection()));
       }),
+      editor.registerCommand<KeyboardEvent>(
+        KEY_ARROW_LEFT_COMMAND,
+        (event) => {
+          const selection = $getSelection();
+          if (!$isRangeSelection(selection)) {
+            return false;
+          }
+          const isHoldingShift = event.shiftKey;
+          const anchor = selection.anchor;
+          const anchorKey = selection.anchor.key;
+
+          const anchorNumber = Number(anchorKey);
+          const nodeNumber = Number(nodeKey);
+
+          const isAfterNode = anchorNumber - 1 === nodeNumber;
+          const isNextMove = anchorNumber + anchor.offset - 2 === nodeNumber;
+          
+          if (!isHoldingShift && isAfterNode && isNextMove) {
+            setSelected(true);
+            mathfield?.setCaretPoint(9999,9999);
+            return true;
+          }
+          return false;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ),
+      editor.registerCommand<KeyboardEvent>(
+        KEY_ARROW_RIGHT_COMMAND,
+        (event) => {
+          const selection = $getSelection();
+          if (!$isRangeSelection(selection)) {
+            return false;
+          }
+          const isHoldingShift = event.shiftKey;
+          const focus = selection.focus;
+          const focusKey = selection.focus.key;
+          const focusNumber = Number(focusKey);
+          const nodeNumber = Number(nodeKey);
+
+          const isBeforeNode = focusNumber + 1 === nodeNumber;
+
+          const textLength = focus.getNode().getTextContentSize();
+          const isNextMove = focusNumber + focus.offset - textLength + 2 === nodeNumber;
+
+          if (!isHoldingShift && isBeforeNode && isNextMove) {
+            setSelected(true);
+            mathfield?.setCaretPoint(0,0);
+            return true;
+          }
+          return false;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ),
     );
   }, []);
 
@@ -95,6 +149,42 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
         setSelected(mathfield === document.activeElement);
       }
     });
+
+    mathfield.addEventListener("move-out", event => {
+      clearSelection();
+
+      const direction = event.detail.direction;
+      var range = document.createRange();
+      var selection = window.getSelection();
+      const span = mathfield.parentElement!;
+      const paragraph = span.parentElement!;
+
+      switch (direction) {
+        case "backward":
+          range.setStartBefore(span);
+          break;
+        case "forward":
+          range.setStartAfter(span);
+          break;
+        case "upward":
+          range.setStartBefore(paragraph);
+          break;
+        case "downward":
+          range.setStartAfter(paragraph);
+          break;
+      }
+
+      range.collapse(true);
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+
+      editor.update(() => {
+        const rangeSelection = $createRangeSelection();
+        rangeSelection.applyDOMRange(range);
+        $setSelection(rangeSelection);
+      });
+    });
+
   }, [ref]);
 
   return <math-field id={`mfe-${nodeKey}`} ref={ref}>{value}</math-field>;
@@ -133,7 +223,7 @@ export class MathNode extends DecoratorNode<JSX.Element> {
     };
   }
 
-  createDOM(_config: EditorConfig,_editor: LexicalEditor): HTMLElement {
+  createDOM(_config: EditorConfig, _editor: LexicalEditor): HTMLElement {
     const dom = document.createElement('span');
     dom.style.display = 'inline-flex';
     return dom;
