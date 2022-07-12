@@ -60,101 +60,64 @@ span.editor-image {
   user-select: none;
 }
 
-.editor-image .image-caption-container .tree-view-output {
-  margin: 0;
-  border-radius: 0;
-}
-
-.editor-image .image-caption-container {
-  display: block;
-  position: absolute;
-  bottom: 4px;
-  left: 0;
-  right: 0;
-  padding: 0;
-  margin: 0;
-  border-top: 1px solid #fff;
-  background-color: rgba(255, 255, 255, 0.9);
-  min-width: 100px;
-  color: #000;
-  overflow: hidden;
-}
-
-.editor-image .image-caption-button {
-  display: block;
-  position: absolute;
-  bottom: 20px;
-  left: 0;
-  right: 0;
-  width: 30%;
-  padding: 10px;
-  margin: 0 auto;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 5px;
-  background-color: rgba(0, 0, 0, 0.5);
-  min-width: 100px;
-  color: #fff;
-  cursor: pointer;
-  user-select: none;
-}
-
-.editor-image .image-caption-button:hover {
-  background-color: rgba(60, 132, 244, 0.5);
-}
-
 .editor-image .image-resizer {
-  display: block;
-  width: 7px;
-  height: 7px;
   position: absolute;
-  background-color: rgb(60, 132, 244);
-  border: 1px solid #fff;
+  color: #1976d2 !important;
+  padding: 0;
 }
 
 .editor-image .image-resizer.image-resizer-n {
-  top: -6px;
-  left: 48%;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
   cursor: n-resize;
 }
 
 .editor-image .image-resizer.image-resizer-ne {
-  top: -6px;
-  right: -6px;
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
   cursor: ne-resize;
 }
 
 .editor-image .image-resizer.image-resizer-e {
-  bottom: 48%;
-  right: -6px;
+  bottom: 50%;
+  right: 0;
+  transform: translate(50%, 50%);
   cursor: e-resize;
 }
 
 .editor-image .image-resizer.image-resizer-se {
-  bottom: -2px;
-  right: -6px;
+  bottom: 0;
+  right: 0;
+  transform: translate(50%, 50%);
   cursor: nwse-resize;
 }
 
 .editor-image .image-resizer.image-resizer-s {
-  bottom: -2px;
-  left: 48%;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
   cursor: s-resize;
 }
 
 .editor-image .image-resizer.image-resizer-sw {
-  bottom: -2px;
-  left: -6px;
+  bottom: 0;
+  left: 0;
+  transform: translate(-50%, 50%);
   cursor: sw-resize;
 }
 
 .editor-image .image-resizer.image-resizer-w {
-  bottom: 48%;
-  left: -6px;
+  bottom: 50%;
+  left: 0;
+  transform: translate(-50%, 50%);
   cursor: w-resize;
 }
 
 .editor-image .image-resizer.image-resizer-nw {
-  top: -6px;
-  left: -6px;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
   cursor: nw-resize;
 }

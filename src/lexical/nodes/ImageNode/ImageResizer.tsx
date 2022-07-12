@@ -6,10 +6,11 @@
  *
  */
 
-import type {LexicalEditor} from 'lexical';
+import Radio from '@mui/material/Radio';
+import type { LexicalEditor } from 'lexical';
 
 import * as React from 'react';
-import {useRef} from 'react';
+import { useRef } from 'react';
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -28,18 +29,13 @@ export default function ImageResizer({
   imageRef,
   maxWidth,
   editor,
-  showCaption,
-  setShowCaption,
 }: {
   editor: LexicalEditor;
-  imageRef: {current: null | HTMLElement};
+  imageRef: { current: null | HTMLElement };
   maxWidth?: number;
   onResizeEnd: (width: 'inherit' | number, height: 'inherit' | number) => void;
   onResizeStart: () => void;
-  setShowCaption: (show: boolean) => void;
-  showCaption: boolean;
 }): JSX.Element {
-  const buttonRef = useRef(null);
   const controlWrapperRef = useRef<HTMLDivElement>(null);
   const userSelect = useRef({
     priority: '',
@@ -71,8 +67,8 @@ export default function ImageResizer({
   const maxWidthContainer = maxWidth
     ? maxWidth
     : editorRootElement !== null
-    ? editorRootElement.getBoundingClientRect().width - 20
-    : 100;
+      ? editorRootElement.getBoundingClientRect().width - 20
+      : 100;
   const maxHeightContainer =
     editorRootElement !== null
       ? editorRootElement.getBoundingClientRect().height - 20
@@ -132,14 +128,14 @@ export default function ImageResizer({
   };
 
   const handlePointerDown = (
-    event: React.PointerEvent<HTMLDivElement>,
+    event: React.PointerEvent<HTMLButtonElement>,
     direction: number,
   ) => {
     const image = imageRef.current;
     const controlWrapper = controlWrapperRef.current;
 
     if (image !== null && controlWrapper !== null) {
-      const {width, height} = image.getBoundingClientRect();
+      const { width, height } = image.getBoundingClientRect();
       const positioning = positioningRef.current;
       positioning.startWidth = width;
       positioning.startHeight = height;
@@ -242,59 +238,49 @@ export default function ImageResizer({
   };
   return (
     <div ref={controlWrapperRef}>
-      {!showCaption && (
-        <button
-          className="image-caption-button"
-          ref={buttonRef}
-          onClick={() => {
-            setShowCaption(!showCaption);
-          }}>
-          Add Caption
-        </button>
-      )}
-      <div
+      <Radio checked={true}
         className="image-resizer image-resizer-n"
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.north);
         }}
       />
-      <div
+      <Radio checked={true}
         className="image-resizer image-resizer-ne"
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.north | Direction.east);
         }}
       />
-      <div
+      <Radio checked={true}
         className="image-resizer image-resizer-e"
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.east);
         }}
       />
-      <div
+      <Radio checked={true}
         className="image-resizer image-resizer-se"
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.south | Direction.east);
         }}
       />
-      <div
+      <Radio checked={true}
         className="image-resizer image-resizer-s"
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.south);
         }}
       />
-      <div
+      <Radio checked={true}
         className="image-resizer image-resizer-sw"
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.south | Direction.west);
         }}
       />
-      <div
+      <Radio checked={true}
         className="image-resizer image-resizer-w"
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.west);
         }}
       />
-      <div
+      <Radio checked={true}
         className="image-resizer image-resizer-nw"
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.north | Direction.west);

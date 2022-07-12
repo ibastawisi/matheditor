@@ -6,57 +6,23 @@
  *
  */
 
-import type {
-  DOMConversionMap,
-  DOMConversionOutput,
-  DOMExportOutput,
-  EditorConfig,
-  GridSelection,
-  LexicalEditor,
-  LexicalNode,
-  NodeKey,
-  NodeSelection,
-  RangeSelection,
-  SerializedEditor,
-  SerializedLexicalNode,
-  Spread,
-} from 'lexical';
+import type { DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, GridSelection, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
 
 import './ImageNode.css';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
-import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
-import { LexicalNestedComposer } from '@lexical/react/LexicalNestedComposer';
-import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
-import {
-  $getNodeByKey,
-  $getSelection,
-  $isNodeSelection,
-  CLICK_COMMAND,
-  COMMAND_PRIORITY_LOW,
-  createEditor,
-  DecoratorNode,
-  KEY_BACKSPACE_COMMAND,
-  KEY_DELETE_COMMAND,
-} from 'lexical';
+import { $getNodeByKey, $getSelection, $isNodeSelection, CLICK_COMMAND, COMMAND_PRIORITY_LOW, DecoratorNode, KEY_BACKSPACE_COMMAND, KEY_DELETE_COMMAND, } from 'lexical';
 
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
-import ImagesPlugin from '../../plugins/ImagePlugin';
-import ContentEditable from '../../ui/ContentEditable';
-import ImageResizer from '../../ui/ImageResizer';
-import Placeholder from '../../ui/Placeholder';
-import { useSharedHistoryContext } from '../../context/SharedHistoryContext';
+import ImageResizer from './ImageResizer';
 
 export interface ImagePayload {
   altText: string;
-  caption?: LexicalEditor;
   height?: number;
   key?: NodeKey;
-  showCaption?: boolean;
   src: string;
   width?: number;
 }
@@ -123,15 +89,11 @@ function ImageComponent({
   width,
   height,
   resizable,
-  showCaption,
-  caption,
 }: {
   altText: string;
-  caption: LexicalEditor;
   height: 'inherit' | number;
   nodeKey: NodeKey;
   resizable: boolean;
-  showCaption: boolean;
   src: string;
   width: 'inherit' | number;
 }): JSX.Element {
@@ -206,15 +168,6 @@ function ImageComponent({
     setSelected,
   ]);
 
-  const setShowCaption = () => {
-    editor.update(() => {
-      const node = $getNodeByKey(nodeKey);
-      if ($isImageNode(node)) {
-        node.setShowCaption(true);
-      }
-    });
-  };
-
   const onResizeEnd = (
     nextWidth: 'inherit' | number,
     nextHeight: 'inherit' | number,
@@ -236,8 +189,6 @@ function ImageComponent({
     setIsResizing(true);
   };
 
-  const { historyState } = useSharedHistoryContext();
-
   const draggable = isSelected && $isNodeSelection(selection);
   const isFocused = $isNodeSelection(selection) && (isSelected || isResizing);
 
@@ -254,31 +205,8 @@ function ImageComponent({
             height={height}
           />
         </div>
-        {showCaption && (
-          <div className="image-caption-container">
-            <LexicalNestedComposer initialEditor={caption}>
-              <ImagesPlugin />
-              <LinkPlugin />
-              <HistoryPlugin externalHistoryState={historyState} />
-              <RichTextPlugin
-                contentEditable={
-                  <ContentEditable className="ImageNode__contentEditable" />
-                }
-                placeholder={
-                  <Placeholder className="ImageNode__placeholder">
-                    Enter a caption...
-                  </Placeholder>
-                }
-                // TODO Remove after it's inherited from the parent (LexicalComposer)
-                initialEditorState={null}
-              />
-            </LexicalNestedComposer>
-          </div>
-        )}
         {resizable && isFocused && (
           <ImageResizer
-            showCaption={showCaption}
-            setShowCaption={setShowCaption}
             editor={editor}
             imageRef={ref}
             onResizeStart={onResizeStart}
@@ -293,9 +221,7 @@ function ImageComponent({
 export type SerializedImageNode = Spread<
   {
     altText: string;
-    caption: SerializedEditor;
     height?: number;
-    showCaption: boolean;
     src: string;
     width?: number;
     type: 'image';
@@ -309,8 +235,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   __altText: string;
   __width: 'inherit' | number;
   __height: 'inherit' | number;
-  __showCaption: boolean;
-  __caption: LexicalEditor;
 
   static getType(): string {
     return 'image';
@@ -322,27 +246,19 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       node.__altText,
       node.__width,
       node.__height,
-      node.__showCaption,
-      node.__caption,
       node.__key,
     );
   }
 
   static importJSON(serializedNode: SerializedImageNode): ImageNode {
-    const { altText, height, width, caption, src, showCaption } =
+    const { altText, height, width, src } =
       serializedNode;
     const node = $createImageNode({
       altText,
       height,
-      showCaption,
       src,
       width,
     });
-    const nestedEditor = node.__caption;
-    const editorState = nestedEditor.parseEditorState(caption.editorState);
-    if (!editorState.isEmpty()) {
-      nestedEditor.setEditorState(editorState);
-    }
     return node;
   }
 
@@ -367,8 +283,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     altText: string,
     width?: 'inherit' | number,
     height?: 'inherit' | number,
-    showCaption?: boolean,
-    caption?: LexicalEditor,
     key?: NodeKey,
   ) {
     super(key);
@@ -376,16 +290,12 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     this.__altText = altText;
     this.__width = width || 'inherit';
     this.__height = height || 'inherit';
-    this.__showCaption = showCaption || false;
-    this.__caption = caption || createEditor();
   }
 
   exportJSON(): SerializedImageNode {
     return {
       altText: this.getAltText(),
-      caption: this.__caption.toJSON(),
       height: this.__height === 'inherit' ? 0 : this.__height,
-      showCaption: this.__showCaption,
       src: this.getSrc(),
       type: 'image',
       version: 1,
@@ -400,11 +310,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     const writable = this.getWritable();
     writable.__width = width;
     writable.__height = height;
-  }
-
-  setShowCaption(showCaption: boolean): void {
-    const writable = this.getWritable();
-    writable.__showCaption = showCaption;
   }
 
   // View
@@ -439,8 +344,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
         width={this.__width}
         height={this.__height}
         nodeKey={this.getKey()}
-        showCaption={this.__showCaption}
-        caption={this.__caption}
         resizable={true}
       />
     );
@@ -452,8 +355,6 @@ export function $createImageNode({
   height,
   src,
   width,
-  showCaption,
-  caption,
   key,
 }: ImagePayload): ImageNode {
   return new ImageNode(
@@ -461,8 +362,6 @@ export function $createImageNode({
     altText,
     width,
     height,
-    showCaption,
-    caption,
     key,
   );
 }
