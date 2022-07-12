@@ -25,7 +25,7 @@ import InsertToolMenu from './InsertToolMenu';
 import TextFormatToggles from './TextFormatToggles';
 import AlignTextMenu from './AlignTextMenu';
 import { IS_APPLE } from '../../../shared/environment';
-import { $isMathNode } from '../../nodes/MathNode';
+import { $isMathNode, MathNode } from '../../nodes/MathNode';
 import MathTools from './MathTools';
 
 export const blockTypeToBlockName = {
@@ -114,8 +114,7 @@ export default function ToolbarPlugin(): JSX.Element {
   const [fontSize, setFontSize] = useState<string>('15px');
   const [fontFamily, setFontFamily] = useState<string>('Arial');
   const [isRTL, setIsRTL] = useState(false);
-  const [isMath, setIsMath] = useState(false);
-  const [mathValue, setMathValue] = useState("");
+  const [mathNode, setMathNode] = useState<MathNode | null>(null);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState<string>('');
@@ -168,14 +167,13 @@ export default function ToolbarPlugin(): JSX.Element {
       setFontFamily(
         $getSelectionStyleValueForProperty(selection, 'font-family', 'Arial'),
       );
-      setIsMath(false);
+      setMathNode(null);
     }
 
     if ($isNodeSelection(selection)) {
       const node = selection.getNodes()[0];
-      const isMathfield = $isMathNode(node);
-      setIsMath(isMathfield);
-      isMathfield && setMathValue(node.getValue());
+      const isMathNode = $isMathNode(node);
+      isMathNode && setMathNode(node);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeEditor]);
@@ -296,7 +294,7 @@ export default function ToolbarPlugin(): JSX.Element {
             </IconButton>
           </Box>
           <Box sx={{ display: "flex" }}>
-            {isMath ? <MathTools editor={activeEditor} value={mathValue} sx={{ mx: 1 }} />
+            {mathNode ? <MathTools editor={activeEditor} node={mathNode} sx={{ mx: 1 }} />
               : <>
                 {blockType in blockTypeToBlockName && activeEditor === editor && <BlockFormatSelect blockType={blockType} editor={editor} />}
                 {blockType === 'code' ? (

@@ -52,6 +52,11 @@ body {
   color-scheme: dark;
 }
 
+.tree-view-output pre {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
 pre::-webkit-scrollbar {
   background: transparent;
   width: 10px;
