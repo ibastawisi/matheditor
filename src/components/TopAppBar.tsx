@@ -54,7 +54,7 @@ function ScrollTop({ children }: { children: React.ReactElement }) {
       <Box
         onClick={handleClick}
         role="presentation"
-        sx={{ position: 'fixed', bottom: 16, right: 16, zIndex: 1, displayPrint: "none" }}
+        sx={{ position: 'fixed', bottom: 16, right: 16, zIndex: 1200, displayPrint: "none" }}
       >
         {children}
       </Box>

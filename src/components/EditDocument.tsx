@@ -13,6 +13,7 @@ import { Helmet } from "react-helmet";
 const EditDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const document = useSelector((state: RootState) => state.app.editor);
+  const editorConfig = useSelector((state: RootState) => state.app.config.editor);
   const params = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -44,7 +45,7 @@ const EditDocument: React.FC = () => {
 
   return document.id === params.id ? <>
     <Helmet><title>{document.name}</title></Helmet>
-    <Editor document={document} />
+    <Editor document={document} sx={{ pb: editorConfig.debug ? "250px" : 0 }} />
   </> : <SplashScreen />;
 }
 

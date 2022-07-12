@@ -41,6 +41,8 @@ import { EditorDocument } from "../slices/app";
 import theme from "./theme";
 import "./styles.css";
 import { migrateData } from './utils';
+import { SxProps, Theme } from '@mui/material/styles';
+import Box from '@mui/material/Box';
 
 const editorConfig = {
   namespace: "matheditor",
@@ -69,7 +71,7 @@ const editorConfig = {
   ]
 };
 
-const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
+const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefined }> = ({ document, sx }) => {
 
   const { historyState } = useSharedHistoryContext();
   const config = useSelector((state: RootState) => state.app.config.editor);
@@ -82,7 +84,7 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
 
   return (
     <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(migrateData(document.data)) }}>
-      <div className="editor-shell">
+      <Box className="editor-shell" sx={sx}>
         <ToolbarPlugin />
         <div className="editor-inner">
           <RichTextPlugin contentEditable={<ContentEditable className="editor-input" />} placeholder="" />
@@ -105,7 +107,7 @@ const Editor: React.FC<{ document: EditorDocument }> = ({ document }) => {
           <TableCellResizer />
           <MathPlugin />
         </div>
-      </div>
+      </Box>
     </LexicalComposer>
   );
 }
