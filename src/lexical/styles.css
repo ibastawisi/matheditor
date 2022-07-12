@@ -136,6 +136,7 @@ math-field {
   white-space: initial;
   word-break: initial;
   max-width: calc(100vw - 52px);
+  user-select: none;
 }
 
 math-field:focus-within {
@@ -146,6 +147,16 @@ math-field:empty:not(:focus-within) {
   min-width: 100px;
   outline: solid 1px;
   border-radius: 8px;
+}
+
+[theme=light] math-field.selection-active {
+  background-color: #3390ff;
+  color: white;
+}
+
+[theme=dark] math-field.selection-active {
+  background-color: #455A64;
+  color: white;
 }
 
 /* mathlive virtula keyboard styles */

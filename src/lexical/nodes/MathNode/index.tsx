@@ -50,10 +50,10 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
 
           const isAfterNode = anchorNumber - 1 === nodeNumber;
           const isNextMove = anchorNumber + anchor.offset - 2 === nodeNumber;
-          
+
           if (!isHoldingShift && isAfterNode && isNextMove) {
             setSelected(true);
-            mathfield?.setCaretPoint(9999,9999);
+            mathfield?.setCaretPoint(9999, 9999);
             return true;
           }
           return false;
@@ -80,7 +80,7 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
 
           if (!isHoldingShift && isBeforeNode && isNextMove) {
             setSelected(true);
-            mathfield?.setCaretPoint(0,0);
+            mathfield?.setCaretPoint(0, 0);
             return true;
           }
           return false;
@@ -124,6 +124,10 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
       mathfield.select();
       mathfield.selection = mathfieldSelection;
     }
+
+    // higlight the node if within range selection
+    mathfield.classList.toggle("selection-active", $isRangeSelection(selection) && isSelected);
+
   }, [isSelected]);
 
   useEffect(() => {
