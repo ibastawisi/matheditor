@@ -61,6 +61,10 @@ export function TreeView({ editor, }: { editor: LexicalEditor; }): JSX.Element {
     if (!timeTravelEnabled) {
       const totalEditorStates = timeStampedEditorStates.length;
       setSliderValue(totalEditorStates);
+      const treeElement = treeElementRef.current;
+      if (treeElement) {
+        treeElement.scrollTop = treeElement.scrollHeight;
+      }
     }
   }, [timeTravelEnabled, timeStampedEditorStates.length]);
 
@@ -112,7 +116,7 @@ export function TreeView({ editor, }: { editor: LexicalEditor; }): JSX.Element {
   }, [editor]);
 
   return (
-    <AppBar className="tree-view-output" position="fixed" sx={{ top: 'auto', bottom: 0, maxHeight: 250, displayPrint: "none" }}>
+    <AppBar position="static" className="tree-view-output">
       <pre style={{ overflow: "auto", margin: 0, padding: "1rem 0.5rem" }} ref={treeElementRef}>{content}</pre>
       {totalEditorStates > 2 &&
         <Toolbar>
@@ -504,7 +508,5 @@ function $getSelectionStartEnd(
 
 export default function TreeViewPlugin() {
   const [editor] = useLexicalComposerContext();
-  return (
-    <TreeView editor={editor} />
-  );
+  return <TreeView editor={editor} />;
 }

@@ -50,20 +50,13 @@ body {
   background-color: #121212;
   background-image: linear-gradient(rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.09));
   color-scheme: dark;
+  max-height: 276px;
 }
 
 .tree-view-output pre {
   white-space: pre-wrap;
   word-break: break-all;
-}
-
-pre::-webkit-scrollbar {
-  background: transparent;
-  width: 10px;
-}
-
-pre::-webkit-scrollbar-thumb {
-  background: #999;
+  scroll-behavior: smooth;
 }
 
 .editor-container {
@@ -109,7 +102,7 @@ math-field:empty:not(:focus-within) {
 }
 
 [theme=dark] math-field.selection-active {
-  background-color: #455A64;
+  background-color: #546E7A;
   color: white;
 }
 
@@ -123,16 +116,17 @@ div.ML__keyboard.material {
 }
 
 [theme=dark] div.ML__keyboard.material {
+  --keyboard-background: hsla(var(--hue, 212), 19%, 18%, 95%) !important;
   --keycap-background-active: #FAFAFA !important;
 }
 
 [theme=dark] math-field {
-  --highlight: #455A64;
+  --highlight: #546E7A;
   --contains-highlight: #263238;
 }
 
 [theme=dark] ::selection {
-  background-color: #455A64;
+  background-color: #546E7A;
 }
 
 @media print {
@@ -149,7 +143,9 @@ div.ML__keyboard.material {
     display: none;
   }
 
-  *, *:before, *:after {
+  *,
+  *:before,
+  *:after {
     filter: unset !important;
   }
 }
