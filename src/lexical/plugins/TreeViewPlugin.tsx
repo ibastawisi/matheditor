@@ -116,7 +116,7 @@ export function TreeView({ editor, }: { editor: LexicalEditor; }): JSX.Element {
   }, [editor]);
 
   return (
-    <AppBar position="static" className="tree-view-output">
+    <AppBar position="static" className="tree-view-output" sx={{ displayPrint: "none" }}>
       <pre style={{ overflow: "auto", margin: 0, padding: "1rem 0.5rem" }} ref={treeElementRef}>{content}</pre>
       {totalEditorStates > 2 &&
         <Toolbar>

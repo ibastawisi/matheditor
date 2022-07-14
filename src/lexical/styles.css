@@ -139,10 +139,6 @@ div.ML__keyboard.material {
     box-shadow: none;
   }
 
-  .tree-view-output {
-    display: none;
-  }
-
   *,
   *:before,
   *:after {

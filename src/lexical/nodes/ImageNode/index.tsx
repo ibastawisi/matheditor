@@ -25,6 +25,16 @@ export interface ImagePayload {
   key?: NodeKey;
   src: string;
   width?: number;
+  data: {
+    type: ImageNodeType;
+    value?: string;
+  }
+}
+
+export enum ImageNodeType {
+  Image = 'Image',
+  Graph = 'Graph',
+  Sketch = 'Sketch',
 }
 
 const imageCache = new Set();
@@ -45,7 +55,7 @@ function useSuspenseImage(src: string) {
 function convertImageElement(domNode: Node): null | DOMConversionOutput {
   if (domNode instanceof HTMLImageElement) {
     const { alt: altText, src } = domNode;
-    const node = $createImageNode({ altText, src });
+    const node = $createImageNode({ altText, src, data: { type: ImageNodeType.Image } });
     return { node };
   }
   return null;
@@ -224,6 +234,10 @@ export type SerializedImageNode = Spread<
     height?: number;
     src: string;
     width?: number;
+    data: {
+      type: ImageNodeType;
+      value?: string;
+    };
     type: 'image';
     version: 1;
   },
@@ -235,6 +249,10 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   __altText: string;
   __width: 'inherit' | number;
   __height: 'inherit' | number;
+  __data: {
+    type: ImageNodeType;
+    value?: string;
+  };
 
   static getType(): string {
     return 'image';
@@ -247,17 +265,19 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       node.__width,
       node.__height,
       node.__key,
+      node.__data,
     );
   }
 
   static importJSON(serializedNode: SerializedImageNode): ImageNode {
-    const { altText, height, width, src } =
+    const { altText, height, width, src, data } =
       serializedNode;
     const node = $createImageNode({
       altText,
       height,
       src,
       width,
+      data
     });
     return node;
   }
@@ -284,12 +304,14 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     width?: 'inherit' | number,
     height?: 'inherit' | number,
     key?: NodeKey,
+    data: { type: ImageNodeType; value?: string } = { type: ImageNodeType.Image },
   ) {
     super(key);
     this.__src = src;
     this.__altText = altText;
     this.__width = width || 'inherit';
     this.__height = height || 'inherit';
+    this.__data = data;
   }
 
   exportJSON(): SerializedImageNode {
@@ -300,6 +322,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       type: 'image',
       version: 1,
       width: this.__width === 'inherit' ? 0 : this.__width,
+      data: this.__data,
     };
   }
 
@@ -310,6 +333,18 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     const writable = this.getWritable();
     writable.__width = width;
     writable.__height = height;
+  }
+
+  update(
+    src: string,
+    value: string,
+  ): void {
+    const writable = this.getWritable();
+    writable.__src = src;
+    writable.__data = {
+      type: this.__data.type,
+      value,
+    } ;
   }
 
   // View
@@ -336,6 +371,10 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return this.__altText;
   }
 
+  getData(): { type: ImageNodeType; value?: string } {
+    return this.__data;
+  }
+
   decorate(): JSX.Element {
     return (
       <ImageComponent
@@ -356,6 +395,7 @@ export function $createImageNode({
   src,
   width,
   key,
+  data
 }: ImagePayload): ImageNode {
   return new ImageNode(
     src,
@@ -363,6 +403,7 @@ export function $createImageNode({
     width,
     height,
     key,
+    data
   );
 }
 

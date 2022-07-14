@@ -27,6 +27,8 @@ import AlignTextMenu from './AlignTextMenu';
 import { IS_APPLE } from '../../../shared/environment';
 import { $isMathNode, MathNode } from '../../nodes/MathNode';
 import MathTools from './MathTools';
+import { $isImageNode, ImageNode } from '../../nodes/ImageNode';
+import ImageTools from './ImageTools';
 
 export const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -35,9 +37,6 @@ export const blockTypeToBlockName = {
   h1: 'Heading 1',
   h2: 'Heading 2',
   h3: 'Heading 3',
-  h4: 'Heading 4',
-  h5: 'Heading 5',
-  h6: 'Heading 6',
   number: 'Numbered List',
   paragraph: 'Normal',
 };
@@ -115,6 +114,7 @@ export default function ToolbarPlugin(): JSX.Element {
   const [fontFamily, setFontFamily] = useState<string>('Arial');
   const [isRTL, setIsRTL] = useState(false);
   const [mathNode, setMathNode] = useState<MathNode | null>(null);
+  const [imageNode, setImageNode] = useState<ImageNode | null>(null);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState<string>('');
@@ -168,12 +168,20 @@ export default function ToolbarPlugin(): JSX.Element {
         $getSelectionStyleValueForProperty(selection, 'font-family', 'Arial'),
       );
       setMathNode(null);
+      setImageNode(null);
     }
 
     if ($isNodeSelection(selection)) {
       const node = selection.getNodes()[0];
       const isMathNode = $isMathNode(node);
       isMathNode && setMathNode(node);
+      const isImageNode = $isImageNode(node);
+      isImageNode && setImageNode(node);
+    }
+
+    if(selection === null) {
+      setMathNode(null);
+      setImageNode(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeEditor]);
@@ -294,7 +302,8 @@ export default function ToolbarPlugin(): JSX.Element {
             </IconButton>
           </Box>
           <Box sx={{ display: "flex" }}>
-            {mathNode ? <MathTools editor={activeEditor} node={mathNode} sx={{ mx: 1 }} />
+            {mathNode ? <MathTools editor={activeEditor} node={mathNode} sx={{ mx: 1 }} /> :
+            imageNode ? <ImageTools editor={activeEditor} node={imageNode} sx={{ mx: 1 }} />
               : <>
                 {blockType in blockTypeToBlockName && activeEditor === editor && <BlockFormatSelect blockType={blockType} editor={editor} />}
                 {blockType === 'code' ? (

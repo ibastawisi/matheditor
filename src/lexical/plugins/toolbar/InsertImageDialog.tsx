@@ -14,6 +14,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import TextField from '@mui/material/TextField/TextField';
 
 import Compressor from 'compressorjs';
+import { ImageNodeType } from '../../nodes/ImageNode';
 
 export default function InsertImageDialog({ editor, open, onClose }: { editor: LexicalEditor; open: boolean; onClose: () => void; }) {
   const theme = useTheme();
@@ -103,7 +104,7 @@ export default function InsertImageDialog({ editor, open, onClose }: { editor: L
         </Button>
         <Button
           disabled={isDisabled}
-          onClick={() => onClick(formData)}>
+          onClick={() => onClick({...formData, data: { type: ImageNodeType.Image }})}>
           Confirm
         </Button>
       </DialogActions>
