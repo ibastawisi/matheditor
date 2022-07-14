@@ -17,7 +17,7 @@ import IconButton from '@mui/material/IconButton';
 import { INSERT_MATH_COMMAND } from '../MathPlugin';
 import ImageDialog, { DialogMode as ImageDialogMode } from './ImageDialog';
 import GraphDialog, { DialogMode as GraphDialogMode } from './GraphDialog';
-import SketchDialog, { DialogMode as SketchDialogMode } from './SketcDialog';
+import SketchDialog, { DialogMode as SketchDialogMode } from './Sketch/SketchDialog';
 
 import SvgIcon from '@mui/material/SvgIcon';
 

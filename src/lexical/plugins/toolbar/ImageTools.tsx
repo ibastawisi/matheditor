@@ -8,7 +8,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ImageDialog, { DialogMode as ImageDialogMode } from "./ImageDialog";
 import GraphDialog, { DialogMode as GraphDialogMode } from './GraphDialog';
-import SketchDialog, { DialogMode as SketchDialogMode } from './SketcDialog';
+import SketchDialog, { DialogMode as SketchDialogMode } from './Sketch/SketchDialog';
 import { useState } from "react";
 
 

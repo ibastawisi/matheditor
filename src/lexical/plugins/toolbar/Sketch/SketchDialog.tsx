@@ -6,9 +6,12 @@ import DialogContent from '@mui/material/DialogContent';
 import { Excalidraw, exportToSvg } from '@excalidraw/excalidraw';
 import { ExcalidrawElement, NonDeleted } from '@excalidraw/excalidraw/types/element/types';
 import { AppState } from '@excalidraw/excalidraw/types/types';
-import { INSERT_IMAGE_COMMAND } from '../ImagePlugin';
+import { INSERT_IMAGE_COMMAND } from '../../ImagePlugin';
 import { useEffect, useState } from 'react';
-import { ImageNode, ImageNodeType } from '../../nodes/ImageNode';
+import { ImageNode, ImageNodeType } from '../../../nodes/ImageNode';
+import LogicGates from "./Logic-Gates.json";
+import CircuitComponents from "./circuit-components.json";
+import { useTheme } from '@mui/material/styles';
 
 export type ExcalidrawElementFragment = {
   isDeleted?: boolean;
@@ -21,6 +24,7 @@ export enum DialogMode {
 
 export default function InsertSketchDialog({ editor, node, mode, open, onClose }: { editor: LexicalEditor; node?: ImageNode; mode: DialogMode; open: boolean; onClose: () => void; }) {
   const [elements, setElements] = useState<ReadonlyArray<ExcalidrawElementFragment>>([]);
+  const theme = useTheme();
 
   const handleSubmit = async () => {
     const element: SVGElement = await exportToSvg({
@@ -73,7 +77,9 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
           initialData={{
             appState: { isLoading: false },
             elements,
+            libraryItems: [...LogicGates.library, ...CircuitComponents.libraryItems],
           }}
+          theme={theme.palette.mode}
         />
       </DialogContent>
       <DialogActions>
