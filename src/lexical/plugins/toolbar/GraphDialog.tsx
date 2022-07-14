@@ -18,6 +18,7 @@ export default function GraphDialog({ editor, node, open, onClose, mode }: { edi
 
   const mountGGBApplet = (container: HTMLDivElement) => {
     const parameters = {
+      appName: "suite",
       showToolBar: true,
       borderColor: null,
       showMenuBar: false,
@@ -29,12 +30,11 @@ export default function GraphDialog({ editor, node, open, onClose, mode }: { edi
       showToolBarHelp: false,
       errorDialogsActive: true,
       showTutorialLink: true,
-      useBrowserForJS: false,
+      useBrowserForJS: true,
       ggbBase64: "",
       appletOnLoad(api: any) {
         app.current = api;
       },
-      perspective: "AG",
     };
 
     if (node) {
