@@ -1,10 +1,11 @@
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import { LexicalEditor, } from "lexical";
+import { $setSelection, LexicalEditor, } from "lexical";
 import { ImageNode, ImageNodeType } from "../../nodes/ImageNode";
 
 import { SxProps, Theme } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import ImageDialog, { DialogMode as ImageDialogMode } from "./ImageDialog";
 import GraphDialog, { DialogMode as GraphDialogMode } from './GraphDialog';
 import SketchDialog, { DialogMode as SketchDialogMode } from './SketcDialog';
@@ -37,6 +38,10 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
             <EditIcon />
           </ToggleButton>
         }
+        <ToggleButton value="delete"
+          onClick={() => { editor.update(() => { node.remove(); $setSelection(null) }); }}>
+          <DeleteIcon />
+        </ToggleButton>
       </ToggleButtonGroup>
       <ImageDialog editor={editor} node={node} mode={ImageDialogMode.update} open={imageDialogOpen} onClose={() => setImageDialogOpen(false)} />
       <GraphDialog editor={editor} node={node} mode={GraphDialogMode.update} open={graphDialogOpen} onClose={() => setGraphDialogOpen(false)} />
