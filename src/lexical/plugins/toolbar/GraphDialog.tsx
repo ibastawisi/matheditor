@@ -72,6 +72,8 @@ export default function GraphDialog({ editor, node, open, onClose, mode }: { edi
     });
   };
 
+  if (!open) return null;
+
   return (
     <Dialog open={open} fullScreen={true} onClose={onClose}>
       <DialogContent sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 0, overflow: "hidden" }} ref={(el: HTMLDivElement | undefined) => el && mountGGBApplet(el)} />

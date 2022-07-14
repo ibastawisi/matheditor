@@ -63,6 +63,8 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
     setElements(els);
   };
 
+  if (!open) return null;
+
   return (
     <Dialog open={open} fullScreen={true} onClose={onClose}>
       <DialogContent sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 0, overflow: "hidden" }}>

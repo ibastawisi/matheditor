@@ -3,7 +3,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { LexicalEditor } from 'lexical';
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode';
-import InsertImageDialog from './InsertImageDialog';
+import InsertImageDialog from './ImageDialog';
 import InsertTableDialog from './InsertTableDialog';
 import AddIcon from '@mui/icons-material/Add';
 import ListItemText from '@mui/material/ListItemText';
@@ -16,6 +16,7 @@ import BrushIcon from '@mui/icons-material/Brush';
 
 import IconButton from '@mui/material/IconButton';
 import { INSERT_MATH_COMMAND } from '../MathPlugin';
+import ImageDialog, { DialogMode as ImageDialogMode } from './ImageDialog';
 import GraphDialog, { DialogMode as GraphDialogMode } from './GraphDialog';
 import SketchDialog, { DialogMode as SketchDialogMode } from './SketcDialog';
 
@@ -83,7 +84,7 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }): J
           <ListItemText>Table</ListItemText>
         </MenuItem>
       </Menu>
-      <InsertImageDialog editor={editor} open={imageDialogOpen} onClose={() => setImageDialogOpen(false)} />
+      <ImageDialog editor={editor} mode={ImageDialogMode.create} open={imageDialogOpen} onClose={() => setImageDialogOpen(false)} />
       <InsertTableDialog editor={editor} open={tableDialogOpen} onClose={() => setTableDialogOpen(false)} />
       <GraphDialog editor={editor} mode={GraphDialogMode.create} open={graphDialogOpen} onClose={() => setGraphDialogOpen(false)} />
       <SketchDialog editor={editor} mode={SketchDialogMode.create} open={sketchDialogOpen} onClose={() => setSketchDialogOpen(false)} />

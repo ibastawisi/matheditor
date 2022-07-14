@@ -3,25 +3,35 @@ import { INSERT_IMAGE_COMMAND } from '../ImagePlugin';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { LexicalEditor } from 'lexical';
 import Box from '@mui/material/Box';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import useTheme from '@mui/material/styles/useTheme';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import TextField from '@mui/material/TextField/TextField';
+import Typography from '@mui/material/Typography';
 
 import Compressor from 'compressorjs';
-import { ImageNodeType } from '../../nodes/ImageNode';
+import { ImageNode, ImageNodeType } from '../../nodes/ImageNode';
 
-export default function InsertImageDialog({ editor, open, onClose }: { editor: LexicalEditor; open: boolean; onClose: () => void; }) {
+export enum DialogMode {
+  create,
+  update,
+}
+
+export default function ImageDialog({ editor, node, mode, open, onClose }: { editor: LexicalEditor; node?: ImageNode; mode: DialogMode; open: boolean; onClose: () => void; }) {
   const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const [mode, setMode] = useState<null | 'url' | 'file'>(null);
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md')) || mode === DialogMode.update;
 
   const [formData, setFormData] = useState({ src: '', altText: '' });
+
+  useEffect(() => {
+    if (node) {
+      setFormData({ src: node.getSrc(), altText: node.getAltText() });
+    }
+  }, [node]);
 
   const updateFormData = (event: any) => {
     const { name, value } = event.target;
@@ -32,7 +42,7 @@ export default function InsertImageDialog({ editor, open, onClose }: { editor: L
     const reader = new FileReader();
     reader.onload = function () {
       if (typeof reader.result === 'string') {
-        setFormData({ src: reader.result , altText: files![0].name });
+        setFormData({ src: reader.result, altText: "" });
       }
       return '';
     };
@@ -57,10 +67,12 @@ export default function InsertImageDialog({ editor, open, onClose }: { editor: L
   };
 
   const handleClose = () => {
-    setMode(null);
     setFormData({ src: '', altText: '' });
     onClose();
   }
+
+  
+  if (!open) return null;
 
   return (
     <Dialog
@@ -69,34 +81,23 @@ export default function InsertImageDialog({ editor, open, onClose }: { editor: L
       onClose={handleClose}
       aria-labelledby="responsive-dialog-title"
     >
-      <DialogTitle id="responsive-dialog-title">
-        Insert Image
-      </DialogTitle>
       <DialogContent>
-        <Box component="form" noValidate sx={{ mt: 1 }}>
-          {!mode ?
-            <div className="ToolbarPlugin__dialogButtonsList">
-              <Button
-                onClick={() => setMode('url')}>
-                From URL
-              </Button>
-              <Button
-                onClick={() => setMode('file')}>
-                From File
-              </Button>
-            </div>
-            :
-            <>
-              {mode === 'url' && <TextField type="url" margin="normal" size="small" fullWidth
-                value={formData.src} onChange={updateFormData} label="Image URL" name="src" autoComplete="src" autoFocus />}
-              {mode === 'file' && <Button variant="outlined" startIcon={<UploadFileIcon />} component="label">
-                Upload File
-                <input type="file" hidden accept="image/*" onChange={e => loadImage(e.target.files)} autoFocus />
-              </Button>}
-
-              <TextField margin="normal" size="small" fullWidth value={formData.altText} onChange={updateFormData} label="Alt Text" name="altText" autoComplete="altText" />
-            </>}
-        </Box>
+        {mode === DialogMode.create &&
+          <Box component="form" noValidate sx={{ mt: 1 }}>
+            <Typography variant="h6" sx={{ mt: 1 }}>From URL</Typography>
+            <TextField type="url" margin="normal" size="small" fullWidth
+              value={formData.src} onChange={updateFormData} label="Image URL" name="src" autoComplete="src" autoFocus />
+            <TextField margin="normal" size="small" fullWidth value={formData.altText} onChange={updateFormData} label="Alt Text" name="altText" autoComplete="altText" />
+            <Typography variant="h6" sx={{ mt: 1 }}>From File</Typography>
+            <Button variant="outlined" sx={{ my: 2 }} startIcon={<UploadFileIcon />} component="label">
+              Upload File
+              <input type="file" hidden accept="image/*" onChange={e => loadImage(e.target.files)} autoFocus />
+            </Button>
+          </Box>
+        }
+        {mode === DialogMode.update &&
+          <></>
+        }
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>
@@ -104,7 +105,7 @@ export default function InsertImageDialog({ editor, open, onClose }: { editor: L
         </Button>
         <Button
           disabled={isDisabled}
-          onClick={() => onClick({...formData, data: { type: ImageNodeType.Image }})}>
+          onClick={() => onClick({ ...formData, data: { type: ImageNodeType.Image } })}>
           Confirm
         </Button>
       </DialogActions>
