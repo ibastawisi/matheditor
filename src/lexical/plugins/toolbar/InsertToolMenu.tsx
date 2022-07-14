@@ -3,7 +3,6 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { LexicalEditor } from 'lexical';
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode';
-import InsertImageDialog from './ImageDialog';
 import InsertTableDialog from './InsertTableDialog';
 import AddIcon from '@mui/icons-material/Add';
 import ListItemText from '@mui/material/ListItemText';

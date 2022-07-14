@@ -43,6 +43,7 @@ export default function GraphDialog({ editor, node, open, onClose, mode }: { edi
     }
 
     const applet = new (window as any).GGBApplet(parameters, '5.0');
+    applet.setHTML5Codebase('/GeoGebra/HTML5/5.0/web3d/');
     applet.inject(container);
 
     window.addEventListener('resize', () => {
