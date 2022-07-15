@@ -14,16 +14,16 @@ import TextField from '@mui/material/TextField/TextField';
 import Typography from '@mui/material/Typography';
 
 import Compressor from 'compressorjs';
-import { ImageNode, ImageNodeType } from '../../nodes/ImageNode';
+import { ImageNode, ImageType } from '../../nodes/ImageNode';
 
-export enum DialogMode {
+export enum ImageDialogMode {
   create,
   update,
 }
 
-export default function ImageDialog({ editor, node, mode, open, onClose }: { editor: LexicalEditor; node?: ImageNode; mode: DialogMode; open: boolean; onClose: () => void; }) {
+export default function ImageDialog({ editor, node, mode, open, onClose }: { editor: LexicalEditor; node?: ImageNode; mode: ImageDialogMode; open: boolean; onClose: () => void; }) {
   const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md')) || mode === DialogMode.update;
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md')) || mode === ImageDialogMode.update;
 
   const [formData, setFormData] = useState({ src: '', altText: '' });
 
@@ -82,7 +82,7 @@ export default function ImageDialog({ editor, node, mode, open, onClose }: { edi
       aria-labelledby="responsive-dialog-title"
     >
       <DialogContent>
-        {mode === DialogMode.create &&
+        {mode === ImageDialogMode.create &&
           <Box component="form" noValidate sx={{ mt: 1 }}>
             <Typography variant="h6" sx={{ mt: 1 }}>From URL</Typography>
             <TextField type="url" margin="normal" size="small" fullWidth
@@ -95,7 +95,7 @@ export default function ImageDialog({ editor, node, mode, open, onClose }: { edi
             </Button>
           </Box>
         }
-        {mode === DialogMode.update &&
+        {mode === ImageDialogMode.update &&
           <></>
         }
       </DialogContent>
@@ -105,7 +105,7 @@ export default function ImageDialog({ editor, node, mode, open, onClose }: { edi
         </Button>
         <Button
           disabled={isDisabled}
-          onClick={() => onClick({ ...formData, data: { type: ImageNodeType.Image } })}>
+          onClick={() => onClick({ ...formData, data: { type: ImageType.Image } })}>
           Confirm
         </Button>
       </DialogActions>

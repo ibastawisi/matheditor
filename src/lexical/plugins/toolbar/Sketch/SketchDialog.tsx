@@ -8,7 +8,7 @@ import { ExcalidrawElement, NonDeleted } from '@excalidraw/excalidraw/types/elem
 import { AppState } from '@excalidraw/excalidraw/types/types';
 import { INSERT_IMAGE_COMMAND } from '../../ImagePlugin';
 import { useEffect, useState } from 'react';
-import { ImageNode, ImageNodeType } from '../../../nodes/ImageNode';
+import { ImageNode, ImageType } from '../../../nodes/ImageNode';
 import LogicGates from "./Logic-Gates.json";
 import CircuitComponents from "./circuit-components.json";
 import { useTheme } from '@mui/material/styles';
@@ -17,12 +17,12 @@ export type ExcalidrawElementFragment = {
   isDeleted?: boolean;
 };
 
-export enum DialogMode {
+export enum SketchDialogMode {
   create,
   update,
 }
 
-export default function InsertSketchDialog({ editor, node, mode, open, onClose }: { editor: LexicalEditor; node?: ImageNode; mode: DialogMode; open: boolean; onClose: () => void; }) {
+export default function InsertSketchDialog({ editor, node, mode, open, onClose }: { editor: LexicalEditor; node?: ImageNode; mode: SketchDialogMode; open: boolean; onClose: () => void; }) {
   const [elements, setElements] = useState<ReadonlyArray<ExcalidrawElementFragment>>([]);
   const theme = useTheme();
 
@@ -41,10 +41,10 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
       const src = reader.result as string;
       const value = JSON.stringify(elements);
       switch (mode) {
-        case DialogMode.create:
-          editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src, data: { type: ImageNodeType.Sketch, value } },);
+        case SketchDialogMode.create:
+          editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src, data: { type: ImageType.Sketch, value } },);
           break;
-        case DialogMode.update:
+        case SketchDialogMode.update:
           editor.update(() => node?.update(src, value));
           break;
       }
@@ -87,7 +87,7 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
           Cancel
         </Button>
         <Button onClick={handleSubmit}>
-          {mode === DialogMode.create ? "Insert" : "Update"}
+          {mode === SketchDialogMode.create ? "Insert" : "Update"}
         </Button>
       </DialogActions>
     </Dialog>

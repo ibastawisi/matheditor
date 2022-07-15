@@ -26,15 +26,16 @@ export interface ImagePayload {
   src: string;
   width?: number;
   data: {
-    type: ImageNodeType;
+    type: ImageType;
     value?: string;
   }
 }
 
-export enum ImageNodeType {
-  Image = 'Image',
-  Graph = 'Graph',
-  Sketch = 'Sketch',
+export enum ImageType {
+  Image = 'image',
+  "2DGraph" = '2d graph',
+  "3DGraph" = '3d graph',
+  Sketch = 'sketch',
 }
 
 const imageCache = new Set();
@@ -55,7 +56,7 @@ function useSuspenseImage(src: string) {
 function convertImageElement(domNode: Node): null | DOMConversionOutput {
   if (domNode instanceof HTMLImageElement) {
     const { alt: altText, src } = domNode;
-    const node = $createImageNode({ altText, src, data: { type: ImageNodeType.Image } });
+    const node = $createImageNode({ altText, src, data: { type: ImageType.Image } });
     return { node };
   }
   return null;
@@ -235,7 +236,7 @@ export type SerializedImageNode = Spread<
     src: string;
     width?: number;
     data: {
-      type: ImageNodeType;
+      type: ImageType;
       value?: string;
     };
     type: 'image';
@@ -250,7 +251,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   __width: 'inherit' | number;
   __height: 'inherit' | number;
   __data: {
-    type: ImageNodeType;
+    type: ImageType;
     value?: string;
   };
 
@@ -304,7 +305,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     width?: 'inherit' | number,
     height?: 'inherit' | number,
     key?: NodeKey,
-    data: { type: ImageNodeType; value?: string } = { type: ImageNodeType.Image },
+    data: { type: ImageType; value?: string } = { type: ImageType.Image },
   ) {
     super(key);
     this.__src = src;
@@ -371,8 +372,12 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return this.__altText;
   }
 
-  getData(): { type: ImageNodeType; value?: string } {
+  getData(): { type: ImageType; value?: string } {
     return this.__data;
+  }
+
+  getType(): ImageType {
+    return this.__data.type;
   }
 
   decorate(): JSX.Element {

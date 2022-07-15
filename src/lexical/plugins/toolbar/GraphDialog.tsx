@@ -4,21 +4,20 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import { INSERT_IMAGE_COMMAND } from '../ImagePlugin';
-import { ImageNode, ImageNodeType } from '../../nodes/ImageNode';
+import { ImageNode, ImageType } from '../../nodes/ImageNode';
 import { useRef } from 'react';
 
-export enum DialogMode {
+export enum GraphDialogMode {
   create,
   update,
 }
 
-export default function GraphDialog({ editor, node, open, onClose, mode }: { editor: LexicalEditor; node?: ImageNode; mode: DialogMode; open: boolean; onClose: () => void; }) {
+export default function GraphDialog({ editor, node, type, open, onClose, mode }: { editor: LexicalEditor; node?: ImageNode; type?: ImageType; mode: GraphDialogMode; open: boolean; onClose: () => void; }) {
 
   const app = useRef<any>(null);
 
   const mountGGBApplet = (container: HTMLDivElement) => {
-    const parameters = {
-      appName: "suite",
+    const parameters: any = {
       showToolBar: true,
       borderColor: null,
       showMenuBar: false,
@@ -32,15 +31,20 @@ export default function GraphDialog({ editor, node, open, onClose, mode }: { edi
       showTutorialLink: true,
       useBrowserForJS: true,
       ggbBase64: "",
+      width: window.innerWidth,
+      height: window.innerHeight - 52.5,
       appletOnLoad(api: any) {
         app.current = api;
       },
     };
 
     if (node) {
+      type = node.getType();
       const data = node.getData();
       parameters.ggbBase64 = data.value!;
     }
+
+    parameters.appName = type === ImageType['2DGraph'] ? 'graphing' : '3d';
 
     const applet = new (window as any).GGBApplet(parameters, '5.0');
     applet.setHTML5Codebase('/GeoGebra/HTML5/5.0/web3d/');
@@ -53,37 +57,54 @@ export default function GraphDialog({ editor, node, open, onClose, mode }: { edi
   }
 
   const handleSubmit = () => {
-    app.current?.exportSVG((html: string) => {
-      const blob = new Blob([html], { type: 'image/svg+xml' });
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onload = () => {
-        const src = reader.result as string;
-        const value = app.current?.getBase64() as string;
+    switch (type) {
+      case ImageType['2DGraph']:
+        app.current?.exportSVG((html: string) => {
+          const blob = new Blob([html], { type: 'image/svg+xml' });
+          const reader = new FileReader();
+          reader.readAsDataURL(blob);
+          reader.onload = () => {
+            const src = reader.result as string;
+            const value = app.current?.getBase64() as string;
+            switch (mode) {
+              case GraphDialogMode.create:
+                editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src, data: { type: ImageType['2DGraph'], value } },);
+                break;
+              case GraphDialogMode.update:
+                editor.update(() => node?.update(src, value));
+                break;
+            }
+            onClose();
+          }
+        });
+        break;
+      case ImageType['3DGraph']:
+        const src = "data:image/png;base64," + app.current?.getPNGBase64();
+        const value = app.current?.getBase64();
         switch (mode) {
-          case DialogMode.create:
-            editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src, data: { type: ImageNodeType.Graph, value } },);
+          case GraphDialogMode.create:
+            editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src, data: { type: ImageType['3DGraph'], value } },);
             break;
-          case DialogMode.update:
+          case GraphDialogMode.update:
             editor.update(() => node?.update(src, value));
             break;
         }
         onClose();
-      }
-    });
+        break;
+    }
   };
 
   if (!open) return null;
 
   return (
     <Dialog open={open} fullScreen={true} onClose={onClose}>
-      <DialogContent sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 0, overflow: "hidden" }} ref={(el: HTMLDivElement | undefined) => el && mountGGBApplet(el)} />
+      <DialogContent sx={{ p: 0, overflow: "hidden" }} ref={(el: HTMLDivElement | undefined) => el && mountGGBApplet(el)} />
       <DialogActions>
         <Button autoFocus onClick={onClose}>
           Cancel
         </Button>
         <Button onClick={handleSubmit}>
-          {mode === DialogMode.create ? "Insert" : "Update"}
+          {mode === GraphDialogMode.create ? "Insert" : "Update"}
         </Button>
       </DialogActions>
     </Dialog>

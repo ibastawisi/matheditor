@@ -1,14 +1,14 @@
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { $setSelection, LexicalEditor, } from "lexical";
-import { ImageNode, ImageNodeType } from "../../nodes/ImageNode";
+import { ImageNode, ImageType } from "../../nodes/ImageNode";
 
 import { SxProps, Theme } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ImageDialog, { DialogMode as ImageDialogMode } from "./ImageDialog";
-import GraphDialog, { DialogMode as GraphDialogMode } from './GraphDialog';
-import SketchDialog, { DialogMode as SketchDialogMode } from './Sketch/SketchDialog';
+import ImageDialog, { ImageDialogMode } from "./ImageDialog";
+import GraphDialog, { GraphDialogMode } from './GraphDialog';
+import SketchDialog, { SketchDialogMode } from './Sketch/SketchDialog';
 import { useState } from "react";
 
 
@@ -17,22 +17,29 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
   const [graphDialogOpen, setGraphDialogOpen] = useState(false);
   const [sketchDialogOpen, setSketchDialogOpen] = useState(false);
   const data = node.getData();
+
   return (
     <>
       <ToggleButtonGroup size="small" sx={{ ...sx }} >
-        {/* {data.type === ImageNodeType.Image &&
+        {/* {data.type === ImageType.Image &&
           <ToggleButton value="image"
             onClick={() => { setImageDialogOpen(true) }}>
             <EditIcon />
           </ToggleButton>
         } */}
-        {data.type === ImageNodeType.Graph &&
-          <ToggleButton value="graph"
+        {data.type === ImageType["2DGraph"] &&
+          <ToggleButton value="2D"
             onClick={() => { setGraphDialogOpen(true) }}>
             <EditIcon />
           </ToggleButton>
         }
-        {data.type === ImageNodeType.Sketch &&
+        {data.type === ImageType["3DGraph"] &&
+          <ToggleButton value="3D"
+            onClick={() => { setGraphDialogOpen(true) }}>
+            <EditIcon />
+          </ToggleButton>
+        }
+        {data.type === ImageType.Sketch &&
           <ToggleButton value="sketch"
             onClick={() => { setSketchDialogOpen(true) }}>
             <EditIcon />

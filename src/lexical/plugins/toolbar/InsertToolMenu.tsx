@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { LexicalEditor } from 'lexical';
@@ -12,12 +12,14 @@ import ImageIcon from '@mui/icons-material/Image';
 import TableIcon from '@mui/icons-material/TableChart';
 import FunctionsIcon from '@mui/icons-material/Functions';
 import BrushIcon from '@mui/icons-material/Brush';
+import ViewInArIcon from '@mui/icons-material/ViewInAr';
 
 import IconButton from '@mui/material/IconButton';
 import { INSERT_MATH_COMMAND } from '../MathPlugin';
-import ImageDialog, { DialogMode as ImageDialogMode } from './ImageDialog';
-import GraphDialog, { DialogMode as GraphDialogMode } from './GraphDialog';
-import SketchDialog, { DialogMode as SketchDialogMode } from './Sketch/SketchDialog';
+import ImageDialog, { ImageDialogMode } from './ImageDialog';
+import GraphDialog, { GraphDialogMode } from './GraphDialog';
+import SketchDialog, { SketchDialogMode } from './Sketch/SketchDialog';
+import { ImageType } from '../../nodes/ImageNode';
 
 import SvgIcon from '@mui/material/SvgIcon';
 
@@ -26,12 +28,13 @@ const GraphIcon = () => <SvgIcon viewBox='0 0 512 512' fontSize='small'>
 </SvgIcon>;
 
 export default function InsertToolMenu({ editor }: { editor: LexicalEditor }): JSX.Element {
-  const [tableDialogOpen, setTableDialogOpen] = React.useState(false);
-  const [imageDialogOpen, setImageDialogOpen] = React.useState(false);
-  const [graphDialogOpen, setGraphDialogOpen] = React.useState(false);
-  const [sketchDialogOpen, setSketchDialogOpen] = React.useState(false);
+  const [tableDialogOpen, setTableDialogOpen] = useState(false);
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const [graphDialogOpen, setGraphDialogOpen] = useState(false);
+  const [sketchDialogOpen, setSketchDialogOpen] = useState(false);
+  const [graphType, setGraphType] = useState(ImageType['2DGraph']);
 
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -58,11 +61,17 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }): J
           </ListItemIcon>
           <ListItemText>Math</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => { setGraphDialogOpen(true); handleClose(); }}>
+        <MenuItem onClick={() => { setGraphType(ImageType['2DGraph']); setGraphDialogOpen(true); handleClose(); }}>
           <ListItemIcon>
             <GraphIcon />
           </ListItemIcon>
-          <ListItemText>Graph</ListItemText>
+          <ListItemText>2D Graph</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => { setGraphType(ImageType['3DGraph']); setGraphDialogOpen(true); handleClose(); }}>
+          <ListItemIcon>
+            <ViewInArIcon />
+          </ListItemIcon>
+          <ListItemText>3D graph</ListItemText>
         </MenuItem>
         <MenuItem onClick={() => { setSketchDialogOpen(true); handleClose(); }}>
           <ListItemIcon>
@@ -85,7 +94,7 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }): J
       </Menu>
       <ImageDialog editor={editor} mode={ImageDialogMode.create} open={imageDialogOpen} onClose={() => setImageDialogOpen(false)} />
       <InsertTableDialog editor={editor} open={tableDialogOpen} onClose={() => setTableDialogOpen(false)} />
-      <GraphDialog editor={editor} mode={GraphDialogMode.create} open={graphDialogOpen} onClose={() => setGraphDialogOpen(false)} />
+      <GraphDialog editor={editor} mode={GraphDialogMode.create} type={graphType} open={graphDialogOpen} onClose={() => setGraphDialogOpen(false)} />
       <SketchDialog editor={editor} mode={SketchDialogMode.create} open={sketchDialogOpen} onClose={() => setSketchDialogOpen(false)} />
     </>
   );

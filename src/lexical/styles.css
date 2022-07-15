@@ -146,7 +146,7 @@ div.ML__keyboard.material {
   }
 }
 
-.applet_scaler.ggbTransform {
+.applet_scaler, .gbb_preview {
   width: 100% !important;
   height: 100% !important;
 }
