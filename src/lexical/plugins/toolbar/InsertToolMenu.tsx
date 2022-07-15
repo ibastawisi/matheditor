@@ -32,7 +32,7 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }): J
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [graphDialogOpen, setGraphDialogOpen] = useState(false);
   const [sketchDialogOpen, setSketchDialogOpen] = useState(false);
-  const [graphType, setGraphType] = useState(ImageType['2DGraph']);
+  const [graphType, setGraphType] = useState(ImageType.Graph2D);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -61,13 +61,13 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }): J
           </ListItemIcon>
           <ListItemText>Math</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => { setGraphType(ImageType['2DGraph']); setGraphDialogOpen(true); handleClose(); }}>
+        <MenuItem onClick={() => { setGraphType(ImageType.Graph2D); setGraphDialogOpen(true); handleClose(); }}>
           <ListItemIcon>
             <GraphIcon />
           </ListItemIcon>
           <ListItemText>2D Graph</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => { setGraphType(ImageType['3DGraph']); setGraphDialogOpen(true); handleClose(); }}>
+        <MenuItem onClick={() => { setGraphType(ImageType.Graph3D); setGraphDialogOpen(true); handleClose(); }}>
           <ListItemIcon>
             <ViewInArIcon />
           </ListItemIcon>

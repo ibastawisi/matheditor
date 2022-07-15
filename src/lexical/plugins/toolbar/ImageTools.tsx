@@ -11,7 +11,6 @@ import GraphDialog, { GraphDialogMode } from './GraphDialog';
 import SketchDialog, { SketchDialogMode } from './Sketch/SketchDialog';
 import { useState } from "react";
 
-
 export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor, node: ImageNode, sx?: SxProps<Theme> | undefined }): JSX.Element {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [graphDialogOpen, setGraphDialogOpen] = useState(false);
@@ -27,14 +26,14 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
             <EditIcon />
           </ToggleButton>
         } */}
-        {data.type === ImageType["2DGraph"] &&
-          <ToggleButton value="2D"
+        {data.type === ImageType.Graph2D &&
+          <ToggleButton value={ImageType.Graph2D}
             onClick={() => { setGraphDialogOpen(true) }}>
             <EditIcon />
           </ToggleButton>
         }
-        {data.type === ImageType["3DGraph"] &&
-          <ToggleButton value="3D"
+        {data.type === ImageType.Graph3D &&
+          <ToggleButton value={ImageType.Graph3D}
             onClick={() => { setGraphDialogOpen(true) }}>
             <EditIcon />
           </ToggleButton>

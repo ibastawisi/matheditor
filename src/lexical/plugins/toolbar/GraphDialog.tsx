@@ -44,7 +44,7 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
       parameters.ggbBase64 = data.value!;
     }
 
-    parameters.appName = type === ImageType['2DGraph'] ? 'graphing' : '3d';
+    parameters.appName = type === ImageType.Graph2D ? 'graphing' : '3d';
 
     const applet = new (window as any).GGBApplet(parameters, '5.0');
     applet.setHTML5Codebase('/GeoGebra/HTML5/5.0/web3d/');
@@ -58,7 +58,7 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
 
   const handleSubmit = () => {
     switch (type) {
-      case ImageType['2DGraph']:
+      case ImageType.Graph2D:
         app.current?.exportSVG((html: string) => {
           const blob = new Blob([html], { type: 'image/svg+xml' });
           const reader = new FileReader();
@@ -68,7 +68,7 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
             const value = app.current?.getBase64() as string;
             switch (mode) {
               case GraphDialogMode.create:
-                editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src, data: { type: ImageType['2DGraph'], value } },);
+                editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src, data: { type: ImageType.Graph2D, value } },);
                 break;
               case GraphDialogMode.update:
                 editor.update(() => node?.update(src, value));
@@ -78,12 +78,12 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
           }
         });
         break;
-      case ImageType['3DGraph']:
+      case ImageType.Graph3D:
         const src = "data:image/png;base64," + app.current?.getPNGBase64();
         const value = app.current?.getBase64();
         switch (mode) {
           case GraphDialogMode.create:
-            editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src, data: { type: ImageType['3DGraph'], value } },);
+            editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src, data: { type: ImageType.Graph3D, value } },);
             break;
           case GraphDialogMode.update:
             editor.update(() => node?.update(src, value));

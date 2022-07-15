@@ -33,8 +33,8 @@ export interface ImagePayload {
 
 export enum ImageType {
   Image = 'image',
-  "2DGraph" = '2d graph',
-  "3DGraph" = '3d graph',
+  Graph2D = 'graph2D',
+  Graph3D = 'graph3D',
   Sketch = 'sketch',
 }
 

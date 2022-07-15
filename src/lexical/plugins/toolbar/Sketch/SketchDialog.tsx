@@ -60,6 +60,8 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
         setElements(elements);
       }
       catch (e) { }
+    } else {
+      setElements([{}]);
     }
   }, [node]);
 
