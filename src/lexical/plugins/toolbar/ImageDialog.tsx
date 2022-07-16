@@ -14,7 +14,7 @@ import TextField from '@mui/material/TextField/TextField';
 import Typography from '@mui/material/Typography';
 
 import Compressor from 'compressorjs';
-import { ImageNode, ImageType } from '../../nodes/ImageNode';
+import { ImageNode } from '../../nodes/ImageNode';
 
 export enum ImageDialogMode {
   create,
@@ -105,7 +105,7 @@ export default function ImageDialog({ editor, node, mode, open, onClose }: { edi
         </Button>
         <Button
           disabled={isDisabled}
-          onClick={() => onClick({ ...formData, data: { type: ImageType.Image } })}>
+          onClick={() => onClick(formData)}>
           Confirm
         </Button>
       </DialogActions>

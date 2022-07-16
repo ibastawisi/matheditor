@@ -4,14 +4,14 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import { Excalidraw, exportToSvg } from '@excalidraw/excalidraw';
-import { ExcalidrawElement, NonDeleted } from '@excalidraw/excalidraw/types/element/types';
-import { AppState } from '@excalidraw/excalidraw/types/types';
-import { INSERT_IMAGE_COMMAND } from '../../ImagePlugin';
+import { INSERT_SKETCH_COMMAND } from '../../SketchPlugin';
 import { useEffect, useState } from 'react';
-import { ImageNode, ImageType } from '../../../nodes/ImageNode';
 import LogicGates from "./Logic-Gates.json";
 import CircuitComponents from "./circuit-components.json";
 import { useTheme } from '@mui/material/styles';
+import { SketchNode } from '../../../nodes/SketchNode';
+import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
+import { AppState } from '@excalidraw/excalidraw/types/types';
 
 export type ExcalidrawElementFragment = {
   isDeleted?: boolean;
@@ -22,11 +22,9 @@ export enum SketchDialogMode {
   update,
 }
 
-export default function InsertSketchDialog({ editor, node, mode, open, onClose }: { editor: LexicalEditor; node?: ImageNode; mode: SketchDialogMode; open: boolean; onClose: () => void; }) {
+export default function InsertSketchDialog({ editor, node, mode, open, onClose }: { editor: LexicalEditor; node?: SketchNode; mode: SketchDialogMode; open: boolean; onClose: () => void; }) {
   const [elements, setElements] = useState<ReadonlyArray<ExcalidrawElementFragment>>([]);
   const theme = useTheme();
-
-
 
   const handleSubmit = async () => {
     const element: SVGElement = await exportToSvg({
@@ -38,13 +36,13 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
 
     const serialized = new XMLSerializer().serializeToString(element);
     const src = "data:image/svg+xml," + encodeURIComponent(serialized);
-    const value = JSON.stringify(elements);
+
     switch (mode) {
       case SketchDialogMode.create:
-        editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src, data: { type: ImageType.Sketch, value } },);
+        editor.dispatchCommand(INSERT_SKETCH_COMMAND, { src, value: elements },);
         break;
       case SketchDialogMode.update:
-        editor.update(() => node?.update(src, value));
+        editor.update(() => node?.update(src, elements as NonDeleted<ExcalidrawElement>[]),);
         break;
     }
     onClose();
@@ -52,14 +50,9 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
 
   useEffect(() => {
     if (node) {
-      try {
-        const value = node.getData().value;
-        const elements = JSON.parse(value!);
-        setElements(elements);
-      }
-      catch (e) { }
+      setElements(node.getValue());
     } else {
-      setElements([{}]);
+      setElements([]);
     }
   }, [node]);
 

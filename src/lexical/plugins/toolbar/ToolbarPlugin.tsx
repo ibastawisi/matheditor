@@ -29,6 +29,8 @@ import { $isMathNode, MathNode } from '../../nodes/MathNode';
 import MathTools from './MathTools';
 import { $isImageNode, ImageNode } from '../../nodes/ImageNode';
 import ImageTools from './ImageTools';
+import { $isSketchNode, SketchNode } from '../../nodes/SketchNode';
+import { $isGraphNode, GraphNode } from '../../nodes/GraphNode';
 
 export const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -114,7 +116,7 @@ export default function ToolbarPlugin(): JSX.Element {
   const [fontFamily, setFontFamily] = useState<string>('Arial');
   const [isRTL, setIsRTL] = useState(false);
   const [mathNode, setMathNode] = useState<MathNode | null>(null);
-  const [imageNode, setImageNode] = useState<ImageNode | null>(null);
+  const [imageNode, setImageNode] = useState<ImageNode | GraphNode | SketchNode | null>(null);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState<string>('');
@@ -175,7 +177,7 @@ export default function ToolbarPlugin(): JSX.Element {
       const node = selection.getNodes()[0];
       const isMathNode = $isMathNode(node);
       setMathNode(isMathNode ? node : null);
-      const isImageNode = $isImageNode(node);
+      const isImageNode = $isImageNode(node) || $isGraphNode(node) || $isSketchNode(node);
       setImageNode(isImageNode ? node : null);
     }
 

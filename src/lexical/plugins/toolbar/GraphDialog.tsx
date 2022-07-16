@@ -3,8 +3,8 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import { INSERT_IMAGE_COMMAND } from '../ImagePlugin';
-import { ImageNode, ImageType } from '../../nodes/ImageNode';
+import { INSERT_GRAPH_COMMAND } from '../GraphPlugin';
+import { GraphNode, GraphType } from '../../nodes/GraphNode';
 import { useRef } from 'react';
 
 export enum GraphDialogMode {
@@ -12,7 +12,7 @@ export enum GraphDialogMode {
   update,
 }
 
-export default function GraphDialog({ editor, node, type, open, onClose, mode }: { editor: LexicalEditor; node?: ImageNode; type?: ImageType; mode: GraphDialogMode; open: boolean; onClose: () => void; }) {
+export default function GraphDialog({ editor, node, type, open, onClose, mode }: { editor: LexicalEditor; node?: GraphNode; type?: GraphType; mode: GraphDialogMode; open: boolean; onClose: () => void; }) {
 
   const app = useRef<any>(null);
 
@@ -39,12 +39,12 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
     };
 
     if (node) {
-      type = node.getType();
-      const data = node.getData();
-      parameters.ggbBase64 = data.value!;
+      type = node.getGraphType();
+      const value = node.getValue();
+      parameters.ggbBase64 = value!;
     }
 
-    parameters.appName = type === ImageType.Graph2D ? 'graphing' : '3d';
+    parameters.appName = type === GraphType["2D"] ? 'graphing' : '3d';
 
     const applet = new (window as any).GGBApplet(parameters, '5.0');
     applet.setHTML5Codebase('/GeoGebra/HTML5/5.0/web3d/');
@@ -58,13 +58,13 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
 
   const handleSubmit = () => {
     switch (type) {
-      case ImageType.Graph2D:
+      case GraphType["2D"]:
         app.current?.exportSVG((html: string) => {
           const src = "data:image/svg+xml," + encodeURIComponent(html);
           const value = app.current?.getBase64() as string;
           switch (mode) {
             case GraphDialogMode.create:
-              editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src, data: { type: ImageType.Graph2D, value } },);
+              editor.dispatchCommand(INSERT_GRAPH_COMMAND, { src, value, graphType: GraphType["2D"] },);
               break;
             case GraphDialogMode.update:
               editor.update(() => node?.update(src, value));
@@ -73,12 +73,12 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
           onClose();
         });
         break;
-      case ImageType.Graph3D:
+      case GraphType["3D"]:
         const src = "data:image/png;base64," + app.current?.getPNGBase64();
         const value = app.current?.getBase64();
         switch (mode) {
           case GraphDialogMode.create:
-            editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src, data: { type: ImageType.Graph3D, value } },);
+            editor.dispatchCommand(INSERT_GRAPH_COMMAND, { src, value, graphType: GraphType["3D"] },);
             break;
           case GraphDialogMode.update:
             editor.update(() => node?.update(src, value));

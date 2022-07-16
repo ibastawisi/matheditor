@@ -6,7 +6,7 @@
  *
  */
 
-import type { DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, GridSelection, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
+import { $isRangeSelection, COMMAND_PRIORITY_EDITOR, DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, GridSelection, KEY_ARROW_LEFT_COMMAND, KEY_ARROW_RIGHT_COMMAND, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
 
 import './ImageNode.css';
 
@@ -18,8 +18,6 @@ import { $getNodeByKey, $getSelection, $isNodeSelection, CLICK_COMMAND, COMMAND_
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import ImageResizer from './ImageResizer';
-import Virgil from "@excalidraw/excalidraw/dist/excalidraw-assets/Virgil.woff2";
-import Cascadia from "@excalidraw/excalidraw/dist/excalidraw-assets/Cascadia.woff2";
 
 export interface ImagePayload {
   altText: string;
@@ -27,17 +25,6 @@ export interface ImagePayload {
   key?: NodeKey;
   src: string;
   width?: number;
-  data: {
-    type: ImageType;
-    value?: string;
-  }
-}
-
-export enum ImageType {
-  Image = 'image',
-  Graph2D = 'graph2D',
-  Graph3D = 'graph3D',
-  Sketch = 'sketch',
 }
 
 const imageCache = new Set();
@@ -58,7 +45,7 @@ function useSuspenseImage(src: string) {
 function convertImageElement(domNode: Node): null | DOMConversionOutput {
   if (domNode instanceof HTMLImageElement) {
     const { alt: altText, src } = domNode;
-    const node = $createImageNode({ altText, src, data: { type: ImageType.Image } });
+    const node = $createImageNode({ altText, src });
     return { node };
   }
   return null;
@@ -95,11 +82,10 @@ function LazyImage({
   );
 }
 
-function ImageComponent({
+export function ImageComponent({
   src,
   altText,
   nodeKey,
-  type,
   width,
   height,
   resizable,
@@ -107,7 +93,6 @@ function ImageComponent({
   altText: string;
   height: 'inherit' | number;
   nodeKey: NodeKey;
-  type: ImageType;
   resizable: boolean;
   src: string;
   width: 'inherit' | number;
@@ -121,55 +106,23 @@ function ImageComponent({
     RangeSelection | NodeSelection | GridSelection | null
   >(null);
 
-  const blobToBase64 = (blob: Blob) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(blob);
-    return new Promise<string>(resolve => {
-      reader.onloadend = () => {
-        resolve(reader.result as string);
-      };
-    });
-  };
-
-  useEffect(() => {
-    async function embedFonts() {
-      const encodedFonts = await Promise.all([
-        fetch(Virgil).then(res => res.blob()).then(blob => blobToBase64(blob)),
-        fetch(Cascadia).then(res => res.blob()).then(blob => blobToBase64(blob))
-      ]);
-      const fonts = `@font-face { font-family: 'Virgil'; src: url('${encodedFonts[0]}') format('woff2');} @font-face { font-family: 'Cascadia'; src: url('${encodedFonts[1]}') format('woff2'); }`;
-      const encoded = src.substring(src.indexOf(',') + 1);
-      const decoded = decodeURIComponent(encoded);
-      const data = decoded.replace(/<style>[\s\S]*<\/style>/, `<style>${fonts}</style>`);
-
-      if (ref.current) {
-        ref.current.src = src.substring(0, src.indexOf(',') + 1) + encodeURIComponent(data);
-      }
-    }
-    if (type === ImageType.Sketch) {
-      embedFonts();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [src]);
-
   const onDelete = useCallback(
     (payload: KeyboardEvent) => {
       if (isSelected && $isNodeSelection($getSelection())) {
         const event: KeyboardEvent = payload;
         event.preventDefault();
         const node = $getNodeByKey(nodeKey);
-        if ($isImageNode(node)) {
-          node.remove();
-        }
-        setSelected(false);
+        const parent = node?.getParentOrThrow();
+        parent?.selectStart();
+        node?.remove();
       }
       return false;
     },
-    [isSelected, nodeKey, setSelected],
+    [isSelected, nodeKey],
   );
 
   useEffect(() => {
-    return mergeRegister(
+    mergeRegister(
       editor.registerUpdateListener(({ editorState }) => {
         setSelection(editorState.read(() => $getSelection()));
       }),
@@ -177,7 +130,6 @@ function ImageComponent({
         CLICK_COMMAND,
         (payload) => {
           const event = payload;
-
           if (isResizing) {
             return true;
           }
@@ -203,6 +155,32 @@ function ImageComponent({
         onDelete,
         COMMAND_PRIORITY_LOW,
       ),
+      editor.registerCommand<KeyboardEvent>(
+        KEY_ARROW_LEFT_COMMAND,
+        (event) => {
+          const selection = $getSelection();
+          const node = $getNodeByKey(nodeKey);
+          if (!$isRangeSelection(selection) && isSelected) {
+            node?.selectPrevious();
+            return true;
+          }
+          return false;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ),
+      editor.registerCommand<KeyboardEvent>(
+        KEY_ARROW_RIGHT_COMMAND,
+        (event) => {
+          const selection = $getSelection();
+          const node = $getNodeByKey(nodeKey);
+          if (!$isRangeSelection(selection) && isSelected) {
+            node?.selectNext();
+            return true;
+          }
+          return false;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ),
     );
   }, [
     clearSelection,
@@ -225,9 +203,7 @@ function ImageComponent({
 
     editor.update(() => {
       const node = $getNodeByKey(nodeKey);
-      if ($isImageNode(node)) {
-        node.setWidthAndHeight(nextWidth, nextHeight);
-      }
+      node?.setWidthAndHeight(nextWidth, nextHeight);
     });
   };
 
@@ -270,10 +246,6 @@ export type SerializedImageNode = Spread<
     height?: number;
     src: string;
     width?: number;
-    data: {
-      type: ImageType;
-      value?: string;
-    };
     type: 'image';
     version: 1;
   },
@@ -285,10 +257,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   __altText: string;
   __width: 'inherit' | number;
   __height: 'inherit' | number;
-  __data: {
-    type: ImageType;
-    value?: string;
-  };
 
   static getType(): string {
     return 'image';
@@ -301,19 +269,17 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       node.__width,
       node.__height,
       node.__key,
-      node.__data,
     );
   }
 
   static importJSON(serializedNode: SerializedImageNode): ImageNode {
-    const { altText, height, width, src, data } =
+    const { altText, height, width, src } =
       serializedNode;
     const node = $createImageNode({
       altText,
       height,
       src,
       width,
-      data
     });
     return node;
   }
@@ -340,14 +306,12 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     width?: 'inherit' | number,
     height?: 'inherit' | number,
     key?: NodeKey,
-    data: { type: ImageType; value?: string } = { type: ImageType.Image },
   ) {
     super(key);
     this.__src = src;
     this.__altText = altText;
     this.__width = width || 'inherit';
     this.__height = height || 'inherit';
-    this.__data = data;
   }
 
   exportJSON(): SerializedImageNode {
@@ -358,7 +322,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       type: 'image',
       version: 1,
       width: this.__width === 'inherit' ? 0 : this.__width,
-      data: this.__data,
     };
   }
 
@@ -371,16 +334,11 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     writable.__height = height;
   }
 
-  update(
+  setSrc(
     src: string,
-    value: string,
   ): void {
     const writable = this.getWritable();
     writable.__src = src;
-    writable.__data = {
-      type: this.__data.type,
-      value,
-    };
   }
 
   // View
@@ -407,14 +365,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return this.__altText;
   }
 
-  getData(): { type: ImageType; value?: string } {
-    return this.__data;
-  }
-
-  getType(): ImageType {
-    return this.__data.type;
-  }
-
   decorate(): JSX.Element {
     return (
       <ImageComponent
@@ -423,7 +373,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
         width={this.__width}
         height={this.__height}
         nodeKey={this.getKey()}
-        type={this.getType()}
         resizable={true}
       />
     );
@@ -436,7 +385,6 @@ export function $createImageNode({
   src,
   width,
   key,
-  data
 }: ImagePayload): ImageNode {
   return new ImageNode(
     src,
@@ -444,7 +392,6 @@ export function $createImageNode({
     width,
     height,
     key,
-    data
   );
 }
 

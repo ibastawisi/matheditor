@@ -27,11 +27,15 @@ import AutoLinkPlugin from "./plugins/AutoLinkPlugin";
 import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableCellResizer from './plugins/TableCellResizer';
 import TextFormatFloatingToolbarPlugin from "./plugins/TextFormatFloatingToolbarPlugin";
-import ImagePlugin from "./plugins/ImagePlugin";
 import HorizontalRulePlugin from "./plugins/HorizontalRulePlugin";
-import MathPlugin from "./plugins/MathPlugin";
 import { MathNode } from "./nodes/MathNode";
+import MathPlugin from "./plugins/MathPlugin";
 import { ImageNode } from "./nodes/ImageNode";
+import ImagePlugin from "./plugins/ImagePlugin";
+import { SketchNode } from './nodes/SketchNode';
+import SketchPlugin from './plugins/SketchPlugin';
+import { GraphNode } from './nodes/GraphNode';
+import GraphPlugin from './plugins/GraphPlugin';
 
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store";
@@ -65,9 +69,11 @@ const editorConfig = {
     TableRowNode,
     AutoLinkNode,
     LinkNode,
-    ImageNode,
     HorizontalRuleNode,
     MathNode,
+    ImageNode,
+    SketchNode,
+    GraphNode,
   ]
 };
 
@@ -100,12 +106,14 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
           <ListMaxIndentLevelPlugin maxDepth={7} />
           <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
           <TextFormatFloatingToolbarPlugin />
-          <ImagePlugin />
           <HorizontalRulePlugin />
           <TablePlugin />
           <TableCellActionMenuPlugin />
           <TableCellResizer />
           <MathPlugin />
+          <ImagePlugin />
+          <SketchPlugin />
+          <GraphPlugin />
         </div>
       </Box>
     </LexicalComposer>
