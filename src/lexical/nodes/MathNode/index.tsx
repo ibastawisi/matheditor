@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, COMMAND_PRIORITY_EDITOR, EditorConfig, GridSelection, KEY_ARROW_LEFT_COMMAND, KEY_ARROW_RIGHT_COMMAND, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
+import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, CLICK_COMMAND, COMMAND_PRIORITY_EDITOR, COMMAND_PRIORITY_LOW, EditorConfig, GridSelection, KEY_ARROW_LEFT_COMMAND, KEY_ARROW_RIGHT_COMMAND, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey, DecoratorNode, } from 'lexical';
 import { useEffect, useRef, useState } from 'react';
@@ -34,6 +34,19 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
       editor.registerUpdateListener(({ editorState }) => {
         setSelection(editorState.read(() => $getSelection()));
       }),
+      editor.registerCommand<MouseEvent>(
+        CLICK_COMMAND,
+        (payload) => {
+          const event = payload;
+          if (event.target === ref.current) {
+            clearSelection();
+            setSelected(!isSelected);
+            return true;
+          }
+          return false;
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
       editor.registerCommand<KeyboardEvent>(
         KEY_ARROW_LEFT_COMMAND,
         (event) => {
@@ -145,7 +158,7 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
       setValue(mathfield.value)
     }, false);
 
-    mathfield.addEventListener("focusin", event => {
+    mathfield.addEventListener("focus", event => {
       const rootElement = editor.getRootElement();
       const mathfield = ref.current;
       if (rootElement?.contains(event.target as Node) && event.target === mathfield) {
