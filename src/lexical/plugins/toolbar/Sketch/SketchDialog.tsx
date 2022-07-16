@@ -26,6 +26,16 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
   const [elements, setElements] = useState<ReadonlyArray<ExcalidrawElementFragment>>([]);
   const theme = useTheme();
 
+  const blobToBase64 = (blob: Blob) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    return new Promise<string>(resolve => {
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+    });
+  };
+
   const handleSubmit = async () => {
     const element: SVGElement = await exportToSvg({
       appState: null as unknown as AppState,
@@ -35,21 +45,17 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
     });
 
     const blob = new Blob([element.outerHTML], { type: 'image/svg+xml' });
-    const reader = new FileReader();
-    reader.readAsDataURL(blob);
-    reader.onload = () => {
-      const src = reader.result as string;
-      const value = JSON.stringify(elements);
-      switch (mode) {
-        case SketchDialogMode.create:
-          editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src, data: { type: ImageType.Sketch, value } },);
-          break;
-        case SketchDialogMode.update:
-          editor.update(() => node?.update(src, value));
-          break;
-      }
-      onClose();
+    const src = await blobToBase64(blob);
+    const value = JSON.stringify(elements);
+    switch (mode) {
+      case SketchDialogMode.create:
+        editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src, data: { type: ImageType.Sketch, value } },);
+        break;
+      case SketchDialogMode.update:
+        editor.update(() => node?.update(src, value));
+        break;
     }
+    onClose();
   };
 
   useEffect(() => {

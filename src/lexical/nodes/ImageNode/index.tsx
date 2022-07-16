@@ -18,6 +18,8 @@ import { $getNodeByKey, $getSelection, $isNodeSelection, CLICK_COMMAND, COMMAND_
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import ImageResizer from './ImageResizer';
+import Virgil from "@excalidraw/excalidraw/dist/excalidraw-assets/Virgil.woff2";
+import Cascadia from "@excalidraw/excalidraw/dist/excalidraw-assets/Cascadia.woff2";
 
 export interface ImagePayload {
   altText: string;
@@ -97,6 +99,7 @@ function ImageComponent({
   src,
   altText,
   nodeKey,
+  type,
   width,
   height,
   resizable,
@@ -104,11 +107,12 @@ function ImageComponent({
   altText: string;
   height: 'inherit' | number;
   nodeKey: NodeKey;
+  type: ImageType;
   resizable: boolean;
   src: string;
   width: 'inherit' | number;
 }): JSX.Element {
-  const ref = useRef(null);
+  const ref = useRef<HTMLImageElement>(null);
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);
   const [isResizing, setIsResizing] = useState<boolean>(false);
@@ -116,6 +120,38 @@ function ImageComponent({
   const [selection, setSelection] = useState<
     RangeSelection | NodeSelection | GridSelection | null
   >(null);
+
+  const blobToBase64 = (blob: Blob) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    return new Promise<string>(resolve => {
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+    });
+  };
+
+  useEffect(() => {
+    async function embedFonts() {
+      const old = atob(src.substring(src.indexOf(',') + 1));
+      const encodedFonts = await Promise.all([
+        fetch(Virgil).then(res => res.blob()).then(blob => blobToBase64(blob)),
+        fetch(Cascadia).then(res => res.blob()).then(blob => blobToBase64(blob))
+      ]);
+      const fonts = `@font-face { font-family: 'Virgil'; src: url('${encodedFonts[0]}') format('woff2');} @font-face { font-family: 'Cascadia'; src: url('${encodedFonts[1]}') format('woff2'); }`;
+      const svg = old.replace(/<style>[\s\S]*<\/style>/, `<style>${fonts}</style>`);
+      const blob = new Blob([svg], { type: 'image/svg+xml' });
+      const source = await blobToBase64(blob);
+
+      if (ref.current) {
+        ref.current.src = source;
+      }
+    }
+    if (type === ImageType.Sketch) {
+      embedFonts();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [src]);
 
   const onDelete = useCallback(
     (payload: KeyboardEvent) => {
@@ -345,7 +381,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     writable.__data = {
       type: this.__data.type,
       value,
-    } ;
+    };
   }
 
   // View
@@ -388,6 +424,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
         width={this.__width}
         height={this.__height}
         nodeKey={this.getKey()}
+        type={this.getType()}
         resizable={true}
       />
     );
