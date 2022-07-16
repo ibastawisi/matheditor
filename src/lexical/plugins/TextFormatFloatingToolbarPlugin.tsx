@@ -34,29 +34,14 @@ function setPopupPosition(
   let top = rect.top + rect.height + 4 + window.pageYOffset;
   let left = rect.left + rect.width + window.pageXOffset;
 
-  if (left + editor.offsetWidth > rootElementRect.right) {
-    left = rect.right - editor.offsetWidth;
-    top = rect.top - 50 + window.pageYOffset;
-  }
-  if (left < 0) {
-    left = rect.left;
-    top = rect.bottom + 20;
-  }
-  if (rect.width >= rootElementRect.width - 25) {
-    left = rect.left;
-    top = rect.top - 50 + window.pageYOffset;
-  }
-  if (top < rootElementRect.top) {
-    top = rect.bottom + 20;
-  }
-
   editor.style.opacity = '1';
   editor.style.top = `${top}px`;
   editor.style.left = `${left}px`;
 
-  if (left + rect.width + 32 > window.innerWidth) {
-    editor.style.maxWidth = window.innerWidth - 32 + 'px';
-    editor.style.left = "16px";
+  const editorRect = editor.getBoundingClientRect();
+
+  if (left + editorRect.width > rootElementRect.width) {
+    editor.style.left = left - editorRect.width > 0 ? `${left - editorRect.width}px`: '24px';
   }
 }
 
@@ -140,7 +125,7 @@ function TextFormatFloatingToolbar({
 
   return (
     <Paper ref={popupCharStylesEditorRef} sx={{ position: "absolute", displayPrint: "none" }}>
-      <TextFormatToggles editor={editor} sx={{ flexWrap: "wrap" }} />
+      <TextFormatToggles editor={editor} />
     </Paper>
   );
 }

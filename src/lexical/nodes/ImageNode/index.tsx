@@ -134,9 +134,7 @@ export function ImageComponent({
             return true;
           }
           if (event.target === ref.current) {
-            if (!event.shiftKey) {
-              clearSelection();
-            }
+            clearSelection();
             setSelected(!isSelected);
             return true;
           }
