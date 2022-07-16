@@ -49,15 +49,9 @@ function mapEditorBlocksToLexicalNodes(blocks: any[]): any {
               src: data.file.url,
               width: 0,
               height: 0,
-              showCaption: false,
-              caption: {
-                editorState: {
-                  root: {
-                    children: [],
-                    type: "root",
-                  }
-                }
-              },
+              data: {
+                type: 'image',
+              }
             }
           ]
         });

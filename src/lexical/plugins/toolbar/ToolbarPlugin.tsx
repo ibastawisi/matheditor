@@ -275,11 +275,6 @@ export default function ToolbarPlugin(): JSX.Element {
   ];
 
   const FONT_SIZE_MAP = [
-    ['10px', '10'],
-    ['11px', '11'],
-    ['12px', '12'],
-    ['13px', '13'],
-    ['14px', '14'],
     ['15px', '15'],
     ['16px', '16'],
     ['17px', '17'],
