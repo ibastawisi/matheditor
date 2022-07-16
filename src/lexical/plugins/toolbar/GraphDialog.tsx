@@ -60,22 +60,17 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
     switch (type) {
       case ImageType.Graph2D:
         app.current?.exportSVG((html: string) => {
-          const blob = new Blob([html], { type: 'image/svg+xml' });
-          const reader = new FileReader();
-          reader.readAsDataURL(blob);
-          reader.onload = () => {
-            const src = reader.result as string;
-            const value = app.current?.getBase64() as string;
-            switch (mode) {
-              case GraphDialogMode.create:
-                editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src, data: { type: ImageType.Graph2D, value } },);
-                break;
-              case GraphDialogMode.update:
-                editor.update(() => node?.update(src, value));
-                break;
-            }
-            onClose();
+          const src = "data:image/svg+xml," + encodeURIComponent(html);
+          const value = app.current?.getBase64() as string;
+          switch (mode) {
+            case GraphDialogMode.create:
+              editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src, data: { type: ImageType.Graph2D, value } },);
+              break;
+            case GraphDialogMode.update:
+              editor.update(() => node?.update(src, value));
+              break;
           }
+          onClose();
         });
         break;
       case ImageType.Graph3D:

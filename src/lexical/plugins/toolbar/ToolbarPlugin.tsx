@@ -174,12 +174,12 @@ export default function ToolbarPlugin(): JSX.Element {
     if ($isNodeSelection(selection)) {
       const node = selection.getNodes()[0];
       const isMathNode = $isMathNode(node);
-      isMathNode && setMathNode(node);
+      setMathNode(isMathNode ? node : null);
       const isImageNode = $isImageNode(node);
-      isImageNode && setImageNode(node);
+      setImageNode(isImageNode ? node : null);
     }
 
-    if(selection === null) {
+    if (selection === null) {
       setMathNode(null);
       setImageNode(null);
     }
@@ -298,25 +298,25 @@ export default function ToolbarPlugin(): JSX.Element {
           </Box>
           <Box sx={{ display: "flex" }}>
             {mathNode ? <MathTools editor={activeEditor} node={mathNode} sx={{ mx: 1 }} /> :
-            imageNode ? <ImageTools editor={activeEditor} node={imageNode} sx={{ mx: 1 }} />
-              : <>
-                {blockType in blockTypeToBlockName && activeEditor === editor && <BlockFormatSelect blockType={blockType} editor={editor} />}
-                {blockType === 'code' ? (
-                  <Select size='small' sx={{ mx: 0.25 }} onChange={onCodeLanguageSelect} value={codeLanguage}>
-                    {CODE_LANGUAGE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
-                  </Select>
-                ) : (
-                  <>
-                    <Select size='small' sx={{ mx: 0.25, width: 80 }} onChange={onFontFamilySelect} value={fontFamily}>
-                      {FONT_FAMILY_MAP.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
+              imageNode ? <ImageTools editor={activeEditor} node={imageNode} sx={{ mx: 1 }} />
+                : <>
+                  {blockType in blockTypeToBlockName && activeEditor === editor && <BlockFormatSelect blockType={blockType} editor={editor} />}
+                  {blockType === 'code' ? (
+                    <Select size='small' sx={{ mx: 0.25 }} onChange={onCodeLanguageSelect} value={codeLanguage}>
+                      {CODE_LANGUAGE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
                     </Select>
-                    <Select size='small' sx={{ mx: 0.25 }} onChange={onFontSizeSelect} value={fontSize}>
-                      {FONT_SIZE_MAP.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
-                    </Select>
-                    <TextFormatToggles editor={activeEditor} sx={{ mx: 1, display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
-                  </>
-                )}
-              </>
+                  ) : (
+                    <>
+                      <Select size='small' sx={{ mx: 0.25, width: 80 }} onChange={onFontFamilySelect} value={fontFamily}>
+                        {FONT_FAMILY_MAP.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
+                      </Select>
+                      <Select size='small' sx={{ mx: 0.25 }} onChange={onFontSizeSelect} value={fontSize}>
+                        {FONT_SIZE_MAP.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
+                      </Select>
+                      <TextFormatToggles editor={activeEditor} sx={{ mx: 1, display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
+                    </>
+                  )}
+                </>
             }
           </Box>
           <Box sx={{ display: "flex" }}>

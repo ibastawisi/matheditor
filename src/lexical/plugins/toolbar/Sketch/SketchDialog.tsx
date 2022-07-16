@@ -26,15 +26,7 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
   const [elements, setElements] = useState<ReadonlyArray<ExcalidrawElementFragment>>([]);
   const theme = useTheme();
 
-  const blobToBase64 = (blob: Blob) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(blob);
-    return new Promise<string>(resolve => {
-      reader.onloadend = () => {
-        resolve(reader.result as string);
-      };
-    });
-  };
+
 
   const handleSubmit = async () => {
     const element: SVGElement = await exportToSvg({
@@ -44,8 +36,8 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
       exportPadding: 16,
     });
 
-    const blob = new Blob([element.outerHTML], { type: 'image/svg+xml' });
-    const src = await blobToBase64(blob);
+    const serialized = new XMLSerializer().serializeToString(element);
+    const src = "data:image/svg+xml," + encodeURIComponent(serialized);
     const value = JSON.stringify(elements);
     switch (mode) {
       case SketchDialogMode.create:

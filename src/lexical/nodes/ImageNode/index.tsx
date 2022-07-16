@@ -133,18 +133,17 @@ function ImageComponent({
 
   useEffect(() => {
     async function embedFonts() {
-      const old = atob(src.substring(src.indexOf(',') + 1));
       const encodedFonts = await Promise.all([
         fetch(Virgil).then(res => res.blob()).then(blob => blobToBase64(blob)),
         fetch(Cascadia).then(res => res.blob()).then(blob => blobToBase64(blob))
       ]);
       const fonts = `@font-face { font-family: 'Virgil'; src: url('${encodedFonts[0]}') format('woff2');} @font-face { font-family: 'Cascadia'; src: url('${encodedFonts[1]}') format('woff2'); }`;
-      const svg = old.replace(/<style>[\s\S]*<\/style>/, `<style>${fonts}</style>`);
-      const blob = new Blob([svg], { type: 'image/svg+xml' });
-      const source = await blobToBase64(blob);
+      const encoded = src.substring(src.indexOf(',') + 1);
+      const decoded = decodeURIComponent(encoded);
+      const data = decoded.replace(/<style>[\s\S]*<\/style>/, `<style>${fonts}</style>`);
 
       if (ref.current) {
-        ref.current.src = source;
+        ref.current.src = src.substring(0, src.indexOf(',') + 1) + encodeURIComponent(data);
       }
     }
     if (type === ImageType.Sketch) {
