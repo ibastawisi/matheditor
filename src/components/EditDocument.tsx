@@ -6,7 +6,6 @@ import { AppDispatch, RootState } from "../store";
 import { useNavigate, useParams } from "react-router-dom";
 import Editor from "../lexical/Editor";
 
-import { validate } from "uuid";
 import SplashScreen from "./SplachScreen";
 import { Helmet } from "react-helmet";
 
@@ -18,23 +17,17 @@ const EditDocument: React.FC = () => {
 
   useEffect(() => {
     if (params.id) {
-      if (document.id === params.id) return;
-      if (validate(params.id)) {
-        try {
-          // load from local storage
-          const storedDocument = window.localStorage.getItem(params.id);
-          if (storedDocument) {
-            const editorDocument = JSON.parse(storedDocument);
-            dispatch(actions.app.loadDocument(editorDocument));
-          } else {
-            dispatch(actions.app.announce({ message: "No document with this id was found" }));
-          }
-        } catch (error) {
-          dispatch(actions.app.announce({ message: "Invalid document data" }));
+      try {
+        // load from local storage
+        const storedDocument = window.localStorage.getItem(params.id);
+        if (storedDocument) {
+          const editorDocument = JSON.parse(storedDocument);
+          dispatch(actions.app.loadDocument(editorDocument));
+        } else {
+          dispatch(actions.app.announce({ message: "No document with this id was found" }));
         }
-      } else {
-        dispatch(actions.app.announce({ message: "Document id is malformatted!" }));
-        navigate("/open");
+      } catch (error) {
+        dispatch(actions.app.announce({ message: "Invalid document data" }));
       }
     } else {
       navigate("/new");

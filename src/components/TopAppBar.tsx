@@ -98,6 +98,8 @@ const TopAppBar: React.FC<{}> = () => {
     setSettingsOpen(false);
   };
 
+  const isEditing = location.pathname.startsWith("/edit") || location.pathname.startsWith("/playground");
+
   return (
     <>
       <HideOnScroll>
@@ -119,7 +121,7 @@ const TopAppBar: React.FC<{}> = () => {
             <IconButton aria-label="Load" color="inherit" component={RouterLink} to="/open">
               <OpenIcon />
             </IconButton>
-            {location.pathname.startsWith("/edit") && <>
+            {isEditing && <>
               {/* <IconButton aria-label="Share" color="inherit" onClick={handleShare}>
                 <ShareIcon />
               </IconButton> */}
