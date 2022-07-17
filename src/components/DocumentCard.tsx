@@ -13,33 +13,33 @@ import { useDispatch } from 'react-redux';
 import { actions } from '../slices';
 import IconButton from '@mui/material/IconButton';
 import DownloadIcon from '@mui/icons-material/Download';
-import ShareIcon from '@mui/icons-material/Share';
 import { DeleteForever } from '@mui/icons-material';
 
-import * as Service from '../services';
+// import ShareIcon from '@mui/icons-material/Share';
+// import * as Service from '../services';
 
 const DocumentCard: React.FC<{ document: EditorDocument }> = ({ document }) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const handleShare = async () => {
-    dispatch(actions.app.announce({ message: "Generating sharable link" }));
-    try {
-      await Service.post(document.id, JSON.stringify(document));
-    } catch (e) {
-      dispatch(actions.app.announce({ message: "Failed to generate sharable link" }));
-      return;
-    }
-    const shareData = {
-      title: document.name,
-      url: window.location.origin + "/new/" + document.id
-    }
-    try {
-      await navigator.share(shareData)
-    } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      dispatch(actions.app.announce({ message: "Link copied to clipboard" }));
-    }
-  };
+  // const handleShare = async () => {
+  //   dispatch(actions.app.announce({ message: "Generating sharable link" }));
+  //   try {
+  //     await Service.post(document.id, JSON.stringify(document));
+  //   } catch (e) {
+  //     dispatch(actions.app.announce({ message: "Failed to generate sharable link" }));
+  //     return;
+  //   }
+  //   const shareData = {
+  //     title: document.name,
+  //     url: window.location.origin + "/new/" + document.id
+  //   }
+  //   try {
+  //     await navigator.share(shareData)
+  //   } catch (err) {
+  //     navigator.clipboard.writeText(shareData.url);
+  //     dispatch(actions.app.announce({ message: "Link copied to clipboard" }));
+  //   }
+  // };
 
   const handleDelete = () => {
     window.confirm("Are you sure you want to delete this document?") && dispatch(actions.app.deleteDocument(document.id));
@@ -80,9 +80,9 @@ const DocumentCard: React.FC<{ document: EditorDocument }> = ({ document }) => {
         <IconButton size="medium" aria-label="Download" sx={{ ml: "auto !important" }} color="inherit" onClick={handleSave}>
           <DownloadIcon />
         </IconButton>
-        <IconButton size="medium" aria-label="Share" color="inherit" onClick={handleShare}>
+        {/* <IconButton size="medium" aria-label="Share" color="inherit" onClick={handleShare}>
           <ShareIcon />
-        </IconButton>
+        </IconButton> */}
 
       </CardActions>
     </Card>

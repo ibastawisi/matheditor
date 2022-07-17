@@ -13,7 +13,6 @@ import { EditorDocument } from "../slices/app";
 import { useDispatch, useSelector } from "react-redux";
 import { actions } from "../slices";
 import { AppDispatch, RootState } from "../store";
-import * as Service from '../services';
 import { useEffect } from "react";
 import SplashScreen from "./SplachScreen";
 import { SerializedEditorState } from "lexical";
@@ -28,20 +27,22 @@ const NewDocument: React.FC = () => {
   useEffect(() => {
     if (params.id) {
       (async () => {
-        const document = await Service.get(params.id!);
-        if (document) {
-          try {
-            document.id = uuidv4();
-            document.timestamp = Date.now();
-            window.localStorage.setItem(document.id, JSON.stringify(document));
-            dispatch(actions.app.loadDocument(document));
-            navigate(`/edit/${document.id}`);
-          } catch (error) {
-            dispatch(actions.app.announce({ message: "Invalid document data" }));
-          }
-        } else {
-          dispatch(actions.app.announce({ message: "No document with this id was found" }));
-        }
+        // const document = await Service.get(params.id!);
+        // if (document) {
+        //   try {
+        //     document.id = uuidv4();
+        //     document.timestamp = Date.now();
+        //     window.localStorage.setItem(document.id, JSON.stringify(document));
+        //     dispatch(actions.app.loadDocument(document));
+        //     navigate(`/edit/${document.id}`);
+        //   } catch (error) {
+        //     dispatch(actions.app.announce({ message: "Invalid document data" }));
+        //   }
+        // } else {
+        //   dispatch(actions.app.announce({ message: "No document with this id was found" }));
+        // }
+          dispatch(actions.app.announce({ message: "Document sharing via link feature is currently disabled!" }));
+          setTimeout(() => { navigate('/open'); }, 3000);
       })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
