@@ -9,6 +9,7 @@ import React from "react";
 import { actions } from "../slices";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import NewIcon from '@mui/icons-material/AddCircle';
+import StorageIcon from '@mui/icons-material/Storage';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { EditorDocument } from "../slices/app";
 import { validate } from "uuid";
@@ -79,10 +80,31 @@ const Documents: React.FC = () => {
     dispatch(actions.app.addDocument(document));
   }
 
+  function backup() {
+    const keys = Object.keys({ ...localStorage }).filter((key: string) => validate(key));
+    const documents = keys.map(key => JSON.parse(localStorage.getItem(key) as string));
+    const blob = new Blob([JSON.stringify(documents)], { type: "text/json" });
+    const link = window.document.createElement("a");
+
+    const now = new Date();
+    link.download = now.toISOString() + ".me";
+    link.href = window.URL.createObjectURL(blob);
+    link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
+
+    const evt = new MouseEvent("click", {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    });
+
+    link.dispatchEvent(evt);
+    link.remove()
+  };
+
   return (
     <Box>
-      <Box sx={{ textAlign: 'center', my: 2 }}>
-        <Typography variant="h6" component="h2" sx={{ my: 2 }}>
+      <Box sx={{ textAlign: 'center', my: 3 }}>
+        <Typography variant="h6" component="h2" sx={{ textAlign: 'center', my: 2 }}>
           Create a new document
         </Typography>
         <Button sx={{ mx: 1 }} variant="outlined" startIcon={<NewIcon />} component={RouterLink} to="/new">
@@ -92,6 +114,8 @@ const Documents: React.FC = () => {
           Upload File
           <input type="file" hidden accept=".me" multiple onChange={e => handleFilesChange(e.target.files)} />
         </Button>
+      </Box>
+      <Box sx={{ my: 3 }}>
         <Typography variant="h6" component="h2" sx={{ my: 2 }}>
           Get started using a template
         </Typography>
@@ -101,11 +125,16 @@ const Documents: React.FC = () => {
           </Grid>)}
         </Grid>
       </Box>
-      <Box sx={{ mt: 5 }}>
+      <Box sx={{ my: 3 }}>
         {documents.length > 0 && <>
-          <Typography variant="h6" component="h2" sx={{ my: 2, textAlign: 'center' }}>
-            Load from Local Storage
-          </Typography>
+          <Box sx={{ display: "flex", justifyContent: 'space-between', my: 2 }}>
+            <Typography variant="h6" component="h2">
+              Load from Local Storage
+            </Typography>
+            <Button variant="outlined" startIcon={<StorageIcon />} onClick={backup}>
+              Backup
+            </Button>
+          </Box>
           <Grid container spacing={2}>
             {documents.map(key => <Grid item key={key} xs={12} sm={6} md={4}>
               <DocumentCard document={JSON.parse(localStorage.getItem(key) || "")} />
