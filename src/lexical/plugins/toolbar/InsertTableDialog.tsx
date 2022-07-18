@@ -10,6 +10,10 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import TextField from '@mui/material/TextField/TextField';
+import FormControl from '@mui/material/FormControl';
+import IconButton from '@mui/material/IconButton';
+import Add from '@mui/icons-material/Add';
+import { Remove } from '@mui/icons-material';
 
 export default function InsertTableDialog({ editor, open, onClose }: { editor: LexicalEditor; open: boolean; onClose: () => void; }) {
   const theme = useTheme();
@@ -40,8 +44,16 @@ export default function InsertTableDialog({ editor, open, onClose }: { editor: L
       </DialogTitle>
       <DialogContent>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-          <TextField type="number" margin="normal" size="small" fullWidth value={formData.rows} onChange={updateFormData} label="Number of Rows" name="rows" autoComplete="rows" autoFocus />
-          <TextField type="number" margin="normal" size="small" fullWidth value={formData.columns} onChange={updateFormData} label="Number of Columns" name="columns" autoComplete="columns" autoFocus />
+          <FormControl sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', my: 2 }}>
+            <IconButton onClick={() => setFormData({ ...formData, rows: formData.rows - 1 })}><Remove /></IconButton>
+            <TextField type="number" size="small" sx={{ mx: 1 }} value={formData.rows} onChange={updateFormData} label="Rows" name="rows" autoComplete="rows" autoFocus />
+            <IconButton onClick={() => setFormData({ ...formData, rows: formData.rows + 1 })}><Add /></IconButton>
+          </FormControl>
+          <FormControl sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', my: 2 }}>
+            <IconButton onClick={() => setFormData({ ...formData, columns: formData.columns - 1 })}><Remove /></IconButton>
+            <TextField type="number" size="small" sx={{ mx: 1 }} value={formData.columns} onChange={updateFormData} label="Columns" name="columns" autoComplete="columns" autoFocus />
+            <IconButton onClick={() => setFormData({ ...formData, columns: formData.columns + 1 })}><Add /></IconButton>
+          </FormControl>
         </Box>
       </DialogContent>
       <DialogActions>

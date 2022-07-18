@@ -122,7 +122,7 @@ export function ImageComponent({
   );
 
   useEffect(() => {
-    if (ref.current && isSelected) {
+    if (isSelected) {
       const element = ref.current;
       const rootElement = editor.getRootElement();
       const nativeSelection = window.getSelection();
@@ -133,7 +133,7 @@ export function ImageComponent({
       element?.scrollIntoView({ block: 'nearest' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ref.current, isSelected]);
+  }, [isSelected]);
 
   useEffect(() => {
     mergeRegister(
