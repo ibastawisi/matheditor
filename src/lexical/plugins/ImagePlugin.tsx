@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import { $createNodeSelection, $createParagraphNode, $getRoot, $isParagraphNode, $isRangeSelection, LexicalCommand, LexicalEditor } from 'lexical';
+import { $createParagraphNode, $getRoot, $isParagraphNode, LexicalCommand, LexicalEditor } from 'lexical';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { mergeRegister } from '@lexical/utils';
@@ -25,17 +25,11 @@ import {
 import { useEffect } from 'react';
 import getSelection from '../../shared/getDOMSelection';
 
-import {
-  $createImageNode,
-  $isImageNode,
-  ImageNode,
-  ImagePayload,
-} from '../nodes/ImageNode';
+import { $createImageNode, $isImageNode, ImageNode, ImagePayload, } from '../nodes/ImageNode';
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 
-export const INSERT_IMAGE_COMMAND: LexicalCommand<InsertImagePayload> =
-  createCommand();
+export const INSERT_IMAGE_COMMAND: LexicalCommand<InsertImagePayload> = createCommand();
 export default function ImagesPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
@@ -63,13 +57,7 @@ export default function ImagesPlugin(): JSX.Element | null {
             selectedNode!.getTopLevelElementOrThrow().insertAfter(paragraphNode);
           }
 
-          const nodeSelection = $createNodeSelection();
-          nodeSelection.add(imageNode.getKey());
-          $setSelection(nodeSelection);
-          setTimeout(() => {
-            editor.getRootElement()!.focus();
-            window.getSelection()!.collapse(null);
-          }, 0);
+          imageNode.select();
 
           return true;
         },

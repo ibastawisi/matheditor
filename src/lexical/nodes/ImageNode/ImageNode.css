@@ -24,6 +24,8 @@ span.editor-image {
 .editor-image img {
   max-width: 100%;
   background-color: white;
+  scroll-margin-top: 88px;
+  scroll-margin-bottom: 24px;
 }
 
 .editor-image img.focused {

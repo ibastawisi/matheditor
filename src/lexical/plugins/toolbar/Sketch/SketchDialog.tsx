@@ -63,7 +63,7 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
   if (!open) return null;
 
   return (
-    <Dialog open={open} fullScreen={true} onClose={onClose}>
+    <Dialog open={open} fullScreen={true} onClose={() => { setElements([]); onClose() }}>
       <DialogContent sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 0, overflow: "hidden" }}>
         <Excalidraw
           onChange={onChange}

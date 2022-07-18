@@ -1,11 +1,7 @@
 import { $createNodeSelection, $createParagraphNode, $getRoot, $isParagraphNode, $setSelection, LexicalCommand } from 'lexical';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import {
-  $getSelection,
-  COMMAND_PRIORITY_EDITOR,
-  createCommand,
-} from 'lexical';
+import { $getSelection, COMMAND_PRIORITY_EDITOR, createCommand, } from 'lexical';
 import { useEffect } from 'react';
 
 import { $createGraphNode, GraphNode, GraphPayload } from '../nodes/GraphNode';
@@ -13,6 +9,7 @@ import { $createGraphNode, GraphNode, GraphPayload } from '../nodes/GraphNode';
 export type InsertGraphPayload = Readonly<GraphPayload>;
 
 export const INSERT_GRAPH_COMMAND: LexicalCommand<InsertGraphPayload> = createCommand();
+
 export default function GraphPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
   useEffect(() => {
@@ -40,13 +37,7 @@ export default function GraphPlugin(): JSX.Element | null {
           selectedNode!.getTopLevelElementOrThrow().insertAfter(paragraphNode);
         }
 
-        const nodeSelection = $createNodeSelection();
-        nodeSelection.add(graphNode.getKey());
-        $setSelection(nodeSelection);
-        setTimeout(() => {
-          editor.getRootElement()!.focus();
-          window.getSelection()!.collapse(null);
-        }, 0);
+        graphNode.select();
 
         return true;
       },

@@ -6,7 +6,7 @@
  *
  */
 
-import { $isRangeSelection, COMMAND_PRIORITY_EDITOR, DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, GridSelection, KEY_ARROW_LEFT_COMMAND, KEY_ARROW_RIGHT_COMMAND, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
+import { $createNodeSelection, $isRangeSelection, $setSelection, COMMAND_PRIORITY_EDITOR, DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, GridSelection, KEY_ARROW_LEFT_COMMAND, KEY_ARROW_RIGHT_COMMAND, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
 
 import './ImageNode.css';
 
@@ -120,6 +120,20 @@ export function ImageComponent({
     },
     [isSelected, nodeKey],
   );
+
+  useEffect(() => {
+    if (ref.current && isSelected) {
+      const element = ref.current;
+      const rootElement = editor.getRootElement();
+      const nativeSelection = window.getSelection();
+      const scrollY = window.scrollY;
+      rootElement?.focus();
+      window.scrollTo(0, scrollY);
+      nativeSelection?.removeAllRanges();
+      element?.scrollIntoView({ block: 'nearest' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ref.current, isSelected]);
 
   useEffect(() => {
     mergeRegister(
@@ -339,7 +353,11 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     writable.__src = src;
   }
 
-  // View
+  select() {
+    const nodeSelection = $createNodeSelection();
+    nodeSelection.add(this.getKey());
+    $setSelection(nodeSelection);
+  }
 
   createDOM(config: EditorConfig): HTMLElement {
     const span = document.createElement('span');

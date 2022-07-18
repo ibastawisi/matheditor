@@ -6,7 +6,7 @@
  *
  */
 
-import type { DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, LexicalNode, NodeKey, SerializedLexicalNode, Spread, } from 'lexical';
+import { $createNodeSelection, $setSelection, DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, LexicalNode, NodeKey, SerializedLexicalNode, Spread, } from 'lexical';
 
 import { DecoratorNode, } from 'lexical';
 
@@ -185,7 +185,11 @@ export class SketchNode extends DecoratorNode<JSX.Element> {
     writable.__value = value;
   }
 
-  // View
+  select() {
+    const nodeSelection = $createNodeSelection();
+    nodeSelection.add(this.getKey());
+    $setSelection(nodeSelection);
+  }
 
   createDOM(config: EditorConfig): HTMLElement {
     const span = document.createElement('span');

@@ -49,7 +49,8 @@ export default function SettingsDialog({ open, onClose }: { open: boolean; onClo
     setFormData({ ...formData, [parentKey]: { ...formData[parentKey], [childKey]: checked } });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
     dispatch(actions.app.setConfig(formData));
     onClose();
   };

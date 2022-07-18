@@ -1,7 +1,7 @@
 import { LexicalEditor } from 'lexical';
 import { INSERT_TABLE_COMMAND } from '@lexical/table';
 import Box from '@mui/material/Box';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import useTheme from '@mui/material/styles/useTheme';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -21,7 +21,8 @@ export default function InsertTableDialog({ editor, open, onClose }: { editor: L
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
     editor.dispatchCommand(INSERT_TABLE_COMMAND, formData);
     onClose();
   };
