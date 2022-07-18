@@ -16,6 +16,7 @@ import { validate } from "uuid";
 
 import templates from "../templates";
 import TemplateCard from "./TemplateCard";
+import PlaygroundCard from "./PlaygroundCard";
 
 const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.app.documents);
@@ -108,16 +109,16 @@ const Documents: React.FC = () => {
           Create a new document
         </Typography>
         <Button sx={{ mx: 1 }} variant="outlined" startIcon={<NewIcon />} component={RouterLink} to="/new">
-          Blank Document
+          Blank
         </Button>
         <Button sx={{ mx: 1 }} variant="outlined" startIcon={<UploadFileIcon />} component="label">
-          Upload File
+          Upload
           <input type="file" hidden accept=".me" multiple onChange={e => handleFilesChange(e.target.files)} />
         </Button>
       </Box>
       <Box sx={{ my: 3 }}>
         <Typography variant="h6" component="h2" sx={{ my: 2 }}>
-          Get started using a template
+          Get started with a template
         </Typography>
         <Grid container spacing={2}>
           {Object.keys(templates).map(key => <Grid item key={key} xs={12} sm={6} md={4}>
@@ -126,21 +127,20 @@ const Documents: React.FC = () => {
         </Grid>
       </Box>
       <Box sx={{ my: 3 }}>
-        {documents.length > 0 && <>
-          <Box sx={{ display: "flex", justifyContent: 'space-between', my: 2 }}>
-            <Typography variant="h6" component="h2">
-              Load from Local Storage
-            </Typography>
-            <Button variant="outlined" startIcon={<StorageIcon />} onClick={backup}>
-              Backup
-            </Button>
-          </Box>
-          <Grid container spacing={2}>
-            {documents.map(key => <Grid item key={key} xs={12} sm={6} md={4}>
-              <DocumentCard document={JSON.parse(localStorage.getItem(key) || "")} />
-            </Grid>)}
-          </Grid>
-        </>}
+        <Box sx={{ display: "flex", justifyContent: 'space-between', my: 2 }}>
+          <Typography variant="h6" component="h2">
+            Load from storage
+          </Typography>
+          <Button variant="outlined" startIcon={<StorageIcon />} onClick={backup}>
+            Backup
+          </Button>
+        </Box>
+        <Grid container spacing={2}>
+          <Grid item xs={12}><PlaygroundCard /></Grid>
+          {documents.map(key => <Grid item key={key} xs={12} sm={6} md={4}>
+            <DocumentCard document={JSON.parse(localStorage.getItem(key) || "")} />
+          </Grid>)}
+        </Grid>
       </Box>
     </Box>
   )

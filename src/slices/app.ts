@@ -87,7 +87,7 @@ export const appSlice = createSlice({
     saveDocument: (state, action: PayloadAction<SerializedEditorState>) => {
       state.editor.data = action.payload;
       window.localStorage.setItem("editor", JSON.stringify(state.editor));
-      window.localStorage.setItem(state.editor.id, JSON.stringify(state.editor));
+      state.editor.id && window.localStorage.setItem(state.editor.id, JSON.stringify(state.editor));
     },
     addDocument: (state, action: PayloadAction<EditorDocument>) => {
       window.localStorage.setItem(action.payload.id, JSON.stringify(action.payload));
