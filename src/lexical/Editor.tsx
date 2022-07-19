@@ -47,6 +47,7 @@ import "./styles.css";
 import { migrateData } from './utils';
 import { SxProps, Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
+import { validate } from 'uuid';
 
 const editorConfig = {
   namespace: "matheditor",
@@ -85,7 +86,10 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
 
   function onChange(editorState: EditorState, editor: LexicalEditor) {
     const serializedEditorState = editor.getEditorState().toJSON();
-    dispatch(actions.app.saveDocument(serializedEditorState));
+    if (JSON.stringify(serializedEditorState) === JSON.stringify(document.data)) {
+      return;
+    }
+    validate(document.id) && dispatch(actions.app.saveDocument(serializedEditorState));
   }
 
   return (

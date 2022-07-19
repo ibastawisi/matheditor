@@ -78,6 +78,10 @@ const Documents: React.FC = () => {
   }
 
   function addDocument(document: EditorDocument) {
+    if (documents.includes(document.id)) {
+      dispatch(actions.app.announce({ message: "Updating existing document: " + document.name }));
+      dispatch(actions.app.deleteDocument(document.id));
+    }
     dispatch(actions.app.addDocument(document));
   }
 

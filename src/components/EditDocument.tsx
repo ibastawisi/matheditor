@@ -25,12 +25,14 @@ const EditDocument: React.FC = () => {
           dispatch(actions.app.loadDocument(editorDocument));
         } else {
           dispatch(actions.app.announce({ message: "No document with this id was found" }));
+          setTimeout(() => { navigate("/open"); }, 3000);
         }
       } catch (error) {
         dispatch(actions.app.announce({ message: "Invalid document data" }));
+        setTimeout(() => { navigate("/open"); }, 3000);
       }
     } else {
-      navigate("/new");
+      navigate("/open");
     }
 
   }, []);
