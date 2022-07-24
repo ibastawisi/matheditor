@@ -78,9 +78,8 @@ const NewDocument: React.FC = () => {
     const document: EditorDocument = {
       id: uuidv4(),
       name: documentName,
-      author: config.editor.author,
       data: locationData ? locationData : newDocumentData(documentName),
-      timestamp: new Date().getTime(),
+      // timestamp: new Date().getTime(),
     }
     window.localStorage.setItem(document.id, JSON.stringify(document));
     navigate(`/edit/${document.id}`);

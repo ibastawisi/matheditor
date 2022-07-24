@@ -7,61 +7,47 @@ export interface AppState {
   announcement: Announcement | null;
   editor: EditorDocument;
   documents: string[];
+    user: User | null;
   ui: {
     isLoading: boolean;
     isSaving: boolean;
   };
   config: {
     editor: {
-      author: string;
       debug: boolean;
     };
-    header: {
-      level: number;
-      alignment: string;
-    }
-    paragraph: {
-      alignment: string;
-    }
-    math: {
-      alignment: string;
-      mode: string;
-    }
   };
 }
 
 export interface EditorDocument {
   id: string;
   name: string;
-  author?: string;
   data: SerializedEditorState;
-  timestamp: number;
+  author?: string;
+  timestamp?: number;
+}
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  picture: string;
+  googleId: string;
 }
 
 const initialState: AppState = {
   announcement: null,
   editor: {} as EditorDocument,
   documents: [] as string[],
+    user: null,
   ui: {
     isLoading: true,
     isSaving: false,
   },
   config: {
     editor: {
-      author: '',
       debug: false,
     },
-    header: {
-      level: 2,
-      alignment: 'center',
-    },
-    paragraph: {
-      alignment: 'left',
-    },
-    math: {
-      alignment: 'center',
-      mode: 'math'
-    }
   },
 };
 
@@ -110,6 +96,9 @@ export const appSlice = createSlice({
     setConfig: (state, action: PayloadAction<AppState["config"]>) => {
       state.config = action.payload;
       window.localStorage.setItem("config", JSON.stringify(state.config));
+    },
+    setUser: (state, action: PayloadAction<User | null>) => {
+      state.user = action.payload;
     }
   },
 });

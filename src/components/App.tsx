@@ -19,6 +19,7 @@ import SplashScreen from './SplachScreen';
 import { Helmet } from 'react-helmet';
 import Privacy from './Privacy';
 import Playground from './Playground';
+import { getAuthenticatedUser } from '../services';
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -26,6 +27,9 @@ function App() {
 
   useEffect(() => {
     dispatch(actions.app.load());
+    getAuthenticatedUser().then(user => {
+      dispatch(actions.app.setUser(user));
+    });
   }, []);
 
   return isLoading ? <SplashScreen /> : (
@@ -45,7 +49,6 @@ function App() {
           <Route path="open" element={<Documents />} />
           <Route path="playground" element={<Playground />} />
           <Route path="privacy" element={<Privacy />} />
-          <Route path="*" element={<Home />} />
         </Routes>
       </Container>
       <Footer />

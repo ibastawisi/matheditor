@@ -18,11 +18,13 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import { ColorModeContext } from './ThemeProvider';
 import useTheme from '@mui/material/styles/useTheme';
-import SettingsIcon from '@mui/icons-material/Settings';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import SettingsDialog from './SettingsDialog';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { actions } from '../slices';
-// import { AppDispatch, RootState } from '../store';
+import { useDispatch, useSelector } from 'react-redux';
+import Avatar from '@mui/material/Avatar';
+import { actions } from '../slices';
+import { AppDispatch, RootState } from '../store';
+import { getAuthenticatedUser } from '../services';
 // import ShareIcon from '@mui/icons-material/Share';
 // import * as Service from '../services';
 
@@ -67,8 +69,10 @@ const TopAppBar: React.FC<{}> = () => {
   const colorMode = useContext(ColorModeContext);
   const theme = useTheme();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const user = useSelector((state: RootState) => state.app.user);
+  const dispatch = useDispatch<AppDispatch>();
+  const backendURL = process.env.NODE_ENV == 'production' ? "https://math-editor-server.herokuapp.com" : "http://localhost:3001";
 
-  // const dispatch = useDispatch<AppDispatch>();
   // const document = useSelector((state: RootState) => state.app.editor);
   // const handleShare = async () => {
   //   dispatch(actions.app.announce({ message: "Generating sharable link" }));
@@ -89,6 +93,30 @@ const TopAppBar: React.FC<{}> = () => {
   //     dispatch(actions.app.announce({ message: "Link copied to clipboard" }));
   //   }
   // };
+
+  const redirectToGoogleSSO = async () => {
+    const googleLoginURL = backendURL + "/auth/login";
+    window.open(googleLoginURL, "_blank", "width=500,height=600");
+  };
+
+  const fetchAuthUser = async () => {
+    try {
+      const user = await getAuthenticatedUser();
+      dispatch(actions.app.setUser(user));
+    } catch (error) {
+      console.log("Not properly authenticated");
+      dispatch(actions.app.setUser(null))
+    }
+  };
+
+  window.addEventListener("message", (event) => {
+    if (event.origin !== backendURL) {
+      return;
+    }
+    if (event.data.type === "auth") {
+      fetchAuthUser();
+    }
+  });
 
   const openSettingsDialog = () => {
     setSettingsOpen(true);
@@ -112,9 +140,12 @@ const TopAppBar: React.FC<{}> = () => {
               </Box>
             </Link>
             <Box sx={{ flexGrow: 1 }} />
-            <IconButton onClick={openSettingsDialog} color="inherit">
-              <SettingsIcon />
-            </IconButton>
+            {user ? <IconButton onClick={openSettingsDialog} size="small">
+              <Avatar alt={user.name} src={user.picture} sx={{ width: 30, height: 30 }} />
+            </IconButton> :
+              <IconButton aria-label="account of current user" onClick={redirectToGoogleSSO} color="inherit">
+                <ManageAccountsIcon />
+              </IconButton>}
             <IconButton onClick={colorMode.toggleColorMode} color="inherit">
               {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
