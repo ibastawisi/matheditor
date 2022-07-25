@@ -1,0 +1,1 @@
+export const BACKEND_URL = process.env.NODE_ENV === 'production' ? 'https://math-editor-server.herokuapp.com' : 'http://localhost:3001';

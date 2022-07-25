@@ -1,35 +1,34 @@
 import axios from 'axios'
 import { EditorDocument } from './slices/app';
-
-const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3001";
+import { BACKEND_URL } from './config';
 
 const createDocument = async (data: EditorDocument) => {
-  const response = await axios.post(backendURL + '/api/documents', data, { withCredentials: true })
+  const response = await axios.post(BACKEND_URL + '/api/documents', data, { withCredentials: true })
   return response.data;
 }
 
 const updateDocument = async (data: EditorDocument) => {
-  const response = await axios.put(backendURL + `/api/documents/${data.id}`, data, { withCredentials: true })
+  const response = await axios.put(BACKEND_URL + `/api/documents/${data.id}`, data, { withCredentials: true })
   return response.data;
 }
 
 const deleteDocument = async (id: string) => {
-  const response = await axios.delete(backendURL + `/api/documents/${id}`, { withCredentials: true })
+  const response = await axios.delete(BACKEND_URL + `/api/documents/${id}`, { withCredentials: true })
   return response.data;
 }
 
 const getDocument = async (id: string) => {
-  const response = await axios.get(`${backendURL}/api/documents/${id}`, { withCredentials: true })
+  const response = await axios.get(`${BACKEND_URL}/api/documents/${id}`, { withCredentials: true })
   return response.data;
 }
 
 const getAuthenticatedUser = async () => {
-  const response = await axios.get(backendURL + '/api/users/me', { withCredentials: true })
+  const response = await axios.get(BACKEND_URL + '/api/users/me', { withCredentials: true })
   return response.data;
 }
 
 const getLogout = async () => {
-  const response = await axios.get(backendURL + '/auth/logout', { withCredentials: true })
+  const response = await axios.get(BACKEND_URL + '/auth/logout', { withCredentials: true })
   return response.data;
 }
 

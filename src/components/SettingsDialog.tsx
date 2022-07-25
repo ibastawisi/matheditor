@@ -28,12 +28,6 @@ export default function SettingsDialog({ open, onClose }: { open: boolean; onClo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  const updateFormData = (event: any) => {
-    const { name, value } = event.target;
-    const [parentKey, childKey]: [keyof typeof formData, string] = name.split('.');
-    setFormData({ ...formData, [parentKey]: { ...formData[parentKey], [childKey]: value } });
-  };
-
   const updateSwitchFormData = (event: any) => {
     const { name, checked } = event.target;
     const [parentKey, childKey]: [keyof typeof formData, string] = name.split('.');

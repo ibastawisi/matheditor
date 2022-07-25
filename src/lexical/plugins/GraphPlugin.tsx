@@ -1,4 +1,4 @@
-import { $createNodeSelection, $createParagraphNode, $getRoot, $isParagraphNode, $setSelection, LexicalCommand } from 'lexical';
+import { $createParagraphNode, $getRoot, $isParagraphNode, LexicalCommand } from 'lexical';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getSelection, COMMAND_PRIORITY_EDITOR, createCommand, } from 'lexical';

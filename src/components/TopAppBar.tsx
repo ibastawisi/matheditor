@@ -25,6 +25,7 @@ import Avatar from '@mui/material/Avatar';
 import { actions } from '../slices';
 import { AppDispatch, RootState } from '../store';
 import { getAuthenticatedUser } from '../services';
+import { BACKEND_URL } from '../config';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const trigger = useScrollTrigger();
@@ -69,10 +70,9 @@ const TopAppBar: React.FC<{}> = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const user = useSelector((state: RootState) => state.app.user);
   const dispatch = useDispatch<AppDispatch>();
-  const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3001";
 
   const redirectToGoogleSSO = async () => {
-    const googleLoginURL = backendURL + "/auth/login";
+    const googleLoginURL = BACKEND_URL + "/auth/login";
     window.open(googleLoginURL, "_blank", "width=500,height=600");
   };
 
@@ -87,7 +87,7 @@ const TopAppBar: React.FC<{}> = () => {
   };
 
   window.addEventListener("message", (event) => {
-    if (event.origin !== backendURL) {
+    if (event.origin !== BACKEND_URL) {
       return;
     }
     if (event.data.type === "auth") {

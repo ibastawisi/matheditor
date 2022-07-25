@@ -51,6 +51,7 @@ const Documents: React.FC = () => {
       document.createdAt = document.updatedAt = new Date().toISOString();
       localStorage.setItem(key, JSON.stringify(document));
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleFilesChange = async (files: FileList | File[] | null) => {
@@ -124,7 +125,7 @@ const Documents: React.FC = () => {
   };
 
   return (
-    <Box>
+    <>
       <Box sx={{ textAlign: 'center', my: 3 }}>
         <Typography variant="h6" component="h2" sx={{ textAlign: 'center', my: 2 }}>
           Create a new document
@@ -176,7 +177,7 @@ const Documents: React.FC = () => {
         </Grid>
       </Box>
       }
-    </Box>
+    </>
   )
 }
 

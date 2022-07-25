@@ -53,7 +53,7 @@ const CloudDocumentCard: React.FC<{ document: Omit<EditorDocument, "data"> }> = 
 
   const openDocument = async () => {
     const data = await getDocument(document.id);
-    dispatch(actions.app.loadDocument(data));
+    window.localStorage.setItem(document.id, JSON.stringify(data));
     navigate(`/edit/${document.id}`);
   }
   const handleOpen = async () => {

@@ -1,6 +1,6 @@
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import { $setSelection, LexicalEditor, } from "lexical";
+import { LexicalEditor, } from "lexical";
 import { ImageNode, $isImageNode } from "../../nodes/ImageNode";
 
 import { SxProps, Theme } from '@mui/material/styles';
