@@ -7,7 +7,7 @@ export interface AppState {
   announcement: Announcement | null;
   editor: EditorDocument;
   documents: string[];
-    user: User | null;
+  user: User | null;
   ui: {
     isLoading: boolean;
     isSaving: boolean;
@@ -23,8 +23,8 @@ export interface EditorDocument {
   id: string;
   name: string;
   data: SerializedEditorState;
-  author?: string;
-  timestamp?: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface User {
@@ -33,13 +33,16 @@ export interface User {
   email: string;
   picture: string;
   googleId: string;
+  createdAt: string;
+  updatedAt: string;
+  documents: Omit<EditorDocument,"data">[];
 }
 
 const initialState: AppState = {
   announcement: null,
   editor: {} as EditorDocument,
   documents: [] as string[],
-    user: null,
+  user: null,
   ui: {
     isLoading: true,
     isSaving: false,
@@ -72,6 +75,7 @@ export const appSlice = createSlice({
     },
     saveDocument: (state, action: PayloadAction<SerializedEditorState>) => {
       state.editor.data = action.payload;
+      state.editor.updatedAt = new Date().toISOString();
       window.localStorage.setItem("editor", JSON.stringify(state.editor));
       window.localStorage.setItem(state.editor.id, JSON.stringify(state.editor));
     },
@@ -99,6 +103,17 @@ export const appSlice = createSlice({
     },
     setUser: (state, action: PayloadAction<User | null>) => {
       state.user = action.payload;
+    },
+    updateUserDocument: (state, action: PayloadAction<Omit<EditorDocument, "data">>) => {
+      if (state.user) {
+        state.user.documents = state.user.documents.filter(doc => doc.id !== action.payload.id);
+        state.user.documents.push(action.payload);
+      }
+    },
+    deleteUserDocument: (state, action: PayloadAction<string>) => {
+      if (state.user) {
+        state.user.documents = state.user.documents.filter(doc => doc.id !== action.payload);
+      }
     }
   },
 });

@@ -25,8 +25,6 @@ import Avatar from '@mui/material/Avatar';
 import { actions } from '../slices';
 import { AppDispatch, RootState } from '../store';
 import { getAuthenticatedUser } from '../services';
-// import ShareIcon from '@mui/icons-material/Share';
-// import * as Service from '../services';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const trigger = useScrollTrigger();
@@ -71,28 +69,7 @@ const TopAppBar: React.FC<{}> = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const user = useSelector((state: RootState) => state.app.user);
   const dispatch = useDispatch<AppDispatch>();
-  const backendURL = process.env.NODE_ENV == 'production' ? "https://math-editor-server.herokuapp.com" : "http://localhost:3001";
-
-  // const document = useSelector((state: RootState) => state.app.editor);
-  // const handleShare = async () => {
-  //   dispatch(actions.app.announce({ message: "Generating sharable link" }));
-  //   try {
-  //     await Service.post(document.id, JSON.stringify(document));
-  //   } catch (e) {
-  //     dispatch(actions.app.announce({ message: "Failed to generate sharable link" }));
-  //     return;
-  //   }
-  //   const shareData = {
-  //     title: document.name,
-  //     url: window.location.origin + "/new/" + document.id
-  //   }
-  //   try {
-  //     await navigator.share(shareData)
-  //   } catch (err) {
-  //     navigator.clipboard.writeText(shareData.url);
-  //     dispatch(actions.app.announce({ message: "Link copied to clipboard" }));
-  //   }
-  // };
+  const backendURL = process.env.REACT_APP_BACKEND_URL || "http://localhost:3001";
 
   const redirectToGoogleSSO = async () => {
     const googleLoginURL = backendURL + "/auth/login";
@@ -152,14 +129,10 @@ const TopAppBar: React.FC<{}> = () => {
             <IconButton aria-label="Load" color="inherit" component={RouterLink} to="/open">
               <OpenIcon />
             </IconButton>
-            {isEditing && <>
-              {/* <IconButton aria-label="Share" color="inherit" onClick={handleShare}>
-                <ShareIcon />
-              </IconButton> */}
-              <IconButton aria-label="Print" color="inherit" onClick={window.print}>
-                <PrintIcon />
-              </IconButton>
-            </>}
+            {isEditing && <IconButton aria-label="Print" color="inherit" onClick={window.print}>
+              <PrintIcon />
+            </IconButton>
+            }
           </Toolbar>
         </AppBar>
       </HideOnScroll>

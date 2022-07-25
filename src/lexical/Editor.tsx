@@ -44,7 +44,6 @@ import { EditorDocument } from "../slices/app";
 
 import theme from "./theme";
 import "./styles.css";
-import { migrateData } from './utils';
 import { SxProps, Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import { validate } from 'uuid';
@@ -93,7 +92,7 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
   }
 
   return (
-    <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(migrateData(document.data)) }}>
+    <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(document.data) }}>
       <Box className="editor-shell" sx={sx}>
         <ToolbarPlugin />
         <div className="editor-inner">

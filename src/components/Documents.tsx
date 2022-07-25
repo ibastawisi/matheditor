@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store";
 import DocumentCard from "./DocumentCard";
 import Button from "@mui/material/Button";
-import React from "react";
+import React, { useEffect } from "react";
 import { actions } from "../slices";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import NewIcon from '@mui/icons-material/AddCircle';
@@ -17,13 +17,15 @@ import { validate } from "uuid";
 import templates from "../templates";
 import TemplateCard from "./TemplateCard";
 import PlaygroundCard from "./PlaygroundCard";
+import CloudDocumentCard from "./CloudDocumentCard";
 
 const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.app.documents);
+  const user = useSelector((state: RootState) => state.app.user);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if ("launchQueue" in window && "LaunchParams" in window) {
       (window as any).launchQueue.setConsumer(
         async (launchParams: { files: FileSystemFileHandle[] }) => {
@@ -34,6 +36,21 @@ const Documents: React.FC = () => {
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // temporary workaround for migrating timestamps to ISO strings
+  useEffect(() => {
+    documents.forEach(key => {
+      const document = JSON.parse(localStorage.getItem(key) || "{}");
+      if (document.createdAt && document.updatedAt) return;
+      if (document.timestamp) {
+        document.createdAt = document.updatedAt = new Date(document.timestamp).toISOString();
+        localStorage.setItem(key, JSON.stringify(document));
+        return;
+      }
+      document.createdAt = document.updatedAt = new Date().toISOString();
+      localStorage.setItem(key, JSON.stringify(document));
+    })
   }, []);
 
   const handleFilesChange = async (files: FileList | File[] | null) => {
@@ -146,6 +163,19 @@ const Documents: React.FC = () => {
           </Grid>)}
         </Grid>
       </Box>
+      {user && user.documents.length > 0 && <Box sx={{ my: 3 }}>
+        <Box sx={{ display: "flex", justifyContent: 'space-between', my: 2 }}>
+          <Typography variant="h6" component="h2">
+            Load from cloud
+          </Typography>
+        </Box>
+        <Grid container spacing={2}>
+          {user.documents.map((document) => <Grid item key={document.id} xs={12} sm={6} md={4}>
+            <CloudDocumentCard document={document} />
+          </Grid>)}
+        </Grid>
+      </Box>
+      }
     </Box>
   )
 }

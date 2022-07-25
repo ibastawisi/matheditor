@@ -8,38 +8,32 @@ import { EditorDocument } from '../slices/app';
 import ArticleIcon from '@mui/icons-material/Article';
 import Button from '@mui/material/Button';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { AppDispatch } from '../store';
-import { useDispatch } from 'react-redux';
+import { AppDispatch, RootState } from '../store';
+import { useDispatch, useSelector } from 'react-redux';
 import { actions } from '../slices';
 import IconButton from '@mui/material/IconButton';
 import DownloadIcon from '@mui/icons-material/Download';
 import { DeleteForever } from '@mui/icons-material';
 
 // import ShareIcon from '@mui/icons-material/Share';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CloudDoneIcon from '@mui/icons-material/CloudDone';
+import { createDocument, updateDocument } from '../services';
 // import * as Service from '../services';
 
 const DocumentCard: React.FC<{ document: EditorDocument }> = ({ document }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector((state: RootState) => state.app.user);
 
-  // const handleShare = async () => {
-  //   dispatch(actions.app.announce({ message: "Generating sharable link" }));
-  //   try {
-  //     await Service.post(document.id, JSON.stringify(document));
-  //   } catch (e) {
-  //     dispatch(actions.app.announce({ message: "Failed to generate sharable link" }));
-  //     return;
-  //   }
-  //   const shareData = {
-  //     title: document.name,
-  //     url: window.location.origin + "/new/" + document.id
-  //   }
-  //   try {
-  //     await navigator.share(shareData)
-  //   } catch (err) {
-  //     navigator.clipboard.writeText(shareData.url);
-  //     dispatch(actions.app.announce({ message: "Link copied to clipboard" }));
-  //   }
-  // };
+  const isUpToDate = document.updatedAt && user?.documents?.find(d => d.id === document.id)?.updatedAt === document.updatedAt;
+
+  const handleUpload = async () => {
+    const documents = user?.documents;
+    if (isUpToDate) return;
+    const response = !documents?.find(d => d.id === document.id) ? await createDocument(document) : await updateDocument(document);;
+    const { data, ...userDocument } = response;
+    dispatch(actions.app.updateUserDocument(userDocument));
+  };
 
   const handleDelete = () => {
     window.confirm("Are you sure you want to delete this document?") && dispatch(actions.app.deleteDocument(document.id));
@@ -71,7 +65,7 @@ const DocumentCard: React.FC<{ document: EditorDocument }> = ({ document }) => {
         }
         action={<Button startIcon={<OpenInNewIcon />} component={RouterLink} to={`/edit/${document.id}`}>Open</Button>}
         title={document.name}
-        subheader={document.timestamp && new Date(document.timestamp).toLocaleString()}
+        subheader={new Date(document.createdAt).toLocaleString()}
       />
       <CardActions>
         <Button size="small" startIcon={<DeleteForever color="error" />} onClick={handleDelete}>
@@ -80,9 +74,9 @@ const DocumentCard: React.FC<{ document: EditorDocument }> = ({ document }) => {
         <IconButton size="medium" aria-label="Download" sx={{ ml: "auto !important" }} color="inherit" onClick={handleSave}>
           <DownloadIcon />
         </IconButton>
-        {/* <IconButton size="medium" aria-label="Share" color="inherit" onClick={handleShare}>
-          <ShareIcon />
-        </IconButton> */}
+        {user && <IconButton size="medium" aria-label="Share" color="inherit" onClick={handleUpload}>
+          {isUpToDate ? <CloudDoneIcon color='success' /> : <CloudUploadIcon />}
+        </IconButton>}
 
       </CardActions>
     </Card>

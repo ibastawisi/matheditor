@@ -10,39 +10,38 @@ import ArticleIcon from '@mui/icons-material/Article';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { EditorDocument } from "../slices/app";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { actions } from "../slices";
-import { AppDispatch, RootState } from "../store";
+import { AppDispatch } from "../store";
 import { useEffect } from "react";
 import SplashScreen from "./SplachScreen";
 import { SerializedEditorState } from "lexical";
+import { getDocument } from "../services";
 
 const NewDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const params = useParams<{ id: string }>();
   const location = useLocation();
-  const config = useSelector((state: RootState) => state.app.config);
 
   useEffect(() => {
     if (params.id) {
       (async () => {
-        // const document = await Service.get(params.id!);
-        // if (document) {
-        //   try {
-        //     document.id = uuidv4();
-        //     document.timestamp = Date.now();
-        //     window.localStorage.setItem(document.id, JSON.stringify(document));
-        //     dispatch(actions.app.loadDocument(document));
-        //     navigate(`/edit/${document.id}`);
-        //   } catch (error) {
-        //     dispatch(actions.app.announce({ message: "Invalid document data" }));
-        //   }
-        // } else {
-        //   dispatch(actions.app.announce({ message: "No document with this id was found" }));
-        // }
-          dispatch(actions.app.announce({ message: "Document sharing via link feature is currently disabled!" }));
-          setTimeout(() => { navigate('/open'); }, 3000);
+        const document = await getDocument(params.id!);
+        if (document) {
+          try {
+            document.id = uuidv4();
+            document.createdAt = Date.now();
+            document.updatedAt = document.createdAt;
+            window.localStorage.setItem(document.id, JSON.stringify(document));
+            dispatch(actions.app.loadDocument(document));
+            navigate(`/edit/${document.id}`);
+          } catch (error) {
+            dispatch(actions.app.announce({ message: "Invalid document data" }));
+          }
+        } else {
+          dispatch(actions.app.announce({ message: "No document with this id was found" }));
+        }
       })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -79,7 +78,8 @@ const NewDocument: React.FC = () => {
       id: uuidv4(),
       name: documentName,
       data: locationData ? locationData : newDocumentData(documentName),
-      // timestamp: new Date().getTime(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     }
     window.localStorage.setItem(document.id, JSON.stringify(document));
     navigate(`/edit/${document.id}`);
