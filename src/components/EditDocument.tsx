@@ -16,19 +16,23 @@ const EditDocument: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const loadDocument = async (id: string) => {
+      // load from local storage
+      const storedDocument = window.localStorage.getItem(id);
+      if (storedDocument) {
+        const editorDocument = JSON.parse(storedDocument);
+        dispatch(actions.app.loadDocument(editorDocument));
+      } else {
+        // load from server
+        const { payload } = await dispatch(actions.app.getDocumentAsync(id));
+        dispatch(actions.app.loadDocument(payload));
+      }
+    }
     if (params.id) {
       try {
-        // load from local storage
-        const storedDocument = window.localStorage.getItem(params.id);
-        if (storedDocument) {
-          const editorDocument = JSON.parse(storedDocument);
-          dispatch(actions.app.loadDocument(editorDocument));
-        } else {
-          dispatch(actions.app.announce({ message: "No document with this id was found" }));
-          setTimeout(() => { navigate("/open"); }, 3000);
-        }
+        loadDocument(params.id);
       } catch (error) {
-        dispatch(actions.app.announce({ message: "Invalid document data" }));
+        dispatch(actions.app.announce({ message: "No document with this id was found" }));
         setTimeout(() => { navigate("/open"); }, 3000);
       }
     } else {

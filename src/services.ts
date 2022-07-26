@@ -27,9 +27,9 @@ const getAuthenticatedUser = async () => {
   return response.data;
 }
 
-const getLogout = async () => {
+const logout = async () => {
   const response = await axios.get(BACKEND_URL + '/auth/logout', { withCredentials: true })
   return response.data;
 }
 
-export { getDocument, createDocument, updateDocument, deleteDocument, getAuthenticatedUser, getLogout }
+export { getDocument, createDocument, updateDocument, deleteDocument, getAuthenticatedUser, logout }

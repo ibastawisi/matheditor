@@ -24,8 +24,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import Avatar from '@mui/material/Avatar';
 import { actions } from '../slices';
 import { AppDispatch, RootState } from '../store';
-import { getAuthenticatedUser } from '../services';
 import { BACKEND_URL } from '../config';
+import LoadingBar from 'react-redux-loading-bar'
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const trigger = useScrollTrigger();
@@ -76,22 +76,12 @@ const TopAppBar: React.FC<{}> = () => {
     window.open(googleLoginURL, "_blank", "width=500,height=600");
   };
 
-  const fetchAuthUser = async () => {
-    try {
-      const user = await getAuthenticatedUser();
-      dispatch(actions.app.setUser(user));
-    } catch (error) {
-      console.log("Not properly authenticated");
-      dispatch(actions.app.setUser(null))
-    }
-  };
-
   window.addEventListener("message", (event) => {
     if (event.origin !== BACKEND_URL) {
       return;
     }
     if (event.data.type === "auth") {
-      fetchAuthUser();
+      dispatch(actions.app.loadUserAsync());
     }
   });
 
@@ -107,6 +97,7 @@ const TopAppBar: React.FC<{}> = () => {
 
   return (
     <>
+      <LoadingBar style={{ position: 'fixed', zIndex: 1500 }} />
       <HideOnScroll>
         <AppBar sx={{ displayPrint: "none", zIndex: 1111 }}>
           <Toolbar>

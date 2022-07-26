@@ -1,7 +1,10 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Announcement } from '../components/Announcer';
 import { validate } from 'uuid';
 import { SerializedEditorState } from 'lexical';
+import { showLoading, hideLoading } from 'react-redux-loading-bar';
+import { createDocument, deleteDocument, getAuthenticatedUser, getDocument, logout, updateDocument } from '../services';
+import { RootState } from '../store';
 
 export interface AppState {
   announcement: Announcement | null;
@@ -35,7 +38,7 @@ export interface User {
   googleId: string;
   createdAt: string;
   updatedAt: string;
-  documents: Omit<EditorDocument,"data">[];
+  documents: Omit<EditorDocument, "data">[];
 }
 
 const initialState: AppState = {
@@ -54,6 +57,52 @@ const initialState: AppState = {
   },
 };
 
+export const loadUserAsync = createAsyncThunk('app/loadUser', async (_, thunkAPI) => {
+  thunkAPI.dispatch(showLoading())
+  try {
+    const response = await getAuthenticatedUser()
+    return response
+  } catch (err: any) {
+    if (!err.response) {
+      throw err
+    }
+    return thunkAPI.rejectWithValue(err.response.data)
+  } finally {
+    thunkAPI.dispatch(hideLoading())
+  }
+});
+
+export const logoutAsync = createAsyncThunk('app/logout', async (_, thunkAPI) => {
+  thunkAPI.dispatch(showLoading())
+  const response = await logout();
+  thunkAPI.dispatch(hideLoading())
+  return response;
+});
+
+export const getDocumentAsync = createAsyncThunk('app/getDocument', async (id: string, thunkAPI) => {
+  thunkAPI.dispatch(showLoading());
+  const response = await getDocument(id);
+  thunkAPI.dispatch(hideLoading())
+  return response;
+});
+
+export const uploadDocumentAsync = createAsyncThunk('app/uploadDocument', async (document: EditorDocument, thunkAPI) => {
+  thunkAPI.dispatch(showLoading());
+  const state = thunkAPI.getState() as RootState;
+  const documents = state.app.user?.documents ?? [];
+  const response = documents.find(d => d.id === document.id) ? await updateDocument(document) : await createDocument(document);
+  const { data, ...userDocument } = response;
+  thunkAPI.dispatch(hideLoading())
+  return userDocument;
+});
+
+export const deleteDocumentAsync = createAsyncThunk('app/deleteDocument', async (id: string, thunkAPI) => {
+  thunkAPI.dispatch(showLoading());
+  await deleteDocument(id);
+  thunkAPI.dispatch(hideLoading())
+  return id;
+});
+
 export const appSlice = createSlice({
   name: 'app',
   initialState,
@@ -71,7 +120,10 @@ export const appSlice = createSlice({
     loadDocument: (state, action: PayloadAction<EditorDocument>) => {
       state.editor = action.payload;
       window.localStorage.setItem("editor", JSON.stringify(action.payload));
-      !state.documents.includes(action.payload.id) && state.documents.push(action.payload.id);
+      if (!state.documents.includes(action.payload.id)) {
+        state.documents.push(action.payload.id);
+        localStorage.setItem(action.payload.id, JSON.stringify(action.payload));
+      }
     },
     saveDocument: (state, action: PayloadAction<SerializedEditorState>) => {
       state.editor.data = action.payload;
@@ -104,18 +156,27 @@ export const appSlice = createSlice({
     setUser: (state, action: PayloadAction<User | null>) => {
       state.user = action.payload;
     },
-    updateUserDocument: (state, action: PayloadAction<Omit<EditorDocument, "data">>) => {
-      if (state.user) {
-        state.user.documents = state.user.documents.filter(doc => doc.id !== action.payload.id);
-        state.user.documents.push(action.payload);
-      }
-    },
-    deleteUserDocument: (state, action: PayloadAction<string>) => {
-      if (state.user) {
-        state.user.documents = state.user.documents.filter(doc => doc.id !== action.payload);
-      }
-    }
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(loadUserAsync.fulfilled, (state, action) => {
+        state.user = action.payload;
+      })
+      .addCase(logoutAsync.fulfilled, (state, action) => {
+        state.user = null;
+      })
+      .addCase(uploadDocumentAsync.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user.documents = state.user.documents.filter(doc => doc.id !== action.payload.id);
+          state.user.documents.push(action.payload);
+        }
+      })
+      .addCase(deleteDocumentAsync.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user.documents = state.user.documents.filter(doc => doc.id !== action.payload);
+        }
+      })
+  }
 });
 
 export default appSlice.reducer;

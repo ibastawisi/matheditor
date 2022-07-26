@@ -5,7 +5,6 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { User } from '../slices/app';
 import Button from '@mui/material/Button';
-import { getLogout } from '../services';
 import { actions } from '../slices';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../store';
@@ -13,15 +12,9 @@ import CardActions from '@mui/material/CardActions';
 
 export default function UserCard({ user }: { user: User }) {
   const dispatch = useDispatch<AppDispatch>();
-  
+
   const logout = async () => {
-    try {
-      await getLogout();
-      dispatch(actions.app.setUser(null))
-      dispatch(actions.app.announce({ message: 'Logged out!' }))
-    } catch (error: any) {
-      dispatch(actions.app.announce({ message: error.message }))
-    }
+    dispatch(actions.app.logoutAsync());
   }
 
   return (

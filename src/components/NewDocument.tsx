@@ -16,7 +16,6 @@ import { AppDispatch } from "../store";
 import { useEffect } from "react";
 import SplashScreen from "./SplachScreen";
 import { SerializedEditorState } from "lexical";
-import { getDocument } from "../services";
 
 const NewDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,13 +26,13 @@ const NewDocument: React.FC = () => {
   useEffect(() => {
     if (params.id) {
       (async () => {
-        const document = await getDocument(params.id!);
-        if (document) {
+        const { payload } = await dispatch(actions.app.getDocumentAsync(params.id!));
+        if (payload) {
           try {
+            const document = payload;
             document.id = uuidv4();
             document.createdAt = Date.now();
             document.updatedAt = document.createdAt;
-            window.localStorage.setItem(document.id, JSON.stringify(document));
             dispatch(actions.app.loadDocument(document));
             navigate(`/edit/${document.id}`);
           } catch (error) {
@@ -73,7 +72,7 @@ const NewDocument: React.FC = () => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const documentName = formData.get("fileName") as string;
-    const locationData = (location.state as { data: SerializedEditorState } | null )?.data;
+    const locationData = (location.state as { data: SerializedEditorState } | null)?.data;
     const document: EditorDocument = {
       id: uuidv4(),
       name: documentName,
