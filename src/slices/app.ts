@@ -90,8 +90,8 @@ export const uploadDocumentAsync = createAsyncThunk('app/uploadDocument', async 
   thunkAPI.dispatch(showLoading());
   const state = thunkAPI.getState() as RootState;
   const documents = state.app.user?.documents ?? [];
-  const response = documents.find(d => d.id === document.id) ? await updateDocument(document) : await createDocument(document);
-  const { data, ...userDocument } = response;
+  documents.find(d => d.id === document.id) ? await updateDocument(document) : await createDocument(document);
+  const { data, ...userDocument } = document;
   thunkAPI.dispatch(hideLoading())
   return userDocument;
 });
