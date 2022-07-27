@@ -52,7 +52,7 @@ const ViewDocument: React.FC = () => {
     <Helmet><title>{document.name}</title></Helmet>
     <Editor document={document} readOnly />
     <Fab variant="extended" component={RouterLink} to="/new" state={{ data: document.data }}
-      sx={{ position: 'fixed', bottom: 32, right: 32 }}>
+      sx={{ position: 'fixed', bottom: 32, right: 32, displayPrint: 'none' }}>
       <EditIcon sx={{ mr: 1 }} />
       Fork
     </Fab>

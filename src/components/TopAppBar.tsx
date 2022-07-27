@@ -93,7 +93,7 @@ const TopAppBar: React.FC<{}> = () => {
     setSettingsOpen(false);
   };
 
-  const isEditing = location.pathname.startsWith("/edit") || location.pathname.startsWith("/playground");
+  const showPrint = location.pathname.startsWith('/view') || location.pathname.startsWith("/edit") || location.pathname.startsWith("/playground");
 
   return (
     <>
@@ -120,7 +120,7 @@ const TopAppBar: React.FC<{}> = () => {
             <IconButton aria-label="Load" color="inherit" component={RouterLink} to="/open">
               <OpenIcon />
             </IconButton>
-            {isEditing && <IconButton aria-label="Print" color="inherit" onClick={window.print}>
+            {showPrint && <IconButton aria-label="Print" color="inherit" onClick={window.print}>
               <PrintIcon />
             </IconButton>
             }
