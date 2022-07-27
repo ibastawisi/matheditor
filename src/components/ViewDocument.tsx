@@ -51,9 +51,9 @@ const ViewDocument: React.FC = () => {
   return document.id === params.id ? <>
     <Helmet><title>{document.name}</title></Helmet>
     <Editor document={document} readOnly />
-    <Fab variant="extended" component={RouterLink} to="/new" state={{ data: document.data }}
-      sx={{ position: 'fixed', bottom: 32, right: 32, displayPrint: 'none' }}>
-      <EditIcon sx={{ mr: 1 }} />
+    <Fab variant="extended" size='medium' component={RouterLink} to="/new" state={{ data: document.data }}
+      sx={{ position: 'fixed', bottom: 24, right: 48, px: 2, displayPrint: 'none' }}>
+      <EditIcon />
       Fork
     </Fab>
   </> : <SplashScreen />;

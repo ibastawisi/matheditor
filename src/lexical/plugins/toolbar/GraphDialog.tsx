@@ -44,7 +44,7 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
       parameters.ggbBase64 = value!;
     }
 
-    parameters.appName = type === GraphType["2D"] ? 'graphing' : '3d';
+    parameters.appName = type === GraphType["2D"] ? 'suite' : '3d';
 
     const applet = new (window as any).GGBApplet(parameters, '5.0');
     applet.setHTML5Codebase('/GeoGebra/HTML5/5.0/web3d/');
