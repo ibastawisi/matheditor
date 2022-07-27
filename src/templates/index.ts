@@ -1,7 +1,7 @@
 import { EditorDocument } from '../slices/app';
-import ComplexSheet from './Complex_Sheet.json';
-import FourierAnalysis from './Fourier_Analysis.json';
-import RootLocus from './Root_Locus.json';
+import ComplexSheet from './ComplexSheet.json';
+import FourierAnalysis from './FourierAnalysis.json';
+import RootLocus from './RootLocus.json';
 
 const templates = {
   [ComplexSheet.id]: ComplexSheet as EditorDocument,
