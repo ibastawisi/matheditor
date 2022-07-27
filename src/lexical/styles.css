@@ -150,3 +150,13 @@ div.ML__keyboard.material {
   width: 100% !important;
   height: 100% !important;
 }
+
+@font-face {
+  font-family: "Virgil";
+  src: url("@excalidraw/excalidraw/dist/excalidraw-assets/Virgil.woff2");
+}
+
+@font-face {
+  font-family: "Cascadia";
+  src: url("@excalidraw/excalidraw/dist/excalidraw-assets/Cascadia.woff2");
+}

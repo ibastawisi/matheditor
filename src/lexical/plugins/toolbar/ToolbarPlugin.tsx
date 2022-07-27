@@ -113,7 +113,7 @@ export default function ToolbarPlugin() {
   const [blockType, setBlockType] = useState<keyof typeof blockTypeToBlockName>('paragraph');
   const [selectedElementKey, setSelectedElementKey] = useState<NodeKey | null>(null);
   const [fontSize, setFontSize] = useState<string>('15px');
-  const [fontFamily, setFontFamily] = useState<string>('Arial');
+  const [fontFamily, setFontFamily] = useState<string>('Roboto');
   const [isRTL, setIsRTL] = useState(false);
   const [mathNode, setMathNode] = useState<MathNode | null>(null);
   const [imageNode, setImageNode] = useState<ImageNode | GraphNode | SketchNode | null>(null);
@@ -167,7 +167,7 @@ export default function ToolbarPlugin() {
         $getSelectionStyleValueForProperty(selection, 'font-size', '15px'),
       );
       setFontFamily(
-        $getSelectionStyleValueForProperty(selection, 'font-family', 'Arial'),
+        $getSelectionStyleValueForProperty(selection, 'font-family', 'Roboto'),
       );
       setMathNode(null);
       setImageNode(null);
@@ -268,12 +268,11 @@ export default function ToolbarPlugin() {
   );
 
   const FONT_FAMILY_MAP = [
-    ['Arial', 'Arial'],
+    ['Roboto', 'Roboto'],
+    ['Virgil', 'Virgil'],
+    ['Cascadia', 'Cascadia'],
     ['Courier New', 'Courier New'],
     ['Georgia', 'Georgia'],
-    ['Times New Roman', 'Times New Roman'],
-    ['Trebuchet MS', 'Trebuchet MS'],
-    ['Verdana', 'Verdana'],
   ];
 
   const FONT_SIZE_MAP = [

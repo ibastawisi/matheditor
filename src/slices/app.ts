@@ -5,7 +5,6 @@ import { SerializedEditorState } from 'lexical';
 import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import { createDocument, deleteDocument, getAuthenticatedUser, getDocument, logout, updateDocument } from '../services';
 import { RootState } from '../store';
-import { AxiosError } from 'axios';
 
 export interface AppState {
   announcement: Announcement | null;
