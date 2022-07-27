@@ -36,7 +36,6 @@ export interface User {
   name: string;
   email: string;
   picture: string;
-  googleId: string;
   createdAt: string;
   updatedAt: string;
   documents: Omit<EditorDocument, "data">[];
