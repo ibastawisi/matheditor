@@ -1,19 +1,22 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { actions } from "../slices";
-import { AppDispatch, RootState } from "../store";
-import { useNavigate, useParams } from "react-router-dom";
+import { AppDispatch } from "../store";
+import { useNavigate, useParams, Link as RouterLink } from "react-router-dom";
 import Editor from "../lexical/Editor";
 
 import SplashScreen from "./SplachScreen";
 import { Helmet } from "react-helmet";
+import { EditorDocument } from "../slices/app";
+import Fab from "@mui/material/Fab";
+import EditIcon from '@mui/icons-material/Edit';
 
-const EditDocument: React.FC = () => {
+const ViewDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const document = useSelector((state: RootState) => state.app.editor);
   const params = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [document, setDocument] = useState<EditorDocument | null>(null);
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
@@ -21,12 +24,12 @@ const EditDocument: React.FC = () => {
       const storedDocument = window.localStorage.getItem(id);
       if (storedDocument) {
         const editorDocument = JSON.parse(storedDocument);
-        dispatch(actions.app.loadDocument(editorDocument));
+        setDocument(editorDocument);
       } else {
         // load from server
         const { payload } = await dispatch(actions.app.getDocumentAsync(id));
         if (!payload) return;
-        dispatch(actions.app.loadDocument(payload));
+        setDocument(payload);
       }
     }
     if (params.id) {
@@ -39,13 +42,21 @@ const EditDocument: React.FC = () => {
     } else {
       navigate("/open");
     }
-
   }, []);
+
+  if (!document) {
+    return <SplashScreen title="Loading Document" />;
+  }
 
   return document.id === params.id ? <>
     <Helmet><title>{document.name}</title></Helmet>
-    <Editor document={document} />
-  </> : <SplashScreen title="Loading Document" />;
+    <Editor document={document} readOnly />
+    <Fab variant="extended" component={RouterLink} to="/new" state={{ data: document.data }}
+      sx={{ position: 'fixed', bottom: 32, right: 32 }}>
+      <EditIcon sx={{ mr: 1 }} />
+      Fork
+    </Fab>
+  </> : <SplashScreen />;
 }
 
-export default EditDocument;
+export default ViewDocument;

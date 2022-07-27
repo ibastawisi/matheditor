@@ -77,7 +77,7 @@ const editorConfig = {
   ]
 };
 
-const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefined }> = ({ document, sx }) => {
+const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefined, readOnly?: boolean }> = ({ document, sx, readOnly }) => {
 
   const { historyState } = useSharedHistoryContext();
   const config = useSelector((state: RootState) => state.app.config.editor);
@@ -92,7 +92,7 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
   }
 
   return (
-    <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(document.data) }}>
+    <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(document.data), readOnly }}>
       <Box className="editor-shell" sx={sx}>
         <ToolbarPlugin />
         <div className="editor-inner">

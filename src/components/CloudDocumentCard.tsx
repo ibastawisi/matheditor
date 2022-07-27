@@ -22,7 +22,7 @@ const CloudDocumentCard: React.FC<{ document: Omit<EditorDocument, "data"> }> = 
   const handleShare = async () => {
     const shareData = {
       title: document.name,
-      url: window.location.origin + "/new/" + document.id
+      url: window.location.origin + "/view/" + document.id
     }
     try {
       await navigator.share(shareData)
@@ -40,6 +40,7 @@ const CloudDocumentCard: React.FC<{ document: Omit<EditorDocument, "data"> }> = 
 
   const handleSave = async () => {
     const { payload } = await dispatch(actions.app.getDocumentAsync(document.id));
+    if(!payload) return;
 
     const blob = new Blob([JSON.stringify(payload)], { type: "text/json" });
     const link = window.document.createElement("a");

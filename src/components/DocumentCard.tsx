@@ -36,7 +36,7 @@ const DocumentCard: React.FC<{ document: EditorDocument }> = ({ document }) => {
 
     const shareData = {
       title: document.name,
-      url: window.location.origin + "/new/" + document.id
+      url: window.location.origin + "/view/" + document.id
     }
     try {
       await navigator.share(shareData)

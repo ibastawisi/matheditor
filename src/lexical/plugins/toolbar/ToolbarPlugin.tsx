@@ -107,7 +107,7 @@ export function positionEditorElement(
   }
 }
 
-export default function ToolbarPlugin(): JSX.Element {
+export default function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
   const [activeEditor, setActiveEditor] = useState(editor);
   const [blockType, setBlockType] = useState<keyof typeof blockTypeToBlockName>('paragraph');
@@ -284,6 +284,8 @@ export default function ToolbarPlugin(): JSX.Element {
     ['19px', '19'],
     ['20px', '20'],
   ];
+
+  if (editor.isReadOnly()) return null;
 
   return (
     <ElevationScroll>

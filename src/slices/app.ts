@@ -5,6 +5,7 @@ import { SerializedEditorState } from 'lexical';
 import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import { createDocument, deleteDocument, getAuthenticatedUser, getDocument, logout, updateDocument } from '../services';
 import { RootState } from '../store';
+import { AxiosError } from 'axios';
 
 export interface AppState {
   announcement: Announcement | null;
@@ -62,45 +63,74 @@ export const loadUserAsync = createAsyncThunk('app/loadUser', async (_, thunkAPI
   try {
     const response = await getAuthenticatedUser()
     return response
-  } catch (err: any) {
-    if (!err.response) {
-      throw err
-    }
-    return thunkAPI.rejectWithValue(err.response.data)
+  } catch (error: any) {
+    const message = error.response?.data.error || error.message;
+    thunkAPI.dispatch(hideLoading())
+    thunkAPI.dispatch(appSlice.actions.announce({ message }))
+    return thunkAPI.rejectWithValue(error.error);
   } finally {
     thunkAPI.dispatch(hideLoading())
   }
 });
 
 export const logoutAsync = createAsyncThunk('app/logout', async (_, thunkAPI) => {
-  thunkAPI.dispatch(showLoading())
-  const response = await logout();
-  thunkAPI.dispatch(hideLoading())
-  return response;
+  try {
+    thunkAPI.dispatch(showLoading())
+    const response = await logout();
+    return response;
+  } catch (error: any) {
+    const message = error.response?.data.error || error.message;
+    thunkAPI.dispatch(appSlice.actions.announce({ message }))
+    return thunkAPI.rejectWithValue(error.error);
+  } finally {
+    thunkAPI.dispatch(hideLoading())
+  }
 });
 
 export const getDocumentAsync = createAsyncThunk('app/getDocument', async (id: string, thunkAPI) => {
-  thunkAPI.dispatch(showLoading());
-  const response = await getDocument(id);
-  thunkAPI.dispatch(hideLoading())
-  return response;
+  try {
+    thunkAPI.dispatch(showLoading());
+    const response = await getDocument(id);
+    return response;
+  } catch (error: any) {
+    const message = error.response?.data.error || error.message;
+    thunkAPI.dispatch(appSlice.actions.announce({ message }))
+    return thunkAPI.rejectWithValue(error.error);
+  } finally {
+    thunkAPI.dispatch(hideLoading())
+  }
 });
 
 export const uploadDocumentAsync = createAsyncThunk('app/uploadDocument', async (document: EditorDocument, thunkAPI) => {
   thunkAPI.dispatch(showLoading());
   const state = thunkAPI.getState() as RootState;
   const documents = state.app.user?.documents ?? [];
-  documents.find(d => d.id === document.id) ? await updateDocument(document) : await createDocument(document);
-  const { data, ...userDocument } = document;
-  thunkAPI.dispatch(hideLoading())
-  return userDocument;
+  try {
+    documents.find(d => d.id === document.id) ? await updateDocument(document) : await createDocument(document);
+    const { data, ...userDocument } = document;
+    thunkAPI.fulfillWithValue(userDocument);
+    return userDocument;
+  } catch (error: any) {
+    const message = error.response?.data.error || error.message;
+    thunkAPI.dispatch(appSlice.actions.announce({ message }))
+    return thunkAPI.rejectWithValue(error.error);
+  } finally {
+    thunkAPI.dispatch(hideLoading())
+  }
 });
 
 export const deleteDocumentAsync = createAsyncThunk('app/deleteDocument', async (id: string, thunkAPI) => {
-  thunkAPI.dispatch(showLoading());
-  await deleteDocument(id);
-  thunkAPI.dispatch(hideLoading())
-  return id;
+  try {
+    thunkAPI.dispatch(showLoading());
+    await deleteDocument(id);
+    return id;
+  } catch (error: any) {
+    const message = error.response?.data.error || error.message;
+    thunkAPI.dispatch(appSlice.actions.announce({ message }))
+    return thunkAPI.rejectWithValue(error.error);
+  } finally {
+    thunkAPI.dispatch(hideLoading())
+  }
 });
 
 export const appSlice = createSlice({
@@ -166,8 +196,8 @@ export const appSlice = createSlice({
         state.user = null;
       })
       .addCase(uploadDocumentAsync.fulfilled, (state, action) => {
-        if (state.user) {
-          state.user.documents = state.user.documents.filter(doc => doc.id !== action.payload.id);
+        if (state.user && action.payload) {
+          state.user.documents = state.user.documents.filter(doc => doc.id !== action.payload!.id);
           state.user.documents.push(action.payload);
         }
       })

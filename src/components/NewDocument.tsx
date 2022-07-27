@@ -27,19 +27,17 @@ const NewDocument: React.FC = () => {
     if (params.id) {
       (async () => {
         const { payload } = await dispatch(actions.app.getDocumentAsync(params.id!));
-        if (payload) {
-          try {
-            const document = payload;
-            document.id = uuidv4();
-            document.createdAt = Date.now();
-            document.updatedAt = document.createdAt;
-            dispatch(actions.app.loadDocument(document));
-            navigate(`/edit/${document.id}`);
-          } catch (error) {
-            dispatch(actions.app.announce({ message: "Invalid document data" }));
-          }
-        } else {
-          dispatch(actions.app.announce({ message: "No document with this id was found" }));
+        if (!payload) return;
+
+        try {
+          const document = payload;
+          document.id = uuidv4();
+          document.createdAt = Date.now();
+          document.updatedAt = document.createdAt;
+          dispatch(actions.app.loadDocument(document));
+          navigate(`/edit/${document.id}`);
+        } catch (error) {
+          dispatch(actions.app.announce({ message: "Invalid document data" }));
         }
       })();
     }
