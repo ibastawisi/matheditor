@@ -18,6 +18,7 @@ import templates from "../templates";
 import TemplateCard from "./TemplateCard";
 import PlaygroundCard from "./PlaygroundCard";
 import CloudDocumentCard from "./CloudDocumentCard";
+import UserCard from "./UserCard";
 
 const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.app.documents);
@@ -164,22 +165,21 @@ const Documents: React.FC = () => {
           </Grid>)}
         </Grid>
       </Box>
-      {user && user.documents.filter(document => !documents.includes(document.id)).length > 0 &&
-        <Box sx={{ my: 3 }}>
-          <Box sx={{ display: "flex", justifyContent: 'space-between', my: 2 }}>
-            <Typography variant="h6" component="h2">
-              Load from cloud
-            </Typography>
-          </Box>
-          <Grid container spacing={2}>
-            {user.documents.filter(document => !documents.includes(document.id)).map((document) =>
-              <Grid item key={document.id} xs={12} sm={6} md={4}>
-                <CloudDocumentCard document={document} />
-              </Grid>
-            )}
-          </Grid>
+      <Box sx={{ my: 3 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', my: 2 }}>
+          <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+            Load from cloud
+          </Typography>
+          <UserCard user={user} />
         </Box>
-      }
+        <Grid container spacing={2}>
+          {user?.documents.filter(document => !documents.includes(document.id)).map((document) =>
+            <Grid item key={document.id} xs={12} sm={6} md={4}>
+              <CloudDocumentCard document={document} />
+            </Grid>
+          )}
+        </Grid>
+      </Box>
     </>
   )
 }

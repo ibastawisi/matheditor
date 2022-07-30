@@ -20,10 +20,9 @@ import { ColorModeContext } from './ThemeProvider';
 import useTheme from '@mui/material/styles/useTheme';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import SettingsDialog from './SettingsDialog';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 import Avatar from '@mui/material/Avatar';
-import { actions } from '../slices';
-import { AppDispatch, RootState } from '../store';
 import { BACKEND_URL } from '../config';
 import LoadingBar from 'react-redux-loading-bar'
 
@@ -69,21 +68,11 @@ const TopAppBar: React.FC<{}> = () => {
   const theme = useTheme();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const user = useSelector((state: RootState) => state.app.user);
-  const dispatch = useDispatch<AppDispatch>();
 
-  const redirectToGoogleSSO = async () => {
+  const login = async () => {
     const googleLoginURL = BACKEND_URL + "/auth/login";
     window.open(googleLoginURL, "_blank", "width=500,height=600");
   };
-
-  window.addEventListener("message", (event) => {
-    if (event.origin !== BACKEND_URL) {
-      return;
-    }
-    if (event.data.type === "auth") {
-      dispatch(actions.app.loadUserAsync());
-    }
-  });
 
   const openSettingsDialog = () => {
     setSettingsOpen(true);
@@ -111,7 +100,7 @@ const TopAppBar: React.FC<{}> = () => {
             {user ? <IconButton onClick={openSettingsDialog} size="small">
               <Avatar alt={user.name} src={user.picture} sx={{ width: 30, height: 30 }} />
             </IconButton> :
-              <IconButton aria-label="account of current user" onClick={redirectToGoogleSSO} color="inherit">
+              <IconButton aria-label="account of current user" onClick={login} color="inherit">
                 <ManageAccountsIcon />
               </IconButton>}
             <IconButton onClick={colorMode.toggleColorMode} color="inherit">

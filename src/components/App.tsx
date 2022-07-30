@@ -20,6 +20,7 @@ import { Helmet } from 'react-helmet';
 import Privacy from './Privacy';
 import Playground from './Playground';
 import ViewDocument from './ViewDocument';
+import { BACKEND_URL } from '../config';
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -28,6 +29,12 @@ function App() {
   useEffect(() => {
     dispatch(actions.app.load());
     dispatch(actions.app.loadUserAsync());
+    window.addEventListener("message", (event) => {
+      if (event.origin !== BACKEND_URL) return;
+      if (event.data.type === "auth") {
+        dispatch(actions.app.loadUserAsync());
+      }
+    });
   }, []);
 
   return isLoading ? <SplashScreen /> : (
