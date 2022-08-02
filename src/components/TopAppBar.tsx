@@ -86,7 +86,7 @@ const TopAppBar: React.FC<{}> = () => {
 
   return (
     <>
-      <LoadingBar style={{ position: 'fixed', zIndex: 1500 }} />
+      <LoadingBar className='loading-bar' style={{ position: 'fixed', zIndex: 1500 }} />
       <HideOnScroll>
         <AppBar sx={{ displayPrint: "none", zIndex: 1111 }}>
           <Toolbar>

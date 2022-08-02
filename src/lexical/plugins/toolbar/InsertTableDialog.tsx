@@ -20,11 +20,12 @@ export default function InsertTableDialog({ editor, open, onClose }: { editor: L
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [formData, setFormData] = useState({ rows: 5, columns: 5 });
 
-  const updateFormData = (event: any) => {
-    const { name, value } = event.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
+  const setRows = (rows: number) => {
+    setFormData({ ...formData, rows: Math.max(1, rows) });
+  }
+  const setColumns = (columns: number) => {
+    setFormData({ ...formData, columns: Math.max(1, columns) });
+  }
   const handleSubmit = (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     editor.dispatchCommand(INSERT_TABLE_COMMAND, formData);
@@ -45,14 +46,14 @@ export default function InsertTableDialog({ editor, open, onClose }: { editor: L
       <DialogContent>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <FormControl sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', my: 2 }}>
-            <IconButton onClick={() => setFormData({ ...formData, rows: formData.rows - 1 })}><Remove /></IconButton>
-            <TextField type="number" size="small" sx={{ mx: 1 }} value={formData.rows} onChange={updateFormData} label="Rows" name="rows" autoComplete="rows" autoFocus />
-            <IconButton onClick={() => setFormData({ ...formData, rows: formData.rows + 1 })}><Add /></IconButton>
+            <IconButton onClick={() => setRows(formData.rows - 1)}><Remove /></IconButton>
+            <TextField type="number" size="small" sx={{ mx: 1 }} value={formData.rows} onChange={e => setRows(+e.target.value)} label="Rows" name="rows" autoComplete="rows" autoFocus />
+            <IconButton onClick={() => setRows(formData.rows + 1)}><Add /></IconButton>
           </FormControl>
           <FormControl sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', my: 2 }}>
-            <IconButton onClick={() => setFormData({ ...formData, columns: formData.columns - 1 })}><Remove /></IconButton>
-            <TextField type="number" size="small" sx={{ mx: 1 }} value={formData.columns} onChange={updateFormData} label="Columns" name="columns" autoComplete="columns" autoFocus />
-            <IconButton onClick={() => setFormData({ ...formData, columns: formData.columns + 1 })}><Add /></IconButton>
+            <IconButton onClick={() => setColumns(formData.columns - 1)}><Remove /></IconButton>
+            <TextField type="number" size="small" sx={{ mx: 1 }} value={formData.columns} onChange={e => setColumns(+e.target.value)} label="Columns" name="columns" autoComplete="columns" autoFocus />
+            <IconButton onClick={() => setColumns(formData.columns + 1)}><Add /></IconButton>
           </FormControl>
         </Box>
       </DialogContent>

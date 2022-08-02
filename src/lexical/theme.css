@@ -19,6 +19,7 @@
   margin: 0;
   margin-bottom: 8px;
   position: relative;
+  display: flow-root;
 }
 
 .LexicalTheme__paragraph:last-child {
@@ -184,22 +185,17 @@
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-.LexicalTheme__tableCellHeader {
-  background-color: #f2f3f5;
-  text-align: start;
+[theme=light] .LexicalTheme__tableCell {
+  border-color: rgba(0, 0, 0, 0.3);
 }
 
-[theme=dark] .LexicalTheme__tableCellHeader {
-  background-color: rgb(30, 30, 30)
+.LexicalTheme__tableCellHeader {
+  text-align: start;
 }
 
 @media print {
   [theme=dark] .LexicalTheme__tableCell {
     border-color: black;
-  }
-
-  [theme=dark] .LexicalTheme__tableCellHeader {
-    background-color: #eee;
   }
 }
 

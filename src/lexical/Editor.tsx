@@ -36,6 +36,8 @@ import { SketchNode } from './nodes/SketchNode';
 import SketchPlugin from './plugins/SketchPlugin';
 import { GraphNode } from './nodes/GraphNode';
 import GraphPlugin from './plugins/GraphPlugin';
+import { StickyNode } from './nodes/StickyNode';
+import StickyPlugin from './plugins/StickyPlugin';
 
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store";
@@ -74,6 +76,7 @@ const editorConfig = {
     ImageNode,
     SketchNode,
     GraphNode,
+    StickyNode,
   ]
 };
 
@@ -117,6 +120,7 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
           <ImagePlugin />
           <SketchPlugin />
           <GraphPlugin />
+          <StickyPlugin />
         </div>
       </Box>
     </LexicalComposer>

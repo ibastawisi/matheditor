@@ -125,11 +125,11 @@ export function ImageComponent({
     if (isSelected) {
       const element = ref.current;
       const rootElement = editor.getRootElement();
-      const nativeSelection = window.getSelection();
       const scrollY = window.scrollY;
       rootElement?.focus();
       window.scrollTo(0, scrollY);
-      nativeSelection?.removeAllRanges();
+      // const nativeSelection = window.getSelection();
+      // nativeSelection?.removeAllRanges();
       element?.scrollIntoView({ block: 'nearest' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

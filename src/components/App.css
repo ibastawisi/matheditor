@@ -29,6 +29,11 @@ body {
   z-index: 9999;
 }
 
+.loading-bar {
+  height: 3px;
+  background-color: red;
+}
+
 @media print {
   * {
     -webkit-print-color-adjust: exact;
@@ -38,5 +43,9 @@ body {
   body {
     background-color: #fff !important;
     color: rgba(0, 0, 0, 0.87) !important;
+  }
+
+  .loading-bar {
+    display: none !important;
   }
 }

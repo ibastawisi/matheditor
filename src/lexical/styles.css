@@ -5,6 +5,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.editor-container {
+  margin: 0 auto;
+}
+
 .editor-shell {
   position: relative;
 }
@@ -57,17 +61,6 @@ body {
   white-space: pre-wrap;
   word-break: break-all;
   scroll-behavior: smooth;
-}
-
-.editor-container {
-  margin-top: 1rem;
-}
-
-.editor-wrapper {
-  padding: 1rem;
-  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
-  max-width: 21cm;
-  margin: 0 auto;
 }
 
 .toolbar {
@@ -130,15 +123,6 @@ div.ML__keyboard.material {
 }
 
 @media print {
-  .editor-container {
-    margin-top: 0;
-  }
-
-  .editor-wrapper {
-    padding: 0;
-    box-shadow: none;
-  }
-
   *,
   *:before,
   *:after {
@@ -146,7 +130,8 @@ div.ML__keyboard.material {
   }
 }
 
-.applet_scaler, .gbb_preview {
+.applet_scaler,
+.gbb_preview {
   width: 100% !important;
   height: 100% !important;
 }
