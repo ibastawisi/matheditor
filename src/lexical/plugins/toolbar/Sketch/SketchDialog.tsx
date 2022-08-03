@@ -39,7 +39,7 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
 
     switch (mode) {
       case SketchDialogMode.create:
-        editor.dispatchCommand(INSERT_SKETCH_COMMAND, { src, value: elements },);
+        editor.dispatchCommand(INSERT_SKETCH_COMMAND, { src, value: elements as NonDeleted<ExcalidrawElement>[] },);
         break;
       case SketchDialogMode.update:
         editor.update(() => node?.update(src, elements as NonDeleted<ExcalidrawElement>[]),);

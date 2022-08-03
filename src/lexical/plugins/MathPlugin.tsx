@@ -38,7 +38,9 @@
          const selection = $getSelection();
          if ($isRangeSelection(selection)) {
            const mathNode = $createMathNode(value);
+           selection.insertText(' ');
            selection.insertNodes([mathNode]);
+           selection.insertText(' ');
            const nodeSelection = $createNodeSelection();
            nodeSelection.add(mathNode.getKey());
            $setSelection(nodeSelection);

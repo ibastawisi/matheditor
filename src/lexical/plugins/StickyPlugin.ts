@@ -12,7 +12,7 @@ import { useEffect } from 'react';
 
 import { $createStickyNode, StickyNode } from '../nodes/StickyNode';
 
-export const INSERT_STICKY_COMMAND: LexicalCommand = createCommand();
+export const INSERT_STICKY_COMMAND: LexicalCommand<void> = createCommand();
 
 export default function StickyPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, CLICK_COMMAND, COMMAND_PRIORITY_EDITOR, COMMAND_PRIORITY_LOW, EditorConfig, GridSelection, KEY_ARROW_LEFT_COMMAND, KEY_ARROW_RIGHT_COMMAND, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
+import { $createRangeSelection, $createTextNode, $getRoot, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, CLICK_COMMAND, COMMAND_PRIORITY_EDITOR, COMMAND_PRIORITY_LOW, EditorConfig, GridSelection, KEY_ARROW_LEFT_COMMAND, KEY_ARROW_RIGHT_COMMAND, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey, DecoratorNode, } from 'lexical';
 import { useEffect, useRef, useState } from 'react';
@@ -133,9 +133,11 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
       }
 
       // hack to regain selection
-      const mathfieldSelection = mathfield.selection;
-      mathfield.select();
-      mathfield.selection = mathfieldSelection;
+      setTimeout(() => {
+        const mathfieldSelection = mathfield.selection;
+        mathfield.select();
+        mathfield.selection = mathfieldSelection;
+      }, 0);
     }
 
     // higlight the node if within range selection

@@ -103,7 +103,6 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
           <HistoryPlugin externalHistoryState={historyState} />
           <OnChangePlugin ignoreInitialChange ignoreSelectionChange onChange={onChange} />
           {config.debug && <TreeViewPlugin />}
-          <AutoFocusPlugin />
           <CodeHighlightPlugin />
           <ListPlugin />
           <CheckListPlugin />
