@@ -28,7 +28,7 @@ import {
   createEditor,
   DecoratorNode,
 } from 'lexical';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useSharedHistoryContext } from '../../context/SharedHistoryContext';
 import StickyEditorTheme from './StickyEditorTheme';
@@ -38,6 +38,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
+import TextFormatFloatingToolbarPlugin from '../../plugins/TextFormatFloatingToolbarPlugin';
 
 function StickyComponent({
   nodeKey,
@@ -48,26 +49,31 @@ function StickyComponent({
   color: 'pink' | 'yellow';
   nodeKey: NodeKey;
 }): JSX.Element {
-  const [editor] = useLexicalComposerContext();
-  const initialState = data ? editor.parseEditorState(JSON.stringify(data)) : undefined;
+  const [rootEditor] = useLexicalComposerContext();
+  const [isReadOnly, setIsReadOnly] = useState(() => rootEditor.isReadOnly());
+
+  const initialState = data ? rootEditor.parseEditorState(JSON.stringify(data)) : undefined;
 
   const stickyEditor = useRef<LexicalEditor>(createEditor({ editorState: initialState, theme: StickyEditorTheme }));
   const stickyContainerRef = useRef<null | HTMLDivElement>(null);
 
   useEffect(() => {
+    const readOnly = rootEditor.isReadOnly();
+    setIsReadOnly(readOnly);
     const editor = stickyEditor.current;
+    editor.setReadOnly(readOnly);
     if (editor && data) {
       const oldState = editor.getEditorState().toJSON();
       if (JSON.stringify(oldState) === JSON.stringify(data)) return;
-      const newState = stickyEditor.current.parseEditorState(
+      const newState = editor.parseEditorState(
         JSON.stringify(data),
       );
-      stickyEditor.current.setEditorState(newState);
+      editor.setEditorState(newState);
     }
   }, [stickyEditor.current, data]);
 
   const handleDelete = () => {
-    editor.update(() => {
+    rootEditor.update(() => {
       const node = $getNodeByKey(nodeKey);
       if ($isStickyNode(node)) {
         node.remove();
@@ -76,7 +82,7 @@ function StickyComponent({
   };
 
   const handleColorChange = () => {
-    editor.update(() => {
+    rootEditor.update(() => {
       const node = $getNodeByKey(nodeKey);
       if ($isStickyNode(node)) {
         node.toggleColor();
@@ -87,7 +93,7 @@ function StickyComponent({
   const { historyState } = useSharedHistoryContext();
 
   const handleChange = () => {
-    editor.update(() => {
+    rootEditor.update(() => {
       const node = $getNodeByKey(nodeKey);
       if ($isStickyNode(node)) {
         const data = stickyEditor.current.getEditorState().toJSON();
@@ -98,40 +104,20 @@ function StickyComponent({
 
   return (
     <div ref={stickyContainerRef} className="sticky-note-container">
-      <div
-        className={`sticky-note ${color}`}
-        {...{ theme: 'light' }}
-        onPointerDown={(event) => {
-          const stickyContainer = stickyContainerRef.current;
-          if (
-            stickyContainer == null ||
-            event.button === 2 ||
-            event.target !== stickyContainer.firstChild
-          ) {
-            // Right click or click on editor should not work
-            return;
-          }
-          stickyEditor.current.focus();
-        }}>
-        <IconButton sx={{ displayPrint: 'none' }} onClick={handleDelete} className="delete" aria-label="Delete sticky note" title="Delete" color='inherit' size='small'>
-          <DeleteIcon fontSize='inherit' />
-        </IconButton>
-        <IconButton sx={{ displayPrint: 'none' }} className="color" color='inherit' size='small' aria-label="Change sticky note color" title="Color" onClick={handleColorChange}>
-          <FormatPaintIcon fontSize='inherit' />
-        </IconButton>
+      <div className={`sticky-note ${color}`} {...{ theme: 'light' }}>
+        {!isReadOnly && (<>
+          <IconButton sx={{ displayPrint: 'none' }} onClick={handleDelete} className="delete" aria-label="Delete sticky note" title="Delete" color='inherit' size='small'>
+            <DeleteIcon fontSize='inherit' />
+          </IconButton>
+          <IconButton sx={{ displayPrint: 'none' }} className="color" color='inherit' size='small' aria-label="Change sticky note color" title="Color" onClick={handleColorChange}>
+            <FormatPaintIcon fontSize='inherit' />
+          </IconButton>
+        </>)}
         <LexicalNestedComposer initialEditor={stickyEditor.current}>
           <HistoryPlugin externalHistoryState={historyState} />
           <OnChangePlugin ignoreInitialChange ignoreSelectionChange onChange={handleChange} />
-          <RichTextPlugin
-            contentEditable={
-              <ContentEditable className="StickyNode__contentEditable" />
-            }
-            placeholder={
-              <div className="StickyNode__placeholder">
-                What's up?
-              </div>
-            }
-          />
+          <RichTextPlugin contentEditable={<ContentEditable className="StickyNode__contentEditable" />} placeholder="" />
+          <TextFormatFloatingToolbarPlugin />
         </LexicalNestedComposer>
       </div>
     </div >

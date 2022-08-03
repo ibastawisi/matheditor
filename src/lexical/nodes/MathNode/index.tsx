@@ -148,14 +148,17 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
   useEffect(() => {
     const mathfield = ref.current;
     if (!mathfield) return;
+    const readOnly = editor.isReadOnly();
 
-    mathfield.virtualKeyboardMode = editor.isReadOnly() ? "off" : "onfocus";
+    mathfield.virtualKeyboardMode = readOnly ? "off" : "onfocus";
     mathfield.virtualKeyboardTheme = "material";
     mathfield.mathModeSpace = "\\,"
     mathfield.smartMode = true;
     mathfield.keypressSound = "none";
     mathfield.plonkSound = "none";
-    mathfield.readOnly = editor.isReadOnly();
+    mathfield.readOnly = readOnly;
+
+    if (readOnly) return;
 
     mathfield.addEventListener("change", e => {
       setValue(mathfield.value)

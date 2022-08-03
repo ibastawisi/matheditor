@@ -120,6 +120,7 @@ export default function ToolbarPlugin() {
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState<string>('');
+  const [isReadOnly, setIsReadOnly] = useState(() => editor.isReadOnly());
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -189,14 +190,17 @@ export default function ToolbarPlugin() {
   }, [activeEditor]);
 
   useEffect(() => {
-    return editor.registerCommand(
-      SELECTION_CHANGE_COMMAND,
-      (_payload, newEditor) => {
-        updateToolbar();
-        setActiveEditor(newEditor);
-        return false;
-      },
-      COMMAND_PRIORITY_CRITICAL,
+    setIsReadOnly(editor.isReadOnly());
+    return mergeRegister(
+      editor.registerCommand(
+        SELECTION_CHANGE_COMMAND,
+        (_payload, newEditor) => {
+          updateToolbar();
+          setActiveEditor(newEditor);
+          return false;
+        },
+        COMMAND_PRIORITY_CRITICAL,
+      ),
     );
   }, [editor, updateToolbar]);
 
@@ -284,7 +288,7 @@ export default function ToolbarPlugin() {
     ['20px', '20'],
   ];
 
-  if (editor.isReadOnly()) return null;
+  if (isReadOnly) return null;
 
   return (
     <ElevationScroll>
