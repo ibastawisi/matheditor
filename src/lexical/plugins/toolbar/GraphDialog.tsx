@@ -26,7 +26,7 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
       enableLabelDrags: false,
       enableShiftDragZoom: true,
       capturingThreshold: null,
-      showToolBarHelp: false,
+      showToolBarHelp: true,
       errorDialogsActive: true,
       showTutorialLink: true,
       useBrowserForJS: true,

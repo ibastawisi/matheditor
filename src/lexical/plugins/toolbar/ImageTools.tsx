@@ -36,9 +36,8 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
         <ToggleButton value="delete"
           onClick={() => {
             editor.update(() => {
-              const parent = node?.getParentOrThrow();
-              parent?.selectStart();
-              node?.remove();
+              node.selectPrevious();
+              node.remove();
             });
           }}>
           <DeleteIcon />

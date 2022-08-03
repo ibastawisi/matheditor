@@ -6,7 +6,7 @@ body {
 }
 
 .editor-container {
-  margin: 0 auto;
+  margin: 1rem auto 0;
 }
 
 .editor-shell {
@@ -85,7 +85,7 @@ math-field:focus-within {
 
 math-field:empty:not(:focus-within) {
   min-width: 100px;
-  outline: solid 1px;
+  outline: dashed 1px;
   border-radius: 8px;
 }
 
@@ -123,6 +123,9 @@ div.ML__keyboard.material {
 }
 
 @media print {
+  .editor-container {
+    margin-top: 0;
+  }
   *,
   *:before,
   *:after {
