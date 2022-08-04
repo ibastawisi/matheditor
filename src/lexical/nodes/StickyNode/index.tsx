@@ -70,7 +70,7 @@ function StickyComponent({
       );
       editor.setEditorState(newState);
     }
-  }, [stickyEditor.current, data]);
+  }, [stickyEditor, rootEditor, data]);
 
   const handleDelete = () => {
     rootEditor.update(() => {

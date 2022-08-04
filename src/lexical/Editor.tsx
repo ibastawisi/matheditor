@@ -4,7 +4,6 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
-import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";

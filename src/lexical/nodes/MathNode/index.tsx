@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { $createRangeSelection, $createTextNode, $getRoot, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, CLICK_COMMAND, COMMAND_PRIORITY_EDITOR, COMMAND_PRIORITY_LOW, EditorConfig, GridSelection, KEY_ARROW_LEFT_COMMAND, KEY_ARROW_RIGHT_COMMAND, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
+import { $createNodeSelection, $createRangeSelection, $getSelection, $isRangeSelection, $setSelection, COMMAND_PRIORITY_EDITOR, EditorConfig, GridSelection, KEY_ARROW_LEFT_COMMAND, KEY_ARROW_RIGHT_COMMAND, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey, DecoratorNode, } from 'lexical';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 
@@ -34,19 +34,6 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
       editor.registerUpdateListener(({ editorState }) => {
         setSelection(editorState.read(() => $getSelection()));
       }),
-      editor.registerCommand<MouseEvent>(
-        CLICK_COMMAND,
-        (payload) => {
-          const event = payload;
-          if (event.target === ref.current) {
-            clearSelection();
-            setSelected(!isSelected);
-            return true;
-          }
-          return false;
-        },
-        COMMAND_PRIORITY_LOW,
-      ),
       editor.registerCommand<KeyboardEvent>(
         KEY_ARROW_LEFT_COMMAND,
         (event) => {
@@ -65,8 +52,8 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
           const isNextMove = anchorNumber + anchor.offset - 2 === nodeNumber;
 
           if (!isHoldingShift && isAfterNode && isNextMove) {
-            setSelected(true);
-            mathfield?.setCaretPoint(9999, 9999);
+            mathfield?.focus();
+            mathfield?.executeCommand('moveToMathFieldEnd');
             return true;
           }
           return false;
@@ -92,8 +79,8 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
           const isNextMove = focusNumber + focus.offset - textLength + 2 === nodeNumber;
 
           if (!isHoldingShift && isBeforeNode && isNextMove) {
-            setSelected(true);
-            mathfield?.setCaretPoint(0, 0);
+            mathfield?.focus();
+            mathfield?.executeCommand('moveToMathFieldStart');
             return true;
           }
           return false;
@@ -104,10 +91,24 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
   }, []);
 
   useEffect(() => {
+    const mathfield = ref.current;
+    if (!selection && document.activeElement === mathfield) {
+      setSelected(true);
+    }
+  }, [ref, selection, isSelected]);
+
+  useLayoutEffect(() => {
+    const mathfield = ref.current!;
+    const active = isSelected && $isRangeSelection(selection) && selection.getNodes().length > 1;
+    mathfield.classList.toggle("selection-active", active);
+  }, [isSelected, selection]);
+
+  useEffect(() => {
     if (value === initialValue) return;
     editor.update(() => {
       const node = $getNodeByKey(nodeKey);
       if ($isMathNode(node)) {
+        if (value.trim().length === 0) node.remove();
         node.setValue(value);
       }
     });
@@ -121,39 +122,10 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
   useEffect(() => {
     const mathfield = ref.current;
     if (!mathfield) return;
-
-    if (isSelected) {
-      if ($isNodeSelection(selection) || selection === null) {
-        if (!mathfield.hasFocus()) {
-          mathfield.focus();
-          setTimeout(() => {
-            mathfield.executeCommand("showVirtualKeyboard");
-          }, 0);
-        }
-      }
-
-      // hack to regain selection
-      setTimeout(() => {
-        const mathfieldSelection = mathfield.selection;
-        mathfield.select();
-        mathfield.selection = mathfieldSelection;
-      }, 0);
-    }
-
-    // higlight the node if within range selection
-    mathfield.classList.toggle("selection-active", $isRangeSelection(selection) && isSelected);
-
-  }, [isSelected]);
-
-  useEffect(() => {
-    const mathfield = ref.current;
-    if (!mathfield) return;
     const readOnly = editor.isReadOnly();
 
     mathfield.virtualKeyboardMode = readOnly ? "off" : "onfocus";
     mathfield.virtualKeyboardTheme = "material";
-    mathfield.mathModeSpace = "\\,"
-    mathfield.smartMode = true;
     mathfield.keypressSound = "none";
     mathfield.plonkSound = "none";
     mathfield.readOnly = readOnly;
@@ -164,18 +136,42 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
       setValue(mathfield.value)
     }, false);
 
+    if (isSelected && !mathfield.hasFocus()) {
+      mathfield.focus();
+    }
+
     mathfield.addEventListener("focus", event => {
-      const rootElement = editor.getRootElement();
-      const mathfield = ref.current;
-      if (rootElement?.contains(event.target as Node) && event.target === mathfield) {
+      if (event.isTrusted) {
         clearSelection();
-        setSelected(mathfield === document.activeElement);
+        setSelected(true)
+      };
+    });
+
+    // hack to restore cursor focus
+    mathfield.addEventListener("focus", event => {
+      if (event.isTrusted) {
+        setTimeout(() => {
+          const mathfieldSelection = mathfield.selection;
+          mathfield.select();
+          mathfield.selection = mathfieldSelection;
+        }, 0);
+      }
+    });
+
+    mathfield.addEventListener("blur", event => {
+      if (event.isTrusted) {
+        if (mathfield.value.trim().length === 0) {
+          editor.update(() => {
+            const node = $getNodeByKey(nodeKey);
+            if ($isMathNode(node)) {
+              node.remove();
+            }
+          });
+        }
       }
     });
 
     mathfield.addEventListener("move-out", event => {
-      clearSelection();
-
       const direction = event.detail.direction;
       var range = document.createRange();
       var selection = window.getSelection();
@@ -205,6 +201,10 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
         const rangeSelection = $createRangeSelection();
         rangeSelection.applyDOMRange(range);
         $setSelection(rangeSelection);
+        if (mathfield.value.trim().length === 0) {
+          const node = $getNodeByKey(nodeKey);
+          $isMathNode(node) && node.remove();
+        }
       });
     });
 
@@ -267,6 +267,12 @@ export class MathNode extends DecoratorNode<JSX.Element> {
   setValue(value: string): void {
     const writable = this.getWritable();
     writable.__value = value;
+  }
+
+  select() {
+    const nodeSelection = $createNodeSelection();
+    nodeSelection.add(this.getKey());
+    $setSelection(nodeSelection);
   }
 
   decorate(): JSX.Element {

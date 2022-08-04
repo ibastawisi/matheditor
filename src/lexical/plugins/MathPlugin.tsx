@@ -6,7 +6,7 @@
  *
  */
 
- import {$createNodeSelection, $setSelection, LexicalCommand} from 'lexical';
+ import {LexicalCommand} from 'lexical';
  
  import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
  import { $getSelection, $isRangeSelection, COMMAND_PRIORITY_EDITOR, createCommand } from 'lexical';
@@ -38,12 +38,8 @@
          const selection = $getSelection();
          if ($isRangeSelection(selection)) {
            const mathNode = $createMathNode(value);
-           selection.insertText(' ');
            selection.insertNodes([mathNode]);
-           selection.insertText(' ');
-           const nodeSelection = $createNodeSelection();
-           nodeSelection.add(mathNode.getKey());
-           $setSelection(nodeSelection);
+           mathNode.select();
          }
          return true;
        },
