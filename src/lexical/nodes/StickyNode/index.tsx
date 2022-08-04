@@ -39,6 +39,8 @@ import IconButton from '@mui/material/IconButton';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import TextFormatFloatingToolbarPlugin from '../../plugins/TextFormatFloatingToolbarPlugin';
+import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
+import { TRANSFORMERS } from '../../plugins/MarkdownTransforms';
 
 function StickyComponent({
   nodeKey,
@@ -117,6 +119,7 @@ function StickyComponent({
           <HistoryPlugin externalHistoryState={historyState} />
           <OnChangePlugin ignoreInitialChange ignoreSelectionChange onChange={handleChange} />
           <RichTextPlugin contentEditable={<ContentEditable className="StickyNode__contentEditable" />} placeholder="" />
+          <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
           <TextFormatFloatingToolbarPlugin />
         </LexicalNestedComposer>
       </div>
