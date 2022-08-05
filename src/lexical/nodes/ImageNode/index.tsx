@@ -128,8 +128,6 @@ export function ImageComponent({
       const scrollY = window.scrollY;
       rootElement?.focus();
       window.scrollTo(0, scrollY);
-      // const nativeSelection = window.getSelection();
-      // nativeSelection?.removeAllRanges();
       element?.scrollIntoView({ block: 'nearest' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -149,10 +147,9 @@ export function ImageComponent({
           }
           if (event.target === ref.current) {
             clearSelection();
-            setSelected(!isSelected);
+            setSelected(true);
             return true;
           }
-
           return false;
         },
         COMMAND_PRIORITY_LOW,

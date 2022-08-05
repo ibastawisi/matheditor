@@ -51,10 +51,11 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
   useEffect(() => {
     if (node) {
       setElements(node.getValue());
-    } else {
+    }
+    return () => {
       setElements([]);
     }
-  }, [node]);
+  }, [node, open]);
 
   const onChange = (els: ReadonlyArray<ExcalidrawElementFragment>) => {
     setElements(els);
