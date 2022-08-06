@@ -68,14 +68,19 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
               mathfield?.focus();
               mathfield?.executeCommand('moveToMathFieldEnd');
             }
-          } else {
-
           }
         }
       } else {
         if (!selection && document.activeElement === mathfield) {
           setSelected(true);
         }
+      }
+
+      // hack to restore cursor focus
+      if (mathfield?.hasFocus()) {
+        const mathfieldSelection = mathfield.selection;
+        mathfield.select();
+        mathfield.selection = mathfieldSelection;
       }
     });
   }, [ref, selection, isSelected]);
@@ -93,8 +98,11 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
     editor.update(() => {
       const node = $getNodeByKey(nodeKey);
       if ($isMathNode(node)) {
-        if (value.trim().length === 0) node.remove();
         node.setValue(value);
+        if (value.trim().length === 0){
+          node.selectPrevious();
+          node.remove();
+        }
       }
     });
   }, [value]);
@@ -132,17 +140,6 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
       };
     });
 
-    // hack to restore cursor focus
-    mathfield.addEventListener("focus", event => {
-      if (event.isTrusted) {
-        setTimeout(() => {
-          const mathfieldSelection = mathfield.selection;
-          mathfield.select();
-          mathfield.selection = mathfieldSelection;
-        }, 0);
-      }
-    });
-
     mathfield.addEventListener("blur", event => {
       if (event.isTrusted) {
         const rootElement = editor.getRootElement();
@@ -153,6 +150,7 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
           editor.update(() => {
             const node = $getNodeByKey(nodeKey);
             if ($isMathNode(node)) {
+              node.selectPrevious();
               node.remove();
             }
           });

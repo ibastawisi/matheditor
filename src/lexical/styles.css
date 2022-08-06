@@ -122,10 +122,20 @@ div.ML__keyboard.material {
   background-color: #546E7A;
 }
 
+[theme=dark] .ML__keyboard .ML__keyboard--plate div .rows>ul>li aside {
+  color: var(--keycap-text);
+}
+
+.ML__keyboard .ML__keyboard--plate div .rows>ul>li.is-pressed aside,
+.ML__keyboard .ML__keyboard--plate div .rows>ul>li:hover aside {
+  color: var(--keyboard-text-active);
+}
+
 @media print {
   .editor-container {
     margin-top: 0;
   }
+
   *,
   *:before,
   *:after {
