@@ -26,7 +26,9 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
   const [value, setValue] = useState(initialValue);
   const ref = useRef<MathfieldElement>(null);
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
+  const [wasSelected, setWasSelected] = useState(false);
   const [selection, setSelection] = useState<RangeSelection | NodeSelection | GridSelection | null>(null);
+  const previousSelectionRef = useRef<RangeSelection | NodeSelection | GridSelection | null>(null);
 
   useEffect(() => {
     mergeRegister(
@@ -39,34 +41,37 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
   useEffect(() => {
     editor.getEditorState().read(() => {
       const mathfield = ref.current;
-      if ($isRangeSelection(selection)) {
-        const nodes = selection.getNodes();
-        if (!selection.dirty && nodes.length === 1) {
-          const node = nodes[0];
-          const { anchor, focus } = selection;
-          const anchorOffset = +anchor.offset;
-          const focusOffset = +focus.offset;
+      if (!mathfield) return;
+      const selection = $getSelection();
+      const previousSelection = previousSelectionRef.current;
+      if ($isRangeSelection(previousSelection) && $isRangeSelection(selection) && selection.isCollapsed()) {
+        const node = selection.getNodes()[0];
+        const mathNode = $getNodeByKey(nodeKey);
+        if (node.getParent() !== mathNode?.getParent()) return;
+        if (!wasSelected) {
           const currentKey = node.getKey();
           const nextSiblingKey = node.getNextSibling()?.getKey();
           const prevSiblingKey = node.getPreviousSibling()?.getKey();
-          if ($isMathNode(node) && currentKey === nodeKey) {
-            if (anchorOffset === focusOffset) {
-              mathfield?.focus();
-              if (anchorOffset === 0) {
-                mathfield?.executeCommand('moveToMathFieldStart');
-              } else {
-                mathfield?.executeCommand('moveToMathFieldEnd');
-              }
-            }
-          } else if (nextSiblingKey === nodeKey) {
-            if (anchorOffset === focusOffset && anchorOffset === node.getTextContentSize()) {
-              mathfield?.focus();
-              mathfield?.executeCommand('moveToMathFieldStart');
-            }
-          } else if (prevSiblingKey === nodeKey) {
-            if (anchorOffset === focusOffset && anchorOffset === 0) {
-              mathfield?.focus();
-              mathfield?.executeCommand('moveToMathFieldEnd');
+          if (currentKey === nodeKey||nextSiblingKey === nodeKey||prevSiblingKey === nodeKey) {
+            const isDirty = selection.dirty;
+            const anchor = selection.anchor;
+            const anchorType = anchor.type;
+            const anchorOffset = anchor.offset;
+            const anchorNode = anchor.getNode();
+            const prevAnchor = previousSelection.anchor;
+            const prevAnchorType = prevAnchor.type;
+            const prevAnchorOffset = prevAnchor.offset;
+            const offset = isDirty ?
+              prevAnchorType === "element" ?
+                prevAnchorOffset - mathNode.getIndexWithinParent() :
+                anchorNode.isBefore(mathNode) ? anchorOffset - anchorNode.getTextContentSize() : anchorOffset + 2 :
+              anchorType === "element" ?
+                anchorOffset - mathNode.getIndexWithinParent() :
+                anchorNode.isBefore(mathNode) ? anchorOffset - anchorNode.getTextContentSize() : anchorOffset + 1;
+
+            if (offset === 0 || offset === 1) {
+              mathfield.focus();
+              mathfield.executeCommand(offset === 0 ? 'moveToMathFieldStart' : 'moveToMathFieldEnd');
             }
           }
         }
@@ -76,8 +81,11 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
         }
       }
 
+      setWasSelected(isSelected);
+      previousSelectionRef.current = selection;
+
       // hack to restore cursor focus
-      if (mathfield?.hasFocus()) {
+      if (mathfield.hasFocus()) {
         const mathfieldSelection = mathfield.selection;
         mathfield.select();
         mathfield.selection = mathfieldSelection;
@@ -99,7 +107,7 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
       const node = $getNodeByKey(nodeKey);
       if ($isMathNode(node)) {
         node.setValue(value);
-        if (value.trim().length === 0){
+        if (value.trim().length === 0) {
           node.selectPrevious();
           node.remove();
         }
@@ -145,15 +153,6 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
         const rootElement = editor.getRootElement();
         if (rootElement?.contains(event.relatedTarget as HTMLElement)) {
           clearSelection();
-        }
-        if (mathfield.value.trim().length === 0) {
-          editor.update(() => {
-            const node = $getNodeByKey(nodeKey);
-            if ($isMathNode(node)) {
-              node.selectPrevious();
-              node.remove();
-            }
-          });
         }
       }
     });

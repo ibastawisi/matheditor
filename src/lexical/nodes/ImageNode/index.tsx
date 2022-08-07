@@ -15,7 +15,7 @@ import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import { mergeRegister } from '@lexical/utils';
 import { $getNodeByKey, $getSelection, $isNodeSelection, CLICK_COMMAND, COMMAND_PRIORITY_LOW, DecoratorNode, KEY_BACKSPACE_COMMAND, KEY_DELETE_COMMAND, } from 'lexical';
 
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import ImageResizer from './ImageResizer';
 
@@ -58,6 +58,7 @@ function LazyImage({
   src,
   width,
   height,
+  onLoad,
 }: {
   altText: string;
   className: string | null;
@@ -65,6 +66,7 @@ function LazyImage({
   imageRef: { current: null | HTMLImageElement };
   src: string;
   width: 'inherit' | number;
+  onLoad: () => void;
 }): JSX.Element {
   useSuspenseImage(src);
   return (
@@ -78,6 +80,7 @@ function LazyImage({
         width,
       }}
       draggable="false"
+      onLoad={onLoad}
     />
   );
 }
@@ -122,16 +125,9 @@ export function ImageComponent({
   );
 
   useEffect(() => {
-    if (isSelected) {
-      const element = ref.current;
-      const rootElement = editor.getRootElement();
-      const scrollY = window.scrollY;
-      rootElement?.focus();
-      window.scrollTo(0, scrollY);
-      element?.scrollIntoView({ block: 'nearest' });
-    }
+    onLoad();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSelected]);
+  }, [isSelected, ref]);
 
   useEffect(() => {
     mergeRegister(
@@ -220,6 +216,22 @@ export function ImageComponent({
     setIsResizing(true);
   };
 
+  const onLoad = () => {
+    if (isSelected) {
+      editor.getEditorState().read(() => {
+        const selection = $getSelection();
+        if (!$isRangeSelection(selection)) {
+          const rootElement = editor.getRootElement();
+          rootElement?.focus();
+          const nativeSelection = window.getSelection();
+          nativeSelection?.removeAllRanges();
+          const element = ref.current;
+          element?.scrollIntoView({ block: 'nearest' });
+        }
+      });
+    }
+  }
+
   const draggable = isSelected && $isNodeSelection(selection);
   const isFocused = $isNodeSelection(selection) && (isSelected || isResizing);
 
@@ -232,6 +244,7 @@ export function ImageComponent({
             src={src}
             altText={altText}
             imageRef={ref}
+            onLoad={onLoad}
             width={width}
             height={height}
           />
@@ -247,6 +260,7 @@ export function ImageComponent({
       </>
     </Suspense>
   );
+
 }
 
 export type SerializedImageNode = Spread<
