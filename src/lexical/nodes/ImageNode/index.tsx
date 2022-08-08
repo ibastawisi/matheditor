@@ -15,7 +15,7 @@ import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import { mergeRegister } from '@lexical/utils';
 import { $getNodeByKey, $getSelection, $isNodeSelection, CLICK_COMMAND, COMMAND_PRIORITY_LOW, DecoratorNode, KEY_BACKSPACE_COMMAND, KEY_DELETE_COMMAND, } from 'lexical';
 
-import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import ImageResizer from './ImageResizer';
 

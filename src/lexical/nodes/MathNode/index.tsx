@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { $createNodeSelection, $createRangeSelection, $getSelection, $isRangeSelection, $setSelection, EditorConfig, GridSelection, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
+import { $createNodeSelection, $createRangeSelection, $getSelection, $isRangeSelection, $setSelection, COMMAND_PRIORITY_LOW, EditorConfig, GridSelection, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SELECTION_CHANGE_COMMAND, SerializedLexicalNode, Spread, } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey, DecoratorNode, } from 'lexical';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 
@@ -25,81 +25,73 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
   const [editor] = useLexicalComposerContext();
   const [value, setValue] = useState(initialValue);
   const ref = useRef<MathfieldElement>(null);
-  const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
-  const [wasSelected, setWasSelected] = useState(false);
   const [selection, setSelection] = useState<RangeSelection | NodeSelection | GridSelection | null>(null);
-  const previousSelectionRef = useRef<RangeSelection | NodeSelection | GridSelection | null>(null);
+  const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
 
   useEffect(() => {
-    mergeRegister(
+    return mergeRegister(
       editor.registerUpdateListener(({ editorState }) => {
         setSelection(editorState.read(() => $getSelection()));
       }),
+      editor.registerCommand(SELECTION_CHANGE_COMMAND, () => {
+        if (isSelected) return false;
+
+        const selection = $getSelection();
+        if (!$isRangeSelection(selection) || !selection.isCollapsed()) return false;
+
+        const node = selection.getNodes()[0];
+        const nextSibling = node.getNextSibling();
+        const previousSibling = node.getPreviousSibling();
+        const currentKey = node.getKey();
+        const nextSiblingKey = nextSibling?.getKey();
+
+        const prevSiblingKey = previousSibling?.getKey();
+        if (!$isMathNode(node) && !$isMathNode(nextSibling) && !$isMathNode(previousSibling)) return false;
+        if (currentKey !== nodeKey && nextSiblingKey !== nodeKey && prevSiblingKey !== nodeKey) return false;
+
+        const mathNode = $getNodeByKey(nodeKey)!;
+        const anchor = selection.anchor;
+        const anchorOffset = anchor.offset;
+        const anchorNode = anchor.getNode();
+
+        const isParentAnchor = anchorNode === mathNode.getParent();
+        const indexWithinParent = mathNode.getIndexWithinParent();
+
+        const offset = isParentAnchor ? anchorOffset - indexWithinParent :
+          anchorNode.isBefore(mathNode) ? anchorOffset - anchorNode.getTextContentSize() : anchorOffset + 1;
+
+        // console.group(`Mathfield ${nodeKey} offset: ${offset}`);
+        // console.log(`anchor ${anchorNode.getKey()} offset: ${anchorOffset}`);
+        // console.log(`isParentAnchor: ${isParentAnchor} indexWithinParent: ${indexWithinParent} isSelected: ${isSelected}`);
+        // console.groupEnd();
+
+        if (offset === 0 || offset === 1) {
+          const mathfield = ref.current!;
+          mathfield.focus();
+          mathfield.executeCommand(offset === 0 ? 'moveToMathFieldStart' : 'moveToMathFieldEnd');
+          // console.log(`------------------------------ focus mathfield ${nodeKey} ------------------------------`);
+          return true;
+        }
+
+        return false;
+      }, COMMAND_PRIORITY_LOW),
     );
-  }, []);
+  }, [isSelected]);
 
   useEffect(() => {
-    editor.getEditorState().read(() => {
-      const mathfield = ref.current;
-      if (!mathfield) return;
-      const selection = $getSelection();
-      const previousSelection = previousSelectionRef.current;
-      if ($isRangeSelection(previousSelection) && $isRangeSelection(selection) && selection.isCollapsed()) {
-        const node = selection.getNodes()[0];
-        const mathNode = $getNodeByKey(nodeKey);
-        if (node.getParent() !== mathNode?.getParent()) return;
-        if (!wasSelected) {
-          const currentKey = node.getKey();
-          const nextSiblingKey = node.getNextSibling()?.getKey();
-          const prevSiblingKey = node.getPreviousSibling()?.getKey();
-          if (currentKey === nodeKey||nextSiblingKey === nodeKey||prevSiblingKey === nodeKey) {
-            const isDirty = selection.dirty;
-            const anchor = selection.anchor;
-            const anchorType = anchor.type;
-            const anchorOffset = anchor.offset;
-            const anchorNode = anchor.getNode();
-            const prevAnchor = previousSelection.anchor;
-            const prevAnchorType = prevAnchor.type;
-            const prevAnchorOffset = prevAnchor.offset;
-            const offset = isDirty ?
-              prevAnchorType === "element" ?
-                prevAnchorOffset - mathNode.getIndexWithinParent() :
-                anchorNode.isBefore(mathNode) ? anchorOffset - anchorNode.getTextContentSize() : anchorOffset + 2 :
-              anchorType === "element" ?
-                anchorOffset - mathNode.getIndexWithinParent() :
-                anchorNode.isBefore(mathNode) ? anchorOffset - anchorNode.getTextContentSize() : anchorOffset + 1;
+    const mathfield = ref.current;
+    if (!mathfield) return;
+    const active = isSelected && $isRangeSelection(selection);
+    mathfield.classList.toggle("selection-active", active);
 
-            if (offset === 0 || offset === 1) {
-              mathfield.focus();
-              mathfield.executeCommand(offset === 0 ? 'moveToMathFieldStart' : 'moveToMathFieldEnd');
-            }
-          }
-        }
-      } else {
-        if (!selection && document.activeElement === mathfield) {
-          setSelected(true);
-        }
-      }
-
-      setWasSelected(isSelected);
-      previousSelectionRef.current = selection;
-
-      // hack to restore cursor focus
-      if (mathfield.hasFocus()) {
-        const mathfieldSelection = mathfield.selection;
-        mathfield.select();
-        mathfield.selection = mathfieldSelection;
-      }
-    });
-  }, [ref, selection, isSelected]);
-
-  useLayoutEffect(() => {
-    editor.getEditorState().read(() => {
-      const mathfield = ref.current!;
-      const active = isSelected && $isRangeSelection(selection);
-      mathfield.classList.toggle("selection-active", active);
-    });
-  }, [isSelected, selection]);
+    // hack to restore focus
+    if (!selection && document.activeElement === mathfield) setSelected(true);
+    if (mathfield.hasFocus()) {
+      const mathfieldSelection = mathfield.selection;
+      mathfield.select();
+      mathfield.selection = mathfieldSelection;
+    }
+  }, [ref, isSelected, selection]);
 
   useEffect(() => {
     if (value === initialValue) return;

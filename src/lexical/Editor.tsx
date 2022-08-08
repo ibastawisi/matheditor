@@ -4,6 +4,7 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
+import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
@@ -48,6 +49,7 @@ import "./styles.css";
 import { SxProps, Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import { validate } from 'uuid';
+import { useState } from 'react';
 
 const editorConfig = {
   namespace: "matheditor",
@@ -80,16 +82,14 @@ const editorConfig = {
 };
 
 const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefined, readOnly?: boolean }> = ({ document, sx, readOnly }) => {
-
+  const [initialized, setInitialized] = useState(false);
   const { historyState } = useSharedHistoryContext();
   const config = useSelector((state: RootState) => state.app.config.editor);
   const dispatch = useDispatch<AppDispatch>();
 
   function onChange(editorState: EditorState, editor: LexicalEditor) {
+    if (!initialized) return setInitialized(true);
     const serializedEditorState = editor.getEditorState().toJSON();
-    if (JSON.stringify(serializedEditorState) === JSON.stringify(document.data)) {
-      return;
-    }
     validate(document.id) && dispatch(actions.app.saveDocument(serializedEditorState));
   }
 
@@ -100,13 +100,12 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
         <div className="editor-inner">
           <RichTextPlugin contentEditable={<ContentEditable className="editor-input" />} placeholder="" />
           <HistoryPlugin externalHistoryState={historyState} />
-          <OnChangePlugin ignoreInitialChange ignoreSelectionChange onChange={onChange} />
+          <OnChangePlugin ignoreSelectionChange onChange={onChange} />
           {config.debug && <TreeViewPlugin />}
-          <CodeHighlightPlugin />
+          <AutoFocusPlugin />
           <ListPlugin />
           <CheckListPlugin />
           <LinkPlugin />
-          <AutoLinkPlugin />
           <ListMaxIndentLevelPlugin maxDepth={7} />
           <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
           <TextFormatFloatingToolbarPlugin />
@@ -119,6 +118,10 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
           <SketchPlugin />
           <GraphPlugin />
           <StickyPlugin />
+          {initialized && <>
+            <CodeHighlightPlugin />
+            <AutoLinkPlugin />
+          </>}
         </div>
       </Box>
     </LexicalComposer>
