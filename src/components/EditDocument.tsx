@@ -16,6 +16,7 @@ const EditDocument: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const loadDocument = async (id: string) => {
       // load from local storage
       const storedDocument = window.localStorage.getItem(id);

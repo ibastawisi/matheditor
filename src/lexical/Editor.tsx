@@ -1,23 +1,18 @@
+import { memo, useEffect, useState } from 'react';
 import { LexicalEditor, EditorState } from 'lexical';
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
-import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
+import { useSharedHistoryContext } from "./context/SharedHistoryContext";
+
+import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
-import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
-import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
-import { ListItemNode, ListNode } from "@lexical/list";
-import { CodeHighlightNode, CodeNode } from "@lexical/code";
-import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
-import { HorizontalRuleNode } from "@lexical/react/LexicalHorizontalRuleNode";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { TRANSFORMERS } from "./plugins/MarkdownTransforms";
-
-import { useSharedHistoryContext } from "./context/SharedHistoryContext";
 import TreeViewPlugin from "./plugins/TreeViewPlugin";
 import ToolbarPlugin from "./plugins/toolbar/ToolbarPlugin";
 import ListMaxIndentLevelPlugin from "./plugins/ListMaxIndentLevelPlugin";
@@ -27,28 +22,35 @@ import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableCellResizer from './plugins/TableCellResizer';
 import TextFormatFloatingToolbarPlugin from "./plugins/TextFormatFloatingToolbarPlugin";
 import HorizontalRulePlugin from "./plugins/HorizontalRulePlugin";
-import { MathNode } from "./nodes/MathNode";
 import MathPlugin from "./plugins/MathPlugin";
-import { ImageNode } from "./nodes/ImageNode";
 import ImagePlugin from "./plugins/ImagePlugin";
-import { SketchNode } from './nodes/SketchNode';
 import SketchPlugin from './plugins/SketchPlugin';
-import { GraphNode } from './nodes/GraphNode';
 import GraphPlugin from './plugins/GraphPlugin';
-import { StickyNode } from './nodes/StickyNode';
 import StickyPlugin from './plugins/StickyPlugin';
 
+import { HeadingNode, QuoteNode } from "@lexical/rich-text";
+import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
+import { ListItemNode, ListNode } from "@lexical/list";
+import { CodeHighlightNode, CodeNode } from "@lexical/code";
+import { AutoLinkNode, LinkNode } from "@lexical/link";
+import { HorizontalRuleNode } from "@lexical/react/LexicalHorizontalRuleNode";
+import { MathNode } from "./nodes/MathNode";
+import { ImageNode } from "./nodes/ImageNode";
+import { SketchNode } from './nodes/SketchNode';
+import { GraphNode } from './nodes/GraphNode';
+import { StickyNode } from './nodes/StickyNode';
+
 import { useDispatch, useSelector } from "react-redux";
+import { validate } from 'uuid';
 import { AppDispatch, RootState } from "../store";
 import { actions } from "../slices";
 import { EditorDocument } from "../slices/app";
 
+import Box from '@mui/material/Box';
+import { SxProps, Theme } from '@mui/material/styles';
+import SplashScreen from '../components/SplachScreen';
 import theme from "./theme";
 import "./styles.css";
-import { SxProps, Theme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import { validate } from 'uuid';
-import { memo, useState } from 'react';
 
 const editorConfig = {
   namespace: "matheditor",
@@ -87,42 +89,47 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
   const dispatch = useDispatch<AppDispatch>();
 
   function onChange(editorState: EditorState, editor: LexicalEditor) {
-    if (!initialized) return setInitialized(true);
-    const serializedEditorState = editor.getEditorState().toJSON();
-    validate(document.id) && dispatch(actions.app.saveDocument(serializedEditorState));
+    const data = editorState.toJSON();
+    if (JSON.stringify(data) === JSON.stringify(document.data)) return;
+    validate(document.id) && dispatch(actions.app.saveDocument(data));
   }
 
+  useEffect(() => { setInitialized(true); }, []);
+
   return (
-    <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(document.data), readOnly }}>
-      <Box className="editor-shell" sx={sx}>
-        <ToolbarPlugin />
-        <div className="editor-inner">
-          <RichTextPlugin contentEditable={<ContentEditable className="editor-input" />} placeholder="" />
-          <HistoryPlugin externalHistoryState={historyState} />
-          <OnChangePlugin ignoreSelectionChange onChange={onChange} />
-          {config.debug && <TreeViewPlugin />}
-          <ListPlugin />
-          <CheckListPlugin />
-          <LinkPlugin />
-          <ListMaxIndentLevelPlugin maxDepth={7} />
-          <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
-          <TextFormatFloatingToolbarPlugin />
-          <HorizontalRulePlugin />
-          <TablePlugin />
-          <TableCellActionMenuPlugin />
-          <TableCellResizer />
-          <MathPlugin />
-          <ImagePlugin />
-          <SketchPlugin />
-          <GraphPlugin />
-          <StickyPlugin />
-          {initialized && <>
-            <CodeHighlightPlugin />
-            <AutoLinkPlugin />
-          </>}
-        </div>
-      </Box>
-    </LexicalComposer>
+    <>
+      {!initialized && <SplashScreen title='Loading Editor' />}
+      <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(document.data), readOnly }}>
+        <Box className="editor-shell" sx={sx}>
+          <ToolbarPlugin />
+          <div className="editor-inner">
+            <RichTextPlugin contentEditable={<ContentEditable className="editor-input" />} placeholder="" />
+            <HistoryPlugin externalHistoryState={historyState} />
+            <OnChangePlugin ignoreSelectionChange onChange={onChange} />
+            {config.debug && <TreeViewPlugin />}
+            <ListPlugin />
+            <CheckListPlugin />
+            <LinkPlugin />
+            <ListMaxIndentLevelPlugin maxDepth={7} />
+            <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
+            <TextFormatFloatingToolbarPlugin />
+            <HorizontalRulePlugin />
+            <TablePlugin />
+            <TableCellActionMenuPlugin />
+            <TableCellResizer />
+            <MathPlugin />
+            <ImagePlugin />
+            <SketchPlugin />
+            <GraphPlugin />
+            <StickyPlugin />
+            {initialized && <>
+              <CodeHighlightPlugin />
+              <AutoLinkPlugin />
+            </>}
+          </div>
+        </Box>
+      </LexicalComposer>
+    </>
   );
 }
 

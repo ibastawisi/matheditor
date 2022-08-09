@@ -41,6 +41,7 @@ const Documents: React.FC = () => {
 
   // temporary workaround for migrating timestamps to ISO strings
   useEffect(() => {
+    window.scrollTo(0, 0);
     documents.forEach(key => {
       const document = JSON.parse(localStorage.getItem(key) || "{}");
       if (document.createdAt && document.updatedAt) return;
