@@ -76,17 +76,8 @@ math-field {
   white-space: initial;
   word-break: initial;
   max-width: calc(100vw - 52px);
-  user-select: none;
-}
-
-math-field:focus-within {
   outline: none;
-}
-
-math-field:empty:not(:focus-within) {
-  min-width: 100px;
-  outline: dashed 1px;
-  border-radius: 8px;
+  user-select: none;
 }
 
 [theme=light] math-field.selection-active {

@@ -302,7 +302,7 @@ function printNode(node: LexicalNode) {
   }
   if ($isMathNode(node)) {
     const value = node.getValue();
-    return value;
+    return `"${value}"`;
   }
   return '';
 }

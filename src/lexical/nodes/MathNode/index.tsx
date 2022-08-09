@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { $createNodeSelection, $createRangeSelection, $getSelection, $isRangeSelection, $setSelection, COMMAND_PRIORITY_LOW, EditorConfig, GridSelection, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SELECTION_CHANGE_COMMAND, SerializedLexicalNode, Spread, } from 'lexical';
+import { $createNodeSelection, $createRangeSelection, $getSelection, $isDecoratorNode, $isRangeSelection, $setSelection, COMMAND_PRIORITY_LOW, EditorConfig, GridSelection, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SELECTION_CHANGE_COMMAND, SerializedLexicalNode, Spread, } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey, DecoratorNode, } from 'lexical';
 import { useEffect, useRef, useState } from 'react';
@@ -23,10 +23,10 @@ type MathComponentProps = { initialValue: string; nodeKey: NodeKey; };
 
 function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Element {
   const [editor] = useLexicalComposerContext();
-  const [value, setValue] = useState(initialValue);
   const ref = useRef<MathfieldElement>(null);
   const [selection, setSelection] = useState<RangeSelection | NodeSelection | GridSelection | null>(null);
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
+  const [wasBlured, setWasBlured] = useState(false);
 
   useEffect(() => {
     return mergeRegister(
@@ -34,7 +34,7 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
         setSelection(editorState.read(() => $getSelection()));
       }),
       editor.registerCommand(SELECTION_CHANGE_COMMAND, () => {
-        if (isSelected) return false;
+        if (wasBlured) return false;
 
         const selection = $getSelection();
         if (!$isRangeSelection(selection) || !selection.isCollapsed()) return false;
@@ -44,7 +44,6 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
         const previousSibling = node.getPreviousSibling();
         const currentKey = node.getKey();
         const nextSiblingKey = nextSibling?.getKey();
-
         const prevSiblingKey = previousSibling?.getKey();
         if (!$isMathNode(node) && !$isMathNode(nextSibling) && !$isMathNode(previousSibling)) return false;
         if (currentKey !== nodeKey && nextSiblingKey !== nodeKey && prevSiblingKey !== nodeKey) return false;
@@ -60,23 +59,17 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
         const offset = isParentAnchor ? anchorOffset - indexWithinParent :
           anchorNode.isBefore(mathNode) ? anchorOffset - anchorNode.getTextContentSize() : anchorOffset + 1;
 
-        // console.group(`Mathfield ${nodeKey} offset: ${offset}`);
-        // console.log(`anchor ${anchorNode.getKey()} offset: ${anchorOffset}`);
-        // console.log(`isParentAnchor: ${isParentAnchor} indexWithinParent: ${indexWithinParent} isSelected: ${isSelected}`);
-        // console.groupEnd();
-
         if (offset === 0 || offset === 1) {
           const mathfield = ref.current!;
           mathfield.focus();
           mathfield.executeCommand(offset === 0 ? 'moveToMathFieldStart' : 'moveToMathFieldEnd');
-          // console.log(`------------------------------ focus mathfield ${nodeKey} ------------------------------`);
           return true;
         }
 
         return false;
       }, COMMAND_PRIORITY_LOW),
     );
-  }, [isSelected]);
+  }, [wasBlured]);
 
   useEffect(() => {
     const mathfield = ref.current;
@@ -94,49 +87,42 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
   }, [ref, isSelected, selection]);
 
   useEffect(() => {
-    if (value === initialValue) return;
-    editor.update(() => {
-      const node = $getNodeByKey(nodeKey);
-      if ($isMathNode(node)) {
-        node.setValue(value);
-        if (value.trim().length === 0) {
-          node.selectPrevious();
-          node.remove();
-        }
-      }
-    });
-  }, [value]);
-
-  useEffect(() => {
-    if (value === initialValue) return;
-    setValue(initialValue);
-  }, [initialValue]);
-
-  useEffect(() => {
     const mathfield = ref.current;
     if (!mathfield) return;
-    const readOnly = editor.isReadOnly();
+    mathfield.setValue(initialValue, { suppressChangeNotifications: true });
 
+    const readOnly = editor.isReadOnly();
     mathfield.virtualKeyboardMode = readOnly ? "off" : "onfocus";
     mathfield.virtualKeyboardTheme = "material";
+    mathfield.mathModeSpace = "\\,";
     mathfield.keypressSound = "none";
     mathfield.plonkSound = "none";
     mathfield.readOnly = readOnly;
 
     if (readOnly) return;
 
-    mathfield.addEventListener("change", e => {
-      setValue(mathfield.value)
-    }, false);
-
+    // focus newly created mathfield
     if (isSelected && !mathfield.hasFocus()) {
       mathfield.focus();
     }
 
+    mathfield.addEventListener("change", e => {
+      editor.update(() => {
+        const value = mathfield.getValue();
+        const node = $getNodeByKey(nodeKey);
+        if (!$isMathNode(node)) return;
+        node.setValue(value);
+        if (value.trim().length === 0) {
+          node.selectPrevious();
+          node.remove();
+        }
+      });
+    }, false);
+
     mathfield.addEventListener("focus", event => {
       if (event.isTrusted) {
         clearSelection();
-        setSelected(true)
+        setSelected(true);
       };
     });
 
@@ -145,6 +131,8 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
         const rootElement = editor.getRootElement();
         if (rootElement?.contains(event.relatedTarget as HTMLElement)) {
           clearSelection();
+          setWasBlured(true);
+          setTimeout(() => setWasBlured(false), 100);
         }
       }
     });
@@ -188,7 +176,7 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
 
   }, [ref]);
 
-  return <math-field id={`mfe-${nodeKey}`} ref={ref}>{value}</math-field>;
+  return <math-field id={`mfe-${nodeKey}`} ref={ref} />;
 }
 
 export type SerializedMathNode = Spread<{ type: 'math'; value: string; }, SerializedLexicalNode>;

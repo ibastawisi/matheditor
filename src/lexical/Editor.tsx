@@ -4,7 +4,6 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
@@ -49,7 +48,7 @@ import "./styles.css";
 import { SxProps, Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import { validate } from 'uuid';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 
 const editorConfig = {
   namespace: "matheditor",
@@ -102,7 +101,6 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
           <HistoryPlugin externalHistoryState={historyState} />
           <OnChangePlugin ignoreSelectionChange onChange={onChange} />
           {config.debug && <TreeViewPlugin />}
-          <AutoFocusPlugin />
           <ListPlugin />
           <CheckListPlugin />
           <LinkPlugin />
@@ -128,4 +126,4 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
   );
 }
 
-export default Editor;
+export default memo(Editor, (prev, next) => prev.document.id === next.document.id);
