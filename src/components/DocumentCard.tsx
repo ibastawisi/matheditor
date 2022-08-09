@@ -18,7 +18,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
 
-const DocumentCard: React.FC<{ document: EditorDocument }> = ({ document }) => {
+const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data"> }> = ({ document }) => {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.app.user);
   const cloudDocument = user?.documents?.find(d => d.id === document.id);
@@ -26,7 +26,8 @@ const DocumentCard: React.FC<{ document: EditorDocument }> = ({ document }) => {
 
   const handleUpload = async () => {
     if (isUpToDate) return;
-    await dispatch(actions.app.uploadDocumentAsync(document));
+    const storedDocument: EditorDocument = JSON.parse(localStorage.getItem(document.id) || "{}");
+    await dispatch(actions.app.uploadDocumentAsync(storedDocument));
   };
 
   const handleShare = async () => {

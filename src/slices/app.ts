@@ -9,7 +9,7 @@ import { RootState } from '../store';
 export interface AppState {
   announcement: Announcement | null;
   editor: EditorDocument;
-  documents: string[];
+  documents: Omit<EditorDocument, "data">[];
   user: User | null;
   ui: {
     isLoading: boolean;
@@ -43,7 +43,7 @@ export interface User {
 const initialState: AppState = {
   announcement: null,
   editor: {} as EditorDocument,
-  documents: [] as string[],
+  documents: [] as Omit<EditorDocument, "data">[],
   user: null,
   ui: {
     isLoading: true,
@@ -136,7 +136,13 @@ export const appSlice = createSlice({
   initialState,
   reducers: {
     load: (state) => {
-      state.documents = Object.keys({ ...localStorage }).filter((key: string) => validate(key));
+      state.documents = Object.keys({ ...localStorage })
+        .filter((key: string) => validate(key))
+        .map((key: string) => {
+          const { data, ...userDocument } = JSON.parse(localStorage.getItem(key) as string);
+          return userDocument;
+        })
+        .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
       state.editor = JSON.parse(localStorage.getItem('editor') || '{}');
       try {
         const localConfig = localStorage.getItem('config')
@@ -148,8 +154,11 @@ export const appSlice = createSlice({
     loadDocument: (state, action: PayloadAction<EditorDocument>) => {
       state.editor = action.payload;
       window.localStorage.setItem("editor", JSON.stringify(action.payload));
-      if (!state.documents.includes(action.payload.id)) {
-        state.documents.push(action.payload.id);
+      if (!state.documents.find(d => d.id === action.payload.id)) {
+        const documents = state.documents.filter(d => d.id !== action.payload.id);
+        const { data, ...userDocument } = action.payload;
+        documents.unshift(userDocument);
+        state.documents = documents;
         localStorage.setItem(action.payload.id, JSON.stringify(action.payload));
       }
     },
@@ -161,10 +170,11 @@ export const appSlice = createSlice({
     },
     addDocument: (state, action: PayloadAction<EditorDocument>) => {
       window.localStorage.setItem(action.payload.id, JSON.stringify(action.payload));
-      !state.documents.includes(action.payload.id) && state.documents.push(action.payload.id);
+      const { data, ...userDocument } = action.payload;
+      state.documents.unshift(userDocument);
     },
     deleteDocument: (state, action: PayloadAction<string>) => {
-      state.documents = state.documents.filter(key => key !== action.payload);
+      state.documents = state.documents.filter(d => d.id !== action.payload);
       if (state.editor.id === action.payload) {
         state.editor = { ...initialState.editor };
         window.localStorage.removeItem("editor");

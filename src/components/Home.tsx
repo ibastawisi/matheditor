@@ -5,12 +5,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
 import { Navigate, useNavigate } from "react-router-dom";
-import { RootState } from "../store";
 
 const Home: React.FC = () => {
-  const editor = useSelector((state: RootState) => state.app.editor);
   const welcomed = localStorage.getItem("welcomed") === "true";
   const navigate = useNavigate();
 
@@ -29,7 +26,7 @@ const Home: React.FC = () => {
   };
 
   if (welcomed) {
-    return <Navigate to={editor.id ? `/edit/${editor.id}` : "/open"} />;
+    return <Navigate to="/open" />;
   }
 
   return (

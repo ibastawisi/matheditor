@@ -39,23 +39,6 @@ const Documents: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // temporary workaround for migrating timestamps to ISO strings
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    documents.forEach(key => {
-      const document = JSON.parse(localStorage.getItem(key) || "{}");
-      if (document.createdAt && document.updatedAt) return;
-      if (document.timestamp) {
-        document.createdAt = document.updatedAt = new Date(document.timestamp).toISOString();
-        localStorage.setItem(key, JSON.stringify(document));
-        return;
-      }
-      document.createdAt = document.updatedAt = new Date().toISOString();
-      localStorage.setItem(key, JSON.stringify(document));
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const handleFilesChange = async (files: FileList | File[] | null) => {
     if (!files?.length) return;
     if (files.length === 1) {
@@ -98,7 +81,7 @@ const Documents: React.FC = () => {
   }
 
   function addDocument(document: EditorDocument) {
-    if (documents.includes(document.id)) {
+    if (documents.find(d => d.id === document.id)) {
       dispatch(actions.app.announce({ message: "Updating existing document: " + document.name }));
       dispatch(actions.app.deleteDocument(document.id));
     }
@@ -161,8 +144,8 @@ const Documents: React.FC = () => {
         </Box>
         <Grid container spacing={2}>
           <Grid item xs={12}><PlaygroundCard /></Grid>
-          {documents.map(key => <Grid item key={key} xs={12} sm={6} md={4}>
-            <DocumentCard document={JSON.parse(localStorage.getItem(key) || "")} />
+          {documents.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
+            <DocumentCard document={document} />
           </Grid>)}
         </Grid>
       </Box>
@@ -173,13 +156,13 @@ const Documents: React.FC = () => {
           </Typography>
           <UserCard user={user} />
         </Box>
-        <Grid container spacing={2}>
-          {user?.documents.filter(document => !documents.includes(document.id)).map((document) =>
+        {user && <Grid container spacing={2}>
+          {user.documents.filter(d => !Object.keys({ ...localStorage }).includes(d.id)).map((document) =>
             <Grid item key={document.id} xs={12} sm={6} md={4}>
               <CloudDocumentCard document={document} />
             </Grid>
           )}
-        </Grid>
+        </Grid>}
       </Box>
     </>
   )

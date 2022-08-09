@@ -56,9 +56,11 @@ const NewDocument: React.FC = () => {
               {
                 type: 'text',
                 text: name || 'New Document',
-                mode: "normal",
               }
             ]
+          },
+          {
+            type: 'paragraph',
           }
         ],
       }
