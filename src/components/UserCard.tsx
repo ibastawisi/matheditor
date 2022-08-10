@@ -13,7 +13,7 @@ import Skeleton from '@mui/material/Skeleton';
 import { BACKEND_URL } from '../config';
 import GoogleIcon from '@mui/icons-material/Google';
 
-export default function UserCard({ user }: { user: User | null }) {
+export default function UserCard({ user }: { user?: User }) {
   const dispatch = useDispatch<AppDispatch>();
 
   const login = async () => {

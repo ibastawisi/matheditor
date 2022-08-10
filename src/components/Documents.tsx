@@ -8,23 +8,22 @@ import Button from "@mui/material/Button";
 import React, { useEffect } from "react";
 import { actions } from "../slices";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
-import NewIcon from '@mui/icons-material/AddCircle';
 import StorageIcon from '@mui/icons-material/Storage';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { EditorDocument } from "../slices/app";
 import { validate } from "uuid";
 
-import templates from "../templates";
-import TemplateCard from "./TemplateCard";
 import PlaygroundCard from "./PlaygroundCard";
-import CloudDocumentCard from "./CloudDocumentCard";
 import UserCard from "./UserCard";
+import Avatar from "@mui/material/Avatar";
+import PostAddIcon from '@mui/icons-material/PostAdd';
 
 const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.app.documents);
   const user = useSelector((state: RootState) => state.app.user);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const cloudDocuments = user?.documents.filter(d => !Object.keys({ ...localStorage }).includes(d.id));
 
   useEffect(() => {
     if ("launchQueue" in window && "LaunchParams" in window) {
@@ -111,55 +110,47 @@ const Documents: React.FC = () => {
 
   return (
     <>
-      <Box sx={{ textAlign: 'center', my: 3 }}>
-        <Typography variant="h6" component="h2" sx={{ textAlign: 'center', my: 2 }}>
-          Create a new document
-        </Typography>
-        <Button sx={{ mx: 1 }} variant="outlined" startIcon={<NewIcon />} component={RouterLink} to="/new">
-          Blank
-        </Button>
-        <Button sx={{ mx: 1 }} variant="outlined" startIcon={<UploadFileIcon />} component="label">
-          Upload
-          <input type="file" hidden accept=".me" multiple onChange={e => handleFilesChange(e.target.files)} />
-        </Button>
-      </Box>
-      <Box sx={{ my: 3 }}>
-        <Typography variant="h6" component="h2" sx={{ my: 2 }}>
-          Get started with a template
-        </Typography>
-        <Grid container spacing={2}>
-          {Object.keys(templates).map(key => <Grid item key={key} xs={12} sm={6} md={4}>
-            <TemplateCard template={templates[key]} />
-          </Grid>)}
-        </Grid>
+      <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5 }}>
+        <Avatar sx={{ my: 2, bgcolor: 'primary.main' }}><PostAddIcon /></Avatar>
+        <Button variant="outlined" component={RouterLink} to="/new">New document</Button>
       </Box>
       <Box sx={{ my: 3 }}>
         <Box sx={{ display: "flex", justifyContent: 'space-between', my: 2 }}>
-          <Typography variant="h6" component="h2">
-            Load from storage
-          </Typography>
-          <Button variant="outlined" startIcon={<StorageIcon />} onClick={backup}>
-            Backup
-          </Button>
+          <Typography variant="h6" component="h2">Recent</Typography>
+          <Box>
+            <Button sx={{ mr: 1 }} variant="outlined" startIcon={<UploadFileIcon />} component="label">
+              Import
+              <input type="file" hidden accept=".me" multiple onChange={e => handleFilesChange(e.target.files)} />
+            </Button>
+            <Button variant="outlined" startIcon={<StorageIcon />} onClick={backup}>
+              Backup
+            </Button>
+          </Box>
         </Box>
         <Grid container spacing={2}>
           <Grid item xs={12}><PlaygroundCard /></Grid>
           {documents.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
-            <DocumentCard document={document} />
+            <DocumentCard document={document} variant="local" />
           </Grid>)}
         </Grid>
       </Box>
       <Box sx={{ my: 3 }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', my: 2 }}>
           <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-            Load from cloud
+            Cloud
           </Typography>
-          <UserCard user={user} />
+          {!user && <UserCard />}
         </Box>
         {user && <Grid container spacing={2}>
-          {user.documents.filter(d => !Object.keys({ ...localStorage }).includes(d.id)).map((document) =>
+          {!cloudDocuments?.length &&
+            <Grid item xs={12}>
+              <Typography variant="overline" component="p" sx={{ textAlign: "center" }}>
+                {!user.documents.length ? "No documents found" : "All documents are already synced"}
+              </Typography>
+            </Grid>}
+          {cloudDocuments?.map((document) =>
             <Grid item key={document.id} xs={12} sm={6} md={4}>
-              <CloudDocumentCard document={document} />
+              <DocumentCard document={document} variant="cloud" />
             </Grid>
           )}
         </Grid>}

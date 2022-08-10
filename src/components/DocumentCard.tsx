@@ -18,7 +18,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
 
-const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data"> }> = ({ document }) => {
+const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 'local' | 'cloud' }> = ({ document, variant }) => {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.app.user);
   const cloudDocument = user?.documents?.find(d => d.id === document.id);
@@ -31,7 +31,7 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data"> }> = ({ do
   };
 
   const handleShare = async () => {
-    if (!isUpToDate) {
+    if (variant === "local" && !isUpToDate) {
       await handleUpload();
     };
 
@@ -47,12 +47,28 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data"> }> = ({ do
     }
   };
 
-  const handleDelete = () => {
-    window.confirm("Are you sure you want to delete this document?") && dispatch(actions.app.deleteDocument(document.id));
+  const handleDelete = async () => {
+    if (window.confirm(`Are you sure you want to delete this ${variant} document?`)) {
+      variant === "local" ? dispatch(actions.app.deleteDocument(document.id)) :
+        dispatch(actions.app.deleteDocumentAsync(document.id));
+    }
   };
 
-  const handleSave = () => {
-    const blob = new Blob([JSON.stringify(document)], { type: "text/json" });
+  const getPayload = async () => {
+    switch (variant) {
+      case "local":
+        return localStorage.getItem(document.id);
+      case "cloud":
+        const { payload } = await dispatch(actions.app.getDocumentAsync(document.id));
+        if (!payload) return;
+        return JSON.stringify(payload);
+    }
+  }
+
+  const handleSave = async () => {
+    const payload = await getPayload();
+    if (!payload) return dispatch(actions.app.announce({ message: "Can't find document data" }));
+    const blob = new Blob([payload], { type: "text/json" });
     const link = window.document.createElement("a");
 
     link.download = document.name + ".me";
@@ -83,17 +99,15 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data"> }> = ({ do
         <Button size="small" startIcon={<DeleteForever color="error" />} onClick={handleDelete}>
           Delete
         </Button>
-        <IconButton size="medium" aria-label="Download" sx={{ ml: "auto !important" }} color="inherit" onClick={handleSave}>
+        <IconButton sx={{ ml: "auto !important" }} size="medium" aria-label="Share" color="inherit" onClick={handleUpload} disabled={!user || variant === "cloud"}>
+          {isUpToDate ? <CloudDoneIcon color='success' /> : <CloudUploadIcon />}
+        </IconButton>
+        <IconButton size="medium" aria-label="Share" color="inherit" onClick={handleShare} disabled={!user}>
+          <ShareIcon />
+        </IconButton>
+        <IconButton size="medium" aria-label="Download" color="inherit" onClick={handleSave}>
           <DownloadIcon />
         </IconButton>
-        {user && <>
-          <IconButton size="medium" aria-label="Share" color="inherit" onClick={handleShare}>
-            <ShareIcon />
-          </IconButton>
-          <IconButton size="medium" aria-label="Share" color="inherit" onClick={handleUpload}>
-            {isUpToDate ? <CloudDoneIcon color='success' /> : <CloudUploadIcon />}
-          </IconButton>
-        </>}
       </CardActions>
     </Card>
   );

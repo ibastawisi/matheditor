@@ -94,7 +94,10 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
     validate(document.id) && dispatch(actions.app.saveDocument(data));
   }
 
-  useEffect(() => { setInitialized(true); }, []);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    setInitialized(true);
+  }, []);
 
   return (
     <>
