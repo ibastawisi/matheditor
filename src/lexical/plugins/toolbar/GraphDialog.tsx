@@ -47,7 +47,7 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
     parameters.appName = type === GraphType["2D"] ? 'suite' : '3d';
 
     const applet = new (window as any).GGBApplet(parameters, '5.0');
-    applet.setHTML5Codebase('/GeoGebra/HTML5/5.0/web3d/');
+    applet.setHTML5Codebase('/geogebra/HTML5/5.0/web3d/');
     applet.inject(container);
 
     window.addEventListener('resize', () => {
