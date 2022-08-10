@@ -91,6 +91,39 @@ math-field {
 }
 
 /* mathlive virtula keyboard styles */
+.ML__keyboard {
+  --keycap-height: 52px !important;
+  --keyboard-height: 290px !important;
+}
+
+.ML__keyboard .ML__keyboard--plate {
+  width: 100%;
+  height: var(--keyboard-height);
+}
+
+.ML__keyboard .ML__keyboard--plate>div.keyboard-layer {
+  height: 100%;
+}
+
+.ML__keyboard .ML__keyboard--plate div .rows>ul {
+  height: var(--keycap-height) !important;
+  margin: 0 0 8px !important;
+}
+
+.ML__keyboard .ML__keyboard--plate div .rows>ul>li {
+  height: var(--keycap-height) !important;
+}
+
+.ML__keyboard .ML__keyboard--plate div .rows>ul>li.separator:first-child {
+  display: none;
+}
+
+@media (max-width: 414px) {
+  .ML__keyboard .ML__keyboard--plate div .rows>ul>.w5 {
+    width: 8px !important;
+  }
+}
+
 div.ML__keyboard.material {
   z-index: 9999;
 }
@@ -100,7 +133,7 @@ div.ML__keyboard.material {
 }
 
 [theme=dark] div.ML__keyboard.material {
-  --keyboard-background: hsla(var(--hue, 212), 19%, 18%, 95%) !important;
+  --keyboard-background: hsla(var(--hue, 212), 19%, 18%, 98%) !important;
   --keycap-background-active: #FAFAFA !important;
 }
 
