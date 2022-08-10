@@ -69,10 +69,22 @@ registerRoute(
   })
 );
 
+// cache mathlive assets
+registerRoute(
+  // Add in any other file extensions or routing criteria as needed.
+  ({ url }) => url.origin === self.location.origin && url.pathname.startsWith('/mathlive'),
+  new CacheFirst({
+    cacheName: 'mathlive',
+    plugins: [
+      new ExpirationPlugin({ maxEntries: 50 }),
+    ],
+  })
+);
+
 // cache GeoGebra bundle
 registerRoute(
   // Add in any other file extensions or routing criteria as needed.
-  ({ url }) => url.origin === self.location.origin && url.pathname.startsWith('/GeoGebra'),
+  ({ url }) => url.origin === self.location.origin && url.pathname.startsWith('/geogebra'),
   new CacheFirst({
     cacheName: 'geogebra',
     plugins: [

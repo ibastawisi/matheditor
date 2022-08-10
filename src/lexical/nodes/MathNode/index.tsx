@@ -7,7 +7,6 @@ import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import { mergeRegister } from '@lexical/utils';
 
 import { MathfieldElement } from "mathlive";
-import 'mathlive/dist/mathlive-fonts.css';
 import 'mathlive/dist/mathlive.min';
 
 declare global {
@@ -176,7 +175,10 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
 
   }, [ref]);
 
-  return <math-field id={`mfe-${nodeKey}`} ref={ref} />;
+  return <math-field id={`mfe-${nodeKey}`} ref={ref} {...{
+    "fonts-directory": "../../mathlive/fonts",
+    "sounds-directory": "../../mathlive/sounds",
+  }} />;
 }
 
 export type SerializedMathNode = Spread<{ type: 'math'; value: string; }, SerializedLexicalNode>;
