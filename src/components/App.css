@@ -10,14 +10,11 @@ body {
 
 .splash-screen {
   position: fixed;
-  top: 64px;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 1100;
 }
 
 [theme=light] .splash-screen {

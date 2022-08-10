@@ -27,7 +27,7 @@ const NewDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const params = useParams<{ id: string }>();
-  const [tempelateKey, setTempelateKey] = React.useState<string | null>(null);
+  const [templateKey, setTemplateKey] = React.useState<string | null>(null);
 
   useEffect(() => {
     if (params.id) {
@@ -51,7 +51,7 @@ const NewDocument: React.FC = () => {
   }, [params.id]);
 
 
-  const blankTempelate = (name?: string): SerializedEditorState => {
+  const blankTemplate = (name?: string): SerializedEditorState => {
     const editorState: any = {
       root: {
         type: "root",
@@ -81,7 +81,7 @@ const NewDocument: React.FC = () => {
     const document: EditorDocument = {
       id: uuidv4(),
       name: documentName,
-      data: tempelateKey ? templates[tempelateKey].data : blankTempelate(documentName),
+      data: templateKey ? templates[templateKey].data : blankTemplate(documentName),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
@@ -102,27 +102,27 @@ const NewDocument: React.FC = () => {
           <TextField margin="normal" size="small" required fullWidth id="fileName" label="Document Name" name="fileName" autoComplete="fileName" autoFocus />
           <Accordion variant="outlined" sx={{ my: 1 }}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ minHeight: 38, '.MuiAccordionSummary-content': { my: 0 } }}>
-              <Typography>Templates</Typography>
+              <Typography>Template: {templateKey ? templates[templateKey].name : "Blank"}</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <Grid container spacing={1}>
                 <Grid item xs={12}>
                   <Button fullWidth variant="outlined" sx={{
                     p: 1,
-                    color: tempelateKey === null ? 'success.main' : 'primary.main',
-                    borderColor: tempelateKey === null ? 'success.main' : 'primary.main',
+                    color: templateKey === null ? 'success.main' : 'primary.main',
+                    borderColor: 'inherit !important',
                   }}
-                    onClick={() => setTempelateKey(null)}>
+                    onClick={() => setTemplateKey(null)}>
                     Blank
                   </Button>
                 </Grid>
                 {Object.keys(templates).map(key => <Grid item key={key} xs={12}>
                   <Button fullWidth variant="outlined" sx={{
                     p: 1,
-                    color: tempelateKey === key ? 'success.main' : 'primary.main',
-                    borderColor: tempelateKey === key ? 'success.main' : 'primary.main',
+                    color: templateKey === key ? 'success.main' : 'primary.main',
+                    borderColor: 'inherit !important',
                   }}
-                    onClick={() => setTempelateKey(key)}>
+                    onClick={() => setTemplateKey(key)}>
                     {templates[key].name}
                   </Button>
                 </Grid>)}

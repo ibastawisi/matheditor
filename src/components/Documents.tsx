@@ -134,8 +134,8 @@ const Documents: React.FC = () => {
           </Grid>)}
         </Grid>
       </Box>
-      <Box sx={{ my: 3 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', my: 2 }}>
+      <Box sx={{ my: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
             Cloud
           </Typography>

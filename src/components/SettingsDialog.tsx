@@ -51,8 +51,7 @@ export default function SettingsDialog({ open, onClose }: { open: boolean; onClo
         {"Editor Configuration"}
       </DialogTitle>
       <DialogContent>
-        {user && <UserCard user={user} />}
-
+        <UserCard user={user} />
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <FormControlLabel control={<Switch name='editor.debug' checked={formData.editor.debug} onChange={updateSwitchFormData} />} label="Show Debug View" />
         </Box>

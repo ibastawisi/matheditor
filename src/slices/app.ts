@@ -167,6 +167,10 @@ export const appSlice = createSlice({
       state.editor.updatedAt = new Date().toISOString();
       window.localStorage.setItem("editor", JSON.stringify(state.editor));
       window.localStorage.setItem(state.editor.id, JSON.stringify(state.editor));
+      const userDocument = state.documents.find(d => d.id === state.editor.id);
+      if (userDocument) {
+        userDocument.updatedAt = state.editor.updatedAt;
+      }
     },
     addDocument: (state, action: PayloadAction<EditorDocument>) => {
       window.localStorage.setItem(action.payload.id, JSON.stringify(action.payload));
