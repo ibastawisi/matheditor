@@ -87,9 +87,9 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
   useEffect(() => {
     const mathfield = ref.current;
     if (!mathfield) return;
-    mathfield.setValue(initialValue, { suppressChangeNotifications: true });
 
     const readOnly = editor.isReadOnly();
+    mathfield.setValue(initialValue, { suppressChangeNotifications: true });
     mathfield.virtualKeyboardMode = readOnly ? "off" : "onfocus";
     mathfield.virtualKeyboardTheme = "material";
     mathfield.mathModeSpace = "\\,";
@@ -174,7 +174,7 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
 
   }, [ref]);
 
-  return <math-field id={`mfe-${nodeKey}`} ref={ref} />;
+  return <math-field id={`mfe-${nodeKey}`} ref={ref} {...{ "read-only": true }} />;
 }
 
 export type SerializedMathNode = Spread<{ type: 'math'; value: string; }, SerializedLexicalNode>;
