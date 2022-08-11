@@ -6,7 +6,6 @@ import IconButton from '@mui/material/IconButton';
 import PrintIcon from '@mui/icons-material/Print';
 import Fab from '@mui/material/Fab';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import OpenIcon from '@mui/icons-material/FolderOpen';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Zoom from '@mui/material/Zoom';
@@ -54,7 +53,7 @@ function ScrollTop({ children }: { children: React.ReactElement }) {
       <Box
         onClick={handleClick}
         role="presentation"
-        sx={{ position: 'fixed', bottom: 24, right: 16, zIndex: 1200, displayPrint: "none" }}
+        sx={{ position: 'fixed', bottom: 24, right: 16, zIndex: 1100, displayPrint: "none" }}
       >
         {children}
       </Box>
@@ -82,8 +81,6 @@ const TopAppBar: React.FC<{}> = () => {
     setSettingsOpen(false);
   };
 
-  const showPrint = location.pathname.startsWith('/view') || location.pathname.startsWith("/edit") || location.pathname.startsWith("/playground");
-
   return (
     <>
       <LoadingBar className='loading-bar' style={{ position: 'fixed' }} />
@@ -106,13 +103,9 @@ const TopAppBar: React.FC<{}> = () => {
             <IconButton onClick={colorMode.toggleColorMode} color="inherit">
               {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
-            <IconButton aria-label="Load" color="inherit" component={RouterLink} to="/open">
-              <OpenIcon />
-            </IconButton>
-            {showPrint && <IconButton aria-label="Print" color="inherit" onClick={window.print}>
+            {location.pathname !== "/" && <IconButton aria-label="Print" color="inherit" onClick={window.print}>
               <PrintIcon />
-            </IconButton>
-            }
+            </IconButton>}
           </Toolbar>
         </AppBar>
       </HideOnScroll>

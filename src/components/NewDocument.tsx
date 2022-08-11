@@ -30,23 +30,18 @@ const NewDocument: React.FC = () => {
   const [templateKey, setTemplateKey] = React.useState<string | null>(null);
 
   useEffect(() => {
-    if (params.id) {
-      (async () => {
-        const { payload } = await dispatch(actions.app.getDocumentAsync(params.id!));
-        if (!payload) return;
-
-        try {
-          const document = payload;
-          document.id = uuidv4();
-          document.createdAt = Date.now();
-          document.updatedAt = document.createdAt;
-          dispatch(actions.app.loadDocument(document));
-          navigate(`/edit/${document.id}`);
-        } catch (error) {
-          dispatch(actions.app.announce({ message: "Invalid document data" }));
-        }
-      })();
-    }
+    const forkDocument = async (id: string) => {
+      const response = await dispatch(actions.app.getDocumentAsync(id));
+      const { payload, error } = response as any;
+      if (error) return;
+      const document = payload;
+      document.id = uuidv4();
+      document.createdAt = Date.now();
+      document.updatedAt = document.createdAt;
+      dispatch(actions.app.loadDocument(document));
+      navigate(`/edit/${document.id}`);
+    };
+    params.id && forkDocument(params.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 

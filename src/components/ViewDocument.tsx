@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { actions } from "../slices";
 import { AppDispatch } from "../store";
-import { useNavigate, useParams, Link as RouterLink } from "react-router-dom";
+import { useParams, Link as RouterLink } from "react-router-dom";
 import Editor from "../lexical/Editor";
 
 import SplashScreen from "./SplachScreen";
@@ -17,7 +17,6 @@ import { Transition } from 'react-transition-group';
 const ViewDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const params = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [document, setDocument] = useState<EditorDocument | null>(null);
   const slideTrigger = useScrollTrigger({
     disableHysteresis: true,
@@ -33,21 +32,12 @@ const ViewDocument: React.FC = () => {
         setDocument(editorDocument);
       } else {
         // load from server
-        const { payload } = await dispatch(actions.app.getDocumentAsync(id));
-        if (!payload) return;
-        setDocument(payload);
+        const response = await dispatch(actions.app.getDocumentAsync(id));
+        const { payload, error } = response as any;
+        if (!error) setDocument(payload);
       }
     }
-    if (params.id) {
-      try {
-        loadDocument(params.id);
-      } catch (error) {
-        dispatch(actions.app.announce({ message: "No document with this id was found" }));
-        setTimeout(() => { navigate("/open"); }, 3000);
-      }
-    } else {
-      navigate("/open");
-    }
+    params.id && loadDocument(params.id);
   }, []);
 
   if (!document) {

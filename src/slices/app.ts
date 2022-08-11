@@ -62,10 +62,8 @@ export const loadUserAsync = createAsyncThunk('app/loadUser', async (_, thunkAPI
     const response = await getAuthenticatedUser()
     return response
   } catch (error: any) {
-    const message = error.response?.data.error || error.message;
-    thunkAPI.dispatch(hideLoading())
-    thunkAPI.dispatch(appSlice.actions.announce({ message }))
-    return thunkAPI.rejectWithValue(error.error);
+    const message = error.response?.data?.error || error.message;
+    return thunkAPI.rejectWithValue(message);
   } finally {
     thunkAPI.dispatch(hideLoading())
   }
@@ -77,9 +75,8 @@ export const logoutAsync = createAsyncThunk('app/logout', async (_, thunkAPI) =>
     const response = await logout();
     return response;
   } catch (error: any) {
-    const message = error.response?.data.error || error.message;
-    thunkAPI.dispatch(appSlice.actions.announce({ message }))
-    return thunkAPI.rejectWithValue(error.error);
+    const message = error.response?.data?.error || error.message;
+    return thunkAPI.rejectWithValue(message);
   } finally {
     thunkAPI.dispatch(hideLoading())
   }
@@ -91,9 +88,8 @@ export const getDocumentAsync = createAsyncThunk('app/getDocument', async (id: s
     const response = await getDocument(id);
     return response;
   } catch (error: any) {
-    const message = error.response?.data.error || error.message;
-    thunkAPI.dispatch(appSlice.actions.announce({ message }))
-    return thunkAPI.rejectWithValue(error.error);
+    const message: string = error.response?.data?.error || error.message;
+    return thunkAPI.rejectWithValue(message);
   } finally {
     thunkAPI.dispatch(hideLoading())
   }
@@ -109,9 +105,8 @@ export const uploadDocumentAsync = createAsyncThunk('app/uploadDocument', async 
     thunkAPI.fulfillWithValue(userDocument);
     return userDocument;
   } catch (error: any) {
-    const message = error.response?.data.error || error.message;
-    thunkAPI.dispatch(appSlice.actions.announce({ message }))
-    return thunkAPI.rejectWithValue(error.error);
+    const message: string = error.response?.data?.error || error.message;
+    return thunkAPI.rejectWithValue(message);
   } finally {
     thunkAPI.dispatch(hideLoading())
   }
@@ -123,9 +118,8 @@ export const deleteDocumentAsync = createAsyncThunk('app/deleteDocument', async 
     await deleteDocument(id);
     return id;
   } catch (error: any) {
-    const message = error.response?.data.error || error.message;
-    thunkAPI.dispatch(appSlice.actions.announce({ message }))
-    return thunkAPI.rejectWithValue(error.error);
+    const message = error.response?.data?.error || error.message;
+    return thunkAPI.rejectWithValue(message);
   } finally {
     thunkAPI.dispatch(hideLoading())
   }
@@ -207,16 +201,28 @@ export const appSlice = createSlice({
       .addCase(logoutAsync.fulfilled, (state, action) => {
         state.user = null;
       })
+      .addCase(getDocumentAsync.rejected, (state, action) => {
+        const message = action.payload as string;
+        state.announcement = { message }
+      })
       .addCase(uploadDocumentAsync.fulfilled, (state, action) => {
         if (state.user && action.payload) {
           state.user.documents = state.user.documents.filter(doc => doc.id !== action.payload!.id);
           state.user.documents.unshift(action.payload);
         }
       })
+      .addCase(uploadDocumentAsync.rejected, (state, action) => {
+        const message = action.payload as string;
+        state.announcement = { message }
+      })
       .addCase(deleteDocumentAsync.fulfilled, (state, action) => {
         if (state.user) {
           state.user.documents = state.user.documents.filter(doc => doc.id !== action.payload);
         }
+      })
+      .addCase(deleteDocumentAsync.rejected, (state, action) => {
+        const message = action.payload as string;
+        state.announcement = { message }
       })
   }
 });

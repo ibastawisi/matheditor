@@ -6,7 +6,6 @@ import Announcer from './Announcer';
 import { Route, Routes } from "react-router-dom";
 import TopAppBar from './TopAppBar';
 import Footer from './Footer';
-import Documents from './Documents';
 import Home from './Home';
 import NewDocument from './NewDocument';
 import ThemeProvider from './ThemeProvider';
@@ -48,15 +47,11 @@ function App() {
           <Route path="/new" element={<NewDocument />}>
             <Route path=":id" element={<NewDocument />} />
           </Route>
-          <Route path="/edit" element={<EditDocument />} >
-            <Route path=":id" element={<EditDocument />} />
-          </Route>
-          <Route path="/view" element={<ViewDocument />} >
-            <Route path=":id" element={<ViewDocument />} />
-          </Route>
-          <Route path="open" element={<Documents />} />
+          <Route path="/edit/:id" element={<EditDocument />} />
+          <Route path="/view/:id" element={<ViewDocument />} />
           <Route path="playground" element={<Playground />} />
           <Route path="privacy" element={<Privacy />} />
+          <Route path="*" element={<Home />} />
         </Routes>
       </Container>
       <Footer />
