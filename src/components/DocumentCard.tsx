@@ -6,8 +6,6 @@ import Avatar from '@mui/material/Avatar';
 import { Link as RouterLink } from 'react-router-dom';
 import { EditorDocument } from '../slices/app';
 import ArticleIcon from '@mui/icons-material/Article';
-import Button from '@mui/material/Button';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { AppDispatch, RootState } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
 import { actions } from '../slices';
@@ -17,6 +15,7 @@ import DeleteForever from '@mui/icons-material/DeleteForever';
 import ShareIcon from '@mui/icons-material/Share';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
+import CardActionArea from '@mui/material/CardActionArea';
 
 const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 'local' | 'cloud' }> = ({ document, variant }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -87,25 +86,26 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
 
   return (
     <Card variant="outlined">
-      <CardHeader
-        avatar={
-          <Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>
-        }
-        action={<Button startIcon={<OpenInNewIcon />} component={RouterLink} to={`/edit/${document.id}`}>Open</Button>}
-        title={document.name}
-        subheader={new Date(document.createdAt).toLocaleDateString()}
-      />
+      <CardActionArea component={RouterLink} to={`/edit/${document.id}`}>
+        <CardHeader
+          title={document.name}
+          subheader={new Date(document.createdAt).toLocaleDateString()}
+          avatar={
+            <Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>
+          }
+        />
+      </CardActionArea>
       <CardActions>
-        <Button size="small" startIcon={<DeleteForever color="error" />} onClick={handleDelete}>
-          Delete
-        </Button>
-        <IconButton sx={{ ml: "auto !important" }} size="medium" aria-label="Share" color="inherit" onClick={handleUpload} disabled={!user || variant === "cloud"}>
-          {isUpToDate ? <CloudDoneIcon color='success' /> : <CloudUploadIcon />}
+        <IconButton size="small" aria-label="Delete" color="error" onClick={handleDelete}>
+          <DeleteForever />
         </IconButton>
-        <IconButton size="medium" aria-label="Share" color="inherit" onClick={handleShare} disabled={!user}>
+        <IconButton sx={{ ml: "auto !important" }} size="small" aria-label="Upload" color={isUpToDate ? "success" : "default"} onClick={handleUpload} disabled={!user || variant === "cloud"}>
+          {isUpToDate ? <CloudDoneIcon /> : <CloudUploadIcon />}
+        </IconButton>
+        <IconButton size="small" aria-label="Share" onClick={handleShare} disabled={!user}>
           <ShareIcon />
         </IconButton>
-        <IconButton size="medium" aria-label="Download" color="inherit" onClick={handleSave}>
+        <IconButton size="small" aria-label="Download" onClick={handleSave}>
           <DownloadIcon />
         </IconButton>
       </CardActions>

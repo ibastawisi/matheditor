@@ -210,7 +210,7 @@ export const appSlice = createSlice({
       .addCase(uploadDocumentAsync.fulfilled, (state, action) => {
         if (state.user && action.payload) {
           state.user.documents = state.user.documents.filter(doc => doc.id !== action.payload!.id);
-          state.user.documents.push(action.payload);
+          state.user.documents.unshift(action.payload);
         }
       })
       .addCase(deleteDocumentAsync.fulfilled, (state, action) => {
