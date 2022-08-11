@@ -26,7 +26,7 @@ export default function UserCard({ user }: { user?: User | null }) {
   }
 
   return (
-    <Card sx={{ display: 'flex', justifyContent: 'space-between', alignSelf: [null, 'center'] }}>
+    <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between'}}>
       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
         <CardContent sx={{ flex: '1 0 auto' }}>
           <Typography component="div" variant="h5">

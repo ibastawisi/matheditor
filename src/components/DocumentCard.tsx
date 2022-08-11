@@ -58,9 +58,9 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
       case "local":
         return localStorage.getItem(document.id);
       case "cloud":
-        const { payload } = await dispatch(actions.app.getDocumentAsync(document.id));
-        if (!payload) return;
-        return JSON.stringify(payload);
+        const response = await dispatch(actions.app.getDocumentAsync(document.id));
+        const { payload, error } = response as any;
+        if (!error) return JSON.stringify(payload);
     }
   }
 

@@ -136,12 +136,10 @@ const Documents: React.FC = () => {
         </Grid>
       </Box>
       <Box sx={{ my: 2 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-            Cloud
-          </Typography>
-          {!user && <UserCard />}
-        </Box>
+        <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+          Cloud
+        </Typography>
+        {!user && <UserCard />}
         {user && <Grid container spacing={2}>
           {!cloudDocuments?.length &&
             <Grid item xs={12}>

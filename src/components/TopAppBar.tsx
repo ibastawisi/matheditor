@@ -17,12 +17,11 @@ import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import { ColorModeContext } from './ThemeProvider';
 import useTheme from '@mui/material/styles/useTheme';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import SettingsIcon from '@mui/icons-material/Settings';
 import SettingsDialog from './SettingsDialog';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import Avatar from '@mui/material/Avatar';
-import { BACKEND_URL } from '../config';
 import LoadingBar from 'react-redux-loading-bar'
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
@@ -68,11 +67,6 @@ const TopAppBar: React.FC<{}> = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const user = useSelector((state: RootState) => state.app.user);
 
-  const login = async () => {
-    const googleLoginURL = BACKEND_URL + "/auth/login";
-    window.open(googleLoginURL, "_blank", "width=500,height=600");
-  };
-
   const openSettingsDialog = () => {
     setSettingsOpen(true);
   };
@@ -94,12 +88,9 @@ const TopAppBar: React.FC<{}> = () => {
               </Box>
             </Link>
             <Box sx={{ flexGrow: 1 }} />
-            {user ? <IconButton onClick={openSettingsDialog} size="small">
-              <Avatar alt={user.name} src={user.picture} sx={{ width: 30, height: 30 }} />
-            </IconButton> :
-              <IconButton aria-label="account of current user" onClick={login} color="inherit">
-                <ManageAccountsIcon />
-              </IconButton>}
+            <IconButton onClick={openSettingsDialog} color="inherit">
+              {user ? <Avatar alt={user.name} src={user.picture} sx={{ width: 30, height: 30 }} />: <SettingsIcon />}
+            </IconButton>
             <IconButton onClick={colorMode.toggleColorMode} color="inherit">
               {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
