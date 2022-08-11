@@ -24,6 +24,7 @@ const Documents: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const cloudDocuments = user?.documents.filter(d => !Object.keys({ ...localStorage }).includes(d.id));
+  const sortByDate = (documents: Omit<EditorDocument, "data">[]) => [...documents].sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
 
   useEffect(() => {
     if ("launchQueue" in window && "LaunchParams" in window) {
@@ -129,7 +130,7 @@ const Documents: React.FC = () => {
         </Box>
         <Grid container spacing={2}>
           <Grid item xs={12}><PlaygroundCard /></Grid>
-          {documents.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
+          {sortByDate(documents).map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
             <DocumentCard document={document} variant="local" />
           </Grid>)}
         </Grid>
@@ -148,7 +149,7 @@ const Documents: React.FC = () => {
                 {!user.documents.length ? "No documents found" : "All documents are already synced"}
               </Typography>
             </Grid>}
-          {cloudDocuments?.map((document) =>
+          {cloudDocuments && sortByDate(cloudDocuments).map((document) =>
             <Grid item key={document.id} xs={12} sm={6} md={4}>
               <DocumentCard document={document} variant="cloud" />
             </Grid>
