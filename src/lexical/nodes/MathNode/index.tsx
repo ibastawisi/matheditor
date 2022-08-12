@@ -97,6 +97,9 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
     mathfield.plonkSound = "none";
     mathfield.readOnly = readOnly;
 
+    const shadowStyle = mathfield.shadowRoot?.querySelector('style');
+    shadowStyle?.append('.ML__fieldcontainer{ min-height: unset !important; }')
+
     if (readOnly) return;
 
     // focus newly created mathfield
@@ -140,20 +143,15 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
       var range = document.createRange();
       var selection = window.getSelection();
       const span = mathfield.parentElement!;
-      const paragraph = span.parentElement!;
 
       switch (direction) {
         case "backward":
+        case "upward":
           range.setStartBefore(span);
           break;
         case "forward":
-          range.setStartAfter(span);
-          break;
-        case "upward":
-          range.setStartBefore(paragraph);
-          break;
         case "downward":
-          range.setStartAfter(paragraph);
+          range.setStartAfter(span);
           break;
       }
 

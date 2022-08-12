@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import { v4 as uuidv4 } from "uuid";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import TextField from '@mui/material/TextField';
@@ -13,80 +13,40 @@ import { EditorDocument } from "../slices/app";
 import { useDispatch } from "react-redux";
 import { actions } from "../slices";
 import { AppDispatch } from "../store";
-import { useEffect } from "react";
-import SplashScreen from "./SplachScreen";
-import { SerializedEditorState } from "lexical";
-import Grid from "@mui/material/Grid";
-import templates from "../templates";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from '@mui/material/AccordionDetails';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { SerializedEditorState } from "lexical/LexicalEditorState";
 
 const NewDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const params = useParams<{ id: string }>();
-  const [templateKey, setTemplateKey] = React.useState<string | null>(null);
+  const location = useLocation();
 
-  useEffect(() => {
-    const forkDocument = async (id: string) => {
-      const response = await dispatch(actions.app.getDocumentAsync(id));
-      const { payload, error } = response as any;
-      if (error) return;
-      const document = payload;
-      document.id = uuidv4();
-      document.createdAt = Date.now();
-      document.updatedAt = document.createdAt;
-      dispatch(actions.app.loadDocument(document));
-      navigate(`/edit/${document.id}`);
-    };
-    params.id && forkDocument(params.id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.id]);
-
-
-  const blankTemplate = (name?: string): SerializedEditorState => {
-    const editorState: any = {
-      root: {
-        type: "root",
-        children: [
-          {
-            type: 'heading', "format": "center", "tag": "h2",
-            children: [
-              {
-                type: 'text',
-                text: name || 'New Document',
-              }
-            ]
-          },
-          {
-            type: 'paragraph',
-          }
-        ],
-      }
-    };
-    return editorState;
+  const getData = async (name: string) => {
+    if (params.id) {
+      const locationData = (location.state as { data: SerializedEditorState } | null)?.data;
+      if (locationData) return locationData;
+      const localData = JSON.parse(window.localStorage.getItem(params.id) || '{}').data;
+      if (localData) return localData;
+      const { payload } = await dispatch(actions.app.getDocumentAsync(params.id));
+      const cloudData = payload.data;
+      if (cloudData) return cloudData;
+    } else {
+      const newData = { root: { type: "root", children: [{ type: 'heading', "format": "center", "tag": "h2", children: [{ type: 'text', text: name }] }, { type: 'paragraph' }] } };
+      return newData;
+    }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const documentName = formData.get("fileName") as string;
-    const document: EditorDocument = {
-      id: uuidv4(),
-      name: documentName,
-      data: templateKey ? templates[templateKey].data : blankTemplate(documentName),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
+    const name = formData.get("fileName") as string || 'Untitled Document';
+    const data = await getData(name);
+    const createdAt = new Date().toISOString();
+    if (!data) return;
+    const document: EditorDocument = { id: uuidv4(), name, data, createdAt, updatedAt: createdAt };
     window.localStorage.setItem(document.id, JSON.stringify(document));
     navigate(`/edit/${document.id}`);
   };
-
-  if (params.id) {
-    return <SplashScreen title="Loading Document" />
-  }
 
   return (
     <Container maxWidth="xs">
@@ -94,36 +54,7 @@ const NewDocument: React.FC = () => {
         <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>
         <Typography component="h1" variant="h5">Create a new document</Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-          <TextField margin="normal" size="small" required fullWidth id="fileName" label="Document Name" name="fileName" autoComplete="fileName" autoFocus />
-          <Accordion variant="outlined" sx={{ my: 1 }}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ minHeight: 38, '.MuiAccordionSummary-content': { my: 0 } }}>
-              <Typography>Template: {templateKey ? templates[templateKey].name : "Blank"}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Grid container spacing={1}>
-                <Grid item xs={12}>
-                  <Button fullWidth variant="outlined" sx={{
-                    p: 1,
-                    color: templateKey === null ? 'success.main' : 'primary.main',
-                    borderColor: 'inherit !important',
-                  }}
-                    onClick={() => setTemplateKey(null)}>
-                    Blank
-                  </Button>
-                </Grid>
-                {Object.keys(templates).map(key => <Grid item key={key} xs={12}>
-                  <Button fullWidth variant="outlined" sx={{
-                    p: 1,
-                    color: templateKey === key ? 'success.main' : 'primary.main',
-                    borderColor: 'inherit !important',
-                  }}
-                    onClick={() => setTemplateKey(key)}>
-                    {templates[key].name}
-                  </Button>
-                </Grid>)}
-              </Grid>
-            </AccordionDetails>
-          </Accordion>
+          <TextField margin="normal" size="small" label="Document Name" name="fileName" autoComplete="off" fullWidth autoFocus />
           <Button type="submit" fullWidth variant="contained" startIcon={<AddIcon />} sx={{ my: 2 }}>Create</Button>
         </Box>
       </Box>
