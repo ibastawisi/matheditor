@@ -17,7 +17,7 @@ span.editor-image {
   position: relative;
 }
 
-.editor-image > div {
+.editor-image>div {
   display: flex;
 }
 
@@ -92,4 +92,14 @@ span.editor-image {
   left: 0;
   transform: translate(-50%, -50%);
   cursor: nw-resize;
+}
+
+@media print {
+  .editor-image img.focused {
+    outline: none !important;
+  }
+
+  .image-control-wrapper {
+    display: none !important;
+  }
 }

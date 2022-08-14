@@ -237,7 +237,7 @@ export default function ImageResizer({
     }
   };
   return (
-    <div ref={controlWrapperRef}>
+    <div ref={controlWrapperRef} className="image-control-wrapper">
       <Radio checked={true}
         className="image-resizer image-resizer-n"
         onPointerDown={(event) => {

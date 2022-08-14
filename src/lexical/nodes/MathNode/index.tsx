@@ -112,7 +112,7 @@ function MathComponent({ initialValue, nodeKey }: MathComponentProps): JSX.Eleme
     mathfield.readOnly = readOnly;
 
     const shadowStyle = mathfield.shadowRoot?.querySelector('style');
-    shadowStyle?.append('.ML__fieldcontainer{ min-height: unset !important; }')
+    shadowStyle?.append('.ML__container{ min-height: unset !important; } :host(:not(:focus-within)) .ML__selection { background-color: transparent !important; }');
 
     if (readOnly) return;
 

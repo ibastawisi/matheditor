@@ -17,7 +17,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
       onClick={() => {
         if (!mathfield) return;
         const selection = mathfield.selection;
-        const value = mathfield.getValue(selection, 'latex') || mathfield.value;
+        const value = mathfield.getValue(selection, 'latex-unstyled') || mathfield.getValue('latex-unstyled');
         window.open(`https://www.wolframalpha.com/input?i=${encodeURIComponent(value)}`)
       }}>
       <WolframIcon />

@@ -80,6 +80,14 @@ math-field {
   user-select: none;
 }
 
+[theme=dark] math-field {
+  --selection-background-color: #546E7A;
+}
+
+[theme=dark] ::selection {
+  background-color: #546E7A;
+}
+
 [theme=light] math-field.selection-active {
   background-color: #3390ff;
   color: white;
@@ -137,14 +145,6 @@ div.ML__keyboard.material {
   --keycap-background-active: #FAFAFA !important;
 }
 
-[theme=dark] math-field {
-  --highlight: #546E7A;
-  --contains-highlight: #263238;
-}
-
-[theme=dark] ::selection {
-  background-color: #546E7A;
-}
 
 [theme=dark] .ML__keyboard .ML__keyboard--plate div .rows>ul>li aside {
   color: var(--keycap-text);
