@@ -15,6 +15,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
   return (<ToggleButtonGroup size="small" sx={{ ...sx }} >
     <ToggleButton value="wolfram"
       onClick={() => {
+        if (!mathfield) return;
         const selection = mathfield.selection;
         const value = mathfield.getValue(selection, 'latex') || mathfield.value;
         window.open(`https://www.wolframalpha.com/input?i=${encodeURIComponent(value)}`)

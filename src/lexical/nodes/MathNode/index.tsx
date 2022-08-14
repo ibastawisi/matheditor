@@ -1,12 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { $createNodeSelection, $createRangeSelection, $getSelection, $isRangeSelection, $setSelection, COMMAND_PRIORITY_LOW, EditorConfig, GridSelection, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SELECTION_CHANGE_COMMAND, SerializedLexicalNode, Spread, } from 'lexical';
+import { $createNodeSelection, $createRangeSelection, $getSelection, $isRangeSelection, $setSelection, COMMAND_PRIORITY_LOW, CONTROLLED_TEXT_INSERTION_COMMAND, EditorConfig, GridSelection, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SELECTION_CHANGE_COMMAND, SerializedLexicalNode, Spread, } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey, DecoratorNode, } from 'lexical';
 import { useEffect, useRef, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
-
 import type { MathfieldElement } from "mathlive";
+import "mathlive/dist/mathlive.min.js"
 
 declare global {
   /** @internal */
@@ -19,12 +19,21 @@ declare global {
 
 type MathComponentProps = { initialValue: string; nodeKey: NodeKey; };
 
-function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Element {
+function MathComponent({ initialValue, nodeKey }: MathComponentProps): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const ref = useRef<MathfieldElement>(null);
   const [selection, setSelection] = useState<RangeSelection | NodeSelection | GridSelection | null>(null);
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
   const [wasBlured, setWasBlured] = useState(false);
+
+  useEffect(() => {
+    const mathfield = ref.current;
+    if (!mathfield) return;
+    editor.update(() => {
+      const node = $getNodeByKey(nodeKey) as MathNode;
+      node.setMathfield(mathfield);
+    });
+  }, []);
 
   useEffect(() => {
     return mergeRegister(
@@ -64,6 +73,11 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
           return true;
         }
 
+        return false;
+      }, COMMAND_PRIORITY_LOW),
+      editor.registerCommand(CONTROLLED_TEXT_INSERTION_COMMAND, eventOrText => {
+        const mathNode = $getNodeByKey(nodeKey) as MathNode;
+        if (eventOrText === mathNode.getValue()) return true;
         return false;
       }, COMMAND_PRIORITY_LOW),
     );
@@ -121,21 +135,13 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
     }, false);
 
     mathfield.addEventListener("focus", event => {
-      if (event.isTrusted) {
-        clearSelection();
-        setSelected(true);
-      };
+      clearSelection();
+      setSelected(true);
     });
 
     mathfield.addEventListener("blur", event => {
-      if (event.isTrusted) {
-        const rootElement = editor.getRootElement();
-        if (rootElement?.contains(event.relatedTarget as HTMLElement)) {
-          clearSelection();
-          setWasBlured(true);
-          setTimeout(() => setWasBlured(false), 100);
-        }
-      }
+      setWasBlured(true);
+      setTimeout(() => setWasBlured(false), 100);
     });
 
     mathfield.addEventListener("move-out", event => {
@@ -172,13 +178,14 @@ function MathComponent({ initialValue, nodeKey, }: MathComponentProps): JSX.Elem
 
   }, [ref]);
 
-  return <math-field id={`mfe-${nodeKey}`} ref={ref} {...{ "read-only": true }} />;
+  return <math-field ref={ref} {...{ "read-only": true, "fonts-directory": "/mathlive/fonts" }} />;
 }
 
 export type SerializedMathNode = Spread<{ type: 'math'; value: string; }, SerializedLexicalNode>;
 
 export class MathNode extends DecoratorNode<JSX.Element> {
   __value: string;
+  __mathfield?: MathfieldElement;
 
   static getType(): string {
     return 'math';
@@ -218,8 +225,13 @@ export class MathNode extends DecoratorNode<JSX.Element> {
     return false;
   }
 
-  getMathfield(): MathfieldElement {
-    return document.getElementById(`mfe-${this.__key}`) as MathfieldElement;
+  getMathfield(): MathfieldElement | undefined {
+    return this.__mathfield;
+  }
+
+  setMathfield(mathfield: MathfieldElement) {
+    const writable = this.getWritable();
+    writable.__mathfield = mathfield;
   }
 
   getValue(): string {
