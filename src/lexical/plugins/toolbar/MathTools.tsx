@@ -11,10 +11,10 @@ const WolframIcon = () => <SvgIcon viewBox='0 0 20 20' fontSize='small'>
 </SvgIcon>;
 
 export default function MathTools({ editor, node, sx }: { editor: LexicalEditor, node: MathNode, sx?: SxProps<Theme> | undefined }): JSX.Element {
-  const mathfield = node.getMathfield();
   return (<ToggleButtonGroup size="small" sx={{ ...sx }} >
     <ToggleButton value="wolfram"
       onClick={() => {
+        const mathfield = node.getMathfield();
         if (!mathfield) return;
         const selection = mathfield.selection;
         const value = mathfield.getValue(selection, 'latex-unstyled') || mathfield.getValue('latex-unstyled');

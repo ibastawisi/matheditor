@@ -88,9 +88,8 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
   const config = useSelector((state: RootState) => state.app.config.editor);
   const dispatch = useDispatch<AppDispatch>();
 
-  function onChange(editorState: EditorState, editor: LexicalEditor) {
+  function onChange(editorState: EditorState) {
     const data = editorState.toJSON();
-    if (JSON.stringify(data) === JSON.stringify(document.data)) return;
     validate(document.id) && dispatch(actions.app.saveDocument(data));
   }
 
@@ -108,7 +107,7 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
           <div className="editor-inner">
             <RichTextPlugin contentEditable={<ContentEditable className="editor-input" />} placeholder="" />
             <HistoryPlugin externalHistoryState={historyState} />
-            <OnChangePlugin ignoreSelectionChange onChange={onChange} />
+            <OnChangePlugin ignoreInitialChange ignoreSelectionChange ignoreHistoryMergeTagChange onChange={onChange} />
             {config.debug && <TreeViewPlugin />}
             <ListPlugin />
             <CheckListPlugin />

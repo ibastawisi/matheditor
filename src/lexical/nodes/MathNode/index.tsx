@@ -2,7 +2,7 @@
 import { $createNodeSelection, $createRangeSelection, $getSelection, $isRangeSelection, $setSelection, COMMAND_PRIORITY_LOW, CONTROLLED_TEXT_INSERTION_COMMAND, EditorConfig, GridSelection, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SELECTION_CHANGE_COMMAND, SerializedLexicalNode, Spread, } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey, DecoratorNode, } from 'lexical';
-import { useEffect, useRef, useState } from 'react';
+import { createRef, useEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 import type { MathfieldElement } from "mathlive";
@@ -17,11 +17,10 @@ declare global {
   }
 }
 
-type MathComponentProps = { initialValue: string; nodeKey: NodeKey; };
+type MathComponentProps = { initialValue: string; nodeKey: NodeKey; mathfieldRef: React.RefObject<MathfieldElement>; };
 
-function MathComponent({ initialValue, nodeKey }: MathComponentProps): JSX.Element {
+function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathComponentProps): JSX.Element {
   const [editor] = useLexicalComposerContext();
-  const ref = useRef<MathfieldElement>(null);
   const [selection, setSelection] = useState<RangeSelection | NodeSelection | GridSelection | null>(null);
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
   const [wasBlured, setWasBlured] = useState(false);
@@ -29,20 +28,12 @@ function MathComponent({ initialValue, nodeKey }: MathComponentProps): JSX.Eleme
   useEffect(() => {
     const mathfield = ref.current;
     if (!mathfield) return;
-    editor.update(() => {
-      const node = $getNodeByKey(nodeKey) as MathNode;
-      node.setMathfield(mathfield);
-    });
-  }, []);
-
-  useEffect(() => {
     return mergeRegister(
       editor.registerUpdateListener(({ editorState }) => {
         setSelection(editorState.read(() => $getSelection()));
       }),
       editor.registerCommand(SELECTION_CHANGE_COMMAND, () => {
         if (wasBlured) return false;
-
         const selection = $getSelection();
         if (!$isRangeSelection(selection) || !selection.isCollapsed()) return false;
 
@@ -67,7 +58,6 @@ function MathComponent({ initialValue, nodeKey }: MathComponentProps): JSX.Eleme
           anchorNode.isBefore(mathNode) ? anchorOffset - anchorNode.getTextContentSize() : anchorOffset + 1;
 
         if (offset === 0 || offset === 1) {
-          const mathfield = ref.current!;
           mathfield.focus();
           mathfield.executeCommand(offset === 0 ? 'moveToMathFieldStart' : 'moveToMathFieldEnd');
           return true;
@@ -81,7 +71,7 @@ function MathComponent({ initialValue, nodeKey }: MathComponentProps): JSX.Eleme
         return false;
       }, COMMAND_PRIORITY_LOW),
     );
-  }, [wasBlured]);
+  }, [ref, wasBlured]);
 
   useEffect(() => {
     const mathfield = ref.current;
@@ -185,7 +175,7 @@ export type SerializedMathNode = Spread<{ type: 'math'; value: string; }, Serial
 
 export class MathNode extends DecoratorNode<JSX.Element> {
   __value: string;
-  __mathfield?: MathfieldElement;
+  __mathfieldRef = createRef<MathfieldElement>();
 
   static getType(): string {
     return 'math';
@@ -225,8 +215,8 @@ export class MathNode extends DecoratorNode<JSX.Element> {
     return false;
   }
 
-  getMathfield(): MathfieldElement | undefined {
-    return this.__mathfield;
+  getMathfield(): MathfieldElement | null {
+    return this.__mathfieldRef.current;
   }
 
   setMathfield(mathfield: MathfieldElement) {
@@ -250,7 +240,7 @@ export class MathNode extends DecoratorNode<JSX.Element> {
   }
 
   decorate(): JSX.Element {
-    return <MathComponent initialValue={this.__value} nodeKey={this.__key} />
+    return <MathComponent initialValue={this.__value} nodeKey={this.__key} mathfieldRef={this.__mathfieldRef} />
   }
 }
 
