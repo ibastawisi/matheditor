@@ -52,7 +52,7 @@ const NewDocument: React.FC = () => {
     <Container maxWidth="xs">
       <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>
-        <Typography component="h1" variant="h5">Create a new document</Typography>
+        <Typography component="h1" variant="h5">Create a {params.id ? "fork" : "new document"}</Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField margin="normal" size="small" label="Document Name" name="fileName" autoComplete="off" fullWidth autoFocus />
           <Button type="submit" fullWidth variant="contained" startIcon={<AddIcon />} sx={{ my: 2 }}>Create</Button>

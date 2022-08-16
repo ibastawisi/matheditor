@@ -8,8 +8,6 @@
 
 import { $createNodeSelection, $isRangeSelection, $setSelection, COMMAND_PRIORITY_EDITOR, DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, GridSelection, KEY_ARROW_LEFT_COMMAND, KEY_ARROW_RIGHT_COMMAND, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
 
-import './ImageNode.css';
-
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
@@ -18,6 +16,7 @@ import { $getNodeByKey, $getSelection, $isNodeSelection, CLICK_COMMAND, COMMAND_
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import ImageResizer from './ImageResizer';
+import './index.css';
 
 export interface ImagePayload {
   altText: string;

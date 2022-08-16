@@ -7,6 +7,7 @@ import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import { mergeRegister } from '@lexical/utils';
 import type { MathfieldElement } from "mathlive";
 import "mathlive/dist/mathlive.min.js"
+import './index.css';
 
 declare global {
   /** @internal */
