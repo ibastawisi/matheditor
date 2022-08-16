@@ -66,8 +66,9 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
         return false;
       }, COMMAND_PRIORITY_LOW),
       editor.registerCommand(CONTROLLED_TEXT_INSERTION_COMMAND, eventOrText => {
-        const mathNode = $getNodeByKey(nodeKey) as MathNode;
-        if (eventOrText === mathNode.getValue()) return true;
+        const node = $getNodeByKey(nodeKey);
+        if (!$isMathNode(node)) return false;
+        if (eventOrText === node.getValue()) return true;
         return false;
       }, COMMAND_PRIORITY_LOW),
     );
@@ -116,11 +117,12 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
         const value = mathfield.getValue();
         const node = $getNodeByKey(nodeKey);
         if (!$isMathNode(node)) return;
-        node.setValue(value);
         if (value.trim().length === 0) {
           node.selectPrevious();
-          node.remove();
+          return node.remove();
         }
+        const currentValue = node.getValue();
+        value !== currentValue && node.setValue(value);
       });
     }, false);
 
