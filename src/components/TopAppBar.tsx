@@ -10,7 +10,6 @@ import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Zoom from '@mui/material/Zoom';
 import Link from '@mui/material/Link';
-import Logo from '../logo.png';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
@@ -83,7 +82,7 @@ const TopAppBar: React.FC<{}> = () => {
           <Toolbar>
             <Link component={RouterLink} to="/">
               <Box sx={{ display: "flex" }}>
-                <img src={Logo} alt="Logo" width={32} height={32} />
+                <img src="/logo192.png" alt="Logo" width={32} height={32} />
                 <Typography variant="h6" component="div" sx={{ marginInlineStart: 2, color: "white" }}>Math Editor</Typography>
               </Box>
             </Link>
