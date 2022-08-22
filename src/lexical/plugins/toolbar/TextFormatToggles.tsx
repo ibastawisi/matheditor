@@ -2,6 +2,7 @@ import * as React from 'react';
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { $getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND, LexicalEditor, COMMAND_PRIORITY_CRITICAL, SELECTION_CHANGE_COMMAND, TextFormatType, } from "lexical";
+import { $patchStyleText, } from '@lexical/selection';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
@@ -14,6 +15,7 @@ import { mergeRegister, } from '@lexical/utils';
 import { IS_APPLE } from '../../../shared/environment';
 import { useCallback, useEffect, useState } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
+import ColorPicker from './ColorPicker';
 
 export default function TextFormatToggles({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> | undefined }): JSX.Element {
   const [isBold, setIsBold] = useState(false);
@@ -36,7 +38,7 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
       setIsSubscript(selection.hasFormat('subscript'));
       setIsSuperscript(selection.hasFormat('superscript'));
       setIsCode(selection.hasFormat('code'));
-
+      
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
@@ -62,11 +64,26 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
     );
   }, [editor, updateToolbar]);
 
-  const handleFormat = (
-    event: React.MouseEvent<HTMLElement>,
-    newFormats: string[],
-  ) => {
+  const applyStyleText = useCallback(
+    (styles: Record<string, string>) => {
+      editor.update(() => {
+        const selection = $getSelection();
+        if ($isRangeSelection(selection)) {
+          $patchStyleText(selection, styles);
+        }
+      });
+    },
+    [editor],
+  );
+
+  const onColorChange = useCallback((key: string, value: string) => {
+    const styleKey = key === 'text' ? 'color' : 'background-color';
+    applyStyleText({ [styleKey]: value });
+  }, [applyStyleText]);
+
+  const handleFormat = (event: React.MouseEvent<HTMLElement>, newFormats: string[]) => {
     const button = event.currentTarget as HTMLButtonElement;
+    if (!button) return;
     editor.dispatchCommand(FORMAT_TEXT_COMMAND, button.value as TextFormatType);
   };
 
@@ -104,5 +121,7 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
     <ToggleButton value="superscript" title='Format text with superscript' aria-label='Format text with superscript'>
       <SuperscriptIcon />
     </ToggleButton>
+    <ColorPicker variant="text" onColorChange={onColorChange} />
+    <ColorPicker variant="background" onColorChange={onColorChange} />
   </ToggleButtonGroup>)
 }

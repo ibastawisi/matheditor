@@ -169,7 +169,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
       });
     });
 
-  }, [ref]);
+  }, []);
 
   return <math-field ref={ref} {...{ "read-only": true, "fonts-directory": "/mathlive/fonts" }} />;
 }
