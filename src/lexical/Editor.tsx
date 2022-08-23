@@ -1,5 +1,5 @@
 import { memo, useEffect, useState } from 'react';
-import { LexicalEditor, EditorState } from 'lexical';
+import { EditorState } from 'lexical';
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { useSharedHistoryContext } from "./context/SharedHistoryContext";

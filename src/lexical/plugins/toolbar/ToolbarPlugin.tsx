@@ -273,6 +273,7 @@ export default function ToolbarPlugin() {
 
   const FONT_FAMILY_MAP = [
     ['Roboto', 'Roboto'],
+    ['KaTeX_Main', 'KaTeX'],
     ['Virgil', 'Virgil'],
     ['Cascadia', 'Cascadia'],
     ['Courier New', 'Courier New'],
