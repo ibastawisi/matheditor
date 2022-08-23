@@ -29,6 +29,14 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
   useEffect(() => {
     const mathfield = ref.current;
     if (!mathfield) return;
+    if (initialValue !== mathfield.getValue()) {
+      mathfield.setValue(initialValue, { suppressChangeNotifications: true });
+    }
+  }, [initialValue]);
+
+  useEffect(() => {
+    const mathfield = ref.current;
+    if (!mathfield) return;
     return mergeRegister(
       editor.registerUpdateListener(({ editorState }) => {
         setSelection(editorState.read(() => $getSelection()));
@@ -95,7 +103,6 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
     if (!mathfield) return;
 
     const readOnly = editor.isReadOnly();
-    mathfield.setValue(initialValue, { suppressChangeNotifications: true });
     mathfield.virtualKeyboardMode = readOnly ? "off" : "onfocus";
     mathfield.virtualKeyboardTheme = "material";
     mathfield.mathModeSpace = "\\,";
@@ -122,8 +129,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
           node.selectPrevious();
           return node.remove();
         }
-        const currentValue = node.getValue();
-        value !== currentValue && node.setValue(value);
+        value !== initialValue && node.setValue(value);
       });
     }, false);
 

@@ -58,7 +58,7 @@ export default function ColorPicker({ variant, onColorChange }: { variant: "text
 
   return (
     <>
-      <ToggleButton size='small' value={variant} onClick={handleClick}>
+      <ToggleButton size='small' value={variant} onClick={handleClick} className="MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal">
         {variant === "text" ? <FormatColorTextIcon /> : <FormatColorFillIcon />}
       </ToggleButton>
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}
