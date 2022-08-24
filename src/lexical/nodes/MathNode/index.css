@@ -2,7 +2,6 @@ math-field {
   display: inline-block;
   white-space: initial;
   word-break: initial;
-  max-width: calc(100vw - 52px);
   outline: none;
   user-select: none;
 }

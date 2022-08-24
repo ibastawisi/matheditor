@@ -217,6 +217,7 @@ export class MathNode extends DecoratorNode<JSX.Element> {
   createDOM(_config: EditorConfig, _editor: LexicalEditor): HTMLElement {
     const dom = document.createElement('span');
     dom.style.display = 'inline-flex';
+    dom.style.maxWidth = '100%';
     return dom;
   }
 
