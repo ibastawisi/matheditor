@@ -190,12 +190,21 @@
 }
 
 .LexicalTheme__tableCellHeader {
+  background-color: rgba(0, 0, 0, 0.05);
   text-align: start;
+}
+
+[theme=dark] .LexicalTheme__tableCellHeader {
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 @media print {
   [theme=dark] .LexicalTheme__tableCell {
     border-color: black;
+  }
+
+  [theme=dark] .LexicalTheme__tableCellHeader {
+    background-color: rgba(0, 0, 0, 0.05);
   }
 }
 
