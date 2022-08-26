@@ -24,7 +24,7 @@ import {
 } from 'lexical';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import TextFormatToggles from './toolbar/TextFormatToggles';
+import TextFormatToggles from './ToolbarPlugin/TextFormatToggles';
 
 function setPopupPosition(
   editor: HTMLElement,

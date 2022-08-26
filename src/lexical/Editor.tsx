@@ -14,7 +14,7 @@ import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { TRANSFORMERS } from "./plugins/MarkdownTransforms";
 import TreeViewPlugin from "./plugins/TreeViewPlugin";
-import ToolbarPlugin from "./plugins/toolbar/ToolbarPlugin";
+import ToolbarPlugin from "./plugins/ToolbarPlugin";
 import ListMaxIndentLevelPlugin from "./plugins/ListMaxIndentLevelPlugin";
 import CodeHighlightPlugin from "./plugins/CodeHighlightPlugin";
 import AutoLinkPlugin from "./plugins/AutoLinkPlugin";
@@ -51,6 +51,7 @@ import { SxProps, Theme } from '@mui/material/styles';
 import SplashScreen from '../components/SplachScreen';
 import theme from "./theme";
 import "./styles.css";
+import ComponentPickerMenuPlugin from './plugins/ComponentPickerPlugin';
 
 const editorConfig = {
   namespace: "matheditor",
@@ -119,6 +120,7 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
             <TablePlugin />
             <TableCellActionMenuPlugin />
             <TableCellResizer />
+            <ComponentPickerMenuPlugin />
             <MathPlugin />
             <ImagePlugin />
             <SketchPlugin />

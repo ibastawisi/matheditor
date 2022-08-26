@@ -1,12 +1,13 @@
 import { LexicalEditor } from 'lexical';
 import { $createCodeNode } from '@lexical/code';
 import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, REMOVE_LIST_COMMAND } from '@lexical/list';
-import { $createHeadingNode, HeadingTagType } from '@lexical/rich-text';
+import { $createHeadingNode, $createQuoteNode, HeadingTagType, } from '@lexical/rich-text';
 import { $wrapLeafNodesInElements } from '@lexical/selection';
 import { $createParagraphNode, $getSelection, $isRangeSelection } from 'lexical';
 
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import CodeIcon from '@mui/icons-material/Code';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
@@ -14,7 +15,7 @@ import ViewHeadlineIcon from '@mui/icons-material/ViewHeadline';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
-import { blockTypeToBlockName } from './ToolbarPlugin';
+import { blockTypeToBlockName } from '.';
 
 import SvgIcon from '@mui/material/SvgIcon';
 const H1Icon = () => <SvgIcon viewBox='0 0 16 16' fontSize='small'>
@@ -75,6 +76,18 @@ export function BlockFormatSelect({ editor, blockType }: {
       editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
     } else {
       editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+    }
+  };
+
+  const formatQuote = () => {
+    if (blockType !== 'quote') {
+      editor.update(() => {
+        const selection = $getSelection();
+
+        if ($isRangeSelection(selection)) {
+          $wrapLeafNodesInElements(selection, () => $createQuoteNode());
+        }
+      });
     }
   };
 
@@ -144,6 +157,12 @@ export function BlockFormatSelect({ editor, blockType }: {
           <PlaylistAddCheckIcon fontSize="small" />
         </ListItemIcon>
         <ListItemText>Check List</ListItemText>
+      </MenuItem>
+      <MenuItem value='quote' onClick={formatQuote}>
+        <ListItemIcon>
+          <FormatQuoteIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>Quote</ListItemText>
       </MenuItem>
       <MenuItem value='code' onClick={formatCode}>
         <ListItemIcon>
