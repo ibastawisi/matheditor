@@ -178,7 +178,6 @@
   padding: 6px 8px;
   min-width: 75px;
   vertical-align: top;
-  text-align: start;
 }
 
 [theme=dark] .LexicalTheme__tableCell {
@@ -389,4 +388,16 @@
   border-left-width: 4px;
   border-left-style: solid;
   padding-left: 16px
+}
+
+[theme=dark] .LexicalTheme__quote {
+  color: #a6a6a6;
+  border-left-color: #4d4d4d;
+}
+
+@media print {
+  [theme=dark] .LexicalTheme__quote {
+    color: #65676b;
+    border-left-color: #ced0d4;
+  }
 }

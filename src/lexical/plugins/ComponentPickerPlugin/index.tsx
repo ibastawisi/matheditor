@@ -38,6 +38,7 @@ import SketchDialog, { SketchDialogMode } from '../ToolbarPlugin/Sketch/SketchDi
 import GraphDialog, { GraphDialogMode } from '../ToolbarPlugin/GraphDialog';
 import { GraphType } from '../../nodes/GraphNode';
 import { INSERT_MATH_COMMAND } from '../MathPlugin';
+import { INSERT_STICKY_COMMAND } from '../StickyPlugin';
 
 import Paper from '@mui/material/Paper';
 import MenuList from '@mui/material/MenuList';
@@ -59,6 +60,7 @@ import TableIcon from '@mui/icons-material/TableChart';
 import FunctionsIcon from '@mui/icons-material/Functions';
 import BrushIcon from '@mui/icons-material/Brush';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
+import StickyNote2Icon from '@mui/icons-material/StickyNote2';
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
@@ -75,7 +77,7 @@ const H3Icon = () => <SvgIcon viewBox='0 0 16 16' fontSize='small'>
   <path d="M7.637 13V3.669H6.379V7.62H1.758V3.67H.5V13h1.258V8.728h4.62V13h1.259zm3.625-4.272h1.018c1.142 0 1.935.67 1.949 1.674.013 1.005-.78 1.737-2.01 1.73-1.08-.007-1.853-.588-1.935-1.32H9.108c.069 1.327 1.224 2.386 3.083 2.386 1.935 0 3.343-1.155 3.309-2.789-.027-1.51-1.251-2.16-2.037-2.249v-.068c.704-.123 1.764-.91 1.723-2.229-.035-1.353-1.176-2.4-2.954-2.385-1.873.006-2.857 1.162-2.898 2.358h1.196c.062-.69.711-1.299 1.696-1.299.998 0 1.695.622 1.695 1.525.007.922-.718 1.592-1.695 1.592h-.964v1.074z" />
 </SvgIcon>;
 
-const HeadingIcon = (level: number) =>  level === 1 ? <H1Icon /> : level === 2 ? <H2Icon /> : <H3Icon />;
+const HeadingIcon = (level: number) => level === 1 ? <H1Icon /> : level === 2 ? <H2Icon /> : <H3Icon />;
 
 const GraphIcon = <SvgIcon viewBox='0 0 512 512' fontSize='small'>
   <path d="M500.364,244.365h-37.248c12.695-18.223,27.124-31.674,42.415-39.273c5.76-2.851,8.099-9.844,5.248-15.593    c-2.851-5.76-9.821-8.122-15.593-5.248c-24.041,11.927-45.894,34.804-63.185,66.129c-22.726,41.146-52.166,63.802-82.909,63.802    c-26.077,0-51.188-16.465-72.087-46.545H384c6.423,0,11.636-5.201,11.636-11.636c0-6.435-5.213-11.636-11.636-11.636H267.636v-128    h11.636c4.701,0,8.948-2.828,10.752-7.18s0.803-9.356-2.525-12.684l-23.273-23.273c-4.55-4.55-11.904-4.55-16.454,0L224.5,96.502    c-3.328,3.328-4.329,8.332-2.525,12.684s6.051,7.18,10.752,7.18h11.636V218.09c-23.599-28.323-51.7-43.543-81.455-43.543    c-37.876,0-72.972,24.879-99.607,69.818H11.636C5.213,244.365,0,249.567,0,256.001c0,6.435,5.213,11.636,11.636,11.636h37.248    C36.189,285.86,21.76,299.312,6.47,306.911c-5.76,2.851-8.099,9.844-5.248,15.593c2.025,4.108,6.144,6.47,10.426,6.47    c1.734,0,3.503-0.384,5.167-1.21C40.855,315.836,62.708,292.959,80,261.633c22.726-41.158,52.166-63.814,82.909-63.814    c26.077,0,51.188,16.465,72.087,46.545H128c-6.423,0-11.636,5.201-11.636,11.636c0,6.435,5.213,11.636,11.636,11.636h116.364    v162.909c0,6.435,5.213,11.636,11.636,11.636s11.636-5.201,11.636-11.636V293.913c23.599,28.323,51.7,43.543,81.455,43.543    c37.876,0,72.972-24.879,99.607-69.818h51.665c6.423,0,11.636-5.201,11.636-11.636C512,249.567,506.787,244.365,500.364,244.365z" />
@@ -98,8 +100,10 @@ function IconMenu({ options, anchorEl, selectedIndex, setHighlightedIndex, selec
     <Paper>
       <MenuList sx={{
         maxHeight: 200,
-        width: 200,
+        width: 224,
         overflow: 'auto',
+        displayPrint: 'none',
+        colorScheme: 'initial',
       }}>
         {options.map((option, i: number) => (
           <MenuItem key={option.key} selected={selectedIndex === i}
@@ -191,6 +195,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
         new ComponentPickerOption(`${rows}x${columns} Table`, {
           icon: <TableIcon />,
           keywords: ['table'],
+          keyboardShortcut: `${rows}x${columns}`,
           onSelect: () =>
             // @ts-ignore Correct types, but since they're dynamic TS doesn't like it.
             editor.dispatchCommand(INSERT_TABLE_COMMAND, { columns, rows }),
@@ -205,6 +210,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
             new ComponentPickerOption(`${rows}x${columns} Table`, {
               icon: <TableIcon />,
               keywords: ['table'],
+              keyboardShortcut: `${rows}x${columns}`,
               onSelect: () =>
                 // @ts-ignore Correct types, but since they're dynamic TS doesn't like it.
                 editor.dispatchCommand(INSERT_TABLE_COMMAND, { columns, rows }),
@@ -234,6 +240,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           new ComponentPickerOption(`Heading ${n}`, {
             icon: HeadingIcon(n),
             keywords: ['heading', 'header', `h${n}`],
+            keyboardShortcut: '#'.repeat(n),
             onSelect: () =>
               editor.update(() => {
                 const selection = $getSelection();
@@ -246,33 +253,31 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
               }),
           }),
       ),
-      new ComponentPickerOption('Table', {
-        icon: <TableIcon />,
-        keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
-        onSelect: () =>
-          setTableDialogOpen(true)
-      }),
       new ComponentPickerOption('Numbered List', {
         icon: <FormatListNumberedIcon />,
         keywords: ['numbered list', 'ordered list', 'ol'],
+        keyboardShortcut: '1.',
         onSelect: () =>
           editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined),
       }),
       new ComponentPickerOption('Bulleted List', {
         icon: <FormatListBulletedIcon />,
         keywords: ['bulleted list', 'unordered list', 'ul'],
+        keyboardShortcut: '*',
         onSelect: () =>
           editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined),
       }),
       new ComponentPickerOption('Check List', {
         icon: <PlaylistAddCheckIcon />,
         keywords: ['check list', 'todo list'],
+        keyboardShortcut: '[x]',
         onSelect: () =>
           editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined),
       }),
       new ComponentPickerOption('Quote', {
         icon: <FormatQuoteIcon />,
         keywords: ['block quote'],
+        keyboardShortcut: '>',
         onSelect: () =>
           editor.update(() => {
             const selection = $getSelection();
@@ -284,6 +289,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
       new ComponentPickerOption('Code', {
         icon: <CodeIcon />,
         keywords: ['javascript', 'python', 'js', 'codeblock'],
+        keyboardShortcut: '```',
         onSelect: () =>
           editor.update(() => {
             const selection = $getSelection();
@@ -303,41 +309,61 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
       new ComponentPickerOption('Divider', {
         icon: <HorizontalRuleIcon />,
         keywords: ['horizontal rule', 'divider', 'hr'],
+        keyboardShortcut: '---',
         onSelect: () =>
           editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined),
       }),
       new ComponentPickerOption('Math', {
         icon: <FunctionsIcon />,
         keywords: ['equation', 'latex', 'math'],
+        keyboardShortcut: '$$',
         onSelect: () =>
           editor.dispatchCommand(INSERT_MATH_COMMAND, { value: '' }),
-
       }),
       new ComponentPickerOption('2D Graph', {
         icon: GraphIcon,
         keywords: ['geogebra', 'graph', 'plot', '2d'],
+        keyboardShortcut: '/2d',
         onSelect: () => { setGraphType(GraphType['2D']); setGraphDialogOpen(true) },
       }),
       new ComponentPickerOption('3D Graph', {
         icon: <ViewInArIcon />,
         keywords: ['geogebra', 'graph', 'plot', '3d'],
+        keyboardShortcut: '/3d',
         onSelect: () => { setGraphType(GraphType['3D']); setGraphDialogOpen(true) },
       }),
       new ComponentPickerOption('Sketch', {
         icon: <BrushIcon />,
         keywords: ['excalidraw', 'sketch', 'drawing', 'diagram'],
+        keyboardShortcut: '/sketch',
         onSelect: () => setSketchDialogOpen(true),
       }),
       new ComponentPickerOption('Image', {
         icon: <ImageIcon />,
-        keywords: ['image', 'photo', 'picture', 'file'],
+        keywords: ['image', 'photo', 'picture', 'img'],
+        keyboardShortcut: '/img',
         onSelect: () => setImageDialogOpen(true),
+      }),
+      new ComponentPickerOption('Table', {
+        icon: <TableIcon />,
+        keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
+        keyboardShortcut: '/3x3',
+        onSelect: () =>
+          setTableDialogOpen(true)
+      }),
+      new ComponentPickerOption('Note', {
+        icon: <StickyNote2Icon />,
+        keywords: ['sticky', 'note', 'sticky note'],
+        keyboardShortcut: '/note',
+        onSelect: () =>
+          editor.dispatchCommand(INSERT_STICKY_COMMAND, undefined),
       }),
       ...['left', 'center', 'right', 'justify'].map(
         (alignment) =>
           new ComponentPickerOption(`Align ${alignment}`, {
             icon: FormatAlignIcon(alignment),
-            keywords: ['align', 'justify', alignment],
+            keywords: ['align', alignment],
+            keyboardShortcut: `/${alignment}`,
             onSelect: () =>
               // @ts-ignore Correct types, but since they're dynamic TS doesn't like it.
               editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, alignment),
