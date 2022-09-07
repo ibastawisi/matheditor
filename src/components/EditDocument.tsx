@@ -34,7 +34,7 @@ const EditDocument: React.FC = () => {
 
   return document.id === params.id ? <>
     <Helmet><title>{document.name}</title></Helmet>
-    <Editor document={document} />
+    <Editor document={document} editable={true} />
   </> : <SplashScreen title="Loading Document" />;
 }
 

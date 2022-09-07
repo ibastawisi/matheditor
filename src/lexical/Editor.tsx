@@ -83,7 +83,7 @@ const editorConfig = {
   ]
 };
 
-const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefined, readOnly?: boolean }> = ({ document, sx, readOnly }) => {
+const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefined, editable: boolean }> = ({ document, sx, editable }) => {
   const [initialized, setInitialized] = useState(false);
   const { historyState } = useSharedHistoryContext();
   const config = useSelector((state: RootState) => state.app.config.editor);
@@ -102,7 +102,7 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
   return (
     <>
       {!initialized && <SplashScreen title='Loading Editor' />}
-      <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(document.data), readOnly }}>
+      <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(document.data), editable }}>
         <Box className="editor-shell" sx={sx}>
           <ToolbarPlugin />
           <div className="editor-inner">

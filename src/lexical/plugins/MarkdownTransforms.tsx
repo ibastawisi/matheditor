@@ -22,6 +22,7 @@ import {
 import {
   $createHorizontalRuleNode,
   $isHorizontalRuleNode,
+  HorizontalRuleNode,
 } from '@lexical/react/LexicalHorizontalRuleNode';
 import {
   $createTableCellNode,
@@ -32,6 +33,7 @@ import {
   TableCellHeaderStates,
   TableCellNode,
   TableNode,
+  TableRowNode,
 } from '@lexical/table';
 import {
   $createParagraphNode,
@@ -41,10 +43,11 @@ import {
   $isTextNode,
 } from 'lexical';
 
-import { $createMathNode, $isMathNode } from '../nodes/MathNode';
-import { $isImageNode, $createImageNode } from '../nodes/ImageNode';
+import { $createMathNode, $isMathNode, MathNode } from '../nodes/MathNode';
+import { $createImageNode, $isImageNode, ImageNode } from '../nodes/ImageNode';
 
 export const HR: ElementTransformer = {
+  dependencies: [HorizontalRuleNode],
   export: (node: LexicalNode) => {
     return $isHorizontalRuleNode(node) ? '***' : null;
   },
@@ -65,6 +68,7 @@ export const HR: ElementTransformer = {
 };
 
 export const IMAGE: TextMatchTransformer = {
+  dependencies: [ImageNode],
   export: (node, exportChildren, exportFormat) => {
     if (!$isImageNode(node)) {
       return null;
@@ -87,6 +91,7 @@ export const IMAGE: TextMatchTransformer = {
 };
 
 export const MATH: TextMatchTransformer = {
+  dependencies: [MathNode],
   export: (node, exportChildren, exportFormat) => {
     if (!$isMathNode(node)) {
       return null;
@@ -110,6 +115,8 @@ export const MATH: TextMatchTransformer = {
 const TABLE_ROW_REG_EXP = /^(?:\|)(.+)(?:\|)\s?$/;
 
 export const TABLE: ElementTransformer = {
+  // TODO: refactor transformer for new TableNode
+  dependencies: [TableNode, TableRowNode, TableCellNode],
   export: (
     node: LexicalNode,
     exportChildren: (elementNode: ElementNode) => string,

@@ -102,7 +102,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
     const mathfield = ref.current;
     if (!mathfield) return;
 
-    const readOnly = editor.isReadOnly();
+    const readOnly = !editor.isEditable();
     mathfield.virtualKeyboardMode = readOnly ? "off" : "onfocus";
     mathfield.virtualKeyboardTheme = "material";
     mathfield.mathModeSpace = "\\,";
@@ -111,7 +111,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
     mathfield.readOnly = readOnly;
 
     const shadowStyle = mathfield.shadowRoot?.querySelector('style');
-    shadowStyle?.append('.ML__container{ min-height: unset !important; } :host(:not(:focus-within)) .ML__selection { background-color: transparent !important; }');
+    shadowStyle?.append('.ML__container{ min-height: unset !important; }');
 
     if (readOnly) return;
 

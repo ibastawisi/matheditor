@@ -49,8 +49,9 @@ function TextFormatFloatingToolbar({
   editor,
 }: {
   editor: LexicalEditor;
-}): JSX.Element {
+}) {
   const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null);
+  const [isEditable, setIsEditable] = useState(() => editor.isEditable());
 
   const updateTextFormatFloatingToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -102,6 +103,7 @@ function TextFormatFloatingToolbar({
   }, [editor, updateTextFormatFloatingToolbar]);
 
   useEffect(() => {
+    setIsEditable(editor.isEditable());
     editor.getEditorState().read(() => {
       updateTextFormatFloatingToolbar();
     });
@@ -122,6 +124,8 @@ function TextFormatFloatingToolbar({
       ),
     );
   }, [editor, updateTextFormatFloatingToolbar]);
+
+  if (!isEditable) return null;
 
   return (
     <Paper ref={popupCharStylesEditorRef} sx={{ position: "absolute", displayPrint: "none" }}>

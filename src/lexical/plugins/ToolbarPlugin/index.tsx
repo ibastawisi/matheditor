@@ -121,7 +121,7 @@ export default function ToolbarPlugin() {
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState<string>('');
-  const [isReadOnly, setIsReadOnly] = useState(() => editor.isReadOnly());
+  const [isEditable, setIsEditable] = useState(() => editor.isEditable());
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -191,7 +191,7 @@ export default function ToolbarPlugin() {
   }, [activeEditor]);
 
   useEffect(() => {
-    setIsReadOnly(editor.isReadOnly());
+    setIsEditable(editor.isEditable());
     return mergeRegister(
       editor.registerCommand(
         SELECTION_CHANGE_COMMAND,
@@ -290,7 +290,7 @@ export default function ToolbarPlugin() {
     ['20px', '20'],
   ];
 
-  if (isReadOnly) return null;
+  if (!isEditable) return null;
 
   return (
     <ElevationScroll>

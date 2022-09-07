@@ -52,7 +52,7 @@ function StickyComponent({
   nodeKey: NodeKey;
 }): JSX.Element {
   const [rootEditor] = useLexicalComposerContext();
-  const [isReadOnly, setIsReadOnly] = useState(() => rootEditor.isReadOnly());
+  const [isEditable, setisEditable] = useState(() => rootEditor.isEditable());
 
   const initialState = data ? rootEditor.parseEditorState(JSON.stringify(data)) : undefined;
 
@@ -60,10 +60,10 @@ function StickyComponent({
   const stickyContainerRef = useRef<null | HTMLDivElement>(null);
 
   useEffect(() => {
-    const readOnly = rootEditor.isReadOnly();
-    setIsReadOnly(readOnly);
+    const editable = rootEditor.isEditable();
+    setisEditable(editable);
     const editor = stickyEditor.current;
-    editor.setReadOnly(readOnly);
+    editor.setEditable(editable);
     if (editor && data) {
       const oldState = editor.getEditorState().toJSON();
       if (JSON.stringify(oldState) === JSON.stringify(data)) return;
@@ -107,7 +107,7 @@ function StickyComponent({
   return (
     <div ref={stickyContainerRef} className="sticky-note-container">
       <div className={`sticky-note ${color}`} {...{ theme: 'light' }}>
-        {!isReadOnly && (<>
+        {isEditable && (<>
           <IconButton sx={{ displayPrint: 'none' }} onClick={handleDelete} className="delete" aria-label="Delete sticky note" title="Delete" color='inherit' size='small'>
             <DeleteIcon fontSize='inherit' />
           </IconButton>

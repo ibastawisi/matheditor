@@ -46,7 +46,7 @@ const ViewDocument: React.FC = () => {
 
   return document.id === params.id ? <>
     <Helmet><title>{document.name}</title></Helmet>
-    <Editor document={document} readOnly={true} />
+    <Editor document={document} editable={false} />
     <Transition in={slideTrigger} timeout={225}>
       <Fab variant="extended" size='medium' component={RouterLink} to={`/new/${document.id}`} state={{ data: document.data }}
         sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 24, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>

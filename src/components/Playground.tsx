@@ -9,7 +9,7 @@ const Playground: React.FC = () => {
 
   return <>
     <Helmet><title>{document.name}</title></Helmet>
-    <Editor document={(document as EditorDocument)} />
+    <Editor document={(document as EditorDocument)} editable={true} />
   </>;
 }
 
