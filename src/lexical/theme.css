@@ -198,7 +198,7 @@
 
 @media print {
   [theme=dark] .LexicalTheme__tableCell {
-    border-color: black;
+    border-color: rgba(0, 0, 0, 0.3);
   }
 
   [theme=dark] .LexicalTheme__tableCellHeader {

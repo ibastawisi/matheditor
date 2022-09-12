@@ -52,6 +52,7 @@ import SplashScreen from '../components/SplachScreen';
 import theme from "./theme";
 import "./styles.css";
 import ComponentPickerMenuPlugin from './plugins/ComponentPickerPlugin';
+import { isEqual } from 'lodash';
 
 const editorConfig = {
   namespace: "matheditor",
@@ -91,6 +92,7 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
 
   function onChange(editorState: EditorState) {
     const data = editorState.toJSON();
+    if (isEqual(data.root, document.data)) return;
     validate(document.id) && dispatch(actions.app.saveDocument(data));
   }
 

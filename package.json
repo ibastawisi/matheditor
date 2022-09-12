@@ -21,6 +21,7 @@
     "axios": "^0.27.2",
     "compressorjs": "^1.1.1",
     "lexical": "^0.4.1",
+    "lodash": "^4.17.21",
     "mathlive": "0.79.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -71,6 +72,7 @@
     ]
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.185",
     "@types/react-helmet": "^6.1.5",
     "@types/uuid": "^8.3.4"
   }

@@ -15,6 +15,7 @@ import {
   SerializedEditorState,
   LexicalEditor,
   $createNodeSelection,
+  EditorState,
 } from 'lexical';
 
 import './StickyNode.css';
@@ -29,6 +30,7 @@ import {
   DecoratorNode,
 } from 'lexical';
 import { useEffect, useRef, useState } from 'react';
+import { isEqual } from "lodash";
 
 import { useSharedHistoryContext } from '../../context/SharedHistoryContext';
 import StickyEditorTheme from './StickyEditorTheme';
@@ -41,6 +43,15 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import TextFormatFloatingToolbarPlugin from '../../plugins/TextFormatFloatingToolbarPlugin';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
 import { TRANSFORMERS } from '../../plugins/MarkdownTransforms';
+import ComponentPickerMenuPlugin from '../../plugins/ComponentPickerPlugin';
+import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
+import GraphPlugin from '../../plugins/GraphPlugin';
+import HorizontalRulePlugin from '../../plugins/HorizontalRulePlugin';
+import ImagePlugin from '../../plugins/ImagePlugin';
+import MathPlugin from '../../plugins/MathPlugin';
+import SketchPlugin from '../../plugins/SketchPlugin';
+import TableCellResizer from '../../plugins/TableCellResizer';
+import TableCellActionMenuPlugin from '../../plugins/TableActionMenuPlugin';
 
 function StickyComponent({
   nodeKey,
@@ -94,12 +105,13 @@ function StickyComponent({
 
   const { historyState } = useSharedHistoryContext();
 
-  const handleChange = () => {
+  const handleChange = (editorState: EditorState) => {
+    const newData = editorState.toJSON();
+    if (isEqual(data, newData)) return;
     rootEditor.update(() => {
       const node = $getNodeByKey(nodeKey);
       if ($isStickyNode(node)) {
-        const data = stickyEditor.current.getEditorState().toJSON();
-        node.setData(data);
+        node.setData(newData);
       }
     });
   }
@@ -117,10 +129,19 @@ function StickyComponent({
         </>)}
         <LexicalNestedComposer initialEditor={stickyEditor.current}>
           <HistoryPlugin externalHistoryState={historyState} />
-          <OnChangePlugin ignoreInitialChange ignoreSelectionChange onChange={handleChange} />
+          <OnChangePlugin ignoreInitialChange ignoreSelectionChange ignoreHistoryMergeTagChange onChange={handleChange} />
           <RichTextPlugin contentEditable={<ContentEditable className="StickyNode__contentEditable" />} placeholder="" />
           <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
           <TextFormatFloatingToolbarPlugin />
+          <HorizontalRulePlugin />
+          <TablePlugin />
+          <TableCellActionMenuPlugin />
+          <TableCellResizer />
+          <ComponentPickerMenuPlugin />
+          <MathPlugin />
+          <ImagePlugin />
+          <SketchPlugin />
+          <GraphPlugin />
         </LexicalNestedComposer>
       </div>
     </div >
