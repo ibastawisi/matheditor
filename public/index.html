@@ -35,6 +35,16 @@
       z-index: 1100;
     }
 
+    @media (prefers-color-scheme: light) {
+      .splash-screen {
+        background-color: #fff;
+      }
+    }
+    @media (prefers-color-scheme: dark) {
+      .splash-screen {
+        background-color: #121212;
+      }
+    }
     [theme=light] .splash-screen {
       background-color: #fff;
     }
@@ -61,7 +71,7 @@
   <div id="root">
     <div class='splash-screen'>
       <div class='splash-screen-content'>
-        <img src="%PUBLIC_URL%/logo192.png" alt="Logo" width={128} height={128} />
+        <img src="%PUBLIC_URL%/logo.svg" alt="Logo" width="192" height="192" />
       </div>
     </div>
   </div>

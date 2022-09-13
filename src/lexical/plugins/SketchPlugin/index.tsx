@@ -4,7 +4,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $getSelection, COMMAND_PRIORITY_EDITOR, createCommand, } from 'lexical';
 import { useEffect } from 'react';
 
-import { $createSketchNode, SketchNode, SketchPayload } from '../nodes/SketchNode';
+import { $createSketchNode, SketchNode, SketchPayload } from '../../nodes/SketchNode';
 
 export type InsertSketchPayload = Readonly<SketchPayload>;
 

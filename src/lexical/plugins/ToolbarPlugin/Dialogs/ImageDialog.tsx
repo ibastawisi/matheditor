@@ -1,5 +1,5 @@
-import { InsertImagePayload } from '../ImagePlugin';
-import { INSERT_IMAGE_COMMAND } from '../ImagePlugin';
+import { InsertImagePayload } from '../../ImagePlugin';
+import { INSERT_IMAGE_COMMAND } from '../../ImagePlugin';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { LexicalEditor } from 'lexical';
 import Box from '@mui/material/Box';
@@ -14,7 +14,7 @@ import TextField from '@mui/material/TextField/TextField';
 import Typography from '@mui/material/Typography';
 
 import Compressor from 'compressorjs';
-import { ImageNode } from '../../nodes/ImageNode';
+import { ImageNode } from '../../../nodes/ImageNode';
 
 export enum ImageDialogMode {
   create,

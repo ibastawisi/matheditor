@@ -10,7 +10,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { LexicalCommand, createCommand, $getRoot, COMMAND_PRIORITY_EDITOR, $getSelection, $createParagraphNode, $isParagraphNode } from 'lexical';
 import { useEffect } from 'react';
 
-import { $createStickyNode, StickyNode } from '../nodes/StickyNode';
+import { $createStickyNode, StickyNode } from '../../nodes/StickyNode';
 
 export const INSERT_STICKY_COMMAND: LexicalCommand<void> = createCommand();
 

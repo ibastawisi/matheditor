@@ -3,7 +3,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { LexicalEditor } from 'lexical';
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode';
-import InsertTableDialog from './InsertTableDialog';
+import InsertTableDialog from '../Dialogs/InsertTableDialog';
 import AddIcon from '@mui/icons-material/Add';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -15,14 +15,14 @@ import BrushIcon from '@mui/icons-material/Brush';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 
 import IconButton from '@mui/material/IconButton';
-import { INSERT_MATH_COMMAND } from '../MathPlugin';
-import ImageDialog, { ImageDialogMode } from './ImageDialog';
-import GraphDialog, { GraphDialogMode } from './GraphDialog';
-import SketchDialog, { SketchDialogMode } from './Sketch/SketchDialog';
+import { INSERT_MATH_COMMAND } from '../../MathPlugin';
+import ImageDialog, { ImageDialogMode } from '../Dialogs/ImageDialog';
+import GraphDialog, { GraphDialogMode } from '../Dialogs/GraphDialog';
+import SketchDialog, { SketchDialogMode } from '../Dialogs/SketchDialog';
 
 import SvgIcon from '@mui/material/SvgIcon';
-import { GraphType } from '../../nodes/GraphNode';
-import { INSERT_STICKY_COMMAND } from '../StickyPlugin';
+import { GraphType } from '../../../nodes/GraphNode';
+import { INSERT_STICKY_COMMAND } from '../../StickyPlugin';
 import StickyNote2Icon from '@mui/icons-material/StickyNote2';
 import Typography from '@mui/material/Typography';
 

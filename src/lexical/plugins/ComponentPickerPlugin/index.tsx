@@ -32,10 +32,10 @@ import {
 import { useCallback, useMemo, useState } from 'react';
 import * as ReactDOM from 'react-dom';
 
-import InsertTableDialog from '../ToolbarPlugin/InsertTableDialog';
-import ImageDialog, { ImageDialogMode } from '../ToolbarPlugin/ImageDialog';
-import SketchDialog, { SketchDialogMode } from '../ToolbarPlugin/Sketch/SketchDialog';
-import GraphDialog, { GraphDialogMode } from '../ToolbarPlugin/GraphDialog';
+import InsertTableDialog from '../ToolbarPlugin/Dialogs/InsertTableDialog';
+import ImageDialog, { ImageDialogMode } from '../ToolbarPlugin/Dialogs/ImageDialog';
+import SketchDialog, { SketchDialogMode } from '../ToolbarPlugin/Dialogs/SketchDialog';
+import GraphDialog, { GraphDialogMode } from '../ToolbarPlugin/Dialogs/GraphDialog';
 import { GraphType } from '../../nodes/GraphNode';
 import { INSERT_MATH_COMMAND } from '../MathPlugin';
 import { INSERT_STICKY_COMMAND } from '../StickyPlugin';

@@ -23,9 +23,9 @@ import {
   DROP_COMMAND,
 } from 'lexical';
 import { useEffect } from 'react';
-import getSelection from '../../shared/getDOMSelection';
+import getSelection from '../../../shared/getDOMSelection';
 
-import { $createImageNode, $isImageNode, ImageNode, ImagePayload, } from '../nodes/ImageNode';
+import { $createImageNode, $isImageNode, ImageNode, ImagePayload, } from '../../nodes/ImageNode';
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 

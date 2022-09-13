@@ -11,16 +11,15 @@ import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
-import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
-import { TRANSFORMERS } from "./plugins/MarkdownTransforms";
+import MarkdownPlugin from "./plugins/MarkdownPlugin/MarkdownShortcutPlugin";
 import TreeViewPlugin from "./plugins/TreeViewPlugin";
 import ToolbarPlugin from "./plugins/ToolbarPlugin";
-import ListMaxIndentLevelPlugin from "./plugins/ListMaxIndentLevelPlugin";
-import CodeHighlightPlugin from "./plugins/CodeHighlightPlugin";
-import AutoLinkPlugin from "./plugins/AutoLinkPlugin";
-import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
-import TableCellResizer from './plugins/TableCellResizer';
-import TextFormatFloatingToolbarPlugin from "./plugins/TextFormatFloatingToolbarPlugin";
+import ListMaxIndentLevelPlugin from "./plugins/ListPlugin/ListMaxIndentLevelPlugin";
+import CodeHighlightPlugin from "./plugins/CodePlugin/CodeHighlightPlugin";
+import AutoLinkPlugin from "./plugins/LinkPlugin/AutoLinkPlugin";
+import TableCellActionMenuPlugin from './plugins/TablePlugin/TableActionMenuPlugin';
+import TableCellResizer from './plugins/TablePlugin/TableCellResizer';
+import FloatingToolbarPlugin from "./plugins/FloatingToolbar";
 import HorizontalRulePlugin from "./plugins/HorizontalRulePlugin";
 import MathPlugin from "./plugins/MathPlugin";
 import ImagePlugin from "./plugins/ImagePlugin";
@@ -53,6 +52,7 @@ import theme from "./theme";
 import "./styles.css";
 import ComponentPickerMenuPlugin from './plugins/ComponentPickerPlugin';
 import { isEqual } from 'lodash';
+import ClickableLinkPlugin from './plugins/LinkPlugin/ClickableLinkPlugin';
 
 const editorConfig = {
   namespace: "matheditor",
@@ -86,7 +86,6 @@ const editorConfig = {
 
 const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefined, editable: boolean }> = ({ document, sx, editable }) => {
   const [initialized, setInitialized] = useState(false);
-  const { historyState } = useSharedHistoryContext();
   const config = useSelector((state: RootState) => state.app.config.editor);
   const dispatch = useDispatch<AppDispatch>();
 
@@ -108,35 +107,46 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
         <Box className="editor-shell" sx={sx}>
           <ToolbarPlugin />
           <div className="editor-inner">
-            <RichTextPlugin contentEditable={<ContentEditable className="editor-input" />} placeholder="" />
-            <HistoryPlugin externalHistoryState={historyState} />
-            <OnChangePlugin ignoreInitialChange ignoreSelectionChange ignoreHistoryMergeTagChange onChange={onChange} />
-            {config.debug && <TreeViewPlugin />}
-            <ListPlugin />
-            <CheckListPlugin />
-            <LinkPlugin />
-            <ListMaxIndentLevelPlugin maxDepth={7} />
-            <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
-            <TextFormatFloatingToolbarPlugin />
-            <HorizontalRulePlugin />
-            <TablePlugin />
-            <TableCellActionMenuPlugin />
-            <TableCellResizer />
-            <ComponentPickerMenuPlugin />
-            <MathPlugin />
-            <ImagePlugin />
-            <SketchPlugin />
-            <GraphPlugin />
-            <StickyPlugin />
-            {initialized && <>
-              <CodeHighlightPlugin />
-              <AutoLinkPlugin />
-            </>}
+            <EditorPlugins contentEditable={<ContentEditable className="editor-input" />} onChange={onChange} showDebugView={config.debug} />
           </div>
         </Box>
       </LexicalComposer>
     </>
   );
 }
+
+export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onChange: (editorState: EditorState) => void; showDebugView?: boolean; isReady?: boolean }> =
+  ({ contentEditable, onChange, showDebugView, isReady }) => {
+    const { historyState } = useSharedHistoryContext();
+    return (
+      <>
+        <RichTextPlugin contentEditable={contentEditable} placeholder="" />
+        <HistoryPlugin externalHistoryState={historyState} />
+        <OnChangePlugin ignoreInitialChange ignoreSelectionChange ignoreHistoryMergeTagChange onChange={onChange} />
+        {showDebugView && <TreeViewPlugin />}
+        <ListPlugin />
+        <CheckListPlugin />
+        <LinkPlugin />
+        <ClickableLinkPlugin />
+        <ListMaxIndentLevelPlugin maxDepth={7} />
+        <MarkdownPlugin />
+        <FloatingToolbarPlugin />
+        <HorizontalRulePlugin />
+        <TablePlugin />
+        <TableCellActionMenuPlugin />
+        <TableCellResizer />
+        <ComponentPickerMenuPlugin />
+        <MathPlugin />
+        <ImagePlugin />
+        <SketchPlugin />
+        <GraphPlugin />
+        <StickyPlugin />
+        {isReady && <>
+          <CodeHighlightPlugin />
+          <AutoLinkPlugin />
+        </>}
+      </>
+    )
+  };
 
 export default memo(Editor, (prev, next) => prev.document.id === next.document.id);

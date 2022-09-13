@@ -20,15 +20,15 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import useScrollTrigger from '@mui/material/useScrollTrigger';
 
-import { BlockFormatSelect } from './BlockFormatSelect';
-import InsertToolMenu from './InsertToolMenu';
-import TextFormatToggles from './TextFormatToggles';
-import AlignTextMenu from './AlignTextMenu';
+import { BlockFormatSelect } from './Menus/BlockFormatSelect';
+import InsertToolMenu from './Menus/InsertToolMenu';
+import TextFormatToggles from './Tools/TextFormatToggles';
+import AlignTextMenu from './Menus/AlignTextMenu';
 import { IS_APPLE } from '../../../shared/environment';
 import { $isMathNode, MathNode } from '../../nodes/MathNode';
-import MathTools from './MathTools';
+import MathTools from './Tools/MathTools';
 import { $isImageNode, ImageNode } from '../../nodes/ImageNode';
-import ImageTools from './ImageTools';
+import ImageTools from './Tools/ImageTools';
 import { $isSketchNode, SketchNode } from '../../nodes/SketchNode';
 import { $isGraphNode, GraphNode } from '../../nodes/GraphNode';
 

@@ -21,7 +21,6 @@ import {
 import './StickyNode.css';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { LexicalNestedComposer } from '@lexical/react/LexicalNestedComposer';
 import {
   $getNodeByKey,
@@ -32,36 +31,14 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { isEqual } from "lodash";
 
-import { useSharedHistoryContext } from '../../context/SharedHistoryContext';
 import StickyEditorTheme from './StickyEditorTheme';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import FormatPaintIcon from '@mui/icons-material/FormatPaint';
 import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
-import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
-import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
-import TextFormatFloatingToolbarPlugin from '../../plugins/TextFormatFloatingToolbarPlugin';
-import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
-import { TRANSFORMERS } from '../../plugins/MarkdownTransforms';
-import ComponentPickerMenuPlugin from '../../plugins/ComponentPickerPlugin';
-import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
-import GraphPlugin from '../../plugins/GraphPlugin';
-import HorizontalRulePlugin from '../../plugins/HorizontalRulePlugin';
-import ImagePlugin from '../../plugins/ImagePlugin';
-import MathPlugin from '../../plugins/MathPlugin';
-import SketchPlugin from '../../plugins/SketchPlugin';
-import TableCellResizer from '../../plugins/TableCellResizer';
-import TableCellActionMenuPlugin from '../../plugins/TableActionMenuPlugin';
+import { EditorPlugins } from '../../Editor';
 
-function StickyComponent({
-  nodeKey,
-  color,
-  data,
-}: {
-  data?: SerializedEditorState;
-  color: 'pink' | 'yellow';
-  nodeKey: NodeKey;
-}): JSX.Element {
+function StickyComponent({ nodeKey, color, data,}: { data?: SerializedEditorState; color: 'pink' | 'yellow'; nodeKey: NodeKey;}): JSX.Element {
   const [rootEditor] = useLexicalComposerContext();
   const [isEditable, setisEditable] = useState(() => rootEditor.isEditable());
 
@@ -103,9 +80,7 @@ function StickyComponent({
     });
   };
 
-  const { historyState } = useSharedHistoryContext();
-
-  const handleChange = (editorState: EditorState) => {
+  const onChange = (editorState: EditorState) => {
     const newData = editorState.toJSON();
     if (isEqual(data, newData)) return;
     rootEditor.update(() => {
@@ -128,20 +103,7 @@ function StickyComponent({
           </IconButton>
         </>)}
         <LexicalNestedComposer initialEditor={stickyEditor.current}>
-          <HistoryPlugin externalHistoryState={historyState} />
-          <OnChangePlugin ignoreInitialChange ignoreSelectionChange ignoreHistoryMergeTagChange onChange={handleChange} />
-          <RichTextPlugin contentEditable={<ContentEditable className="StickyNode__contentEditable" />} placeholder="" />
-          <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
-          <TextFormatFloatingToolbarPlugin />
-          <HorizontalRulePlugin />
-          <TablePlugin />
-          <TableCellActionMenuPlugin />
-          <TableCellResizer />
-          <ComponentPickerMenuPlugin />
-          <MathPlugin />
-          <ImagePlugin />
-          <SketchPlugin />
-          <GraphPlugin />
+          <EditorPlugins contentEditable={<ContentEditable className="StickyNode__contentEditable" />} onChange={onChange} />
         </LexicalNestedComposer>
       </div>
     </div >

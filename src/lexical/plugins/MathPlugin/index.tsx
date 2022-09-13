@@ -12,7 +12,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $getSelection, $isRangeSelection, COMMAND_PRIORITY_EDITOR, createCommand } from 'lexical';
 import { useEffect } from 'react';
 
-import { $createMathNode, MathNode } from '../nodes/MathNode';
+import { $createMathNode, MathNode } from '../../nodes/MathNode';
 
 type CommandPayload = {
   value: string;

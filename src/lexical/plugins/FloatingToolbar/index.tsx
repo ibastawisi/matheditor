@@ -24,7 +24,7 @@ import {
 } from 'lexical';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import TextFormatToggles from './ToolbarPlugin/TextFormatToggles';
+import TextFormatToggles from '../ToolbarPlugin/Tools/TextFormatToggles';
 
 function setPopupPosition(
   editor: HTMLElement,
@@ -45,7 +45,7 @@ function setPopupPosition(
   }
 }
 
-function TextFormatFloatingToolbar({
+function FloatingToolbar({
   editor,
 }: {
   editor: LexicalEditor;
@@ -53,7 +53,7 @@ function TextFormatFloatingToolbar({
   const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null);
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
 
-  const updateTextFormatFloatingToolbar = useCallback(() => {
+  const updateFloatingToolbar = useCallback(() => {
     const selection = $getSelection();
 
     const popupCharStylesEditorElem = popupCharStylesEditorRef.current;
@@ -92,7 +92,7 @@ function TextFormatFloatingToolbar({
   useEffect(() => {
     const onResize = () => {
       editor.getEditorState().read(() => {
-        updateTextFormatFloatingToolbar();
+        updateFloatingToolbar();
       });
     };
     window.addEventListener('resize', onResize);
@@ -100,30 +100,30 @@ function TextFormatFloatingToolbar({
     return () => {
       window.removeEventListener('resize', onResize);
     };
-  }, [editor, updateTextFormatFloatingToolbar]);
+  }, [editor, updateFloatingToolbar]);
 
   useEffect(() => {
     setIsEditable(editor.isEditable());
     editor.getEditorState().read(() => {
-      updateTextFormatFloatingToolbar();
+      updateFloatingToolbar();
     });
     return mergeRegister(
       editor.registerUpdateListener(({ editorState }) => {
         editorState.read(() => {
-          updateTextFormatFloatingToolbar();
+          updateFloatingToolbar();
         });
       }),
 
       editor.registerCommand(
         SELECTION_CHANGE_COMMAND,
         () => {
-          updateTextFormatFloatingToolbar();
+          updateFloatingToolbar();
           return false;
         },
         COMMAND_PRIORITY_LOW,
       ),
     );
-  }, [editor, updateTextFormatFloatingToolbar]);
+  }, [editor, updateFloatingToolbar]);
 
   if (!isEditable) return null;
 
@@ -150,7 +150,7 @@ function getSelectedNode(selection: RangeSelection): TextNode | ElementNode {
   }
 }
 
-function useTextFormatFloatingToolbar(
+function useFloatingToolbar(
   editor: LexicalEditor,
 ): JSX.Element | null {
   const [isText, setIsText] = useState(false);
@@ -209,10 +209,10 @@ function useTextFormatFloatingToolbar(
     return null;
   }
 
-  return createPortal(<TextFormatFloatingToolbar editor={editor} />, document.body);
+  return createPortal(<FloatingToolbar editor={editor} />, document.body);
 }
 
-export default function TextFormatFloatingToolbarPlugin(): JSX.Element | null {
+export default function FloatingToolbarPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
-  return useTextFormatFloatingToolbar(editor);
+  return useFloatingToolbar(editor);
 }

@@ -1,17 +1,17 @@
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { LexicalEditor, } from "lexical";
-import { ImageNode, $isImageNode } from "../../nodes/ImageNode";
+import { ImageNode, $isImageNode } from "../../../nodes/ImageNode";
 
 import { SxProps, Theme } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ImageDialog, { ImageDialogMode } from "./ImageDialog";
-import GraphDialog, { GraphDialogMode } from './GraphDialog';
-import SketchDialog, { SketchDialogMode } from './Sketch/SketchDialog';
+import ImageDialog, { ImageDialogMode } from "../Dialogs/ImageDialog";
+import GraphDialog, { GraphDialogMode } from '../Dialogs/GraphDialog';
+import SketchDialog, { SketchDialogMode } from '../Dialogs/SketchDialog';
 import { useState } from "react";
-import { SketchNode, $isSketchNode } from "../../nodes/SketchNode";
-import { $isGraphNode, GraphNode } from "../../nodes/GraphNode";
+import { SketchNode, $isSketchNode } from "../../../nodes/SketchNode";
+import { $isGraphNode, GraphNode } from "../../../nodes/GraphNode";
 
 export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor, node: ImageNode | GraphNode | SketchNode, sx?: SxProps<Theme> | undefined }): JSX.Element {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);

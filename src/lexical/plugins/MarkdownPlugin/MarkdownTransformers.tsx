@@ -43,8 +43,8 @@ import {
   $isTextNode,
 } from 'lexical';
 
-import { $createMathNode, $isMathNode, MathNode } from '../nodes/MathNode';
-import { $createImageNode, $isImageNode, ImageNode } from '../nodes/ImageNode';
+import { $createMathNode, $isMathNode, MathNode } from '../../nodes/MathNode';
+import { $createImageNode, $isImageNode, ImageNode } from '../../nodes/ImageNode';
 
 export const HR: ElementTransformer = {
   dependencies: [HorizontalRuleNode],

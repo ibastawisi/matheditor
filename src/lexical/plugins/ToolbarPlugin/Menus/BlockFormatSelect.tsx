@@ -15,7 +15,7 @@ import ViewHeadlineIcon from '@mui/icons-material/ViewHeadline';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
-import { blockTypeToBlockName } from '.';
+import { blockTypeToBlockName } from '../index';
 
 import SvgIcon from '@mui/material/SvgIcon';
 const H1Icon = () => <SvgIcon viewBox='0 0 16 16' fontSize='small'>

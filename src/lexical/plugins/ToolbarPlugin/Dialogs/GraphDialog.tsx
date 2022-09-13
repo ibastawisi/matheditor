@@ -3,8 +3,8 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import { INSERT_GRAPH_COMMAND } from '../GraphPlugin';
-import { GraphNode, GraphType } from '../../nodes/GraphNode';
+import { INSERT_GRAPH_COMMAND } from '../../GraphPlugin';
+import { GraphNode, GraphType } from '../../../nodes/GraphNode';
 import { useRef } from 'react';
 
 export enum GraphDialogMode {
