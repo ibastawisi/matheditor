@@ -2,6 +2,7 @@ export default function Privacy() {
   return (
     <div>
       <h1>Privacy Policy</h1>
+      <strong>Last Updated: Sept. 14, 2022</strong>
       <p>
         This privacy policy has been compiled to better serve those who are
         concerned with how their 'Personally Identifiable Information' (PII) is
@@ -18,20 +19,24 @@ export default function Privacy() {
           use our website or app?</strong>
       </p>
       <p>
-        Before creating a new docment you may choose to enter your name in the global editor config,
-        or you may leave it blank.
-        if you choose so, your name will be used as the author of the document.
-        This helps us to identify your document in case you share it with others.
+        We do not collect information from our users if they choose not to use the cloud storage feature.
+        <br />
+        Otherwise, upon login we collect the following personal information:
+        <ul>
+          <li>Username</li>
+          <li>Email</li>
+          <li>Profile picture</li>
+        </ul>
       </p>
       <p>
         <strong>Do we use 'cookies'?</strong>
       </p>
       <p>
-        No. Cookies are small files that a site or its service provider places
+        Yes. Cookies are small files that a site or its service provider places
         on your computer, which often includes an anonymous unique identifier.
         A cookie is used to identify you when you visit a website. It is used to
         collect information such as your IP address, browser type, operating
-        system, language preference, and location. We currently don't use cookies.
+        system, language preference, and location. We use cookies to keep you logged in for a week.
       </p>
       <p>
         <strong>Do we disclose any information to outside parties?</strong>
@@ -46,25 +51,6 @@ export default function Privacy() {
         site policies, or protect ours or others rights, property, or safety.
         However, non-personally identifiable visitor information may be provided
         to other parties for marketing, advertising, or other uses.
-      </p>
-      <p>
-        <strong>Third party links</strong>
-      </p>
-      <p>
-        Occasionally, at our discretion, we may include or offer third party
-        products or services on our website. These third party sites and
-        services, including their content and links, are provided by
-        third parties. We have no control over the content of these sites or
-        services.
-      </p>
-      <p>
-        <strong>jsonbin.org</strong>
-      </p>
-      <p>
-        <a href="https://jsonbin.org/">jsonbin.org</a> is a personal key/value JSON store as a service.
-        Protected behind authentication and API key requests, data is stored as JSON and can be deep linked.
-        A permissioning model also allows specific paths to your store to become public to share with others.
-        we use it to store and retrieve data for the documents you share.
       </p>
       <p>
         <strong>Links to other sites</strong>
