@@ -29,7 +29,7 @@ import {
   DecoratorNode,
 } from 'lexical';
 import { useEffect, useRef, useState } from 'react';
-import { isEqual } from "lodash";
+import isEqual from "lodash/isEqual";
 
 import StickyEditorTheme from './StickyEditorTheme';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';

@@ -51,9 +51,8 @@ import SplashScreen from '../components/SplachScreen';
 import theme from "./theme";
 import "./styles.css";
 import ComponentPickerMenuPlugin from './plugins/ComponentPickerPlugin';
-import { isEqual } from 'lodash';
+import isEqual from 'lodash/isEqual';
 import ClickableLinkPlugin from './plugins/LinkPlugin/ClickableLinkPlugin';
-import CodeActionMenuPlugin from './plugins/CodePlugin/CodeActionMenuPlugin';
 
 const editorConfig = {
   namespace: "matheditor",
@@ -142,7 +141,6 @@ export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onCh
         <SketchPlugin />
         <GraphPlugin />
         <StickyPlugin />
-        <CodeActionMenuPlugin />
         {isReady && <>
           <CodeHighlightPlugin />
           <AutoLinkPlugin />
