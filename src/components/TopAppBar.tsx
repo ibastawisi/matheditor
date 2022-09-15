@@ -33,7 +33,6 @@ function HideOnScroll({ children }: { children: React.ReactElement }) {
 function ScrollTop({ children }: { children: React.ReactElement }) {
   const trigger = useScrollTrigger({
     disableHysteresis: true,
-    threshold: 100,
   });
 
   const handleClick = (event: React.MouseEvent) => {
@@ -88,7 +87,7 @@ const TopAppBar: React.FC<{}> = () => {
             </Link>
             <Box sx={{ flexGrow: 1 }} />
             <IconButton onClick={openSettingsDialog} color="inherit">
-              {user ? <Avatar alt={user.name} src={user.picture} sx={{ width: 30, height: 30 }} />: <SettingsIcon />}
+              {user ? <Avatar alt={user.name} src={user.picture} sx={{ width: 30, height: 30 }} /> : <SettingsIcon />}
             </IconButton>
             <IconButton onClick={colorMode.toggleColorMode} color="inherit">
               {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}

@@ -9,6 +9,10 @@
   user-select: none;
 }
 
+[theme=dark] .code-action-menu-container {
+  color: #858585;
+}
+
 .code-action-menu-container .code-highlight-language {
   margin-right: 4px;
 }
