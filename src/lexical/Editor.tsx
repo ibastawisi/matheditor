@@ -53,6 +53,7 @@ import "./styles.css";
 import ComponentPickerMenuPlugin from './plugins/ComponentPickerPlugin';
 import { isEqual } from 'lodash';
 import ClickableLinkPlugin from './plugins/LinkPlugin/ClickableLinkPlugin';
+import CodeActionMenuPlugin from './plugins/CodePlugin/CodeActionMenuPlugin';
 
 const editorConfig = {
   namespace: "matheditor",
@@ -107,7 +108,7 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
         <Box className="editor-shell" sx={sx}>
           <ToolbarPlugin />
           <div className="editor-inner">
-            <EditorPlugins contentEditable={<ContentEditable className="editor-input" />} onChange={onChange} showDebugView={config.debug} />
+            <EditorPlugins contentEditable={<ContentEditable className="editor-input" />} onChange={onChange} showDebugView={config.debug} isReady={initialized} />
           </div>
         </Box>
       </LexicalComposer>
@@ -141,6 +142,7 @@ export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onCh
         <SketchPlugin />
         <GraphPlugin />
         <StickyPlugin />
+        <CodeActionMenuPlugin />
         {isReady && <>
           <CodeHighlightPlugin />
           <AutoLinkPlugin />

@@ -124,17 +124,6 @@
   min-width: 25px;
 }
 
-.LexicalTheme__code:after {
-  content: attr(data-highlight-language);
-  top: 0;
-  right: 3px;
-  padding: 3px;
-  font-size: 10px;
-  text-transform: uppercase;
-  position: absolute;
-  color: rgba(0, 0, 0, 0.5);
-}
-
 [theme=dark] .LexicalTheme__code {
   background-color: rgb(30, 30, 30);
 }
