@@ -14,8 +14,20 @@ import { useEffect, useState } from 'react';
 
 import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
 import { ImageComponent } from '../ImageNode';
+
 import Virgil from "@excalidraw/excalidraw/dist/excalidraw-assets/Virgil.woff2";
 import Cascadia from "@excalidraw/excalidraw/dist/excalidraw-assets/Cascadia.woff2";
+
+const encodeFonts = Promise.all([
+  fetch(Virgil).then(res => res.blob()).then(async blob => {
+    new FontFace("Virgil", await blob.arrayBuffer()).load().then(font => document.fonts.add(font));
+    return blobToBase64(blob)
+  }),
+  fetch(Cascadia).then(res => res.blob()).then(async blob => {
+    new FontFace("Cascadia", await blob.arrayBuffer()).load().then(font => document.fonts.add(font));
+    return blobToBase64(blob)
+  })
+]);
 
 export interface SketchPayload {
   key?: NodeKey;
@@ -66,11 +78,8 @@ function SketchComponent({
 
   useEffect(() => {
     async function embedFonts() {
-      const encodedFonts = await Promise.all([
-        fetch(Virgil).then(res => res.blob()).then(blob => blobToBase64(blob)),
-        fetch(Cascadia).then(res => res.blob()).then(blob => blobToBase64(blob))
-      ]);
-      const fonts = `@font-face { font-family: 'Virgil'; src: url('${encodedFonts[0]}') format('woff2');} @font-face { font-family: 'Cascadia'; src: url('${encodedFonts[1]}') format('woff2'); }`;
+      const [virgil, cascadia] = await encodeFonts;
+      const fonts = `@font-face { font-family: 'Virgil'; src: url('${virgil}') format('woff2');} @font-face { font-family: 'Cascadia'; src: url('${cascadia}') format('woff2'); }`;
       const encoded = src.substring(src.indexOf(',') + 1);
       const decoded = decodeURIComponent(encoded);
       const serialized = decoded.replace(/<style>[\s\S]*<\/style>/, `<style>${fonts}</style>`);

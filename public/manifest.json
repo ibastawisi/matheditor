@@ -8,6 +8,11 @@
       "type": "image/x-icon"
     },
     {
+      "src": "/logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    },
+    {
       "src": "logo192.png",
       "type": "image/png",
       "sizes": "192x192"
@@ -22,7 +27,9 @@
     {
       "action": "/open",
       "accept": {
-        "application/json": [".me"]
+        "application/json": [
+          ".me"
+        ]
       },
       "icons": [
         {
