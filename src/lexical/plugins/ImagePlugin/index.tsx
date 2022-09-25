@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import { $createParagraphNode, $getRoot, $isParagraphNode, LexicalCommand, LexicalEditor } from 'lexical';
+import { $createParagraphNode, $insertNodes, $isRootNode, LexicalCommand, LexicalEditor } from 'lexical';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { mergeRegister } from '@lexical/utils';
+import { $wrapNodeInElement, mergeRegister } from '@lexical/utils';
 import {
   $createRangeSelection,
   $getSelection,
@@ -42,23 +42,12 @@ export default function ImagesPlugin(): JSX.Element | null {
       editor.registerCommand<InsertImagePayload>(
         INSERT_IMAGE_COMMAND,
         (payload) => {
-          const selection = $getSelection();
-          const nodes = selection?.getNodes();
-
           const imageNode = $createImageNode(payload);
-          const paragraphNode = $createParagraphNode();
-          paragraphNode.append(imageNode);
-
-          const root = $getRoot();
-          const selectedNode = nodes ? nodes[nodes.length - 1] : root.getLastDescendant();
-          if ($isParagraphNode(selectedNode)) {
-            selectedNode.append(imageNode);
-          } else {
-            selectedNode!.getTopLevelElementOrThrow().insertAfter(paragraphNode);
+          $insertNodes([imageNode]);
+          if ($isRootNode(imageNode.getParentOrThrow())) {
+            $wrapNodeInElement(imageNode, $createParagraphNode)
           }
-
           imageNode.select();
-
           return true;
         },
         COMMAND_PRIORITY_EDITOR,
@@ -111,11 +100,8 @@ function onDragStart(event: DragEvent): boolean {
     JSON.stringify({
       data: {
         altText: node.__altText,
-        caption: node.__caption,
         height: node.__height,
         key: node.getKey(),
-        maxWidth: node.__maxWidth,
-        showCaption: node.__showCaption,
         src: node.__src,
         width: node.__width,
       },
@@ -195,9 +181,9 @@ function canDropImage(event: DragEvent): boolean {
   return !!(
     target &&
     target instanceof HTMLElement &&
-    !target.closest('code, span.editor-image') &&
+    !target.closest('code, span.editor-image, div.sticky-note') &&
     target.parentElement &&
-    target.parentElement.closest('div.ContentEditable__root')
+    target.parentElement.closest('div.editor-input')
   );
 }
 

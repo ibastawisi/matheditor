@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { actions } from "../slices";
 import { AppDispatch, RootState } from "../store";
 import { useParams } from "react-router-dom";
-import Editor from "../lexical/Editor";
+import Editor from "../lexical";
 
 import SplashScreen from "./SplachScreen";
 import { Helmet } from "react-helmet";

@@ -17,6 +17,13 @@ import {
   $createNodeSelection,
   EditorState,
 } from 'lexical';
+import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
+import { mergeRegister } from '@lexical/utils';
+import {
+  CLICK_COMMAND,
+  COMMAND_PRIORITY_LOW,
+} from 'lexical';
+
 
 import './StickyNode.css';
 
@@ -35,12 +42,15 @@ import StickyEditorTheme from './StickyEditorTheme';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import FormatPaintIcon from '@mui/icons-material/FormatPaint';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import IconButton from '@mui/material/IconButton';
-import { EditorPlugins } from '../../Editor';
+import { EditorPlugins } from '../../index';
+// import { DraggableBlockMenu } from '../../plugins/DraggableBlockPlugin';
 
-function StickyComponent({ nodeKey, color, data,}: { data?: SerializedEditorState; color: 'pink' | 'yellow'; nodeKey: NodeKey;}): JSX.Element {
+function StickyComponent({ nodeKey, color, data, }: { data?: SerializedEditorState; color: 'pink' | 'yellow'; nodeKey: NodeKey; }): JSX.Element {
   const [rootEditor] = useLexicalComposerContext();
   const [isEditable, setisEditable] = useState(() => rootEditor.isEditable());
+  const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
 
   const initialState = data ? rootEditor.parseEditorState(JSON.stringify(data)) : undefined;
 
@@ -61,6 +71,31 @@ function StickyComponent({ nodeKey, color, data,}: { data?: SerializedEditorStat
       editor.setEditorState(newState);
     }
   }, [stickyEditor, rootEditor, data]);
+
+  useEffect(() => {
+    mergeRegister(
+      rootEditor.registerCommand<MouseEvent>(
+        CLICK_COMMAND,
+        (payload) => {
+          const event = payload;
+          const target = event.target as HTMLElement;
+          if (target === stickyContainerRef.current || stickyContainerRef.current?.contains(target)) {
+            clearSelection();
+            setSelected(true);
+            return true;
+          }
+          return false;
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
+    );
+  }, [
+    clearSelection,
+    rootEditor,
+    isSelected,
+    nodeKey,
+    setSelected,
+  ]);
 
   const handleDelete = () => {
     rootEditor.update(() => {
@@ -92,16 +127,21 @@ function StickyComponent({ nodeKey, color, data,}: { data?: SerializedEditorStat
   }
 
   return (
-    <div ref={stickyContainerRef} className="sticky-note-container">
-      <div className={`sticky-note ${color}`} {...{ theme: 'light' }}>
-        {isEditable && (<>
-          <IconButton sx={{ displayPrint: 'none' }} onClick={handleDelete} className="delete" aria-label="Delete sticky note" title="Delete" color='inherit' size='small'>
+    <div ref={stickyContainerRef} className={"sticky-note-container" + (isSelected? " draggable": "")} draggable={isSelected}>
+        {isEditable && (<div className='sticky-tools'>
+          <IconButton sx={{ displayPrint: 'none' }} onClick={handleDelete} aria-label="Delete sticky note" title="Delete" color='inherit' size='small'>
             <DeleteIcon fontSize='inherit' />
           </IconButton>
-          <IconButton sx={{ displayPrint: 'none' }} className="color" color='inherit' size='small' aria-label="Change sticky note color" title="Color" onClick={handleColorChange}>
+          <IconButton sx={{ displayPrint: 'none' }} color='inherit' size='small' aria-label="Change sticky note color" title="Color" onClick={handleColorChange}>
             <FormatPaintIcon fontSize='inherit' />
           </IconButton>
-        </>)}
+          {isSelected && <IconButton sx={{ displayPrint: 'none', mr: "auto" }} color='inherit' size='small' aria-label="Drag sticky note" title="Drag">
+            <DragIndicatorIcon fontSize='inherit' />
+          </IconButton>
+          }
+        {/* {stickyContainerRef.current && <DraggableBlockMenu editor={stickyEditor.current} anchorElem={stickyContainerRef.current} />} */}
+        </div>)}
+      <div className={`sticky-note ${color}`} {...{ theme: 'light' }}>
         <LexicalNestedComposer initialEditor={stickyEditor.current}>
           <EditorPlugins contentEditable={<ContentEditable className="StickyNode__contentEditable" />} onChange={onChange} />
         </LexicalNestedComposer>
@@ -111,6 +151,11 @@ function StickyComponent({ nodeKey, color, data,}: { data?: SerializedEditorStat
 }
 
 type StickyNoteColor = 'pink' | 'yellow';
+
+export interface StickyPayload {
+  color?: StickyNoteColor;
+  data?: SerializedEditorState;
+}
 
 export type SerializedStickyNode = Spread<
   {
@@ -145,7 +190,7 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
   }
 
   constructor(
-    color: 'pink' | 'yellow',
+    color: StickyNoteColor,
     data?: SerializedEditorState,
     key?: NodeKey,
   ) {
@@ -208,6 +253,8 @@ export function $isStickyNode(
   return node instanceof StickyNode;
 }
 
-export function $createStickyNode(): StickyNode {
-  return new StickyNode('yellow');
+export function $createStickyNode(payload?: StickyPayload): StickyNode {
+  const color = payload?.color || 'yellow';
+  const data = payload?.data;
+  return new StickyNode(color, data);
 }

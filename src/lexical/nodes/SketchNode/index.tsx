@@ -13,7 +13,7 @@ import { DecoratorNode, } from 'lexical';
 import { useEffect, useState } from 'react';
 
 import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
-import { ImageComponent } from '../ImageNode';
+import { ImageComponent } from '../ImageNode/ImageComponent';
 
 import Virgil from "@excalidraw/excalidraw/dist/excalidraw-assets/Virgil.woff2";
 import Cascadia from "@excalidraw/excalidraw/dist/excalidraw-assets/Cascadia.woff2";

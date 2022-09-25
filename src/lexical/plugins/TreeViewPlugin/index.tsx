@@ -1,9 +1,10 @@
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
-import type { EditorState, ElementNode, GridSelection, LexicalEditor, LexicalNode, NodeSelection, RangeSelection, } from 'lexical';
+import type { EditorState, ElementNode, GridSelection, LexicalEditor, LexicalNode, NodeSelection, RangeSelection,} from 'lexical';
 
+import { $isLinkNode, LinkNode } from '@lexical/link';
 import { $isMarkNode } from '@lexical/mark';
-import { $getRoot, $getSelection, $isElementNode, $isGridSelection, $isRangeSelection, $isTextNode, } from 'lexical';
+import { $getRoot, $getSelection, $isElementNode, $isRangeSelection, $isTextNode, DEPRECATED_$isGridSelection, } from 'lexical';
 import { useEffect, useRef, useState } from 'react';
 import Button from "@mui/material/Button";
 import Slider from "@mui/material/Slider";
@@ -29,7 +30,7 @@ const SYMBOLS: Record<string, string> = Object.freeze({
   selectedLine: '>',
 });
 
-export function TreeView({ editor, }: { editor: LexicalEditor; }): JSX.Element {
+export function TreeView({ editor }: { editor: LexicalEditor; }): JSX.Element {
   const [timeStampedEditorStates, setTimeStampedEditorStates] = useState<Array<[number, EditorState]>>([]);
   const [content, setContent] = useState<string>('');
   const [timeTravelEnabled, setTimeTravelEnabled] = useState(false);
@@ -66,7 +67,7 @@ export function TreeView({ editor, }: { editor: LexicalEditor; }): JSX.Element {
 
   useEffect(() => {
     if (isPlaying) {
-      let timeoutId: NodeJS.Timeout;
+      let timeoutId: ReturnType<typeof setTimeout>;
 
       const play = () => {
         const currentIndex = playingIndexRef.current;
@@ -92,7 +93,7 @@ export function TreeView({ editor, }: { editor: LexicalEditor; }): JSX.Element {
       play();
 
       return () => {
-        window.clearTimeout(timeoutId);
+        clearTimeout(timeoutId);
       };
     }
   }, [timeStampedEditorStates, isPlaying, editor, totalEditorStates]);
@@ -199,7 +200,7 @@ function printRangeSelection(selection: RangeSelection): string {
 }
 
 function printObjectSelection(selection: NodeSelection): string {
-  return `: node\n  └ [${selection.getNodes().map(n => `${n.getKey()}] ${n.getType()}`).join(', ')}`;
+  return `: node\n  └ [${Array.from(selection._nodes).join(', ')}]`;
 }
 
 function printGridSelection(selection: GridSelection): string {
@@ -239,7 +240,7 @@ function generateContent(editorState: EditorState): string {
       ? ': null'
       : $isRangeSelection(selection)
         ? printRangeSelection(selection)
-        : $isGridSelection(selection)
+        : DEPRECATED_$isGridSelection(selection)
           ? printGridSelection(selection)
           : printObjectSelection(selection);
   });
@@ -286,21 +287,30 @@ function normalize(text: string) {
   );
 }
 
+// TODO Pass via props to allow customizability
 function printNode(node: LexicalNode) {
   if ($isTextNode(node)) {
-    const text = node.getTextContent(true);
+    const text = node.getTextContent();
     const title = text.length === 0 ? '(empty)' : `"${normalize(text)}"`;
-    const properties = printAllProperties(node);
+    const properties = printAllTextNodeProperties(node);
     return [title, properties.length !== 0 ? `{ ${properties} }` : null]
       .filter(Boolean)
       .join(' ')
       .trim();
-  }
-  if ($isMathNode(node)) {
+  } else if ($isLinkNode(node)) {
+    const link = node.getURL();
+    const title = link.length === 0 ? '(empty)' : `"${normalize(link)}"`;
+    const properties = printAllLinkNodeProperties(node);
+    return [title, properties.length !== 0 ? `{ ${properties} }` : null]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+  } else if ($isMathNode(node)) {
     const value = node.getValue();
     return `"${value}"`;
+  } else {
+    return '';
   }
-  return '';
 }
 
 const FORMAT_PREDICATES = [
@@ -325,15 +335,20 @@ const DETAIL_PREDICATES = [
 const MODE_PREDICATES = [
   (node: LexicalNode) => node.isToken() && 'Token',
   (node: LexicalNode) => node.isSegmented() && 'Segmented',
-  (node: LexicalNode) => node.isInert() && 'Inert',
 ];
 
-function printAllProperties(node: LexicalNode) {
+function printAllTextNodeProperties(node: LexicalNode) {
   return [
     printFormatProperties(node),
     printDetailProperties(node),
     printModeProperties(node),
   ]
+    .filter(Boolean)
+    .join(', ');
+}
+
+function printAllLinkNodeProperties(node: LinkNode) {
+  return [printTargetProperties(node), printRelProperties(node)]
     .filter(Boolean)
     .join(', ');
 }
@@ -374,6 +389,24 @@ function printFormatProperties(nodeOrSelection: LexicalNode | RangeSelection) {
     str = 'format: ' + str;
   }
 
+  return str;
+}
+
+function printTargetProperties(node: LinkNode) {
+  let str = node.getTarget();
+  // TODO Fix nullish on LinkNode
+  if (str != null) {
+    str = 'target: ' + str;
+  }
+  return str;
+}
+
+function printRelProperties(node: LinkNode) {
+  let str = node.getRel();
+  // TODO Fix nullish on LinkNode
+  if (str != null) {
+    str = 'rel: ' + str;
+  }
   return str;
 }
 
@@ -452,7 +485,7 @@ function $getSelectionStartEnd(
 ): [number, number] {
   const anchor = selection.anchor;
   const focus = selection.focus;
-  const textContent = node.getTextContent(true);
+  const textContent = node.getTextContent();
   const textLength = textContent.length;
 
   let start = -1;

@@ -2,7 +2,7 @@ import { LexicalEditor } from 'lexical';
 import { $createCodeNode } from '@lexical/code';
 import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, REMOVE_LIST_COMMAND } from '@lexical/list';
 import { $createHeadingNode, $createQuoteNode, HeadingTagType, } from '@lexical/rich-text';
-import { $wrapLeafNodesInElements } from '@lexical/selection';
+import { $wrapNodes } from '@lexical/selection';
 import { $createParagraphNode, $getSelection, $isRangeSelection } from 'lexical';
 
 import Select from '@mui/material/Select';
@@ -37,7 +37,7 @@ export function BlockFormatSelect({ editor, blockType }: {
       editor.update(() => {
         const selection = $getSelection();
         if ($isRangeSelection(selection)) {
-          $wrapLeafNodesInElements(selection, () => $createParagraphNode());
+          $wrapNodes(selection, () => $createParagraphNode());
         }
       });
     }
@@ -48,7 +48,7 @@ export function BlockFormatSelect({ editor, blockType }: {
       editor.update(() => {
         const selection = $getSelection();
         if ($isRangeSelection(selection)) {
-          $wrapLeafNodesInElements(selection, () => $createHeadingNode(headingSize)
+          $wrapNodes(selection, () => $createHeadingNode(headingSize)
           );
         }
       });
@@ -85,7 +85,7 @@ export function BlockFormatSelect({ editor, blockType }: {
         const selection = $getSelection();
 
         if ($isRangeSelection(selection)) {
-          $wrapLeafNodesInElements(selection, () => $createQuoteNode());
+          $wrapNodes(selection, () => $createQuoteNode());
         }
       });
     }
@@ -97,7 +97,7 @@ export function BlockFormatSelect({ editor, blockType }: {
         const selection = $getSelection();
         if ($isRangeSelection(selection)) {
           if (selection.isCollapsed()) {
-            $wrapLeafNodesInElements(selection, () => $createCodeNode());
+            $wrapNodes(selection, () => $createCodeNode());
           } else {
             const textContent = selection.getTextContent();
             const codeNode = $createCodeNode();

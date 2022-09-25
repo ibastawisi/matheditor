@@ -10,7 +10,7 @@ import { $createNodeSelection, $setSelection, DOMConversionMap, DOMConversionOut
 
 import { DecoratorNode, } from 'lexical';
 
-import { ImageComponent } from '../ImageNode';
+import { ImageComponent } from '../ImageNode/ImageComponent';
 
 export interface GraphPayload {
   key?: NodeKey;

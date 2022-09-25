@@ -6,11 +6,12 @@
  *
  */
 
-import { $createParagraphNode, $getRoot, $isParagraphNode, LexicalCommand } from 'lexical';
+import { $createParagraphNode, $insertNodes, $isRootNode, LexicalCommand } from 'lexical';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $getSelection, $isRangeSelection, COMMAND_PRIORITY_EDITOR, createCommand } from 'lexical';
+import { COMMAND_PRIORITY_EDITOR, createCommand } from 'lexical';
 import { useEffect } from 'react';
+import { $wrapNodeInElement } from '@lexical/utils';
 
 import { $createMathNode, MathNode } from '../../nodes/MathNode';
 
@@ -35,23 +36,10 @@ export default function MathPlugin(): JSX.Element | null {
       INSERT_MATH_COMMAND,
       (payload) => {
         const { value } = payload;
-        const selection = $getSelection();
-          const mathNode = $createMathNode(value);
-        if ($isRangeSelection(selection)) {
-          selection.insertNodes([mathNode]);
-        } else {
-          const nodes = selection?.getNodes();
-          const root = $getRoot();
-          const selectedNode = nodes ? nodes[nodes.length - 1] : root.getLastDescendant();
-          if ($isParagraphNode(selectedNode)) {
-            selectedNode.append(mathNode);
-          } else if ($isParagraphNode(selectedNode?.getParent())) {
-            selectedNode?.getParent()?.append(mathNode);
-          } else {
-            const paragraphNode = $createParagraphNode();
-            paragraphNode.append(mathNode);
-            selectedNode!.getTopLevelElementOrThrow().insertAfter(paragraphNode);
-          }
+        const mathNode = $createMathNode(value);
+        $insertNodes([mathNode]);
+        if ($isRootNode(mathNode.getParentOrThrow())) {
+          $wrapNodeInElement(mathNode, $createParagraphNode);
         }
         mathNode.select();
         return true;

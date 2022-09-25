@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import Editor from "../lexical/Editor";
+import Editor from "../lexical";
 import { Helmet } from "react-helmet";
 import playgroundTemplate from '../templates/Playground.json';
 import { EditorDocument } from "../slices/app";

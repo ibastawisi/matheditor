@@ -33,6 +33,13 @@ span.editor-image {
   user-select: none;
 }
 
+.editor-image img.focused.draggable {
+  cursor: grab
+}
+
+.editor-image img.focused.draggable:active {
+  cursor: grabbing
+}
 .editor-image .image-resizer {
   position: absolute;
   padding: 0;

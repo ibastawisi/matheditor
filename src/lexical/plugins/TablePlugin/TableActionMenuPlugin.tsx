@@ -24,15 +24,13 @@ import {
   TableCellHeaderStates,
   TableCellNode,
 } from '@lexical/table';
-import IconButton from '@mui/material/IconButton';
 import {
+  $getRoot,
   $getSelection,
-  $isGridSelection,
   $isRangeSelection,
-  $setSelection,
+  DEPRECATED_$isGridSelection,
 } from 'lexical';
-import * as React from 'react';
-import { ReactPortal, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import Box from '@mui/material/Box';
@@ -40,6 +38,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
 
 type TableCellActionMenuProps = Readonly<{
   anchorElRef: { current: null | HTMLElement };
@@ -78,7 +77,7 @@ function TableActionMenu({
     editor.getEditorState().read(() => {
       const selection = $getSelection();
 
-      if ($isGridSelection(selection)) {
+      if (DEPRECATED_$isGridSelection(selection)) {
         const selectionShape = selection.getShape();
 
         updateSelectionCounts({
@@ -114,7 +113,8 @@ function TableActionMenu({
         updateTableCellNode(tableCellNode.getLatest());
       }
 
-      $setSelection(null);
+      const rootNode = $getRoot();
+      rootNode.selectStart();
     });
   }, [editor, tableCellNode]);
 
@@ -127,7 +127,7 @@ function TableActionMenu({
 
         let tableRowIndex;
 
-        if ($isGridSelection(selection)) {
+        if (DEPRECATED_$isGridSelection(selection)) {
           const selectionShape = selection.getShape();
           tableRowIndex = shouldInsertAfter
             ? selectionShape.toY
@@ -163,7 +163,7 @@ function TableActionMenu({
 
         let tableColumnIndex;
 
-        if ($isGridSelection(selection)) {
+        if (DEPRECATED_$isGridSelection(selection)) {
           const selectionShape = selection.getShape();
           tableColumnIndex = shouldInsertAfter
             ? selectionShape.toX
@@ -173,11 +173,14 @@ function TableActionMenu({
             $getTableColumnIndexFromTableCellNode(tableCellNode);
         }
 
+        const grid = $getElementGridForTableNode(editor, tableNode);
+
         $insertTableColumn(
           tableNode,
           tableColumnIndex,
           shouldInsertAfter,
           selectionCounts.columns,
+          grid,
         );
 
         clearTableSelection();
@@ -457,8 +460,7 @@ function TableCellActionMenuContainer({
 
         menuButtonDOM.style.opacity = '1';
 
-        menuButtonDOM.style.left = `${tableCellRect.right - menuRect.width - 10 - anchorRect.left
-          }px`;
+        menuButtonDOM.style.left = `${tableCellRect.right - menuRect.width - anchorRect.left}px`;
 
         menuButtonDOM.style.top = `${tableCellRect.top - anchorRect.top + 4}px`;
       } else {
@@ -502,13 +504,9 @@ function TableCellActionMenuContainer({
   );
 }
 
-export default function TableActionMenuPlugin({
-  anchorElem = document.body,
-}: {
-  anchorElem?: HTMLElement;
-}): ReactPortal {
-  return createPortal(
-    <TableCellActionMenuContainer anchorElem={anchorElem} />,
-    anchorElem,
-  );
+export default function TableActionMenuPlugin({ anchorElem = document.body }: { anchorElem?: HTMLElement; }) {
+  const [editor] = useLexicalComposerContext();
+  if (!editor.isEditable()) return null;
+
+  return createPortal(<TableCellActionMenuContainer anchorElem={anchorElem} />, anchorElem);
 }

@@ -7,12 +7,27 @@
  */
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { LexicalCommand, createCommand, $getRoot, COMMAND_PRIORITY_EDITOR, $getSelection, $createParagraphNode, $isParagraphNode } from 'lexical';
+import { LexicalCommand, $getRoot, $createParagraphNode, $isParagraphNode, LexicalEditor } from 'lexical';
 import { useEffect } from 'react';
+import { mergeRegister } from '@lexical/utils';
+import {
+  $createRangeSelection,
+  $getSelection,
+  $isNodeSelection,
+  $setSelection,
+  COMMAND_PRIORITY_EDITOR,
+  COMMAND_PRIORITY_HIGH,
+  COMMAND_PRIORITY_LOW,
+  createCommand,
+  DRAGOVER_COMMAND,
+  DRAGSTART_COMMAND,
+  DROP_COMMAND,
+} from 'lexical';
 
-import { $createStickyNode, StickyNode } from '../../nodes/StickyNode';
+import { $createStickyNode, $isStickyNode, StickyNode, StickyPayload } from '../../nodes/StickyNode';
+export type InsertStickyPayload = Readonly<StickyPayload>;
 
-export const INSERT_STICKY_COMMAND: LexicalCommand<void> = createCommand();
+export const INSERT_STICKY_COMMAND: LexicalCommand<InsertStickyPayload | undefined> = createCommand();
 
 export default function StickyPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
@@ -20,31 +35,174 @@ export default function StickyPlugin(): JSX.Element | null {
     if (!editor.hasNodes([StickyNode])) {
       throw new Error('StickyPlugin: StickyNode not registered on editor');
     }
-    return editor.registerCommand(
-      INSERT_STICKY_COMMAND,
-      () => {
-        const stickyNode = $createStickyNode();
-        const paragraphNode = $createParagraphNode();
-        paragraphNode.append(stickyNode);
-        const selection = $getSelection();
-        const nodes = selection?.getNodes();
-        const root = $getRoot();
-        const selectedNode = nodes ? nodes[nodes.length - 1] : root.getLastDescendant();
-        const parent = selectedNode!.getParentOrThrow();
-        if ($isParagraphNode(selectedNode)) {
-          selectedNode.append(stickyNode);
-        } else if($isParagraphNode(parent)) {
-          selectedNode?.insertBefore(stickyNode);
-        } else {
-          parent?.insertAfter(paragraphNode);
-        }
+    return mergeRegister(
+      editor.registerCommand(
+        INSERT_STICKY_COMMAND,
+        (payload) => {
+          const stickyNode = $createStickyNode(payload);
+          const paragraphNode = $createParagraphNode();
+          paragraphNode.append(stickyNode);
+          const selection = $getSelection();
+          const nodes = selection?.getNodes();
+          const root = $getRoot();
+          const selectedNode = nodes ? nodes[nodes.length - 1] : root.getLastDescendant();
+          const parent = selectedNode!.getParentOrThrow();
+          if ($isParagraphNode(selectedNode)) {
+            selectedNode.append(stickyNode);
+          } else if ($isParagraphNode(parent)) {
+            selectedNode?.insertBefore(stickyNode);
+          } else {
+            parent?.insertAfter(paragraphNode);
+          }
 
-        stickyNode.select();
-        return true;
-      },
-      COMMAND_PRIORITY_EDITOR,
+          stickyNode.select();
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ), editor.registerCommand<DragEvent>(
+        DRAGSTART_COMMAND,
+        (event) => {
+          return onDragStart(event);
+        },
+        COMMAND_PRIORITY_HIGH,
+      ),
+      editor.registerCommand<DragEvent>(
+        DRAGOVER_COMMAND,
+        (event) => {
+          return onDragover(event);
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand<DragEvent>(
+        DROP_COMMAND,
+        (event) => {
+          return onDrop(event, editor);
+        },
+        COMMAND_PRIORITY_HIGH,
+      ),
     );
-
   }, [editor]);
+
   return null;
+}
+
+const TRANSPARENT_STICKY =
+  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+const img = document.createElement('img');
+img.src = TRANSPARENT_STICKY;
+
+function onDragStart(event: DragEvent): boolean {
+  const node = getStickyNodeInSelection();
+  if (!node) {
+    return false;
+  }
+  const dataTransfer = event.dataTransfer;
+  if (!dataTransfer) {
+    return false;
+  }
+  dataTransfer.setData('text/plain', '_');
+  dataTransfer.setDragImage(img, 0, 0);
+  dataTransfer.setData(
+    'application/x-lexical-drag',
+    JSON.stringify({
+      data: {
+        color: node.__color,
+        data: node.__data,
+        key: node.getKey(),
+      },
+      type: 'sticky',
+    }),
+  );
+
+  return true;
+}
+
+function onDragover(event: DragEvent): boolean {
+  const node = getStickyNodeInSelection();
+  if (!node) {
+    return false;
+  }
+  if (!canDropSticky(event)) {
+    event.preventDefault();
+  }
+  return true;
+}
+
+function onDrop(event: DragEvent, editor: LexicalEditor): boolean {
+  const node = getStickyNodeInSelection();
+  if (!node) {
+    return false;
+  }
+  const data = getDragStickyData(event);
+  if (!data) {
+    return false;
+  }
+  event.preventDefault();
+  if (canDropSticky(event)) {
+    const range = getDragSelection(event);
+    node.remove();
+    const rangeSelection = $createRangeSelection();
+    if (range !== null && range !== undefined) {
+      rangeSelection.applyDOMRange(range);
+    }
+    $setSelection(rangeSelection);
+    editor.dispatchCommand(INSERT_STICKY_COMMAND, data);
+  }
+  return true;
+}
+
+function getStickyNodeInSelection(): StickyNode | null {
+  const selection = $getSelection();
+  if (!$isNodeSelection(selection)) {
+    return null;
+  }
+  const nodes = selection.getNodes();
+  const node = nodes[0];
+  return $isStickyNode(node) ? node : null;
+}
+
+function getDragStickyData(event: DragEvent): null {
+  const dragData = event.dataTransfer?.getData('application/x-lexical-drag');
+  if (!dragData) {
+    return null;
+  }
+  const { type, data } = JSON.parse(dragData);
+  if (type !== 'sticky') {
+    return null;
+  }
+
+  return data;
+}
+
+declare global {
+  interface DragEvent {
+    rangeOffset?: number;
+    rangeParent?: Node;
+  }
+}
+
+function canDropSticky(event: DragEvent): boolean {
+  const target = event.target;
+  return !!(
+    target &&
+    target instanceof HTMLElement &&
+    !target.closest('code, span.editor-image, div.sticky-note-container') &&
+    target.parentElement &&
+    target.parentElement.closest('div.editor-input')
+  );
+}
+
+function getDragSelection(event: DragEvent): Range | null | undefined {
+  let range;
+  const domSelection = getSelection();
+  if (document.caretRangeFromPoint) {
+    range = document.caretRangeFromPoint(event.clientX, event.clientY);
+  } else if (event.rangeParent && domSelection !== null) {
+    domSelection.collapse(event.rangeParent, event.rangeOffset || 0);
+    range = domSelection.getRangeAt(0);
+  } else {
+    throw Error(`Cannot get the selection when dragging`);
+  }
+
+  return range;
 }

@@ -26,6 +26,9 @@ import ImagePlugin from "./plugins/ImagePlugin";
 import SketchPlugin from './plugins/SketchPlugin';
 import GraphPlugin from './plugins/GraphPlugin';
 import StickyPlugin from './plugins/StickyPlugin';
+import ClickableLinkPlugin from './plugins/LinkPlugin/ClickableLinkPlugin';
+import ComponentPickerMenuPlugin from './plugins/ComponentPickerPlugin';
+import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
@@ -46,15 +49,13 @@ import { actions } from "../slices";
 import { EditorDocument } from "../slices/app";
 
 import Box from '@mui/material/Box';
-import { SxProps, Theme } from '@mui/material/styles';
 import SplashScreen from '../components/SplachScreen';
 import theme from "./theme";
-import "./styles.css";
-import ComponentPickerMenuPlugin from './plugins/ComponentPickerPlugin';
 import isEqual from 'lodash/isEqual';
-import ClickableLinkPlugin from './plugins/LinkPlugin/ClickableLinkPlugin';
+import { validateData } from './utils/state';
+import "./styles.css";
 
-const editorConfig = {
+export const editorConfig = {
   namespace: "matheditor",
   // The editor theme
   theme: theme,
@@ -84,7 +85,7 @@ const editorConfig = {
   ]
 };
 
-const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefined, editable: boolean }> = ({ document, sx, editable }) => {
+const Editor: React.FC<{ document: EditorDocument, editable: boolean }> = ({ document, editable }) => {
   const [initialized, setInitialized] = useState(false);
   const config = useSelector((state: RootState) => state.app.config.editor);
   const dispatch = useDispatch<AppDispatch>();
@@ -101,17 +102,13 @@ const Editor: React.FC<{ document: EditorDocument, sx?: SxProps<Theme> | undefin
   }, []);
 
   return (
-    <>
+    <Box className="editor">
       {!initialized && <SplashScreen title='Loading Editor' />}
-      <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(document.data), editable }}>
-        <Box className="editor-shell" sx={sx}>
-          <ToolbarPlugin />
-          <div className="editor-inner">
-            <EditorPlugins contentEditable={<ContentEditable className="editor-input" />} onChange={onChange} showDebugView={config.debug} isReady={initialized} />
-          </div>
-        </Box>
+      <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(validateData(document.data)), editable }}>
+        <ToolbarPlugin />
+        <EditorPlugins contentEditable={<ContentEditable className="editor-input" />} onChange={onChange} showDebugView={config.debug} isReady={initialized} />
       </LexicalComposer>
-    </>
+    </Box>
   );
 }
 
@@ -122,7 +119,7 @@ export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onCh
       <>
         <RichTextPlugin contentEditable={contentEditable} placeholder="" />
         <HistoryPlugin externalHistoryState={historyState} />
-        <OnChangePlugin ignoreInitialChange ignoreSelectionChange ignoreHistoryMergeTagChange onChange={onChange} />
+        <OnChangePlugin ignoreSelectionChange onChange={onChange} />
         {showDebugView && <TreeViewPlugin />}
         <ListPlugin />
         <CheckListPlugin />
@@ -142,6 +139,7 @@ export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onCh
         <GraphPlugin />
         <StickyPlugin />
         {isReady && <>
+          <DraggableBlockPlugin />
           <CodeHighlightPlugin />
           <AutoLinkPlugin />
         </>}

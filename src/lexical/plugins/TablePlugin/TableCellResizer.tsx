@@ -5,12 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type {Cell} from '@lexical/table';
-import type {LexicalEditor} from 'lexical';
+import type { Cell } from '@lexical/table';
+import type { LexicalEditor } from 'lexical';
 
 import './TableCellResizer.css';
-
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getTableColumnIndexFromTableCellNode,
   $getTableNodeFromLexicalNodeOrThrow,
@@ -22,8 +21,8 @@ import {
 import {
   $getNearestNodeFromDOMNode,
   $getSelection,
-  $isGridSelection,
   COMMAND_PRIORITY_HIGH,
+  DEPRECATED_$isGridSelection,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
 import * as React from 'react';
@@ -36,7 +35,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import {createPortal} from 'react-dom';
+import { createPortal } from 'react-dom';
 
 type MousePosition = {
   x: number;
@@ -48,7 +47,7 @@ type MouseDraggingDirection = 'right' | 'bottom';
 const MIN_ROW_HEIGHT = 33;
 const MIN_COLUMN_WIDTH = 50;
 
-function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
+function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
   const targetRef = useRef<HTMLElement | null>(null);
   const resizerRef = useRef<HTMLDivElement | null>(null);
   const tableRectRef = useRef<ClientRect | null>(null);
@@ -67,7 +66,7 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
       SELECTION_CHANGE_COMMAND,
       (payload) => {
         const selection = $getSelection();
-        const isGridSelection = $isGridSelection(selection);
+        const isGridSelection = DEPRECATED_$isGridSelection(selection);
 
         if (isSelectingGrid !== isGridSelection) {
           updateIsSelectingGrid(isGridSelection);
@@ -235,13 +234,13 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
         }
 
         if (draggingDirection === direction && mouseStartPosRef.current) {
-          const {x, y} = mouseStartPosRef.current;
+          const { x, y } = mouseStartPosRef.current;
 
           if (activeCell === null) {
             return;
           }
 
-          const {height, width} = activeCell.elem.getBoundingClientRect();
+          const { height, width } = activeCell.elem.getBoundingClientRect();
 
           if (isHeightChanging(direction)) {
             const heightChange = Math.abs(event.clientY - y);
@@ -288,7 +287,7 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
 
   const getResizers = useCallback(() => {
     if (activeCell) {
-      const {height, width, top, left} =
+      const { height, width, top, left } =
         activeCell.elem.getBoundingClientRect();
 
       const styles = {
@@ -314,21 +313,17 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
 
       if (draggingDirection && mouseCurrentPos && tableRect) {
         if (isHeightChanging(draggingDirection)) {
-          styles[draggingDirection].left = `${
-            window.pageXOffset + tableRect.left
-          }px`;
-          styles[draggingDirection].top = `${
-            window.pageYOffset + mouseCurrentPos.y
-          }px`;
+          styles[draggingDirection].left = `${window.pageXOffset + tableRect.left
+            }px`;
+          styles[draggingDirection].top = `${window.pageYOffset + mouseCurrentPos.y
+            }px`;
           styles[draggingDirection].height = '3px';
           styles[draggingDirection].width = `${tableRect.width}px`;
         } else {
-          styles[draggingDirection].top = `${
-            window.pageYOffset + tableRect.top
-          }px`;
-          styles[draggingDirection].left = `${
-            window.pageXOffset + mouseCurrentPos.x
-          }px`;
+          styles[draggingDirection].top = `${window.pageYOffset + tableRect.top
+            }px`;
+          styles[draggingDirection].left = `${window.pageXOffset + mouseCurrentPos.x
+            }px`;
           styles[draggingDirection].width = '3px';
           styles[draggingDirection].height = `${tableRect.height}px`;
         }

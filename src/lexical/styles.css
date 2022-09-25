@@ -9,11 +9,7 @@ body {
   margin: 1rem auto 0;
 }
 
-.editor-shell {
-  position: relative;
-}
-
-.editor-inner {
+.editor {
   position: relative;
 }
 
@@ -25,7 +21,7 @@ body {
   position: relative;
   tab-size: 1;
   outline: 0;
-  padding: 15px 10px;
+  padding: 1rem;
   caret-color: #444;
 }
 
@@ -72,8 +68,10 @@ body {
 }
 
 @media print {
-  .editor-container {
-    margin-top: 0;
+  .editor-container,
+  .editor-input {
+    padding: 0 !important;
+    margin-top: 0 !important;
   }
 
   *,

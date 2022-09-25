@@ -14,6 +14,8 @@ import { useDispatch } from "react-redux";
 import { actions } from "../slices";
 import { AppDispatch } from "../store";
 import { SerializedEditorState } from "lexical/LexicalEditorState";
+import { SerializedHeadingNode } from "@lexical/rich-text";
+import { SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "lexical";
 
 const NewDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -31,8 +33,41 @@ const NewDocument: React.FC = () => {
       const cloudData = payload.data;
       if (cloudData) return cloudData;
     } else {
-      const newData = { root: { type: "root", children: [{ type: 'heading', "format": "center", "tag": "h2", children: [{ type: 'text', text: name }] }, { type: 'paragraph' }] } };
-      return newData;
+      const headingText: SerializedTextNode = {
+        detail: 0,
+        format: 0,
+        mode: 'normal',
+        style: '',
+        text: name,
+        type: 'text',
+        version: 1,
+      }
+      const heading: SerializedHeadingNode = {
+        children: [headingText],
+        direction: "ltr",
+        format: "center",
+        indent: 0,
+        tag: "h2",
+        type: "heading",
+        version: 1,
+      }
+      const paragraph: SerializedParagraphNode = {
+        children: [],
+        direction: "ltr",
+        format: 'left',
+        indent: 0,
+        type: "paragraph",
+        version: 1,
+      }
+      const root: SerializedRootNode = {
+        children: [heading, paragraph],
+        direction: "ltr",
+        type: "root",
+        version: 1,
+        format: 'left',
+        indent: 0
+      }
+      return ({ root });
     }
   };
 
