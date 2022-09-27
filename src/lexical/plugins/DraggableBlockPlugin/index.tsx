@@ -330,7 +330,6 @@ export function DraggableBlockMenu({
     <>
       <IconButton
         className="draggable-block-menu"
-        sx={{ position: 'absolute' }}
         ref={anchorRef}
         draggable={true}
         onDragStart={onDragStart}

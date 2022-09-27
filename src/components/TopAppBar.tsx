@@ -73,6 +73,8 @@ const TopAppBar: React.FC<{}> = () => {
     setSettingsOpen(false);
   };
 
+  const showPrintButton = !["/", "/new"].includes(location.pathname);
+  
   return (
     <>
       <LoadingBar className='loading-bar' style={{ position: 'fixed' }} />
@@ -92,7 +94,7 @@ const TopAppBar: React.FC<{}> = () => {
             <IconButton onClick={colorMode.toggleColorMode} color="inherit">
               {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
-            {location.pathname !== "/" && <IconButton aria-label="Print" color="inherit" onClick={window.print}>
+            {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={window.print}>
               <PrintIcon />
             </IconButton>}
           </Toolbar>

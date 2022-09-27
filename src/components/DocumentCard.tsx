@@ -47,10 +47,15 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
   };
 
   const handleDelete = async () => {
-    if (window.confirm(`Are you sure you want to delete this ${variant} document?`)) {
-      variant === "local" ? dispatch(actions.app.deleteDocument(document.id)) :
-        dispatch(actions.app.deleteDocumentAsync(document.id));
-    }
+    dispatch(actions.app.alert(
+      {
+        title: `Delete ${variant} document`,
+        content: `Are you sure you want to delete ${document.name}?`,
+        action: variant === "local" ? 
+        `dispatch(actions.app.deleteDocument("${document.id}"))` :
+        `dispatch(actions.app.deleteDocumentAsync("${document.id}"))`
+      }
+    ));
   };
 
   const getPayload = async () => {

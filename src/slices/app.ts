@@ -1,19 +1,32 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Announcement } from '../components/Announcer';
 import { validate } from 'uuid';
 import { SerializedEditorState } from 'lexical';
 import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import { createDocument, deleteDocument, getAuthenticatedUser, getDocument, logout, updateDocument } from '../services';
 import { RootState } from '../store';
 
+export interface Alert {
+  title: string;
+  content: string;
+  action?: string;
+}
+export interface Announcement {
+  message: string;
+  action?: {
+    label: string
+    onClick: string
+  }
+  timeout?: number
+}
 export interface AppState {
-  announcement: Announcement | null;
   editor: EditorDocument;
   documents: Omit<EditorDocument, "data">[];
   user: User | null;
   ui: {
     isLoading: boolean;
     isSaving: boolean;
+    announcements: Announcement[],
+    alerts: Alert[],
   };
   config: {
     editor: {
@@ -41,13 +54,14 @@ export interface User {
 }
 
 const initialState: AppState = {
-  announcement: null,
   editor: {} as EditorDocument,
   documents: [] as Omit<EditorDocument, "data">[],
   user: null,
   ui: {
     isLoading: true,
     isSaving: false,
+    announcements: [],
+    alerts: [],
   },
   config: {
     editor: {
@@ -142,8 +156,8 @@ export const appSlice = createSlice({
         const localConfig = localStorage.getItem('config')
         state.config = { ...initialState.config, ...JSON.parse(localConfig || '{}') };
       } catch (e) { console.error("couldn't parse saved config: " + e); }
+      state.ui = initialState.ui;
       state.ui.isLoading = false;
-      state.announcement = null;
     },
     loadDocument: (state, action: PayloadAction<EditorDocument>) => {
       state.editor = action.payload;
@@ -180,10 +194,16 @@ export const appSlice = createSlice({
       window.localStorage.removeItem(action.payload);
     },
     announce: (state, action: PayloadAction<Announcement>) => {
-      state.announcement = action.payload
+      state.ui.announcements.push(action.payload);
     },
     clearAnnouncement: (state) => {
-      state.announcement = null
+      state.ui.announcements.shift();
+    },
+    alert: (state, action: PayloadAction<Alert>) => {
+      state.ui.alerts.push(action.payload);
+    },
+    clearAlert: (state) => {
+      state.ui.alerts.shift();
     },
     setConfig: (state, action: PayloadAction<AppState["config"]>) => {
       state.config = action.payload;
@@ -203,7 +223,7 @@ export const appSlice = createSlice({
       })
       .addCase(getDocumentAsync.rejected, (state, action) => {
         const message = action.payload as string;
-        state.announcement = { message }
+        state.ui.announcements.push({message});
       })
       .addCase(uploadDocumentAsync.fulfilled, (state, action) => {
         if (state.user && action.payload) {
@@ -213,7 +233,7 @@ export const appSlice = createSlice({
       })
       .addCase(uploadDocumentAsync.rejected, (state, action) => {
         const message = action.payload as string;
-        state.announcement = { message }
+        state.ui.announcements.push({ message });
       })
       .addCase(deleteDocumentAsync.fulfilled, (state, action) => {
         if (state.user) {
@@ -222,7 +242,7 @@ export const appSlice = createSlice({
       })
       .addCase(deleteDocumentAsync.rejected, (state, action) => {
         const message = action.payload as string;
-        state.announcement = { message }
+        state.ui.announcements.push({ message });
       })
   }
 });

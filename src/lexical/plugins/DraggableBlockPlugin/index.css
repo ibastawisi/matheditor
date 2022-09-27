@@ -1,4 +1,4 @@
-.draggable-block-menu {
+button.draggable-block-menu {
   border-radius: 4px;
   padding: 2px 1px;
   cursor: grab;
@@ -7,14 +7,14 @@
   top: -10000px;
 }
 
-.draggable-block-menu .icon {
+button.draggable-block-menu .icon {
   width: 16px;
   height: 16px;
   opacity: 0.5;
   pointer-events: none;
 }
 
-.draggable-block-menu:active {
+button.draggable-block-menu:active {
   cursor: grabbing;
 }
 

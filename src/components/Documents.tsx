@@ -42,8 +42,7 @@ const Documents: React.FC = () => {
   const handleFilesChange = async (files: FileList | File[] | null) => {
     if (!files?.length) return;
     if (files.length === 1) {
-      const id = await loadFromFile(files[0]);
-      id && navigate(`/edit/${id}`);
+      await loadFromFile(files[0]);
     } else {
       Array.from(files).forEach(async file => await loadFromFile(file));
       // update app state
@@ -68,7 +67,7 @@ const Documents: React.FC = () => {
       const data: EditorDocument | { [key: string]: EditorDocument } = JSON.parse(content);
       if (validate((data as EditorDocument).id)) {
         document = data as EditorDocument;
-        addDocument(data as EditorDocument);
+        addDocument(data as EditorDocument, true);
       } else {
         Object.values(data).forEach((document: EditorDocument) => {
           validate(document.id) && addDocument(document);
@@ -80,12 +79,19 @@ const Documents: React.FC = () => {
     return document;
   }
 
-  function addDocument(document: EditorDocument) {
+  function addDocument(document: EditorDocument, navigateTo?: boolean) {
     if (documents.find(d => d.id === document.id)) {
-      dispatch(actions.app.announce({ message: "Updating existing document: " + document.name }));
-      dispatch(actions.app.deleteDocument(document.id));
+      dispatch(actions.app.alert({
+        title: "Document already exists",
+        content: `Do you want to overwrite ${document.name}?`,
+        action: `dispatch(actions.app.deleteDocument("${document.id}"));
+         dispatch(actions.app.addDocument(${JSON.stringify(document)}));
+          ${navigateTo ? `navigate("/edit/${document.id}");` : ""}`
+      }))
+    } else {
+      dispatch(actions.app.addDocument(document));
+      navigateTo && navigate(`/edit/${document.id}`);
     }
-    dispatch(actions.app.addDocument(document));
   }
 
   function backup() {

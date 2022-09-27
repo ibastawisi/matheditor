@@ -21,7 +21,7 @@ body {
   position: relative;
   tab-size: 1;
   outline: 0;
-  padding: 1rem;
+  padding: 0.5rem;
   caret-color: #444;
 }
 
@@ -68,7 +68,9 @@ body {
 }
 
 @media print {
-  .editor-container,
+  .editor-container {
+    margin-top: 0 !important;
+  }
   .editor-input {
     padding: 0 !important;
     margin-top: 0 !important;

@@ -95,12 +95,14 @@
   padding: 0.25rem;
   color: rgba(0, 0, 0, 0.87);
   z-index: 1;
+  pointer-events: none;
 }
 
 .sticky-tools button {
   border: 0;
   background: none;
   opacity: 0.5;
+  pointer-events: all;
 }
 
 .sticky-tools button:hover {
@@ -112,7 +114,11 @@
   pointer-events: none;
 }
 
-.sticky-note-container.draggable .sticky-tools {
-  cursor: move;
+.sticky-note-container.draggable .drag-btn {
+  cursor: grab;
+}
+
+.sticky-note-container.draggable .drag-btn:active {
+  cursor: grabbing;
 }
 

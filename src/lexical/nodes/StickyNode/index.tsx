@@ -135,7 +135,7 @@ function StickyComponent({ nodeKey, color, data, }: { data?: SerializedEditorSta
           <IconButton sx={{ displayPrint: 'none' }} color='inherit' size='small' aria-label="Change sticky note color" title="Color" onClick={handleColorChange}>
             <FormatPaintIcon fontSize='inherit' />
           </IconButton>
-          {isSelected && <IconButton sx={{ displayPrint: 'none', mr: "auto" }} color='inherit' size='small' aria-label="Drag sticky note" title="Drag">
+          {isSelected && <IconButton className='drag-btn' sx={{ displayPrint: 'none', mr: "auto" }} color='inherit' size='small' aria-label="Drag sticky note" title="Drag">
             <DragIndicatorIcon fontSize='inherit' />
           </IconButton>
           }

@@ -20,6 +20,7 @@ import Privacy from './Privacy';
 import Playground from './Playground';
 import ViewDocument from './ViewDocument';
 import { BACKEND_URL } from '../config';
+import AlertDialog from './Alert';
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -56,6 +57,7 @@ function App() {
       </Container>
       <Footer />
       <Announcer />
+      <AlertDialog />
     </ThemeProvider >
   );
 }
