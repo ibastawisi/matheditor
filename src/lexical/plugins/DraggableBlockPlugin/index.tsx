@@ -347,6 +347,6 @@ export function DraggableBlockMenu({
 export default function DraggableBlockPlugin(){
   const [editor] = useLexicalComposerContext();
   const anchorElem = editor.getRootElement()?.parentElement || document.body;
-  if(IS_MOBILE) return null;
+  if(!editor.isEditable() || IS_MOBILE) return null;
   return DraggableBlockMenu({editor, anchorElem});
 }
