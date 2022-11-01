@@ -11,6 +11,7 @@ import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
+import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import MarkdownPlugin from "./plugins/MarkdownPlugin/MarkdownShortcutPlugin";
 import TreeViewPlugin from "./plugins/TreeViewPlugin";
 import ToolbarPlugin from "./plugins/ToolbarPlugin";
@@ -54,6 +55,7 @@ import theme from "./theme";
 import isEqual from 'lodash/isEqual';
 import { validateData } from './utils/state';
 import "./styles.css";
+import DragDropPaste from './plugins/DragDropPastePlugin';
 
 export const editorConfig = {
   namespace: "matheditor",
@@ -117,7 +119,7 @@ export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onCh
     const { historyState } = useSharedHistoryContext();
     return (
       <>
-        <RichTextPlugin contentEditable={contentEditable} placeholder="" />
+        <RichTextPlugin contentEditable={contentEditable} ErrorBoundary={LexicalErrorBoundary} placeholder="" />
         <HistoryPlugin externalHistoryState={historyState} />
         <OnChangePlugin ignoreSelectionChange onChange={onChange} />
         {showDebugView && <TreeViewPlugin />}
@@ -140,6 +142,7 @@ export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onCh
         <StickyPlugin />
         {isReady && <>
           <DraggableBlockPlugin />
+          <DragDropPaste />
           <CodeHighlightPlugin />
           <AutoLinkPlugin />
         </>}

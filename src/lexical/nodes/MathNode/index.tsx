@@ -55,17 +55,12 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
   useEffect(() => {
     const mathfield = ref.current;
     if (!mathfield) return;
+
+    // highlight when range selected
     const active = isSelected && $isRangeSelection(selection);
     mathfield.classList.toggle("selection-active", active);
 
-    // hack to restore focus
-    if (!selection && document.activeElement === mathfield) setSelected(true);
-    if (mathfield.hasFocus()) {
-      const mathfieldSelection = mathfield.selection;
-      mathfield.select();
-      mathfield.selection = mathfieldSelection;
-    }
-    // focus on selection
+    // focus when node selected
     if (isSelected && !mathfield.hasFocus()) {
       if (!$isNodeSelection(selection)) return;
       editor.getEditorState().read(() => {
@@ -77,7 +72,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
         const anchorOffset = anchor.offset;
         const isParentAnchor = anchorNode === mathNode.getParent();
         const indexWithinParent = mathNode.getIndexWithinParent();
-        const isBefore = isParentAnchor ? anchorOffset - indexWithinParent ===0 : anchorNode.isBefore(mathNode);
+        const isBefore = isParentAnchor ? anchorOffset - indexWithinParent === 0 : anchorNode.isBefore(mathNode);
         mathfield.focus();
         mathfield.executeCommand(isBefore ? 'moveToMathFieldStart' : 'moveToMathFieldEnd');
       });
@@ -122,6 +117,12 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
     mathfield.addEventListener("focus", event => {
       clearSelection();
       setSelected(true);
+      // hack to capture keboard events
+      setTimeout(() => {
+        const mathfieldSelection = mathfield.selection;
+        mathfield.select();
+        mathfield.selection = mathfieldSelection;
+      }, 0);
     });
 
     mathfield.addEventListener("keydown", event => {

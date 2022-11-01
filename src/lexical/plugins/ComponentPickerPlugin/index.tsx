@@ -89,18 +89,16 @@ const FormatAlignIcon = (alignment: string) =>
       alignment === 'right' ? <FormatAlignRightIcon /> :
         <FormatAlignJustifyIcon />;
 
-function IconMenu({ options, anchorEl, selectedIndex, setHighlightedIndex, selectOptionAndCleanUp }: {
+function IconMenu({ options, selectedIndex, setHighlightedIndex, selectOptionAndCleanUp }: {
   options: ComponentPickerOption[];
-  anchorEl: HTMLElement | null;
   selectedIndex: number | null;
   selectOptionAndCleanUp: (option: ComponentPickerOption) => void;
   setHighlightedIndex: (index: number) => void;
 }) {
   return (
-    <Paper>
+    <Paper sx={{ width: 224, marginTop: 3 }}>
       <MenuList sx={{
         maxHeight: 200,
-        width: 224,
         overflow: 'auto',
         displayPrint: 'none',
         colorScheme: 'initial',
@@ -421,7 +419,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           anchorElement,
           props,
         ) =>
-          anchorElement && options.length ? ReactDOM.createPortal(<IconMenu options={options} anchorEl={anchorElement} {...props} />, anchorElement) : null
+          anchorElement.current && options.length ? ReactDOM.createPortal(<IconMenu {...props} />, anchorElement.current) : null
         }
       />
     </>

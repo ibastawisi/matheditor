@@ -24,32 +24,11 @@ import {
 } from 'lexical';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { getDOMRangeRect } from '../../utils/getDOMRangeRect';
+import { setFloatingElemPosition } from '../../utils/setFloatingElemPosition';
 import TextFormatToggles from '../ToolbarPlugin/Tools/TextFormatToggles';
 
-function setPopupPosition(
-  editor: HTMLElement,
-  rect: ClientRect,
-  rootElementRect: ClientRect,
-): void {
-  let top = rect.top + rect.height + 4 + window.pageYOffset;
-  let left = rect.left + rect.width + window.pageXOffset;
-
-  editor.style.opacity = '1';
-  editor.style.top = `${top}px`;
-  editor.style.left = `${left}px`;
-
-  const editorRect = editor.getBoundingClientRect();
-
-  if (left + editorRect.width > rootElementRect.width) {
-    editor.style.left = left - editorRect.width > 0 ? `${left - editorRect.width}px`: '24px';
-  }
-}
-
-function FloatingToolbar({
-  editor,
-}: {
-  editor: LexicalEditor;
-}) {
+function FloatingToolbar({ editor, anchorElem }: { editor: LexicalEditor; anchorElem: HTMLElement; }) {
   const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null);
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
 
@@ -71,23 +50,12 @@ function FloatingToolbar({
       rootElement !== null &&
       rootElement.contains(nativeSelection.anchorNode)
     ) {
-      const domRange = nativeSelection.getRangeAt(0);
-      const rootElementRect = rootElement.getBoundingClientRect();
-      let rect;
+      const rangeRect = getDOMRangeRect(nativeSelection, rootElement);
 
-      if (nativeSelection.anchorNode === rootElement) {
-        let inner = rootElement;
-        while (inner.firstElementChild != null) {
-          inner = inner.firstElementChild as HTMLElement;
-        }
-        rect = inner.getBoundingClientRect();
-      } else {
-        rect = domRange.getBoundingClientRect();
-      }
-
-      setPopupPosition(popupCharStylesEditorElem, rect, rootElementRect);
+      setFloatingElemPosition(rangeRect, popupCharStylesEditorElem, anchorElem);
     }
-  }, [editor]);
+  }, [editor, anchorElem]);
+
 
   useEffect(() => {
     const onResize = () => {
@@ -128,7 +96,7 @@ function FloatingToolbar({
   if (!isEditable) return null;
 
   return (
-    <Paper ref={popupCharStylesEditorRef} sx={{ position: "absolute", displayPrint: "none" }}>
+    <Paper ref={popupCharStylesEditorRef} sx={{ position: "absolute", top: 0, left: 0, willChange: "transform", displayPrint: "none" }}>
       <TextFormatToggles editor={editor} />
     </Paper>
   );
@@ -152,6 +120,7 @@ function getSelectedNode(selection: RangeSelection): TextNode | ElementNode {
 
 function useFloatingToolbar(
   editor: LexicalEditor,
+  anchorElem: HTMLElement,
 ): JSX.Element | null {
   const [isText, setIsText] = useState(false);
 
@@ -209,10 +178,14 @@ function useFloatingToolbar(
     return null;
   }
 
-  return createPortal(<FloatingToolbar editor={editor} />, document.body);
+  return createPortal(<FloatingToolbar editor={editor} anchorElem={anchorElem} />, anchorElem);
 }
 
-export default function FloatingToolbarPlugin(): JSX.Element | null {
+export default function FloatingTextFormatToolbarPlugin({
+  anchorElem = document.body,
+}: {
+  anchorElem?: HTMLElement;
+}): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
-  return useFloatingToolbar(editor);
+  return useFloatingToolbar(editor, anchorElem);
 }

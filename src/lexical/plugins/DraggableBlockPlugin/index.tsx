@@ -8,6 +8,7 @@
 import './index.css';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { eventFiles } from '@lexical/rich-text';
 import { mergeRegister } from '@lexical/utils';
 import {
   $getNearestNodeFromDOMNode,
@@ -19,17 +20,21 @@ import {
   LexicalEditor,
 } from 'lexical';
 import { DragEvent as ReactDragEvent, useEffect, useRef, useState } from 'react';
-import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { createPortal } from 'react-dom';
+
 import { isHTMLElement } from '../../utils/guard';
 import { Point } from '../../utils/point';
 import { Rect } from '../../utils/rect';
+
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import IconButton from '@mui/material/IconButton';
 import { IS_MOBILE } from '../../../shared/environment';
 
+const SPACE = 4;
 const TARGET_LINE_HALF_HEIGHT = 2;
 const DRAGGABLE_BLOCK_MENU_CLASSNAME = 'draggable-block-menu';
 const DRAG_DATA_FORMAT = 'application/x-lexical-drag-block';
+const TEXT_BOX_HORIZONTAL_PADDING = 8;
 
 const Downward = 1;
 const Upward = -1;
@@ -70,7 +75,9 @@ function getBlockElement(
     while (index >= 0 && index < topLevelNodeKeys.length) {
       const key = topLevelNodeKeys[index];
       const elem = editor.getElementByKey(key);
-      if (!elem) return;
+      if (elem === null) {
+        break;
+      }
       const point = new Point(event.x, event.y);
       const domRect = Rect.fromDOM(elem);
       const { marginTop, marginBottom } = window.getComputedStyle(elem);
@@ -122,8 +129,7 @@ function setMenuPosition(
 ) {
   if (!targetElem) {
     floatingElem.style.opacity = '0';
-    floatingElem.style.top = '-10000px';
-    floatingElem.style.left = '-10000px';
+    floatingElem.style.transform = 'translate(-10000px, -10000px)';
     return;
   }
 
@@ -137,9 +143,10 @@ function setMenuPosition(
     (parseInt(targetStyle.lineHeight, 10) - floatingElemRect.height) / 2 -
     anchorElementRect.top;
 
+  const left = SPACE * -4;
+
   floatingElem.style.opacity = '1';
-  floatingElem.style.top = `${top}px`;
-  floatingElem.style.left = "-8px";
+  floatingElem.style.transform = `translate(${left}px, ${top}px)`;
 }
 
 function setDragImage(
@@ -164,37 +171,40 @@ function setTargetLine(
   anchorElem: HTMLElement,
 ) {
   const targetStyle = window.getComputedStyle(targetBlockElem);
-  const { top, height } = targetBlockElem.getBoundingClientRect();
-  const { top: anchorTop } =
+  const { top: targetBlockElemTop, height: targetBlockElemHeight } =
+    targetBlockElem.getBoundingClientRect();
+  const { top: anchorTop, width: anchorWidth } =
     anchorElem.getBoundingClientRect();
 
-  let lineTop = top;
+  let lineTop = targetBlockElemTop;
   // At the bottom of the target
-  if (mouseY - top > height / 2) {
-    lineTop += height + parseFloat(targetStyle.marginBottom);
+  if (mouseY - targetBlockElemTop > targetBlockElemHeight / 2) {
+    lineTop += targetBlockElemHeight + parseFloat(targetStyle.marginBottom);
   } else {
     lineTop -= parseFloat(targetStyle.marginTop);
   }
 
-  targetLineElem.style.top = `${lineTop - anchorTop - TARGET_LINE_HALF_HEIGHT}px`;
-  targetLineElem.style.left = "0";
-  targetLineElem.style.width = "100%";
+  const top = lineTop - anchorTop - TARGET_LINE_HALF_HEIGHT;
+  const left = TEXT_BOX_HORIZONTAL_PADDING - SPACE;
+
+  targetLineElem.style.transform = `translate(${left}px, ${top}px)`;
+  targetLineElem.style.width = `${anchorWidth - (TEXT_BOX_HORIZONTAL_PADDING - SPACE) * 2
+    }px`;
   targetLineElem.style.opacity = '.4';
 }
 
 function hideTargetLine(targetLineElem: HTMLElement | null) {
   if (targetLineElem) {
     targetLineElem.style.opacity = '0';
+    targetLineElem.style.transform = 'translate(-10000px, -10000px)';
   }
 }
 
-export function DraggableBlockMenu({
-  editor,
-  anchorElem,
-}: {
-  editor: LexicalEditor;
-  anchorElem: HTMLElement;
-}): JSX.Element {
+function useDraggableBlockMenu(
+  editor: LexicalEditor,
+  anchorElem: HTMLElement,
+  visible: boolean,
+) {
   const scrollerElem = anchorElem.parentElement;
 
   const anchorRef = useRef<HTMLButtonElement>(null);
@@ -240,8 +250,12 @@ export function DraggableBlockMenu({
 
   useEffect(() => {
     function onDragover(event: DragEvent): boolean {
+      const [isFileTransfer] = eventFiles(event);
+      if (isFileTransfer) {
+        return false;
+      }
       const { pageY, target } = event;
-      if (!isHTMLElement(target) || target.closest("div.sticky-note")) {
+      if (!isHTMLElement(target)) {
         return false;
       }
       const targetBlockElem = getBlockElement(anchorElem, editor, event);
@@ -256,6 +270,10 @@ export function DraggableBlockMenu({
     }
 
     function onDrop(event: DragEvent): boolean {
+      const [isFileTransfer] = eventFiles(event);
+      if (isFileTransfer) {
+        return false;
+      }
       const { target, dataTransfer, pageY } = event;
       const dragData = dataTransfer?.getData(DRAG_DATA_FORMAT) || '';
       const draggedNode = $getNodeByKey(dragData);
@@ -326,6 +344,8 @@ export function DraggableBlockMenu({
     hideTargetLine(targetLineRef.current);
   }
 
+  if (!visible) return null;
+
   return createPortal(
     <>
       <IconButton
@@ -344,9 +364,9 @@ export function DraggableBlockMenu({
   );
 }
 
-export default function DraggableBlockPlugin(){
+export default function DraggableBlockPlugin() {
   const [editor] = useLexicalComposerContext();
   const anchorElem = editor.getRootElement()?.parentElement || document.body;
-  if(!editor.isEditable() || IS_MOBILE) return null;
-  return DraggableBlockMenu({editor, anchorElem});
+  const visible = editor.isEditable() && !IS_MOBILE
+  return useDraggableBlockMenu(editor, anchorElem, visible);
 }

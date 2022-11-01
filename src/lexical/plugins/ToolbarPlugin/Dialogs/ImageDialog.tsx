@@ -49,6 +49,7 @@ export default function ImageDialog({ editor, node, mode, open, onClose }: { edi
     if (files !== null) {
       new Compressor(files![0], {
         quality: 0.6,
+        mimeType: 'image/jpeg',
         success(result: File) {
           reader.readAsDataURL(result);
         },
@@ -71,7 +72,7 @@ export default function ImageDialog({ editor, node, mode, open, onClose }: { edi
     onClose();
   }
 
-  
+
   if (!open) return null;
 
   return (
