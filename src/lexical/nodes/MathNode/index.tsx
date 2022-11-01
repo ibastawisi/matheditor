@@ -56,6 +56,9 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
     const mathfield = ref.current;
     if (!mathfield) return;
 
+    // reselect when selection is lost and mathfield is focused
+    if (!selection && document.activeElement === mathfield) setSelected(true);
+
     // highlight when range selected
     const active = isSelected && $isRangeSelection(selection);
     mathfield.classList.toggle("selection-active", active);
