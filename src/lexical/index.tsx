@@ -56,6 +56,7 @@ import isEqual from 'lodash/isEqual';
 import { validateData } from './utils/state';
 import "./styles.css";
 import DragDropPaste from './plugins/DragDropPastePlugin';
+import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
 
 export const editorConfig = {
   namespace: "matheditor",
@@ -135,6 +136,7 @@ export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onCh
         <TableCellActionMenuPlugin />
         <TableCellResizer />
         <ComponentPickerMenuPlugin />
+        <EmojiPickerPlugin />
         <MathPlugin />
         <ImagePlugin />
         <SketchPlugin />
