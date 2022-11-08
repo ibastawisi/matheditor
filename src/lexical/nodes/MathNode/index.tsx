@@ -5,6 +5,7 @@ import { $getNodeByKey, DecoratorNode, } from 'lexical';
 import { createRef, useEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
+import { CSS_TO_STYLES, getCSSFromStyleObject, getStyleObjectFromCSS, } from '../utils';
 import type { MathfieldElement } from "mathlive";
 import "mathlive/dist/mathlive.min.js"
 import './index.css';
@@ -169,10 +170,11 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
   return <math-field ref={ref} {...{ "read-only": true, "fonts-directory": "/mathlive/fonts" }} />;
 }
 
-export type SerializedMathNode = Spread<{ type: 'math'; value: string; }, SerializedLexicalNode>;
+export type SerializedMathNode = Spread<{ type: 'math'; value: string; style: string }, SerializedLexicalNode>;
 
 export class MathNode extends DecoratorNode<JSX.Element> {
   __value: string;
+  __style: string;
   __mathfieldRef = createRef<MathfieldElement>();
 
   static getType(): string {
@@ -180,17 +182,19 @@ export class MathNode extends DecoratorNode<JSX.Element> {
   }
 
   static clone(node: MathNode): MathNode {
-    return new MathNode(node.__value, node.__key);
+    return new MathNode(node.__value, node.__style, node.__key);
   }
 
-  constructor(value: string, key?: NodeKey) {
+  constructor(value: string, style: string, key?: NodeKey) {
     super(key);
     this.__value = value;
+    this.__style = style;
   }
 
   static importJSON(serializedNode: SerializedMathNode): MathNode {
     const node = $createMathNode(
       serializedNode.value,
+      serializedNode.style,
     );
     return node;
   }
@@ -198,6 +202,7 @@ export class MathNode extends DecoratorNode<JSX.Element> {
   exportJSON(): SerializedMathNode {
     return {
       value: this.getValue(),
+      style: this.getStyle(),
       type: 'math',
       version: 1,
     };
@@ -205,12 +210,23 @@ export class MathNode extends DecoratorNode<JSX.Element> {
 
   createDOM(_config: EditorConfig, _editor: LexicalEditor): HTMLElement {
     const dom = document.createElement('span');
+    const style = this.__style;
+    if (style !== '') {
+      dom.style.cssText = style;
+    }
     dom.style.display = 'inline-flex';
     dom.style.maxWidth = '100%';
     return dom;
   }
 
-  updateDOM(prevNode: MathNode): boolean {
+  updateDOM(prevNode: MathNode, dom: HTMLElement): boolean {
+    const prevStyle = prevNode.__style;
+    const nextStyle = this.__style;
+    if (prevStyle !== nextStyle) {
+      dom.style.cssText = nextStyle;
+      dom.style.display = 'inline-flex';
+      dom.style.maxWidth = '100%';
+    }
     return false;
   }
 
@@ -232,6 +248,17 @@ export class MathNode extends DecoratorNode<JSX.Element> {
     writable.__value = value;
   }
 
+  getStyle(): string {
+    const self = this.getLatest();
+    return self.__style;
+  }
+
+  setStyle(style: string): this {
+    const self = this.getWritable();
+    self.__style = style;
+    return self;
+  }
+
   select() {
     const nodeSelection = $createNodeSelection();
     nodeSelection.add(this.getKey());
@@ -243,11 +270,41 @@ export class MathNode extends DecoratorNode<JSX.Element> {
   }
 }
 
-export function $createMathNode(value = ''): MathNode {
-  const mathNode = new MathNode(value);
+export function $createMathNode(value = '', style= ''): MathNode {
+  const mathNode = new MathNode(value, style);
   return mathNode;
 }
 
 export function $isMathNode(node: LexicalNode | null | undefined): node is MathNode {
   return node instanceof MathNode;
+}
+
+export function $patchStyleMath(
+  nodes: MathNode[],
+  patch: Record<string, string | null>,
+): void {
+  for (let node of nodes) {
+    $patchNodeStyle(node, patch);
+  }
+}
+
+function $patchNodeStyle(
+  node: MathNode,
+  patch: Record<string, string | null>,
+): void {
+  const prevStyles = getStyleObjectFromCSS(node.getStyle());
+  const newStyles = Object.entries(patch).reduce<Record<string, string>>(
+    (styles, [key, value]) => {
+      if (value === null) {
+        delete styles[key];
+      } else {
+        styles[key] = value;
+      }
+      return styles;
+    },
+    { ...prevStyles } || {},
+  );
+  const newCSSText = getCSSFromStyleObject(newStyles);
+  node.setStyle(newCSSText);
+  CSS_TO_STYLES.set(newCSSText, newStyles);
 }

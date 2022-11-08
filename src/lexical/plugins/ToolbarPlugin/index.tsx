@@ -24,7 +24,7 @@ import InsertToolMenu from './Menus/InsertToolMenu';
 import TextFormatToggles from './Tools/TextFormatToggles';
 import AlignTextMenu from './Menus/AlignTextMenu';
 import { IS_APPLE } from '../../../shared/environment';
-import { $isMathNode, MathNode } from '../../nodes/MathNode';
+import { $isMathNode, $patchStyleMath, MathNode } from '../../nodes/MathNode';
 import MathTools from './Tools/MathTools';
 import { $isImageNode, ImageNode } from '../../nodes/ImageNode';
 import ImageTools from './Tools/ImageTools';
@@ -236,6 +236,8 @@ export default function ToolbarPlugin() {
         const selection = $getSelection();
         if ($isRangeSelection(selection)) {
           $patchStyleText(selection, styles);
+          const mathNodes = selection.getNodes().filter($isMathNode);
+          $patchStyleMath(mathNodes, styles);
         }
       });
     },
