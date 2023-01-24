@@ -13,6 +13,7 @@ import { mergeRegister } from '@lexical/utils';
 import {
   $getNearestNodeFromDOMNode,
   $getNodeByKey,
+  $getRoot,
   COMMAND_PRIORITY_HIGH,
   COMMAND_PRIORITY_LOW,
   DRAGOVER_COMMAND,
@@ -54,8 +55,7 @@ function getCurrentIndex(keysLength: number): number {
 }
 
 function getTopLevelNodeKeys(editor: LexicalEditor): string[] {
-  const root = editor.getEditorState()._nodeMap.get('root');
-  return root ? root.__children : [];
+  return editor.getEditorState().read(() => $getRoot().getChildrenKeys());
 }
 
 function getBlockElement(
@@ -143,7 +143,7 @@ function setMenuPosition(
     (parseInt(targetStyle.lineHeight, 10) - floatingElemRect.height) / 2 -
     anchorElementRect.top;
 
-  const left = SPACE * -4;
+  const left = SPACE * -5;
 
   floatingElem.style.opacity = '1';
   floatingElem.style.transform = `translate(${left}px, ${top}px)`;
@@ -203,11 +203,11 @@ function hideTargetLine(targetLineElem: HTMLElement | null) {
 function useDraggableBlockMenu(
   editor: LexicalEditor,
   anchorElem: HTMLElement,
-  visible: boolean,
+  isEditable: boolean,
 ) {
   const scrollerElem = anchorElem.parentElement;
 
-  const anchorRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLButtonElement>(null);
   const targetLineRef = useRef<HTMLDivElement>(null);
   const [draggableBlockElem, setDraggableBlockElem] =
     useState<HTMLElement | null>(null);
@@ -243,8 +243,8 @@ function useDraggableBlockMenu(
   }, [scrollerElem, anchorElem, editor]);
 
   useEffect(() => {
-    if (anchorRef.current) {
-      setMenuPosition(draggableBlockElem, anchorRef.current, anchorElem);
+    if (menuRef.current) {
+      setMenuPosition(draggableBlockElem, menuRef.current, anchorElem);
     }
   }, [anchorElem, draggableBlockElem]);
 
@@ -344,13 +344,13 @@ function useDraggableBlockMenu(
     hideTargetLine(targetLineRef.current);
   }
 
-  if (!visible) return null;
+  if (!isEditable) return null;
 
   return createPortal(
     <>
       <IconButton
         className="draggable-block-menu"
-        ref={anchorRef}
+        ref={menuRef}
         draggable={true}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
@@ -367,6 +367,6 @@ function useDraggableBlockMenu(
 export default function DraggableBlockPlugin() {
   const [editor] = useLexicalComposerContext();
   const anchorElem = editor.getRootElement()?.parentElement || document.body;
-  const visible = editor.isEditable() && !IS_MOBILE
-  return useDraggableBlockMenu(editor, anchorElem, visible);
+  const isEditable = editor.isEditable() && !IS_MOBILE
+  return useDraggableBlockMenu(editor, anchorElem, isEditable);
 }

@@ -12,6 +12,7 @@ import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
+import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import MarkdownPlugin from "./plugins/MarkdownPlugin/MarkdownShortcutPlugin";
 import TreeViewPlugin from "./plugins/TreeViewPlugin";
 import ToolbarPlugin from "./plugins/ToolbarPlugin";
@@ -30,6 +31,7 @@ import StickyPlugin from './plugins/StickyPlugin';
 import ClickableLinkPlugin from './plugins/LinkPlugin/ClickableLinkPlugin';
 import ComponentPickerMenuPlugin from './plugins/ComponentPickerPlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
+import TabFocusPlugin from './plugins/TabFocusPlugin';
 
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
@@ -128,6 +130,8 @@ export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onCh
         <CheckListPlugin />
         <LinkPlugin />
         <ClickableLinkPlugin />
+        <TabFocusPlugin />
+        <TabIndentationPlugin />
         <ListMaxIndentLevelPlugin maxDepth={7} />
         <MarkdownPlugin />
         <FloatingToolbarPlugin />
@@ -143,7 +147,7 @@ export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onCh
         <GraphPlugin />
         <StickyPlugin />
         {isReady && <>
-          {/* <DraggableBlockPlugin /> */}
+          <DraggableBlockPlugin />
           <DragDropPaste />
           <CodeHighlightPlugin />
           <AutoLinkPlugin />
