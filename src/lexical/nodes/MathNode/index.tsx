@@ -78,7 +78,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
         const indexWithinParent = mathNode.getIndexWithinParent();
         const isBefore = isParentAnchor ? anchorOffset - indexWithinParent === 0 : anchorNode.isBefore(mathNode);
         mathfield.focus();
-        mathfield.executeCommand(isBefore ? 'moveToMathFieldStart' : 'moveToMathFieldEnd');
+        mathfield.executeCommand(isBefore ? 'moveToMathfieldStart' : 'moveToMathfieldEnd');
       });
     }
   }, [ref, isSelected]);

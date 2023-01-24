@@ -120,7 +120,7 @@ export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onCh
     const { historyState } = useSharedHistoryContext();
     return (
       <>
-        <RichTextPlugin contentEditable={contentEditable} ErrorBoundary={LexicalErrorBoundary} placeholder="" />
+        <RichTextPlugin contentEditable={contentEditable} ErrorBoundary={LexicalErrorBoundary} placeholder={null} />
         <HistoryPlugin externalHistoryState={historyState} />
         <OnChangePlugin ignoreSelectionChange onChange={onChange} />
         {showDebugView && <TreeViewPlugin />}
@@ -143,7 +143,7 @@ export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onCh
         <GraphPlugin />
         <StickyPlugin />
         {isReady && <>
-          <DraggableBlockPlugin />
+          {/* <DraggableBlockPlugin /> */}
           <DragDropPaste />
           <CodeHighlightPlugin />
           <AutoLinkPlugin />
