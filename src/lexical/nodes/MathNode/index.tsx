@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { $createNodeSelection, $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, COMMAND_PRIORITY_LOW, CONTROLLED_TEXT_INSERTION_COMMAND, EditorConfig, GridSelection, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
+import { $createNodeSelection, $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, EditorConfig, GridSelection, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey, DecoratorNode, } from 'lexical';
 import { createRef, useEffect, useState } from 'react';
@@ -44,12 +44,6 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
           setLastRangeSelection(newSelection);
         }
       }),
-      editor.registerCommand(CONTROLLED_TEXT_INSERTION_COMMAND, eventOrText => {
-        const node = $getNodeByKey(nodeKey);
-        if (!$isMathNode(node)) return false;
-        if (eventOrText === node.getValue()) return true;
-        return false;
-      }, COMMAND_PRIORITY_LOW),
     );
   }, []);
 

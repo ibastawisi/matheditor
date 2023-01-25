@@ -99,7 +99,7 @@ export const MATH: TextMatchTransformer = {
 
     return `$${node.getMath()}$`;
   },
-  importRegExp: /\$([^$].+?)\$/,
+  importRegExp: /\$([^$]+?)\$/,
   regExp: /\$(.*?)\$$/,
   replace: (textNode, match) => {
     const [, value] = match;
