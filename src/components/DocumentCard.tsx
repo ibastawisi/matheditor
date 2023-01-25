@@ -16,6 +16,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
 import CardActionArea from '@mui/material/CardActionArea';
+import documentDB from '../db';
 
 const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 'local' | 'cloud' }> = ({ document, variant }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -25,7 +26,7 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
 
   const handleUpload = async () => {
     if (isUpToDate) return;
-    const storedDocument: EditorDocument = JSON.parse(localStorage.getItem(document.id) || "{}");
+    const storedDocument: EditorDocument = await documentDB.getByID(document.id);
     await dispatch(actions.app.uploadDocumentAsync(storedDocument));
   };
 
@@ -51,9 +52,9 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
       {
         title: `Delete ${variant} document`,
         content: `Are you sure you want to delete ${document.name}?`,
-        action: variant === "local" ? 
-        `dispatch(actions.app.deleteDocument("${document.id}"))` :
-        `dispatch(actions.app.deleteDocumentAsync("${document.id}"))`
+        action: variant === "local" ?
+          `dispatch(actions.app.deleteDocument("${document.id}"))` :
+          `dispatch(actions.app.deleteDocumentAsync("${document.id}"))`
       }
     ));
   };
@@ -61,11 +62,14 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
   const getPayload = async () => {
     switch (variant) {
       case "local":
-        return localStorage.getItem(document.id);
+        const localDocument = await documentDB.getByID(document.id);
+        if (localDocument) return JSON.stringify(localDocument);
+        break;
       case "cloud":
         const response = await dispatch(actions.app.getDocumentAsync(document.id));
         const { payload, error } = response as any;
         if (!error) return JSON.stringify(payload);
+        break;
     }
   }
 
@@ -105,7 +109,7 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
           <DeleteForever />
         </IconButton>
         <IconButton sx={{ ml: "auto !important" }} size="small" aria-label="Upload" color={isUpToDate ? "success" : "default"} onClick={handleUpload} disabled={!user || variant === "cloud"}>
-          {isUpToDate ? <CloudDoneIcon /> : <CloudUploadIcon />}
+          {variant === "local" ? isUpToDate ? <CloudDoneIcon /> : <CloudUploadIcon /> : null}
         </IconButton>
         <IconButton size="small" aria-label="Share" onClick={handleShare} disabled={!user}>
           <ShareIcon />

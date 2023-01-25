@@ -17,13 +17,15 @@ import PlaygroundCard from "./PlaygroundCard";
 import UserCard from "./UserCard";
 import Avatar from "@mui/material/Avatar";
 import PostAddIcon from '@mui/icons-material/PostAdd';
+import documentDB from "../db";
 
 const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.app.documents);
   const user = useSelector((state: RootState) => state.app.user);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const cloudDocuments = user?.documents.filter(d => !Object.keys({ ...localStorage }).includes(d.id));
+  const localDocuments = documents.map(d => d.id);
+  const cloudDocuments = user?.documents.filter(d => !localDocuments.includes(d.id));
   const sortByDate = (documents: Omit<EditorDocument, "data">[]) => [...documents].sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
 
   useEffect(() => {
@@ -45,8 +47,7 @@ const Documents: React.FC = () => {
       await loadFromFile(files[0]);
     } else {
       Array.from(files).forEach(async file => await loadFromFile(file));
-      // update app state
-      dispatch(actions.app.load());
+      dispatch(actions.app.loadDocumentsAsync());
     }
   }
 
@@ -94,9 +95,8 @@ const Documents: React.FC = () => {
     }
   }
 
-  function backup() {
-    const keys = Object.keys({ ...localStorage }).filter((key: string) => validate(key));
-    const documents = keys.map(key => JSON.parse(localStorage.getItem(key) as string));
+  async function backup() {
+    const documents = await documentDB.getAll();
     const blob = new Blob([JSON.stringify(documents)], { type: "text/json" });
     const link = window.document.createElement("a");
 

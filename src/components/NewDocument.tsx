@@ -16,6 +16,7 @@ import { AppDispatch } from "../store";
 import { SerializedEditorState } from "lexical/LexicalEditorState";
 import { SerializedHeadingNode } from "@lexical/rich-text";
 import { SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "lexical";
+import documentDB from "../db";
 
 const NewDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,7 +28,7 @@ const NewDocument: React.FC = () => {
     if (params.id) {
       const locationData = (location.state as { data: SerializedEditorState } | null)?.data;
       if (locationData) return locationData;
-      const localData = JSON.parse(window.localStorage.getItem(params.id) || '{}').data;
+      const localData = await documentDB.getByID(params.id).then(doc => doc?.data);
       if (localData) return localData;
       const { payload } = await dispatch(actions.app.getDocumentAsync(params.id));
       const cloudData = payload.data;
@@ -79,7 +80,7 @@ const NewDocument: React.FC = () => {
     const createdAt = new Date().toISOString();
     if (!data) return;
     const document: EditorDocument = { id: uuidv4(), name, data, createdAt, updatedAt: createdAt };
-    window.localStorage.setItem(document.id, JSON.stringify(document));
+    documentDB.add(document);
     navigate(`/edit/${document.id}`);
   };
 

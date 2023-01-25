@@ -13,6 +13,7 @@ import Fab from "@mui/material/Fab";
 import EditIcon from '@mui/icons-material/Edit';
 import useScrollTrigger from "@mui/material/useScrollTrigger";
 import { Transition } from 'react-transition-group';
+import documentDB from "../db";
 
 const ViewDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -26,10 +27,9 @@ const ViewDocument: React.FC = () => {
   useEffect(() => {
     const loadDocument = async (id: string) => {
       // load from local storage
-      const storedDocument = window.localStorage.getItem(id);
+      const storedDocument = await documentDB.getByID(id);
       if (storedDocument) {
-        const editorDocument = JSON.parse(storedDocument);
-        setDocument(editorDocument);
+        setDocument(storedDocument);
       } else {
         // load from server
         const response = await dispatch(actions.app.getDocumentAsync(id));

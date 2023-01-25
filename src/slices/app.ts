@@ -4,6 +4,7 @@ import { SerializedEditorState } from 'lexical';
 import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import { createDocument, deleteDocument, getAuthenticatedUser, getDocument, logout, updateDocument } from '../services';
 import { RootState } from '../store';
+import documentDB from '../db';
 
 export interface Alert {
   title: string;
@@ -19,7 +20,6 @@ export interface Announcement {
   timeout?: number
 }
 export interface AppState {
-  editor: EditorDocument;
   documents: Omit<EditorDocument, "data">[];
   user: User | null;
   ui: {
@@ -54,7 +54,6 @@ export interface User {
 }
 
 const initialState: AppState = {
-  editor: {} as EditorDocument,
   documents: [] as Omit<EditorDocument, "data">[],
   user: null,
   ui: {
@@ -75,6 +74,23 @@ export const loadUserAsync = createAsyncThunk('app/loadUser', async (_, thunkAPI
   try {
     const response = await getAuthenticatedUser()
     return response
+  } catch (error: any) {
+    const message = error.response?.data?.error || error.message;
+    return thunkAPI.rejectWithValue(message);
+  } finally {
+    thunkAPI.dispatch(hideLoading())
+  }
+});
+
+export const loadDocumentsAsync = createAsyncThunk('app/loadDocuments', async (_, thunkAPI) => {
+  thunkAPI.dispatch(showLoading())
+  try {
+    const documents = await documentDB.getAll();
+    const userDocuments = documents.map(document => {
+      const { data, ...userDocument } = document;
+      return userDocument;
+    }).sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
+    return userDocuments;
   } catch (error: any) {
     const message = error.response?.data?.error || error.message;
     return thunkAPI.rejectWithValue(message);
@@ -143,15 +159,18 @@ export const appSlice = createSlice({
   name: 'app',
   initialState,
   reducers: {
-    load: (state) => {
-      state.documents = Object.keys({ ...localStorage })
-        .filter((key: string) => validate(key))
-        .map((key: string) => {
-          const { data, ...userDocument } = JSON.parse(localStorage.getItem(key) as string);
-          return userDocument;
-        })
-        .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
-      state.editor = JSON.parse(localStorage.getItem('editor') || '{}');
+    loadConfig: (state) => {
+      // migrate from localStorage to indexeddb
+      try {
+        localStorage.removeItem('editor');
+        const documents = Object.keys({ ...localStorage }).filter((key: string) => validate(key));
+        documents.forEach(key => {
+          const document = JSON.parse(localStorage.getItem(key) as string);
+          documentDB.add(document).then(() => localStorage.removeItem(key));
+        });
+      } catch (error) {
+        console.error("migration to indexeddb failed: " + error);
+      }
       try {
         const localConfig = localStorage.getItem('config')
         state.config = { ...initialState.config, ...JSON.parse(localConfig || '{}') };
@@ -160,38 +179,30 @@ export const appSlice = createSlice({
       state.ui.isLoading = false;
     },
     loadDocument: (state, action: PayloadAction<EditorDocument>) => {
-      state.editor = action.payload;
-      window.localStorage.setItem("editor", JSON.stringify(action.payload));
       if (!state.documents.find(d => d.id === action.payload.id)) {
         const documents = state.documents.filter(d => d.id !== action.payload.id);
         const { data, ...userDocument } = action.payload;
         documents.unshift(userDocument);
         state.documents = documents;
-        localStorage.setItem(action.payload.id, JSON.stringify(action.payload));
+        documentDB.add(action.payload);
       }
     },
-    saveDocument: (state, action: PayloadAction<SerializedEditorState>) => {
-      state.editor.data = action.payload;
-      state.editor.updatedAt = new Date().toISOString();
-      window.localStorage.setItem("editor", JSON.stringify(state.editor));
-      window.localStorage.setItem(state.editor.id, JSON.stringify(state.editor));
-      const userDocument = state.documents.find(d => d.id === state.editor.id);
+    saveDocument: (state, action: PayloadAction<EditorDocument>) => {
+      const document = action.payload;
+      documentDB.update(document);
+      const userDocument = state.documents.find(d => d.id === document.id);
       if (userDocument) {
-        userDocument.updatedAt = state.editor.updatedAt;
+        userDocument.updatedAt = document.updatedAt;
       }
     },
     addDocument: (state, action: PayloadAction<EditorDocument>) => {
-      window.localStorage.setItem(action.payload.id, JSON.stringify(action.payload));
+      documentDB.add(action.payload);
       const { data, ...userDocument } = action.payload;
       state.documents.unshift(userDocument);
     },
     deleteDocument: (state, action: PayloadAction<string>) => {
       state.documents = state.documents.filter(d => d.id !== action.payload);
-      if (state.editor.id === action.payload) {
-        state.editor = { ...initialState.editor };
-        window.localStorage.removeItem("editor");
-      }
-      window.localStorage.removeItem(action.payload);
+      documentDB.deleteByID(action.payload);
     },
     announce: (state, action: PayloadAction<Announcement>) => {
       state.ui.announcements.push(action.payload);
@@ -221,9 +232,12 @@ export const appSlice = createSlice({
       .addCase(logoutAsync.fulfilled, (state, action) => {
         state.user = null;
       })
+      .addCase(loadDocumentsAsync.fulfilled, (state, action) => {
+        state.documents = action.payload;
+      })
       .addCase(getDocumentAsync.rejected, (state, action) => {
         const message = action.payload as string;
-        state.ui.announcements.push({message});
+        state.ui.announcements.push({ message });
       })
       .addCase(uploadDocumentAsync.fulfilled, (state, action) => {
         if (state.user && action.payload) {

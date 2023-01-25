@@ -1,38 +1,43 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { actions } from "../slices";
-import { AppDispatch, RootState } from "../store";
+import { AppDispatch } from "../store";
 import { useParams } from "react-router-dom";
 import Editor from "../lexical";
 
 import SplashScreen from "./SplachScreen";
 import { Helmet } from "react-helmet";
+import documentDB from "../db";
+import { EditorDocument } from "../slices/app";
 
 const EditDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const document = useSelector((state: RootState) => state.app.editor);
+  const [document, setDocument] = useState<EditorDocument | null>(null);
   const params = useParams<{ id: string }>();
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
       // load from local storage
-      const storedDocument = window.localStorage.getItem(id);
+      const storedDocument = await documentDB.getByID(id);
       if (storedDocument) {
-        const editorDocument = JSON.parse(storedDocument);
-        dispatch(actions.app.loadDocument(editorDocument));
+        setDocument(storedDocument);
+        dispatch(actions.app.loadDocument(storedDocument));
       } else {
         // load from server
         const response = await dispatch(actions.app.getDocumentAsync(id));
         const { payload, error } = response as any;
-        if (!error) dispatch(actions.app.loadDocument(payload));
+        if (!error) {
+          setDocument(payload);
+          dispatch(actions.app.loadDocument(payload));
+        }
       }
     }
     params.id && loadDocument(params.id);
 
   }, []);
 
-  return document.id === params.id ? <>
+  return document?.id === params.id ? <>
     <Helmet><title>{document.name}</title></Helmet>
     <Editor document={document} editable={true} />
   </> : <SplashScreen title="Loading Document" />;

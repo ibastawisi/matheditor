@@ -27,8 +27,9 @@ function App() {
   const isLoading = useSelector((state: RootState) => state.app.ui.isLoading);
 
   useEffect(() => {
-    dispatch(actions.app.load());
     dispatch(actions.app.loadUserAsync());
+    dispatch(actions.app.loadDocumentsAsync());
+    dispatch(actions.app.loadConfig());
     window.addEventListener("message", (event) => {
       if (event.origin !== BACKEND_URL) return;
       if (event.data.type === "auth") {

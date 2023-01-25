@@ -98,7 +98,8 @@ const Editor: React.FC<{ document: EditorDocument, editable: boolean }> = ({ doc
   function onChange(editorState: EditorState) {
     const data = editorState.toJSON();
     if (isEqual(data.root, document.data)) return;
-    validate(document.id) && dispatch(actions.app.saveDocument(data));
+    const updatedDocument: EditorDocument = { ...document, data, updatedAt: new Date().toISOString() };
+    validate(document.id) && dispatch(actions.app.saveDocument(updatedDocument));
   }
 
   useEffect(() => {
