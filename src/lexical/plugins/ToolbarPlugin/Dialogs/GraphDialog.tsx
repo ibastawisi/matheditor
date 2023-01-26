@@ -5,7 +5,9 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import { INSERT_GRAPH_COMMAND } from '../../GraphPlugin';
 import { GraphNode, GraphType } from '../../../nodes/GraphNode';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 
 export enum GraphDialogMode {
   create,
@@ -15,12 +17,13 @@ export enum GraphDialogMode {
 export default function GraphDialog({ editor, node, type, open, onClose, mode }: { editor: LexicalEditor; node?: GraphNode; type?: GraphType; mode: GraphDialogMode; open: boolean; onClose: () => void; }) {
 
   const app = useRef<any>(null);
+  const [loading, setLoading] = useState(true);
 
   const mountGGBApplet = (container: HTMLDivElement) => {
     const parameters: any = {
       showToolBar: true,
       borderColor: null,
-      showMenuBar: false,
+      showMenuBar: true,
       allowStyleBar: true,
       showAlgebraInput: true,
       enableLabelDrags: false,
@@ -35,6 +38,7 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
       height: window.innerHeight - 52.5,
       appletOnLoad(api: any) {
         app.current = api;
+        setLoading(false);
       },
     };
 
@@ -70,7 +74,7 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
               editor.update(() => node?.update(src, value));
               break;
           }
-          onClose();
+          handleClose();
         });
         break;
       case GraphType["3D"]:
@@ -84,18 +88,26 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
             editor.update(() => node?.update(src, value));
             break;
         }
-        onClose();
+        handleClose();
         break;
     }
   };
 
+  const handleClose = () => {
+    setLoading(true);
+    onClose();
+  }
+
   if (!open) return null;
 
   return (
-    <Dialog open={open} fullScreen={true} onClose={onClose}>
-      <DialogContent sx={{ p: 0, overflow: "hidden" }} ref={(el: HTMLDivElement | undefined) => el && mountGGBApplet(el)} />
+    <Dialog open={open} fullScreen={true} onClose={handleClose}>
+      <DialogContent sx={{ p: 0, overflow: "hidden" }}>
+        {loading && <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>}
+        <Box sx={{ display: loading ? "none" : "block" }} ref={(el: HTMLDivElement | undefined) => el && mountGGBApplet(el)} />
+      </DialogContent>
       <DialogActions>
-        <Button autoFocus onClick={onClose}>
+        <Button onClick={handleClose}>
           Cancel
         </Button>
         <Button onClick={handleSubmit}>
