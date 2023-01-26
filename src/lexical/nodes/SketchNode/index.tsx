@@ -34,7 +34,10 @@ export interface SketchPayload {
   width?: number;
   height?: number;
   src: string;
-  value: NonDeleted<ExcalidrawElement>[]
+  /**
+ * @deprecated The value is now embedded in the src
+ */
+  value?: NonDeleted<ExcalidrawElement>[]
 }
 
 
@@ -82,7 +85,7 @@ function SketchComponent({
       const fonts = `@font-face { font-family: 'Virgil'; src: url('${virgil}') format('woff2');} @font-face { font-family: 'Cascadia'; src: url('${cascadia}') format('woff2'); }`;
       const encoded = src.substring(src.indexOf(',') + 1);
       const decoded = decodeURIComponent(encoded);
-      const serialized = decoded.replace(/<style>[\s\S]*<\/style>/, `<style>${fonts}</style>`);
+      const serialized = decoded.replace(/<style.*?>[\s\S]*<\/style>/, `<style class="style-fonts">${fonts}</style>`);
 
       setSource(`data:image/svg+xml,${encodeURIComponent(serialized)}`);
     };
@@ -188,7 +191,7 @@ export class SketchNode extends DecoratorNode<JSX.Element> {
     writable.__height = height;
   }
 
-  update(src: string, value: NonDeleted<ExcalidrawElement>[]): void {
+  update(src: string, value?: NonDeleted<ExcalidrawElement>[]): void {
     const writable = this.getWritable();
     writable.__src = src;
     writable.__value = value;

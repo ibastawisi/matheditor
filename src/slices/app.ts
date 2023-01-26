@@ -184,7 +184,11 @@ export const appSlice = createSlice({
         const { data, ...userDocument } = action.payload;
         documents.unshift(userDocument);
         state.documents = documents;
-        documentDB.add(action.payload);
+        documentDB.getByID(action.payload.id).then((document) => {
+          if (!document) {
+            documentDB.add(action.payload);
+          }
+        });
       }
     },
     saveDocument: (state, action: PayloadAction<EditorDocument>) => {
