@@ -48,6 +48,7 @@ export interface User {
   name: string;
   email: string;
   picture: string;
+  admin: boolean;
   createdAt: string;
   updatedAt: string;
   documents: Omit<EditorDocument, "data">[];

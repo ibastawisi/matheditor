@@ -21,6 +21,7 @@ import Playground from './Playground';
 import ViewDocument from './ViewDocument';
 import { BACKEND_URL } from '../config';
 import AlertDialog from './Alert';
+import Dashboard from './Dashboard';
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -52,6 +53,7 @@ function App() {
           <Route path="/edit/:id" element={<EditDocument />} />
           <Route path="/view/:id" element={<ViewDocument />} />
           <Route path="playground" element={<Playground />} />
+          <Route path="dashboard" element={<Dashboard />} />
           <Route path="privacy" element={<Privacy />} />
           <Route path="*" element={<Home />} />
         </Routes>

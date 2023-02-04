@@ -12,6 +12,7 @@ import CardActions from '@mui/material/CardActions';
 import Skeleton from '@mui/material/Skeleton';
 import { BACKEND_URL } from '../config';
 import GoogleIcon from '@mui/icons-material/Google';
+import { Link as RouterLink } from 'react-router-dom';
 
 export default function UserCard({ user }: { user?: User | null }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -26,7 +27,7 @@ export default function UserCard({ user }: { user?: User | null }) {
   }
 
   return (
-    <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between'}}>
+    <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
         <CardContent sx={{ flex: '1 0 auto' }}>
           <Typography component="div" variant="h5">
@@ -37,8 +38,9 @@ export default function UserCard({ user }: { user?: User | null }) {
           </Typography>
         </CardContent>
         <CardActions>
-          {user ? <Button size='small' onClick={logout}>Logout</Button> :
-            <Button size='small' startIcon={<GoogleIcon />} onClick={login}>Login with Google</Button>}
+          {user?.admin && <Button size='small' component={RouterLink} to={`/dashboard`}>Dashboard</Button>}
+          {user && <Button size='small' onClick={logout}>Logout</Button>}
+          {!user && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>Login with Google</Button>}
         </CardActions>
       </Box>
       {user ?

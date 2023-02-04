@@ -32,4 +32,14 @@ const logout = async () => {
   return response.data;
 }
 
-export { getDocument, createDocument, updateDocument, deleteDocument, getAuthenticatedUser, logout }
+const getAllUsers = async () => {
+  const response = await axios.get(BACKEND_URL + '/users', { withCredentials: true })
+  return response.data;
+}
+
+const getAllDocuments = async () => {
+  const response = await axios.get(BACKEND_URL + '/documents', { withCredentials: true })
+  return response.data;
+}
+
+export { getDocument, createDocument, updateDocument, deleteDocument, getAuthenticatedUser, logout, getAllUsers, getAllDocuments }
