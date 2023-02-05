@@ -118,7 +118,8 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleRename = async () => {
+  const handleRename = async (event: any) => {
+    event.preventDefault();
     const payload = await getPayload();
     if (!payload) return dispatch(actions.app.announce({ message: "Can't find document data" }));
 
@@ -153,14 +154,16 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
           <DriveFileRenameOutlineIcon />
         </IconButton>
         <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>Rename Document</DialogTitle>
-          <DialogContent >
-            <TextField margin="normal" size="small" fullWidth id="name" value={formData.name} onChange={updateFormData} label="Document Name" name="name" autoFocus />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button type='submit' onClick={handleRename}>Save</Button>
-          </DialogActions>
+          <form onSubmit={handleRename}>
+            <DialogTitle>Rename Document</DialogTitle>
+            <DialogContent >
+              <TextField margin="normal" size="small" fullWidth id="name" value={formData.name} onChange={updateFormData} label="Document Name" name="name" autoFocus />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose}>Cancel</Button>
+              <Button type='submit' onClick={handleRename}>Save</Button>
+            </DialogActions>
+          </form>
         </Dialog>
 
         <IconButton size="small" aria-label="Delete" color="error" onClick={handleDelete}>
