@@ -45,7 +45,7 @@ export interface EditorDocument {
 }
 
 export interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
   picture: string;

@@ -5,12 +5,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store";
 import DocumentCard from "./DocumentCard";
 import Button from "@mui/material/Button";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { actions } from "../slices";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import StorageIcon from '@mui/icons-material/Storage';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { EditorDocument } from "../slices/app";
+import { EditorDocument, UserDocument } from "../slices/app";
 import { validate } from "uuid";
 
 import PlaygroundCard from "./PlaygroundCard";
@@ -22,6 +22,10 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
 const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.app.documents);
@@ -31,13 +35,13 @@ const Documents: React.FC = () => {
   const localDocuments = documents.map(d => d.id);
   const cloudDocuments = user?.documents.filter(d => !localDocuments.includes(d.id));
 
-  const [sort, setSort] = React.useState('updated-desc');
+  const [sort, setSort] = useState('updated-desc');
   const handleSortChange = (event: SelectChangeEvent) => {
     const value = event.target.value as string;
     setSort(value);
   };
 
-  const sortDocuments = (documents: Omit<EditorDocument, "data">[]) => {
+  const sortDocuments = (documents: UserDocument[]) => {
     const sortBy = sort.split('-')[0];
     const sortDirection = sort.split('-')[1];
     switch (sortBy) {
@@ -154,8 +158,8 @@ const Documents: React.FC = () => {
       <Box sx={{ my: 3 }}>
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', my: 2 }}>
           <Typography sx={{ mb: 1 }} variant="h6" component="h2">Recent</Typography>
-          <Box sx={{ display: "flex" }}>
-            <FormControl size="small" sx={{ mr: 1 }}>
+          <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+            <FormControl size="small" sx={{ mr: 1, my: 1 }}>
               <InputLabel id="sort-select-label">Sort</InputLabel>
               <Select
                 labelId="sort-select-label"
@@ -163,20 +167,55 @@ const Documents: React.FC = () => {
                 value={sort}
                 label="Sort"
                 onChange={handleSortChange}
+                sx={{
+                  mx: 0.25,
+                  '& .MuiSelect-select': { display: 'flex', alignItems: 'center', py: 0.5 },
+                  '& .MuiListItemIcon-root': { minWidth: 30 },
+                }}
               >
-                <MenuItem value="updated-desc">Updated At (newest)</MenuItem>
-                <MenuItem value="updated-asc">Updated At (oldest)</MenuItem>
-                <MenuItem value="created-desc">Created At (newest)</MenuItem>
-                <MenuItem value="created-asc">Created At (oldest)</MenuItem>
-                <MenuItem value="name-asc">Name (A to Z)</MenuItem>
-                <MenuItem value="name-desc">Name (Z to A)</MenuItem>
+                <MenuItem value="updated-desc">
+                  <ListItemIcon>
+                    <ArrowDownwardIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Updated</ListItemText>
+                </MenuItem>
+                <MenuItem value="updated-asc">
+                  <ListItemIcon>
+                    <ArrowUpwardIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Updated</ListItemText>
+                </MenuItem>
+                <MenuItem value="created-desc">
+                  <ListItemIcon>
+                    <ArrowDownwardIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Created</ListItemText>
+                </MenuItem>
+                <MenuItem value="created-asc">
+                  <ListItemIcon>
+                    <ArrowUpwardIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Created</ListItemText>
+                </MenuItem>
+                <MenuItem value="name-asc">
+                  <ListItemIcon>
+                    <ArrowDownwardIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Name</ListItemText>
+                </MenuItem>
+                <MenuItem value="name-desc">
+                  <ListItemIcon>
+                    <ArrowUpwardIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Name</ListItemText>
+                </MenuItem>
               </Select>
             </FormControl>
-            <Button sx={{ mr: 1 }} variant="outlined" startIcon={<UploadFileIcon />} component="label">
+            <Button sx={{ mr: 1, my: 1 }} variant="outlined" startIcon={<UploadFileIcon />} component="label">
               Import
               <input type="file" hidden accept=".me" multiple onChange={e => handleFilesChange(e.target.files)} />
             </Button>
-            <Button variant="outlined" startIcon={<StorageIcon />} onClick={backup}>
+            <Button sx={{ my: 1 }} variant="outlined" startIcon={<StorageIcon />} onClick={backup}>
               Backup
             </Button>
           </Box>
