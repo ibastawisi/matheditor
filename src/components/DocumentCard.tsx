@@ -15,8 +15,16 @@ import DeleteForever from '@mui/icons-material/DeleteForever';
 import ShareIcon from '@mui/icons-material/Share';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import CardActionArea from '@mui/material/CardActionArea';
 import documentDB from '../db';
+import { useState } from 'react';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import Button from '@mui/material/Button';
+import DialogActions from '@mui/material/DialogActions';
+import TextField from '@mui/material/TextField';
 
 const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 'local' | 'cloud' }> = ({ document, variant }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -93,6 +101,42 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
     link.remove()
   };
 
+  const [open, setOpen] = React.useState(false);
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const [formData, setFormData] = useState({ name: document.name });
+
+  const updateFormData = (event: any) => {
+    const { name, value } = event.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleRename = async () => {
+    const payload = await getPayload();
+    if (!payload) return dispatch(actions.app.announce({ message: "Can't find document data" }));
+
+    try {
+      const data = {
+        ...JSON.parse(payload),
+        ...formData,
+        updatedAt: new Date().toISOString()
+      }
+      dispatch(actions.app.saveDocument(data));
+      dispatch(actions.app.loadDocumentsAsync());
+      handleClose();
+    } catch (err) {
+      dispatch(actions.app.announce({ message: "Can't update document data" }));
+      handleClose();
+    }
+  };
+
   return (
     <Card variant="outlined">
       <CardActionArea component={RouterLink} to={`/edit/${document.id}`}>
@@ -105,6 +149,20 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
         />
       </CardActionArea>
       <CardActions>
+        <IconButton size="small" aria-label="Rename" onClick={handleOpen}>
+          <DriveFileRenameOutlineIcon />
+        </IconButton>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Rename Document</DialogTitle>
+          <DialogContent >
+            <TextField margin="normal" size="small" fullWidth id="name" value={formData.name} onChange={updateFormData} label="Document Name" name="name" autoFocus />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button type='submit' onClick={handleRename}>Save</Button>
+          </DialogActions>
+        </Dialog>
+
         <IconButton size="small" aria-label="Delete" color="error" onClick={handleDelete}>
           <DeleteForever />
         </IconButton>
