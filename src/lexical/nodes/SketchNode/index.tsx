@@ -74,7 +74,7 @@ function SketchComponent({
   src: string;
   nodeKey: NodeKey;
   resizable: boolean;
-  value: NonDeleted<ExcalidrawElement>[];
+  value?: NonDeleted<ExcalidrawElement>[];
 }): JSX.Element {
 
   const [source, setSource] = useState<string | null>(null);
@@ -102,7 +102,7 @@ export type SerializedSketchNode = Spread<
     width?: number;
     height?: number;
     src: string;
-    value: NonDeleted<ExcalidrawElement>[];
+    value?: NonDeleted<ExcalidrawElement>[];
     type: 'sketch';
     version: 1;
   },
@@ -113,7 +113,7 @@ export class SketchNode extends DecoratorNode<JSX.Element> {
   __width: 'inherit' | number;
   __height: 'inherit' | number;
   __src: string;
-  __value: NonDeleted<ExcalidrawElement>[];
+  __value?: NonDeleted<ExcalidrawElement>[];
 
   static getType(): string {
     return 'sketch';
@@ -159,7 +159,7 @@ export class SketchNode extends DecoratorNode<JSX.Element> {
 
   constructor(
     src: string,
-    value: NonDeleted<ExcalidrawElement>[],
+    value?: NonDeleted<ExcalidrawElement>[],
     width?: 'inherit' | number,
     height?: 'inherit' | number,
     key?: NodeKey,
@@ -221,7 +221,7 @@ export class SketchNode extends DecoratorNode<JSX.Element> {
     return this.__src;
   }
 
-  getValue(): NonDeleted<ExcalidrawElement>[] {
+  getValue(): NonDeleted<ExcalidrawElement>[] | undefined {
     return this.__value;
   }
 

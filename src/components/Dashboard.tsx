@@ -20,11 +20,12 @@ import UserCard from "./UserCard";
 import CardHeader from "@mui/material/CardHeader";
 import CardActionArea from "@mui/material/CardActionArea";
 import CircularProgress from "@mui/material/CircularProgress";
+import { User, UserDocument } from "../slices/app";
 
 const Dashboard: React.FC = () => {
   const user = useSelector((state: RootState) => state.app.user);
-  const [users, setUsers] = useState([]);
-  const [documents, setDocuments] = useState([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [documents, setDocuments] = useState<UserDocument[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

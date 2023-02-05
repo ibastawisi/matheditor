@@ -37,6 +37,8 @@ const EditDocument: React.FC = () => {
 
   }, []);
 
+  if (!document) return <SplashScreen title="Loading Document" />;
+
   return document?.id === params.id ? <>
     <Helmet><title>{document.name}</title></Helmet>
     <Editor document={document} editable={true} />

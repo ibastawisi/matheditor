@@ -2,13 +2,22 @@ import { IDB_KEY } from "./constants";
 import { IndexedDBConfig } from "./interfaces";
 import { waitUntil } from "./utils";
 
+declare global {
+  interface Window {
+    [IDB_KEY]: {
+      config: IndexedDBConfig;
+      init: number;
+    };
+  }
+}
+
 function validateStore(db: IDBDatabase, storeName: string) {
   return db.objectStoreNames.contains(storeName);
 }
 
-export function validateBeforeTransaction(db, storeName: string, reject: Function) {
+export function validateBeforeTransaction(db: IDBDatabase | undefined, storeName: string, reject: Function) {
   if (!db) {
-    reject("Queried before opening connection");
+    return reject("Queried before opening connection");
   }
   if (!validateStore(db, storeName)) {
     reject(`Store ${storeName} not found`);
@@ -19,20 +28,20 @@ export function createTransaction(
   db: IDBDatabase,
   dbMode: IDBTransactionMode,
   currentStore: string,
-  resolve,
-  reject?,
-  abort?
+  resolve: ((this: IDBTransaction, ev: any) => any) | null,
+  reject?: ((this: IDBTransaction, ev: any) => any) | null,
+  abort?: ((this: IDBTransaction, ev: any) => any) | null
 ): IDBTransaction {
   let tx: IDBTransaction = db.transaction(currentStore, dbMode);
-  tx.onerror = reject;
+  tx.onerror = reject!;
   tx.oncomplete = resolve;
-  tx.onabort = abort;
+  tx.onabort = abort!;
   return tx;
 }
 
 export async function getConnection(config?: IndexedDBConfig): Promise<IDBDatabase> {
   const idbInstance = typeof window !== "undefined" ? window.indexedDB : null;
-  let _config = config;
+  let _config: IndexedDBConfig = config!;
 
   if (!config && idbInstance) {
     await waitUntil(() => window?.[IDB_KEY]?.["init"] === 1);
@@ -53,7 +62,7 @@ export async function getConnection(config?: IndexedDBConfig): Promise<IDBDataba
 
       request.onupgradeneeded = (e: any) => {
         const db = e.target.result;
-        config.stores.forEach(s => {
+        _config.stores.forEach(s => {
           if (!db.objectStoreNames.contains(s.name)) {
             const store = db.createObjectStore(s.name, s.id);
             s.indices.forEach(c => {
@@ -62,7 +71,7 @@ export async function getConnection(config?: IndexedDBConfig): Promise<IDBDataba
           }
         });
         db.close();
-        resolve(undefined);
+        resolve(db);
       };
     } else {
       reject("Failed to connect");
@@ -70,7 +79,7 @@ export async function getConnection(config?: IndexedDBConfig): Promise<IDBDataba
   });
 }
 
-export function getActions<T>(currentStore) {
+export function getActions<T>(currentStore: string) {
   return {
     getByID(id: string | number) {
       return new Promise<T>((resolve, reject) => {
@@ -202,7 +211,7 @@ export function getActions<T>(currentStore) {
       });
     },
 
-    openCursor(cursorCallback, keyRange?: IDBKeyRange) {
+    openCursor(cursorCallback: (e: Event) => void, keyRange?: IDBKeyRange) {
       return new Promise<IDBCursorWithValue | void>((resolve, reject) => {
         getConnection()
           .then(db => {

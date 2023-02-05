@@ -5,6 +5,7 @@ import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import { createDocument, deleteDocument, getAuthenticatedUser, getDocument, logout, updateDocument } from '../services';
 import { RootState } from '../store';
 import documentDB from '../db';
+import { type } from 'os';
 
 export interface Alert {
   title: string;
@@ -20,7 +21,7 @@ export interface Announcement {
   timeout?: number
 }
 export interface AppState {
-  documents: Omit<EditorDocument, "data">[];
+  documents: UserDocument[];
   user: User | null;
   ui: {
     isLoading: boolean;
@@ -51,11 +52,12 @@ export interface User {
   admin: boolean;
   createdAt: string;
   updatedAt: string;
-  documents: Omit<EditorDocument, "data">[];
+  documents: UserDocument[];
 }
 
+export type UserDocument = Omit<EditorDocument, "data">;
 const initialState: AppState = {
-  documents: [] as Omit<EditorDocument, "data">[],
+  documents: [],
   user: null,
   ui: {
     isLoading: true,

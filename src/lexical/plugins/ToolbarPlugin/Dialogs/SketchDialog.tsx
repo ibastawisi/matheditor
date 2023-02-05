@@ -40,8 +40,8 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
       appState: {
         exportEmbedScene: true,
       },
-      elements,
-      files: files,
+      elements: elements!,
+      files: files!,
       exportPadding: 16,
     });
 
@@ -65,10 +65,10 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
     if (!src) return;
     const blob = await (await fetch(src)).blob();
     try {
-      const contents = await loadSceneOrLibraryFromBlob(blob, null, elements);
+      const contents = await loadSceneOrLibraryFromBlob(blob, null, elements ?? null);
       if (contents.type === MIME_TYPES.excalidraw) {
         excalidrawAPI?.addFiles(Object.values(contents.data.files));
-        excalidrawAPI?.updateScene({...contents.data as any, appState: { theme: theme.palette.mode }});
+        excalidrawAPI?.updateScene({ ...contents.data as any, appState: { theme: theme.palette.mode } });
       } else if (contents.type === MIME_TYPES.excalidrawlib) {
         excalidrawAPI?.updateLibrary({
           libraryItems: (contents.data as ImportedLibraryData).libraryItems!,
@@ -76,7 +76,7 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
         });
       }
     } catch (error) {
-      excalidrawAPI?.updateScene({ elements, appState: { theme: theme.palette.mode } })      
+      excalidrawAPI?.updateScene({ elements, appState: { theme: theme.palette.mode } })
     }
   };
 
