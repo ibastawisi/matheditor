@@ -18,6 +18,10 @@ import UserCard from "./UserCard";
 import Avatar from "@mui/material/Avatar";
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import documentDB from "../db";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
 
 const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.app.documents);
@@ -26,7 +30,33 @@ const Documents: React.FC = () => {
   const navigate = useNavigate();
   const localDocuments = documents.map(d => d.id);
   const cloudDocuments = user?.documents.filter(d => !localDocuments.includes(d.id));
-  const sortByDate = (documents: Omit<EditorDocument, "data">[]) => [...documents].sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
+
+  const [sort, setSort] = React.useState('updated-desc');
+  const handleSortChange = (event: SelectChangeEvent) => {
+    const value = event.target.value as string;
+    setSort(value);
+  };
+
+  const sortDocuments = (documents: Omit<EditorDocument, "data">[]) => {
+    const sortBy = sort.split('-')[0];
+    const sortDirection = sort.split('-')[1];
+    switch (sortBy) {
+      case "updated":
+        return sortDirection === 'asc' ?
+          [...documents].sort((a, b) => Date.parse(a.updatedAt) - Date.parse(b.updatedAt)) :
+          [...documents].sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
+      case "created":
+        return sortDirection === 'asc' ?
+          [...documents].sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt)) :
+          [...documents].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+      case "name":
+        return sortDirection === 'asc' ?
+          [...documents].sort((a, b) => a.name.localeCompare(b.name)) :
+          [...documents].sort((a, b) => b.name.localeCompare(a.name));
+      default:
+        return documents;
+    }
+  }
 
   useEffect(() => {
     if ("launchQueue" in window && "LaunchParams" in window) {
@@ -122,9 +152,26 @@ const Documents: React.FC = () => {
         <Button variant="outlined" component={RouterLink} to="/new">New document</Button>
       </Box>
       <Box sx={{ my: 3 }}>
-        <Box sx={{ display: "flex", justifyContent: 'space-between', my: 2 }}>
-          <Typography variant="h6" component="h2">Recent</Typography>
-          <Box>
+        <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', my: 2 }}>
+          <Typography sx={{ mb: 1 }} variant="h6" component="h2">Recent</Typography>
+          <Box sx={{ display: "flex" }}>
+            <FormControl size="small" sx={{ mr: 1 }}>
+              <InputLabel id="sort-select-label">Sort</InputLabel>
+              <Select
+                labelId="sort-select-label"
+                id="sort-select"
+                value={sort}
+                label="Sort"
+                onChange={handleSortChange}
+              >
+                <MenuItem value="updated-desc">Updated At (newest)</MenuItem>
+                <MenuItem value="updated-asc">Updated At (oldest)</MenuItem>
+                <MenuItem value="created-desc">Created At (newest)</MenuItem>
+                <MenuItem value="created-asc">Created At (oldest)</MenuItem>
+                <MenuItem value="name-asc">Name (A to Z)</MenuItem>
+                <MenuItem value="name-desc">Name (Z to A)</MenuItem>
+              </Select>
+            </FormControl>
             <Button sx={{ mr: 1 }} variant="outlined" startIcon={<UploadFileIcon />} component="label">
               Import
               <input type="file" hidden accept=".me" multiple onChange={e => handleFilesChange(e.target.files)} />
@@ -136,7 +183,7 @@ const Documents: React.FC = () => {
         </Box>
         <Grid container spacing={2}>
           <Grid item xs={12}><PlaygroundCard /></Grid>
-          {sortByDate(documents).map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
+          {sortDocuments(documents).map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
             <DocumentCard document={document} variant="local" />
           </Grid>)}
         </Grid>
@@ -153,7 +200,7 @@ const Documents: React.FC = () => {
                 {!user.documents.length ? "No documents found" : "All documents are already synced"}
               </Typography>
             </Grid>}
-          {cloudDocuments && sortByDate(cloudDocuments).map((document) =>
+          {cloudDocuments && sortDocuments(cloudDocuments).map((document) =>
             <Grid item key={document.id} xs={12} sm={6} md={4}>
               <DocumentCard document={document} variant="cloud" />
             </Grid>
