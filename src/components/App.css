@@ -27,3 +27,11 @@ body {
     display: none !important;
   }
 }
+
+.editor-container {
+  margin: 1rem auto 0;
+}
+
+svg {
+  background: unset !important;
+}

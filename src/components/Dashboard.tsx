@@ -31,6 +31,12 @@ import useLocalStorage from "../hooks/useLocalStorage";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 
+import ReactApexChart from 'react-apexcharts';
+import type { ApexOptions } from 'apexcharts';
+import documentDB from "../db";
+import Paper from "@mui/material/Paper";
+import { useTheme } from "@mui/material/styles";
+
 const Dashboard: React.FC = () => {
   const user = useSelector((state: RootState) => state.app.user);
   const [users, setUsers] = useState<User[]>([]);
@@ -39,6 +45,92 @@ const Dashboard: React.FC = () => {
   const [documents, setDocuments] = useState<DocumentWithAuthor[]>([]);
   const [loading, setLoading] = useState(true);
   const [config, setConfig] = useLocalStorage('config', { debug: false })
+  const theme = useTheme();
+
+  const countOptions: ApexOptions = {
+    chart: {
+      id: 'chart2',
+      type: 'line',
+      height: 230,
+      toolbar: {
+        autoSelected: 'pan',
+        show: false
+      }
+    },
+    theme: {
+      mode: theme.palette.mode,
+    },
+    stroke: {
+      width: 3
+    },
+    dataLabels: {
+      enabled: false
+    },
+    fill: {
+      opacity: 1,
+    },
+    markers: {
+      size: 0
+    },
+    xaxis: {
+      type: 'datetime'
+    }
+  }
+
+  const countOptionsLine: ApexOptions = {
+    chart: {
+      id: 'chart1',
+      height: 130,
+      type: 'area',
+      brush: {
+        target: 'chart2',
+        enabled: true
+      },
+      selection: {
+        enabled: true,
+      },
+    },
+    theme: {
+      mode: theme.palette.mode,
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        opacityFrom: 0.91,
+        opacityTo: 0.1,
+      }
+    },
+    xaxis: {
+      type: 'datetime',
+      tooltip: {
+        enabled: false
+      }
+    },
+    yaxis: {
+      tickAmount: 2
+    }
+  };
+
+  const [userDocumentCountSeries, setUserDocumentCountSeries] = useState([{ name: 'Documents', data: [] as { x: string, y: number }[] }]);
+  const [userDocumentCountSeriesLine, setUserDocumentCountSeriesLine] = useState([{ name: 'Documents', data: [] as { x: string, y: number }[] }]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const localDocuments = await documentDB.getAll();
+      const cloudOnlyDocuments = user?.documents.filter(doc => !localDocuments.find(localDoc => localDoc.id === doc.id)) ?? [];
+      const allUserDocuments = [...localDocuments, ...cloudOnlyDocuments].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+      let userDocumentCount = 0;
+      const userDocumentCountSeriesData = allUserDocuments.map(doc => ({ x: doc.createdAt, y: ++userDocumentCount }));
+      setUserDocumentCountSeries([{ name: 'Documents', data: userDocumentCountSeriesData }]);
+      setUserDocumentCountSeriesLine([{ name: 'Documents', data: userDocumentCountSeriesData }]);
+    }
+    fetchData();
+  }, [user]);
+
+  const [adminUserCountSeries, setAdminUserCountSeries] = useState([{ name: 'Users', data: [] as { x: string, y: number }[] }]);
+  const [adminUserCountSeriesLine, setAdminUserCountSeriesLine] = useState([{ name: 'Users', data: [] as { x: string, y: number }[] }]);
+  const [adminDocumentCountSeries, setAdminDocumentCountSeries] = useState([{ name: 'Documents', data: [] as { x: string, y: number }[] }]);
+  const [adminDocumentCountSeriesLine, setAdminDocumentCountSeriesLine] = useState([{ name: 'Documents', data: [] as { x: string, y: number }[] }]);
 
   useEffect(() => {
     if (!user?.admin) return;
@@ -48,6 +140,17 @@ const Dashboard: React.FC = () => {
       const documets: DocumentWithUserId[] = await getAllDocuments();
       setDocuments(documets.map(doc => ({ ...doc, author: users.find(user => user.id === doc.userId)! })));
       setLoading(false);
+
+      let userCount = 0;
+      const sortedUsers = [...users].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+      const userCountSeriesData = sortedUsers.map(user => ({ x: user.createdAt, y: ++userCount }));
+      setAdminUserCountSeries([{ name: 'Users', data: userCountSeriesData }]);
+      setAdminUserCountSeriesLine([{ name: 'Users', data: userCountSeriesData }]);
+      let documentCount = 0;
+      const sortedDocuments = [...documets].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+      const documentCountSeriesData = sortedDocuments.map(doc => ({ x: doc.createdAt, y: ++documentCount }));
+      setAdminDocumentCountSeries([{ name: 'Documents', data: documentCountSeriesData }]);
+      setAdminDocumentCountSeriesLine([{ name: 'Documents', data: documentCountSeriesData }]);
     }
     fetchData();
   }, [user]);
@@ -115,13 +218,30 @@ const Dashboard: React.FC = () => {
     <Box sx={{ mt: 1 }}>
       <FormControlLabel control={<Switch checked={config.debug} onChange={e => setConfig({ ...config, debug: e.target.checked })} />} label="Show Editor Debug View" />
     </Box>
+    <Typography variant="h6" component="h2" sx={{ my: 2 }}>Document Count</Typography>
+    <Paper sx={{ p: 1 }}>
+      <ReactApexChart options={countOptions} series={userDocumentCountSeries} type="line" height={230} />
+      <ReactApexChart options={countOptionsLine} series={userDocumentCountSeriesLine} type="area" height={130} />
+    </Paper>
+
+
     {user?.admin &&
-      <Box sx={{ my: 2 }}>
+      <Box sx={{ my: 3 }}>
         <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 1 }}>
           <Typography variant="h6" component="h2">Admin Insights</Typography>
           {loading ? <CircularProgress /> :
-            <Box sx={{ my: 3 }}>
-              <Box sx={{ display: "flex", flexWrap: "wrap-reverse", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 2 }}>
+            <Box>
+              <Typography variant="h6" component="h2" sx={{ my: 2 }}>User Count</Typography>
+              <Paper sx={{ p: 1 }}>
+                <ReactApexChart options={countOptions} series={adminUserCountSeries} type="line" height={230} />
+                <ReactApexChart options={countOptionsLine} series={adminUserCountSeriesLine} type="area" height={130} />
+              </Paper>
+              <Typography variant="h6" component="h2" sx={{ my: 2 }}>Document Count</Typography>
+              <Paper sx={{ p: 1 }}>
+                <ReactApexChart options={countOptions} series={adminDocumentCountSeries} type="line" height={230} />
+                <ReactApexChart options={countOptionsLine} series={adminDocumentCountSeriesLine} type="area" height={130} />
+              </Paper>
+              <Box sx={{ display: "flex", flexWrap: "wrap-reverse", justifyContent: 'space-between', alignItems: "center", gap: 1, my: 2 }}>
                 <Typography variant="h6" component="h2">Documents</Typography>
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                   <FormControl size="small">
