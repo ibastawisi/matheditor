@@ -31,6 +31,7 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
     if (open) {
       loadSceneOrLibrary();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [excalidrawAPI, open]);
 
   const handleSubmit = async () => {

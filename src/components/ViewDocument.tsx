@@ -6,7 +6,7 @@ import { AppDispatch } from "../store";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import Editor from "../lexical";
 
-import SplashScreen from "./SplachScreen";
+import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
 import { EditorDocument } from "../slices/app";
 import Fab from "@mui/material/Fab";

@@ -52,7 +52,7 @@ import { actions } from "../slices";
 import { EditorDocument } from "../slices/app";
 
 import Box from '@mui/material/Box';
-import SplashScreen from '../components/SplachScreen';
+import SplashScreen from '../components/SplashScreen';
 import theme from "./theme";
 import isEqual from 'lodash/isEqual';
 import { validateData } from './utils/state';

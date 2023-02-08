@@ -30,6 +30,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
       const fontSize = $getNodeStyleValueForProperty(node, 'font-size', '15px');
       setFontSize(fontSize);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [node]);
 
   const applyStyleText = useCallback(
@@ -38,6 +39,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
         $patchStyleMath([node], styles);
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [editor],
   );
 
