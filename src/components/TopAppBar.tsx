@@ -13,11 +13,9 @@ import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { ColorModeContext } from './ThemeProvider';
 import useTheme from '@mui/material/styles/useTheme';
-import SettingsIcon from '@mui/icons-material/Settings';
-import SettingsDialog from './SettingsDialog';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import Avatar from '@mui/material/Avatar';
@@ -35,7 +33,7 @@ function ScrollTop({ children }: { children: React.ReactElement }) {
     disableHysteresis: true,
   });
 
-  const handleClick = (event: React.MouseEvent) => {
+  const handleClick = () => {
     const anchor = document.querySelector('#back-to-top-anchor');
     if (anchor) {
       anchor.scrollIntoView({
@@ -62,18 +60,9 @@ const TopAppBar: React.FC<{}> = () => {
   const location = useLocation();
   const colorMode = useContext(ColorModeContext);
   const theme = useTheme();
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const user = useSelector((state: RootState) => state.app.user);
 
-  const openSettingsDialog = () => {
-    setSettingsOpen(true);
-  };
-
-  const closeSettingsDialog = () => {
-    setSettingsOpen(false);
-  };
-
-  const showPrintButton = !["/", "/new"].includes(location.pathname);
+  const showPrintButton = !["/", "/new", "/dashboard"].includes(location.pathname);
   
   return (
     <>
@@ -88,8 +77,8 @@ const TopAppBar: React.FC<{}> = () => {
               </Box>
             </Link>
             <Box sx={{ flexGrow: 1 }} />
-            <IconButton onClick={openSettingsDialog} color="inherit">
-              {user ? <Avatar alt={user.name} src={user.picture} sx={{ width: 30, height: 30 }} /> : <SettingsIcon />}
+            <IconButton component={RouterLink} to="/dashboard">
+              <Avatar alt={user?.name} src={user?.picture} sx={{ width: 30, height: 30 }} />
             </IconButton>
             <IconButton onClick={colorMode.toggleColorMode} color="inherit">
               {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
@@ -106,7 +95,6 @@ const TopAppBar: React.FC<{}> = () => {
           <KeyboardArrowUpIcon />
         </Fab>
       </ScrollTop>
-      <SettingsDialog open={settingsOpen} onClose={closeSettingsDialog} />
     </>
   );
 };

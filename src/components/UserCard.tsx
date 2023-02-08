@@ -12,7 +12,6 @@ import CardActions from '@mui/material/CardActions';
 import Skeleton from '@mui/material/Skeleton';
 import { BACKEND_URL } from '../config';
 import GoogleIcon from '@mui/icons-material/Google';
-import { Link as RouterLink } from 'react-router-dom';
 
 export default function UserCard({ user }: { user?: User | null }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -38,7 +37,6 @@ export default function UserCard({ user }: { user?: User | null }) {
           </Typography>
         </CardContent>
         <CardActions>
-          {user?.admin && <Button size='small' component={RouterLink} to={`/dashboard`}>Dashboard</Button>}
           {user && <Button size='small' onClick={logout}>Logout</Button>}
           {!user && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>Login with Google</Button>}
         </CardActions>

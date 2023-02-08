@@ -1,12 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Grid from "@mui/material/Grid";
-import Skeleton from "@mui/material/Skeleton";
 import Typography from "@mui/material/Typography";
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
@@ -29,6 +27,9 @@ import ListItemText from "@mui/material/ListItemText";
 import MenuItem from "@mui/material/MenuItem";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import useLocalStorage from "../hooks/useLocalStorage";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
 
 const Dashboard: React.FC = () => {
   const user = useSelector((state: RootState) => state.app.user);
@@ -37,6 +38,7 @@ const Dashboard: React.FC = () => {
   type DocumentWithAuthor = UserDocument & { author: User };
   const [documents, setDocuments] = useState<DocumentWithAuthor[]>([]);
   const [loading, setLoading] = useState(true);
+  const [config, setConfig] = useLocalStorage('config', { debug: false })
 
   useEffect(() => {
     if (!user?.admin) return;
@@ -50,11 +52,11 @@ const Dashboard: React.FC = () => {
     fetchData();
   }, [user]);
 
-  const [sort, setSort] = useState({ documents: 'updated-desc', users: 'created-desc'});
+  const [sort, setSort] = useState({ documents: 'updated-desc', users: 'created-desc' });
   const handleSortChange = (event: SelectChangeEvent) => {
     const name = event.target.name as string;
     const value = event.target.value as string;
-    setSort({...sort, [name]: value});
+    setSort({ ...sort, [name]: value });
   };
 
   const sortDocuments = (documents: DocumentWithAuthor[]) => {
@@ -98,6 +100,10 @@ const Dashboard: React.FC = () => {
         return sortDirection === 'asc' ?
           [...users].sort((a, b) => a.name.localeCompare(b.name)) :
           [...users].sort((a, b) => b.name.localeCompare(a.name));
+      case "documents":
+        return sortDirection === 'asc' ?
+          [...users].sort((a, b) => a.documents.length - b.documents.length) :
+          [...users].sort((a, b) => b.documents.length - a.documents.length);
       default:
         return users;
     }
@@ -106,194 +112,212 @@ const Dashboard: React.FC = () => {
   return <>
     <Helmet><title>Dashboard</title></Helmet>
     <UserCard user={user} />
+    <Box sx={{ mt: 1 }}>
+      <FormControlLabel control={<Switch checked={config.debug} onChange={e => setConfig({ ...config, debug: e.target.checked })} />} label="Show Editor Debug View" />
+    </Box>
     {user?.admin &&
       <Box sx={{ my: 2 }}>
-        {loading ? <CircularProgress /> :
-          <Box sx={{ my: 3 }}>
-            <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', my: 2 }}>
-              <Typography sx={{ mb: 1 }} variant="h6" component="h2">Documents</Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-                <FormControl size="small" sx={{ mr: 1, my: 1 }}>
-                  <InputLabel id="document-sort-select-label">Sort</InputLabel>
-                  <Select
-                    labelId="document-sort-select-label"
-                    id="document-sort-select"
-                    name="documents"
-                    value={sort.documents}
-                    label="Sort"
-                    onChange={handleSortChange}
-                    sx={{
-                      mx: 0.25,
-                      '& .MuiSelect-select': { display: 'flex', alignItems: 'center', py: 0.5 },
-                      '& .MuiListItemIcon-root': { minWidth: 30 },
-                    }}
-                  >
-                    <MenuItem value="updated-desc">
-                      <ListItemIcon>
-                        <ArrowDownwardIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>Updated</ListItemText>
-                    </MenuItem>
-                    <MenuItem value="updated-asc">
-                      <ListItemIcon>
-                        <ArrowUpwardIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>Updated</ListItemText>
-                    </MenuItem>
-                    <MenuItem value="created-desc">
-                      <ListItemIcon>
-                        <ArrowDownwardIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>Created</ListItemText>
-                    </MenuItem>
-                    <MenuItem value="created-asc">
-                      <ListItemIcon>
-                        <ArrowUpwardIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>Created</ListItemText>
-                    </MenuItem>
-                    <MenuItem value="name-asc">
-                      <ListItemIcon>
-                        <ArrowDownwardIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>Name</ListItemText>
-                    </MenuItem>
-                    <MenuItem value="name-desc">
-                      <ListItemIcon>
-                        <ArrowUpwardIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>Name</ListItemText>
-                    </MenuItem>
-                    <MenuItem value="author-asc">
-                      <ListItemIcon>
-                        <ArrowDownwardIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>Author</ListItemText>
-                    </MenuItem>
-                    <MenuItem value="author-desc">
-                      <ListItemIcon>
-                        <ArrowUpwardIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>Author</ListItemText>
-                    </MenuItem>
-                  </Select>
-                </FormControl>
+        <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 1 }}>
+          <Typography variant="h6" component="h2">Admin Insights</Typography>
+          {loading ? <CircularProgress /> :
+            <Box sx={{ my: 3 }}>
+              <Box sx={{ display: "flex", flexWrap: "wrap-reverse", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 2 }}>
+                <Typography variant="h6" component="h2">Documents</Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                  <FormControl size="small">
+                    <InputLabel id="document-sort-select-label">Sort</InputLabel>
+                    <Select
+                      labelId="document-sort-select-label"
+                      id="document-sort-select"
+                      name="documents"
+                      value={sort.documents}
+                      label="Sort"
+                      onChange={handleSortChange}
+                      sx={{
+                        mx: 0.25,
+                        '& .MuiSelect-select': { display: 'flex', alignItems: 'center', py: 0.5 },
+                        '& .MuiListItemIcon-root': { minWidth: 30 },
+                      }}
+                    >
+                      <MenuItem value="updated-desc">
+                        <ListItemIcon>
+                          <ArrowDownwardIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Updated</ListItemText>
+                      </MenuItem>
+                      <MenuItem value="updated-asc">
+                        <ListItemIcon>
+                          <ArrowUpwardIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Updated</ListItemText>
+                      </MenuItem>
+                      <MenuItem value="created-desc">
+                        <ListItemIcon>
+                          <ArrowDownwardIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Created</ListItemText>
+                      </MenuItem>
+                      <MenuItem value="created-asc">
+                        <ListItemIcon>
+                          <ArrowUpwardIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Created</ListItemText>
+                      </MenuItem>
+                      <MenuItem value="name-asc">
+                        <ListItemIcon>
+                          <ArrowDownwardIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Name</ListItemText>
+                      </MenuItem>
+                      <MenuItem value="name-desc">
+                        <ListItemIcon>
+                          <ArrowUpwardIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Name</ListItemText>
+                      </MenuItem>
+                      <MenuItem value="author-asc">
+                        <ListItemIcon>
+                          <ArrowDownwardIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Author</ListItemText>
+                      </MenuItem>
+                      <MenuItem value="author-desc">
+                        <ListItemIcon>
+                          <ArrowUpwardIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Author</ListItemText>
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
               </Box>
-            </Box>
-            <Grid container spacing={2}>
-              {sortDocuments(documents).map(document => <Grid item xs={12} sm={6} md={4} key={document.id}>
-                <Card variant="outlined" sx={{ height: "100%" }}>
-                  <CardActionArea component={RouterLink} to={`/view/${document.id}`} sx={{ height: "100%" }}>
-                    <CardHeader
-                      title={document.name}
-                      subheader={<>
-                        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-                          Author: {document.author.name}
+              <Grid container spacing={2}>
+                {sortDocuments(documents).map(document => <Grid item xs={12} sm={6} md={4} key={document.id}>
+                  <Card variant="outlined" sx={{ height: "100%" }}>
+                    <CardActionArea component={RouterLink} to={`/view/${document.id}`} sx={{ height: "100%" }}>
+                      <CardHeader
+                        title={document.name}
+                        subheader={<>
+                          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                            Author: {document.author.name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Created At: {new Date(document.createdAt).toLocaleString()}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Updated At: {new Date(document.updatedAt).toLocaleString()}
+                          </Typography>
+                        </>}
+                        avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>}
+                      />
+                    </CardActionArea>
+                  </Card>
+                </Grid>)}
+              </Grid>
+
+              <Box sx={{ display: "flex", flexWrap: "wrap-reverse", justifyContent: 'space-between', alignItems: "center", gap: 1, my: 2 }}>
+                <Typography variant="h6" component="h2">Users</Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                  <FormControl size="small">
+                    <InputLabel id="user-sort-select-label">Sort</InputLabel>
+                    <Select
+                      labelId="user-sort-select-label"
+                      id="user-sort-select"
+                      name="users"
+                      value={sort.users}
+                      label="Sort"
+                      onChange={handleSortChange}
+                      sx={{
+                        mx: 0.25,
+                        '& .MuiSelect-select': { display: 'flex', alignItems: 'center', py: 0.5 },
+                        '& .MuiListItemIcon-root': { minWidth: 30 },
+                      }}
+                    >
+                      <MenuItem value="updated-desc">
+                        <ListItemIcon>
+                          <ArrowDownwardIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Updated</ListItemText>
+                      </MenuItem>
+                      <MenuItem value="updated-asc">
+                        <ListItemIcon>
+                          <ArrowUpwardIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Updated</ListItemText>
+                      </MenuItem>
+                      <MenuItem value="created-desc">
+                        <ListItemIcon>
+                          <ArrowDownwardIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Created</ListItemText>
+                      </MenuItem>
+                      <MenuItem value="created-asc">
+                        <ListItemIcon>
+                          <ArrowUpwardIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Created</ListItemText>
+                      </MenuItem>
+                      <MenuItem value="name-asc">
+                        <ListItemIcon>
+                          <ArrowDownwardIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Name</ListItemText>
+                      </MenuItem>
+                      <MenuItem value="name-desc">
+                        <ListItemIcon>
+                          <ArrowUpwardIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Name</ListItemText>
+                      </MenuItem>
+                      <MenuItem value="documents-asc">
+                        <ListItemIcon>
+                          <ArrowDownwardIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Documents</ListItemText>
+                      </MenuItem>
+                      <MenuItem value="documents-desc">
+                        <ListItemIcon>
+                          <ArrowUpwardIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Documents</ListItemText>
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+              </Box>
+              <Grid container spacing={2}>
+                {sortUsers(users).map(user => <Grid item xs={12} md={6} lg={4} key={user.id}>
+                  <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between', height: "100%" }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: "space-between" }}>
+                      <CardContent sx={{ overflow: "hidden", overflowWrap: "anywhere" }}>
+                        <Typography component="div" variant="subtitle1">{user.name}</Typography>
+                        <Typography variant="subtitle2" color="text.secondary" component="div">
+                          {user.email}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Created At: {new Date(document.createdAt).toLocaleString()}
+                        <Typography variant="subtitle2" color="text.secondary">
+                          Registered At: {new Date(user.createdAt).toLocaleDateString()}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Updated At: {new Date(document.updatedAt).toLocaleString()}
+                      </CardContent>
+                      <CardActions>
+                        <Typography variant="subtitle2" component="div">
+                          No. documents: {user.documents.length}
                         </Typography>
-                      </>}
-                      avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>}
+                      </CardActions>
+                    </Box>
+                    <CardMedia
+                      component="img"
+                      sx={{ width: 96, flexShrink: 0 }}
+                      image={user.picture}
+                      alt={user.name}
                     />
-                  </CardActionArea>
-                </Card>
-              </Grid>)}
-            </Grid>
+                  </Card>
 
-            <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', my: 2 }}>
-              <Typography sx={{ mb: 1 }} variant="h6" component="h2">Users</Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-                <FormControl size="small" sx={{ mr: 1, my: 1 }}>
-                  <InputLabel id="user-sort-select-label">Sort</InputLabel>
-                  <Select
-                    labelId="user-sort-select-label"
-                    id="user-sort-select"
-                    name="users"
-                    value={sort.users}
-                    label="Sort"
-                    onChange={handleSortChange}
-                    sx={{
-                      mx: 0.25,
-                      '& .MuiSelect-select': { display: 'flex', alignItems: 'center', py: 0.5 },
-                      '& .MuiListItemIcon-root': { minWidth: 30 },
-                    }}
-                  >
-                    <MenuItem value="updated-desc">
-                      <ListItemIcon>
-                        <ArrowDownwardIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>Updated</ListItemText>
-                    </MenuItem>
-                    <MenuItem value="updated-asc">
-                      <ListItemIcon>
-                        <ArrowUpwardIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>Updated</ListItemText>
-                    </MenuItem>
-                    <MenuItem value="created-desc">
-                      <ListItemIcon>
-                        <ArrowDownwardIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>Created</ListItemText>
-                    </MenuItem>
-                    <MenuItem value="created-asc">
-                      <ListItemIcon>
-                        <ArrowUpwardIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>Created</ListItemText>
-                    </MenuItem>
-                    <MenuItem value="name-asc">
-                      <ListItemIcon>
-                        <ArrowDownwardIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>Name</ListItemText>
-                    </MenuItem>
-                    <MenuItem value="name-desc">
-                      <ListItemIcon>
-                        <ArrowUpwardIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>Name</ListItemText>
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
+                </Grid>)}
+
+              </Grid>
             </Box>
-            <Grid container spacing={2}>
-              {sortUsers(users).map(user => <Grid item xs={12} md={6} lg={4} key={user.id}>
-                <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between', height: "100%" }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: "space-between" }}>
-                    <CardContent sx={{ overflow: "hidden", overflowWrap: "anywhere" }}>
-                      <Typography component="div" variant="subtitle1">{user.name}</Typography>
-                      <Typography variant="subtitle2" color="text.secondary" component="div">
-                        {user.email}
-                      </Typography>
-                      <Typography variant="subtitle2" color="text.secondary">
-                        Registered At: {new Date(user.createdAt).toLocaleDateString()}
-                      </Typography>
-                    </CardContent>
-                    <CardActions>
-                      <Typography variant="subtitle2" component="div">
-                        No. documents: {user.documents.length}
-                      </Typography>
-                    </CardActions>
-                  </Box>
-                  <CardMedia
-                    component="img"
-                    sx={{ width: 96, flexShrink: 0 }}
-                    image={user.picture}
-                    alt={user.name}
-                  />
-                </Card>
-
-              </Grid>)}
-
-            </Grid>
-          </Box>
-        }
+          }
+        </Box>
       </Box>
     }
   </>;

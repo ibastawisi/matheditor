@@ -5,7 +5,6 @@ import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import { createDocument, deleteDocument, getAuthenticatedUser, getDocument, logout, updateDocument } from '../services';
 import { RootState } from '../store';
 import documentDB from '../db';
-import { type } from 'os';
 
 export interface Alert {
   title: string;
@@ -28,11 +27,6 @@ export interface AppState {
     isSaving: boolean;
     announcements: Announcement[],
     alerts: Alert[],
-  };
-  config: {
-    editor: {
-      debug: boolean;
-    };
   };
 }
 
@@ -64,11 +58,6 @@ const initialState: AppState = {
     isSaving: false,
     announcements: [],
     alerts: [],
-  },
-  config: {
-    editor: {
-      debug: false,
-    },
   },
 };
 
@@ -174,10 +163,6 @@ export const appSlice = createSlice({
       } catch (error) {
         console.error("migration to indexeddb failed: " + error);
       }
-      try {
-        const localConfig = localStorage.getItem('config')
-        state.config = { ...initialState.config, ...JSON.parse(localConfig || '{}') };
-      } catch (e) { console.error("couldn't parse saved config: " + e); }
       state.ui = initialState.ui;
       state.ui.isLoading = false;
     },
@@ -222,10 +207,6 @@ export const appSlice = createSlice({
     },
     clearAlert: (state) => {
       state.ui.alerts.shift();
-    },
-    setConfig: (state, action: PayloadAction<AppState["config"]>) => {
-      state.config = action.payload;
-      window.localStorage.setItem("config", JSON.stringify(state.config));
     },
     setUser: (state, action: PayloadAction<User | null>) => {
       state.user = action.payload;

@@ -45,9 +45,9 @@ import { SketchNode } from './nodes/SketchNode';
 import { GraphNode } from './nodes/GraphNode';
 import { StickyNode } from './nodes/StickyNode';
 
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { validate } from 'uuid';
-import { AppDispatch, RootState } from "../store";
+import { AppDispatch } from "../store";
 import { actions } from "../slices";
 import { EditorDocument } from "../slices/app";
 
@@ -59,6 +59,7 @@ import { validateData } from './utils/state';
 import "./styles.css";
 import DragDropPaste from './plugins/DragDropPastePlugin';
 import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 export const editorConfig = {
   namespace: "matheditor",
@@ -92,7 +93,7 @@ export const editorConfig = {
 
 const Editor: React.FC<{ document: EditorDocument, editable: boolean }> = ({ document, editable }) => {
   const [initialized, setInitialized] = useState(false);
-  const config = useSelector((state: RootState) => state.app.config.editor);
+  const [config] = useLocalStorage('config', { debug: false });
   const dispatch = useDispatch<AppDispatch>();
 
   function onChange(editorState: EditorState) {
