@@ -124,56 +124,6 @@ const Dashboard: React.FC = () => {
     return [countOptions, countOptionsLine];
   }
 
-  const userAquisitionOptions: ApexOptions = {
-    chart: {
-      type: 'area',
-      stacked: false,
-      height: 350,
-      zoom: {
-        type: 'x',
-        enabled: true,
-        autoScaleYaxis: true
-      },
-      toolbar: {
-        autoSelected: 'zoom'
-      }
-    },
-    dataLabels: {
-      enabled: false
-    },
-    markers: {
-      size: 0,
-    },
-    stroke: {
-      curve: 'straight'
-    },
-    theme: {
-      mode: theme.palette.mode,
-    },
-    title: {
-      text: 'User Aquisition',
-      align: 'left'
-    },
-    fill: {
-      type: 'gradient',
-      gradient: {
-        shadeIntensity: 1,
-        inverseColors: false,
-        opacityFrom: 0.5,
-        opacityTo: 0,
-        stops: [0, 90, 100]
-      },
-    },
-    yaxis: {
-      title: {
-        text: 'Number of New Users'
-      },
-    },
-    xaxis: {
-      type: 'datetime',
-    },
-  };
-
   const [userDocumentCountSeries, setUserDocumentCountSeries] = useState([{ name: 'Documents', data: [] as { x: string, y: number }[] }]);
   const [userDocumentCountSeriesLine, setUserDocumentCountSeriesLine] = useState([{ name: 'Documents', data: [] as { x: string, y: number }[] }]);
 
@@ -190,11 +140,12 @@ const Dashboard: React.FC = () => {
     fetchData();
   }, [user]);
 
+  const [adminUserAquisitionSeries, setAdminUserAquisitionSeries] = useState([{ name: 'Users', data: [] as { x: string, y: number }[] }]);
+  const [adminUserAquisitionSeriesLine, setAdminUserAquisitionSeriesLine] = useState([{ name: 'Users', data: [] as { x: string, y: number }[] }]);
   const [adminUserCountSeries, setAdminUserCountSeries] = useState([{ name: 'Users', data: [] as { x: string, y: number }[] }]);
   const [adminUserCountSeriesLine, setAdminUserCountSeriesLine] = useState([{ name: 'Users', data: [] as { x: string, y: number }[] }]);
   const [adminDocumentCountSeries, setAdminDocumentCountSeries] = useState([{ name: 'Documents', data: [] as { x: string, y: number }[] }]);
   const [adminDocumentCountSeriesLine, setAdminDocumentCountSeriesLine] = useState([{ name: 'Documents', data: [] as { x: string, y: number }[] }]);
-  const [userAquisitionSeries, setUserAquisitionSeries] = useState([{ name: 'New Users', data: [] as { x: string, y: number }[] }]);
 
   useEffect(() => {
     if (!user?.admin) return;
@@ -216,8 +167,7 @@ const Dashboard: React.FC = () => {
       setAdminDocumentCountSeries([{ name: 'Documents', data: documentCountSeriesData }]);
       setAdminDocumentCountSeriesLine([{ name: 'Documents', data: documentCountSeriesData }]);
 
-      const lastWeekUsers = sortedUsers.filter(user => Date.parse(user.createdAt) > Date.now() - 1000 * 60 * 60 * 24 * 7);
-      const groupedUsers = lastWeekUsers.reduce((acc, user) => {
+      const groupedUsers = sortedUsers.reduce((acc, user) => {
         const day = user.createdAt.split('T')[0];
         if (acc[day]) {
           acc[day]++;
@@ -227,7 +177,8 @@ const Dashboard: React.FC = () => {
         return acc;
       }, {} as { [key: string]: number });
       const userAquisitionSeriesData = Object.keys(groupedUsers).map(day => ({ x: day, y: groupedUsers[day] }));
-      setUserAquisitionSeries([{ name: 'New Users', data: userAquisitionSeriesData }]);
+      setAdminUserAquisitionSeries([{ name: 'Users', data: userAquisitionSeriesData }]);
+      setAdminUserAquisitionSeriesLine([{ name: 'Users', data: userAquisitionSeriesData }]);
     }
     fetchData();
   }, [user]);
@@ -308,7 +259,8 @@ const Dashboard: React.FC = () => {
         {loading ? <CircularProgress /> :
           <Box>
             <Paper sx={{ p: 1, my: 1 }}>
-              <ReactApexChart options={userAquisitionOptions} series={userAquisitionSeries} type="area" height={350} />
+              <ReactApexChart options={getCountChartOptions("admin-user-aquisition", "User Aquisition")[0]} series={adminUserAquisitionSeries} type="line" height={230} />
+              <ReactApexChart options={getCountChartOptions("admin-user-aquisition", "User Aquisition")[1]} series={adminUserAquisitionSeriesLine} type="area" height={130} />
             </Paper>
             <Paper sx={{ p: 1, my: 1 }}>
               <ReactApexChart options={getCountChartOptions("admin-user-count", "User Count")[0]} series={adminUserCountSeries} type="line" height={230} />
