@@ -59,6 +59,7 @@ const Dashboard: React.FC = () => {
       const allUserDocuments = [...localDocuments, ...cloudOnlyDocuments].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
       let userDocumentCount = 0;
       const userDocumentCountSeriesData = allUserDocuments.map(doc => ({ x: doc.createdAt, y: ++userDocumentCount }));
+      userDocumentCountSeriesData.push({ x: new Date().toISOString(), y: userDocumentCount });
       setUserDocumentCountSeries([{ name: 'Documents', data: userDocumentCountSeriesData }]);
       setUserDocumentCountSeriesLine([{ name: 'Documents', data: userDocumentCountSeriesData }]);
     }
@@ -79,19 +80,21 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     if (!admin) return;
     const sortedUsers = [...admin.users].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
-    const groupedUsers = sortedUsers.reduce((acc, user) => {
+    const firstTimestamp = new Date(sortedUsers[0].createdAt).getTime();
+    const lastTimestamp = new Date().getTime();
+    const userMap = new Map<string, number>();
+    for (let timestamp = firstTimestamp; timestamp < lastTimestamp; timestamp += 86400000) {
+      userMap.set(new Date(timestamp).toISOString().split('T')[0], 0);
+    }
+    sortedUsers.forEach(user => {
       const day = user.createdAt.split('T')[0];
-      if (acc[day]) {
-        acc[day]++;
-      } else {
-        acc[day] = 1;
-      }
-      return acc;
-    }, {} as { [key: string]: number });
-
-    const userAquisitionSeriesData = Object.keys(groupedUsers).map(day => ({ x: day, y: groupedUsers[day] }));
-    setAdminUserAquisitionSeries([{ name: 'Users', data: userAquisitionSeriesData }]);
-    setAdminUserAquisitionSeriesLine([{ name: 'Users', data: userAquisitionSeriesData }]);
+      const count = (userMap.get(day) ?? 0) + 1;
+      userMap.set(day, count);
+    });
+    const data = Array.from(userMap.entries()).map(([day, count]) => ({ x: day, y: count }));
+    data.push({ x: new Date(lastTimestamp).toISOString(), y: data[data.length - 1].y });
+    setAdminUserAquisitionSeries([{ name: 'Users', data }]);
+    setAdminUserAquisitionSeriesLine([{ name: 'Users', data }]);
     setLoading(false);
   }, [admin]);
 
