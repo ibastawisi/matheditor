@@ -25,13 +25,25 @@ math-field {
 }
 
 /* mathlive virtula keyboard styles */
+
 .ML__keyboard {
   --keycap-height: 52px !important;
   --keyboard-height: 290px !important;
+  --keyboard-zindex: 9999;
+
+  --keyboard-alternate-background-active: var(--primary, hsl(var(--hue), 40%, 50%));
+  --keyboard-alternate-text: var(--keycap-text, #000);
+  --keyboard-alternate-text-active: #fff;
+  --keyboard-alternate-key-length: 70px;
+  --keyboard-alternate-key-font-size: 30px;
+  --keyboard-alternate-key-aside-font-size: 12px;
+  --keycap-font-size: 20px;
+  --keycap-small-font-size: calc(var(--keycap-font-size) * .8);
+  --keycap-extra-small-font-size: calc(var(--keycap-font-size) / 1.42);
+  --keycap-tt-font-size: calc(var(--keycap-font-size) * 1.5);
 }
 
 .ML__keyboard .ML__keyboard--plate {
-  width: 100%;
   height: var(--keyboard-height);
 }
 
@@ -41,57 +53,55 @@ math-field {
 
 .ML__keyboard .ML__keyboard--plate div .rows>ul {
   height: var(--keycap-height) !important;
-  margin: 0 0 8px !important;
 }
 
 .ML__keyboard .ML__keyboard--plate div .rows>ul>li {
   height: var(--keycap-height) !important;
 }
 
-.ML__keyboard .ML__keyboard--plate div .rows>ul>li.separator:first-child {
-  display: none;
+.ML__keyboard .ML__keyboard--plate div .rows>ul>li svg.svg-glyph {
+  padding: 0 !important;
 }
 
-@media (max-width: 414px) {
-  .ML__keyboard .ML__keyboard--plate div .rows>ul>.w5 {
-    width: 8px !important;
-  }
+[theme=light] .ML__keyboard {
+  --hue: 206;
+  --keyboard-background: rgba(209, 213, 217);
+  --keyboard-text: #000;
+  --keyboard-text-active: var(--primary, hsl(var(--hue), 40%, 50%));
+  --keyboard-background-border: #ddd;
+  --keycap-background: white;
+  --keycap-background-active: #e5e5e5;
+  --keycap-background-border: #e5e6e9;
+  --keycap-background-border-bottom: #8d8f92;
+  --keycap-text: #000;
+  --keycap-text-active: #fff;
+  --keycap-secondary-text: #000;
+  --keycap-modifier-background: #b9bdc7;
+  --keycap-modifier-border: #c5c9d0;
+  --keycap-modifier-border-bottom: #989da6;
+  --keyboard-alternate-background: #fff;
 }
 
-div.ML__keyboard.material {
-  z-index: 9999;
-}
-
-[theme=light] div.ML__keyboard.material {
-  --keycap-background: #FFF !important;
-}
-
-[theme=dark] div.ML__keyboard.material {
-  --keyboard-background: hsla(var(--hue, 212), 19%, 18%, 98%) !important;
-  --keycap-background-active: #FAFAFA !important;
-}
-
-
-[theme=dark] .ML__keyboard .ML__keyboard--plate div .rows>ul>li aside {
-  color: var(--keycap-text);
-}
-
-.ML__keyboard .ML__keyboard--plate div .rows>ul>li.is-pressed aside,
-.ML__keyboard .ML__keyboard--plate div .rows>ul>li:hover aside {
-  color: var(--keyboard-text-active);
+[theme=dark] .ML__keyboard {
+  --hue: 206;
+  --keyboard-background: #0c0c0c;
+  --keyboard-text: #f0f0f0;
+  --keyboard-text-active: hsl(var(--hue), 100%, 60%);
+  --keyboard-background-border: hsl(0, 0%, 10%);
+  --keycap-background: #555555;
+  --keycap-background-active: hsl(var(--hue), 35%, 42%);
+  --keycap-background-border: transparent;
+  --keycap-background-border-bottom: transparent;
+  --keycap-text: hsl(0, 0%, 81.6%);
+  --keycap-text-active: #000;
+  --keycap-secondary-text: #fff;
+  --keycap-modifier-background: #303030;
+  --keycap-modifier-border: transparent;
+  --keycap-modifier-border-bottom: transparent;
+  --keyboard-alternate-background: #303030;
 }
 
 @media print {
-  .editor-container {
-    margin-top: 0;
-  }
-
-  *,
-  *:before,
-  *:after {
-    filter: unset !important;
-  }
-
   .ML__keyboard {
     display: none !important;
   }

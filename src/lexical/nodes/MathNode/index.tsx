@@ -6,8 +6,7 @@ import { createRef, useEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 import { CSS_TO_STYLES, getCSSFromStyleObject, getStyleObjectFromCSS, } from '../utils';
-import type { MathfieldElement } from "mathlive";
-import "mathlive/dist/mathlive.min.js"
+import { MathfieldElement } from "mathlive";
 import './index.css';
 
 declare global {
@@ -27,9 +26,11 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
   const [lastRangeSelection, setLastRangeSelection] = useState<RangeSelection | null>(null);
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
 
+  const isMathField = (el: HTMLElement) => el instanceof MathfieldElement;
+
   useEffect(() => {
     const mathfield = ref.current;
-    if (!mathfield) return;
+    if (!mathfield || !isMathField(mathfield)) return;
     if (initialValue !== mathfield.getValue()) {
       mathfield.setValue(initialValue, { suppressChangeNotifications: true });
     }
@@ -50,6 +51,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
   useEffect(() => {
     const mathfield = ref.current;
     if (!mathfield) return;
+    if (!isMathField(mathfield)) return;
 
     // reselect when selection is lost and mathfield is focused
     if (!selection && document.activeElement === mathfield) setSelected(true);
@@ -79,7 +81,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
 
   useEffect(() => {
     const mathfield = ref.current;
-    if (!mathfield) return;
+    if (!mathfield || !isMathField(mathfield)) return;
 
     const readOnly = !editor.isEditable();
     mathfield.virtualKeyboardMode = readOnly ? "off" : "onfocus";
@@ -264,7 +266,7 @@ export class MathNode extends DecoratorNode<JSX.Element> {
   }
 }
 
-export function $createMathNode(value = '', style= ''): MathNode {
+export function $createMathNode(value = '', style = ''): MathNode {
   const mathNode = new MathNode(value, style);
   return mathNode;
 }
