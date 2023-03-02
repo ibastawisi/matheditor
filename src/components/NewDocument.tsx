@@ -30,8 +30,8 @@ const NewDocument: React.FC = () => {
       if (locationData) return locationData;
       const localData = await documentDB.getByID(params.id).then(doc => doc?.data);
       if (localData) return localData;
-      const { payload } = await dispatch(actions.app.getDocumentAsync(params.id));
-      const cloudData = payload.data;
+      const res = await dispatch(actions.app.getDocumentAsync(params.id));
+      const cloudData = (res.payload as any).data;
       if (cloudData) return cloudData;
     } else {
       const headingText: SerializedTextNode = {

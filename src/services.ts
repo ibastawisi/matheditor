@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { EditorDocument } from './slices/app';
+import { DocumentWithUserId, EditorDocument, User } from './slices/app';
 import { BACKEND_URL } from './config';
 
 const createDocument = async (data: EditorDocument) => {
@@ -18,12 +18,12 @@ const deleteDocument = async (id: string) => {
 }
 
 const getDocument = async (id: string) => {
-  const response = await axios.get(`${BACKEND_URL}/documents/${id}`, { withCredentials: true })
+  const response = await axios.get<EditorDocument>(`${BACKEND_URL}/documents/${id}`, { withCredentials: true })
   return response.data;
 }
 
 const getAuthenticatedUser = async () => {
-  const response = await axios.get(BACKEND_URL + '/users/me', { withCredentials: true })
+  const response = await axios.get<User>(BACKEND_URL + '/users/me', { withCredentials: true })
   return response.data;
 }
 
@@ -33,12 +33,12 @@ const logout = async () => {
 }
 
 const getAllUsers = async () => {
-  const response = await axios.get(BACKEND_URL + '/users', { withCredentials: true })
+  const response = await axios.get<User[]>(BACKEND_URL + '/users', { withCredentials: true })
   return response.data;
 }
 
 const getAllDocuments = async () => {
-  const response = await axios.get(BACKEND_URL + '/documents', { withCredentials: true })
+  const response = await axios.get<DocumentWithUserId[]>(BACKEND_URL + '/documents', { withCredentials: true })
   return response.data;
 }
 

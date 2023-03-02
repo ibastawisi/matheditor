@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { validate } from 'uuid';
 import { SerializedEditorState } from 'lexical';
 import { showLoading, hideLoading } from 'react-redux-loading-bar';
-import { createDocument, deleteDocument, getAuthenticatedUser, getDocument, logout, updateDocument } from '../services';
+import { createDocument, deleteDocument, getAllDocuments, getAllUsers, getAuthenticatedUser, getDocument, logout, updateDocument } from '../services';
 import { RootState } from '../store';
 import documentDB from '../db';
 
@@ -28,6 +28,10 @@ export interface AppState {
     announcements: Announcement[],
     alerts: Alert[],
   };
+  admin: {
+    users: User[]
+    documents: AdminDocument[]
+  } | null;
 }
 
 export interface EditorDocument {
@@ -37,7 +41,9 @@ export interface EditorDocument {
   createdAt: string;
   updatedAt: string;
 }
-
+export type DocumentWithUserId = UserDocument & { userId: string };
+export type DocumentWithAuthor = UserDocument & { author: User };
+export type AdminDocument = DocumentWithUserId & DocumentWithAuthor;
 export interface User {
   id: string;
   name: string;
@@ -59,6 +65,7 @@ const initialState: AppState = {
     announcements: [],
     alerts: [],
   },
+  admin: null,
 };
 
 export const loadUserAsync = createAsyncThunk('app/loadUser', async (_, thunkAPI) => {
@@ -139,6 +146,20 @@ export const deleteDocumentAsync = createAsyncThunk('app/deleteDocument', async 
     thunkAPI.dispatch(showLoading());
     await deleteDocument(id);
     return id;
+  } catch (error: any) {
+    const message = error.response?.data?.error || error.message;
+    return thunkAPI.rejectWithValue(message);
+  } finally {
+    thunkAPI.dispatch(hideLoading())
+  }
+});
+
+export const loadAdminAsync = createAsyncThunk('app/loadAdmin', async (_, thunkAPI) => {
+  thunkAPI.dispatch(showLoading())
+  try {
+    const [users, documents] = await Promise.all([getAllUsers(), getAllDocuments()]);
+    const response = { users, documents: documents.map(document => ({ ...document, author: users.find(user => user.id === document.userId) || { name: "Unknown" } as User })) };
+    return response
   } catch (error: any) {
     const message = error.response?.data?.error || error.message;
     return thunkAPI.rejectWithValue(message);
@@ -245,6 +266,9 @@ export const appSlice = createSlice({
       .addCase(deleteDocumentAsync.rejected, (state, action) => {
         const message = action.payload as string;
         state.ui.announcements.push({ message });
+      })
+      .addCase(loadAdminAsync.fulfilled, (state, action) => {
+        state.admin = action.payload;
       })
   }
 });

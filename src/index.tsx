@@ -12,15 +12,18 @@ import { sendToVercelAnalytics } from './analytics';
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
+const isProduction = process.env.NODE_ENV === 'production';
 
 root.render(
   <Provider store={store}>
     <BrowserRouter>
       <App />
-      <Analytics mode='production' />
+      {isProduction && <Analytics mode='production' />}
     </BrowserRouter>
   </Provider>
 );
 
-serviceWorkerRegistration.register();
-reportWebVitals(sendToVercelAnalytics);
+if (isProduction) {
+  serviceWorkerRegistration.register();
+  reportWebVitals(sendToVercelAnalytics);
+}
