@@ -49,8 +49,8 @@ const Dashboard: React.FC = () => {
   const [config, setConfig] = useLocalStorage('config', { debug: false })
   const theme = useTheme();
 
-  const [userDocumentCountSeries, setUserDocumentCountSeries] = useState([{ name: 'Documents', data: [] as { x: string, y: number }[] }]);
-  const [userDocumentCountSeriesLine, setUserDocumentCountSeriesLine] = useState([{ name: 'Documents', data: [] as { x: string, y: number }[] }]);
+  const [userDocumentCountSeries, setUserDocumentCountSeries] = useState<ApexAxisChartSeries>([]);
+  const [userDocumentCountSeriesLine, setUserDocumentCountSeriesLine] = useState<ApexAxisChartSeries>([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -66,15 +66,12 @@ const Dashboard: React.FC = () => {
     fetchUserData();
   }, [user]);
 
-  const [adminUserAquisitionSeries, setAdminUserAquisitionSeries] = useState([{ name: 'Users', data: [] as { x: string, y: number }[] }]);
-  const [adminUserAquisitionSeriesLine, setAdminUserAquisitionSeriesLine] = useState([{ name: 'Users', data: [] as { x: string, y: number }[] }]);
+  const [adminUserAquisitionSeries, setAdminUserAquisitionSeries] = useState<ApexAxisChartSeries>([]);
+  const [adminUserAquisitionSeriesLine, setAdminUserAquisitionSeriesLine] = useState<ApexAxisChartSeries>([]);
 
   useEffect(() => {
     if (!user?.admin) return;
-    const fetchAdminData = async () => {
-      await dispatch(actions.app.loadAdminAsync());
-    }
-    !admin && fetchAdminData();
+    !admin && dispatch(actions.app.loadAdminAsync());
   }, [user]);
 
   useEffect(() => {
@@ -245,7 +242,7 @@ const UserGrid: React.FC<{ users: User[] }> = memo(({ users }) => {
   }
 
 
-  return <Accordion disableGutters>
+  return <Accordion disableGutters TransitionProps={{ unmountOnExit: true }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <Typography>Users</Typography>
       <Typography sx={{ color: 'text.secondary', mx: 1 }}>({users.length})</Typography>
@@ -381,7 +378,7 @@ const DocumentsGrid: React.FC<{ documents: AdminDocument[] }> = memo(({ document
     }
   }
 
-  return <Accordion disableGutters>
+  return <Accordion disableGutters TransitionProps={{ unmountOnExit: true }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <Typography>Documents</Typography>
       <Typography sx={{ color: 'text.secondary', mx: 1 }}>({documents.length})</Typography>
