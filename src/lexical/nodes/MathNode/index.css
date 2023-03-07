@@ -30,7 +30,6 @@ math-field {
   --keycap-height: 52px !important;
   --keyboard-height: 290px !important;
   --keyboard-zindex: 9999;
-
   --keyboard-alternate-background-active: var(--primary, hsl(var(--hue), 40%, 50%));
   --keyboard-alternate-text: var(--keycap-text, #000);
   --keyboard-alternate-text-active: #fff;
@@ -41,6 +40,7 @@ math-field {
   --keycap-small-font-size: calc(var(--keycap-font-size) * .8);
   --keycap-extra-small-font-size: calc(var(--keycap-font-size) / 1.42);
   --keycap-tt-font-size: calc(var(--keycap-font-size) * 1.5);
+  user-select: none;
 }
 
 .ML__keyboard .ML__keyboard--plate {
@@ -61,6 +61,10 @@ math-field {
 
 .ML__keyboard .ML__keyboard--plate div .rows>ul>li svg.svg-glyph {
   padding: 0 !important;
+}
+
+.ML__keyboard .ML__keyboard--plate [data-tooltip]::after {
+  display: none !important;
 }
 
 [theme=light] .ML__keyboard {
