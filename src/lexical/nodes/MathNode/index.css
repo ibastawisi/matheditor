@@ -51,7 +51,12 @@ math-field {
   height: 100%;
 }
 
+.ML__keyboard .ML__keyboard--plate div .rows {
+  max-width: calc(100% - 1rem) !important;
+}
+
 .ML__keyboard .ML__keyboard--plate div .rows>ul {
+  max-width: 100% !important;
   height: var(--keycap-height) !important;
 }
 
