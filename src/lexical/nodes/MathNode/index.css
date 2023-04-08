@@ -3,7 +3,15 @@ math-field {
   white-space: initial;
   word-break: initial;
   outline: none;
+  border: none;
+  background: transparent;
+  color: inherit;
+  width: 100%;
   user-select: none;
+}
+
+math-field::part(virtual-keyboard-toggle) {
+  display: none;
 }
 
 [theme=dark] math-field {
@@ -24,90 +32,31 @@ math-field {
   color: white;
 }
 
-/* mathlive virtula keyboard styles */
-
 .ML__keyboard {
   --keycap-height: 52px !important;
-  --keyboard-height: 290px !important;
+  --keyboard-height: 295px !important;
   --keyboard-zindex: 9999;
-  --keyboard-alternate-background-active: var(--primary, hsl(var(--hue), 40%, 50%));
-  --keyboard-alternate-text: var(--keycap-text, #000);
-  --keyboard-alternate-text-active: #fff;
-  --keyboard-alternate-key-length: 70px;
-  --keyboard-alternate-key-font-size: 30px;
-  --keyboard-alternate-key-aside-font-size: 12px;
-  --keycap-font-size: 20px;
-  --keycap-small-font-size: calc(var(--keycap-font-size) * .8);
-  --keycap-extra-small-font-size: calc(var(--keycap-font-size) / 1.42);
-  --keycap-tt-font-size: calc(var(--keycap-font-size) * 1.5);
-  user-select: none;
 }
 
-.ML__keyboard .ML__keyboard--plate {
-  height: var(--keyboard-height);
-}
-
-.ML__keyboard .ML__keyboard--plate>div.keyboard-layer {
+.MLK__plate,
+.MLK__layer {
   height: 100%;
 }
 
-.ML__keyboard .ML__keyboard--plate div .rows {
-  max-width: calc(100% - 1rem) !important;
+.MLK__rows {
+  margin: auto !important;
 }
 
-.ML__keyboard .ML__keyboard--plate div .rows>ul {
-  max-width: 100% !important;
+.MLK__rows>.row div {
   height: var(--keycap-height) !important;
 }
 
-.ML__keyboard .ML__keyboard--plate div .rows>ul>li {
-  height: var(--keycap-height) !important;
-}
-
-.ML__keyboard .ML__keyboard--plate div .rows>ul>li svg.svg-glyph {
-  padding: 0 !important;
-}
-
-.ML__keyboard .ML__keyboard--plate [data-tooltip]::after {
+.MLK__plate .MLK__layer:nth-of-type(3) .MLK__rows .row:first-child {
   display: none !important;
 }
 
-[theme=light] .ML__keyboard {
-  --hue: 206;
-  --keyboard-background: rgba(209, 213, 217);
-  --keyboard-text: #000;
-  --keyboard-text-active: var(--primary, hsl(var(--hue), 40%, 50%));
-  --keyboard-background-border: #ddd;
-  --keycap-background: white;
-  --keycap-background-active: #e5e5e5;
-  --keycap-background-border: #e5e6e9;
-  --keycap-background-border-bottom: #8d8f92;
-  --keycap-text: #000;
-  --keycap-text-active: #fff;
-  --keycap-secondary-text: #000;
-  --keycap-modifier-background: #b9bdc7;
-  --keycap-modifier-border: #c5c9d0;
-  --keycap-modifier-border-bottom: #989da6;
-  --keyboard-alternate-background: #fff;
-}
-
-[theme=dark] .ML__keyboard {
-  --hue: 206;
-  --keyboard-background: #0c0c0c;
-  --keyboard-text: #f0f0f0;
-  --keyboard-text-active: hsl(var(--hue), 100%, 60%);
-  --keyboard-background-border: hsl(0, 0%, 10%);
-  --keycap-background: #555555;
-  --keycap-background-active: hsl(var(--hue), 35%, 42%);
-  --keycap-background-border: transparent;
-  --keycap-background-border-bottom: transparent;
-  --keycap-text: hsl(0, 0%, 81.6%);
-  --keycap-text-active: #000;
-  --keycap-secondary-text: #fff;
-  --keycap-modifier-background: #303030;
-  --keycap-modifier-border: transparent;
-  --keycap-modifier-border-bottom: transparent;
-  --keyboard-alternate-background: #303030;
+.MLK__variant-panel {
+  user-select: none;
 }
 
 @media print {

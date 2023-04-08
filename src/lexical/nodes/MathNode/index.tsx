@@ -6,17 +6,22 @@ import { createRef, useEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 import { CSS_TO_STYLES, getCSSFromStyleObject, getStyleObjectFromCSS, } from '../utils';
-import { MathfieldElement } from "mathlive";
+import { MathfieldElement, MathfieldElementAttributes } from "mathlive";
+import { DOMAttributes } from "react";
 import './index.css';
 
+type CustomElement<T> = Partial<T & DOMAttributes<T>>;
+
 declare global {
-  /** @internal */
   namespace JSX {
     interface IntrinsicElements {
-      'math-field': React.DetailedHTMLProps<React.HTMLAttributes<MathfieldElement>, MathfieldElement>
+      ["math-field"]: CustomElement<MathfieldElementAttributes>;
     }
   }
 }
+
+MathfieldElement.soundsDirectory = null;
+MathfieldElement.fontsDirectory = "/mathlive/fonts";
 
 type MathComponentProps = { initialValue: string; nodeKey: NodeKey; mathfieldRef: React.RefObject<MathfieldElement>; };
 
@@ -84,15 +89,8 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
     if (!mathfield || !isMathField(mathfield)) return;
 
     const readOnly = !editor.isEditable();
-    mathfield.virtualKeyboardMode = readOnly ? "off" : "onfocus";
-    mathfield.virtualKeyboardTheme = "material";
     mathfield.mathModeSpace = "\\,";
-    mathfield.keypressSound = "none";
-    mathfield.plonkSound = "none";
     mathfield.readOnly = readOnly;
-
-    const shadowStyle = mathfield.shadowRoot?.querySelector('style');
-    shadowStyle?.append('.ML__container{ min-height: unset !important; }');
 
     if (readOnly) return;
 
@@ -114,15 +112,20 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
       });
     }, false);
 
-    mathfield.addEventListener("focus", event => {
+    mathfield.addEventListener("focusin", event => {
       clearSelection();
       setSelected(true);
+      window.mathVirtualKeyboard.show({ animate: true });
       // hack to capture keboard events
       setTimeout(() => {
         const mathfieldSelection = mathfield.selection;
         mathfield.select();
         mathfield.selection = mathfieldSelection;
       }, 0);
+    });
+
+    mathfield.addEventListener('focusout', () => {
+      clearSelection();
     });
 
     mathfield.addEventListener("keydown", event => {
@@ -163,7 +166,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
 
   }, []);
 
-  return <math-field ref={ref} {...{ "read-only": true, "fonts-directory": "/mathlive/fonts" }} />;
+  return <math-field ref={ref} read-only={true} />;
 }
 
 export type SerializedMathNode = Spread<{ type: 'math'; value: string; style: string }, SerializedLexicalNode>;

@@ -13,7 +13,7 @@ import TextField from '@mui/material/TextField/TextField';
 import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import Add from '@mui/icons-material/Add';
-import { Remove } from '@mui/icons-material';
+import Remove from '@mui/icons-material/Remove';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 

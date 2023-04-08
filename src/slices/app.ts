@@ -184,8 +184,7 @@ export const appSlice = createSlice({
       } catch (error) {
         console.error("migration to indexeddb failed: " + error);
       }
-      state.ui = initialState.ui;
-      state.ui.isLoading = false;
+      state.ui = { ...initialState.ui, isLoading: false };
     },
     loadDocument: (state, action: PayloadAction<EditorDocument>) => {
       if (!state.documents.find(d => d.id === action.payload.id)) {

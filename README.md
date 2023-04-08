@@ -16,8 +16,8 @@ The project aims to make writing publication-quality documents easy and accessib
 ## Getting Started
 
 ```
-git clone https://github.com/IBastawisi/math-editor.git
-cd math-editor
-npm i -f
-npm start
+git clone https://github.com/IBastawisi/matheditor.git
+cd matheditor
+npm install
+npm run dev
 ```

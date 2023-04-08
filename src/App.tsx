@@ -3,27 +3,27 @@ import './App.css';
 import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
 import { Route, Routes } from "react-router-dom";
-import ThemeProvider from './ThemeProvider';
+import ThemeProvider from './components/ThemeProvider';
 import { lazy, Suspense, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../store';
-import { actions } from '../slices';
+import { AppDispatch, RootState } from './store';
+import { actions } from './slices';
 import { Helmet } from 'react-helmet';
-import { BACKEND_URL } from '../config';
+import { BACKEND_URL } from './config';
 
-import TopAppBar from './TopAppBar';
-import Footer from './Footer';
-import Home from './Home';
-import Announcer from './Announcer';
-import AlertDialog from './Alert';
+import TopAppBar from './components/TopAppBar';
+import Footer from './components/Footer';
+import Home from './components/Home';
+import Announcer from './components/Announcer';
+import AlertDialog from './components/Alert';
+import EditDocument from './components/EditDocument';
+import NewDocument from './components/NewDocument';
+import SplashScreen from './components/SplashScreen';
+import ViewDocument from './components/ViewDocument';
 
-const SplashScreen = lazy(() => import('./SplashScreen'));
-const NewDocument = lazy(() => import('./NewDocument'));
-const EditDocument = lazy(() => import('./EditDocument'));
-const ViewDocument = lazy(() => import('./ViewDocument'));
-const Privacy = lazy(() => import('./Privacy'));
-const Playground = lazy(() => import('./Playground'));
-const Dashboard = lazy(() => import('./Dashboard'));
+const Privacy = lazy(() => import('./components/Privacy'));
+const Playground = lazy(() => import('./components/Playground'));
+const Dashboard = lazy(() => import('./components/Dashboard'));
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();

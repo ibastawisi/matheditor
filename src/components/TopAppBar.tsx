@@ -19,7 +19,8 @@ import useTheme from '@mui/material/styles/useTheme';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import Avatar from '@mui/material/Avatar';
-import LoadingBar from 'react-redux-loading-bar'
+import LoadingBar from 'react-redux-loading-bar';
+import logo from "../assets/logo.svg";
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const trigger = useScrollTrigger();
@@ -72,7 +73,7 @@ const TopAppBar: React.FC<{}> = () => {
           <Toolbar>
             <Link component={RouterLink} to="/">
               <Box sx={{ display: "flex" }}>
-                <img src="/logo.svg" alt="Logo" width={32} height={32} />
+                <img src={logo} alt="Logo" width={32} height={32} />
                 <Typography variant="h6" component="div" sx={{ marginInlineStart: 2, color: "white" }}>Math Editor</Typography>
               </Box>
             </Link>
