@@ -6,6 +6,8 @@
 
 body {
   color-scheme: auto;
+  overflow-y: scroll !important;
+  margin: 0 !important;
 }
 
 .loading-bar {
@@ -30,8 +32,4 @@ body {
 
 .editor-container {
   margin: 1rem auto 0;
-}
-
-svg {
-  background: unset !important;
 }

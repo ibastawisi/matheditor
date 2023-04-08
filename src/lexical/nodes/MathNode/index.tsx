@@ -79,6 +79,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
         const indexWithinParent = mathNode.getIndexWithinParent();
         const isBefore = isParentAnchor ? anchorOffset - indexWithinParent === 0 : anchorNode.isBefore(mathNode);
         mathfield.focus();
+        window.mathVirtualKeyboard.show({ animate: true });
         mathfield.executeCommand(isBefore ? 'moveToMathfieldStart' : 'moveToMathfieldEnd');
       });
     }
@@ -91,12 +92,14 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
     const readOnly = !editor.isEditable();
     mathfield.mathModeSpace = "\\,";
     mathfield.readOnly = readOnly;
+    mathfield.mathVirtualKeyboardPolicy = "manual";
 
     if (readOnly) return;
 
     // focus newly created mathfield
     if (isSelected && !mathfield.hasFocus()) {
       mathfield.focus();
+      window.mathVirtualKeyboard.show({ animate: true });
     }
 
     mathfield.addEventListener("change", e => {
@@ -112,20 +115,10 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
       });
     }, false);
 
-    mathfield.addEventListener("focusin", event => {
+    mathfield.addEventListener("click", event => {
       clearSelection();
       setSelected(true);
       window.mathVirtualKeyboard.show({ animate: true });
-      // hack to capture keboard events
-      setTimeout(() => {
-        const mathfieldSelection = mathfield.selection;
-        mathfield.select();
-        mathfield.selection = mathfieldSelection;
-      }, 0);
-    });
-
-    mathfield.addEventListener('focusout', () => {
-      clearSelection();
     });
 
     mathfield.addEventListener("keydown", event => {
