@@ -31,6 +31,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      registerType: "prompt",
       // add this to cache all the imports
       workbox: {
         globPatterns: ["**/*"],

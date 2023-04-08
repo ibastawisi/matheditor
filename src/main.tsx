@@ -10,14 +10,12 @@ import reportWebVitals from './reportWebVitals';
 import { sendToVercelAnalytics } from './analytics';
 import { actions } from './slices';
 
-// add this to prompt for a refresh
-const updateSW = registerSW({
+export const updateSW = registerSW({
   onNeedRefresh() {
-    updateSW(false);
     store.dispatch(actions.app.announce(
       {
         message: "New update available! Refresh to get the latest version",
-        action: { label: "Refresh", onClick: "window.location.reload()" }
+        action: { label: "Refresh", onClick: "updateSW(true)" }
       }
     ));
   },

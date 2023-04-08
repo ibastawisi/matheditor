@@ -7,6 +7,7 @@ import Button from '@mui/material/Button';
 import React from 'react';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import { updateSW } from '../main';
 
 function Announcer() {
   const announcement = useSelector((state: RootState) => state.app.ui.announcements[0]);
@@ -18,8 +19,8 @@ function Announcer() {
     const serializedAction = announcement?.action?.onClick;
     if (serializedAction) {
       // eslint-disable-next-line no-new-func
-      const action = new Function("dispatch", "actions", "navigate", serializedAction);
-      action.bind(null, dispatch, actions, navigate)();
+      const action = new Function("dispatch", "actions", "navigate", "updateSW", serializedAction);
+      action.bind(null, dispatch, actions, navigate, updateSW)();
     }
     dispatch(actions.app.clearAnnouncement());
   }
