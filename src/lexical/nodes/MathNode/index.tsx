@@ -22,6 +22,7 @@ declare global {
 
 MathfieldElement.soundsDirectory = null;
 MathfieldElement.fontsDirectory = "/mathlive/fonts";
+MathfieldElement.computeEngine = null;
 
 type MathComponentProps = { initialValue: string; nodeKey: NodeKey; mathfieldRef: React.RefObject<MathfieldElement>; };
 
@@ -122,6 +123,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
     });
 
     mathfield.addEventListener("keydown", event => {
+      if (event.ctrlKey && event.key === "c") return;
       event.stopPropagation();
     });
 
