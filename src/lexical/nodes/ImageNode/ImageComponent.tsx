@@ -127,6 +127,11 @@ export function ImageComponent({
   );
 
   useEffect(() => {
+    onLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSelected, imageRef]);
+
+  useEffect(() => {
     let isMounted = true;
     const unregister = mergeRegister(
       editor.registerUpdateListener(({ editorState }) => {
@@ -239,9 +244,9 @@ export function ImageComponent({
     }
   }
 
-
   const draggable = isSelected && $isNodeSelection(selection) && !isResizing;
-  const isFocused = isSelected || isResizing;
+  const isFocused = $isNodeSelection(selection) && (isSelected || isResizing);
+  
   return (
     <Suspense fallback={null}>
       <>

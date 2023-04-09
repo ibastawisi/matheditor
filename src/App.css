@@ -8,6 +8,7 @@ body {
   color-scheme: auto;
   overflow-y: scroll !important;
   margin: 0 !important;
+  padding: 0 !important;
 }
 
 .loading-bar {
@@ -15,8 +16,13 @@ body {
   background-color: red;
 }
 
+[theme=dark] ::selection {
+  background-color: #546E7A;
+}
+
 @media print {
   * {
+    -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 

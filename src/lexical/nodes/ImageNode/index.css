@@ -29,8 +29,7 @@ span.editor-image {
 }
 
 .editor-image img.focused {
-  outline: 2px solid rgb(60, 132, 244);
-  user-select: none;
+  outline: 2px solid #3390ff;
 }
 
 .editor-image img.focused.draggable {
@@ -40,6 +39,7 @@ span.editor-image {
 .editor-image img.focused.draggable:active {
   cursor: grabbing
 }
+
 .editor-image .image-resizer {
   position: absolute;
   padding: 0;
