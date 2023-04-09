@@ -9,6 +9,7 @@
 import {
   $isRangeSelection,
   GridSelection,
+  LexicalEditor,
   NodeKey,
   NodeSelection,
   RangeSelection,
@@ -25,11 +26,15 @@ import {
   $isNodeSelection,
   CLICK_COMMAND,
   COMMAND_PRIORITY_LOW,
+  DRAGSTART_COMMAND,
   KEY_BACKSPACE_COMMAND,
   KEY_DELETE_COMMAND,
+  SELECTION_CHANGE_COMMAND,
 } from 'lexical';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+
 import ImageResizer from './ImageResizer';
+import { $isImageNode } from './index';
 
 const imageCache = new Set();
 
@@ -95,7 +100,7 @@ export function ImageComponent({
   src: string;
   width: 'inherit' | number;
 }): JSX.Element {
-  const ref = useRef<HTMLImageElement>(null);
+  const imageRef = useRef<null | HTMLImageElement>(null);
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);
   const [isResizing, setIsResizing] = useState<boolean>(false);
@@ -103,6 +108,7 @@ export function ImageComponent({
   const [selection, setSelection] = useState<
     RangeSelection | NodeSelection | GridSelection | null
   >(null);
+  const activeEditorRef = useRef<LexicalEditor | null>(null);
 
   const onDelete = useCallback(
     (payload: KeyboardEvent) => {
@@ -110,35 +116,61 @@ export function ImageComponent({
         const event: KeyboardEvent = payload;
         event.preventDefault();
         const node = $getNodeByKey(nodeKey);
-        const parent = node?.getParentOrThrow();
-        parent?.selectStart();
-        node?.remove();
+        if ($isImageNode(node)) {
+          node.remove();
+        }
+        setSelected(false);
       }
       return false;
     },
-    [isSelected, nodeKey],
+    [isSelected, nodeKey, setSelected],
   );
 
   useEffect(() => {
-    onLoad();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSelected, ref]);
-
-  useEffect(() => {
-    mergeRegister(
+    let isMounted = true;
+    const unregister = mergeRegister(
       editor.registerUpdateListener(({ editorState }) => {
-        setSelection(editorState.read(() => $getSelection()));
+        if (isMounted) {
+          setSelection(editorState.read(() => $getSelection()));
+        }
       }),
+      editor.registerCommand(
+        SELECTION_CHANGE_COMMAND,
+        (_, activeEditor) => {
+          activeEditorRef.current = activeEditor;
+          return false;
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
       editor.registerCommand<MouseEvent>(
         CLICK_COMMAND,
         (payload) => {
           const event = payload;
+
           if (isResizing) {
             return true;
           }
-          if (event.target === ref.current) {
-            clearSelection();
-            setSelected(true);
+          if (event.target === imageRef.current) {
+            if (event.shiftKey) {
+              setSelected(!isSelected);
+            } else {
+              clearSelection();
+              setSelected(true);
+            }
+            return true;
+          }
+
+          return false;
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand(
+        DRAGSTART_COMMAND,
+        (event) => {
+          if (event.target === imageRef.current) {
+            // TODO This is just a temporary workaround for FF to behave like other browsers.
+            // Ideally, this handles drag & drop too (and all browsers).
+            event.preventDefault();
             return true;
           }
           return false;
@@ -156,6 +188,10 @@ export function ImageComponent({
         COMMAND_PRIORITY_LOW,
       ),
     );
+    return () => {
+      isMounted = false;
+      unregister();
+    };
   }, [
     clearSelection,
     editor,
@@ -177,8 +213,9 @@ export function ImageComponent({
 
     editor.update(() => {
       const node = $getNodeByKey(nodeKey);
-      if(!node) return;
-      node.setWidthAndHeight(nextWidth, nextHeight);
+      if ($isImageNode(node)) {
+        node.setWidthAndHeight(nextWidth, nextHeight);
+      }
     });
   };
 
@@ -195,16 +232,16 @@ export function ImageComponent({
           rootElement?.focus();
           const nativeSelection = window.getSelection();
           nativeSelection?.removeAllRanges();
-          const element = ref.current;
+          const element = imageRef.current;
           element?.scrollIntoView({ block: 'nearest' });
         }
       });
     }
   }
 
-  const draggable = isSelected && $isNodeSelection(selection);
-  const isFocused = $isNodeSelection(selection) && (isSelected || isResizing);
 
+  const draggable = isSelected && $isNodeSelection(selection) && !isResizing;
+  const isFocused = isSelected || isResizing;
   return (
     <Suspense fallback={null}>
       <>
@@ -217,16 +254,16 @@ export function ImageComponent({
             }
             src={src}
             altText={altText}
-            imageRef={ref}
+            imageRef={imageRef}
             onLoad={onLoad}
             width={width}
             height={height}
           />
         </div>
-        {resizable && isFocused && (
+        {resizable && $isNodeSelection(selection) && isFocused && (
           <ImageResizer
             editor={editor}
-            imageRef={ref}
+            imageRef={imageRef}
             onResizeStart={onResizeStart}
             onResizeEnd={onResizeEnd}
           />
@@ -234,6 +271,4 @@ export function ImageComponent({
       </>
     </Suspense>
   );
-
 }
-
