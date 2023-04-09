@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import { $createParagraphNode, $insertNodes, $isRootNode, LexicalCommand, LexicalEditor } from 'lexical';
+import { $createParagraphNode, $insertNodes, $isRootOrShadowRoot, LexicalCommand, LexicalEditor } from 'lexical';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $wrapNodeInElement, mergeRegister } from '@lexical/utils';
@@ -23,7 +23,7 @@ import {
   DROP_COMMAND,
 } from 'lexical';
 import { useEffect } from 'react';
-import getSelection from '../../../shared/getDOMSelection';
+import getDOMSelection from '../../../shared/getDOMSelection';
 
 import { $createImageNode, $isImageNode, ImageNode, ImagePayload, } from '../../nodes/ImageNode';
 
@@ -44,10 +44,9 @@ export default function ImagesPlugin(): JSX.Element | null {
         (payload) => {
           const imageNode = $createImageNode(payload);
           $insertNodes([imageNode]);
-          if ($isRootNode(imageNode.getParentOrThrow())) {
-            $wrapNodeInElement(imageNode, $createParagraphNode)
+          if ($isRootOrShadowRoot(imageNode.getParentOrThrow())) {
+            $wrapNodeInElement(imageNode, $createParagraphNode).selectEnd();
           }
-          imageNode.select();
           return true;
         },
         COMMAND_PRIORITY_EDITOR,
@@ -183,13 +182,13 @@ function canDropImage(event: DragEvent): boolean {
     target instanceof HTMLElement &&
     !target.closest('code, span.editor-image, div.sticky-note') &&
     target.parentElement &&
-    target.parentElement.closest('div.editor-input')
+    target.parentElement.closest('div.ContentEditable__root')
   );
 }
 
 function getDragSelection(event: DragEvent): Range | null | undefined {
   let range;
-  const domSelection = getSelection();
+  const domSelection = getDOMSelection();
   if (document.caretRangeFromPoint) {
     range = document.caretRangeFromPoint(event.clientX, event.clientY);
   } else if (event.rangeParent && domSelection !== null) {

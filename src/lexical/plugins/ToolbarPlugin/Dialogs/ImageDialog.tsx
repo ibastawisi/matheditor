@@ -42,12 +42,12 @@ export default function ImageDialog({ editor, node, mode, open, onClose }: { edi
     const reader = new FileReader();
     reader.onload = function () {
       if (typeof reader.result === 'string') {
-        setFormData({ src: reader.result, altText: "" });
+        setFormData({ src: reader.result, altText: files![0].name.replace(/\.[^/.]+$/, "") });
       }
       return '';
     };
     if (files !== null) {
-      new Compressor(files![0], {
+      new Compressor(files[0], {
         quality: 0.6,
         mimeType: 'image/jpeg',
         success(result: File) {
@@ -55,6 +55,7 @@ export default function ImageDialog({ editor, node, mode, open, onClose }: { edi
         },
         error(err: Error) {
           console.log(err.message);
+          reader.readAsDataURL(files[0]);
         },
       });
     }
@@ -69,6 +70,7 @@ export default function ImageDialog({ editor, node, mode, open, onClose }: { edi
 
   const handleClose = () => {
     setFormData({ src: '', altText: '' });
+    setTimeout(() => { editor.focus(); }, 0);
     onClose();
   }
 

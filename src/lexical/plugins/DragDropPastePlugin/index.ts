@@ -48,7 +48,7 @@ export default function DragDropPaste(): null {
                     }
                     editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
                       src: base64data,
-                      altText: file.name,
+                      altText: file.name.replace(/\.[^/.]+$/, ""),
                     });
                   };
                 },
@@ -56,7 +56,7 @@ export default function DragDropPaste(): null {
                   console.log(err.message);
                   editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
                     src: result,
-                    altText: file.name,
+                    altText: file.name.replace(/\.[^/.]+$/, ""),
                   });
                 }
               });
