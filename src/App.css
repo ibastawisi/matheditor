@@ -33,3 +33,7 @@ body {
 .editor-container {
   margin: 1rem auto 0;
 }
+
+.apexcharts-svg {
+  background: unset !important;
+}

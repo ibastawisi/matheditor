@@ -8,6 +8,7 @@
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { DRAG_DROP_PASTE } from '@lexical/rich-text';
+import { isMimeType, mediaFileReader } from '@lexical/utils';
 import { COMMAND_PRIORITY_LOW } from 'lexical';
 import { useEffect } from 'react';
 
@@ -22,62 +23,46 @@ const ACCEPTABLE_IMAGE_TYPES = [
   'image/webp',
 ];
 
-function isAcceptableImageType(type: string): boolean {
-  for (const acceptableType of ACCEPTABLE_IMAGE_TYPES) {
-    if (type.startsWith(acceptableType)) {
-      return true;
-    }
-  }
-  return false;
-}
-
 export default function DragDropPaste(): null {
   const [editor] = useLexicalComposerContext();
   useEffect(() => {
     return editor.registerCommand(
       DRAG_DROP_PASTE,
       (files) => {
-        const filesIterator = files[Symbol.iterator]();
-        // Batch all node insertions together to prevent asynchronous behavior causing unnecessary
-        // DOM renders and redundant history entries
-        const insertQueue: Array<() => void> = [];
-        const handleNextFile = () => {
-          const { value: file, done } = filesIterator.next();
-          if (done) {
-            for (let i = 0; i < insertQueue.length; i++) {
-              insertQueue[i]();
+        (async () => {
+          const filesResult = await mediaFileReader(
+            files,
+            [ACCEPTABLE_IMAGE_TYPES].flatMap((x) => x),
+          );
+          for (const { file, result } of filesResult) {
+            if (isMimeType(file, ACCEPTABLE_IMAGE_TYPES)) {
+              new Compressor(file, {
+                quality: 0.6,
+                success(result) {
+                  const reader = new FileReader();
+                  reader.readAsDataURL(result);
+                  reader.onloadend = () => {
+                    const base64data = reader.result;
+                    if (typeof base64data !== 'string') {
+                      return;
+                    }
+                    editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+                      src: base64data,
+                      altText: file.name,
+                    });
+                  };
+                },
+                error(err) {
+                  console.log(err.message);
+                  editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+                    src: result,
+                    altText: file.name,
+                  });
+                }
+              });
             }
-            return;
           }
-          const fileReader = new FileReader();
-          fileReader.addEventListener('load', () => {
-            const result = fileReader.result;
-            if (
-              typeof result === 'string' &&
-              isAcceptableImageType(file.type)
-            ) {
-              insertQueue.push(() =>
-                editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-                  altText: file.name,
-                  src: result,
-                }),
-              );
-            }
-            handleNextFile();
-          });
-          new Compressor(file, {
-            quality: 0.6,
-            mimeType: 'image/jpeg',
-            success(result: File) {
-              debugger;
-              fileReader.readAsDataURL(result);
-            },
-            error(err: Error) {
-              console.log(err.message);
-            },
-          });
-        };
-        handleNextFile();
+        })();
         return true;
       },
       COMMAND_PRIORITY_LOW,
