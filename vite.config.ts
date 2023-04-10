@@ -4,20 +4,6 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  build: {
-    sourcemap: false,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          react: ['react', 'react-dom'],
-          lexical: ['lexical'],
-          mathlive: ['mathlive'],
-          excalidraw: ['@excalidraw/excalidraw'],
-        },
-      },
-    },
-    chunkSizeWarningLimit: 1000,
-  },
   server: {
     port: 3000,
     proxy: {

@@ -13,17 +13,17 @@ import { BACKEND_URL } from './config';
 
 import TopAppBar from './components/TopAppBar';
 import Footer from './components/Footer';
-import Home from './components/Home';
 import Announcer from './components/Announcer';
 import AlertDialog from './components/Alert';
-import EditDocument from './components/EditDocument';
-import NewDocument from './components/NewDocument';
 import SplashScreen from './components/SplashScreen';
-import ViewDocument from './components/ViewDocument';
 
+import Home from './components/Home';
+import NewDocument from './components/NewDocument';
 const Privacy = lazy(() => import('./components/Privacy'));
 const Playground = lazy(() => import('./components/Playground'));
 const Dashboard = lazy(() => import('./components/Dashboard'));
+const EditDocument = lazy(() => import('./components/EditDocument'));
+const ViewDocument = lazy(() => import('./components/ViewDocument'));
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
