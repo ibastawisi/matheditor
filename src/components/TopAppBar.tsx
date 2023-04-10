@@ -78,10 +78,10 @@ const TopAppBar: React.FC<{}> = () => {
               </Box>
             </Link>
             <Box sx={{ flexGrow: 1 }} />
-            <IconButton component={RouterLink} to="/dashboard">
+            <IconButton component={RouterLink} to="/dashboard" aria-label="Dashboard">
               <Avatar alt={user?.name} src={user?.picture} sx={{ width: 30, height: 30 }} />
             </IconButton>
-            <IconButton onClick={colorMode.toggleColorMode} color="inherit">
+            <IconButton onClick={colorMode.toggleColorMode} color="inherit" aria-label='Toggle dark mode'>
               {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
             {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={window.print}>

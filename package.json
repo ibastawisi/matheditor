@@ -12,6 +12,7 @@
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@excalidraw/excalidraw": "^0.14.2",
+    "@fontsource/roboto": "^4.5.8",
     "@lexical/react": "^0.9.1",
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.11.16",

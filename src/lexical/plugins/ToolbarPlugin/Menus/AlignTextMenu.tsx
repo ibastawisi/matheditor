@@ -30,6 +30,7 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
         aria-controls={open ? 'align-menu' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
+        aria-label='Align Text'
         onClick={handleClick}>
         <FormatAlignLeftIcon />
       </IconButton>

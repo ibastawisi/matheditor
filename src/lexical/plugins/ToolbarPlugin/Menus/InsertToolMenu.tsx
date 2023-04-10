@@ -48,7 +48,8 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }): J
 
   return (
     <>
-      <IconButton id="insert-button" aria-controls={open ? 'insert-menu' : undefined} aria-haspopup="true" aria-expanded={open ? 'true' : undefined} onClick={handleClick}>
+      <IconButton id="insert-button" aria-controls={open ? 'insert-menu' : undefined} aria-haspopup="true" aria-expanded={open ? 'true' : undefined} aria-label='Insert'
+       onClick={handleClick}>
         <AddIcon />
       </IconButton>
       <Menu id="insert-menu" aria-labelledby="insert-button" anchorEl={anchorEl} open={open} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center', }} transformOrigin={{ vertical: 'top', horizontal: 'center', }}>
