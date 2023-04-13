@@ -218,9 +218,8 @@ export function ImageComponent({
 
     editor.update(() => {
       const node = $getNodeByKey(nodeKey);
-      if ($isImageNode(node)) {
-        node.setWidthAndHeight(nextWidth, nextHeight);
-      }
+      if (!node) return;
+      node.setWidthAndHeight(nextWidth, nextHeight);
     });
   };
 
@@ -246,7 +245,7 @@ export function ImageComponent({
 
   const draggable = isSelected && $isNodeSelection(selection) && !isResizing;
   const isFocused = $isNodeSelection(selection) && (isSelected || isResizing);
-  
+
   return (
     <Suspense fallback={null}>
       <>
