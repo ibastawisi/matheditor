@@ -7,12 +7,15 @@
 body {
   color-scheme: auto;
   overflow-y: scroll !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 header {
-  padding: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 .loading-bar {
@@ -47,3 +50,8 @@ header {
 .apexcharts-svg {
   background: unset !important;
 }
+
+body:has(>.MuiDialog-root) {
+  overflow-y: hidden !important;
+}
+
