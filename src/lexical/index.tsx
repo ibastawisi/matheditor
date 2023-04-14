@@ -98,7 +98,7 @@ const Editor: React.FC<{ document: EditorDocument, editable: boolean }> = ({ doc
 
   function onChange(editorState: EditorState) {
     const data = editorState.toJSON();
-    if (isEqual(data.root, document.data)) return;
+    if (isEqual(data, document.data)) return;
     const updatedDocument: EditorDocument = { ...document, data, updatedAt: new Date().toISOString() };
     validate(document.id) && dispatch(actions.app.saveDocument(updatedDocument));
   }
@@ -126,7 +126,7 @@ export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onCh
       <>
         <RichTextPlugin contentEditable={contentEditable} ErrorBoundary={LexicalErrorBoundary} placeholder={null} />
         <HistoryPlugin externalHistoryState={historyState} />
-        <OnChangePlugin ignoreSelectionChange onChange={onChange} />
+        <OnChangePlugin ignoreHistoryMergeTagChange ignoreSelectionChange onChange={onChange} />
         {showDebugView && <TreeViewPlugin />}
         <ListPlugin />
         <CheckListPlugin />
