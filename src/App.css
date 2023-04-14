@@ -11,6 +11,10 @@ body {
   padding: 0 !important;
 }
 
+header {
+  padding: 0 !important;
+}
+
 .loading-bar {
   height: 3px;
   background-color: red;
