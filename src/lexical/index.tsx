@@ -54,7 +54,7 @@ import { EditorDocument } from "../slices/app";
 import Box from '@mui/material/Box';
 import SplashScreen from '../components/SplashScreen';
 import theme from "./theme";
-import isEqual from 'lodash/isEqual';
+import isEqual from 'fast-deep-equal'
 import { validateData } from './utils/state';
 import "./styles.css";
 import DragDropPaste from './plugins/DragDropPastePlugin';

@@ -21,6 +21,7 @@ header {
 .loading-bar {
   height: 3px;
   background-color: red;
+  z-index: 9999;
 }
 
 [theme=dark] ::selection {

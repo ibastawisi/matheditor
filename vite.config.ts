@@ -1,11 +1,23 @@
-import { defineConfig } from 'vite'
+import { type PluginOption, defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import { VitePWA } from 'vite-plugin-pwa'
+import { visualizer } from "rollup-plugin-visualizer";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
     'import.meta.env.VERCEL_ANALYTICS_ID': JSON.stringify(process.env.VERCEL_ANALYTICS_ID)
+  },
+  build: {
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          mathlive: ['mathlive'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
   },
   server: {
     port: 3000,
@@ -19,6 +31,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    visualizer(),
     VitePWA({
       registerType: "prompt",
       // add this to cache all the imports

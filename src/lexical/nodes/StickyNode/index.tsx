@@ -36,7 +36,7 @@ import {
   DecoratorNode,
 } from 'lexical';
 import { useEffect, useRef, useState } from 'react';
-import isEqual from "lodash/isEqual";
+import isEqual from 'fast-deep-equal';
 
 import StickyEditorTheme from './StickyEditorTheme';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
