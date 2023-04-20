@@ -16,7 +16,12 @@ const WolframIcon = () => <SvgIcon viewBox='0 0 20 20' fontSize='small'>
 
 export default function MathTools({ editor, node, sx }: { editor: LexicalEditor, node: MathNode, sx?: SxProps<Theme> | undefined }) {
   const [fontSize, setFontSize] = useState('15px');
-  const FONT_SIZE_MAP = [
+  const FONT_SIZE_OPTIONS: [string, string][] = [
+    ['10px', '10'],
+    ['11px', '11'],
+    ['12px', '12'],
+    ['13px', '13'],
+    ['14px', '14'],
     ['15px', '15'],
     ['16px', '16'],
     ['17px', '17'],
@@ -74,8 +79,8 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
         <DeleteIcon />
       </ToggleButton>
     </ToggleButtonGroup>
-    <Select size='small' sx={{ mx: 0.25 }} onChange={onFontSizeSelect} value={fontSize}>
-      {FONT_SIZE_MAP.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
+    <Select size='small' onChange={onFontSizeSelect} value={fontSize}>
+      {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
     </Select>
   </>
   )

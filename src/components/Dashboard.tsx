@@ -259,7 +259,6 @@ const UserGrid: React.FC<{ users: User[] }> = memo(({ users }) => {
             label="Sort"
             onChange={handleSortChange}
             sx={{
-              mx: 0.25,
               '& .MuiSelect-select': { display: 'flex', alignItems: 'center', py: 0.5 },
               '& .MuiListItemIcon-root': { minWidth: 30 },
             }}
@@ -395,7 +394,6 @@ const DocumentsGrid: React.FC<{ documents: AdminDocument[] }> = memo(({ document
             label="Sort"
             onChange={handleSortChange}
             sx={{
-              mx: 0.25,
               '& .MuiSelect-select': { display: 'flex', alignItems: 'center', py: 0.5 },
               '& .MuiListItemIcon-root': { minWidth: 30 },
             }}
@@ -453,8 +451,8 @@ const DocumentsGrid: React.FC<{ documents: AdminDocument[] }> = memo(({ document
       </Box>
       <Grid container spacing={2}>
         {sortDocuments(documents).map(document => <Grid item xs={12} sm={6} md={4} key={document.id}>
-          <Card variant="outlined" sx={{ height: "100%" }}>
-            <CardActionArea component={RouterLink} to={`/view/${document.id}`} sx={{ height: "100%" }}>
+          <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
+            <CardActionArea component={RouterLink} to={`/view/${document.id}`} sx={{ flexGrow: 1 }}>
               <CardHeader
                 title={document.name}
                 subheader={<>

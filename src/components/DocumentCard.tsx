@@ -139,8 +139,8 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
   };
 
   return (
-    <Card variant="outlined">
-      <CardActionArea component={RouterLink} to={`/edit/${document.id}`}>
+    <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
+      <CardActionArea component={RouterLink} to={`/edit/${document.id}`} sx={{ flexGrow: 1 }}>
         <CardHeader
           title={document.name}
           subheader={new Date(document.createdAt).toLocaleDateString()}

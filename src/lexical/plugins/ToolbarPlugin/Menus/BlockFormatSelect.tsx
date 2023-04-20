@@ -114,7 +114,6 @@ export function BlockFormatSelect({ editor, blockType }: {
 
   return (
     <Select value={blockType} aria-label="Formatting options for text style" size='small' sx={{
-      mx: 0.25,
       '& .MuiSelect-select': { display: 'flex', alignItems: 'center', py: 0.5 },
       '& .MuiListItemIcon-root': { mr: { sm: 0.5 }, minWidth: 20 },
       '& .MuiListItemText-root': { display: { xs: "none", sm: "flex" } }

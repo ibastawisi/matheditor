@@ -304,7 +304,7 @@ export default function ToolbarPlugin() {
   return (
     <>
       <AppBar className='toolbar-appbar' elevation={trigger ? 4 : 0} position={trigger ? 'fixed' : 'static'}>
-        <Toolbar className="toolbar" sx={{ displayPrint: 'none', px: 0, justifyContent: "space-between", alignItems: "center" }}>
+        <Toolbar className="toolbar" sx={{ displayPrint: 'none', px: 0, justifyContent: "space-between", alignItems: "center", gap: 0.5 }}>
           <Box sx={{ display: "flex" }}>
             <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
               onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}> <UndoIcon />
@@ -314,30 +314,30 @@ export default function ToolbarPlugin() {
               <RedoIcon />
             </IconButton>
           </Box>
-          <Box sx={{ display: "flex" }}>
-            {mathNode ? <MathTools editor={activeEditor} node={mathNode} sx={{ mx: 1 }} /> :
-              imageNode ? <ImageTools editor={activeEditor} node={imageNode} sx={{ mx: 1 }} />
+          <Box sx={{ display: "flex", gap: 0.5 }}>
+            {mathNode ? <MathTools editor={activeEditor} node={mathNode} /> :
+              imageNode ? <ImageTools editor={activeEditor} node={imageNode} />
                 : <>
                   {blockType in blockTypeToBlockName && activeEditor === editor && <BlockFormatSelect blockType={blockType} editor={editor} />}
                   {blockType === 'code' ? (
-                    <Select size='small' sx={{ mx: 0.25 }} onChange={onCodeLanguageSelect} value={codeLanguage}>
+                    <Select size='small' onChange={onCodeLanguageSelect} value={codeLanguage}>
                       {CODE_LANGUAGE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
                     </Select>
                   ) : (
                     <>
-                      <Select size='small' sx={{ mx: 0.25, width: 80 }} onChange={onFontFamilySelect} value={fontFamily}>
+                      <Select size='small' sx={{ width: 80 }} onChange={onFontFamilySelect} value={fontFamily}>
                         {FONT_FAMILY_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
                       </Select>
-                      <Select size='small' sx={{ mx: 0.25 }} onChange={onFontSizeSelect} value={fontSize}>
+                      <Select size='small' onChange={onFontSizeSelect} value={fontSize}>
                         {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
                       </Select>
-                      <TextFormatToggles editor={activeEditor} sx={{ mx: 1, display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
+                      <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
                     </>
                   )}
                 </>
             }
           </Box>
-          <Box sx={{ display: "flex" }}>
+          <Box sx={{ display: "flex", gap: 0.5 }}>
             {blockType !== 'code' && <InsertToolMenu editor={activeEditor} />}
             <AlignTextMenu editor={activeEditor} isRTL={isRTL} />
           </Box>

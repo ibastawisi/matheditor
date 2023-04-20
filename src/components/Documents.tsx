@@ -156,9 +156,9 @@ const Documents: React.FC = () => {
         <Button variant="outlined" component={RouterLink} to="/new">New document</Button>
       </Box>
       <Box sx={{ my: 3 }}>
-        <Box sx={{ display: "flex", flexWrap: "wrap-reverse", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 2 }}>
-          <Typography variant="h6" component="h2">Recent</Typography>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap-reverse", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>
+          <Typography variant="h6" component="h2" sx={{ mb: 1 }}>Recent</Typography>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
             <FormControl size="small">
               <InputLabel id="sort-select-label">Sort</InputLabel>
               <Select
@@ -168,7 +168,6 @@ const Documents: React.FC = () => {
                 label="Sort"
                 onChange={handleSortChange}
                 sx={{
-                  mx: 0.25,
                   '& .MuiSelect-select': { display: 'flex', alignItems: 'center', py: 0.5 },
                   '& .MuiListItemIcon-root': { minWidth: 30 },
                 }}
