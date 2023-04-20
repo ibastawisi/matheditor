@@ -26,18 +26,6 @@
   margin-bottom: 0;
 }
 
-.LexicalTheme__h1 {
-  text-transform: uppercase;
-}
-
-.LexicalTheme__h2 {
-  text-transform: uppercase;
-}
-
-.LexicalTheme__h3 {
-  text-transform: uppercase;
-}
-
 .LexicalTheme__textBold {
   font-weight: bold;
 }
@@ -193,6 +181,18 @@
   [theme=dark] .LexicalTheme__tableCellHeader {
     background-color: rgba(0, 0, 0, 0.05);
   }
+}
+
+.LexicalTheme__table.disable-selection {
+  user-select: none;
+}
+
+.LexicalTheme__table.disable-selection span::selection {
+  background-color: transparent;
+}
+
+.LexicalTheme__table.disable-selection br::selection {
+  background-color: transparent;
 }
 
 .LexicalTheme__ol1 {

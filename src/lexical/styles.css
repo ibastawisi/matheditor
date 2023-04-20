@@ -78,14 +78,13 @@
   height: 100% !important;
 }
 
-hr {
-  padding: 2px 2px;
+hr[data-lexical-decorator] {
   border: none;
-  margin: 1em 0;
+  padding: 0.5em 0;
   cursor: pointer;
 }
 
-hr:after {
+hr[data-lexical-decorator]:after {
   content: '';
   display: block;
   height: 2px;
@@ -93,7 +92,7 @@ hr:after {
   line-height: 2px;
 }
 
-hr.selected {
+hr[data-lexical-decorator].selected {
   outline: 2px solid rgb(60, 132, 244);
   user-select: none;
 }

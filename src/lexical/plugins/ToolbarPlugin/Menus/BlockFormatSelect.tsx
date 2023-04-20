@@ -18,14 +18,17 @@ import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 import { blockTypeToBlockName } from '../index';
 
 import SvgIcon from '@mui/material/SvgIcon';
-const H1Icon = () => <SvgIcon viewBox='0 0 16 16' fontSize='small'>
-  <path d="M8.637 13V3.669H7.379V7.62H2.758V3.67H1.5V13h1.258V8.728h4.62V13h1.259zm5.329 0V3.669h-1.244L10.5 5.316v1.265l2.16-1.565h.062V13h1.244z" />
+const H1Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
+  <path xmlns="http://www.w3.org/2000/svg" d="M200 776V376h60v170h180V376h60v400h-60V606H260v170h-60Zm500 0V436h-80v-60h140v400h-60Z" />
 </SvgIcon>;
-const H2Icon = () => <SvgIcon viewBox='0 0 16 16' fontSize='small'>
-  <path d="M7.638 13V3.669H6.38V7.62H1.759V3.67H.5V13h1.258V8.728h4.62V13h1.259zm3.022-6.733v-.048c0-.889.63-1.668 1.716-1.668.957 0 1.675.608 1.675 1.572 0 .855-.554 1.504-1.067 2.085l-3.513 3.999V13H15.5v-1.094h-4.245v-.075l2.481-2.844c.875-.998 1.586-1.784 1.586-2.953 0-1.463-1.155-2.556-2.919-2.556-1.941 0-2.966 1.326-2.966 2.74v.049h1.223z" />
+const H2Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
+  <path xmlns="http://www.w3.org/2000/svg" d="M120 776V376h60v170h180V376h60v400h-60V606H180v170h-60Zm420 0V606q0-24.75 17.625-42.375T600 546h180V436H540v-60h240q25 0 42.5 17.625T840 436v110q0 24.75-17.625 42.375T780 606H600v110h240v60H540Z" />
 </SvgIcon>;
-const H3Icon = () => <SvgIcon viewBox='0 0 16 16' fontSize='small'>
-  <path d="M7.637 13V3.669H6.379V7.62H1.758V3.67H.5V13h1.258V8.728h4.62V13h1.259zm3.625-4.272h1.018c1.142 0 1.935.67 1.949 1.674.013 1.005-.78 1.737-2.01 1.73-1.08-.007-1.853-.588-1.935-1.32H9.108c.069 1.327 1.224 2.386 3.083 2.386 1.935 0 3.343-1.155 3.309-2.789-.027-1.51-1.251-2.16-2.037-2.249v-.068c.704-.123 1.764-.91 1.723-2.229-.035-1.353-1.176-2.4-2.954-2.385-1.873.006-2.857 1.162-2.898 2.358h1.196c.062-.69.711-1.299 1.696-1.299.998 0 1.695.622 1.695 1.525.007.922-.718 1.592-1.695 1.592h-.964v1.074z" />
+const H3Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
+  <path xmlns="http://www.w3.org/2000/svg" d="M120 776V376h60v170h180V376h60v400h-60V606H180v170h-60Zm420 0v-60h240V606H620v-60h160V436H540v-60h240q25 0 42.5 17.625T840 436v280q0 24.75-17.625 42.375T780 776H540Z" />
+</SvgIcon>;
+const H4Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
+  <path xmlns="http://www.w3.org/2000/svg" d="M120 776V376h60v170h180V376h60v400h-60V606H180v170h-60Zm620 0V646H540V376h60v210h140V376h60v210h80v60h-80v130h-60Z" />
 </SvgIcon>;
 
 export function BlockFormatSelect({ editor, blockType }: {
@@ -139,6 +142,12 @@ export function BlockFormatSelect({ editor, blockType }: {
           <H3Icon />
         </ListItemIcon>
         <ListItemText>Heading 3</ListItemText>
+      </MenuItem>
+      <MenuItem value='h4' onClick={() => formatHeading('h4')}>
+        <ListItemIcon>
+          <H4Icon />
+        </ListItemIcon>
+        <ListItemText>Heading 4</ListItemText>
       </MenuItem>
       <MenuItem value='bullet' onClick={formatBulletList}>
         <ListItemIcon>

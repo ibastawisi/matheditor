@@ -1,5 +1,5 @@
 import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, ElementNode, NodeKey, RangeSelection, TextNode } from 'lexical';
-import { $isCodeNode } from '@lexical/code';
+import { $isCodeNode, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from '@lexical/code';
 import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
@@ -39,26 +39,25 @@ export const blockTypeToBlockName = {
   h1: 'Heading 1',
   h2: 'Heading 2',
   h3: 'Heading 3',
+  h4: 'Heading 4',
   number: 'Numbered List',
   paragraph: 'Normal',
 };
 
-const CODE_LANGUAGE_OPTIONS: [string, string][] = [
-  ['', '- Select language -'],
-  ['c', 'C'],
-  ['clike', 'C-like'],
-  ['css', 'CSS'],
-  ['html', 'HTML'],
-  ['js', 'JavaScript'],
-  ['markdown', 'Markdown'],
-  ['objc', 'Objective-C'],
-  ['plain', 'Plain Text'],
-  ['py', 'Python'],
-  ['rust', 'Rust'],
-  ['sql', 'SQL'],
-  ['swift', 'Swift'],
-  ['xml', 'XML'],
-];
+
+function getCodeLanguageOptions(): [string, string][] {
+  const options: [string, string][] = [];
+
+  for (const [lang, friendlyName] of Object.entries(
+    CODE_LANGUAGE_FRIENDLY_NAME_MAP,
+  )) {
+    options.push([lang, friendlyName]);
+  }
+
+  return options;
+}
+
+const CODE_LANGUAGE_OPTIONS = getCodeLanguageOptions();
 
 const CODE_LANGUAGE_MAP = {
   javascript: 'js',
@@ -273,7 +272,7 @@ export default function ToolbarPlugin() {
     [activeEditor, selectedElementKey],
   );
 
-  const FONT_FAMILY_MAP = [
+  const FONT_FAMILY_OPTIONS = [
     ['Roboto', 'Roboto'],
     ['KaTeX_Main', 'KaTeX'],
     ['Virgil', 'Virgil'],
@@ -282,7 +281,12 @@ export default function ToolbarPlugin() {
     ['Georgia', 'Georgia'],
   ];
 
-  const FONT_SIZE_MAP = [
+  const FONT_SIZE_OPTIONS: [string, string][] = [
+    ['10px', '10'],
+    ['11px', '11'],
+    ['12px', '12'],
+    ['13px', '13'],
+    ['14px', '14'],
     ['15px', '15'],
     ['16px', '16'],
     ['17px', '17'],
@@ -322,10 +326,10 @@ export default function ToolbarPlugin() {
                   ) : (
                     <>
                       <Select size='small' sx={{ mx: 0.25, width: 80 }} onChange={onFontFamilySelect} value={fontFamily}>
-                        {FONT_FAMILY_MAP.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
+                        {FONT_FAMILY_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
                       </Select>
                       <Select size='small' sx={{ mx: 0.25 }} onChange={onFontSizeSelect} value={fontSize}>
-                        {FONT_SIZE_MAP.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
+                        {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
                       </Select>
                       <TextFormatToggles editor={activeEditor} sx={{ mx: 1, display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
                     </>

@@ -54,6 +54,7 @@ import Box from '@mui/material/Box';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemText from '@mui/material/ListItemText';
+import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 
 function computeSelectionCount(selection: GridSelection): {
@@ -469,6 +470,7 @@ function TableActionMenu({
         onColorChange={handleCellBackgroundColor}
         toggle="menuitem"
       />
+      <Divider />
       <MenuItem onClick={() => insertTableRowAtSelection(false)}>
         <ListItemText>
           Insert{' '}
@@ -501,6 +503,7 @@ function TableActionMenu({
           right
         </ListItemText>
       </MenuItem>
+      <Divider />
       <MenuItem onClick={() => deleteTableColumnAtSelection()}>
         <ListItemText>Delete column</ListItemText>
       </MenuItem>
@@ -510,6 +513,7 @@ function TableActionMenu({
       <MenuItem onClick={() => deleteTableAtSelection()}>
         <ListItemText>Delete table</ListItemText>
       </MenuItem>
+      <Divider />
       <MenuItem onClick={() => toggleTableRowIsHeader()}>
         <ListItemText>
           {(tableCellNode.__headerState & TableCellHeaderStates.ROW) ===
