@@ -1,17 +1,12 @@
 import { LexicalEditor } from 'lexical';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
 import { INSERT_SKETCH_COMMAND } from '../../SketchPlugin';
 import { Suspense, lazy, useEffect, useState } from 'react';
 import LogicGates from "./SketchLibraries/Logic-Gates.json";
 import CircuitComponents from "./SketchLibraries/circuit-components.json";
-import { useTheme } from '@mui/material/styles';
 import { SketchNode } from '../../../nodes/SketchNode';
-import { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types/types';
+import { ExcalidrawImperativeAPI, LibraryItems_anyVersion } from '@excalidraw/excalidraw/types/types';
 import { ImportedLibraryData } from '@excalidraw/excalidraw/types/data/types';
-import CircularProgress from '@mui/material/CircularProgress';
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent, useTheme } from '@mui/material';
 
 const Excalidraw = lazy(() => import('@excalidraw/excalidraw').then((module) => ({ default: module.Excalidraw })));
 
@@ -81,6 +76,8 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
     }
   };
 
+  const libraryItems = [...LogicGates.library, ...CircuitComponents.libraryItems] as any as LibraryItems_anyVersion;
+
   if (!open) return null;
 
   return (
@@ -90,9 +87,7 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
           <Suspense fallback={<CircularProgress size={36} disableShrink />}>
             <Excalidraw
               ref={(api: ExcalidrawImperativeAPI) => setExcalidrawAPI(api)}
-              initialData={{
-                libraryItems: [...LogicGates.library, ...CircuitComponents.libraryItems],
-              }}
+              initialData={{ libraryItems }}
               theme={theme.palette.mode}
             />
           </Suspense>}
