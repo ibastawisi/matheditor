@@ -31,7 +31,9 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    visualizer(),
+    visualizer({
+      filename: 'dist/stats.html',
+    }),
     VitePWA({
       registerType: "prompt",
       // add this to cache all the imports
