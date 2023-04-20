@@ -138,8 +138,8 @@ export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onCh
         <MarkdownPlugin />
         <FloatingToolbarPlugin />
         <HorizontalRulePlugin />
-        <TablePlugin />
-        <TableCellActionMenuPlugin />
+        <TablePlugin hasCellMerge hasCellBackgroundColor />
+        <TableCellActionMenuPlugin cellMerge />
         <TableCellResizer />
         <ComponentPickerMenuPlugin />
         <EmojiPickerPlugin />
