@@ -93,7 +93,6 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
     const readOnly = !editor.isEditable();
     mathfield.mathModeSpace = "\\,";
     mathfield.readOnly = readOnly;
-    mathfield.mathVirtualKeyboardPolicy = "manual";
 
     if (readOnly) return;
 
