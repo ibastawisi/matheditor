@@ -9,6 +9,7 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import { useCallback, useEffect, useState } from "react";
 import { $getNodeStyleValueForProperty } from "../../../nodes/utils";
+import ColorPicker from "./ColorPicker";
 
 const WolframIcon = () => <SvgIcon viewBox='0 0 20 20' fontSize='small'>
   <path d="M15.33 10l2.17-2.47-3.19-.71.33-3.29-3 1.33L10 2 8.35 4.86l-3-1.33.32 3.29-3.17.71L4.67 10 2.5 12.47l3.19.71-.33 3.29 3-1.33L10 18l1.65-2.86 3 1.33-.32-3.29 3.19-.71zm-2.83 1.5h-5v-1h5zm0-2h-5v-1h5z" fill="#f96932"></path>
@@ -38,7 +39,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [node]);
 
-  const applyStyleText = useCallback(
+  const applyStyleMath = useCallback(
     (styles: Record<string, string>) => {
       editor.update(() => {
         $patchStyleMath([node], styles);
@@ -52,10 +53,15 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     (e: SelectChangeEvent) => {
       const fontSize = e.target.value;
       setFontSize(fontSize);
-      applyStyleText({ 'font-size': fontSize });
+      applyStyleMath({ 'font-size': fontSize });
     },
-    [applyStyleText],
+    [applyStyleMath],
   );
+
+  const onColorChange = useCallback((key: string, value: string) => {
+    const styleKey = key === 'text' ? 'color' : 'background-color';
+    applyStyleMath({ [styleKey]: value });
+  }, [applyStyleMath]);
 
   return (<>
     <ToggleButtonGroup size="small" sx={{ ...sx }} >
@@ -69,6 +75,8 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
         }}>
         <WolframIcon />
       </ToggleButton>
+      <ColorPicker variant="text" onColorChange={onColorChange} />
+      <ColorPicker variant="background" onColorChange={onColorChange} />
       <ToggleButton value="delete"
         onClick={() => {
           editor.update(() => {

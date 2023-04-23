@@ -1,7 +1,7 @@
 import * as React from 'react';
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import { $getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND, LexicalEditor, COMMAND_PRIORITY_CRITICAL, SELECTION_CHANGE_COMMAND, TextFormatType, } from "lexical";
+import { $getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND, LexicalEditor, COMMAND_PRIORITY_CRITICAL, SELECTION_CHANGE_COMMAND, TextFormatType, $isNodeSelection, } from "lexical";
 import { $patchStyleText, } from '@lexical/selection';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
@@ -16,6 +16,7 @@ import { IS_APPLE } from '../../../../shared/environment';
 import { useCallback, useEffect, useState } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import ColorPicker from './ColorPicker';
+import { $isMathNode, $patchStyleMath, MathNode } from '../../../nodes/MathNode';
 
 export default function TextFormatToggles({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> | undefined }): JSX.Element {
   const [isBold, setIsBold] = useState(false);
@@ -38,7 +39,7 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
       setIsSubscript(selection.hasFormat('subscript'));
       setIsSuperscript(selection.hasFormat('superscript'));
       setIsCode(selection.hasFormat('code'));
-      
+
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
@@ -70,6 +71,8 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
         const selection = $getSelection();
         if ($isRangeSelection(selection)) {
           $patchStyleText(selection, styles);
+          const mathNodes = selection.getNodes().filter(node => $isMathNode(node)) as MathNode[];
+          $patchStyleMath(mathNodes, styles);
         }
       });
     },

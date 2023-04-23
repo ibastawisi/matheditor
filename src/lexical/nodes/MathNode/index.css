@@ -38,6 +38,10 @@ math-field::part(virtual-keyboard-toggle) {
   --keyboard-zindex: 9999;
 }
 
+.MLK__backdrop {
+  overflow: initial !important;
+}
+
 .MLK__plate,
 .MLK__layer {
   height: 100%;
