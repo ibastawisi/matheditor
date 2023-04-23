@@ -120,6 +120,7 @@ export default function ToolbarPlugin() {
   const [canRedo, setCanRedo] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState<string>('');
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
+  const [isNodeSelection, setIsNodeSelection] = useState(false);
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -173,6 +174,7 @@ export default function ToolbarPlugin() {
       setImageNode(null);
     }
 
+    setIsNodeSelection($isNodeSelection(selection));
     if ($isNodeSelection(selection)) {
       const node = selection.getNodes()[0];
       const isMathNode = $isMathNode(node);
@@ -304,10 +306,11 @@ export default function ToolbarPlugin() {
   return (
     <>
       <AppBar className='toolbar-appbar' elevation={trigger ? 4 : 0} position={trigger ? 'fixed' : 'static'}>
-        <Toolbar className="toolbar" sx={{ displayPrint: 'none', px: 0, justifyContent: "space-between", alignItems: "center", gap: 0.5 }}>
+        <Toolbar className="toolbar" sx={{ displayPrint: 'none', px: `${(trigger ? 1 : 0)}!important`, justifyContent: "space-between", alignItems: "center", gap: 0.5, minHeight: 64 }}>
           <Box sx={{ display: "flex" }}>
             <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
-              onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}> <UndoIcon />
+              onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}>
+              <UndoIcon />
             </IconButton>
             <IconButton title={IS_APPLE ? 'Redo (⌘Y)' : 'Redo (Ctrl+Y)'} aria-label="Redo" disabled={!canRedo}
               onClick={() => { activeEditor.dispatchCommand(REDO_COMMAND, undefined); }}>
@@ -325,10 +328,10 @@ export default function ToolbarPlugin() {
                     </Select>
                   ) : (
                     <>
-                      <Select size='small' sx={{ width: 80 }} onChange={onFontFamilySelect} value={fontFamily}>
+                      <Select size='small' sx={{ width: 68 }} onChange={onFontFamilySelect} value={fontFamily}>
                         {FONT_FAMILY_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
                       </Select>
-                      <Select size='small' onChange={onFontSizeSelect} value={fontSize}>
+                      <Select size='small' sx={{ width: 68 }} onChange={onFontSizeSelect} value={fontSize}>
                         {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
                       </Select>
                       <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
@@ -337,8 +340,8 @@ export default function ToolbarPlugin() {
                 </>
             }
           </Box>
-          <Box sx={{ display: "flex", gap: 0.5 }}>
-            {blockType !== 'code' && <InsertToolMenu editor={activeEditor} />}
+          <Box sx={{ display: "flex" }}>
+            {blockType !== 'code' && !isNodeSelection && <InsertToolMenu editor={activeEditor} />}
             <AlignTextMenu editor={activeEditor} isRTL={isRTL} />
           </Box>
         </Toolbar >

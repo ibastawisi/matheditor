@@ -70,7 +70,7 @@ const TopAppBar: React.FC<{}> = () => {
       <LoadingBar className='loading-bar' style={{ position: 'fixed' }} />
       <HideOnScroll>
         <AppBar sx={{ displayPrint: "none", zIndex: 1200 }}>
-          <Toolbar>
+          <Toolbar sx={{ minHeight: 64 }}>
             <Link component={RouterLink} to="/">
               <Box sx={{ display: "flex" }}>
                 <img src={logo} alt="Logo" width={32} height={32} />
