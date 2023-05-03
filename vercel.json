@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "/view/:id",
+      "destination": "https://api.matheditor.ml/view/:id",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
