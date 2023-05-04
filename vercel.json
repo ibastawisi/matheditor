@@ -1,12 +1,16 @@
 {
-  "redirects": [
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
     {
       "source": "/view/:id",
       "destination": "https://api.matheditor.ml/view/:id",
-      "permanent": false
-    }
-  ],
-  "rewrites": [
+      "missing": [
+        {
+          "type": "header",
+          "key": "Sec-Fetch-User"
+        }
+      ]
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
