@@ -2,7 +2,7 @@
 import { $createNodeSelection, $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, EditorConfig, GridSelection, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey, DecoratorNode, } from 'lexical';
-import { createRef, useEffect, useState } from 'react';
+import { createRef, useCallback, useEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 import { CSS_TO_STYLES, getCSSFromStyleObject, getStyleObjectFromCSS, } from '../utils';
@@ -79,8 +79,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
         const isParentAnchor = anchorNode === mathNode.getParent();
         const indexWithinParent = mathNode.getIndexWithinParent();
         const isBefore = isParentAnchor ? anchorOffset - indexWithinParent === 0 : anchorNode.isBefore(mathNode);
-        mathfield.focus();
-        window.mathVirtualKeyboard.show({ animate: true });
+        focus(mathfield);
         mathfield.executeCommand(isBefore ? 'moveToMathfieldStart' : 'moveToMathfieldEnd');
       });
     }
@@ -98,8 +97,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
 
     // focus newly created mathfield
     if (isSelected && !mathfield.hasFocus()) {
-      mathfield.focus();
-      window.mathVirtualKeyboard.show({ animate: true });
+      focus(mathfield);
     }
 
     mathfield.addEventListener("change", e => {
@@ -118,7 +116,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
     mathfield.addEventListener("click", event => {
       clearSelection();
       setSelected(true);
-      window.mathVirtualKeyboard.show({ animate: true });
+      focus(mathfield);
     });
 
     mathfield.addEventListener("keydown", event => {
@@ -158,6 +156,14 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
       });
     });
 
+  }, []);
+
+  const focus = useCallback((mathfield: MathfieldElement) => {
+    setTimeout(() => {
+      mathfield.focus();
+      window.mathVirtualKeyboard.show({ animate: true });
+      setTimeout(() => mathfield.hasFocus() && mathfield.executeCommand("scrollIntoView"), 300);
+    });
   }, []);
 
   return <math-field ref={ref} read-only={true} />;
