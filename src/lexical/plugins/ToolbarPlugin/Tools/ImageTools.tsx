@@ -9,14 +9,21 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ImageDialog, { ImageDialogMode } from "../Dialogs/ImageDialog";
 import GraphDialog, { GraphDialogMode } from '../Dialogs/GraphDialog';
 import SketchDialog, { SketchDialogMode } from '../Dialogs/SketchDialog';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SketchNode, $isSketchNode } from "../../../nodes/SketchNode";
-import { $isGraphNode, GraphNode } from "../../../nodes/GraphNode";
+import { $isGraphNode, GraphNode, GraphType } from "../../../nodes/GraphNode";
 
 export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor, node: ImageNode | GraphNode | SketchNode, sx?: SxProps<Theme> | undefined }): JSX.Element {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [graphDialogOpen, setGraphDialogOpen] = useState(false);
   const [sketchDialogOpen, setSketchDialogOpen] = useState(false);
+  const [graphType, setGraphType] = useState(GraphType['2D']);
+
+  useEffect(() => {
+    if ($isGraphNode(node)) {
+      setGraphType(node.getGraphType());
+    }
+  }, [node]);
 
   return (
     <>
@@ -44,7 +51,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
         </ToggleButton>
       </ToggleButtonGroup>
       {$isImageNode(node) && <ImageDialog editor={editor} node={node} mode={ImageDialogMode.update} open={imageDialogOpen} onClose={() => setImageDialogOpen(false)} />}
-      {$isGraphNode(node) && <GraphDialog editor={editor} node={node} mode={GraphDialogMode.update} open={graphDialogOpen} onClose={() => setGraphDialogOpen(false)} />}
+      {$isGraphNode(node) && <GraphDialog editor={editor} node={node} mode={GraphDialogMode.update} type={graphType} open={graphDialogOpen} onClose={() => setGraphDialogOpen(false)} />}
       {$isSketchNode(node) && <SketchDialog editor={editor} node={node} mode={SketchDialogMode.update} open={sketchDialogOpen} onClose={() => setSketchDialogOpen(false)} />}
     </>
   )

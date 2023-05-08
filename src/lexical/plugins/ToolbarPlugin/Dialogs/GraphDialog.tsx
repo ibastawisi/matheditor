@@ -5,7 +5,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import { INSERT_GRAPH_COMMAND } from '../../GraphPlugin';
 import { GraphNode, GraphType } from '../../../nodes/GraphNode';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 
@@ -14,13 +14,13 @@ export enum GraphDialogMode {
   update,
 }
 
-export default function GraphDialog({ editor, node, type, open, onClose, mode }: { editor: LexicalEditor; node?: GraphNode; type?: GraphType; mode: GraphDialogMode; open: boolean; onClose: () => void; }) {
-
-  const app = useRef<any>(null);
+export default function GraphDialog({ editor, node, type, open, onClose, mode }: { editor: LexicalEditor; node?: GraphNode; type: GraphType; mode: GraphDialogMode; open: boolean; onClose: () => void; }) {
+  const [parameters, setParameters] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const mountGGBApplet = (container: HTMLDivElement) => {
-    const parameters: any = {
+  useEffect(() => {
+    if (!open) return;
+    const parameters = {
       showToolBar: true,
       borderColor: null,
       showMenuBar: true,
@@ -32,40 +32,23 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
       showToolBarHelp: true,
       errorDialogsActive: true,
       showTutorialLink: true,
-      useBrowserForJS: true,
-      ggbBase64: "",
       width: window.innerWidth,
       height: window.innerHeight - 52.5,
-      appletOnLoad(api: any) {
-        app.current = api;
-        setLoading(false);
-      },
+      appName: type === GraphType["2D"] ? 'suite' : '3d',
+      ggbBase64: node?.getValue() ?? "",
+      appletOnLoad() { setLoading(false); },
     };
 
-    if (node) {
-      type = node.getGraphType();
-      const value = node.getValue();
-      parameters.ggbBase64 = value!;
-    }
-
-    parameters.appName = type === GraphType["2D"] ? 'suite' : '3d';
-
-    const applet = new (window as any).GGBApplet(parameters, '5.0');
-    applet.setHTML5Codebase('/geogebra/HTML5/5.0/web3d/');
-    applet.inject(container);
-
-    window.addEventListener('resize', () => {
-      app.current?.setSize(window.innerWidth, window.innerHeight - 52.5);
-    })
-
-  }
+    setParameters(parameters);
+  }, [open]);
 
   const handleSubmit = () => {
+    const app = (window as any).ggbApplet;
     switch (type) {
       case GraphType["2D"]:
-        app.current?.exportSVG((html: string) => {
+        app.exportSVG((html: string) => {
           const src = "data:image/svg+xml," + encodeURIComponent(html);
-          const value = app.current?.getBase64() as string;
+          const value = app.getBase64() as string;
           switch (mode) {
             case GraphDialogMode.create:
               editor.dispatchCommand(INSERT_GRAPH_COMMAND, { src, value, graphType: GraphType["2D"] },);
@@ -78,8 +61,8 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
         });
         break;
       case GraphType["3D"]:
-        const src = "data:image/png;base64," + app.current?.getPNGBase64();
-        const value = app.current?.getBase64();
+        const src = "data:image/png;base64," + app.getPNGBase64();
+        const value = app.getBase64();
         switch (mode) {
           case GraphDialogMode.create:
             editor.dispatchCommand(INSERT_GRAPH_COMMAND, { src, value, graphType: GraphType["3D"] },);
@@ -95,6 +78,7 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
 
   const handleClose = () => {
     setLoading(true);
+    setParameters(null);
     onClose();
   }
 
@@ -104,7 +88,7 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
     <Dialog open={open} fullScreen={true} onClose={handleClose}>
       <DialogContent sx={{ p: 0, overflow: "hidden" }}>
         {loading && <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>}
-        <Box sx={{ display: loading ? "none" : "block" }} ref={(el: HTMLDivElement | undefined) => el && mountGGBApplet(el)} />
+        {parameters && <GeogebraApplet parameters={parameters} />}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>
@@ -116,4 +100,20 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
       </DialogActions>
     </Dialog>
   );
+}
+
+const GeogebraApplet = ({ parameters }: { parameters: any }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const applet = new (window as any).GGBApplet(parameters, '5.0');
+    applet.setHTML5Codebase('/geogebra/HTML5/5.0/web3d/');
+    applet.inject(containerRef.current);
+    const resizeHandler = () => (window as any).ggbApplet.setSize(window.innerWidth, window.innerHeight - 52.5);
+    window.addEventListener('resize', resizeHandler);
+    return () => window.removeEventListener('resize', resizeHandler);
+  }, [parameters]);
+
+  return <div ref={containerRef} />;
+
 }
