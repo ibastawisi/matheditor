@@ -92,7 +92,6 @@ export const editorConfig = {
 };
 
 const Editor: React.FC<{ document: EditorDocument, editable: boolean }> = ({ document, editable }) => {
-  const [initialized, setInitialized] = useState(false);
   const [config] = useLocalStorage('config', { debug: false });
   const dispatch = useDispatch<AppDispatch>();
 
@@ -103,24 +102,18 @@ const Editor: React.FC<{ document: EditorDocument, editable: boolean }> = ({ doc
     validate(document.id) && dispatch(actions.app.saveDocument(updatedDocument));
   }
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    setInitialized(true);
-  }, []);
-
   return (
     <Box className="editor">
-      {!initialized && <SplashScreen title='Loading Editor' />}
       <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(validateData(document.data)), editable }}>
         <ToolbarPlugin />
-        <EditorPlugins contentEditable={<ContentEditable className="editor-input" />} onChange={onChange} showDebugView={config.debug} isReady={initialized} />
+        <EditorPlugins contentEditable={<ContentEditable className="editor-input" />} onChange={onChange} showDebugView={config.debug} />
       </LexicalComposer>
     </Box>
   );
 }
 
-export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onChange: (editorState: EditorState) => void; showDebugView?: boolean; isReady?: boolean }> =
-  ({ contentEditable, onChange, showDebugView, isReady }) => {
+export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onChange: (editorState: EditorState) => void; showDebugView?: boolean; }> =
+  ({ contentEditable, onChange, showDebugView }) => {
     const { historyState } = useSharedHistoryContext();
     return (
       <>
@@ -148,12 +141,10 @@ export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onCh
         <SketchPlugin />
         <GraphPlugin />
         <StickyPlugin />
-        {isReady && <>
-          <DraggableBlockPlugin />
-          <DragDropPaste />
-          <CodeHighlightPlugin />
-          <AutoLinkPlugin />
-        </>}
+        <DraggableBlockPlugin />
+        <DragDropPaste />
+        <CodeHighlightPlugin />
+        <AutoLinkPlugin />
       </>
     )
   };

@@ -3,7 +3,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Typography from '@mui/material/Typography';
 import logo from "../assets/logo.svg";
 
-const SplashScreen: React.FC<{ title?: string }> = ({ title }) => {
+const SplashScreen: React.FC<{ title?: string }> = ({ title = "Loading Editor" }) => {
   return (
     <div className='splash-screen'>
       <div className='splash-screen-content'>

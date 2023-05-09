@@ -38,7 +38,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
     const mathfield = ref.current;
     if (!mathfield || !isMathField(mathfield)) return;
     if (initialValue !== mathfield.getValue()) {
-      mathfield.setValue(initialValue, { suppressChangeNotifications: true });
+      mathfield.setValue(initialValue, { silenceNotifications: true });
     }
   }, [initialValue]);
 
