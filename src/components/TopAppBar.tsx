@@ -63,7 +63,7 @@ const TopAppBar: React.FC<{}> = () => {
   const theme = useTheme();
   const user = useSelector((state: RootState) => state.app.user);
 
-  const showPrintButton = !["/", "/new", "/dashboard"].includes(location.pathname);
+  const showPrintButton = !["/", "/new", "/dashboard"].includes(location.pathname) && !location.pathname.startsWith("/user");
   
   return (
     <>

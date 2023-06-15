@@ -17,7 +17,7 @@ import UserCard from "./UserCard";
 import CardHeader from "@mui/material/CardHeader";
 import CardActionArea from "@mui/material/CardActionArea";
 import CircularProgress from "@mui/material/CircularProgress";
-import { AdminDocument, DocumentWithAuthor, User } from "../slices/app";
+import { AdminDocument, DocumentWithAuthor, User, UserDocument } from "../slices/app";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
@@ -40,6 +40,7 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import DocumentCard from "./DocumentCard";
 
 const Dashboard: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -188,6 +189,7 @@ const Dashboard: React.FC = () => {
         <ReactApexChart options={getCountChartOptions("document-count", "Document Count")[0]} series={userDocumentCountSeries} type="line" height={230} />
         <ReactApexChart options={getCountChartOptions("document-count", "Document Count")[1]} series={userDocumentCountSeriesLine} type="area" height={130} />
       </Paper>
+      {user && <UserDocumentsGrid documents={user.documents} />}
     </Box>
     {user?.admin &&
       <Box sx={{ my: 3 }}>
@@ -198,7 +200,7 @@ const Dashboard: React.FC = () => {
               <ReactApexChart options={getCountChartOptions("admin-user-aquisition", "User Aquisition")[0]} series={adminUserAquisitionSeries} type="line" height={230} />
               <ReactApexChart options={getCountChartOptions("admin-user-aquisition", "User Aquisition")[1]} series={adminUserAquisitionSeriesLine} type="area" height={130} />
             </Paper>
-            <DocumentsGrid documents={admin.documents} />
+            <AdminDocumentsGrid documents={admin.documents} />
             <UserGrid users={admin.users} />
           </Box>
         }
@@ -316,8 +318,8 @@ const UserGrid: React.FC<{ users: User[] }> = memo(({ users }) => {
       </Box>
       <Grid container spacing={2}>
         {sortUsers(users).map(user => <Grid item xs={12} md={6} lg={4} key={user.id}>
-          <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between', height: "100%" }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: "space-between" }}>
+          <Card variant='outlined' sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+            <CardActionArea component={RouterLink} to={`/user/${user.id}`} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: "start", flexGrow: 1 }}>
               <CardContent sx={{ overflow: "hidden", overflowWrap: "anywhere" }}>
                 <Typography component="div" variant="subtitle1">{user.name}</Typography>
                 <Typography variant="subtitle2" color="text.secondary" component="div">
@@ -327,18 +329,18 @@ const UserGrid: React.FC<{ users: User[] }> = memo(({ users }) => {
                   Registered At: {new Date(user.createdAt).toLocaleDateString()}
                 </Typography>
               </CardContent>
-              <CardActions>
-                <Typography variant="subtitle2" component="div">
-                  No. documents: {user.documents.length}
-                </Typography>
-              </CardActions>
-            </Box>
-            <CardMedia
-              component="img"
-              sx={{ width: 96, flexShrink: 0 }}
-              image={user.picture}
-              alt={user.name}
-            />
+              <CardMedia
+                component="img"
+                sx={{ width: 96, flexShrink: 0 }}
+                image={user.picture}
+                alt={user.name}
+              />
+            </CardActionArea>
+            <CardActions>
+              <Typography variant="subtitle2" component="div" sx={{ mx: 1 }}>
+                No. documents: {user.documents.length}
+              </Typography>
+            </CardActions>
           </Card>
         </Grid>)}
       </Grid>
@@ -346,7 +348,7 @@ const UserGrid: React.FC<{ users: User[] }> = memo(({ users }) => {
   </Accordion>
 });
 
-const DocumentsGrid: React.FC<{ documents: AdminDocument[] }> = memo(({ documents }) => {
+const AdminDocumentsGrid: React.FC<{ documents: AdminDocument[] }> = memo(({ documents }) => {
   const [sort, setSort] = useState('updated-desc');
   const handleSortChange = (event: SelectChangeEvent) => {
     const value = event.target.value as string;
@@ -465,6 +467,9 @@ const DocumentsGrid: React.FC<{ documents: AdminDocument[] }> = memo(({ document
                   <Typography variant="body2" color="text.secondary">
                     Updated At: {new Date(document.updatedAt).toLocaleString()}
                   </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Is Public: {document.isPublic? 'Yes' : 'No'}
+                  </Typography>
                 </>}
                 avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>}
               />
@@ -474,4 +479,112 @@ const DocumentsGrid: React.FC<{ documents: AdminDocument[] }> = memo(({ document
       </Grid>
     </AccordionDetails>
   </Accordion>
+});
+
+const UserDocumentsGrid: React.FC<{ documents: UserDocument[] }> = memo(({ documents }) => {
+  const [sort, setSort] = useState('updated-desc');
+  const handleSortChange = (event: SelectChangeEvent) => {
+    const value = event.target.value as string;
+    setSort(value);
+  };
+  const sortDocuments = (documents: UserDocument[]) => {
+    const sortBy = sort.split('-')[0];
+    const sortDirection = sort.split('-')[1];
+    switch (sortBy) {
+      case "updated":
+        return sortDirection === 'asc' ?
+          [...documents].sort((a, b) => Date.parse(a.updatedAt) - Date.parse(b.updatedAt)) :
+          [...documents].sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
+      case "created":
+        return sortDirection === 'asc' ?
+          [...documents].sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt)) :
+          [...documents].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+      case "name":
+        return sortDirection === 'asc' ?
+          [...documents].sort((a, b) => a.name.localeCompare(b.name)) :
+          [...documents].sort((a, b) => b.name.localeCompare(a.name));
+      default:
+        return documents;
+    }
+  }
+
+  return <Accordion disableGutters TransitionProps={{ unmountOnExit: true }}>
+    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+      <Typography>Shared Documents</Typography>
+      <Typography sx={{ color: 'text.secondary', mx: 1 }}>({documents.length})</Typography>
+    </AccordionSummary>
+    <AccordionDetails>
+      <Box sx={{ display: "flex", justifyContent: 'flex-end', alignItems: "center", gap: 1, my: 2 }}>
+        <FormControl size="small">
+          <InputLabel id="document-sort-select-label">Sort</InputLabel>
+          <Select
+            labelId="document-sort-select-label"
+            id="document-sort-select"
+            name="documents"
+            value={sort}
+            label="Sort"
+            onChange={handleSortChange}
+            sx={{
+              '& .MuiSelect-select': { display: 'flex', alignItems: 'center', py: 0.5 },
+              '& .MuiListItemIcon-root': { minWidth: 30 },
+            }}
+          >
+            <MenuItem value="updated-desc">
+              <ListItemIcon>
+                <ArrowDownwardIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Updated</ListItemText>
+            </MenuItem>
+            <MenuItem value="updated-asc">
+              <ListItemIcon>
+                <ArrowUpwardIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Updated</ListItemText>
+            </MenuItem>
+            <MenuItem value="created-desc">
+              <ListItemIcon>
+                <ArrowDownwardIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Created</ListItemText>
+            </MenuItem>
+            <MenuItem value="created-asc">
+              <ListItemIcon>
+                <ArrowUpwardIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Created</ListItemText>
+            </MenuItem>
+            <MenuItem value="name-asc">
+              <ListItemIcon>
+                <ArrowDownwardIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Name</ListItemText>
+            </MenuItem>
+            <MenuItem value="name-desc">
+              <ListItemIcon>
+                <ArrowUpwardIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Name</ListItemText>
+            </MenuItem>
+            <MenuItem value="author-asc">
+              <ListItemIcon>
+                <ArrowDownwardIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Author</ListItemText>
+            </MenuItem>
+            <MenuItem value="author-desc">
+              <ListItemIcon>
+                <ArrowUpwardIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Author</ListItemText>
+            </MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
+      <Grid container spacing={2}>
+        {sortDocuments(documents).map(document => <Grid item xs={12} sm={6} md={4} key={document.id}>
+          <DocumentCard document={document} variant="cloud" />
+        </Grid>)}
+      </Grid>
+    </AccordionDetails>
+  </Accordion >
 });

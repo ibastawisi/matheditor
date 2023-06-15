@@ -4,7 +4,7 @@ import CardHeader from '@mui/material/CardHeader';
 import CardActions from '@mui/material/CardActions';
 import Avatar from '@mui/material/Avatar';
 import { Link as RouterLink } from 'react-router-dom';
-import { EditorDocument } from '../slices/app';
+import { EditorDocument, UserDocument } from '../slices/app';
 import ArticleIcon from '@mui/icons-material/Article';
 import { AppDispatch, RootState } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
@@ -25,8 +25,9 @@ import DialogContent from '@mui/material/DialogContent';
 import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
+import PublicIcon from '@mui/icons-material/Public';
 
-const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 'local' | 'cloud' }> = ({ document, variant }) => {
+const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 'local' | 'cloud' | 'public' }> = ({ document, variant }) => {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.app.user);
   const cloudDocument = user?.documents?.find(d => d.id === document.id);
@@ -138,9 +139,22 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
     }
   };
 
+  const togglePublic = async (document: UserDocument) => {
+    try {
+      const data = {
+        ...document,
+        isPublic: !document.isPublic,
+      };
+      dispatch(actions.app.uploadDocumentAsync(data as EditorDocument));
+      dispatch(actions.app.loadDocumentsAsync());
+    } catch (err) {
+      dispatch(actions.app.announce({ message: "Can't update document data" }));
+    }
+  };
+
   return (
     <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
-      <CardActionArea component={RouterLink} to={`/edit/${document.id}`} sx={{ flexGrow: 1 }}>
+      <CardActionArea component={RouterLink} to={`/${variant === 'public' ? 'view' : 'edit'}/${document.id}`} sx={{ flexGrow: 1 }}>
         <CardHeader
           title={document.name}
           subheader={new Date(document.createdAt).toLocaleDateString()}
@@ -149,7 +163,7 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
           }
         />
       </CardActionArea>
-      <CardActions>
+      {variant !== 'public' && <CardActions>
         <IconButton size="small" aria-label="Rename" onClick={handleOpen}>
           <DriveFileRenameOutlineIcon />
         </IconButton>
@@ -178,7 +192,11 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
         <IconButton size="small" aria-label="Download" onClick={handleSave}>
           <DownloadIcon />
         </IconButton>
-      </CardActions>
+        {variant === "cloud" && <IconButton size="small" aria-label="Show on public profile"
+          color={document.isPublic ? "success" : "default"} onClick={() => togglePublic(document)}>
+          <PublicIcon />
+        </IconButton>}
+      </CardActions>}
     </Card>
   );
 }

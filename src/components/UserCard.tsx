@@ -12,8 +12,10 @@ import CardActions from '@mui/material/CardActions';
 import Skeleton from '@mui/material/Skeleton';
 import { BACKEND_URL } from '../config';
 import GoogleIcon from '@mui/icons-material/Google';
+import IconButton from '@mui/material/IconButton';
+import ShareIcon from '@mui/icons-material/Share';
 
-export default function UserCard({ user }: { user?: User | null }) {
+export default function UserCard({ user, hideControls }: { user?: User | null, hideControls?: boolean }) {
   const dispatch = useDispatch<AppDispatch>();
 
   const login = async () => {
@@ -25,10 +27,24 @@ export default function UserCard({ user }: { user?: User | null }) {
     dispatch(actions.app.logoutAsync());
   }
 
+  const handleShare = async () => {
+    const shareData = {
+      title: `{user?.name}'s profile on Math Editor`,
+      url: window.location.origin + "/user/" + user?.id
+    }
+    try {
+      await navigator.share(shareData)
+    } catch (err) {
+      navigator.clipboard.writeText(shareData.url);
+      dispatch(actions.app.announce({ message: "Link copied to clipboard" }));
+    }
+  };
+
+
   return (
     <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between' }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-        <CardContent sx={{ flex: '1 0 auto' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+        <CardContent sx={{ flex: '1 0 auto', w: '100%' }}>
           <Typography component="div" variant="h5">
             {user ? user.name : <Skeleton variant="text" width={190} />}
           </Typography>
@@ -37,8 +53,13 @@ export default function UserCard({ user }: { user?: User | null }) {
           </Typography>
         </CardContent>
         <CardActions>
-          {user && <Button size='small' onClick={logout}>Logout</Button>}
-          {!user && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>Login with Google</Button>}
+          {!hideControls && <>
+            {user && <Button size='small' onClick={logout}>Logout</Button>}
+            {!user && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>Login with Google</Button>}
+          </>}
+          <IconButton size="small" aria-label="Share" onClick={handleShare} disabled={!user}>
+            <ShareIcon />
+          </IconButton>
         </CardActions>
       </Box>
       {user ?

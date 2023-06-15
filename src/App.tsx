@@ -24,6 +24,7 @@ const Playground = lazy(() => import('./components/Playground'));
 const Dashboard = lazy(() => import('./components/Dashboard'));
 const EditDocument = lazy(() => import('./components/EditDocument'));
 const ViewDocument = lazy(() => import('./components/ViewDocument'));
+const User = lazy(() => import('./components/User'));
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -55,6 +56,7 @@ function App() {
             </Route>
             <Route path="/edit/:id" element={<EditDocument />} />
             <Route path="/view/:id" element={<ViewDocument />} />
+            <Route path="/user/:id" element={<User />} />
             <Route path="playground" element={<Playground />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="privacy" element={<Privacy />} />

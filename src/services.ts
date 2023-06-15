@@ -42,4 +42,9 @@ const getAllDocuments = async () => {
   return response.data;
 }
 
-export { getDocument, createDocument, updateDocument, deleteDocument, getAuthenticatedUser, logout, getAllUsers, getAllDocuments }
+const getUser = async (id: string) => {
+  const response = await axios.get<User>(BACKEND_URL + `/users/${id}`, { withCredentials: true })
+  return response.data;
+}
+
+export { getDocument, createDocument, updateDocument, deleteDocument, getAuthenticatedUser, logout, getAllUsers, getAllDocuments, getUser }

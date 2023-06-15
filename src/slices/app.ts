@@ -40,6 +40,7 @@ export interface EditorDocument {
   data: SerializedEditorState;
   createdAt: string;
   updatedAt: string;
+  isPublic?: boolean;
 }
 export type DocumentWithUserId = UserDocument & { userId: string };
 export type DocumentWithAuthor = UserDocument & { author: User };
