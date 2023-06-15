@@ -16,11 +16,11 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode';
 import {
   LexicalTypeaheadMenuPlugin,
-  TypeaheadOption,
+  MenuOption,
   useBasicTypeaheadTriggerMatch,
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import { $createHeadingNode, $createQuoteNode } from '@lexical/rich-text';
-import { $wrapNodes } from '@lexical/selection';
+import { $setBlocksType } from '@lexical/selection';
 import { INSERT_TABLE_COMMAND } from '@lexical/table';
 import {
   $createParagraphNode,
@@ -128,7 +128,7 @@ function IconMenu({ options, selectedIndex, setHighlightedIndex, selectOptionAnd
   );
 }
 
-class ComponentPickerOption extends TypeaheadOption {
+class ComponentPickerOption extends MenuOption {
   // What shows up in the editor
   title: string;
   // Icon for display
@@ -178,8 +178,8 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
       return options;
     }
 
-    const fullTableRegex = new RegExp(/([1-9]|10)x([1-9]|10)$/);
-    const partialTableRegex = new RegExp(/([1-9]|10)x?$/);
+    const fullTableRegex = new RegExp(/^([1-9]|10)x([1-9]|10)$/);
+    const partialTableRegex = new RegExp(/^([1-9]|10)x?$/);
 
     const fullTableMatch = fullTableRegex.exec(queryString);
     const partialTableMatch = partialTableRegex.exec(queryString);
@@ -229,7 +229,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           editor.update(() => {
             const selection = $getSelection();
             if ($isRangeSelection(selection)) {
-              $wrapNodes(selection, () => $createParagraphNode());
+              $setBlocksType(selection, () => $createParagraphNode());
             }
           }),
       }),
@@ -243,7 +243,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
               editor.update(() => {
                 const selection = $getSelection();
                 if ($isRangeSelection(selection)) {
-                  $wrapNodes(selection, () =>
+                  $setBlocksType(selection, () =>
                     // @ts-ignore Correct types, but since they're dynamic TS doesn't like it.
                     $createHeadingNode(`h${n}`),
                   );
@@ -280,7 +280,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           editor.update(() => {
             const selection = $getSelection();
             if ($isRangeSelection(selection)) {
-              $wrapNodes(selection, () => $createQuoteNode());
+              $setBlocksType(selection, () => $createQuoteNode());
             }
           }),
       }),
@@ -294,7 +294,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
 
             if ($isRangeSelection(selection)) {
               if (selection.isCollapsed()) {
-                $wrapNodes(selection, () => $createCodeNode());
+                $setBlocksType(selection, () => $createCodeNode());
               } else {
                 const textContent = selection.getTextContent();
                 const codeNode = $createCodeNode();

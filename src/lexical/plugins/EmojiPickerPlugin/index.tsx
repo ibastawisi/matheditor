@@ -9,7 +9,7 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   LexicalTypeaheadMenuPlugin,
-  TypeaheadOption,
+  MenuOption,
   useBasicTypeaheadTriggerMatch,
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import {
@@ -27,7 +27,7 @@ import MenuItem from '@mui/material/MenuItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 
-class EmojiOption extends TypeaheadOption {
+class EmojiOption extends MenuOption {
   title: string;
   emoji: string;
   keywords: Array<string>;
