@@ -15,7 +15,9 @@ math-field::part(virtual-keyboard-toggle) {
 }
 
 [theme=dark] math-field {
+  --contains-highlight-backround-color: rgba(255,255,255,0.1);
   --selection-background-color: #546E7A;
+  --selection-color: white;
 }
 
 [theme=dark] ::selection {
@@ -25,11 +27,23 @@ math-field::part(virtual-keyboard-toggle) {
 [theme=light] math-field.selection-active {
   background-color: #3390ff;
   color: white;
+  --selection-color: white;
 }
 
 [theme=dark] math-field.selection-active {
   background-color: #546E7A;
   color: white;
+  --selection-color: white;
+}
+
+[theme=light] #mathlive-environment-popover {
+  --environment-panel-background: #fff;
+  --accent-color: #cacfd7;
+}
+
+[theme=dark] #mathlive-environment-popover {
+  --environment-panel-background: #1f2022;
+  --accent-color: #151515;
 }
 
 .ML__keyboard {
@@ -40,11 +54,6 @@ math-field::part(virtual-keyboard-toggle) {
 
 .MLK__backdrop {
   overflow: initial !important;
-}
-
-.MLK__plate,
-.MLK__layer {
-  height: 100%;
 }
 
 .MLK__rows {
