@@ -3,7 +3,17 @@
   "rewrites": [
     {
       "source": "/view/:id",
-      "destination": "https://api.matheditor.ml/view/:id",
+      "destination": "https://api.matheditor.ml/metadata/document/:id",
+      "missing": [
+        {
+          "type": "header",
+          "key": "Sec-Fetch-User"
+        }
+      ]
+    },
+    {
+      "source": "/user/:id",
+      "destination": "https://api.matheditor.ml/metadata/user/:id",
       "missing": [
         {
           "type": "header",

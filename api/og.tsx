@@ -5,11 +5,11 @@ export const config = {
   runtime: 'edge',
 };
 
-interface DocumentMetadata {
+interface Metadata {
   id: string;
-  name: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  title?: string;
+  subtitle?: string;
+  description?: string;
   user?: {
     name: string;
     picture: string;
@@ -19,21 +19,18 @@ interface DocumentMetadata {
 
 export default (request: Request) => {
   const { searchParams } = new URL(request.url);
-  const metadata = searchParams.get('metadata');
-
   try {
-    const documentMetadata = JSON.parse(decodeURIComponent(metadata as string)) as DocumentMetadata;
-    const { name, createdAt, updatedAt, user } = documentMetadata;
+    const metadata = JSON.parse(decodeURIComponent(searchParams.get('metadata') as string)) as Metadata;
+    const { title, subtitle, description, user } = metadata;
     return new ImageResponse(
       (
         <div style={{ display: "flex" }} tw="h-full w-full flex bg-white border-blue-500 border-[16px]">
           <div style={{ display: "flex" }} tw="flex flex-col justify-between w-full h-full p-20">
             <div style={{ display: "flex" }} tw="flex justify-between w-full">
               <div style={{ display: "flex" }} tw="flex flex-col w-200">
-                {createdAt && <div style={{ display: "flex" }} tw="text-[32px]">{new Date(createdAt).toDateString()}</div>}
-                {!user && <div style={{ display: "flex" }} tw="text-[32px]">{name}</div>}
-                <h1 tw="text-[64px]">{user ? name : name === "Error 404" ? "Document Not Found" : "Invalid Document Identifier"}</h1>
-                {updatedAt && <p tw="text-red-500 text-lg mt-0">Updated: {new Date(updatedAt).toUTCString()}</p>}
+                <div style={{ display: "flex" }} tw="text-[32px]">{subtitle}</div>
+                <h1 tw="text-[64px]">{title}</h1>
+                <p tw="text-lg mt-0">{description}</p>
               </div>
               <img
                 alt="Math Editor"
