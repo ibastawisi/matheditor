@@ -13,7 +13,6 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { EditorDocument, UserDocument } from "../slices/app";
 import { validate } from "uuid";
 
-import PlaygroundCard from "./PlaygroundCard";
 import UserCard from "./UserCard";
 import Avatar from "@mui/material/Avatar";
 import PostAddIcon from '@mui/icons-material/PostAdd';
@@ -26,6 +25,11 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import Card from "@mui/material/Card";
+import CardActionArea from "@mui/material/CardActionArea";
+import CardHeader from "@mui/material/CardHeader";
+import ArticleIcon from '@mui/icons-material/Article';
+import HelpIcon from '@mui/icons-material/Help';
 
 const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.app.documents);
@@ -220,7 +224,20 @@ const Documents: React.FC = () => {
           </Box>
         </Box>
         <Grid container spacing={2}>
-          <Grid item xs={12}><PlaygroundCard /></Grid>
+          <Grid item xs={6}>
+            <Card variant="outlined">
+              <CardActionArea component={RouterLink} to="/playground">
+                <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>} />
+              </CardActionArea>
+            </Card>
+          </Grid>
+          <Grid item xs={6}>
+            <Card variant="outlined">
+              <CardActionArea component={RouterLink} to="/tutorial">
+                <CardHeader title="Tutorial" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><HelpIcon /></Avatar>} />
+              </CardActionArea>
+            </Card>
+          </Grid>
           {sortDocuments(documents).map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
             <DocumentCard document={document} variant="local" />
           </Grid>)}

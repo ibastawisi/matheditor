@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo } from 'react';
 import { EditorState } from 'lexical';
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
@@ -52,7 +52,6 @@ import { actions } from "../slices";
 import { EditorDocument } from "../slices/app";
 
 import Box from '@mui/material/Box';
-import SplashScreen from '../components/SplashScreen';
 import theme from "./theme";
 import isEqual from 'fast-deep-equal'
 import { validateData } from './utils/state';
@@ -91,22 +90,24 @@ export const editorConfig = {
   ]
 };
 
-const Editor: React.FC<{ document: EditorDocument, editable: boolean }> = ({ document, editable }) => {
+const Editor: React.FC<{ document: EditorDocument, editable: boolean, onChange?: (editorState: EditorState) => void }> =
+  ({ document, editable, onChange }) => {
   const [config] = useLocalStorage('config', { debug: false });
   const dispatch = useDispatch<AppDispatch>();
 
-  function onChange(editorState: EditorState) {
+  function handleChange(editorState: EditorState) {
     const data = editorState.toJSON();
     if (isEqual(data, document.data)) return;
     const updatedDocument: EditorDocument = { ...document, data, updatedAt: new Date().toISOString() };
     validate(document.id) && dispatch(actions.app.saveDocument(updatedDocument));
+    onChange && onChange(editorState);
   }
 
   return (
     <Box className="editor">
       <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(validateData(document.data)), editable }}>
         <ToolbarPlugin />
-        <EditorPlugins contentEditable={<ContentEditable className="editor-input" />} onChange={onChange} showDebugView={config.debug} />
+        <EditorPlugins contentEditable={<ContentEditable className="editor-input" />} onChange={handleChange} showDebugView={config.debug} />
       </LexicalComposer>
     </Box>
   );

@@ -21,6 +21,7 @@ import Home from './components/Home';
 import NewDocument from './components/NewDocument';
 const Privacy = lazy(() => import('./components/Privacy'));
 const Playground = lazy(() => import('./components/Playground'));
+const Tutorial = lazy(() => import('./components/Tutorial'));
 const Dashboard = lazy(() => import('./components/Dashboard'));
 const EditDocument = lazy(() => import('./components/EditDocument'));
 const ViewDocument = lazy(() => import('./components/ViewDocument'));
@@ -58,6 +59,7 @@ function App() {
             <Route path="/view/:id" element={<ViewDocument />} />
             <Route path="/user/:id" element={<User />} />
             <Route path="playground" element={<Playground />} />
+            <Route path="tutorial" element={<Tutorial />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="privacy" element={<Privacy />} />
             <Route path="*" element={<Home />} />

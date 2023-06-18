@@ -65,7 +65,7 @@ const User: React.FC = () => {
   }
 
   return <Box>
-    <Helmet><title>{user ? `${user.name} Profile` : "Profile"}</title></Helmet>
+    <Helmet><title>{user ? `${user.name}'s Profile` : "Profile"}</title></Helmet>
     <UserCard user={user} hideControls={!loggedInUser || !user || loggedInUser.id !== user.id} />
     {user && <Box sx={{ gap: 1, my: 2 }}>
       <Box sx={{ display: "flex", flexWrap: "wrap-reverse", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>

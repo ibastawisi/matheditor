@@ -28,8 +28,8 @@ const Home: React.FC = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Dismess</Button>
-            <Button onClick={() => { navigate('/playground'); handleClose(); }}>
-              Go to the Playground
+            <Button onClick={() => { navigate('/tutorial'); handleClose(); }}>
+              Launch the Tutorial
             </Button>
           </DialogActions>
         </Dialog>

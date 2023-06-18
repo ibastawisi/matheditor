@@ -29,7 +29,7 @@ export default function UserCard({ user, hideControls }: { user?: User | null, h
 
   const handleShare = async () => {
     const shareData = {
-      title: `{user?.name}'s profile on Math Editor`,
+      title: `${user?.name}'s profile on Math Editor`,
       url: window.location.origin + "/user/" + user?.id
     }
     try {
