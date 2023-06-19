@@ -19,6 +19,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
 import { tasks, checkpoints } from "..//tutorial";
+import Divider from "@mui/material/Divider";
 const Tutorial: React.FC = () => {
   const [editorState, setEditorState] = useState<EditorState>();
   const [currentTask, setCurrentTask] = useLocalStorage<number>("currentTutorialTask", 0);
@@ -40,6 +41,12 @@ const Tutorial: React.FC = () => {
     }
   };
 
+  // order checkpoints with checked last
+  const orderedCheckpoints = checkpoints[currentTask]
+    .map((checkpoint, index) => ({ ...checkpoint, checked: checkpoint.check(editorState), index }))
+    .sort((a, b) => a.checked === b.checked ? a.index - b.index : a.checked ? 1 : -1);
+
+
   return <>
     <Helmet><title>{tasks[currentTask].name}</title></Helmet>
     <Editor key={currentTask} document={tasks[currentTask]} editable={true} onChange={onChange} />
@@ -47,8 +54,8 @@ const Tutorial: React.FC = () => {
       <Box key={`task-${currentTask}`} sx={{ mb: 2 }}>
         <Typography variant="h6">{tasks[currentTask].name}</Typography>
         <List>
-          {checkpoints[currentTask].map((checkpoint, index) =>
-            <CheckpointItem key={`checkpoint-${index}`} name={checkpoint.name} steps={checkpoint.steps} checked={checkpoint.check(editorState)} />
+          {orderedCheckpoints.map((checkpoint, index) =>
+            <CheckpointItem key={`checkpoint-${index}`} name={checkpoint.name} steps={checkpoint.steps} checked={checkpoint.checked} />
           )}
         </List>
       </Box>
@@ -72,7 +79,7 @@ const CheckpointItem = ({ name, steps, checked }: { name: string, steps: JSX.Ele
       <ListItemIcon>
         {checked ? <CheckIcon /> : <ClearIcon />}
       </ListItemIcon>
-      <ListItemText primary={name} />
+      <ListItemText primary={name} sx={checked ? { textDecoration: "line-through" } : {}} />
       {open ? <ExpandLess /> : <ExpandMore />}
     </ListItemButton>
     <Collapse in={open} timeout="auto" unmountOnExit>
@@ -81,6 +88,7 @@ const CheckpointItem = ({ name, steps, checked }: { name: string, steps: JSX.Ele
         {steps}
       </Box>
     </Collapse >
+    <Divider />
   </>
 }
 

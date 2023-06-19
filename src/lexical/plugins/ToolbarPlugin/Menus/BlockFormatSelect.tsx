@@ -1,8 +1,8 @@
-import { LexicalEditor } from 'lexical';
+import { DEPRECATED_$isGridSelection, LexicalEditor } from 'lexical';
 import { $createCodeNode } from '@lexical/code';
 import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, REMOVE_LIST_COMMAND } from '@lexical/list';
 import { $createHeadingNode, $createQuoteNode, HeadingTagType, } from '@lexical/rich-text';
-import { $wrapNodes } from '@lexical/selection';
+import { $setBlocksType } from '@lexical/selection';
 import { $createParagraphNode, $getSelection, $isRangeSelection } from 'lexical';
 
 import Select from '@mui/material/Select';
@@ -36,23 +36,26 @@ export function BlockFormatSelect({ editor, blockType }: {
   editor: LexicalEditor;
 }): JSX.Element {
   const formatParagraph = () => {
-    if (blockType !== 'paragraph') {
-      editor.update(() => {
-        const selection = $getSelection();
-        if ($isRangeSelection(selection)) {
-          $wrapNodes(selection, () => $createParagraphNode());
-        }
-      });
-    }
+    editor.update(() => {
+      const selection = $getSelection();
+      if (
+        $isRangeSelection(selection) ||
+        DEPRECATED_$isGridSelection(selection)
+      ) {
+        $setBlocksType(selection, () => $createParagraphNode());
+      }
+    });
   };
 
   const formatHeading = (headingSize: HeadingTagType) => {
     if (blockType !== headingSize) {
       editor.update(() => {
         const selection = $getSelection();
-        if ($isRangeSelection(selection)) {
-          $wrapNodes(selection, () => $createHeadingNode(headingSize)
-          );
+        if (
+          $isRangeSelection(selection) ||
+          DEPRECATED_$isGridSelection(selection)
+        ) {
+          $setBlocksType(selection, () => $createHeadingNode(headingSize));
         }
       });
     }
@@ -86,9 +89,11 @@ export function BlockFormatSelect({ editor, blockType }: {
     if (blockType !== 'quote') {
       editor.update(() => {
         const selection = $getSelection();
-
-        if ($isRangeSelection(selection)) {
-          $wrapNodes(selection, () => $createQuoteNode());
+        if (
+          $isRangeSelection(selection) ||
+          DEPRECATED_$isGridSelection(selection)
+        ) {
+          $setBlocksType(selection, () => $createQuoteNode());
         }
       });
     }
@@ -97,21 +102,27 @@ export function BlockFormatSelect({ editor, blockType }: {
   const formatCode = () => {
     if (blockType !== 'code') {
       editor.update(() => {
-        const selection = $getSelection();
-        if ($isRangeSelection(selection)) {
+        let selection = $getSelection();
+
+        if (
+          $isRangeSelection(selection) ||
+          DEPRECATED_$isGridSelection(selection)
+        ) {
           if (selection.isCollapsed()) {
-            $wrapNodes(selection, () => $createCodeNode());
+            $setBlocksType(selection, () => $createCodeNode());
           } else {
             const textContent = selection.getTextContent();
             const codeNode = $createCodeNode();
             selection.insertNodes([codeNode]);
-            selection.insertRawText(textContent);
+            selection = $getSelection();
+            if ($isRangeSelection(selection))
+              selection.insertRawText(textContent);
           }
         }
       });
     }
   };
-
+  
   return (
     <Select value={blockType} aria-label="Formatting options for text style" size='small' sx={{
       '& .MuiSelect-select': { display: 'flex', alignItems: 'center', py: 0.5 },
