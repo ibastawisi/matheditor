@@ -59,6 +59,7 @@ import "./styles.css";
 import DragDropPaste from './plugins/DragDropPastePlugin';
 import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
 import useLocalStorage from '../hooks/useLocalStorage';
+import { IS_MOBILE } from '../shared/environment';
 
 export const editorConfig = {
   namespace: "matheditor",
@@ -92,26 +93,30 @@ export const editorConfig = {
 
 const Editor: React.FC<{ document: EditorDocument, editable: boolean, onChange?: (editorState: EditorState) => void }> =
   ({ document, editable, onChange }) => {
-  const [config] = useLocalStorage('config', { debug: false });
-  const dispatch = useDispatch<AppDispatch>();
+    const [config] = useLocalStorage('config', { debug: false });
+    const dispatch = useDispatch<AppDispatch>();
 
-  function handleChange(editorState: EditorState) {
-    const data = editorState.toJSON();
-    if (isEqual(data, document.data)) return;
-    const updatedDocument: EditorDocument = { ...document, data, updatedAt: new Date().toISOString() };
-    validate(document.id) && dispatch(actions.app.saveDocument(updatedDocument));
-    onChange && onChange(editorState);
+    function handleChange(editorState: EditorState) {
+      const data = editorState.toJSON();
+      if (isEqual(data, document.data)) return;
+      const updatedDocument: EditorDocument = { ...document, data, updatedAt: new Date().toISOString() };
+      validate(document.id) && dispatch(actions.app.saveDocument(updatedDocument));
+      onChange && onChange(editorState);
+    }
+
+    const disableContextMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      if (IS_MOBILE) e.preventDefault();
+    }
+
+    return (
+      <Box className="editor">
+        <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(validateData(document.data)), editable }}>
+          <ToolbarPlugin />
+          <EditorPlugins contentEditable={<ContentEditable className="editor-input" onContextMenu={disableContextMenu} />} onChange={handleChange} showDebugView={config.debug} />
+        </LexicalComposer>
+      </Box>
+    );
   }
-
-  return (
-    <Box className="editor">
-      <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(validateData(document.data)), editable }}>
-        <ToolbarPlugin />
-        <EditorPlugins contentEditable={<ContentEditable className="editor-input" />} onChange={handleChange} showDebugView={config.debug} />
-      </LexicalComposer>
-    </Box>
-  );
-}
 
 export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onChange: (editorState: EditorState) => void; showDebugView?: boolean; }> =
   ({ contentEditable, onChange, showDebugView }) => {
