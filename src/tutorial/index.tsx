@@ -1,6 +1,6 @@
 import ToggleButton from "@mui/material/ToggleButton";
 import Typography from "@mui/material/Typography";
-import { $isTextNode } from "lexical";
+import { $isParagraphNode, $isTextNode, ParagraphNode } from "lexical";
 import { EditorState } from "lexical/LexicalEditorState";
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
@@ -20,6 +20,11 @@ import { EditorDocument } from "../slices/app";
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import SvgIcon from '@mui/material/SvgIcon';
+import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
+import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
+import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
+import FormatIndentIncreaseIcon from '@mui/icons-material/FormatIndentIncrease';
+import IconButton from '@mui/material/IconButton';
 
 const H3Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small' sx={{ verticalAlign: "middle" }}>
   <path xmlns="http://www.w3.org/2000/svg" d="M120 776V376h60v170h180V376h60v400h-60V606H180v170h-60Zm420 0v-60h240V606H620v-60h160V436H540v-60h240q25 0 42.5 17.625T840 436v280q0 24.75-17.625 42.375T780 776H540Z" />
@@ -28,6 +33,7 @@ const H3Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small' sx={{ vert
 import Task1 from "./Task1.json";
 import Task2 from "./Task2.json";
 import Task3 from "./Task3.json";
+import Task4 from "./Task4.json";
 
 const task1Checkpoints = [
   {
@@ -49,11 +55,13 @@ const task1Checkpoints = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if ($isTextNode(node) && node.getTextContent() === "This is a bold text") {
-            if (node.hasFormat("bold" as any)) result = true;
+          if (node.__value === 1) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if ($isTextNode(target) && target.hasFormat("bold")) result = true;
           }
         });
-
       })
       return result;
     }
@@ -77,8 +85,11 @@ const task1Checkpoints = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if ($isTextNode(node) && node.getTextContent() === "This text is italicized") {
-            if (node.hasFormat("italic" as any)) result = true;
+          if (node.__value === 2) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if ($isTextNode(target) && target.hasFormat("italic")) result = true;
           }
         });
       })
@@ -104,8 +115,11 @@ const task1Checkpoints = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if ($isTextNode(node) && node.getTextContent() === "This text is underlined") {
-            if (node.hasFormat("underline" as any)) result = true;
+          if (node.__value === 3) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if ($isTextNode(target) && target.hasFormat("underline")) result = true;
           }
         });
       })
@@ -131,8 +145,11 @@ const task1Checkpoints = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if ($isTextNode(node) && node.getTextContent() === 'console.log("Hello World");') {
-            if (node.hasFormat("code" as any)) result = true;
+          if (node.__value === 4) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if ($isTextNode(target) && target.hasFormat("code")) result = true;
           }
         });
       })
@@ -158,8 +175,11 @@ const task1Checkpoints = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if ($isTextNode(node) && node.getTextContent() === "This text has a strikethrough") {
-            if (node.hasFormat("strikethrough" as any)) result = true;
+          if (node.__value === 5) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if ($isTextNode(target) && target.hasFormat("strikethrough")) result = true;
           }
         });
       })
@@ -242,8 +262,11 @@ const task1Checkpoints = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if ($isTextNode(node) && node.getTextContent() === "This text has a different font color") {
-            if (node.getStyle().includes("color")) result = true;
+          if (node.__value === 8) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if ($isTextNode(target) && target.getStyle().includes("color")) result = true;
           }
         });
       })
@@ -272,8 +295,11 @@ const task1Checkpoints = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if ($isTextNode(node) && node.getTextContent() === "This text has a different background color") {
-            if (node.getStyle().includes("background-color")) result = true;
+          if (node.__value === 9) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if ($isTextNode(target) && target.getStyle().includes("background-color")) result = true;
           }
         });
       })
@@ -305,8 +331,11 @@ const task2Checkpoints = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if ($isTextNode(node) && node.getTextContent() === "This text has a 20px font size") {
-            if (node.getStyle().includes("font-size: 20px")) result = true;
+          if (node.__value === 1) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if ($isTextNode(target) && target.getStyle().includes("font-size: 20px")) result = true;
           }
         });
       })
@@ -335,8 +364,11 @@ const task2Checkpoints = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if ($isTextNode(node) && node.getTextContent() === "x+5y=2") {
-            if (node.getStyle().includes("font-family: KaTeX_Main")) result = true;
+          if (node.__value === 2) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if ($isTextNode(target) && target.getStyle().includes("font-family: KaTeX_Main")) result = true;
           }
         });
       })
@@ -365,8 +397,11 @@ const task2Checkpoints = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if ($isTextNode(node) && node.getTextContent() === "This is a handwritten script") {
-            if (node.getStyle().includes("font-family: Virgil")) result = true;
+          if (node.__value === 3) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if ($isTextNode(target) && target.getStyle().includes("font-family: Virgil")) result = true;
           }
         });
       })
@@ -538,16 +573,114 @@ const task3Checkpoints = [
   }
 ];
 
+const task4Checkpoints = [
+  {
+    name: "Center the following text",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Select the text
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        2. Click the
+        <IconButton aria-label='Align Text'>
+          <FormatAlignLeftIcon />
+        </IconButton> menu in the toolbar
+      </Typography>
+      <Typography variant="subtitle2">
+        3. Select <FormatAlignCenterIcon sx={{ verticalAlign: "middle" }} /> Align Center from the menu
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 1) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            if (paragraphNode.__format === 2) result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+  {
+    name: "Right align the following text",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Select the text
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        2. Click the
+        <IconButton aria-label='Align Text'>
+          <FormatAlignLeftIcon />
+        </IconButton> menu in the toolbar
+      </Typography>
+      <Typography variant="subtitle2">
+        3. Select <FormatAlignRightIcon sx={{ verticalAlign: "middle" }} /> Align Right from the menu
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 2) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            if (paragraphNode.__format === 3) result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+  {
+    name: "Indent the following text by 1 level",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Select the text
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        2. Click the
+        <IconButton aria-label='Align Text'>
+          <FormatAlignLeftIcon />
+        </IconButton> menu in the toolbar
+      </Typography>
+      <Typography variant="subtitle2">
+        3. Select <FormatIndentIncreaseIcon sx={{ verticalAlign: "middle" }} /> Indent from the menu
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 3) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            if (paragraphNode.getIndent() === 1) result = true;
+          }
+        });
+      })
+      return result;
+    }
+  }
+];
+
 const tasks = [
   Task1 as unknown,
   Task2 as unknown,
   Task3 as unknown,
+  Task4 as unknown
 ] as EditorDocument[];
 
 const checkpoints = [
   task1Checkpoints,
   task2Checkpoints,
-  task3Checkpoints
+  task3Checkpoints,
+  task4Checkpoints
 ];
 
 export { tasks, checkpoints }
