@@ -42,38 +42,30 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
     setParameters(parameters);
   }, [open]);
 
-  const handleSubmit = () => {
-    const app = (window as any).ggbApplet;
-    switch (type) {
-      case GraphType["2D"]:
-        app.exportSVG((html: string) => {
-          const src = "data:image/svg+xml," + encodeURIComponent(html);
-          const value = app.getBase64() as string;
-          switch (mode) {
-            case GraphDialogMode.create:
-              editor.dispatchCommand(INSERT_GRAPH_COMMAND, { src, value, graphType: GraphType["2D"] },);
-              break;
-            case GraphDialogMode.update:
-              editor.update(() => node?.update(src, value));
-              break;
-          }
-          handleClose();
-        });
+  const insertGraph = (src: string, value: string) => {
+    switch (mode) {
+      case GraphDialogMode.create:
+        editor.dispatchCommand(INSERT_GRAPH_COMMAND, { src, value, graphType: type },);
         break;
-      case GraphType["3D"]:
-        const src = "data:image/png;base64," + app.getPNGBase64();
-        const value = app.getBase64();
-        switch (mode) {
-          case GraphDialogMode.create:
-            editor.dispatchCommand(INSERT_GRAPH_COMMAND, { src, value, graphType: GraphType["3D"] },);
-            break;
-          case GraphDialogMode.update:
-            editor.update(() => node?.update(src, value));
-            break;
-        }
-        handleClose();
+      case GraphDialogMode.update:
+        editor.update(() => node?.update(src, value));
         break;
     }
+  }
+
+  const handleSubmit = () => {
+    const app = (window as any).ggbApplet;
+    const src = "data:image/png;base64," + app.getPNGBase64(1, true, 72);
+    const value = app.getBase64();
+    insertGraph(src, value);
+    if (type === GraphType["2D"]) {
+      app.exportSVG((html: string) => {
+        const src = "data:image/svg+xml," + encodeURIComponent(html);
+        const value = app.getBase64() as string;
+        insertGraph(src, value);
+      });
+    }
+    handleClose();
   };
 
   const handleClose = () => {

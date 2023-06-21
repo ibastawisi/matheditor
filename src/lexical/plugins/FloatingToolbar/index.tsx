@@ -214,6 +214,8 @@ function useFloatingToolbar(
   if (!isText) {
     return null;
   }
+  const isEditable = useLexicalEditable();
+  if (!isEditable) return null;
 
   return createPortal(<FloatingToolbar editor={editor} anchorElem={anchorElem} />, anchorElem);
 }
@@ -224,7 +226,5 @@ export default function FloatingTextFormatToolbarPlugin({
   anchorElem?: HTMLElement;
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
-  const isEditable = useLexicalEditable();
-  if (!isEditable) return null;
   return useFloatingToolbar(editor, anchorElem);
 }
