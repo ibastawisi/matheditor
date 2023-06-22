@@ -36,6 +36,10 @@ math-field::part(virtual-keyboard-toggle) {
   --selection-color: white;
 }
 
+math-field:not(:focus) {
+  --selection-color: #nope;
+}
+
 [theme=light] #mathlive-environment-popover {
   --environment-panel-background: #fff;
   --accent-color: #cacfd7;

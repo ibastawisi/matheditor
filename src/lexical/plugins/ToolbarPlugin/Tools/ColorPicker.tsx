@@ -9,6 +9,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import ListItemText from '@mui/material/ListItemText';
+import ListSubheader from '@mui/material/ListSubheader';
 
 const textPalete = [
   "#d7170b",
@@ -45,8 +46,10 @@ const backgroundPalete = [
 ];
 
 export default function ColorPicker({ variant, onColorChange, toggle = "togglebutton" }
-  : { variant: "text" | "background", onColorChange: (key: string, value: string) => void,
-   toggle?: "togglebutton" | "menuitem" }): JSX.Element {
+  : {
+    variant: "text" | "background" | "both", onColorChange: (key: string, value: string) => void,
+    toggle?: "togglebutton" | "menuitem"
+  }): JSX.Element {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -56,6 +59,9 @@ export default function ColorPicker({ variant, onColorChange, toggle = "togglebu
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const onChange = (key: string, value: string) => {
+    onColorChange(key, value);
+  }
 
   const colorPalette = variant === "text" ? textPalete : backgroundPalete;
 
@@ -73,19 +79,44 @@ export default function ColorPicker({ variant, onColorChange, toggle = "togglebu
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         transformOrigin={{ vertical: 'top', horizontal: 'center' }}
-        sx={{ 'ul': { display: 'flex', flexWrap: 'wrap', width: 168 } }}
+        sx={{ 'ul': { pt: 0, display: 'flex', flexWrap: 'wrap', width: variant === "both" ? 280 : 168 } }}
       >
-        {colorPalette.map((color, index) => (
-          <MenuItem key={index} onClick={e => { handleClose(); onColorChange(variant, color); }}>
-            {variant === "text" ?
-              <CircleOutlinedIcon style={{ color }} /> :
-              <CircleIcon style={{ backgroundColor: color, color: 'transparent' }} />
-            }
-          </MenuItem>
-        ))}
-        <MenuItem onClick={e => { handleClose(); onColorChange(variant, 'inherit'); }}>
-          {variant === "text" ? <FormatClearIcon /> : <FormatColorResetIcon />}
-        </MenuItem>
+        {variant === "both" ?
+          [
+            <ListSubheader key="text" sx={{ width: "100%" }}>Text</ListSubheader>,
+            textPalete.map((color, index) => (
+              <MenuItem key={index} onClick={e => { onChange("text", color); }}>
+                <CircleOutlinedIcon style={{ color }} />
+              </MenuItem>
+            )),
+            <MenuItem key="clear-color" onClick={e => { onChange("text", 'inherit'); }}>
+              <FormatClearIcon />
+            </MenuItem>,
+            <ListSubheader key="background" sx={{ width: "100%" }}>Background</ListSubheader>,
+            backgroundPalete.map((color, index) => (
+              <MenuItem key={index} onClick={e => { onChange("background", color); }}>
+                <CircleIcon style={{ backgroundColor: color, color: 'transparent' }} />
+              </MenuItem>
+            )),
+            <MenuItem key="clear-background" onClick={e => { onChange("background", 'inherit'); }}>
+              <FormatColorResetIcon />
+            </MenuItem>
+          ]
+          :
+          [
+            colorPalette.map((color, index) => (
+              <MenuItem key={index} onClick={e => { onChange(variant, color); }}>
+                {variant === "text" ?
+                  <CircleOutlinedIcon style={{ color }} /> :
+                  <CircleIcon style={{ backgroundColor: color, color: 'transparent' }} />
+                }
+              </MenuItem>
+            )),
+            <MenuItem key="clear" onClick={e => { onColorChange(variant, 'inherit'); }}>
+              {variant === "text" ? <FormatClearIcon /> : <FormatColorResetIcon />}
+            </MenuItem>
+          ]
+        }
       </Menu>
     </>
   );
