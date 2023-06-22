@@ -56,6 +56,7 @@ import MenuItem from '@mui/material/MenuItem';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
+import { $patchStyle } from '../../nodes/utils';
 
 function computeSelectionCount(selection: GridSelection): {
   columns: number;
@@ -410,7 +411,7 @@ function TableActionMenu({
     });
   }, [editor, tableCellNode, clearTableSelection, onClose]);
 
-  const handleCellBackgroundColor = useCallback(
+  const handleCellColor = useCallback(
     (key: string, value: string) => {
       editor.update(() => {
         const selection = $getSelection();
@@ -420,7 +421,11 @@ function TableActionMenu({
         ) {
           const [cell] = DEPRECATED_$getNodeTriplet(selection.anchor);
           if ($isTableCellNode(cell)) {
-            cell.setBackgroundColor(value);
+            if (key === 'text') {
+              $patchStyle(cell.getChildren(), { color: value });
+            } else {
+              cell.setBackgroundColor(value);
+            }
           }
         }
       });
@@ -466,8 +471,7 @@ function TableActionMenu({
     >
       {mergeCellButton}
       <ColorPicker
-        variant='background'
-        onColorChange={handleCellBackgroundColor}
+        onColorChange={handleCellColor}
         toggle="menuitem"
       />
       <Divider />

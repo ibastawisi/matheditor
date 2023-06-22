@@ -5,7 +5,6 @@ import { $getNodeByKey, DecoratorNode, } from 'lexical';
 import { createRef, useCallback, useEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
-import { CSS_TO_STYLES, getCSSFromStyleObject, getStyleObjectFromCSS, } from '../utils';
 import { MathfieldElement, MathfieldElementAttributes } from "mathlive";
 import { DOMAttributes } from "react";
 import './index.css';
@@ -276,34 +275,4 @@ export function $createMathNode(value = '', style = ''): MathNode {
 
 export function $isMathNode(node: LexicalNode | null | undefined): node is MathNode {
   return node instanceof MathNode;
-}
-
-export function $patchStyleMath(
-  nodes: MathNode[],
-  patch: Record<string, string | null>,
-): void {
-  for (let node of nodes) {
-    $patchNodeStyle(node, patch);
-  }
-}
-
-function $patchNodeStyle(
-  node: MathNode,
-  patch: Record<string, string | null>,
-): void {
-  const prevStyles = getStyleObjectFromCSS(node.getStyle());
-  const newStyles = Object.entries(patch).reduce<Record<string, string>>(
-    (styles, [key, value]) => {
-      if (value === null) {
-        delete styles[key];
-      } else {
-        styles[key] = value;
-      }
-      return styles;
-    },
-    { ...prevStyles } || {},
-  );
-  const newCSSText = getCSSFromStyleObject(newStyles);
-  node.setStyle(newCSSText);
-  CSS_TO_STYLES.set(newCSSText, newStyles);
 }

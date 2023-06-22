@@ -135,6 +135,9 @@ function FloatingToolbar({ editor, anchorElem }: { editor: LexicalEditor; anchor
     );
   }, [editor, updateFloatingToolbar]);
 
+  const isEditable = useLexicalEditable();
+  if (!isEditable) return null;
+
   return (
     <Paper ref={popupCharStylesEditorRef} sx={{ position: "absolute", top: 0, left: 0, willChange: "transform", displayPrint: "none" }}>
       <TextFormatToggles editor={editor} />
@@ -214,8 +217,6 @@ function useFloatingToolbar(
   if (!isText) {
     return null;
   }
-  const isEditable = useLexicalEditable();
-  if (!isEditable) return null;
 
   return createPortal(<FloatingToolbar editor={editor} anchorElem={anchorElem} />, anchorElem);
 }

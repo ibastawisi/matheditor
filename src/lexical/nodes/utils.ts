@@ -1,4 +1,5 @@
-import { LexicalNode } from "lexical";
+import { $isElementNode, $isTextNode, LexicalNode, TextNode } from "lexical";
+import { $isMathNode, MathNode } from "./MathNode";
 
 export const CSS_TO_STYLES: Map<string, Record<string, string>> = new Map();
 
@@ -50,4 +51,52 @@ export function $getNodeStyleValueForProperty(
   }
 
   return defaultValue;
+}
+
+export function $addNodeStyle(node: TextNode | MathNode): void {
+  const CSSText = node.getStyle();
+  const styles = getStyleObjectFromRawCSS(CSSText);
+  CSS_TO_STYLES.set(CSSText, styles);
+}
+
+export function $patchNodeStyle(
+  target: TextNode | MathNode,
+  patch: Record<string, string | null>,
+): void {
+  if (!('getStyle' in target)) return;
+  const prevStyles = getStyleObjectFromCSS(target.getStyle());
+  const newStyles = Object.entries(patch).reduce<Record<string, string>>(
+    (styles, [key, value]) => {
+      if (value === null) {
+        delete styles[key];
+      } else {
+        styles[key] = value;
+      }
+      return styles;
+    },
+    { ...prevStyles } || {},
+  );
+  const newCSSText = getCSSFromStyleObject(newStyles);
+  target.setStyle(newCSSText);
+  CSS_TO_STYLES.set(newCSSText, newStyles);
+}
+
+
+const getStylableNodes = (nodes: LexicalNode[]): Array<TextNode | MathNode> => {
+  const stylableNodes: Array<TextNode | MathNode> = [];
+  for (let node of nodes) {
+    if ($isTextNode(node) || $isMathNode(node)) {
+      stylableNodes.push(node);
+    } else if ($isElementNode(node)) {
+      stylableNodes.push(...getStylableNodes(node.getChildren()));
+    }
+  }
+  return stylableNodes;
+}
+
+export function $patchStyle(
+  nodes: LexicalNode[],
+  patch: Record<string, string | null>,
+): void {
+  getStylableNodes(nodes).forEach((node) => $patchNodeStyle(node, patch));
 }

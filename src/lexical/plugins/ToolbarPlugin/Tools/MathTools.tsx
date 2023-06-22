@@ -4,11 +4,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { LexicalEditor, } from "lexical";
 import { SxProps, Theme } from '@mui/material/styles';
 import SvgIcon from '@mui/material/SvgIcon';
-import { $patchStyleMath, MathNode } from "../../../nodes/MathNode";
+import { MathNode } from "../../../nodes/MathNode";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { $getNodeStyleValueForProperty } from "../../../nodes/utils";
+import { $getNodeStyleValueForProperty, $patchStyle } from "../../../nodes/utils";
 import ColorPicker from "./ColorPicker";
 import EditIcon from '@mui/icons-material/Edit';
 import Dialog from "@mui/material/Dialog";
@@ -51,7 +51,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
   const applyStyleMath = useCallback(
     (styles: Record<string, string>) => {
       editor.update(() => {
-        $patchStyleMath([node], styles);
+        $patchStyle([node], styles);
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -146,7 +146,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
         </form>
       </Dialog>
 
-      <ColorPicker variant="both" onColorChange={onColorChange} />
+      <ColorPicker onColorChange={onColorChange} />
       <ToggleButton value="delete"
         onClick={() => {
           editor.update(() => {

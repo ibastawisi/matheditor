@@ -16,7 +16,8 @@ import { IS_APPLE } from '../../../../shared/environment';
 import { useCallback, useEffect, useState } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import ColorPicker from './ColorPicker';
-import { $isMathNode, $patchStyleMath, MathNode } from '../../../nodes/MathNode';
+import { $isMathNode, MathNode } from '../../../nodes/MathNode';
+import { $patchStyle } from '../../../nodes/utils';
 
 export default function TextFormatToggles({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> | undefined }): JSX.Element {
   const [isBold, setIsBold] = useState(false);
@@ -72,7 +73,7 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
         if ($isRangeSelection(selection)) {
           $patchStyleText(selection, styles);
           const mathNodes = selection.getNodes().filter(node => $isMathNode(node)) as MathNode[];
-          $patchStyleMath(mathNodes, styles);
+          $patchStyle(mathNodes, styles);
         }
       });
     },
@@ -124,7 +125,6 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
     <ToggleButton value="superscript" title='Format text with superscript' aria-label='Format text with superscript'>
       <SuperscriptIcon />
     </ToggleButton>
-    <ColorPicker variant="text" onColorChange={onColorChange} />
-    <ColorPicker variant="background" onColorChange={onColorChange} />
+    <ColorPicker onColorChange={onColorChange} />
   </ToggleButtonGroup>)
 }
