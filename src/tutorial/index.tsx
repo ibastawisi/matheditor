@@ -9,7 +9,6 @@ import CodeIcon from '@mui/icons-material/Code';
 import FormatStrikethroughIcon from '@mui/icons-material/FormatStrikethrough';
 import SubscriptIcon from '@mui/icons-material/Subscript';
 import SuperscriptIcon from '@mui/icons-material/Superscript';
-import FormatColorTextIcon from '@mui/icons-material/FormatColorText';
 import FormatColorFillIcon from '@mui/icons-material/FormatColorFill';
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
@@ -262,12 +261,12 @@ const task1Checkpoints = [
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
         <ToggleButton value="text" size="small" sx={{ m: 1 }}>
-          <FormatColorTextIcon />
+          <FormatColorFillIcon />
         </ToggleButton>
         button in the toolbar
       </Typography>
       <Typography variant="subtitle2">
-        3. Select a color
+        3. Select a text color
       </Typography>
     </>,
     check: (editorState?: EditorState) => {
@@ -300,7 +299,7 @@ const task1Checkpoints = [
         button in the toolbar
       </Typography>
       <Typography variant="subtitle2">
-        3. Select a color
+        3. Select a background color
       </Typography>
     </>,
     check: (editorState?: EditorState) => {
@@ -428,7 +427,7 @@ const task3Checkpoints = [
     name: "Make the following text a level 3 Heading",
     steps: <>
       <Typography variant="subtitle2" gutterBottom>
-        1. Select the text
+        1. Click the text
       </Typography>
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
@@ -508,7 +507,7 @@ const task3Checkpoints = [
     name: "Format the following text as a Quote",
     steps: <>
       <Typography variant="subtitle2" gutterBottom>
-        1. Select all items
+        1. Click the text
       </Typography>
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
@@ -591,7 +590,7 @@ const task4Checkpoints = [
     name: "Center the following text",
     steps: <>
       <Typography variant="subtitle2" gutterBottom>
-        1. Select the text
+        1. Click the text
       </Typography>
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
@@ -622,7 +621,7 @@ const task4Checkpoints = [
     name: "Right align the following text",
     steps: <>
       <Typography variant="subtitle2" gutterBottom>
-        1. Select the text
+        1. Click the text
       </Typography>
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
@@ -653,7 +652,7 @@ const task4Checkpoints = [
     name: "Indent the following text by 1 level",
     steps: <>
       <Typography variant="subtitle2" gutterBottom>
-        1. Select the text
+        1. Click the text
       </Typography>
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
@@ -687,7 +686,7 @@ const task5Checkpoints = [
     name: "Insert a Divider after this line",
     steps: <>
       <Typography variant="subtitle2" gutterBottom>
-        1. click the empty line below
+        1. Click the empty line below
       </Typography>
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
@@ -717,7 +716,7 @@ const task5Checkpoints = [
     name: "Insert a Math field after this line",
     steps: <>
       <Typography variant="subtitle2" gutterBottom>
-        1. click the empty line below
+        1. Click the empty line below
       </Typography>
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
@@ -749,7 +748,7 @@ const task5Checkpoints = [
     name: "Insert a 2D Graph after this line",
     steps: <>
       <Typography variant="subtitle2" gutterBottom>
-        1. click the empty line below
+        1. Click the empty line below
       </Typography>
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
@@ -781,7 +780,7 @@ const task5Checkpoints = [
     name: "Insert a 3D Graph after this line",
     steps: <>
       <Typography variant="subtitle2" gutterBottom>
-        1. click the empty line below
+        1. Click the empty line below
       </Typography>
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
@@ -813,7 +812,7 @@ const task5Checkpoints = [
     name: "Insert a Sketch after this line",
     steps: <>
       <Typography variant="subtitle2" gutterBottom>
-        1. click the empty line below
+        1. Click the empty line below
       </Typography>
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
@@ -845,7 +844,7 @@ const task5Checkpoints = [
     name: "Insert an Image after this line",
     steps: <>
       <Typography variant="subtitle2" gutterBottom>
-        1. click the empty line below
+        1. Click the empty line below
       </Typography>
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
@@ -877,7 +876,7 @@ const task5Checkpoints = [
     name: "Insert a Table after this line",
     steps: <>
       <Typography variant="subtitle2" gutterBottom>
-        1. click the empty line below
+        1. Click the empty line below
       </Typography>
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
