@@ -6,8 +6,8 @@
  *
  */
 
-import type {TableNode} from './LexicalTableNode';
-import type {Cell, Cells, Grid} from './LexicalTableSelection';
+import type { TableNode } from './LexicalTableNode';
+import type { Cell, Cells, Grid } from './LexicalTableSelection';
 import type {
   GridSelection,
   LexicalCommand,
@@ -18,8 +18,8 @@ import type {
   TextFormatType,
 } from 'lexical';
 
-import {TableCellNode} from './LexicalTableCellNode';
-import {$findMatchingParent} from '@lexical/utils';
+import { TableCellNode } from './LexicalTableCellNode';
+import { $findMatchingParent } from '@lexical/utils';
 import {
   $createParagraphNode,
   $createRangeSelection,
@@ -52,8 +52,9 @@ import {
 } from 'lexical';
 import invariant from '../../../shared/invariant';
 
-import {$isTableCellNode} from './LexicalTableCellNode';
-import {TableSelection} from './LexicalTableSelection';
+import { $isTableCellNode } from './LexicalTableCellNode';
+import { TableSelection } from './LexicalTableSelection';
+import { getStyleObjectFromCSS } from '../utils';
 
 const LEXICAL_ELEMENT_KEY = '__lexicalTableSelection';
 
@@ -543,7 +544,7 @@ export function applyTableHandlers(
 
             if (
               selection.anchor.offset ===
-                selection.anchor.getNode().getTextContentSize() ||
+              selection.anchor.getNode().getTextContentSize() ||
               event.shiftKey
             ) {
               event.preventDefault();
@@ -910,7 +911,7 @@ export function applyTableHandlers(
 
             return true;
           } else if (selectionIsInsideTable) {
-            const {grid} = tableSelection;
+            const { grid } = tableSelection;
 
             if (
               selection.getNodes().filter($isTableCellNode).length ===
@@ -1146,7 +1147,7 @@ export function $forEachGridCell(
     },
   ) => void,
 ) {
-  const {cells} = grid;
+  const { cells } = grid;
 
   for (let y = 0; y < cells.length; y++) {
     const row = cells[y];
@@ -1338,8 +1339,9 @@ function $addHighlightToDOM(editor: LexicalEditor, cell: Cell): void {
     $isTableCellNode(node),
     'Expected to find LexicalNode from Table Cell DOMNode',
   );
-  const backgroundColor = node.getBackgroundColor();
-  if (backgroundColor === null) {
+  const cssText = node.getStyle() || '';
+  const backgroundColor = getStyleObjectFromCSS(cssText)["background-color"];
+  if (!backgroundColor) {
     element.style.setProperty('background-color', `rgb(${BROWSER_BLUE_RGB})`);
   } else {
     element.style.setProperty(
@@ -1357,8 +1359,9 @@ function $removeHighlightFromDOM(editor: LexicalEditor, cell: Cell): void {
     $isTableCellNode(node),
     'Expected to find LexicalNode from Table Cell DOMNode',
   );
-  const backgroundColor = node.getBackgroundColor();
-  if (backgroundColor === null) {
+  const cssText = node.getStyle() || '';
+  const backgroundColor = getStyleObjectFromCSS(cssText)["background-color"];
+  if (!backgroundColor) {
     element.style.removeProperty('background-color');
   }
   element.style.removeProperty('background-image');

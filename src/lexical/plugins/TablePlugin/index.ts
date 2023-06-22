@@ -205,17 +205,5 @@ export function TablePlugin({
     });
   }, [editor, hasCellMerge]);
 
-  // Remove cell background color when feature is disabled
-  useEffect(() => {
-    if (hasCellBackgroundColor) {
-      return;
-    }
-    return editor.registerNodeTransform(TableCellNode, (node) => {
-      if (node.getBackgroundColor() !== null) {
-        node.setBackgroundColor(null);
-      }
-    });
-  }, [editor, hasCellBackgroundColor, hasCellMerge]);
-
   return null;
 }
