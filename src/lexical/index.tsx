@@ -7,7 +7,7 @@ import { useSharedHistoryContext } from "./context/SharedHistoryContext";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
-import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
+import { TablePlugin } from './plugins/TablePlugin';
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
@@ -34,7 +34,7 @@ import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 import TabFocusPlugin from './plugins/TabFocusPlugin';
 
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
-import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
+import { TableCellNode, TableNode, TableRowNode } from "./nodes/TableNode";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";

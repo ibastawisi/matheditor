@@ -154,6 +154,8 @@
   border: 1px solid rgba(0, 0, 0, 0.3);
   padding: 6px 8px;
   min-width: 75px;
+  height: inherit;
+  overflow: hidden;
 }
 
 [theme=dark] .LexicalTheme__tableCell {

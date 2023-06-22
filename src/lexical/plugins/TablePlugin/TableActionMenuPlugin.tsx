@@ -25,12 +25,13 @@ import {
   $insertTableRow__EXPERIMENTAL,
   $isTableCellNode,
   $isTableRowNode,
+  $patchCellStyle,
   $unmergeCell,
   getTableSelectionFromTableElement,
   HTMLTableElementWithWithTableSelectionState,
   TableCellHeaderStates,
   TableCellNode,
-} from '@lexical/table';
+} from '../../nodes/TableNode';
 import {
   $createParagraphNode,
   $getRoot,
@@ -56,7 +57,7 @@ import MenuItem from '@mui/material/MenuItem';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import { $patchStyle } from '../../nodes/utils';
+import { $patchStyle, getStyleObjectFromCSS } from '../../nodes/utils';
 
 function computeSelectionCount(selection: GridSelection): {
   columns: number;
@@ -147,7 +148,9 @@ function $selectLastDescendant(node: ElementNode): void {
   }
 }
 
-function currentCellBackgroundColor(editor: LexicalEditor): null | string {
+function currentCellStyle(
+  editor: LexicalEditor,
+): Record<string, string> | null {
   return editor.getEditorState().read(() => {
     const selection = $getSelection();
     if (
@@ -156,12 +159,16 @@ function currentCellBackgroundColor(editor: LexicalEditor): null | string {
     ) {
       const [cell] = DEPRECATED_$getNodeTriplet(selection.anchor);
       if ($isTableCellNode(cell)) {
-        return cell.getBackgroundColor();
+        const css = cell.getStyle();
+        if (!css) return null;
+        const style = getStyleObjectFromCSS(css);
+        return style;
       }
     }
     return null;
   });
 }
+
 
 type TableCellActionMenuProps = Readonly<{
   anchorElRef: { current: null | HTMLElement };
@@ -187,9 +194,7 @@ function TableActionMenu({
   });
   const [canMergeCells, setCanMergeCells] = useState(false);
   const [canUnmergeCell, setCanUnmergeCell] = useState(false);
-  const [backgroundColor, setBackgroundColor] = useState(
-    () => currentCellBackgroundColor(editor) || '',
-  );
+  const [style, setStyle] = useState(() => currentCellStyle(editor));
 
   useEffect(() => {
     return editor.registerMutationListener(TableCellNode, (nodeMutations) => {
@@ -200,7 +205,7 @@ function TableActionMenu({
         editor.getEditorState().read(() => {
           updateTableCellNode(tableCellNode.getLatest());
         });
-        setBackgroundColor(currentCellBackgroundColor(editor) || '');
+        setStyle(currentCellStyle(editor));
       }
     });
   }, [editor, tableCellNode]);
@@ -413,6 +418,14 @@ function TableActionMenu({
 
   const handleCellColor = useCallback(
     (key: string, value: string) => {
+      const styleKey = key === 'text' ? 'color' : 'background-color';
+      applyCellStyle({ [styleKey]: value });
+    },
+    [editor],
+  );
+
+  const applyCellStyle = useCallback(
+    (styles: Record<string, string>) => {
       editor.update(() => {
         const selection = $getSelection();
         if (
@@ -421,17 +434,14 @@ function TableActionMenu({
         ) {
           const [cell] = DEPRECATED_$getNodeTriplet(selection.anchor);
           if ($isTableCellNode(cell)) {
-            if (key === 'text') {
-              $patchStyle(cell.getChildren(), { color: value });
-            } else {
-              cell.setBackgroundColor(value);
-            }
+            $patchCellStyle([cell], styles);
           }
         }
       });
     },
     [editor],
   );
+
 
   let mergeCellButton: null | JSX.Element = null;
   if (cellMerge) {
@@ -454,6 +464,26 @@ function TableActionMenu({
     }
   }
 
+  let writingModeButton: null | JSX.Element = null;
+  if (style?.['writing-mode'] === 'vertical-rl') {
+    writingModeButton = (
+      <MenuItem onClick={() => applyCellStyle({ 'writing-mode': 'horizontal-tb' })}>
+        <ListItemText>
+          Make horizontal
+        </ListItemText>
+      </MenuItem>
+    );
+  } else {
+    writingModeButton = (
+      <MenuItem onClick={() => applyCellStyle({ 'writing-mode': 'vertical-rl' })}>
+        <ListItemText>
+          Make vertical
+        </ListItemText>
+      </MenuItem>
+    );
+  }
+
+
   return (
     <Menu
       anchorEl={anchorElRef.current}
@@ -470,6 +500,7 @@ function TableActionMenu({
       sx={{ displayPrint: 'none' }}
     >
       {mergeCellButton}
+      {writingModeButton}
       <ColorPicker
         onColorChange={handleCellColor}
         toggle="menuitem"

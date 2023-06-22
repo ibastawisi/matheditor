@@ -1,5 +1,5 @@
 import { LexicalEditor } from 'lexical';
-import { INSERT_TABLE_COMMAND } from '@lexical/table';
+import { INSERT_TABLE_COMMAND } from '../../../nodes/TableNode';
 import Box from '@mui/material/Box';
 import React, { useState } from 'react';
 import useTheme from '@mui/material/styles/useTheme';
