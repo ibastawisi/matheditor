@@ -508,34 +508,22 @@ function TableActionMenu({
       <Divider />
       <MenuItem onClick={() => insertTableRowAtSelection(false)}>
         <ListItemText>
-          Insert{' '}
-          {selectionCounts.rows === 1 ? 'row' : `${selectionCounts.rows} rows`}{' '}
-          above
+          Insert row above
         </ListItemText>
       </MenuItem>
       <MenuItem onClick={() => insertTableRowAtSelection(true)}>
         <ListItemText>
-          Insert{' '}
-          {selectionCounts.rows === 1 ? 'row' : `${selectionCounts.rows} rows`}{' '}
-          below
+          Insert row below
         </ListItemText>
       </MenuItem>
       <MenuItem onClick={() => insertTableColumnAtSelection(false)}>
         <ListItemText>
-          Insert{' '}
-          {selectionCounts.columns === 1
-            ? 'column'
-            : `${selectionCounts.columns} columns`}{' '}
-          left
+          Insert column left
         </ListItemText>
       </MenuItem>
       <MenuItem onClick={() => insertTableColumnAtSelection(true)}>
         <ListItemText>
-          Insert{' '}
-          {selectionCounts.columns === 1
-            ? 'column'
-            : `${selectionCounts.columns} columns`}{' '}
-          right
+          Insert column right
         </ListItemText>
       </MenuItem>
       <Divider />

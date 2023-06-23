@@ -27,11 +27,11 @@ import {
   DEPRECATED_$isGridSelection,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
-import {CAN_USE_DOM} from '../../../shared/canUseDOM';
+import { CAN_USE_DOM } from '../../../shared/canUseDOM';
 import invariant from '../../../shared/invariant';
 
-import {$isTableCellNode} from './LexicalTableCellNode';
-import {$isTableNode} from './LexicalTableNode';
+import { $isTableCellNode } from './LexicalTableCellNode';
+import { $isTableNode } from './LexicalTableNode';
 import {
   $updateDOMForSelection,
   getTableGrid,

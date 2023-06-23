@@ -18,7 +18,7 @@ import type {
   Spread,
 } from 'lexical';
 
-import {addClassNamesToElement} from '@lexical/utils';
+import { addClassNamesToElement } from '@lexical/utils';
 import {
   $applyNodeReplacement,
   $createParagraphNode,
@@ -134,7 +134,7 @@ export class TableCellNode extends DEPRECATED_GridCellNode {
   }
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
-    const {element} = super.exportDOM(editor);
+    const { element } = super.exportDOM(editor);
 
     if (element) {
       const element_ = element as HTMLTableCellElement;
@@ -147,9 +147,7 @@ export class TableCellNode extends DEPRECATED_GridCellNode {
       if (this.__rowSpan > 1) {
         element_.rowSpan = this.__rowSpan;
       }
-      element_.style.width = `${
-        this.getWidth() || Math.max(90, maxWidth / colCount)
-      }px`;
+      element_.style.width = `${this.getWidth() || Math.max(90, maxWidth / colCount)}px`;
 
       element_.style.verticalAlign = 'top';
       element_.style.textAlign = 'start';

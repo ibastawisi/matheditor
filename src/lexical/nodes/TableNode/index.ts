@@ -7,33 +7,33 @@
  *
  */
 
-import type {LexicalCommand} from 'lexical';
+import type { LexicalCommand } from 'lexical';
 
-import {createCommand} from 'lexical';
+import { createCommand } from 'lexical';
 
-export type {SerializedTableCellNode} from './LexicalTableCellNode';
+export type { SerializedTableCellNode } from './LexicalTableCellNode';
 export {
   $createTableCellNode,
   $isTableCellNode,
   TableCellHeaderStates,
   TableCellNode,
 } from './LexicalTableCellNode';
-export type {SerializedTableNode} from './LexicalTableNode';
+export type { SerializedTableNode } from './LexicalTableNode';
 export {
   $createTableNode,
   $getElementGridForTableNode,
   $isTableNode,
   TableNode,
 } from './LexicalTableNode';
-export type {SerializedTableRowNode} from './LexicalTableRowNode';
+export type { SerializedTableRowNode } from './LexicalTableRowNode';
 export {
   $createTableRowNode,
   $isTableRowNode,
   TableRowNode,
 } from './LexicalTableRowNode';
-export type {Cell} from './LexicalTableSelection';
-export {TableSelection} from './LexicalTableSelection';
-export type {HTMLTableElementWithWithTableSelectionState} from './LexicalTableSelectionHelpers';
+export type { Cell } from './LexicalTableSelection';
+export { TableSelection } from './LexicalTableSelection';
+export type { HTMLTableElementWithWithTableSelectionState } from './LexicalTableSelectionHelpers';
 export {
   applyTableHandlers,
   getCellFromTarget,
@@ -60,9 +60,9 @@ export {
 
 export type InsertTableCommandPayloadHeaders =
   | Readonly<{
-      rows: boolean;
-      columns: boolean;
-    }>
+    rows: boolean;
+    columns: boolean;
+  }>
   | boolean;
 
 export type InsertTableCommandPayload = Readonly<{

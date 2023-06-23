@@ -294,17 +294,17 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
       const styles = {
         bottom: {
           backgroundColor: 'none',
-          cursor: 'row-resize',
+          cursor: 'n-resize',
           height: '10px',
           left: `${window.pageXOffset + left}px`,
-          top: `${window.pageYOffset + top + height}px`,
+          top: `${window.pageYOffset + top + height - 5}px`,
           width: `${width}px`,
         },
         right: {
           backgroundColor: 'none',
-          cursor: 'col-resize',
+          cursor: 'e-resize',
           height: `${height}px`,
-          left: `${window.pageXOffset + left + width}px`,
+          left: `${window.pageXOffset + left + width - 5}px`,
           top: `${window.pageYOffset + top}px`,
           width: '10px',
         },
@@ -318,18 +318,18 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
             }px`;
           styles[draggingDirection].top = `${window.pageYOffset + mouseCurrentPos.y
             }px`;
-          styles[draggingDirection].height = '3px';
+          styles[draggingDirection].height = '1px';
           styles[draggingDirection].width = `${tableRect.width}px`;
         } else {
           styles[draggingDirection].top = `${window.pageYOffset + tableRect.top
             }px`;
           styles[draggingDirection].left = `${window.pageXOffset + mouseCurrentPos.x
             }px`;
-          styles[draggingDirection].width = '3px';
+          styles[draggingDirection].width = '1px';
           styles[draggingDirection].height = `${tableRect.height}px`;
         }
 
-        styles[draggingDirection].backgroundColor = '#adf';
+        styles[draggingDirection].backgroundColor = 'rgb(60, 132, 244)';
       }
 
       return styles;

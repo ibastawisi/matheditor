@@ -6,8 +6,8 @@
  *
  */
 
-import type {TableCellNode} from './LexicalTableCellNode';
-import type {Cell, Grid} from './LexicalTableSelection';
+import type { TableCellNode } from './LexicalTableCellNode';
+import type { Cell, Grid } from './LexicalTableSelection';
 import type {
   DOMConversionMap,
   DOMConversionOutput,
@@ -19,16 +19,16 @@ import type {
   SerializedElementNode,
 } from 'lexical';
 
-import {addClassNamesToElement} from '@lexical/utils';
+import { addClassNamesToElement } from '@lexical/utils';
 import {
   $applyNodeReplacement,
   $getNearestNodeFromDOMNode,
   DEPRECATED_GridNode,
 } from 'lexical';
 
-import {$isTableCellNode} from './LexicalTableCellNode';
-import {$isTableRowNode, TableRowNode} from './LexicalTableRowNode';
-import {getTableGrid} from './LexicalTableSelectionHelpers';
+import { $isTableCellNode } from './LexicalTableCellNode';
+import { $isTableRowNode, TableRowNode } from './LexicalTableRowNode';
+import { getTableGrid } from './LexicalTableSelectionHelpers';
 
 export type SerializedTableNode = SerializedElementNode;
 
@@ -128,8 +128,8 @@ export class TableNode extends DEPRECATED_GridNode {
   getCordsFromCellNode(
     tableCellNode: TableCellNode,
     grid: Grid,
-  ): {x: number; y: number} {
-    const {rows, cells} = grid;
+  ): { x: number; y: number } {
+    const { rows, cells } = grid;
 
     for (let y = 0; y < rows; y++) {
       const row = cells[y];
@@ -138,13 +138,13 @@ export class TableNode extends DEPRECATED_GridNode {
         throw new Error(`Row not found at y:${y}`);
       }
 
-      const x = row.findIndex(({elem}) => {
+      const x = row.findIndex(({ elem }) => {
         const cellNode = $getNearestNodeFromDOMNode(elem);
         return cellNode === tableCellNode;
       });
 
       if (x !== -1) {
-        return {x, y};
+        return { x, y };
       }
     }
 
@@ -152,7 +152,7 @@ export class TableNode extends DEPRECATED_GridNode {
   }
 
   getCellFromCords(x: number, y: number, grid: Grid): Cell | null {
-    const {cells} = grid;
+    const { cells } = grid;
 
     const row = cells[y];
 
@@ -228,7 +228,7 @@ export function $getElementGridForTableNode(
 }
 
 export function convertTableElement(_domNode: Node): DOMConversionOutput {
-  return {node: $createTableNode()};
+  return { node: $createTableNode() };
 }
 
 export function $createTableNode(): TableNode {
