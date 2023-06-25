@@ -1,4 +1,4 @@
-import { LexicalEditor } from 'lexical';
+import { LexicalEditor, UNDO_COMMAND } from 'lexical';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -62,6 +62,7 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
       app.exportSVG((html: string) => {
         const src = "data:image/svg+xml," + encodeURIComponent(html);
         const value = app.getBase64() as string;
+        editor.dispatchCommand(UNDO_COMMAND, undefined);
         insertGraph(src, value);
       });
     }
