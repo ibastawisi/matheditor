@@ -1,16 +1,46 @@
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
 
-import type { EditorState, ElementNode, GridSelection, LexicalEditor, LexicalNode, NodeSelection, RangeSelection,} from 'lexical';
+import type {
+  EditorState,
+  ElementNode,
+  GridSelection,
+  LexicalEditor,
+  LexicalNode,
+  NodeSelection,
+  RangeSelection,
+} from 'lexical';
 
+import { $generateHtmlFromNodes } from '@lexical/html';
 import { $isLinkNode, LinkNode } from '@lexical/link';
 import { $isMarkNode } from '@lexical/mark';
-import { $getRoot, $getSelection, $isElementNode, $isRangeSelection, $isTextNode, DEPRECATED_$isGridSelection, } from 'lexical';
-import { useEffect, useRef, useState } from 'react';
+import { mergeRegister } from '@lexical/utils';
+import {
+  $getRoot,
+  $getSelection,
+  $isElementNode,
+  $isRangeSelection,
+  $isTextNode,
+  COMMAND_PRIORITY_HIGH,
+  DEPRECATED_$isGridSelection,
+  LexicalCommand,
+} from 'lexical';
+import * as React from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import Button from "@mui/material/Button";
 import Slider from "@mui/material/Slider";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import { $isMathNode } from "../../nodes/MathNode";
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 
 const NON_SINGLE_WIDTH_CHARS_REPLACEMENT: Readonly<Record<string, string>> =
   Object.freeze({
@@ -30,23 +60,44 @@ const SYMBOLS: Record<string, string> = Object.freeze({
   selectedLine: '>',
 });
 
-export function TreeView({ editor }: { editor: LexicalEditor; }): JSX.Element {
-  const [timeStampedEditorStates, setTimeStampedEditorStates] = useState<Array<[number, EditorState]>>([]);
+export function TreeView({
+  treeTypeButtonClassName,
+  timeTravelButtonClassName,
+  timeTravelPanelSliderClassName,
+  timeTravelPanelButtonClassName,
+  viewClassName,
+  timeTravelPanelClassName,
+  editor,
+}: {
+  editor: LexicalEditor;
+  treeTypeButtonClassName: string;
+  timeTravelButtonClassName: string;
+  timeTravelPanelButtonClassName: string;
+  timeTravelPanelClassName: string;
+  timeTravelPanelSliderClassName: string;
+  viewClassName: string;
+}): JSX.Element {
+  const [timeStampedEditorStates, setTimeStampedEditorStates] = useState<
+    Array<[number, EditorState]>
+  >([]);
   const [content, setContent] = useState<string>('');
   const [timeTravelEnabled, setTimeTravelEnabled] = useState(false);
+  const [showExportDOM, setShowExportDOM] = useState(false);
   const playingIndexRef = useRef(0);
   const treeElementRef = useRef<HTMLPreElement | null>(null);
   const [sliderValue, setSliderValue] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLimited, setIsLimited] = useState(false);
+  const [showLimited, setShowLimited] = useState(false);
+  const lastEditorStateRef = useRef<null | EditorState>(null);
 
-  useEffect(() => {
-    setContent(generateContent(editor.getEditorState()));
-    return editor.registerUpdateListener(({ editorState }) => {
-      const compositionKey = editor._compositionKey;
-      const treeText = generateContent(editor.getEditorState());
-      const compositionText =
-        compositionKey !== null && `Composition key: ${compositionKey}`;
-      setContent([treeText, compositionText].filter(Boolean).join('\n\n'));
+  const commandsLog = useLexicalCommandsLog(editor);
+
+  const generateTree = useCallback(
+    (editorState: EditorState) => {
+      const treeText = generateContent(editor, commandsLog, showExportDOM);
+
+      setContent(treeText);
 
       if (!timeTravelEnabled) {
         setTimeStampedEditorStates((currentEditorStates) => [
@@ -54,8 +105,41 @@ export function TreeView({ editor }: { editor: LexicalEditor; }): JSX.Element {
           [Date.now(), editorState],
         ]);
       }
-    });
-  }, [timeTravelEnabled, editor]);
+    },
+    [commandsLog, editor, timeTravelEnabled, showExportDOM],
+  );
+
+  useEffect(() => {
+    if (isLimited && !showLimited) return;
+    setContent(generateContent(editor, commandsLog, showExportDOM));
+  }, [commandsLog, editor, showLimited, showExportDOM]);
+
+  useEffect(() => {
+    return mergeRegister(
+      editor.registerUpdateListener(({ editorState }) => {
+        if (!showLimited && editorState._nodeMap.size > 1000) {
+          lastEditorStateRef.current = editorState;
+          setIsLimited(true);
+          if (!showLimited) {
+            return;
+          }
+        }
+        generateTree(editorState);
+      }),
+      editor.registerEditableListener(() => {
+        const treeText = generateContent(editor, commandsLog, showExportDOM);
+        setContent(treeText);
+      }),
+    );
+  }, [
+    commandsLog,
+    editor,
+    showExportDOM,
+    isLimited,
+    generateTree,
+    showLimited,
+  ]);
+
   const totalEditorStates = timeStampedEditorStates.length;
 
   useEffect(() => {
@@ -113,11 +197,40 @@ export function TreeView({ editor }: { editor: LexicalEditor; }): JSX.Element {
   }, [editor]);
 
   return (
-    <AppBar position="static" className="tree-view-output" sx={{ displayPrint: "none" }}>
-      <pre style={{ overflow: "auto", margin: 0, padding: "1rem 0.5rem" }} ref={treeElementRef}>{content}</pre>
-      {totalEditorStates > 2 &&
-        <Toolbar>
-          {!timeTravelEnabled && (
+    <AppBar position="static" className={viewClassName} sx={{ position: "relative", displayPrint: "none" }}>
+      {(!showLimited && isLimited) && (
+        <Box sx={{ p: 2 }}>
+          <Typography variant="button" color="text.secondary">
+            Detected large EditorState, this can impact debugging performance.
+          </Typography>
+        </Box>
+      )}
+      {(showLimited || !isLimited) && <pre style={{ overflow: "auto", margin: 0, padding: "0.5rem" }} ref={treeElementRef}>{content}</pre>}
+      <Toolbar sx={{ px: "0.5rem !important" }}>
+        {(!showLimited && isLimited) && (
+          <Button
+            onClick={() => {
+              setShowLimited(true);
+              const editorState = lastEditorStateRef.current;
+              if (editorState !== null) {
+                lastEditorStateRef.current = null;
+                generateTree(editorState);
+              }
+            }}>
+            Show full tree
+          </Button>
+        )}
+        {(showLimited || !isLimited) && (
+          <Button
+            onClick={() => setShowExportDOM(!showExportDOM)}
+            className={treeTypeButtonClassName}>
+            {showExportDOM ? 'Tree' : 'DOM'}
+          </Button>
+        )}
+
+        {!timeTravelEnabled &&
+          (showLimited || !isLimited) &&
+          totalEditorStates > 2 && (
             <Button
               onClick={() => {
                 const rootElement = editor.getRootElement();
@@ -130,53 +243,95 @@ export function TreeView({ editor }: { editor: LexicalEditor; }): JSX.Element {
               }}
             >Time Travel</Button>
           )}
-          {timeTravelEnabled && (
-            <>
-              <Button
-                onClick={() => {
-                  setIsPlaying(!isPlaying);
-                }}>
-                {isPlaying ? 'Pause' : 'Play'}
-              </Button>
-              <Slider sx={{ mx: 2 }}
-                onChange={(event, value) => {
-                  const editorStateIndex = value as number;
-                  setSliderValue(editorStateIndex);
-                  const timeStampedEditorState =
-                    timeStampedEditorStates[editorStateIndex];
+        {timeTravelEnabled && (showLimited || !isLimited) && (
+          <>
+            <Button
+              onClick={() => {
+                setIsPlaying(!isPlaying);
+              }}>
+              {isPlaying ? 'Pause' : 'Play'}
+            </Button>
+            <Slider sx={{ mx: 2 }}
+              onChange={(event, value) => {
+                const editorStateIndex = value as number;
+                setSliderValue(editorStateIndex);
+                const timeStampedEditorState =
+                  timeStampedEditorStates[editorStateIndex];
 
-                  if (timeStampedEditorState) {
-                    playingIndexRef.current = editorStateIndex;
-                    editor.setEditorState(timeStampedEditorState[1]);
-                  }
-                }}
-                value={sliderValue}
-                min={1}
-                max={totalEditorStates - 1}
-              />
-              <Button
-                onClick={() => {
-                  const rootElement = editor.getRootElement();
+                if (timeStampedEditorState) {
+                  playingIndexRef.current = editorStateIndex;
+                  editor.setEditorState(timeStampedEditorState[1]);
+                }
+              }}
+              value={sliderValue}
+              min={1}
+              max={totalEditorStates - 1}
+            />
+            <Button
+              onClick={() => {
+                const rootElement = editor.getRootElement();
 
-                  if (rootElement !== null) {
-                    rootElement.contentEditable = 'true';
-                    const index = timeStampedEditorStates.length - 1;
-                    const timeStampedEditorState = timeStampedEditorStates[index];
-                    editor.setEditorState(timeStampedEditorState[1]);
-                    setSliderValue(index);
+                if (rootElement !== null) {
+                  rootElement.contentEditable = 'true';
+                  const index = timeStampedEditorStates.length - 1;
+                  const timeStampedEditorState = timeStampedEditorStates[index];
+                  editor.setEditorState(timeStampedEditorState[1]);
+                  setSliderValue(index);
 
-                    setTimeTravelEnabled(false);
-                    setIsPlaying(false);
-                  }
-                }}>
-                Exit
-              </Button>
-            </>
-          )}
-        </Toolbar>
-      }
+                  setTimeTravelEnabled(false);
+                  setIsPlaying(false);
+                }
+              }}>
+              Exit
+            </Button>
+          </>
+        )}
+      </Toolbar>
     </AppBar>
   );
+}
+
+function useLexicalCommandsLog(
+  editor: LexicalEditor,
+): ReadonlyArray<LexicalCommand<unknown> & { payload: unknown }> {
+  const [loggedCommands, setLoggedCommands] = useState<
+    ReadonlyArray<LexicalCommand<unknown> & { payload: unknown }>
+  >([]);
+
+  useEffect(() => {
+    const unregisterCommandListeners = new Set<() => void>();
+
+    for (const [command] of editor._commands) {
+      unregisterCommandListeners.add(
+        editor.registerCommand(
+          command,
+          (payload) => {
+            setLoggedCommands((state) => {
+              const newState = [...state];
+              newState.push({
+                payload,
+                type: command.type ? command.type : 'UNKNOWN',
+              });
+
+              if (newState.length > 10) {
+                newState.shift();
+              }
+
+              return newState;
+            });
+
+            return false;
+          },
+          COMMAND_PRIORITY_HIGH,
+        ),
+      );
+    }
+
+    return () =>
+      unregisterCommandListeners.forEach((unregister) => unregister());
+  }, [editor]);
+
+  return useMemo(() => loggedCommands, [loggedCommands]);
 }
 
 function printRangeSelection(selection: RangeSelection): string {
@@ -184,7 +339,8 @@ function printRangeSelection(selection: RangeSelection): string {
 
   const formatText = printFormatProperties(selection);
 
-  res += `: range ${formatText !== '' ? `{ ${formatText} }` : ''}`;
+  res += `: range ${formatText !== '' ? `{ ${formatText} }` : ''} ${selection.style !== '' ? `{ style: ${selection.style} } ` : ''
+    }`;
 
   const anchor = selection.anchor;
   const focus = selection.focus;
@@ -199,7 +355,7 @@ function printRangeSelection(selection: RangeSelection): string {
   return res;
 }
 
-function printObjectSelection(selection: NodeSelection): string {
+function printNodeSelection(selection: NodeSelection): string {
   return `: node\n  └ [${Array.from(selection._nodes).join(', ')}]`;
 }
 
@@ -207,7 +363,24 @@ function printGridSelection(selection: GridSelection): string {
   return `: grid\n  └ { grid: ${selection.gridKey}, anchorCell: ${selection.anchor.key}, focusCell: ${selection.focus.key} }`;
 }
 
-function generateContent(editorState: EditorState): string {
+function generateContent(
+  editor: LexicalEditor,
+  commandsLog: ReadonlyArray<LexicalCommand<unknown> & { payload: unknown }>,
+  exportDOM: boolean,
+): string {
+  const editorState = editor.getEditorState();
+  const editorConfig = editor._config;
+  const compositionKey = editor._compositionKey;
+  const editable = editor._editable;
+
+  if (exportDOM) {
+    let htmlString = '';
+    editorState.read(() => {
+      htmlString = printPrettyHTML($generateHtmlFromNodes(editor));
+    });
+    return htmlString;
+  }
+
   let res = ' root\n';
 
   const selectionString = editorState.read(() => {
@@ -242,10 +415,30 @@ function generateContent(editorState: EditorState): string {
         ? printRangeSelection(selection)
         : DEPRECATED_$isGridSelection(selection)
           ? printGridSelection(selection)
-          : printObjectSelection(selection);
+          : printNodeSelection(selection);
   });
 
-  return res + '\n selection' + selectionString;
+  res += '\n selection' + selectionString;
+
+  res += '\n\n commands:';
+
+  if (commandsLog.length) {
+    for (const { type, payload } of commandsLog) {
+      res += `\n  └ { type: ${type}, payload: ${payload instanceof Event ? payload.constructor.name : payload
+        } }`;
+    }
+  } else {
+    res += '\n  └ None dispatched.';
+  }
+
+  res += '\n\n editor:';
+  res += `\n  └ namespace ${editorConfig.namespace}`;
+  if (compositionKey !== null) {
+    res += `\n  └ compositionKey ${compositionKey}`;
+  }
+  res += `\n  └ editable ${String(editable)}`;
+
+  return res;
 }
 
 function visitTree(
@@ -348,7 +541,11 @@ function printAllTextNodeProperties(node: LexicalNode) {
 }
 
 function printAllLinkNodeProperties(node: LinkNode) {
-  return [printTargetProperties(node), printRelProperties(node)]
+  return [
+    printTargetProperties(node),
+    printRelProperties(node),
+    printTitleProperties(node),
+  ]
     .filter(Boolean)
     .join(', ');
 }
@@ -406,6 +603,15 @@ function printRelProperties(node: LinkNode) {
   // TODO Fix nullish on LinkNode
   if (str != null) {
     str = 'rel: ' + str;
+  }
+  return str;
+}
+
+function printTitleProperties(node: LinkNode) {
+  let str = node.getTitle();
+  // TODO Fix nullish on LinkNode
+  if (str != null) {
+    str = 'title: ' + str;
   }
   return str;
 }
@@ -479,6 +685,30 @@ function printSelectedCharsLine({
   );
 }
 
+function printPrettyHTML(str: string) {
+  const div = document.createElement('div');
+  div.innerHTML = str.trim();
+  return prettifyHTML(div, 0).innerHTML;
+}
+
+function prettifyHTML(node: Element, level: number) {
+  const indentBefore = new Array(level++ + 1).join('  ');
+  const indentAfter = new Array(level - 1).join('  ');
+  let textNode;
+
+  for (let i = 0; i < node.children.length; i++) {
+    textNode = document.createTextNode('\n' + indentBefore);
+    node.insertBefore(textNode, node.children[i]);
+    prettifyHTML(node.children[i], level);
+    if (node.lastElementChild === node.children[i]) {
+      textNode = document.createTextNode('\n' + indentAfter);
+      node.appendChild(textNode);
+    }
+  }
+
+  return node;
+}
+
 function $getSelectionStartEnd(
   node: LexicalNode,
   selection: RangeSelection | GridSelection,
@@ -537,5 +767,13 @@ function $getSelectionStartEnd(
 
 export default function TreeViewPlugin() {
   const [editor] = useLexicalComposerContext();
-  return <TreeView editor={editor} />;
+  return <TreeView
+    viewClassName="tree-view-output"
+    treeTypeButtonClassName="debug-treetype-button"
+    timeTravelPanelClassName="debug-timetravel-panel"
+    timeTravelButtonClassName="debug-timetravel-button"
+    timeTravelPanelSliderClassName="debug-timetravel-panel-slider"
+    timeTravelPanelButtonClassName="debug-timetravel-panel-button"
+    editor={editor}
+  />
 }
