@@ -46,6 +46,8 @@ import Task2 from "./Task2.json";
 import Task3 from "./Task3.json";
 import Task4 from "./Task4.json";
 import Task5 from "./Task5.json";
+import Task6 from "./Task6.json";
+import Task7 from "./Task7.json";
 
 const task1Checkpoints = [
   {
@@ -938,12 +940,483 @@ const task5Checkpoints = [
   }
 ];
 
+const task6Checkpoints = [
+  {
+    name: "Insert a level 2 Heading after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        ## This is a level 2 heading
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 1) {
+            const target = node.getParent()?.getNextSibling();
+            if (target?.__tag == "h2") result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+
+  {
+    name: "Insert some bold text after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        **bold text**
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 2) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if ($isTextNode(target) && target.hasFormat("bold")) result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+  {
+    name: "Insert some italicized text after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        *italicized text*
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 3) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if ($isTextNode(target) && target.hasFormat("italic")) result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+  {
+    name: "Insert a Blockquote after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        {'> This is a blockquote'}
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 4) {
+            const target = node.getParent()?.getNextSibling();
+            if (target?.__type == "quote") result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+  {
+    name: "Insert a Bulleted List after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        {'- This is a bulleted list'}
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 5) {
+            const target = node.getParent()?.getNextSibling();
+            if (target?.__tag == "ul") result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+  {
+    name: "Insert some inline code after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        {'`This is inline code`'}
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 6) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if ($isTextNode(target) && target.hasFormat("code")) result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+  {
+    name: "Insert a Code Block after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        {'```'}
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        2. Press Space
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 7) {
+            const target = node.getParent()?.getNextSibling();
+            if (target?.__type == "code") result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+  {
+    name: "Insert a Horizontal Rule after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        {'---'}
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        2. Press Space
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 8) {
+            const target = node.getParent()?.getNextSibling();
+            if (target?.__type === "horizontalrule") result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+  {
+    name: "Insert a Link after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        {'[This is a link](https://www.example.com)'}
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 9) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if (target?.__type === "link") result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+  {
+    name: "Insert an Image after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        {'![Math Editor Logo](https://matheditor.ml/logo192.png)'}
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 10) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if (target?.__type === "image") result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+  {
+    name: "Insert a smile '😄' Emoji after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        {':smile'}
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        2. Pick the emoji from the List
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 11) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if ($isTextNode(target) && target.getTextContent() === '😄') result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+  {
+    name: "Insert a Math field after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        {'$$'}
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 12) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if (target?.__type === "math") result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+  {
+    name: "Insert a Math field with initial value y=x^2 after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        {'$y=x^2$'}
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 13) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if (target?.__type === "math" && target.__value === "y=x^2") result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+];
+
+const task7Checkpoints = [
+  {
+    name: "Insert a 2D Graph after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        {'/2d'}
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        2. Press Enter
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        3. Type a function then click insert button
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 1) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if (target?.__type === "graph" && target.__graphType === "2D") result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+  {
+    name: "Insert a 3D Graph after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        {'/3d'}
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        2. Press Enter
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        3. Type a function then click insert button
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 2) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if (target?.__type === "graph" && target.__graphType === "3D") result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+  {
+    name: "Insert a Sketch after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        {'/sketch'}
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        2. Press Enter
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        3. Draw something then click insert button
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 3) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getFirstChild();
+            if (target?.__type === "sketch") result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+  {
+    name: "Insert a 4x4 Table after this line",
+    steps: <>
+      <Typography variant="subtitle2" gutterBottom>
+        1. Click the empty line below then type
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        {'/4x4'}
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        2. Press Enter
+      </Typography>
+    </>,
+    check: (editorState?: EditorState) => {
+      let result = false;
+      if (!editorState) return result;
+      editorState.read(() => {
+        editorState._nodeMap.forEach((node) => {
+          if (node.__value === 4) {
+            const paragraphNode = node.getParent()?.getNextSibling();
+            if (!$isParagraphNode(paragraphNode)) return result;
+            const target = paragraphNode.getNextSibling();
+            if (target?.__type === "table" && target.__size === 4) result = true;
+          }
+        });
+      })
+      return result;
+    }
+  },
+];
+
 const tasks = [
   Task1 as unknown,
   Task2 as unknown,
   Task3 as unknown,
   Task4 as unknown,
   Task5 as unknown,
+  Task6 as unknown,
+  Task7 as unknown,
 ] as EditorDocument[];
 
 const checkpoints = [
@@ -952,6 +1425,8 @@ const checkpoints = [
   task3Checkpoints,
   task4Checkpoints,
   task5Checkpoints,
+  task6Checkpoints,
+  task7Checkpoints,
 ];
 
 export { tasks, checkpoints }
