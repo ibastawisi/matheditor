@@ -17,6 +17,7 @@
 
 [theme="dark"] .editor-input {
   caret-color: #eee;
+  color-scheme: dark;
 }
 
 .editor-placeholder {

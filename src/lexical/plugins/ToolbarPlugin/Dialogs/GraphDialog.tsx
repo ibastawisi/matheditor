@@ -64,9 +64,9 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
         const value = app.getBase64() as string;
         editor.dispatchCommand(UNDO_COMMAND, undefined);
         insertGraph(src, value);
+        handleClose();
       });
-    }
-    handleClose();
+    } else handleClose();
   };
 
   const handleClose = () => {

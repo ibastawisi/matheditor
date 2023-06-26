@@ -356,7 +356,7 @@ function printRangeSelection(selection: RangeSelection): string {
 }
 
 function printNodeSelection(selection: NodeSelection): string {
-  return `: node\n  └ [${Array.from(selection._nodes).join(', ')}]`;
+  return `: node\n  └ [${selection.getNodes().map(n => `${n.__key}: ${n.__type}`).join(', ')}]`;
 }
 
 function printGridSelection(selection: GridSelection): string {
