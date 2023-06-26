@@ -6,7 +6,7 @@
  *
  */
 
-import { $createParagraphNode, $insertNodes, $isRootNode, LexicalCommand } from 'lexical';
+import { $createParagraphNode, $insertNodes, $isRootNode, LexicalCommand, TextNode } from 'lexical';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { COMMAND_PRIORITY_EDITOR, createCommand } from 'lexical';
@@ -48,5 +48,34 @@ export default function MathPlugin(): JSX.Element | null {
     );
   }, [editor]);
 
+  useEffect(() => {
+    const removeTransform = editor.registerNodeTransform(TextNode, markdownTransform);
+    return () => {
+      removeTransform();
+    };
+  }, [editor]);
+
   return null;
+}
+
+function markdownTransform(node: TextNode) {
+  const textContent = node.getTextContent();
+  const regex = /\$+([^$]+?)\$+/;
+  const match = textContent.match(regex);
+  if (!match) return;
+  let currentNode: TextNode;
+  if (match[0] === textContent) {
+    currentNode = node;
+  } else {
+    const startIndex = match.index || 0;
+    const endIndex = startIndex + match[0].length;
+    if (startIndex === 0) {
+      [currentNode,] = node.splitText(endIndex);
+    } else {
+      [, currentNode,] = node.splitText(startIndex, endIndex);
+    }
+  }
+  const value = match[1].trim();
+  const mathNode = $createMathNode(value);
+  currentNode.replace(mathNode);
 }

@@ -119,7 +119,6 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
     });
 
     mathfield.addEventListener("keydown", event => {
-      if (event.ctrlKey && event.key === "c") return;
       event.stopPropagation();
     });
 

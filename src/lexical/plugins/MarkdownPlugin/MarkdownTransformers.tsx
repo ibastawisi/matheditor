@@ -97,7 +97,7 @@ export const MATH: TextMatchTransformer = {
       return null;
     }
 
-    return `$${node.getMath()}$`;
+    return `$${node.getValue()}$`;
   },
   importRegExp: /\$+(.*?)\$+/,
   regExp: /\$+(.*?)\$+$/,
