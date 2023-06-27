@@ -37,7 +37,8 @@ const Documents: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const localDocuments = documents.map(d => d.id);
-  const cloudDocuments = user?.documents.filter(d => !localDocuments.includes(d.id));
+  const cloudDocuments = user?.documents.filter(d => !localDocuments.includes(d.id)) || [];
+  const allDocuments = [...documents, ...cloudDocuments];
 
   const [sort, setSort] = useState('updated-desc');
   const handleSortChange = (event: SelectChangeEvent) => {
@@ -161,7 +162,7 @@ const Documents: React.FC = () => {
       </Box>
       <Box sx={{ my: 3 }}>
         <Box sx={{ display: "flex", flexWrap: "wrap-reverse", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>
-          <Typography variant="h6" component="h2" sx={{ mb: 1 }}>Recent</Typography>
+          <Typography variant="h6" component="h2" sx={{ mb: 1 }}>Documents</Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
             <FormControl size="small">
               <InputLabel id="sort-select-label">Sort</InputLabel>
@@ -238,29 +239,13 @@ const Documents: React.FC = () => {
               </CardActionArea>
             </Card>
           </Grid>
-          {sortDocuments(documents).map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
-            <DocumentCard document={document} variant="local" />
+          {sortDocuments(allDocuments).map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
+            <DocumentCard document={document} variant={localDocuments.includes(document.id) ? "local" : "cloud"} />
           </Grid>)}
         </Grid>
       </Box>
       <Box sx={{ my: 2 }}>
-        <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-          Cloud
-        </Typography>
         {!user && <UserCard />}
-        {user && <Grid container spacing={2}>
-          {!cloudDocuments?.length &&
-            <Grid item xs={12}>
-              <Typography variant="overline" component="p" sx={{ textAlign: "center" }}>
-                {!user.documents.length ? "No documents found" : "All documents are already synced"}
-              </Typography>
-            </Grid>}
-          {cloudDocuments && sortDocuments(cloudDocuments).map((document) =>
-            <Grid item key={document.id} xs={12} sm={6} md={4}>
-              <DocumentCard document={document} variant="cloud" />
-            </Grid>
-          )}
-        </Grid>}
       </Box>
     </>
   )
