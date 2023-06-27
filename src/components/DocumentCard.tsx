@@ -3,8 +3,8 @@ import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import CardActions from '@mui/material/CardActions';
 import Avatar from '@mui/material/Avatar';
-import { Link as RouterLink } from 'react-router-dom';
-import { EditorDocument, UserDocument } from '../slices/app';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { EditorDocument } from '../slices/app';
 import ArticleIcon from '@mui/icons-material/Article';
 import { AppDispatch, RootState } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,7 +13,6 @@ import IconButton from '@mui/material/IconButton';
 import DownloadIcon from '@mui/icons-material/Download';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import ShareIcon from '@mui/icons-material/Share';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import CardActionArea from '@mui/material/CardActionArea';
@@ -26,22 +25,89 @@ import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import PublicIcon from '@mui/icons-material/Public';
+import PublicOffIcon from '@mui/icons-material/PublicOff';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Divider from '@mui/material/Divider';
+import Chip from '@mui/material/Chip';
+import MobileFriendlyIcon from '@mui/icons-material/MobileFriendly';
+import LinkIcon from '@mui/icons-material/Link';
+import CloudSyncIcon from '@mui/icons-material/CloudSync';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
+import CloudIcon from '@mui/icons-material/Cloud';
 
 const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 'local' | 'cloud' | 'public' }> = ({ document, variant }) => {
+  const user = useSelector((state: RootState) => state.app.user);
+  const cloudDocument = user?.documents?.find(d => d.id === document.id);
+  const isUploaded = !!cloudDocument;
+  const isUpToDate = cloudDocument?.updatedAt === document.updatedAt;
+  const isPublic = cloudDocument?.isPublic;
+
+  return (
+    <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
+      <CardActionArea component={RouterLink} to={`/${variant === 'public' ? 'view' : 'edit'}/${document.id}`} sx={{ flexGrow: 1 }}>
+        <CardHeader
+          title={document.name}
+          subheader={new Date(document.createdAt).toLocaleDateString()}
+          avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>}
+        />
+      </CardActionArea>
+      {variant !== 'public' && <CardActions>
+        <Chip
+          icon={variant === "local" ? <MobileFriendlyIcon /> : <CloudIcon />}
+          label={variant === "local" ? "Local" : "Cloud"}
+        />
+        {isUploaded && <Chip
+          icon={isPublic ? <PublicIcon /> : <LinkIcon />}
+          label={isPublic ? "Public" : "Shared"}
+        />}
+        {isUploaded && variant === "local" && <Chip icon={isUpToDate ? <CloudDoneIcon /> : <CloudSyncIcon />} label={isUpToDate ? "Up to date" : "Out of Sync"} />}
+        <DocumentActionMenu document={document} variant={variant} />
+      </CardActions>}
+    </Card>
+  );
+}
+
+function DocumentActionMenu({ document, variant }: { document: Omit<EditorDocument, "data">, variant: 'local' | 'cloud' | 'public' }): JSX.Element {
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const openMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const closeMenu = () => {
+    setAnchorEl(null);
+  };
+
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.app.user);
   const cloudDocument = user?.documents?.find(d => d.id === document.id);
+  const isUploaded = !!cloudDocument;
   const isUpToDate = cloudDocument?.updatedAt === document.updatedAt;
+  const isPublic = cloudDocument?.isPublic;
+
+  const navigate = useNavigate();
 
   const handleUpload = async () => {
-    if (isUpToDate) return;
+    closeMenu();
+    if (!user) return dispatch(actions.app.announce({ message: "Please login to use cloud storage" }));
+    if (isUpToDate) return dispatch(actions.app.announce({ message: "Document is up to date" }));
     const storedDocument: EditorDocument = await documentDB.getByID(document.id);
-    await dispatch(actions.app.uploadDocumentAsync(storedDocument));
+    const updatedDocument: EditorDocument = {
+      ...storedDocument,
+      isPublic: cloudDocument?.isPublic
+    }
+    return await dispatch(actions.app.uploadDocumentAsync(updatedDocument));
   };
 
   const handleShare = async () => {
+    closeMenu();
+    if (!user) return dispatch(actions.app.announce({ message: "Please login to use cloud storage" }));
     if (variant === "local" && !isUpToDate) {
-      await handleUpload();
+      const result = await handleUpload();
+      if (result.type === actions.app.uploadDocumentAsync.rejected.type) return;
     };
 
     const shareData = {
@@ -57,6 +123,7 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
   };
 
   const handleDelete = async () => {
+    closeMenu();
     dispatch(actions.app.alert(
       {
         title: `Delete ${variant} document`,
@@ -83,6 +150,7 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
   }
 
   const handleSave = async () => {
+    closeMenu();
     const payload = await getPayload();
     if (!payload) return dispatch(actions.app.announce({ message: "Can't find document data" }));
     const blob = new Blob([payload], { type: "text/json" });
@@ -99,17 +167,33 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
     });
 
     link.dispatchEvent(evt);
-    link.remove()
+    link.remove();
   };
 
-  const [open, setOpen] = React.useState(false);
-
-  const handleOpen = () => {
-    setOpen(true);
+  const togglePublic = async () => {
+    closeMenu();
+    try {
+      const data = {
+        ...document,
+        isPublic: !isPublic,
+      };
+      await dispatch(actions.app.uploadDocumentAsync(data as EditorDocument));
+      dispatch(actions.app.announce({ message: `Document ${isPublic ? "unpublished" : "published"} successfully` }));
+      dispatch(actions.app.loadDocumentsAsync());
+    } catch (err) {
+      dispatch(actions.app.announce({ message: "Can't update document data" }));
+    }
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const [renameDialogOpen, setRenameDialogOpen] = React.useState(false);
+
+  const openRenameDialog = () => {
+    closeMenu();
+    setRenameDialogOpen(true);
+  };
+
+  const closeRenameDialog = () => {
+    setRenameDialogOpen(false);
   };
 
   const [formData, setFormData] = useState({ name: document.name });
@@ -132,73 +216,113 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
       }
       dispatch(actions.app.saveDocument(data));
       dispatch(actions.app.loadDocumentsAsync());
-      handleClose();
+      closeRenameDialog();
     } catch (err) {
       dispatch(actions.app.announce({ message: "Can't update document data" }));
-      handleClose();
+      closeRenameDialog();
     }
   };
 
-  const togglePublic = async (document: UserDocument) => {
-    try {
-      const data = {
-        ...document,
-        isPublic: !document.isPublic,
-      };
-      dispatch(actions.app.uploadDocumentAsync(data as EditorDocument));
-      dispatch(actions.app.loadDocumentsAsync());
-    } catch (err) {
-      dispatch(actions.app.announce({ message: "Can't update document data" }));
-    }
+  const handleFork = () => {
+    closeMenu();
+    navigate(`/new/${document.id}`);
   };
 
   return (
-    <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
-      <CardActionArea component={RouterLink} to={`/${variant === 'public' ? 'view' : 'edit'}/${document.id}`} sx={{ flexGrow: 1 }}>
-        <CardHeader
-          title={document.name}
-          subheader={new Date(document.createdAt).toLocaleDateString()}
-          avatar={
-            <Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>
-          }
-        />
-      </CardActionArea>
-      {variant !== 'public' && <CardActions>
-        <IconButton size="small" aria-label="Rename" onClick={handleOpen}>
-          <DriveFileRenameOutlineIcon />
-        </IconButton>
-        <Dialog open={open} onClose={handleClose}>
-          <form onSubmit={handleRename}>
-            <DialogTitle>Rename Document</DialogTitle>
-            <DialogContent >
-              <TextField margin="normal" size="small" fullWidth id="name" value={formData.name} onChange={updateFormData} label="Document Name" name="name" autoFocus />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose}>Cancel</Button>
-              <Button type='submit' onClick={handleRename}>Save</Button>
-            </DialogActions>
-          </form>
-        </Dialog>
+    <>
+      <IconButton
+        id="document-action-button"
+        aria-controls={open ? 'document-action-menu' : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? 'true' : undefined}
+        aria-label='Document Actions'
+        onClick={openMenu}
+        size="small"
+        sx={{ ml: "auto" }}
+      >
+        <MoreVertIcon />
+      </IconButton>
+      <Dialog open={renameDialogOpen} onClose={closeRenameDialog}>
+        <form onSubmit={handleRename}>
+          <DialogTitle>Rename Document</DialogTitle>
+          <DialogContent >
+            <TextField margin="normal" size="small" fullWidth id="name" value={formData.name} onChange={updateFormData} label="Document Name" name="name" autoFocus />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={closeRenameDialog}>Cancel</Button>
+            <Button type='submit' onClick={handleRename}>Save</Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+      <Menu
+        id="document-action-menu"
+        aria-labelledby="document-action-button"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={closeMenu}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        <MenuItem onClick={openRenameDialog}>
+          <ListItemIcon>
+            <DriveFileRenameOutlineIcon />
+          </ListItemIcon>
+          <ListItemText>Rename</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleSave}>
+          <ListItemIcon>
+            <DownloadIcon />
+          </ListItemIcon>
+          <ListItemText>Download</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleFork}>
+          <ListItemIcon>
+            <FileCopyIcon />
+          </ListItemIcon>
+          <ListItemText>Fork</ListItemText>
+        </MenuItem>
 
-        <IconButton size="small" aria-label="Delete" color="error" onClick={handleDelete}>
-          <DeleteForever />
-        </IconButton>
-        <IconButton sx={{ ml: "auto !important" }} size="small" aria-label="Upload" color={isUpToDate ? "success" : "default"} onClick={handleUpload} disabled={!user || variant === "cloud"}>
-          {variant === "local" ? isUpToDate ? <CloudDoneIcon /> : <CloudUploadIcon /> : null}
-        </IconButton>
-        <IconButton size="small" aria-label="Share" onClick={handleShare} disabled={!user}>
-          <ShareIcon />
-        </IconButton>
-        <IconButton size="small" aria-label="Download" onClick={handleSave}>
-          <DownloadIcon />
-        </IconButton>
-        {variant === "cloud" && <IconButton size="small" aria-label="Show on public profile"
-          color={document.isPublic ? "success" : "default"} onClick={() => togglePublic(document)}>
-          <PublicIcon />
-        </IconButton>}
-      </CardActions>}
-    </Card>
+        <Divider />
+
+        {variant === "local" && isUploaded && !isUpToDate && <MenuItem onClick={handleUpload}>
+          <ListItemIcon>
+            <CloudSyncIcon />
+          </ListItemIcon>
+          <ListItemText>
+            Update cloud version
+          </ListItemText>
+        </MenuItem>}
+        <MenuItem onClick={handleShare}>
+          <ListItemIcon>
+            <ShareIcon />
+          </ListItemIcon>
+          <ListItemText>Share with a Link</ListItemText>
+        </MenuItem>
+        {isUploaded && <MenuItem onClick={togglePublic}>
+          <ListItemIcon>
+            {isPublic ? <PublicOffIcon /> : <PublicIcon />}
+          </ListItemIcon>
+          <ListItemText>{isPublic ? "Unpublish from Profile Page" : "Publish to Profile Page"}</ListItemText>
+        </MenuItem>}
+
+        <Divider />
+
+        <MenuItem onClick={handleDelete}>
+          <ListItemIcon>
+            <DeleteForever />
+          </ListItemIcon>
+          <ListItemText>Delete</ListItemText>
+        </MenuItem>
+      </Menu>
+    </>
   );
 }
+
 
 export default DocumentCard;
