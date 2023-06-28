@@ -69,7 +69,7 @@ const User: React.FC = () => {
     <UserCard user={user} hideControls={!loggedInUser || !user || loggedInUser.id !== user.id} />
     {user && <Box sx={{ gap: 1, my: 2 }}>
       <Box sx={{ display: "flex", flexWrap: "wrap-reverse", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>
-        <Typography variant="h6" component="h2" sx={{ textAlign: "center" }}>Public Documents</Typography>
+        <Typography variant="h6" component="h2" sx={{ textAlign: "center" }}>Published Documents</Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
           <FormControl size="small">
             <InputLabel id="sort-select-label">Sort</InputLabel>
@@ -124,20 +124,17 @@ const User: React.FC = () => {
           </FormControl>
         </Box>
       </Box>
-
-      <Paper sx={{ p: 1, my: 1 }}>
-        <Grid container spacing={2}>
-          {!user?.documents?.length &&
-            <Grid item xs={12}>
-              <Typography variant="overline" component="p" sx={{ textAlign: "center" }}>
-                No documents found
-              </Typography>
-            </Grid>}
-          {sortDocuments(user.documents).map(document => <Grid item xs={12} sm={6} md={4} key={document.id}>
-            <DocumentCard document={document} variant="public" />
-          </Grid>)}
-        </Grid>
-      </Paper>
+      <Grid container spacing={2}>
+        {!user?.documents?.length &&
+          <Grid item xs={12}>
+            <Typography variant="overline" component="p" sx={{ textAlign: "center" }}>
+              No documents found
+            </Typography>
+          </Grid>}
+        {sortDocuments(user.documents).map(document => <Grid item xs={12} sm={6} md={4} key={document.id}>
+          <DocumentCard document={document} variant="public" />
+        </Grid>)}
+      </Grid>
     </Box>
     }
   </Box>;

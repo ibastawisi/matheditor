@@ -41,6 +41,9 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DocumentCard from "./DocumentCard";
+import Chip from "@mui/material/Chip";
+import LinkIcon from '@mui/icons-material/Link';
+import PublicIcon from '@mui/icons-material/Public';
 
 const Dashboard: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -337,9 +340,7 @@ const UserGrid: React.FC<{ users: User[] }> = memo(({ users }) => {
               />
             </CardActionArea>
             <CardActions>
-              <Typography variant="subtitle2" component="div" sx={{ mx: 1 }}>
-                No. documents: {user.documents.length}
-              </Typography>
+              <Chip icon={<ArticleIcon />} label={`${user.documents.length} documents`} />
             </CardActions>
           </Card>
         </Grid>)}
@@ -462,18 +463,18 @@ const AdminDocumentsGrid: React.FC<{ documents: AdminDocument[] }> = memo(({ doc
                     Author: {document.author.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Created At: {new Date(document.createdAt).toLocaleString()}
+                    Created: {new Date(document.createdAt).toLocaleString()}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Updated At: {new Date(document.updatedAt).toLocaleString()}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Is Public: {document.isPublic? 'Yes' : 'No'}
+                    Updated: {new Date(document.updatedAt).toLocaleString()}
                   </Typography>
                 </>}
                 avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>}
               />
             </CardActionArea>
+            <CardActions>
+              <Chip icon={document.isPublic ? <PublicIcon /> : <LinkIcon />} label={document.isPublic ? "Public" : "Shared"} />
+            </CardActions>
           </Card>
         </Grid>)}
       </Grid>

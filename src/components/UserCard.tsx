@@ -14,6 +14,8 @@ import { BACKEND_URL } from '../config';
 import GoogleIcon from '@mui/icons-material/Google';
 import IconButton from '@mui/material/IconButton';
 import ShareIcon from '@mui/icons-material/Share';
+import { Link as RouterLink } from 'react-router-dom';
+import CardActionArea from '@mui/material/CardActionArea';
 
 export default function UserCard({ user, hideControls }: { user?: User | null, hideControls?: boolean }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -40,18 +42,19 @@ export default function UserCard({ user, hideControls }: { user?: User | null, h
     }
   };
 
-
   return (
     <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-        <CardContent sx={{ flex: '1 0 auto', w: '100%' }}>
-          <Typography component="div" variant="h5">
-            {user ? user.name : <Skeleton variant="text" width={190} />}
-          </Typography>
-          <Typography variant="subtitle1" color="text.secondary" component="div">
-            {user ? user.email : <Skeleton variant="text" width={150} />}
-          </Typography>
-        </CardContent>
+        <CardActionArea component={RouterLink} to={user?`/user/${user.id}`: '/dashboard'} sx={{ flex: '1 0 auto', w: '100%' }}>
+          <CardContent>
+            <Typography component="div" variant="h5">
+              {user ? user.name : <Skeleton variant="text" width={190} />}
+            </Typography>
+            <Typography variant="subtitle1" color="text.secondary" component="div">
+              {user ? user.email : <Skeleton variant="text" width={150} />}
+            </Typography>
+          </CardContent>
+        </CardActionArea>
         <CardActions>
           {!hideControls && <>
             {user && <Button size='small' onClick={logout}>Logout</Button>}

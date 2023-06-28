@@ -161,7 +161,7 @@ const Documents: React.FC = () => {
         <Button variant="outlined" component={RouterLink} to="/new">New document</Button>
       </Box>
       <Box sx={{ my: 3 }}>
-        <Box sx={{ display: "flex", flexWrap: "wrap-reverse", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", gap: 1, mb: 1 }}>
           <Typography variant="h6" component="h2" sx={{ mb: 1 }}>Documents</Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
             <FormControl size="small">
@@ -215,13 +215,15 @@ const Documents: React.FC = () => {
                 </MenuItem>
               </Select>
             </FormControl>
-            <Button variant="outlined" startIcon={<UploadFileIcon />} component="label">
-              Import
-              <input type="file" hidden accept=".me" multiple onChange={e => handleFilesChange(e.target.files)} />
-            </Button>
-            <Button variant="outlined" startIcon={<StorageIcon />} onClick={backup}>
-              Backup
-            </Button>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center" }}>
+              <Button variant="outlined" startIcon={<UploadFileIcon />} component="label">
+                Import
+                <input type="file" hidden accept=".me" multiple onChange={e => handleFilesChange(e.target.files)} />
+              </Button>
+              <Button variant="outlined" startIcon={<StorageIcon />} onClick={backup}>
+                Backup
+              </Button>
+            </Box>
           </Box>
         </Box>
         <Grid container spacing={2}>

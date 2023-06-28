@@ -42,9 +42,9 @@ import CloudIcon from '@mui/icons-material/Cloud';
 const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 'local' | 'cloud' | 'public' }> = ({ document, variant }) => {
   const user = useSelector((state: RootState) => state.app.user);
   const cloudDocument = user?.documents?.find(d => d.id === document.id);
-  const isUploaded = !!cloudDocument;
+  const isUploaded = !!cloudDocument || variant === "public";
   const isUpToDate = cloudDocument?.updatedAt === document.updatedAt;
-  const isPublic = cloudDocument?.isPublic;
+  const isPublic = cloudDocument?.isPublic || variant === "public" && document.isPublic;
 
   return (
     <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
@@ -55,18 +55,18 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
           avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>}
         />
       </CardActionArea>
-      {variant !== 'public' && <CardActions>
-        <Chip
+      <CardActions>
+        <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }}
           icon={variant === "local" ? <MobileFriendlyIcon /> : <CloudIcon />}
           label={variant === "local" ? "Local" : "Cloud"}
         />
-        {isUploaded && <Chip
+        {isUploaded && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }}
           icon={isPublic ? <PublicIcon /> : <LinkIcon />}
           label={isPublic ? "Public" : "Shared"}
         />}
-        {isUploaded && variant === "local" && <Chip icon={isUpToDate ? <CloudDoneIcon /> : <CloudSyncIcon />} label={isUpToDate ? "Up to date" : "Out of Sync"} />}
-        <DocumentActionMenu document={document} variant={variant} />
-      </CardActions>}
+        {isUploaded && variant === "local" && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={isUpToDate ? <CloudDoneIcon /> : <CloudSyncIcon />} label={isUpToDate ? "Up to date" : "Out of Sync"} />}
+        {variant !== 'public' && <DocumentActionMenu document={document} variant={variant} />}
+      </CardActions>
     </Card>
   );
 }
@@ -295,20 +295,20 @@ function DocumentActionMenu({ document, variant }: { document: Omit<EditorDocume
             <CloudSyncIcon />
           </ListItemIcon>
           <ListItemText>
-            Update cloud version
+            Sync
           </ListItemText>
         </MenuItem>}
         <MenuItem onClick={handleShare}>
           <ListItemIcon>
             <ShareIcon />
           </ListItemIcon>
-          <ListItemText>Share with a Link</ListItemText>
+          <ListItemText>Share</ListItemText>
         </MenuItem>
         {isUploaded && <MenuItem onClick={togglePublic}>
           <ListItemIcon>
             {isPublic ? <PublicOffIcon /> : <PublicIcon />}
           </ListItemIcon>
-          <ListItemText>{isPublic ? "Unpublish from Profile Page" : "Publish to Profile Page"}</ListItemText>
+          <ListItemText>{isPublic ? "Unpublish" : "Publish"}</ListItemText>
         </MenuItem>}
 
         <Divider />
