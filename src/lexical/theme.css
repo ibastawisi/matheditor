@@ -6,7 +6,6 @@
  *
  *
  */
-
 .LexicalTheme__ltr {
   text-align: left;
 }
@@ -17,13 +16,36 @@
 
 .LexicalTheme__paragraph {
   margin: 0;
-  margin-bottom: 8px;
   position: relative;
   display: flow-root;
 }
 
-.LexicalTheme__paragraph:last-child {
-  margin-bottom: 0;
+.LexicalTheme__quote {
+  margin: 0;
+  margin-left: 20px;
+  margin-bottom: 10px;
+  font-size: 15px;
+  color: rgb(101, 103, 107);
+  border-left-color: rgb(206, 208, 212);
+  border-left-width: 4px;
+  border-left-style: solid;
+  padding-left: 16px;
+}
+
+[theme=dark] .LexicalTheme__quote {
+  color: #a6a6a6;
+  border-left-color: #4d4d4d;
+}
+
+@media print {
+  [theme=dark] .LexicalTheme__quote {
+    color: #65676b;
+    border-left-color: #ced0d4;
+  }
+}
+
+.LexicalTheme__indent {
+  --lexical-indent-base-value: 40px;
 }
 
 .LexicalTheme__textBold {
@@ -73,6 +95,11 @@
   }
 }
 
+.LexicalTheme__hashtag {
+  background-color: rgba(88, 144, 255, 0.15);
+  border-bottom: 1px solid rgba(88, 144, 255, 0.3);
+}
+
 .LexicalTheme__link {
   color: rgb(33, 111, 219);
   text-decoration: none;
@@ -80,6 +107,7 @@
 
 .LexicalTheme__link:hover {
   text-decoration: underline;
+  cursor: pointer;
 }
 
 .LexicalTheme__code {
@@ -92,10 +120,9 @@
   margin: 0;
   margin-top: 8px;
   margin-bottom: 8px;
-  tab-size: 2;
-  /* white-space: pre; */
   overflow-x: auto;
   position: relative;
+  tab-size: 2;
 }
 
 .LexicalTheme__code:before {
@@ -148,12 +175,23 @@
   max-width: 100%;
   overflow-y: scroll;
   table-layout: fixed;
+  width: 100%;
+}
+
+.LexicalTheme__tableSelection *::selection {
+  background-color: transparent;
+}
+
+.LexicalTheme__tableSelected {
+  outline: 2px solid rgb(60, 132, 244);
 }
 
 .LexicalTheme__tableCell {
   border: 1px solid rgba(0, 0, 0, 0.3);
-  padding: 6px 8px;
   min-width: 75px;
+  padding: 8px;
+  position: relative;
+  outline: none;
   height: inherit;
   overflow: hidden;
 }
@@ -185,17 +223,6 @@
   }
 }
 
-.LexicalTheme__table.disable-selection {
-  user-select: none;
-}
-
-.LexicalTheme__table.disable-selection span::selection {
-  background-color: transparent;
-}
-
-.LexicalTheme__table.disable-selection br::selection {
-  background-color: transparent;
-}
 
 .LexicalTheme__ol1 {
   padding: 0;
@@ -206,7 +233,7 @@
 .LexicalTheme__ol2 {
   padding: 0;
   margin: 0;
-  margin-left: 16px;
+  margin-inline-start: 16px;
   list-style-type: upper-alpha;
   list-style-position: inside;
 }
@@ -214,7 +241,7 @@
 .LexicalTheme__ol3 {
   padding: 0;
   margin: 0;
-  margin-left: 16px;
+  margin-inline-start: 16px;
   list-style-type: lower-alpha;
   list-style-position: inside;
 }
@@ -222,7 +249,7 @@
 .LexicalTheme__ol4 {
   padding: 0;
   margin: 0;
-  margin-left: 16px;
+  margin-inline-start: 16px;
   list-style-type: upper-roman;
   list-style-position: inside;
 }
@@ -230,7 +257,7 @@
 .LexicalTheme__ol5 {
   padding: 0;
   margin: 0;
-  margin-left: 16px;
+  margin-inline-start: 16px;
   list-style-type: lower-roman;
   list-style-position: inside;
 }
@@ -373,26 +400,4 @@
 
 .LexicalTheme__embedBlockFocus {
   outline: 2px solid rgb(60, 132, 244);
-}
-
-.LexicalTheme__quote {
-  margin: 0 0 10px 20px;
-  font-size: 15px;
-  color: #65676b;
-  border-left-color: #ced0d4;
-  border-left-width: 4px;
-  border-left-style: solid;
-  padding-left: 16px
-}
-
-[theme=dark] .LexicalTheme__quote {
-  color: #a6a6a6;
-  border-left-color: #4d4d4d;
-}
-
-@media print {
-  [theme=dark] .LexicalTheme__quote {
-    color: #65676b;
-    border-left-color: #ced0d4;
-  }
 }

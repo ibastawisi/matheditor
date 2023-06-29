@@ -175,7 +175,6 @@ type TableCellActionMenuProps = Readonly<{
   onClose: () => void;
   setIsMenuOpen: (isOpen: boolean) => void;
   tableCellNode: TableCellNode;
-  cellMerge: boolean;
 }>;
 
 function TableActionMenu({
@@ -183,7 +182,6 @@ function TableActionMenu({
   tableCellNode: _tableCellNode,
   setIsMenuOpen,
   anchorElRef,
-  cellMerge,
 }: TableCellActionMenuProps) {
   const [editor] = useLexicalComposerContext();
   const dropDownRef = useRef<HTMLDivElement | null>(null);
@@ -318,11 +316,13 @@ function TableActionMenu({
   const insertTableColumnAtSelection = useCallback(
     (shouldInsertAfter: boolean) => {
       editor.update(() => {
-        $insertTableColumn__EXPERIMENTAL(shouldInsertAfter);
+        for (let i = 0; i < selectionCounts.columns; i++) {
+          $insertTableColumn__EXPERIMENTAL(shouldInsertAfter);
+        }
         onClose();
       });
     },
-    [editor, onClose],
+    [editor, onClose, selectionCounts.columns],
   );
 
   const deleteTableRowAtSelection = useCallback(() => {
@@ -444,24 +444,22 @@ function TableActionMenu({
 
 
   let mergeCellButton: null | JSX.Element = null;
-  if (cellMerge) {
-    if (canMergeCells) {
-      mergeCellButton = (
-        <MenuItem onClick={() => mergeTableCellsAtSelection()}>
-          <ListItemText>
-            Merge cells
-          </ListItemText>
-        </MenuItem>
-      );
-    } else if (canUnmergeCell) {
-      mergeCellButton = (
-        <MenuItem onClick={() => unmergeTableCellsAtSelection()}>
-          <ListItemText>
-            Unmerge cells
-          </ListItemText>
-        </MenuItem>
-      );
-    }
+  if (canMergeCells) {
+    mergeCellButton = (
+      <MenuItem onClick={() => mergeTableCellsAtSelection()}>
+        <ListItemText>
+          Merge cells
+        </ListItemText>
+      </MenuItem>
+    );
+  } else if (canUnmergeCell) {
+    mergeCellButton = (
+      <MenuItem onClick={() => unmergeTableCellsAtSelection()}>
+        <ListItemText>
+          Unmerge cells
+        </ListItemText>
+      </MenuItem>
+    );
   }
 
   let writingModeButton: null | JSX.Element = null;
@@ -508,22 +506,30 @@ function TableActionMenu({
       <Divider />
       <MenuItem onClick={() => insertTableRowAtSelection(false)}>
         <ListItemText>
-          Insert row above
+          Insert{' '}
+          {selectionCounts.rows === 1 ? 'row' : `${selectionCounts.rows} rows`}{' '}
+          above
         </ListItemText>
       </MenuItem>
       <MenuItem onClick={() => insertTableRowAtSelection(true)}>
         <ListItemText>
-          Insert row below
+          Insert{' '}
+          {selectionCounts.rows === 1 ? 'row' : `${selectionCounts.rows} rows`}{' '}
+          below
         </ListItemText>
       </MenuItem>
       <MenuItem onClick={() => insertTableColumnAtSelection(false)}>
         <ListItemText>
-          Insert column left
+          Insert{' '}
+          {selectionCounts.columns === 1 ? 'column' : `${selectionCounts.columns} columns`}{' '}
+          left
         </ListItemText>
       </MenuItem>
       <MenuItem onClick={() => insertTableColumnAtSelection(true)}>
         <ListItemText>
-          Insert column right
+          Insert{' '}
+          {selectionCounts.columns === 1 ? 'column' : `${selectionCounts.columns} columns`}{' '}
+          right
         </ListItemText>
       </MenuItem>
       <Divider />
@@ -676,7 +682,6 @@ function TableCellActionMenuContainer({
               setIsMenuOpen={setIsMenuOpen}
               onClose={() => setIsMenuOpen(false)}
               tableCellNode={tableCellNode}
-              cellMerge={cellMerge}
             />
           )}
         </>

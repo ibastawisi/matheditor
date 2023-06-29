@@ -1,7 +1,17 @@
-import { EditorThemeClasses } from "lexical";
-import "./theme.css";
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+
+import type { EditorThemeClasses } from 'lexical';
+
+import './theme.css';
 
 const theme: EditorThemeClasses = {
+  blockCursor: 'LexicalTheme__blockCursor',
   characterLimit: 'LexicalTheme__characterLimit',
   code: 'LexicalTheme__code',
   codeHighlight: {
@@ -50,6 +60,8 @@ const theme: EditorThemeClasses = {
     h6: 'LexicalTheme__h6',
   },
   image: 'editor-image',
+  indent: 'LexicalTheme__indent',
+  inlineImage: 'inline-editor-image',
   link: 'LexicalTheme__link',
   list: {
     listitem: 'LexicalTheme__listItem',
@@ -74,8 +86,21 @@ const theme: EditorThemeClasses = {
   quote: 'LexicalTheme__quote',
   rtl: 'LexicalTheme__rtl',
   table: 'LexicalTheme__table',
+  tableAddColumns: 'LexicalTheme__tableAddColumns',
+  tableAddRows: 'LexicalTheme__tableAddRows',
   tableCell: 'LexicalTheme__tableCell',
+  tableCellActionButton: 'LexicalTheme__tableCellActionButton',
+  tableCellActionButtonContainer:
+    'LexicalTheme__tableCellActionButtonContainer',
+  tableCellEditing: 'LexicalTheme__tableCellEditing',
   tableCellHeader: 'LexicalTheme__tableCellHeader',
+  tableCellPrimarySelected: 'LexicalTheme__tableCellPrimarySelected',
+  tableCellResizer: 'LexicalTheme__tableCellResizer',
+  tableCellSelected: 'LexicalTheme__tableCellSelected',
+  tableCellSortedIndicator: 'LexicalTheme__tableCellSortedIndicator',
+  tableResizeRuler: 'LexicalTheme__tableCellResizeRuler',
+  tableSelected: 'LexicalTheme__tableSelected',
+  tableSelection: 'LexicalTheme__tableSelection',
   text: {
     bold: 'LexicalTheme__textBold',
     code: 'LexicalTheme__textCode',
