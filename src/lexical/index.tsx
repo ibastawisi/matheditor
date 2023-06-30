@@ -97,6 +97,7 @@ const Editor: React.FC<{ document: EditorDocument, editable: boolean, onChange?:
     const dispatch = useDispatch<AppDispatch>();
 
     function handleChange(editorState: EditorState) {
+      if (!editable) return;
       const data = editorState.toJSON();
       if (isEqual(data, document.data)) return;
       const updatedDocument: EditorDocument = { ...document, data, updatedAt: new Date().toISOString() };

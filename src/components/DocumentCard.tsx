@@ -38,6 +38,22 @@ import LinkIcon from '@mui/icons-material/Link';
 import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import CloudIcon from '@mui/icons-material/Cloud';
+import ListItemButton from '@mui/material/ListItemButton';
+import Collapse from '@mui/material/Collapse';
+import List from '@mui/material/List';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import ImportExportIcon from '@mui/icons-material/ImportExport';
+import { SerializedEditorState, createEditor } from 'lexical';
+import { TRANSFORMERS } from '../lexical/plugins/MarkdownPlugin/MarkdownTransformers';
+import { $convertToMarkdownString } from '@lexical/markdown';
+import { editorConfig } from '../lexical';
+
+import SvgIcon from '@mui/material/SvgIcon';
+const MarkdownIcon = () => <SvgIcon viewBox="0 0 640 512" fontSize='small'>
+  <path d="M593.8 59.1H46.2C20.7 59.1 0 79.8 0 105.2v301.5c0 25.5 20.7 46.2 46.2 46.2h547.7c25.5 0 46.2-20.7 46.1-46.1V105.2c0-25.4-20.7-46.1-46.2-46.1zM338.5 360.6H277v-120l-61.5 76.9-61.5-76.9v120H92.3V151.4h61.5l61.5 76.9 61.5-76.9h61.5v209.2zm135.3 3.1L381.5 256H443V151.4h61.5V256H566z" />
+</SvgIcon>;
+
 
 const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 'local' | 'cloud' | 'public' }> = ({ document, variant }) => {
   const user = useSelector((state: RootState) => state.app.user);
@@ -228,6 +244,39 @@ function DocumentActionMenu({ document, variant }: { document: Omit<EditorDocume
     navigate(`/new/${document.id}`);
   };
 
+  const [exportOpen, setExportOpen] = useState(false);
+  const toggleExportMenu = () => setExportOpen(!exportOpen);
+
+  const exportToMarkdown = async () => {
+    toggleExportMenu();
+    closeMenu();
+    const payload = await getPayload();
+    if (!payload) return dispatch(actions.app.announce({ message: "Can't find document data" }));
+    const { data } = JSON.parse(payload);
+    convertToMarkdown(data);
+  };
+
+  const convertToMarkdown = (data: SerializedEditorState) => {
+    const editor = createEditor(editorConfig);
+    const editorState = editor.parseEditorState(data);
+    editor.setEditorState(editorState);
+    editor.update(() => {
+      const markdown = $convertToMarkdownString(TRANSFORMERS);
+      const blob = new Blob([markdown], { type: "text/markdown" });
+      const link = window.document.createElement("a");
+      link.download = document.name + ".md";
+      link.href = window.URL.createObjectURL(blob);
+      link.dataset.downloadurl = ["text/markdown", link.download, link.href].join(":");
+      const evt = new MouseEvent("click", {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+      });
+      link.dispatchEvent(evt);
+      link.remove();
+    });
+  };
+
   return (
     <>
       <IconButton
@@ -281,6 +330,23 @@ function DocumentActionMenu({ document, variant }: { document: Omit<EditorDocume
           </ListItemIcon>
           <ListItemText>Download</ListItemText>
         </MenuItem>
+        <MenuItem onClick={toggleExportMenu}>
+          <ListItemIcon>
+            <ImportExportIcon />
+          </ListItemIcon>
+          <ListItemText primary="Export" />
+          {exportOpen ? <ExpandLess sx={{ ml: 2 }} /> : <ExpandMore sx={{ ml: 2 }} />}
+        </MenuItem>
+        <Collapse in={exportOpen} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            <ListItemButton sx={{ pl: 4 }} onClick={exportToMarkdown}>
+              <ListItemIcon sx={{minWidth: 0, mr: 1}}>
+                <MarkdownIcon />
+              </ListItemIcon>
+              <ListItemText primary="Markdown" />
+            </ListItemButton>
+          </List>
+        </Collapse>
         <MenuItem onClick={handleFork}>
           <ListItemIcon>
             <FileCopyIcon />

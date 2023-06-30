@@ -218,6 +218,10 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
     return false;
   }
 
+  getData(): SerializedEditorState | undefined {
+    return this.__data;
+  }
+  
   setData(data: SerializedEditorState): void {
     const writable = this.getWritable();
     writable.__data = data;
