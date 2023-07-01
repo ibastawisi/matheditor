@@ -347,10 +347,10 @@ export default function ToolbarPlugin() {
         </Toolbar >
       </AppBar>
       {trigger && <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })} />}
-      <ImageDialog editor={activeEditor} node={$isImageNode(selectedNode) ? selectedNode : null} />
-      <GraphDialog editor={activeEditor} node={$isGraphNode(selectedNode) ? selectedNode : null} />
-      <SketchDialog editor={activeEditor} node={$isSketchNode(selectedNode) ? selectedNode : null} />
-      <TableDialog editor={activeEditor} />
+      <ImageDialog node={$isImageNode(selectedNode) ? selectedNode : null} />
+      <GraphDialog node={$isGraphNode(selectedNode) ? selectedNode : null} />
+      <SketchDialog node={$isSketchNode(selectedNode) ? selectedNode : null} />
+      <TableDialog />
     </>
   );
 }

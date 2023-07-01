@@ -1,4 +1,5 @@
-import { LexicalEditor, UNDO_COMMAND } from 'lexical';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { UNDO_COMMAND } from 'lexical';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -12,7 +13,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { actions } from '../../../../slices';
 import { RootState } from '../../../../store';
 
-export default function GraphDialog({ editor, node }: { editor: LexicalEditor; node: GraphNode | null; }) {
+export default function GraphDialog({ node }: { node: GraphNode | null; }) {
+  const [editor] = useLexicalComposerContext();
   const open = useSelector((state: RootState) => state.app.ui.dialogs.graph?.open) || false;
   const graphType = useSelector((state: RootState) => state.app.ui.dialogs.graph?.type) || GraphType["2D"];
   const dispatch = useDispatch();

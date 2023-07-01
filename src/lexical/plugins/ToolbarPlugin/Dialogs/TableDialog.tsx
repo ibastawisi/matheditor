@@ -1,4 +1,4 @@
-import { LexicalEditor } from 'lexical';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { INSERT_TABLE_COMMAND } from '../../../nodes/TableNode';
 import Box from '@mui/material/Box';
 import React, { useState } from 'react';
@@ -20,7 +20,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { actions } from '../../../../slices';
 import { RootState } from '../../../../store';
 
-export default function useTableDialog({ editor }: { editor: LexicalEditor }) {
+export default function useTableDialog() {
+  const [editor] = useLexicalComposerContext();
   const open = useSelector((state: RootState) => state.app.ui.dialogs.table?.open) || false;
   const dispatch = useDispatch();
   const closeDialog = () => dispatch(actions.app.setDialogs({ table: { open: false } }));

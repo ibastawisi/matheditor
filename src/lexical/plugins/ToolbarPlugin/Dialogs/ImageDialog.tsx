@@ -1,7 +1,7 @@
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { InsertImagePayload } from '../../ImagePlugin';
 import { INSERT_IMAGE_COMMAND } from '../../ImagePlugin';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
-import { LexicalEditor } from 'lexical';
 import Box from '@mui/material/Box';
 import { useEffect, useState } from 'react';
 import useTheme from '@mui/material/styles/useTheme';
@@ -20,7 +20,8 @@ import { actions } from '../../../../slices';
 import { RootState } from '../../../../store';
 import DialogTitle from '@mui/material/DialogTitle';
 
-export default function useImageDialog({ editor, node }: { editor: LexicalEditor; node: ImageNode | null; }) {
+export default function useImageDialog({ node }: { node: ImageNode | null; }) {
+  const [editor] = useLexicalComposerContext();
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [formData, setFormData] = useState({ src: '', altText: '' });
@@ -31,6 +32,8 @@ export default function useImageDialog({ editor, node }: { editor: LexicalEditor
   useEffect(() => {
     if (node) {
       setFormData({ src: node.getSrc(), altText: node.getAltText() });
+    } else {
+      setFormData({ src: '', altText: '' });
     }
   }, [node]);
 
