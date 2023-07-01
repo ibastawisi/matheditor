@@ -15,17 +15,18 @@ import Typography from '@mui/material/Typography';
 
 import Compressor from 'compressorjs';
 import { ImageNode } from '../../../nodes/ImageNode';
+import { useSelector, useDispatch } from 'react-redux';
+import { actions } from '../../../../slices';
+import { RootState } from '../../../../store';
+import DialogTitle from '@mui/material/DialogTitle';
 
-export enum ImageDialogMode {
-  create,
-  update,
-}
-
-export default function ImageDialog({ editor, node, mode, open, onClose }: { editor: LexicalEditor; node?: ImageNode; mode: ImageDialogMode; open: boolean; onClose: () => void; }) {
+export default function useImageDialog({ editor, node }: { editor: LexicalEditor; node: ImageNode | null; }) {
   const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md')) || mode === ImageDialogMode.update;
-
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [formData, setFormData] = useState({ src: '', altText: '' });
+  const open = useSelector((state: RootState) => state.app.ui.dialogs.image?.open) || false;
+  const dispatch = useDispatch();
+  const closeDialog = () => dispatch(actions.app.setDialogs({ image: { open: false } }));
 
   useEffect(() => {
     if (node) {
@@ -69,49 +70,44 @@ export default function ImageDialog({ editor, node, mode, open, onClose }: { edi
   };
 
   const handleClose = () => {
+    closeDialog();
     setFormData({ src: '', altText: '' });
     setTimeout(() => { editor.focus(); }, 0);
-    onClose();
   }
 
 
-  if (!open) return null;
-
-  return (
-    <Dialog
-      open={open}
-      fullScreen={fullScreen}
-      onClose={handleClose}
-      aria-labelledby="responsive-dialog-title"
-    >
-      <DialogContent>
-        {mode === ImageDialogMode.create &&
-          <Box component="form" noValidate sx={{ mt: 1 }}>
-            <Typography variant="h6" sx={{ mt: 1 }}>From URL</Typography>
-            <TextField type="url" margin="normal" size="small" fullWidth
-              value={formData.src} onChange={updateFormData} label="Image URL" name="src" autoComplete="src" autoFocus />
-            <TextField margin="normal" size="small" fullWidth value={formData.altText} onChange={updateFormData} label="Alt Text" name="altText" autoComplete="altText" />
-            <Typography variant="h6" sx={{ mt: 1 }}>From File</Typography>
-            <Button variant="outlined" sx={{ my: 2 }} startIcon={<UploadFileIcon />} component="label">
-              Upload File
-              <input type="file" hidden accept="image/*" onChange={e => loadImage(e.target.files)} autoFocus />
-            </Button>
-          </Box>
-        }
-        {mode === ImageDialogMode.update &&
-          <></>
-        }
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>
-          Cancel
+  return <Dialog
+    open={!!open}
+    fullScreen={fullScreen}
+    onClose={handleClose}
+    aria-labelledby="image-dialog-title"
+    disableEscapeKeyDown
+  >
+    <DialogTitle id="image-dialog-title">
+      Insert Image
+    </DialogTitle>
+    <DialogContent>
+      <Box component="form" noValidate sx={{ mt: 1 }}>
+        <Typography variant="h6" sx={{ mt: 1 }}>From URL</Typography>
+        <TextField type="url" margin="normal" size="small" fullWidth
+          value={formData.src} onChange={updateFormData} label="Image URL" name="src" autoComplete="src" autoFocus />
+        <TextField margin="normal" size="small" fullWidth value={formData.altText} onChange={updateFormData} label="Alt Text" name="altText" autoComplete="altText" />
+        <Typography variant="h6" sx={{ mt: 1 }}>From File</Typography>
+        <Button variant="outlined" sx={{ my: 2 }} startIcon={<UploadFileIcon />} component="label">
+          Upload File
+          <input type="file" hidden accept="image/*" onChange={e => loadImage(e.target.files)} autoFocus />
         </Button>
-        <Button
-          disabled={isDisabled}
-          onClick={() => onClick(formData)}>
-          Confirm
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
+      </Box>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={handleClose}>
+        Cancel
+      </Button>
+      <Button
+        disabled={isDisabled}
+        onClick={() => onClick(formData)}>
+        Confirm
+      </Button>
+    </DialogActions>
+  </Dialog>;
 }

@@ -23,7 +23,10 @@ import LoadingBar from 'react-redux-loading-bar';
 import logo from "../assets/logo.svg";
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
-  const trigger = useScrollTrigger();
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 32,
+  });
   return (
     <Slide appear={false} direction="down" in={!trigger}>{children}</Slide>
   );

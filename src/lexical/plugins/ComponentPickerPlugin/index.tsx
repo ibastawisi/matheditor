@@ -32,10 +32,6 @@ import {
 import { useCallback, useMemo, useState } from 'react';
 import * as ReactDOM from 'react-dom';
 
-import InsertTableDialog from '../ToolbarPlugin/Dialogs/InsertTableDialog';
-import ImageDialog, { ImageDialogMode } from '../ToolbarPlugin/Dialogs/ImageDialog';
-import SketchDialog, { SketchDialogMode } from '../ToolbarPlugin/Dialogs/SketchDialog';
-import GraphDialog, { GraphDialogMode } from '../ToolbarPlugin/Dialogs/GraphDialog';
 import { GraphType } from '../../nodes/GraphNode';
 import { INSERT_MATH_COMMAND } from '../MathPlugin';
 import { INSERT_STICKY_COMMAND } from '../StickyPlugin';
@@ -67,6 +63,8 @@ import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
 
 import SvgIcon from '@mui/material/SvgIcon';
+import { useDispatch } from 'react-redux';
+import { actions } from '../../../slices';
 const H1Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M200 776V376h60v170h180V376h60v400h-60V606H260v170h-60Zm500 0V436h-80v-60h140v400h-60Z" />
 </SvgIcon>;
@@ -164,11 +162,11 @@ class ComponentPickerOption extends MenuOption {
 export default function ComponentPickerMenuPlugin(): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [queryString, setQueryString] = useState<string | null>(null);
-  const [tableDialogOpen, setTableDialogOpen] = useState(false);
-  const [imageDialogOpen, setImageDialogOpen] = useState(false);
-  const [graphDialogOpen, setGraphDialogOpen] = useState(false);
-  const [sketchDialogOpen, setSketchDialogOpen] = useState(false);
-  const [graphType, setGraphType] = useState(GraphType['2D']);
+  const dispatch = useDispatch();
+  const openImageDialog = () => dispatch(actions.app.setDialogs({ image: { open: true } }));
+  const openTableDialog = () => dispatch(actions.app.setDialogs({ table: { open: true } }));
+  const openGraphDialog = (type: GraphType) => dispatch(actions.app.setDialogs({ graph: { open: true, type } }));
+  const openSketchDialog = () => dispatch(actions.app.setDialogs({ sketch: { open: true } }));
 
   const checkForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
     minLength: 0,
@@ -325,32 +323,31 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
         icon: GraphIcon,
         keywords: ['geogebra', 'graph', 'plot', '2d'],
         keyboardShortcut: '/2d',
-        onSelect: () => { setGraphType(GraphType['2D']); setGraphDialogOpen(true) },
+        onSelect: () => { openGraphDialog(GraphType['2D']) },
       }),
       new ComponentPickerOption('3D Graph', {
         icon: <ViewInArIcon />,
         keywords: ['geogebra', 'graph', 'plot', '3d'],
         keyboardShortcut: '/3d',
-        onSelect: () => { setGraphType(GraphType['3D']); setGraphDialogOpen(true) },
+        onSelect: () => { openGraphDialog(GraphType['3D']) },
       }),
       new ComponentPickerOption('Sketch', {
         icon: <BrushIcon />,
         keywords: ['excalidraw', 'sketch', 'drawing', 'diagram'],
         keyboardShortcut: '/sketch',
-        onSelect: () => setSketchDialogOpen(true),
+        onSelect: openSketchDialog,
       }),
       new ComponentPickerOption('Image', {
         icon: <ImageIcon />,
         keywords: ['image', 'photo', 'picture', 'img'],
         keyboardShortcut: '/img',
-        onSelect: () => setImageDialogOpen(true),
+        onSelect: openImageDialog
       }),
       new ComponentPickerOption('Table', {
         icon: <TableIcon />,
         keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
         keyboardShortcut: '/3x3',
-        onSelect: () =>
-          setTableDialogOpen(true)
+        onSelect: openTableDialog,
       }),
       new ComponentPickerOption('Note', {
         icon: <StickyNote2Icon />,
@@ -408,23 +405,17 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
   );
 
   return (
-    <>
-      <ImageDialog editor={editor} mode={ImageDialogMode.create} open={imageDialogOpen} onClose={() => setImageDialogOpen(false)} />
-      <InsertTableDialog editor={editor} open={tableDialogOpen} onClose={() => setTableDialogOpen(false)} />
-      <GraphDialog editor={editor} mode={GraphDialogMode.create} type={graphType} open={graphDialogOpen} onClose={() => setGraphDialogOpen(false)} />
-      <SketchDialog editor={editor} mode={SketchDialogMode.create} open={sketchDialogOpen} onClose={() => setSketchDialogOpen(false)} />
-      <LexicalTypeaheadMenuPlugin<ComponentPickerOption>
-        onQueryChange={setQueryString}
-        onSelectOption={onSelectOption}
-        triggerFn={checkForTriggerMatch}
-        options={options}
-        menuRenderFn={(
-          anchorElement,
-          props,
-        ) =>
-          anchorElement.current && options.length ? ReactDOM.createPortal(<IconMenu {...props} />, anchorElement.current) : null
-        }
-      />
-    </>
+    <LexicalTypeaheadMenuPlugin<ComponentPickerOption>
+      onQueryChange={setQueryString}
+      onSelectOption={onSelectOption}
+      triggerFn={checkForTriggerMatch}
+      options={options}
+      menuRenderFn={(
+        anchorElement,
+        props,
+      ) =>
+        anchorElement.current && options.length ? ReactDOM.createPortal(<IconMenu {...props} />, anchorElement.current) : null
+      }
+    />
   );
 }

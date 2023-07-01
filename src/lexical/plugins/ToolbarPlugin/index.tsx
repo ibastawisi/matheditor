@@ -1,4 +1,4 @@
-import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, ElementNode, NodeKey, RangeSelection, TextNode } from 'lexical';
+import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, ElementNode, LexicalNode, NodeKey, RangeSelection, TextNode } from 'lexical';
 import { $isCodeNode, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from '@lexical/code';
 import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -24,13 +24,14 @@ import InsertToolMenu from './Menus/InsertToolMenu';
 import TextFormatToggles from './Tools/TextFormatToggles';
 import AlignTextMenu from './Menus/AlignTextMenu';
 import { IS_APPLE } from '../../../shared/environment';
-import { $isMathNode, MathNode } from '../../nodes/MathNode';
+import { $isMathNode } from '../../nodes/MathNode';
 import MathTools from './Tools/MathTools';
-import { $isImageNode, ImageNode } from '../../nodes/ImageNode';
+import { $isImageNode } from '../../nodes/ImageNode';
 import ImageTools from './Tools/ImageTools';
-import { $isSketchNode, SketchNode } from '../../nodes/SketchNode';
-import { $isGraphNode, GraphNode } from '../../nodes/GraphNode';
+import { $isSketchNode } from '../../nodes/SketchNode';
+import { $isGraphNode } from '../../nodes/GraphNode';
 import { $patchStyle } from '../../nodes/utils';
+import { ImageDialog, GraphDialog, SketchDialog, TableDialog } from './Dialogs';
 
 export const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -115,13 +116,13 @@ export default function ToolbarPlugin() {
   const [fontSize, setFontSize] = useState<string>('15px');
   const [fontFamily, setFontFamily] = useState<string>('Roboto');
   const [isRTL, setIsRTL] = useState(false);
-  const [mathNode, setMathNode] = useState<MathNode | null>(null);
-  const [imageNode, setImageNode] = useState<ImageNode | GraphNode | SketchNode | null>(null);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState<string>('');
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
   const [isNodeSelection, setIsNodeSelection] = useState(false);
+
+  const [selectedNode, setSelectedNode] = useState<LexicalNode | null>(null);
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -171,22 +172,17 @@ export default function ToolbarPlugin() {
       setFontFamily(
         $getSelectionStyleValueForProperty(selection, 'font-family', 'Roboto'),
       );
-      setMathNode(null);
-      setImageNode(null);
+      setSelectedNode(null);
     }
 
     setIsNodeSelection($isNodeSelection(selection));
     if ($isNodeSelection(selection)) {
       const node = selection.getNodes()[0];
-      const isMathNode = $isMathNode(node);
-      setMathNode(isMathNode ? node : null);
-      const isImageNode = $isImageNode(node) || $isGraphNode(node) || $isSketchNode(node);
-      setImageNode(isImageNode ? node : null);
+      setSelectedNode(node);
     }
 
     if (selection === null) {
-      setMathNode(null);
-      setImageNode(null);
+      setSelectedNode(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeEditor]);
@@ -300,10 +296,13 @@ export default function ToolbarPlugin() {
 
   const trigger = useScrollTrigger({
     disableHysteresis: true,
+    threshold: 32,
   });
 
   if (!isEditable) return null;
 
+  const showMathTools = $isMathNode(selectedNode);
+  const showImageTools = $isImageNode(selectedNode) || $isGraphNode(selectedNode) || $isSketchNode(selectedNode);
   return (
     <>
       <AppBar className='toolbar-appbar' elevation={trigger ? 4 : 0} position={trigger ? 'fixed' : 'static'}>
@@ -319,26 +318,26 @@ export default function ToolbarPlugin() {
             </IconButton>
           </Box>
           <Box sx={{ display: "flex", gap: 0.5 }}>
-            {mathNode ? <MathTools editor={activeEditor} node={mathNode} /> :
-              imageNode ? <ImageTools editor={activeEditor} node={imageNode} />
-                : <>
-                  {blockType in blockTypeToBlockName && activeEditor === editor && <BlockFormatSelect blockType={blockType} editor={editor} />}
-                  {blockType === 'code' ? (
-                    <Select size='small' onChange={onCodeLanguageSelect} value={codeLanguage}>
-                      {CODE_LANGUAGE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
-                    </Select>
-                  ) : (
-                    <>
-                      <Select size='small' sx={{ width: 68 }} onChange={onFontFamilySelect} value={fontFamily}>
-                        {FONT_FAMILY_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
-                      </Select>
-                      <Select size='small' sx={{ width: 68 }} onChange={onFontSizeSelect} value={fontSize}>
-                        {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
-                      </Select>
-                      <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
-                    </>
-                  )}
+            {showMathTools && <MathTools editor={activeEditor} node={selectedNode} />}
+            {showImageTools && <ImageTools editor={activeEditor} node={selectedNode} />}
+            {!selectedNode && <>
+              {blockType in blockTypeToBlockName && activeEditor === editor && <BlockFormatSelect blockType={blockType} editor={editor} />}
+              {blockType === 'code' ? (
+                <Select size='small' onChange={onCodeLanguageSelect} value={codeLanguage}>
+                  {CODE_LANGUAGE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
+                </Select>
+              ) : (
+                <>
+                  <Select size='small' sx={{ width: 68 }} onChange={onFontFamilySelect} value={fontFamily}>
+                    {FONT_FAMILY_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
+                  </Select>
+                  <Select size='small' sx={{ width: 68 }} onChange={onFontSizeSelect} value={fontSize}>
+                    {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
+                  </Select>
+                  <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
                 </>
+              )}
+            </>
             }
           </Box>
           <Box sx={{ display: "flex" }}>
@@ -348,6 +347,10 @@ export default function ToolbarPlugin() {
         </Toolbar >
       </AppBar>
       {trigger && <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })} />}
+      <ImageDialog editor={activeEditor} node={$isImageNode(selectedNode) ? selectedNode : null} />
+      <GraphDialog editor={activeEditor} node={$isGraphNode(selectedNode) ? selectedNode : null} />
+      <SketchDialog editor={activeEditor} node={$isSketchNode(selectedNode) ? selectedNode : null} />
+      <TableDialog editor={activeEditor} />
     </>
   );
 }

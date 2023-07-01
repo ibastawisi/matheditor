@@ -8,13 +8,14 @@ import { GraphNode, GraphType } from '../../../nodes/GraphNode';
 import { useEffect, useRef, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
+import { useSelector, useDispatch } from 'react-redux';
+import { actions } from '../../../../slices';
+import { RootState } from '../../../../store';
 
-export enum GraphDialogMode {
-  create,
-  update,
-}
-
-export default function GraphDialog({ editor, node, type, open, onClose, mode }: { editor: LexicalEditor; node?: GraphNode; type: GraphType; mode: GraphDialogMode; open: boolean; onClose: () => void; }) {
+export default function GraphDialog({ editor, node }: { editor: LexicalEditor; node: GraphNode | null; }) {
+  const open = useSelector((state: RootState) => state.app.ui.dialogs.graph?.open) || false;
+  const graphType = useSelector((state: RootState) => state.app.ui.dialogs.graph?.type) || GraphType["2D"];
+  const dispatch = useDispatch();
   const [parameters, setParameters] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +35,7 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
       showTutorialLink: true,
       width: window.innerWidth,
       height: window.innerHeight - 52.5,
-      appName: type === GraphType["2D"] ? 'suite' : '3d',
+      appName: graphType === GraphType["2D"] ? 'suite' : '3d',
       ggbBase64: node?.getValue() ?? "",
       appletOnLoad() { setLoading(false); },
     };
@@ -43,14 +44,8 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
   }, [open]);
 
   const insertGraph = (src: string, value: string) => {
-    switch (mode) {
-      case GraphDialogMode.create:
-        editor.dispatchCommand(INSERT_GRAPH_COMMAND, { src, value, graphType: type },);
-        break;
-      case GraphDialogMode.update:
-        editor.update(() => node?.update(src, value));
-        break;
-    }
+    if (!node) editor.dispatchCommand(INSERT_GRAPH_COMMAND, { src, value, graphType },);
+    else editor.update(() => node.update(src, value));
   }
 
   const handleSubmit = () => {
@@ -58,7 +53,7 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
     const src = "data:image/png;base64," + app.getPNGBase64(1, true, 72);
     const value = app.getBase64();
     insertGraph(src, value);
-    if (type === GraphType["2D"]) {
+    if (graphType === GraphType["2D"]) {
       app.exportSVG((html: string) => {
         const src = "data:image/svg+xml," + encodeURIComponent(html);
         const value = app.getBase64() as string;
@@ -70,29 +65,25 @@ export default function GraphDialog({ editor, node, type, open, onClose, mode }:
   };
 
   const handleClose = () => {
+    dispatch(actions.app.setDialogs({ graph: { open: false, type: graphType } }));
     setLoading(true);
     setParameters(null);
-    onClose();
   }
 
-  if (!open) return null;
-
-  return (
-    <Dialog open={open} fullScreen={true} onClose={handleClose}>
-      <DialogContent sx={{ p: 0, overflow: "hidden" }}>
-        {loading && <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>}
-        {parameters && <GeogebraApplet parameters={parameters} />}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>
-          Cancel
-        </Button>
-        <Button onClick={handleSubmit}>
-          {mode === GraphDialogMode.create ? "Insert" : "Update"}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
+  return <Dialog open={open} fullScreen={true} onClose={handleClose} disableEscapeKeyDown>
+    <DialogContent sx={{ p: 0, overflow: "hidden" }}>
+      {loading && <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>}
+      {parameters && <GeogebraApplet parameters={parameters} />}
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={handleClose}>
+        Cancel
+      </Button>
+      <Button onClick={handleSubmit}>
+        {!node ? "Insert" : "Update"}
+      </Button>
+    </DialogActions>
+  </Dialog>;
 }
 
 const GeogebraApplet = ({ parameters }: { parameters: any }) => {

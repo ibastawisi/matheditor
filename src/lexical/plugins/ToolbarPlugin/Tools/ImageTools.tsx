@@ -1,42 +1,38 @@
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { LexicalEditor, } from "lexical";
-import { ImageNode, $isImageNode } from "../../../nodes/ImageNode";
+import { ImageNode } from "../../../nodes/ImageNode";
 
 import { SxProps, Theme } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ImageDialog, { ImageDialogMode } from "../Dialogs/ImageDialog";
-import GraphDialog, { GraphDialogMode } from '../Dialogs/GraphDialog';
-import SketchDialog, { SketchDialogMode } from '../Dialogs/SketchDialog';
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SketchNode, $isSketchNode } from "../../../nodes/SketchNode";
 import { $isGraphNode, GraphNode, GraphType } from "../../../nodes/GraphNode";
+import { useDispatch } from "react-redux";
+import { actions } from "../../../../slices";
 
 export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor, node: ImageNode | GraphNode | SketchNode, sx?: SxProps<Theme> | undefined }): JSX.Element {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
-  const [graphDialogOpen, setGraphDialogOpen] = useState(false);
-  const [sketchDialogOpen, setSketchDialogOpen] = useState(false);
-  const [graphType, setGraphType] = useState(GraphType['2D']);
 
-  useEffect(() => {
-    if ($isGraphNode(node)) {
-      setGraphType(node.getGraphType());
-    }
-  }, [node]);
+  const dispatch = useDispatch();
+  const openImageDialog = () => dispatch(actions.app.setDialogs({ image: { open: true } }));
+  const openTableDialog = () => dispatch(actions.app.setDialogs({ table: { open: true } }));
+  const openGraphDialog = () => dispatch(actions.app.setDialogs({ graph: { open: true, type: node.getGraphType() || GraphType["2D"] } }));
+  const openSketchDialog = () => dispatch(actions.app.setDialogs({ sketch: { open: true } }));
 
   return (
     <>
       <ToggleButtonGroup size="small" sx={{ ...sx }} >
         {$isGraphNode(node) &&
           <ToggleButton value={node.getGraphType()}
-            onClick={() => { setGraphDialogOpen(true) }}>
+            onClick={openGraphDialog}>
             <EditIcon />
           </ToggleButton>
         }
         {$isSketchNode(node) &&
           <ToggleButton value="sketch"
-            onClick={() => { setSketchDialogOpen(true) }}>
+            onClick={openSketchDialog}>
             <EditIcon />
           </ToggleButton>
         }
@@ -50,9 +46,6 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
           <DeleteIcon />
         </ToggleButton>
       </ToggleButtonGroup>
-      {$isImageNode(node) && <ImageDialog editor={editor} node={node} mode={ImageDialogMode.update} open={imageDialogOpen} onClose={() => setImageDialogOpen(false)} />}
-      {$isGraphNode(node) && <GraphDialog editor={editor} node={node} mode={GraphDialogMode.update} type={graphType} open={graphDialogOpen} onClose={() => setGraphDialogOpen(false)} />}
-      {$isSketchNode(node) && <SketchDialog editor={editor} node={node} mode={SketchDialogMode.update} open={sketchDialogOpen} onClose={() => setSketchDialogOpen(false)} />}
     </>
   )
 }

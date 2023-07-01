@@ -5,6 +5,7 @@ import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import { createDocument, deleteDocument, getAllDocuments, getAllUsers, getAuthenticatedUser, getDocument, logout, updateDocument } from '../services';
 import { RootState } from '../store';
 import documentDB from '../db';
+import { GraphType } from '../lexical/nodes/GraphNode';
 
 export interface Alert {
   title: string;
@@ -27,6 +28,12 @@ export interface AppState {
     isSaving: boolean;
     announcements: Announcement[],
     alerts: Alert[],
+    dialogs: {
+      image?: { open: boolean };
+      graph?: { open: boolean; type: GraphType; };
+      sketch?: { open: boolean };
+      table?: { open: boolean };
+    }
   };
   admin: {
     users: User[]
@@ -57,6 +64,7 @@ export interface User {
 }
 
 export type UserDocument = Omit<EditorDocument, "data">;
+
 const initialState: AppState = {
   documents: [],
   user: null,
@@ -65,6 +73,12 @@ const initialState: AppState = {
     isSaving: false,
     announcements: [],
     alerts: [],
+    dialogs: {
+      image: { open: false },
+      graph: { open: false, type: GraphType["2D"] },
+      sketch: { open: false },
+      table: { open: false }
+    }
   },
   admin: null,
 };
@@ -232,6 +246,9 @@ export const appSlice = createSlice({
     setUser: (state, action: PayloadAction<User | null>) => {
       state.user = action.payload;
     },
+    setDialogs: (state, action: PayloadAction<AppState["ui"]["dialogs"]>) => {
+      state.ui.dialogs = { ...state.ui.dialogs, ...action.payload };
+    }
   },
   extraReducers: (builder) => {
     builder

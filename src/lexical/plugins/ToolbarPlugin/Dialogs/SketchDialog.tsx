@@ -7,16 +7,20 @@ import { SketchNode } from '../../../nodes/SketchNode';
 import { ExcalidrawImperativeAPI, LibraryItems_anyVersion } from '@excalidraw/excalidraw/types/types';
 import { ImportedLibraryData } from '@excalidraw/excalidraw/types/data/types';
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, useTheme } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { actions } from '../../../../slices';
+import { RootState } from '../../../../store';
 
 const Excalidraw = lazy(() => import('@excalidraw/excalidraw').then((module) => ({ default: module.Excalidraw })));
 
 export type ExcalidrawElementFragment = { isDeleted?: boolean; };
 
-export enum SketchDialogMode { create, update }
-
-export default function InsertSketchDialog({ editor, node, mode, open, onClose }: { editor: LexicalEditor; node?: SketchNode; mode: SketchDialogMode; open: boolean; onClose: () => void; }) {
+export default function useSketchDialog({ editor, node }: { editor: LexicalEditor; node: SketchNode | null; }) {
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI | null>(null);
   const theme = useTheme();
+  const open = useSelector((state: RootState) => state.app.ui.dialogs.sketch?.open) || false;
+  const dispatch = useDispatch();
+  const closeDialog = () => dispatch(actions.app.setDialogs({ sketch: { open: false } }));
 
   useEffect(() => {
     if (!excalidrawAPI) return;
@@ -42,15 +46,9 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
     const serialized = new XMLSerializer().serializeToString(element);
     const src = "data:image/svg+xml," + encodeURIComponent(serialized);
 
-    switch (mode) {
-      case SketchDialogMode.create:
-        editor.dispatchCommand(INSERT_SKETCH_COMMAND, { src },);
-        break;
-      case SketchDialogMode.update:
-        editor.update(() => node?.update(src));
-        break;
-    }
-    onClose();
+    if (!node) editor.dispatchCommand(INSERT_SKETCH_COMMAND, { src },);
+    else editor.update(() => node.update(src));
+    closeDialog();
   };
 
   const loadSceneOrLibrary = async () => {
@@ -78,28 +76,24 @@ export default function InsertSketchDialog({ editor, node, mode, open, onClose }
 
   const libraryItems = [...LogicGates.library, ...CircuitComponents.libraryItems] as any as LibraryItems_anyVersion;
 
-  if (!open) return null;
-
-  return (
-    <Dialog open={open} fullScreen={true} onClose={onClose}>
-      <DialogContent sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 0, overflow: "hidden" }}>
-        {open &&
-          <Suspense fallback={<CircularProgress size={36} disableShrink />}>
-            <Excalidraw
-              ref={(api: ExcalidrawImperativeAPI) => setExcalidrawAPI(api)}
-              initialData={{ libraryItems }}
-              theme={theme.palette.mode}
-            />
-          </Suspense>}
-      </DialogContent>
-      <DialogActions>
-        <Button autoFocus onClick={onClose}>
-          Cancel
-        </Button>
-        <Button onClick={handleSubmit}>
-          {mode === SketchDialogMode.create ? "Insert" : "Update"}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
+  return <Dialog open={open} fullScreen={true} onClose={closeDialog} disableEscapeKeyDown>
+    <DialogContent sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 0, overflow: "hidden" }}>
+      {open &&
+        <Suspense fallback={<CircularProgress size={36} disableShrink />}>
+          <Excalidraw
+            ref={(api: ExcalidrawImperativeAPI) => setExcalidrawAPI(api)}
+            initialData={{ libraryItems }}
+            theme={theme.palette.mode}
+          />
+        </Suspense>}
+    </DialogContent>
+    <DialogActions>
+      <Button autoFocus onClick={closeDialog}>
+        Cancel
+      </Button>
+      <Button onClick={handleSubmit}>
+        {!node ? "Insert" : "Update"}
+      </Button>
+    </DialogActions>
+  </Dialog>;
 }
