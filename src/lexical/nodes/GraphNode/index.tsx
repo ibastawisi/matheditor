@@ -200,7 +200,7 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
   }
 
   getType(): string {
-    return "graph" + this.__graphType;
+    return this.__graphType + " Graph";
   }
 
   decorate(): JSX.Element {

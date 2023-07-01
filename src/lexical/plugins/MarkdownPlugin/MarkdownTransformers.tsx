@@ -44,7 +44,8 @@ import {
 import { $createMathNode, $isMathNode, MathNode } from '../../nodes/MathNode';
 import { $createImageNode, $isImageNode, ImageNode } from '../../nodes/ImageNode';
 import emojiList from '../../plugins/EmojiPickerPlugin/emoji-list';
-import { $createStickyNode, $isStickyNode, StickyNode } from '../../nodes/StickyNode';
+import { $createGraphNode, $isGraphNode, GraphNode, GraphType } from '../../nodes/GraphNode';
+import { $createSketchNode, $isSketchNode, SketchNode } from '../../nodes/SketchNode';
 
 export const HR: ElementTransformer = {
   dependencies: [HorizontalRuleNode],
@@ -89,6 +90,57 @@ export const IMAGE: TextMatchTransformer = {
   trigger: ')',
   type: 'text-match',
 };
+
+export const GRAPH: TextMatchTransformer = {
+  dependencies: [GraphNode],
+  export: (node) => {
+    if (!$isGraphNode(node)) {
+      return null;
+    }
+    const src = node.getSrc();
+    const altText = node.getType();
+    const graphType = node.getGraphType();
+    const url = graphType === GraphType["2D"] ? svgtoBase64(src) : src;
+    return `![${altText}](${url})`;
+  },
+  importRegExp: /<graph src="([^"]+?)" value="([^"]+?)" type="([^"]+?)"\s?\/>\s?/,
+  regExp: /<graph src="([^"]+?)" value="([^"]+?)" type="([^"]+?)"\s?\/>\s?$/,
+  replace: (textNode, match) => {
+    const [, src, value, graphType] = match;
+    const graphNode = $createGraphNode({ src, value, graphType: graphType as GraphType });
+    textNode.replace(graphNode);
+  },
+  trigger: '>',
+  type: 'text-match',
+};
+
+export const SKETCH: TextMatchTransformer = {
+  dependencies: [SketchNode],
+  export: (node) => {
+    if (!$isSketchNode(node)) {
+      return null;
+    }
+    const src = node.getSrc();
+    const altText = node.getType();
+    const url = svgtoBase64(src);
+    return `![${altText}](${url})`;
+  },
+  importRegExp: /<sketch src="([^"]+?)"\s?\/>\s?/,
+  regExp: /<sketch src="([^"]+?)"\s?\/>\s?$/,
+  replace: (textNode, match) => {
+    const [, src] = match;
+    const sketchNode = $createSketchNode({ src });
+    textNode.replace(sketchNode);
+  },
+  trigger: '>',
+  type: 'text-match',
+};
+
+const svgtoBase64 = (dataURI: string) => {
+  const data = dataURI.split("data:image/svg+xml,")[1];
+  const base64 = btoa(unescape(data));
+  return `data:image/svg+xml;base64,${base64}`;
+}
 
 export const EMOJI: TextMatchTransformer = {
   dependencies: [],
@@ -286,6 +338,8 @@ export const TRANSFORMERS: Array<Transformer> = [
   TABLE,
   HR,
   IMAGE,
+  GRAPH,
+  SKETCH,
   MATH,
   CHECK_LIST,
   ...ELEMENT_TRANSFORMERS,

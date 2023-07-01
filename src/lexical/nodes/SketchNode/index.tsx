@@ -19,15 +19,21 @@ import Virgil from "@excalidraw/excalidraw/dist/excalidraw-assets/Virgil.woff2";
 import Cascadia from "@excalidraw/excalidraw/dist/excalidraw-assets/Cascadia.woff2";
 
 const encodeFonts = Promise.all([
-  fetch(Virgil).then(res => res.blob()).then(async blob => {
-    new FontFace("Virgil", await blob.arrayBuffer()).load().then(font => document.fonts.add(font));
-    return blobToBase64(blob)
+  fetch(Virgil).then(res => res.arrayBuffer()).then(buffer => {
+    new FontFace("Virgil", buffer).load().then(font => document.fonts.add(font));
+    return arrayBufferToBase64Font(buffer)
   }),
-  fetch(Cascadia).then(res => res.blob()).then(async blob => {
-    new FontFace("Cascadia", await blob.arrayBuffer()).load().then(font => document.fonts.add(font));
-    return blobToBase64(blob)
+  fetch(Cascadia).then(res => res.arrayBuffer()).then(async buffer => {
+    new FontFace("Cascadia", buffer).load().then(font => document.fonts.add(font));
+    return arrayBufferToBase64Font(buffer)
   })
 ]);
+
+const arrayBufferToBase64Font = (buffer: ArrayBuffer) => {
+  const bytes = new Uint8Array(buffer);
+  const binary = bytes.reduce((acc, byte) => acc + String.fromCharCode(byte), '');
+  return `data:font/woff2;base64,${btoa(binary)}`;
+}
 
 export interface SketchPayload {
   key?: NodeKey;
@@ -50,16 +56,6 @@ function convertSketchElement(domNode: Node): null | DOMConversionOutput {
   }
   return null;
 }
-
-const blobToBase64 = (blob: Blob) => {
-  const reader = new FileReader();
-  reader.readAsDataURL(blob);
-  return new Promise<string>(resolve => {
-    reader.onloadend = () => {
-      resolve(reader.result as string);
-    };
-  });
-};
 
 function SketchComponent({
   nodeKey,
