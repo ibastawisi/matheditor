@@ -44,12 +44,11 @@ import List from '@mui/material/List';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
-import { SerializedEditorState, createEditor } from 'lexical';
-import { TRANSFORMERS } from '../lexical/plugins/MarkdownPlugin/MarkdownTransformers';
-import { $convertToMarkdownString } from '@lexical/markdown';
-import { editorConfig } from '../lexical';
+import HtmlIcon from '@mui/icons-material/Html';
+import theme from '../lexical/theme.css?inline';
 
 import SvgIcon from '@mui/material/SvgIcon';
+import { generateMarkdown, generateHtml } from '../lexical/utils/generateExportContent';
 const MarkdownIcon = () => <SvgIcon viewBox="0 0 640 512" fontSize='small'>
   <path d="M593.8 59.1H46.2C20.7 59.1 0 79.8 0 105.2v301.5c0 25.5 20.7 46.2 46.2 46.2h547.7c25.5 0 46.2-20.7 46.1-46.1V105.2c0-25.4-20.7-46.1-46.2-46.1zM338.5 360.6H277v-120l-61.5 76.9-61.5-76.9v120H92.3V151.4h61.5l61.5 76.9 61.5-76.9h61.5v209.2zm135.3 3.1L381.5 256H443V151.4h61.5V256H566z" />
 </SvgIcon>;
@@ -253,28 +252,73 @@ function DocumentActionMenu({ document, variant }: { document: Omit<EditorDocume
     const payload = await getPayload();
     if (!payload) return dispatch(actions.app.announce({ message: "Can't find document data" }));
     const { data } = JSON.parse(payload);
-    convertToMarkdown(data);
+    const markdown = await generateMarkdown(data);
+    const blob = new Blob([markdown], { type: "text/markdown" });
+    const link = window.document.createElement("a");
+    link.download = document.name + ".md";
+    link.href = window.URL.createObjectURL(blob);
+    link.dataset.downloadurl = ["text/markdown", link.download, link.href].join(":");
+    const evt = new MouseEvent("click", {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    });
+    link.dispatchEvent(evt);
+    link.remove();
+
   };
 
-  const convertToMarkdown = (data: SerializedEditorState) => {
-    const editor = createEditor(editorConfig);
-    const editorState = editor.parseEditorState(data);
-    editor.setEditorState(editorState);
-    editor.update(() => {
-      const markdown = $convertToMarkdownString(TRANSFORMERS);
-      const blob = new Blob([markdown], { type: "text/markdown" });
-      const link = window.document.createElement("a");
-      link.download = document.name + ".md";
-      link.href = window.URL.createObjectURL(blob);
-      link.dataset.downloadurl = ["text/markdown", link.download, link.href].join(":");
-      const evt = new MouseEvent("click", {
-        view: window,
-        bubbles: true,
-        cancelable: true,
-      });
-      link.dispatchEvent(evt);
-      link.remove();
+  const exportToHtml = async () => {
+    toggleExportMenu();
+    closeMenu();
+    const payload = await getPayload();
+    if (!payload) return dispatch(actions.app.announce({ message: "Can't find document data" }));
+    const { data } = JSON.parse(payload);
+    const htmlString = await generateHtml(data);
+    const html = addHead(htmlString);
+    const blob = new Blob([html], { type: "text/html" });
+    const link = window.document.createElement("a");
+    link.download = document.name + ".html";
+    link.href = window.URL.createObjectURL(blob);
+    link.dataset.downloadurl = ["text/html", link.download, link.href].join(":");
+    const evt = new MouseEvent("click", {
+      view: window,
+      bubbles: true,
+      cancelable: true,
     });
+    link.dispatchEvent(evt);
+    link.remove();
+  };
+
+  const addHead = (html: string) => {
+    const head = `
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width,initial-scale=1" />
+      <meta name="title" content="${document.name}" />
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+      <style>
+        body {
+          font-family: "Roboto","Helvetica","Arial",sans-serif;
+          font-weight: 400;
+          font-size: 1rem;
+          line-height: 1.5;
+          letter-spacing: 0.00938em;
+          max-width: 1200px;
+          margin: 2rem auto;
+        }
+        img {
+          max-width: 100%;
+        }
+        ${theme}
+      </style>
+      <script src="https://unpkg.com/mathlive"></script>
+      <script defer>
+        window.addEventListener('DOMContentLoaded', () => MathLive.renderMathInDocument());
+      </script>
+    </head>
+    `;
+    return `<html>${head}<body>${html}</body></html>`;
   };
 
   return (
@@ -340,10 +384,16 @@ function DocumentActionMenu({ document, variant }: { document: Omit<EditorDocume
         <Collapse in={exportOpen} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
             <ListItemButton sx={{ pl: 4 }} onClick={exportToMarkdown}>
-              <ListItemIcon sx={{minWidth: 0, mr: 1}}>
+              <ListItemIcon sx={{ minWidth: 0, mr: 1 }}>
                 <MarkdownIcon />
               </ListItemIcon>
               <ListItemText primary="Markdown" />
+            </ListItemButton>
+            <ListItemButton sx={{ pl: 4 }} onClick={exportToHtml}>
+              <ListItemIcon sx={{ minWidth: 0, mr: 1 }}>
+                <HtmlIcon />
+              </ListItemIcon>
+              <ListItemText primary="HTML" />
             </ListItemButton>
           </List>
         </Collapse>

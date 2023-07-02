@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { $createNodeSelection, $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, EditorConfig, GridSelection, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
+import { $createNodeSelection, $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, DOMExportOutput, EditorConfig, GridSelection, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey, DecoratorNode, } from 'lexical';
 import { createRef, useCallback, useEffect, useState } from 'react';
@@ -205,7 +205,13 @@ export class MathNode extends DecoratorNode<JSX.Element> {
     };
   }
 
-  createDOM(_config: EditorConfig, _editor: LexicalEditor): HTMLElement {
+  exportDOM(): DOMExportOutput {
+    const element = this.createDOM();
+    element.textContent = `$$${this.getValue()}$$`;
+    return { element };
+  }
+
+  createDOM(): HTMLElement {
     const dom = document.createElement('span');
     const style = this.__style;
     if (style !== '') {

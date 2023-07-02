@@ -127,20 +127,20 @@ function StickyComponent({ nodeKey, color, data, }: { data?: SerializedEditorSta
   }
 
   return (
-    <div ref={stickyContainerRef} className={"sticky-note-container" + (isSelected? " draggable": "")} draggable={isSelected}>
-        {isEditable && (<div className='sticky-tools'>
-          <IconButton sx={{ displayPrint: 'none' }} onClick={handleDelete} aria-label="Delete sticky note" title="Delete" color='inherit' size='small'>
-            <DeleteIcon fontSize='inherit' />
-          </IconButton>
-          <IconButton sx={{ displayPrint: 'none' }} color='inherit' size='small' aria-label="Change sticky note color" title="Color" onClick={handleColorChange}>
-            <FormatPaintIcon fontSize='inherit' />
-          </IconButton>
-          {isSelected && <IconButton className='drag-btn' sx={{ displayPrint: 'none', mr: "auto" }} color='inherit' size='small' aria-label="Drag sticky note" title="Drag">
-            <DragIndicatorIcon fontSize='inherit' />
-          </IconButton>
-          }
+    <div ref={stickyContainerRef} className={"sticky-note-container" + (isSelected ? " draggable" : "")} draggable={isSelected}>
+      {isEditable && (<div className='sticky-tools'>
+        <IconButton sx={{ displayPrint: 'none' }} onClick={handleDelete} aria-label="Delete sticky note" title="Delete" color='inherit' size='small'>
+          <DeleteIcon fontSize='inherit' />
+        </IconButton>
+        <IconButton sx={{ displayPrint: 'none' }} color='inherit' size='small' aria-label="Change sticky note color" title="Color" onClick={handleColorChange}>
+          <FormatPaintIcon fontSize='inherit' />
+        </IconButton>
+        {isSelected && <IconButton className='drag-btn' sx={{ displayPrint: 'none', mr: "auto" }} color='inherit' size='small' aria-label="Drag sticky note" title="Drag">
+          <DragIndicatorIcon fontSize='inherit' />
+        </IconButton>
+        }
         {/* {stickyContainerRef.current && <DraggableBlockMenu editor={stickyEditor.current} anchorElem={stickyContainerRef.current} />} */}
-        </div>)}
+      </div>)}
       <div className={`sticky-note ${color}`} {...{ theme: 'light' }}>
         <LexicalNestedComposer initialEditor={stickyEditor.current}>
           <EditorPlugins contentEditable={<ContentEditable className="StickyNode__contentEditable" />} onChange={onChange} />
@@ -208,6 +208,11 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
     };
   }
 
+  exportDOM(editor: LexicalEditor): any {
+    const element = this.createDOM(editor._config);
+    return { element };
+  };
+
   createDOM(config: EditorConfig): HTMLElement {
     const div = document.createElement('div');
     div.style.float = 'right';
@@ -221,7 +226,7 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
   getData(): SerializedEditorState | undefined {
     return this.__data;
   }
-  
+
   setData(data: SerializedEditorState): void {
     const writable = this.getWritable();
     writable.__data = data;
