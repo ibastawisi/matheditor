@@ -46,6 +46,7 @@ import { $createImageNode, $isImageNode, ImageNode } from '../../nodes/ImageNode
 import emojiList from '../../plugins/EmojiPickerPlugin/emoji-list';
 import { $createGraphNode, $isGraphNode, GraphNode, GraphType } from '../../nodes/GraphNode';
 import { $createSketchNode, $isSketchNode, SketchNode } from '../../nodes/SketchNode';
+import { $createStickyNode, $isStickyNode } from '../../nodes/StickyNode';
 
 export const HR: ElementTransformer = {
   dependencies: [HorizontalRuleNode],
@@ -131,6 +132,25 @@ export const SKETCH: TextMatchTransformer = {
     const [, src] = match;
     const sketchNode = $createSketchNode({ src });
     textNode.replace(sketchNode);
+  },
+  trigger: '>',
+  type: 'text-match',
+};
+
+export const STICKY: TextMatchTransformer = {
+  dependencies: [],
+  export: (node) => {
+    if (!$isStickyNode(node)) {
+      return null;
+    }
+    const key = node.getKey();
+    return `<sticky key="${key}" />`;
+  },
+  importRegExp: /<sticky\s?\/>\s?/,
+  regExp: /<sticky\s?\/>\s?$/,
+  replace: (textNode, match) => {
+    const stickyNode = $createStickyNode();
+    textNode.replace(stickyNode);
   },
   trigger: '>',
   type: 'text-match',
@@ -341,6 +361,7 @@ export const TRANSFORMERS: Array<Transformer> = [
   GRAPH,
   SKETCH,
   MATH,
+  STICKY,
   CHECK_LIST,
   ...ELEMENT_TRANSFORMERS,
   ...TEXT_FORMAT_TRANSFORMERS,
