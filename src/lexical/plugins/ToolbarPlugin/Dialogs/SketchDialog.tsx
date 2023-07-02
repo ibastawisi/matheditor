@@ -1,4 +1,4 @@
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { LexicalEditor } from 'lexical';
 import { INSERT_SKETCH_COMMAND } from '../../SketchPlugin';
 import { Suspense, lazy, useEffect, useState } from 'react';
 import LogicGates from "./SketchLibraries/Logic-Gates.json";
@@ -15,8 +15,7 @@ const Excalidraw = lazy(() => import('@excalidraw/excalidraw').then((module) => 
 
 export type ExcalidrawElementFragment = { isDeleted?: boolean; };
 
-export default function useSketchDialog({ node }: { node: SketchNode | null; }) {
-  const [editor] = useLexicalComposerContext();
+export default function useSketchDialog({ editor, node }: { editor: LexicalEditor, node: SketchNode | null; }) {
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI | null>(null);
   const theme = useTheme();
   const open = useSelector((state: RootState) => state.app.ui.dialogs.sketch?.open) || false;

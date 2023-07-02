@@ -32,6 +32,7 @@ import { $isSketchNode } from '../../nodes/SketchNode';
 import { $isGraphNode } from '../../nodes/GraphNode';
 import { $patchStyle } from '../../nodes/utils';
 import { ImageDialog, GraphDialog, SketchDialog, TableDialog } from './Dialogs';
+import { $isStickyNode } from '../../nodes/StickyNode';
 
 export const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -120,8 +121,6 @@ export default function ToolbarPlugin() {
   const [canRedo, setCanRedo] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState<string>('');
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
-  const [isNodeSelection, setIsNodeSelection] = useState(false);
-
   const [selectedNode, setSelectedNode] = useState<LexicalNode | null>(null);
 
   const updateToolbar = useCallback(() => {
@@ -175,7 +174,6 @@ export default function ToolbarPlugin() {
       setSelectedNode(null);
     }
 
-    setIsNodeSelection($isNodeSelection(selection));
     if ($isNodeSelection(selection)) {
       const node = selection.getNodes()[0];
       setSelectedNode(node);
@@ -320,8 +318,8 @@ export default function ToolbarPlugin() {
           <Box sx={{ display: "flex", gap: 0.5 }}>
             {showMathTools && <MathTools editor={activeEditor} node={selectedNode} />}
             {showImageTools && <ImageTools editor={activeEditor} node={selectedNode} />}
-            {!selectedNode && <>
-              {blockType in blockTypeToBlockName && activeEditor === editor && <BlockFormatSelect blockType={blockType} editor={editor} />}
+            {(!selectedNode || $isStickyNode(selectedNode)) && <>
+              {blockType in blockTypeToBlockName && <BlockFormatSelect blockType={blockType} editor={activeEditor} />}
               {blockType === 'code' ? (
                 <Select size='small' onChange={onCodeLanguageSelect} value={codeLanguage}>
                   {CODE_LANGUAGE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
@@ -341,16 +339,16 @@ export default function ToolbarPlugin() {
             }
           </Box>
           <Box sx={{ display: "flex" }}>
-            {blockType !== 'code' && !isNodeSelection && <InsertToolMenu editor={activeEditor} />}
+            {blockType !== 'code' && <InsertToolMenu editor={activeEditor} />}
             <AlignTextMenu editor={activeEditor} isRTL={isRTL} />
           </Box>
         </Toolbar >
       </AppBar>
       {trigger && <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })} />}
-      <ImageDialog node={$isImageNode(selectedNode) ? selectedNode : null} />
-      <GraphDialog node={$isGraphNode(selectedNode) ? selectedNode : null} />
-      <SketchDialog node={$isSketchNode(selectedNode) ? selectedNode : null} />
-      <TableDialog />
+      <ImageDialog editor={activeEditor} node={$isImageNode(selectedNode) ? selectedNode : null} />
+      <GraphDialog editor={activeEditor} node={$isGraphNode(selectedNode) ? selectedNode : null} />
+      <SketchDialog editor={activeEditor} node={$isSketchNode(selectedNode) ? selectedNode : null} />
+      <TableDialog editor={activeEditor} />
     </>
   );
 }

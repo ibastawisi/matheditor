@@ -34,7 +34,6 @@ import {
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import ImageResizer from './ImageResizer';
-import { $isImageNode } from './index';
 
 const imageCache = new Set();
 
@@ -116,10 +115,10 @@ export function ImageComponent({
         const event: KeyboardEvent = payload;
         event.preventDefault();
         const node = $getNodeByKey(nodeKey);
-        if ($isImageNode(node)) {
+        if (node) {
+          node.selectPrevious();
           node.remove();
         }
-        setSelected(false);
       }
       return false;
     },

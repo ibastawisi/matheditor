@@ -3,6 +3,8 @@ import {
   SerializedEditorState,
   LexicalEditor,
   EditorState,
+  $getSelection,
+  SELECTION_CHANGE_COMMAND,
 } from 'lexical';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
@@ -59,12 +61,11 @@ export default function StickyComponent({ nodeKey, color, data, }: { data?: Seri
 
   useEffect(() => {
     mergeRegister(
-      rootEditor.registerCommand<MouseEvent>(
-        CLICK_COMMAND,
-        (payload) => {
-          const event = payload;
-          const target = event.target as HTMLElement;
-          if (target === stickyContainerRef.current || stickyContainerRef.current?.contains(target)) {
+      stickyEditor.current.registerCommand(
+        SELECTION_CHANGE_COMMAND,
+        () => {
+          const selection = $getSelection();
+          if (selection) {
             clearSelection();
             setSelected(true);
             return true;
@@ -76,7 +77,7 @@ export default function StickyComponent({ nodeKey, color, data, }: { data?: Seri
     );
   }, [
     clearSelection,
-    rootEditor,
+    stickyEditor,
     isSelected,
     nodeKey,
     setSelected,
