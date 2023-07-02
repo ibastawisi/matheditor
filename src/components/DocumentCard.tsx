@@ -306,6 +306,7 @@ function DocumentActionMenu({ document, variant }: { document: Omit<EditorDocume
           letter-spacing: 0.00938em;
           max-width: 1200px;
           margin: 2rem auto;
+          padding: 0 1.5rem;
         }
         img {
           max-width: 100%;
