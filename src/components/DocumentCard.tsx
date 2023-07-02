@@ -46,6 +46,7 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
 import HtmlIcon from '@mui/icons-material/Html';
 import theme from '../lexical/theme.css?inline';
+import stickyStyles from '../lexical/nodes/StickyNode/StickyNode.css?inline';
 
 import SvgIcon from '@mui/material/SvgIcon';
 import { generateMarkdown, generateHtml } from '../lexical/utils/generateExportContent';
@@ -298,25 +299,15 @@ function DocumentActionMenu({ document, variant }: { document: Omit<EditorDocume
       <meta name="title" content="${document.name}" />
       <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
       <style>
-        body {
-          font-family: "Roboto","Helvetica","Arial",sans-serif;
-          font-weight: 400;
-          font-size: 1rem;
-          line-height: 1.5;
-          letter-spacing: 0.00938em;
-          max-width: 1200px;
-          margin: 2rem auto;
-          padding: 0 1.5rem;
-        }
-        img {
-          max-width: 100%;
-        }
+        html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;box-sizing:border-box;-webkit-text-size-adjust:100%;}
+        *,*::before,*::after{box-sizing:inherit;}
+        body{font-family:"Roboto","Helvetica","Arial",sans-serif;font-weight:400;font-size:1rem;line-height:1.5;letter-spacing:0.00938em;max-width:1200px;margin:2rem auto;padding:0 1.5rem;}
+        img{max-width:100%;}
         ${theme}
+        ${stickyStyles}
       </style>
       <script src="https://unpkg.com/mathlive"></script>
-      <script defer>
-        window.addEventListener('DOMContentLoaded', () => MathLive.renderMathInDocument());
-      </script>
+      <script defer>window.addEventListener('DOMContentLoaded', () => MathLive.renderMathInDocument());</script>
     </head>
     `;
     return `<html>${head}<body>${html}</body></html>`;

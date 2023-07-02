@@ -209,13 +209,15 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
   }
 
   exportDOM(editor: LexicalEditor): any {
-    const element = this.createDOM(editor._config);
+    const element = document.createElement('sticky');
+    const key = this.getKey();
+    element.setAttribute('key', key);
     return { element };
   };
 
   createDOM(config: EditorConfig): HTMLElement {
     const div = document.createElement('div');
-    div.style.float = 'right';
+    div.className = 'sticky-note-wrapper';
     return div;
   }
 
