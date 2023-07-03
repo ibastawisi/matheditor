@@ -7,9 +7,9 @@
  */
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { LexicalCommand, $getRoot, $createParagraphNode, $isParagraphNode, LexicalEditor } from 'lexical';
+import { LexicalCommand, $createParagraphNode, LexicalEditor, $insertNodes, $isRootNode } from 'lexical';
 import { useEffect } from 'react';
-import { mergeRegister } from '@lexical/utils';
+import { mergeRegister, $wrapNodeInElement } from '@lexical/utils';
 import {
   $createRangeSelection,
   $getSelection,
@@ -40,21 +40,10 @@ export default function StickyPlugin(): JSX.Element | null {
         INSERT_STICKY_COMMAND,
         (payload) => {
           const stickyNode = $createStickyNode(payload);
-          const paragraphNode = $createParagraphNode();
-          paragraphNode.append(stickyNode);
-          const selection = $getSelection();
-          const nodes = selection?.getNodes();
-          const root = $getRoot();
-          const selectedNode = nodes ? nodes[nodes.length - 1] : root.getLastDescendant();
-          const parent = selectedNode!.getParentOrThrow();
-          if ($isParagraphNode(selectedNode)) {
-            selectedNode.append(stickyNode);
-          } else if ($isParagraphNode(parent)) {
-            selectedNode?.insertBefore(stickyNode);
-          } else {
-            parent?.insertAfter(paragraphNode);
+          $insertNodes([stickyNode]);
+          if ($isRootNode(stickyNode.getParentOrThrow())) {
+            $wrapNodeInElement(stickyNode, $createParagraphNode)
           }
-
           stickyNode.select();
           return true;
         },

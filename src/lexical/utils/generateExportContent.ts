@@ -54,7 +54,7 @@ const convertStickyElements = (elements: NodeListOf<Element>, editorState: any) 
     return generateHtml(data).then((html) => {
       const wrapper = document.createElement('div');
       wrapper.className = "sticky-note-wrapper";
-      wrapper.innerHTML = `<div class="sticky-note-container"><div class="sticky-note ${color}"><div class="StickyNode__contentEditable">${html}</div></div></div>`;
+      wrapper.innerHTML = `<div class="sticky-note-container" theme="light"><div class="sticky-note ${color}"><div class="StickyNode__contentEditable">${html}</div></div></div>`;
       element.replaceWith(wrapper);
       const parentElement = wrapper.parentElement!;
       // if the parent element is a paragraph, we need to replace it with a div

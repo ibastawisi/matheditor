@@ -5,7 +5,7 @@ import { $getNodeByKey, DecoratorNode, } from 'lexical';
 import { createRef, useCallback, useEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
-import { MathfieldElement, MathfieldElementAttributes } from "mathlive";
+import { MathfieldElement, MathfieldElementAttributes, convertLatexToMarkup } from "mathlive";
 import { DOMAttributes } from "react";
 import './index.css';
 
@@ -207,7 +207,7 @@ export class MathNode extends DecoratorNode<JSX.Element> {
 
   exportDOM(): DOMExportOutput {
     const element = this.createDOM();
-    element.textContent = `$$${this.getValue()}$$`;
+    element.innerHTML = convertLatexToMarkup(this.__value);
     return { element };
   }
 

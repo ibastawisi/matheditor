@@ -113,7 +113,7 @@ export default function StickyComponent({ nodeKey, color, data, }: { data?: Seri
   }
 
   return (
-    <div ref={stickyContainerRef} className={"sticky-note-container" + (isSelected ? " draggable" : "")} draggable={isSelected}>
+    <div ref={stickyContainerRef} className={"sticky-note-container" + (isSelected ? " draggable" : "")} draggable={isSelected} {...{ theme: 'light' }}>
       {isEditable && (<div className='sticky-tools'>
         <IconButton sx={{ displayPrint: 'none' }} onClick={handleDelete} aria-label="Delete sticky note" title="Delete" color='inherit' size='small'>
           <DeleteIcon fontSize='inherit' />
@@ -126,7 +126,7 @@ export default function StickyComponent({ nodeKey, color, data, }: { data?: Seri
         </IconButton>
         }
       </div>)}
-      <div className={`sticky-note ${color}`} {...{ theme: 'light' }}>
+      <div className={`sticky-note ${color}`}>
         <LexicalNestedComposer initialEditor={stickyEditor.current}>
           <EditorPlugins contentEditable={<ContentEditable className="StickyNode__contentEditable" />} onChange={onChange} />
         </LexicalNestedComposer>

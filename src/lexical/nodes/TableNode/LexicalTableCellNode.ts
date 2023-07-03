@@ -142,22 +142,14 @@ export class TableCellNode extends DEPRECATED_GridCellNode {
 
     if (element) {
       const element_ = element as HTMLTableCellElement;
-      const maxWidth = 700;
-      const colCount = this.getParentOrThrow().getChildrenSize();
-      element_.style.border = '1px solid black';
       if (this.__colSpan > 1) {
         element_.colSpan = this.__colSpan;
       }
       if (this.__rowSpan > 1) {
         element_.rowSpan = this.__rowSpan;
       }
-      element_.style.width = `${this.getWidth() || Math.max(90, maxWidth / colCount)}px`;
-
-      element_.style.verticalAlign = 'top';
-      element_.style.textAlign = 'start';
-
-      if (this.hasHeader()) {
-        element_.style.backgroundColor = '#f2f3f5';
+      if (this.__width) {
+        element_.style.width = `${this.getWidth()}px`;
       }
       const style = this.getStyle();
       if (style !== '') {

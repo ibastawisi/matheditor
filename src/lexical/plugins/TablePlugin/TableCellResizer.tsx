@@ -112,7 +112,7 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
             editor.update(() => {
               const tableCellNode = $getNearestNodeFromDOMNode(cell.elem);
               if (!tableCellNode) {
-                throw new Error('TableCellResizer: Table cell node not found.');
+                return;
               }
 
               const tableNode =
@@ -120,7 +120,7 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
               const tableElement = editor.getElementByKey(tableNode.getKey());
 
               if (!tableElement) {
-                throw new Error('TableCellResizer: Table element not found.');
+                return;
               }
 
               targetRef.current = target as HTMLElement;
