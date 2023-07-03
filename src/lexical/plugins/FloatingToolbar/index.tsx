@@ -6,7 +6,7 @@
  *
  */
 
-import { $isCodeHighlightNode } from '@lexical/code';
+import { $isCodeHighlightNode } from '../../nodes/CodeNode';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { mergeRegister } from '@lexical/utils';
 import Paper from '@mui/material/Paper';

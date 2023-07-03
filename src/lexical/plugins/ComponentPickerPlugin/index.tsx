@@ -6,7 +6,7 @@
  *
  */
 
-import { $createCodeNode } from '@lexical/code';
+import { $createCodeNode } from '../../nodes/CodeNode';
 import {
   INSERT_CHECK_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,

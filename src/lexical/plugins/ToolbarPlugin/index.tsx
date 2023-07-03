@@ -1,5 +1,5 @@
 import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, ElementNode, LexicalNode, NodeKey, RangeSelection, TextNode } from 'lexical';
-import { $isCodeNode, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from '@lexical/code';
+import { $isCodeNode, CODE_LANGUAGE_MAP, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from '../../nodes/CodeNode';
 import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
@@ -61,14 +61,6 @@ function getCodeLanguageOptions(): [string, string][] {
 }
 
 const CODE_LANGUAGE_OPTIONS = getCodeLanguageOptions();
-
-const CODE_LANGUAGE_MAP = {
-  javascript: 'js',
-  md: 'markdown',
-  plaintext: 'plain',
-  python: 'py',
-  text: 'plain',
-};
 
 export function getSelectedNode(selection: RangeSelection): TextNode | ElementNode {
   const anchor = selection.anchor;

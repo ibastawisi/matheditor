@@ -36,7 +36,7 @@ import TabFocusPlugin from './plugins/TabFocusPlugin';
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { TableCellNode, TableNode, TableRowNode } from "./nodes/TableNode";
 import { ListItemNode, ListNode } from "@lexical/list";
-import { CodeHighlightNode, CodeNode } from "@lexical/code";
+import { CodeHighlightNode, CodeNode } from "./nodes/CodeNode";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { HorizontalRuleNode } from "@lexical/react/LexicalHorizontalRuleNode";
 import { MathNode } from "./nodes/MathNode";
