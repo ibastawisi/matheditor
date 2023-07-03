@@ -19,8 +19,9 @@ export const updateSW = registerSW({
   onNeedRefresh() {
     store.dispatch(actions.app.announce(
       {
-        message: "New update available! Refresh to get the latest version",
-        action: { label: "Refresh", onClick: "updateSW(true)" }
+        message: "New update available!",
+        action: { label: "Apply update", onClick: "updateSW(true)" },
+        timeout: 6000
       }
     ));
   },
