@@ -24,7 +24,7 @@ import logo from "../assets/logo.svg";
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const trigger = useScrollTrigger({
-    disableHysteresis: true,
+    disableHysteresis: !!['/edit', '/playground', '/tutorial'].find(path => location.pathname.startsWith(path)),
     threshold: 32,
   });
   return (
@@ -66,8 +66,8 @@ const TopAppBar: React.FC<{}> = () => {
   const theme = useTheme();
   const user = useSelector((state: RootState) => state.app.user);
 
-  const showPrintButton = !["/", "/new", "/dashboard"].includes(location.pathname) && !location.pathname.startsWith("/user");
-  
+  const showPrintButton = !!['/edit', '/view', '/playground', '/tutorial'].find(path => location.pathname.startsWith(path));
+
   return (
     <>
       <LoadingBar className='loading-bar' style={{ position: 'fixed' }} />
