@@ -9,7 +9,6 @@ import {
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 import {
-  CLICK_COMMAND,
   COMMAND_PRIORITY_LOW,
 } from 'lexical';
 
@@ -22,7 +21,7 @@ import {
   $getNodeByKey,
   createEditor,
 } from 'lexical';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import isEqual from 'fast-deep-equal';
 
 import StickyEditorTheme from './StickyEditorTheme';
@@ -33,31 +32,27 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import IconButton from '@mui/material/IconButton';
 import { EditorPlugins } from '../../index';
 import { $isStickyNode } from '.';
+import useLexicalEditable from '@lexical/react/useLexicalEditable';
 
 export default function StickyComponent({ nodeKey, color, data, }: { data?: SerializedEditorState; color: 'pink' | 'yellow'; nodeKey: NodeKey; }): JSX.Element {
   const [rootEditor] = useLexicalComposerContext();
-  const [isEditable, setisEditable] = useState(() => rootEditor.isEditable());
+  const isEditable = useLexicalEditable();
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
 
   const initialState = data ? rootEditor.parseEditorState(JSON.stringify(data)) : undefined;
 
-  const stickyEditor = useRef<LexicalEditor>(createEditor({ editorState: initialState, theme: StickyEditorTheme }));
+  const stickyEditor = useRef<LexicalEditor>(createEditor({ editorState: initialState, editable: isEditable, theme: StickyEditorTheme }));
   const stickyContainerRef = useRef<null | HTMLDivElement>(null);
 
   useEffect(() => {
-    const editable = rootEditor.isEditable();
-    setisEditable(editable);
     const editor = stickyEditor.current;
-    editor.setEditable(editable);
     if (editor && data) {
       const oldState = editor.getEditorState().toJSON();
-      if (JSON.stringify(oldState) === JSON.stringify(data)) return;
-      const newState = editor.parseEditorState(
-        JSON.stringify(data),
-      );
+      if (isEqual(oldState, data)) return;
+      const newState = editor.parseEditorState(data);
       editor.setEditorState(newState);
     }
-  }, [stickyEditor, rootEditor, data]);
+  }, [stickyEditor, data]);
 
   useEffect(() => {
     mergeRegister(
