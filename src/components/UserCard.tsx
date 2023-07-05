@@ -6,8 +6,8 @@ import Typography from '@mui/material/Typography';
 import { User } from '../slices/app';
 import Button from '@mui/material/Button';
 import { actions } from '../slices';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../store';
 import CardActions from '@mui/material/CardActions';
 import Skeleton from '@mui/material/Skeleton';
 import { BACKEND_URL } from '../config';
@@ -16,10 +16,11 @@ import IconButton from '@mui/material/IconButton';
 import ShareIcon from '@mui/icons-material/Share';
 import { Link as RouterLink } from 'react-router-dom';
 import CardActionArea from '@mui/material/CardActionArea';
+import ArticleIcon from '@mui/icons-material/Article';
+import Chip from "@mui/material/Chip";
 
-export default function UserCard({ user, hideControls }: { user?: User | null, hideControls?: boolean }) {
+export default function UserCard({ user, variant = 'user' }: { user?: User | null, variant?: 'user' | 'public' | 'admin' }) {
   const dispatch = useDispatch<AppDispatch>();
-
   const login = async () => {
     const googleLoginURL = BACKEND_URL + "/auth/login";
     window.open(googleLoginURL, "_blank", "width=500,height=600");
@@ -45,34 +46,39 @@ export default function UserCard({ user, hideControls }: { user?: User | null, h
   return (
     <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-        <CardActionArea component={RouterLink} to={user?`/user/${user.id}`: '/dashboard'} sx={{ flex: '1 0 auto', w: '100%' }}>
+        <CardActionArea component={RouterLink} to={user ? `/user/${user.id}` : '/dashboard'} sx={{ flex: '1 0 auto', w: '100%' }}>
           <CardContent>
-            <Typography component="div" variant="h5">
+            <Typography variant={variant !== 'admin' ? "h5" : "subtitle1"}>
               {user ? user.name : <Skeleton variant="text" width={190} />}
             </Typography>
-            <Typography variant="subtitle1" color="text.secondary" component="div">
+            <Typography variant={variant !== 'admin' ? "subtitle1" : "subtitle2"} color="text.secondary">
               {user ? user.email : <Skeleton variant="text" width={150} />}
             </Typography>
+            {user && variant === 'admin' && <Typography variant="subtitle2" color="text.secondary">
+              Registered At: {new Date(user.createdAt).toLocaleDateString()}
+            </Typography>
+            }
           </CardContent>
         </CardActionArea>
         <CardActions>
-          {!hideControls && <>
+          {variant === 'user' && <>
             {user && <Button size='small' onClick={logout}>Logout</Button>}
             {!user && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>Login with Google</Button>}
           </>}
-          <IconButton size="small" aria-label="Share" onClick={handleShare} disabled={!user}>
+          {user && variant === 'admin' && <Chip icon={<ArticleIcon />} label={`${user.documents.length} documents`} />}
+          {user && variant !== 'admin' && <IconButton size="small" aria-label="Share" onClick={handleShare} disabled={!user}>
             <ShareIcon />
-          </IconButton>
+          </IconButton>}
         </CardActions>
       </Box>
       {user ?
         <CardMedia
           component="img"
-          sx={{ width: 151 }}
+          sx={{ width: variant === 'admin' ? 90 : 151, flexShrink: 0 }}
           image={user.picture}
           alt={user.name}
         /> :
-        <Skeleton variant="rectangular" width={151} height={151} />
+        <Skeleton variant="rectangular" width={variant === 'admin' ? 90 : 151} height={variant === 'admin' ? 90 : 151} />
       }
     </Card>
   );

@@ -4,7 +4,7 @@ import CardHeader from '@mui/material/CardHeader';
 import CardActions from '@mui/material/CardActions';
 import Avatar from '@mui/material/Avatar';
 import { Link as RouterLink } from 'react-router-dom';
-import { EditorDocument } from '../slices/app';
+import { AdminDocument, EditorDocument, UserDocument } from '../slices/app';
 import ArticleIcon from '@mui/icons-material/Article';
 import { RootState } from '../store';
 import { useSelector } from 'react-redux';
@@ -19,16 +19,17 @@ import CloudIcon from '@mui/icons-material/Cloud';
 
 import SvgIcon from '@mui/material/SvgIcon';
 import DocumentActionMenu, { options } from './DocumentActionMenu';
+import Typography from '@mui/material/Typography';
 
 export const MarkdownIcon = () => <SvgIcon viewBox="0 0 640 512" fontSize='small'>
   <path d="M593.8 59.1H46.2C20.7 59.1 0 79.8 0 105.2v301.5c0 25.5 20.7 46.2 46.2 46.2h547.7c25.5 0 46.2-20.7 46.1-46.1V105.2c0-25.4-20.7-46.1-46.2-46.1zM338.5 360.6H277v-120l-61.5 76.9-61.5-76.9v120H92.3V151.4h61.5l61.5 76.9 61.5-76.9h61.5v209.2zm135.3 3.1L381.5 256H443V151.4h61.5V256H566z" />
 </SvgIcon>;
 
 
-const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 'local' | 'cloud' | 'public' }> = ({ document, variant }) => {
+const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 'local' | 'cloud' | 'public' | 'admin' }> = ({ document, variant }) => {
   const user = useSelector((state: RootState) => state.app.user);
   const cloudDocument = user?.documents?.find(d => d.id === document.id);
-  const isUploaded = !!cloudDocument || variant === "public";
+  const isUploaded = !!cloudDocument || variant === "public" || variant === "admin";
   const isUpToDate = cloudDocument?.updatedAt === document.updatedAt;
   const isPublic = cloudDocument?.isPublic || variant === "public" && document.isPublic;
 
@@ -42,10 +43,25 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
 
   return (
     <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
-      <CardActionArea component={RouterLink} to={`/${variant === 'public' ? 'view' : 'edit'}/${document.id}`} sx={{ flexGrow: 1 }}>
+      <CardActionArea component={RouterLink} to={`/${variant === 'public' || variant === 'admin' ? 'view' : 'edit'}/${document.id}`} sx={{ flexGrow: 1 }}>
         <CardHeader
           title={document.name}
-          subheader={new Date(document.createdAt).toLocaleDateString()}
+          subheader={
+            variant === "admin" ?
+              <>
+                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                  Author: {(document as AdminDocument).author.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Created: {new Date(document.createdAt).toLocaleString()}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Updated: {new Date(document.updatedAt).toLocaleString()}
+                </Typography>
+              </>
+              : new Date(document.createdAt).toLocaleDateString()
+
+          }
           avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>}
         />
       </CardActionArea>

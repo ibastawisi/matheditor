@@ -17,19 +17,13 @@ import UserCard from "./UserCard";
 import Avatar from "@mui/material/Avatar";
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import documentDB from "../db";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardHeader from "@mui/material/CardHeader";
 import ArticleIcon from '@mui/icons-material/Article';
 import HelpIcon from '@mui/icons-material/Help';
+import { SortControl } from "./SortControl";
+import { SortOption } from "../hooks/useSort";
 
 const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.app.documents);
@@ -40,32 +34,12 @@ const Documents: React.FC = () => {
   const cloudDocuments = user?.documents.filter(d => !localDocuments.includes(d.id)) || [];
   const allDocuments = [...documents, ...cloudDocuments];
 
-  const [sort, setSort] = useState('updated-desc');
-  const handleSortChange = (event: SelectChangeEvent) => {
-    const value = event.target.value as string;
-    setSort(value);
-  };
-
-  const sortDocuments = (documents: UserDocument[]) => {
-    const sortBy = sort.split('-')[0];
-    const sortDirection = sort.split('-')[1];
-    switch (sortBy) {
-      case "updated":
-        return sortDirection === 'asc' ?
-          [...documents].sort((a, b) => Date.parse(a.updatedAt) - Date.parse(b.updatedAt)) :
-          [...documents].sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
-      case "created":
-        return sortDirection === 'asc' ?
-          [...documents].sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt)) :
-          [...documents].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
-      case "name":
-        return sortDirection === 'asc' ?
-          [...documents].sort((a, b) => a.name.localeCompare(b.name)) :
-          [...documents].sort((a, b) => b.name.localeCompare(a.name));
-      default:
-        return documents;
-    }
-  }
+  const [sortedDocuments, setSortedDocuments] = useState(allDocuments);
+  const documentSortOptions: SortOption<UserDocument>[] = [
+    { label: 'Updated', value: 'updatedAt' },
+    { label: 'Created', value: 'createdAt' },
+    { label: 'Name', value: 'name' },
+  ];
 
   useEffect(() => {
     if ("launchQueue" in window && "LaunchParams" in window) {
@@ -162,59 +136,9 @@ const Documents: React.FC = () => {
       </Box>
       <Box sx={{ my: 3 }}>
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", gap: 1, mb: 1 }}>
-          <Typography variant="h6" component="h2" sx={{ mb: 1 }}>Documents</Typography>
+          <Typography variant="h6" component="h2" sx={{ mb: 1, display: { xs: 'none', sm: 'block' } }}>Documents</Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
-            <FormControl size="small">
-              <InputLabel id="sort-select-label">Sort</InputLabel>
-              <Select
-                labelId="sort-select-label"
-                id="sort-select"
-                value={sort}
-                label="Sort"
-                onChange={handleSortChange}
-                sx={{
-                  '& .MuiSelect-select': { display: 'flex', alignItems: 'center', py: 0.5 },
-                  '& .MuiListItemIcon-root': { minWidth: 30 },
-                }}
-              >
-                <MenuItem value="updated-desc">
-                  <ListItemIcon>
-                    <ArrowDownwardIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Updated</ListItemText>
-                </MenuItem>
-                <MenuItem value="updated-asc">
-                  <ListItemIcon>
-                    <ArrowUpwardIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Updated</ListItemText>
-                </MenuItem>
-                <MenuItem value="created-desc">
-                  <ListItemIcon>
-                    <ArrowDownwardIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Created</ListItemText>
-                </MenuItem>
-                <MenuItem value="created-asc">
-                  <ListItemIcon>
-                    <ArrowUpwardIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Created</ListItemText>
-                </MenuItem>
-                <MenuItem value="name-asc">
-                  <ListItemIcon>
-                    <ArrowDownwardIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Name</ListItemText>
-                </MenuItem>
-                <MenuItem value="name-desc">
-                  <ListItemIcon>
-                    <ArrowUpwardIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Name</ListItemText>
-                </MenuItem>
-              </Select>
-            </FormControl>
+            <SortControl<UserDocument> data={allDocuments} onSortChange={setSortedDocuments} sortOptions={documentSortOptions} initialSortDirection="desc" />
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center" }}>
               <Button variant="outlined" startIcon={<UploadFileIcon />} component="label">
                 Import
@@ -241,7 +165,7 @@ const Documents: React.FC = () => {
               </CardActionArea>
             </Card>
           </Grid>
-          {sortDocuments(allDocuments).map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
+          {sortedDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
             <DocumentCard document={document} variant={localDocuments.includes(document.id) ? "local" : "cloud"} />
           </Grid>)}
         </Grid>
