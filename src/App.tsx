@@ -6,8 +6,7 @@ import { Route, Routes } from "react-router-dom";
 import ThemeProvider from './components/ThemeProvider';
 import { lazy, Suspense, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from './store';
-import { actions } from './slices';
+import { AppDispatch, RootState, actions } from './store';
 import { Helmet } from 'react-helmet';
 import { BACKEND_URL } from './config';
 

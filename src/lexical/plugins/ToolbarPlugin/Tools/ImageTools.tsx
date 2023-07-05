@@ -10,7 +10,7 @@ import { useState } from "react";
 import { SketchNode, $isSketchNode } from "../../../nodes/SketchNode";
 import { $isGraphNode, GraphNode, GraphType } from "../../../nodes/GraphNode";
 import { useDispatch } from "react-redux";
-import { actions } from "../../../../slices";
+import { actions } from "../../../../store";
 
 export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor, node: ImageNode | GraphNode | SketchNode, sx?: SxProps<Theme> | undefined }): JSX.Element {
   const dispatch = useDispatch();

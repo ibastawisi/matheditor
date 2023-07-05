@@ -7,8 +7,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import { actions } from '../slices';
-import { RootState } from '../store';
+import { actions, RootState } from '../store';
 
 
 export default function AlertDialog() {
@@ -27,7 +26,7 @@ export default function AlertDialog() {
     dispatch(actions.app.clearAlert());
   }
 
-  if(!alert) return null;
+  if (!alert) return null;
   return (
     <Dialog open onClose={handleClose}>
       <DialogTitle>{alert.title}</DialogTitle>

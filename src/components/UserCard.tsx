@@ -1,13 +1,11 @@
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-import { User } from '../slices/app';
+import { User } from '../store/app';
 import Button from '@mui/material/Button';
-import { actions } from '../slices';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../store';
+import { useDispatch } from 'react-redux';
+import { actions, AppDispatch } from '../store';
 import CardActions from '@mui/material/CardActions';
 import Skeleton from '@mui/material/Skeleton';
 import { BACKEND_URL } from '../config';

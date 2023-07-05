@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { actions } from "../slices";
+import { actions } from "../store";
 import { AppDispatch } from "../store";
 import { useParams } from "react-router-dom";
 import Editor from "../lexical";
@@ -9,7 +9,7 @@ import Editor from "../lexical";
 import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
 import documentDB from "../db";
-import { EditorDocument } from "../slices/app";
+import { EditorDocument } from "../store/app";
 
 const EditDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();

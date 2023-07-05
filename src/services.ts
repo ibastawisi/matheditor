@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { DocumentWithUserId, EditorDocument, User } from './slices/app';
+import { DocumentWithUserId, EditorDocument, User } from './store/app';
 import { BACKEND_URL } from './config';
 
 const createDocument = async (data: EditorDocument) => {
@@ -7,8 +7,8 @@ const createDocument = async (data: EditorDocument) => {
   return response.data;
 }
 
-const updateDocument = async (data: EditorDocument) => {
-  const response = await axios.put(BACKEND_URL + `/documents/${data.id}`, data, { withCredentials: true })
+const updateDocument = async (id: string, data: Partial<EditorDocument>) => {
+  const response = await axios.put(BACKEND_URL + `/documents/${id}`, data, { withCredentials: true })
   return response.data;
 }
 

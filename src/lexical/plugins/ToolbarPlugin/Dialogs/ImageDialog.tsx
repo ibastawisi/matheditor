@@ -16,8 +16,7 @@ import Typography from '@mui/material/Typography';
 import Compressor from 'compressorjs';
 import { ImageNode } from '../../../nodes/ImageNode';
 import { useSelector, useDispatch } from 'react-redux';
-import { actions } from '../../../../slices';
-import { RootState } from '../../../../store';
+import { actions, RootState } from '../../../../store';
 import DialogTitle from '@mui/material/DialogTitle';
 
 export default function useImageDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode | null; }) {

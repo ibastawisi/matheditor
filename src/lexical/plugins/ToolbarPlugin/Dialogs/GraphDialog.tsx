@@ -9,8 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import { useSelector, useDispatch } from 'react-redux';
-import { actions } from '../../../../slices';
-import { RootState } from '../../../../store';
+import { actions, RootState } from '../../../../store';
 
 export default function GraphDialog({ editor, node }: { editor: LexicalEditor, node: GraphNode | null; }) {
   const open = useSelector((state: RootState) => state.app.ui.dialogs.graph?.open) || false;

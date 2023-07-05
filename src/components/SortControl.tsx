@@ -36,7 +36,7 @@ export function SortControl<T>(props: SortProps<T>) {
       <Select
         labelId="sort-select-label"
         id="sort-select"
-        value={String(sortKey)}
+        value={sortKey}
         onChange={handleSortKeyChange}
         sx={theme => ({
           borderTopLeftRadius: 0,
@@ -47,9 +47,9 @@ export function SortControl<T>(props: SortProps<T>) {
           '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' }
         })}
       >
-        {sortOptions.map((option) => (
-          <MenuItem value={String(option.value)}>
-            <ListItemText>{String(option.label)}</ListItemText>
+        {sortOptions.map(option => (
+          <MenuItem value={option.value} key={option.value}>
+            <ListItemText>{option.label}</ListItemText>
           </MenuItem>
         ))}
 

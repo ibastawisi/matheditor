@@ -6,11 +6,11 @@ import { AppDispatch, RootState } from "../store";
 import DocumentCard from "./DocumentCard";
 import Button from "@mui/material/Button";
 import React, { useEffect, useState } from "react";
-import { actions } from "../slices";
+import { actions } from "../store";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import StorageIcon from '@mui/icons-material/Storage';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { EditorDocument, UserDocument } from "../slices/app";
+import { EditorDocument, UserDocument } from "../store/app";
 import { validate } from "uuid";
 
 import UserCard from "./UserCard";

@@ -48,8 +48,8 @@ import { StickyNode } from './nodes/StickyNode';
 import { useDispatch } from "react-redux";
 import { validate } from 'uuid';
 import { AppDispatch } from "../store";
-import { actions } from "../slices";
-import { EditorDocument } from "../slices/app";
+import { actions } from "../store";
+import { EditorDocument } from "../store/app";
 
 import Box from '@mui/material/Box';
 import theme from "./theme";

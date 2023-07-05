@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../store";
 import { useParams } from 'react-router-dom';
 import UserCard from "./UserCard";
-import { User, UserDocument } from "../slices/app";
+import { User, UserDocument } from "../store/app";
 import { getUser } from "../services";
 import DocumentCard from "./DocumentCard";
 import { SortOption } from "../hooks/useSort";

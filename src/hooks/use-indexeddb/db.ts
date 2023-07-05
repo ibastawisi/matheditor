@@ -178,6 +178,19 @@ export function getActions<T>(currentStore: string) {
       });
     },
 
+    patch(id: string | number, value: Partial<T>) {
+      return new Promise<any>((resolve, reject) => {
+        this.getByID(id).then((data) => {
+          if (data) {
+            const updatedData = { ...data, ...value };
+            this.update(updatedData).then(resolve).catch(reject);
+          } else {
+            reject("Not found");
+          }
+        }).catch(reject);
+      });
+    },
+
     deleteByID(id: any) {
       return new Promise<any>((resolve, reject) => {
         getConnection()

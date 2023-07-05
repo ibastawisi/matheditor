@@ -83,7 +83,7 @@ const initialState: AppState = {
   admin: null,
 };
 
-export const loadUserAsync = createAsyncThunk('app/loadUser', async (_, thunkAPI) => {
+export const loadUserAsync = createAsyncThunk('app/loadUserAsync', async (_, thunkAPI) => {
   thunkAPI.dispatch(showLoading())
   try {
     const response = await getAuthenticatedUser()
@@ -96,7 +96,7 @@ export const loadUserAsync = createAsyncThunk('app/loadUser', async (_, thunkAPI
   }
 });
 
-export const loadDocumentsAsync = createAsyncThunk('app/loadDocuments', async (_, thunkAPI) => {
+export const loadDocumentsAsync = createAsyncThunk('app/loadDocumentsAsync', async (_, thunkAPI) => {
   thunkAPI.dispatch(showLoading())
   try {
     const documents = await documentDB.getAll();
@@ -113,7 +113,7 @@ export const loadDocumentsAsync = createAsyncThunk('app/loadDocuments', async (_
   }
 });
 
-export const logoutAsync = createAsyncThunk('app/logout', async (_, thunkAPI) => {
+export const logoutAsync = createAsyncThunk('app/logoutAsync', async (_, thunkAPI) => {
   try {
     thunkAPI.dispatch(showLoading())
     const response = await logout();
@@ -126,7 +126,7 @@ export const logoutAsync = createAsyncThunk('app/logout', async (_, thunkAPI) =>
   }
 });
 
-export const getDocumentAsync = createAsyncThunk('app/getDocument', async (id: string, thunkAPI) => {
+export const getDocumentAsync = createAsyncThunk('app/getDocumentAsync', async (id: string, thunkAPI) => {
   try {
     thunkAPI.dispatch(showLoading());
     const response = await getDocument(id);
@@ -139,12 +139,10 @@ export const getDocumentAsync = createAsyncThunk('app/getDocument', async (id: s
   }
 });
 
-export const uploadDocumentAsync = createAsyncThunk('app/uploadDocument', async (document: EditorDocument, thunkAPI) => {
+export const createDocumentAsync = createAsyncThunk('app/createDocumentAsync', async (document: EditorDocument, thunkAPI) => {
   thunkAPI.dispatch(showLoading());
-  const state = thunkAPI.getState() as RootState;
-  const documents = state.app.user?.documents ?? [];
   try {
-    documents.find(d => d.id === document.id) ? await updateDocument(document) : await createDocument(document);
+    await createDocument(document);
     const { data, ...userDocument } = document;
     thunkAPI.fulfillWithValue(userDocument);
     return userDocument;
@@ -156,7 +154,22 @@ export const uploadDocumentAsync = createAsyncThunk('app/uploadDocument', async 
   }
 });
 
-export const deleteDocumentAsync = createAsyncThunk('app/deleteDocument', async (id: string, thunkAPI) => {
+export const updateDocumentAsync = createAsyncThunk('app/updateDocumentAsync', async (payloadCreator: { id: string, partial: Partial<EditorDocument> }, thunkAPI) => {
+  thunkAPI.dispatch(showLoading());
+  const { id, partial } = payloadCreator;
+  try {
+    await updateDocument(id, partial);
+    thunkAPI.fulfillWithValue(payloadCreator);
+    return payloadCreator;
+  } catch (error: any) {
+    const message: string = error.response?.data?.error || error.message;
+    return thunkAPI.rejectWithValue(message);
+  } finally {
+    thunkAPI.dispatch(hideLoading())
+  }
+});
+
+export const deleteDocumentAsync = createAsyncThunk('app/deleteDocumentAsync', async (id: string, thunkAPI) => {
   try {
     thunkAPI.dispatch(showLoading());
     await deleteDocument(id);
@@ -169,7 +182,7 @@ export const deleteDocumentAsync = createAsyncThunk('app/deleteDocument', async 
   }
 });
 
-export const loadAdminAsync = createAsyncThunk('app/loadAdmin', async (_, thunkAPI) => {
+export const loadAdminAsync = createAsyncThunk('app/loadAdminAsync', async (_, thunkAPI) => {
   thunkAPI.dispatch(showLoading())
   try {
     const [users, documents] = await Promise.all([getAllUsers(), getAllDocuments()]);
@@ -219,8 +232,15 @@ export const appSlice = createSlice({
       documentDB.update(document);
       const userDocument = state.documents.find(d => d.id === document.id);
       if (userDocument) {
+        userDocument.name = document.name;
         userDocument.updatedAt = document.updatedAt;
       }
+    },
+    updateDocument: (state, action: PayloadAction<{ id: string, partial: Partial<EditorDocument> }>) => {
+      const { id, partial } = action.payload;
+      documentDB.patch(id, partial);
+      const document = state.documents.find(d => d.id === id);
+      if (document) Object.assign(document, partial);
     },
     addDocument: (state, action: PayloadAction<EditorDocument>) => {
       documentDB.add(action.payload);
@@ -265,13 +285,24 @@ export const appSlice = createSlice({
         const message = action.payload as string;
         state.ui.announcements.push({ message });
       })
-      .addCase(uploadDocumentAsync.fulfilled, (state, action) => {
+      .addCase(createDocumentAsync.fulfilled, (state, action) => {
         if (state.user && action.payload) {
-          state.user.documents = state.user.documents.filter(doc => doc.id !== action.payload!.id);
           state.user.documents.unshift(action.payload);
         }
       })
-      .addCase(uploadDocumentAsync.rejected, (state, action) => {
+      .addCase(createDocumentAsync.rejected, (state, action) => {
+        const message = action.payload as string;
+        state.ui.announcements.push({ message });
+      })
+      .addCase(updateDocumentAsync.fulfilled, (state, action) => {
+        if (state.user && action.payload) {
+          const { id, partial } = action.payload;
+          const userDocument = state.user?.documents.find(d => d.id === id);
+          const { data, ...userDocumentWithoutData } = partial;
+          if (userDocument) Object.assign(userDocument, userDocumentWithoutData);
+        }
+      })
+      .addCase(updateDocumentAsync.rejected, (state, action) => {
         const message = action.payload as string;
         state.ui.announcements.push({ message });
       })

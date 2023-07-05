@@ -2,7 +2,7 @@
 import Editor from "../lexical";
 import { Helmet } from "react-helmet";
 import playgroundTemplate from '../templates/Playground.json';
-import { EditorDocument } from "../slices/app";
+import { EditorDocument } from "../store/app";
 
 const Playground: React.FC = () => {
   const document = playgroundTemplate as unknown as EditorDocument;

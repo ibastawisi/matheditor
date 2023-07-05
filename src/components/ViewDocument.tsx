@@ -1,14 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { actions } from "../slices";
+import { actions } from "../store";
 import { AppDispatch } from "../store";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import Editor from "../lexical";
 
 import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
-import { EditorDocument } from "../slices/app";
+import { EditorDocument } from "../store/app";
 import Fab from "@mui/material/Fab";
 import EditIcon from '@mui/icons-material/Edit';
 import useScrollTrigger from "@mui/material/useScrollTrigger";

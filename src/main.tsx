@@ -8,12 +8,11 @@ import '@fontsource/roboto/700.css';
 
 import { registerSW } from "virtual:pwa-register";
 import { Provider } from 'react-redux';
-import { store } from './store';
 import { BrowserRouter } from "react-router-dom";
 import { Analytics } from '@vercel/analytics/react';
 import reportWebVitals from './reportWebVitals';
 import { sendToVercelAnalytics } from './analytics';
-import { actions } from './slices';
+import { store, actions } from './store';
 
 export const updateSW = registerSW({
   onNeedRefresh() {

@@ -1,7 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { actions } from '../slices';
-import { RootState } from '../store';
+import { actions, RootState } from '../store';
 import Snackbar from '@mui/material/Snackbar';
 import Button from '@mui/material/Button';
 import React from 'react';

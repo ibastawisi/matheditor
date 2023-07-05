@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EditorDocument } from '../slices/app';
-import { AppDispatch, RootState } from '../store';
+import { EditorDocument } from '../store/app';
+import { AppDispatch, RootState, actions } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
-import { actions } from '../slices';
 import IconButton from '@mui/material/IconButton';
 import DownloadIcon from '@mui/icons-material/Download';
 import DeleteForever from '@mui/icons-material/DeleteForever';
@@ -65,24 +64,39 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
 
   const navigate = useNavigate();
 
-  const handleUpload = async () => {
+  const handleCreate = async () => {
+    closeMenu();
+    if (!user) return dispatch(actions.app.announce({ message: "Please login to use cloud storage" }));
+    const storedDocument: EditorDocument = await documentDB.getByID(document.id);
+    return await dispatch(actions.app.createDocumentAsync(storedDocument));
+  };
+
+  const handleUpdate = async () => {
     closeMenu();
     if (!user) return dispatch(actions.app.announce({ message: "Please login to use cloud storage" }));
     if (isUpToDate) return dispatch(actions.app.announce({ message: "Document is up to date" }));
     const storedDocument: EditorDocument = await documentDB.getByID(document.id);
-    const updatedDocument: EditorDocument = {
-      ...storedDocument,
-      isPublic: cloudDocument?.isPublic
-    };
-    return await dispatch(actions.app.uploadDocumentAsync(updatedDocument));
+    // const updatedDocument: EditorDocument = {
+    //   ...storedDocument,
+    //   isPublic: cloudDocument?.isPublic
+    // };
+    return await dispatch(actions.app.updateDocumentAsync({ id: document.id, partial: storedDocument }));
   };
 
   const handleShare = async () => {
     closeMenu();
     if (variant != 'public' && !user) return dispatch(actions.app.announce({ message: "Please login to use cloud storage" }));
-    if (variant === "local" && !isUpToDate) {
-      const result = await handleUpload();
-      if (result.type === actions.app.uploadDocumentAsync.rejected.type) return;
+
+    if (variant === "local" && !isUploaded) {
+      dispatch(actions.app.announce({ message: "Saving document to the cloud" }));
+      const result = await handleCreate();
+      if (result.type === actions.app.createDocumentAsync.rejected.type) return;
+    };
+
+    if (variant === "local" && isUpToDate && !isUpToDate) {
+      dispatch(actions.app.announce({ message: "Updating document in the cloud" }));
+      const result = await handleUpdate();
+      if (result.type === actions.app.updateDocumentAsync.rejected.type) return;
     };
 
     const shareData = {
@@ -148,13 +162,8 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
   const togglePublic = async () => {
     closeMenu();
     try {
-      const data = {
-        ...document,
-        isPublic: !isPublic,
-      };
-      await dispatch(actions.app.uploadDocumentAsync(data as EditorDocument));
+      await dispatch(actions.app.updateDocumentAsync({ id: document.id, partial: { isPublic: !isPublic } }));
       dispatch(actions.app.announce({ message: `Document ${isPublic ? "unpublished" : "published"} successfully` }));
-      dispatch(actions.app.loadDocumentsAsync());
     } catch (err) {
       dispatch(actions.app.announce({ message: "Can't update document data" }));
     }
@@ -180,23 +189,18 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
 
   const handleRename = async (event: any) => {
     event.preventDefault();
-      closeRenameDialog();
-    const payload = await getPayload();
-    if (!payload) return dispatch(actions.app.announce({ message: "Can't find document data" }));
-
+    closeRenameDialog();
     try {
-      const data = {
-        ...JSON.parse(payload),
+      const partial: Partial<EditorDocument> = {
         ...formData,
         updatedAt: new Date().toISOString()
-      } as EditorDocument;
+      };
       if (variant === "local") {
-        dispatch(actions.app.saveDocument(data));
+        dispatch(actions.app.updateDocument({ id: document.id, partial }));
       }
       if (isUploaded) {
-        await dispatch(actions.app.uploadDocumentAsync(data));
+        await dispatch(actions.app.updateDocumentAsync({ id: document.id, partial }));
       }
-      dispatch(actions.app.loadDocumentsAsync());
     } catch (err) {
       dispatch(actions.app.announce({ message: "Can't update document data" }));
     }
@@ -371,7 +375,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
         }
         {options.includes('upload') &&
           variant === "local" && !isUpToDate &&
-          <MenuItem onClick={handleUpload}>
+          <MenuItem onClick={isUploaded? handleUpdate: handleCreate}>
             <ListItemIcon>
               {isUploaded ? <CloudSyncIcon /> : <CloudUploadIcon />}
             </ListItemIcon>

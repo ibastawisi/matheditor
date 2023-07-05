@@ -17,8 +17,7 @@ import Remove from '@mui/icons-material/Remove';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { useDispatch, useSelector } from 'react-redux';
-import { actions } from '../../../../slices';
-import { RootState } from '../../../../store';
+import { actions, RootState } from '../../../../store';
 
 export default function useTableDialog({ editor }: { editor: LexicalEditor }) {
   const open = useSelector((state: RootState) => state.app.ui.dialogs.table?.open) || false;

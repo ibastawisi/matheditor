@@ -8,8 +8,7 @@ import { ExcalidrawImperativeAPI, LibraryItems_anyVersion } from '@excalidraw/ex
 import { ImportedLibraryData } from '@excalidraw/excalidraw/types/data/types';
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, useTheme } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { actions } from '../../../../slices';
-import { RootState } from '../../../../store';
+import { actions, RootState } from '../../../../store';
 
 const Excalidraw = lazy(() => import('@excalidraw/excalidraw').then((module) => ({ default: module.Excalidraw })));
 
