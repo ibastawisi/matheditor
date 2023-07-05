@@ -8,8 +8,10 @@ import { SortProps, useSort } from "../hooks/useSort";
 import Box from "@mui/material/Box";
 import ToggleButton from "@mui/material/ToggleButton";
 import { alpha } from "@mui/material";
+import { memo } from 'react';
+import isEqual from 'fast-deep-equal';
 
-export function SortControl<T>(props: SortProps<T>) {
+function SortControl<T>(props: SortProps<T>) {
   const { sortOptions } = props;
   const {
     handleDirectionToggle,
@@ -57,3 +59,6 @@ export function SortControl<T>(props: SortProps<T>) {
     </Box>
   );
 }
+
+const genericMemo: <T>(component: T, propsAreEqual: (prevProps: React.PropsWithChildren<T>, nextProps: React.PropsWithChildren<T>) => boolean) => T = memo;
+export default genericMemo(SortControl, isEqual);

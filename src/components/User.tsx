@@ -4,18 +4,15 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
-import { useSelector } from "react-redux";
-import { RootState } from "../store";
 import { useParams } from 'react-router-dom';
 import UserCard from "./UserCard";
 import { User, UserDocument } from "../store/app";
 import { getUser } from "../services";
 import DocumentCard from "./DocumentCard";
 import { SortOption } from "../hooks/useSort";
-import { SortControl } from "./SortControl";
+import SortControl from "./SortControl";
 
 const User: React.FC = () => {
-  const loggedInUser = useSelector((state: RootState) => state.app.user);
   const [user, setUser] = useState<User | null>(null);
   const params = useParams<{ id: string }>();
 

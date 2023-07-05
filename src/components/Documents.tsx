@@ -22,7 +22,7 @@ import CardActionArea from "@mui/material/CardActionArea";
 import CardHeader from "@mui/material/CardHeader";
 import ArticleIcon from '@mui/icons-material/Article';
 import HelpIcon from '@mui/icons-material/Help';
-import { SortControl } from "./SortControl";
+import SortControl from "./SortControl";
 import { SortOption } from "../hooks/useSort";
 
 const Documents: React.FC = () => {

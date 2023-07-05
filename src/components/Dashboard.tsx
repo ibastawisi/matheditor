@@ -25,7 +25,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DocumentCard from "./DocumentCard";
 import { SortOption } from "../hooks/useSort";
-import { SortControl } from "./SortControl";
+import SortControl from "./SortControl";
 
 const Dashboard: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
