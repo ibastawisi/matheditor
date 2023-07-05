@@ -3,14 +3,14 @@ import { ChangeEvent, useEffect, useState } from 'react';
 
 export type SortDirection = "asc" | "desc";
 
-export type ItemKey<T> = keyof T;
+export type ItemKey<T, K = keyof T> = K extends keyof T & string ? `${K}` | (T[K] extends Array<any> ? K : T[K] extends object ? `${K}.${ItemKey<T[K]>}` : never) : never
 
 /**
  * Mapped type to convert a supplied generic list item type `T`
  * a label / value pair for use in a select control.
  */
 export type SortOption<T> = {
-  label: T[ItemKey<T>];
+  label: string;
   value: ItemKey<T>;
 };
 export interface SortProps<T> {
@@ -21,10 +21,11 @@ export interface SortProps<T> {
   initialSortDirection?: SortDirection;
 }
 
-function compareObjectsByKey<T>(key: keyof T, ascending = true) {
+function compareObjectsByKey<T>(key: ItemKey<T>, ascending = true) {
   return function innerSort(objectA: T, objectB: T) {
-    const sortValue =
-      objectA[key] > objectB[key] ? 1 : objectA[key] < objectB[key] ? -1 : 0;
+    const valueA = key.split('.').reduce((o: any, i) => o[i], objectA);
+    const valueB = key.split('.').reduce((o: any, i) => o[i], objectB);
+    const sortValue = valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
     return ascending ? sortValue : -1 * sortValue;
   };
 }

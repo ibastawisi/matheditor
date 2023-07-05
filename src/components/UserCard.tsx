@@ -18,6 +18,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import CardActionArea from '@mui/material/CardActionArea';
 import ArticleIcon from '@mui/icons-material/Article';
 import Chip from "@mui/material/Chip";
+import Avatar from '@mui/material/Avatar';
 
 export default function UserCard({ user, variant = 'user' }: { user?: User | null, variant?: 'user' | 'public' | 'admin' }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -44,14 +45,14 @@ export default function UserCard({ user, variant = 'user' }: { user?: User | nul
   };
 
   return (
-    <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between' }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+    <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between', height: '100%' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', width: 0, flex: 1 }}>
         <CardActionArea component={RouterLink} to={user ? `/user/${user.id}` : '/dashboard'} sx={{ flex: '1 0 auto', w: '100%' }}>
           <CardContent>
             <Typography variant={variant !== 'admin' ? "h5" : "subtitle1"}>
               {user ? user.name : <Skeleton variant="text" width={190} />}
             </Typography>
-            <Typography variant={variant !== 'admin' ? "subtitle1" : "subtitle2"} color="text.secondary">
+            <Typography variant={variant !== 'admin' ? "subtitle1" : "subtitle2"} color="text.secondary" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {user ? user.email : <Skeleton variant="text" width={150} />}
             </Typography>
             {user && variant === 'admin' && <Typography variant="subtitle2" color="text.secondary">
@@ -66,19 +67,18 @@ export default function UserCard({ user, variant = 'user' }: { user?: User | nul
             {!user && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>Login with Google</Button>}
           </>}
           {user && variant === 'admin' && <Chip icon={<ArticleIcon />} label={`${user.documents.length} documents`} />}
-          {user && variant !== 'admin' && <IconButton size="small" aria-label="Share" onClick={handleShare} disabled={!user}>
+          {variant !== 'admin' && <IconButton size="small" aria-label="Share" onClick={handleShare} disabled={!user}>
             <ShareIcon />
           </IconButton>}
         </CardActions>
       </Box>
       {user ?
-        <CardMedia
-          component="img"
-          sx={{ width: variant === 'admin' ? 90 : 151, flexShrink: 0 }}
-          image={user.picture}
+        <Avatar
+          sx={{ width: 112, height: 112, mx: 2, alignSelf: 'center', flexShrink: 0 }}
+          src={user.picture}
           alt={user.name}
         /> :
-        <Skeleton variant="rectangular" width={variant === 'admin' ? 90 : 151} height={variant === 'admin' ? 90 : 151} />
+        <Skeleton variant="circular" width={112} height={112} sx={{ mx: 2, alignSelf: 'center', flexShrink: 0 }} />
       }
     </Card>
   );

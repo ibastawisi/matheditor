@@ -201,7 +201,7 @@ const UserGrid: React.FC<{ users: User[] }> = memo(({ users }) => {
   const usersortOptions: SortOption<User>[] = [
     { label: 'Created', value: 'createdAt' },
     { label: 'Name', value: 'name' },
-    { label: 'NO. Documents', value: 'documents' },
+    { label: 'Documents', value: 'documents' },
   ];
 
 
@@ -229,8 +229,7 @@ const AdminDocumentsGrid: React.FC<{ documents: AdminDocument[] }> = memo(({ doc
     { label: 'Updated', value: 'updatedAt' },
     { label: 'Created', value: 'createdAt' },
     { label: 'Name', value: 'name' },
-    { label: 'Author', value: 'author' },
-    { label: 'Published', value: 'isPublic' },
+    { label: 'Author', value: 'author.name' },
   ];
   return <Accordion disableGutters TransitionProps={{ unmountOnExit: true }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
