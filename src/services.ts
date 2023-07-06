@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { DocumentWithUserId, EditorDocument, User } from './store/app';
+import { DocumentWithUserId, EditorDocument, User } from './store/types';
 import { BACKEND_URL } from './config';
 
 const createDocument = async (data: EditorDocument) => {

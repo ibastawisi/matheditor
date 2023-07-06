@@ -1,10 +1,11 @@
-import { appSlice, deleteDocumentAsync, getDocumentAsync, loadUserAsync, loadDocumentsAsync, logoutAsync, createDocumentAsync, loadAdminAsync, updateDocumentAsync } from "./app";
+import { appSlice, deleteDocumentAsync, getDocumentAsync, loadUserAsync, loadDocumentsAsync, logoutAsync, createDocumentAsync, loadAdminAsync, updateDocumentAsync, loadAsync } from "./app";
 import { loadingBarReducer, showLoading, hideLoading } from 'react-redux-loading-bar'
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
 export const actions = {
   app: {
     ...appSlice.actions,
+    loadAsync,
     loadUserAsync,
     loadDocumentsAsync,
     logoutAsync,

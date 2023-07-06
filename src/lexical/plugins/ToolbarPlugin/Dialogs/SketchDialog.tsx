@@ -17,7 +17,7 @@ export type ExcalidrawElementFragment = { isDeleted?: boolean; };
 export default function useSketchDialog({ editor, node }: { editor: LexicalEditor, node: SketchNode | null; }) {
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI | null>(null);
   const theme = useTheme();
-  const open = useSelector((state: RootState) => state.app.ui.dialogs.sketch?.open) || false;
+  const open = useSelector((state: RootState) => state.app.ui.dialogs.sketch.open);
   const dispatch = useDispatch();
   const closeDialog = () => dispatch(actions.app.setDialogs({ sketch: { open: false } }));
 

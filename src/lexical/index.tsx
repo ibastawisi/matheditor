@@ -49,7 +49,7 @@ import { useDispatch } from "react-redux";
 import { validate } from 'uuid';
 import { AppDispatch } from "../store";
 import { actions } from "../store";
-import { EditorDocument } from "../store/app";
+import { EditorDocument } from '../store/types';
 
 import Box from '@mui/material/Box';
 import theme from "./theme";

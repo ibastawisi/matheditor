@@ -10,9 +10,8 @@ import { actions } from "../store";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import StorageIcon from '@mui/icons-material/Storage';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { EditorDocument, UserDocument } from "../store/app";
+import { EditorDocument, UserDocument } from '../store/types';
 import { validate } from "uuid";
-
 import UserCard from "./UserCard";
 import Avatar from "@mui/material/Avatar";
 import PostAddIcon from '@mui/icons-material/PostAdd';
@@ -136,7 +135,7 @@ const Documents: React.FC = () => {
       </Box>
       <Box sx={{ my: 3 }}>
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", gap: 1, mb: 1 }}>
-          <Typography variant="h6" component="h2" sx={{ mb: 1, display: { xs: 'none', sm: 'block' } }}>Documents</Typography>
+          <Typography variant="h6" component="h2" sx={{ display: { xs: 'none', sm: 'block' } }}>Documents</Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
             <SortControl<UserDocument> data={allDocuments} onSortChange={setSortedDocuments} sortOptions={documentSortOptions} initialSortDirection="desc" />
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center" }}>
@@ -168,10 +167,8 @@ const Documents: React.FC = () => {
           {sortedDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
             <DocumentCard document={document} variant={localDocuments.includes(document.id) ? "local" : "cloud"} />
           </Grid>)}
+          {!user && <Grid item xs={12}><UserCard /></Grid>}
         </Grid>
-      </Box>
-      <Box sx={{ my: 2 }}>
-        {!user && <UserCard />}
       </Box>
     </>
   )

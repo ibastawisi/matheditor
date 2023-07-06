@@ -23,7 +23,7 @@ export default function useImageDialog({ editor, node }: { editor: LexicalEditor
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [formData, setFormData] = useState({ src: '', altText: '' });
-  const open = useSelector((state: RootState) => state.app.ui.dialogs.image?.open) || false;
+  const open = useSelector((state: RootState) => state.app.ui.dialogs.image.open);
   const dispatch = useDispatch();
   const closeDialog = () => dispatch(actions.app.setDialogs({ image: { open: false } }));
 

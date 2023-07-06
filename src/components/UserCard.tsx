@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { User } from '../store/app';
+import { User } from '../store/types';
 import Button from '@mui/material/Button';
 import { useDispatch } from 'react-redux';
 import { actions, AppDispatch } from '../store';
@@ -47,7 +47,7 @@ export default function UserCard({ user, variant = 'user' }: { user?: User | nul
       <Box sx={{ display: 'flex', flexDirection: 'column', width: 0, flex: 1 }}>
         <CardActionArea component={RouterLink} to={user ? `/user/${user.id}` : '/dashboard'} sx={{ flex: '1 0 auto', w: '100%' }}>
           <CardContent>
-            <Typography variant={variant !== 'admin' ? "h5" : "subtitle1"}>
+            <Typography variant={variant !== 'admin' ? "h6" : "subtitle1"}>
               {user ? user.name : <Skeleton variant="text" width={190} />}
             </Typography>
             <Typography variant={variant !== 'admin' ? "subtitle1" : "subtitle2"} color="text.secondary" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>

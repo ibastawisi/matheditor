@@ -4,7 +4,7 @@ import CardHeader from '@mui/material/CardHeader';
 import CardActions from '@mui/material/CardActions';
 import Avatar from '@mui/material/Avatar';
 import { Link as RouterLink } from 'react-router-dom';
-import { AdminDocument, EditorDocument, UserDocument } from '../store/app';
+import { AdminDocument, EditorDocument, UserDocument } from '../store/types';
 import ArticleIcon from '@mui/icons-material/Article';
 import { RootState } from '../store';
 import { useSelector } from 'react-redux';
@@ -49,7 +49,7 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
           subheader={
             variant === "admin" ?
               <>
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                <Typography variant="subtitle2" color="text.secondary">
                   Author: {(document as AdminDocument).author.name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">

@@ -20,7 +20,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { actions, RootState } from '../../../../store';
 
 export default function useTableDialog({ editor }: { editor: LexicalEditor }) {
-  const open = useSelector((state: RootState) => state.app.ui.dialogs.table?.open) || false;
+  const open = useSelector((state: RootState) => state.app.ui.dialogs.table.open);
   const dispatch = useDispatch();
   const closeDialog = () => dispatch(actions.app.setDialogs({ table: { open: false } }));
 

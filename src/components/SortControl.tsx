@@ -20,7 +20,7 @@ function SortControl<T>(props: SortProps<T>) {
     sortKey
   } = useSort(props);
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <Box sx={{ display: 'flex' }}>
       <ToggleButton
         size="small"
         value="sort-direction"

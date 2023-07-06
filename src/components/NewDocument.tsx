@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField';
 import ArticleIcon from '@mui/icons-material/Article';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { EditorDocument } from "../store/app";
+import { EditorDocument } from '../store/types';
 import { useDispatch } from "react-redux";
 import { actions } from "../store";
 import { AppDispatch } from "../store";

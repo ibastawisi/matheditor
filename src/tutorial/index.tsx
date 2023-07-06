@@ -15,7 +15,7 @@ import MenuItem from "@mui/material/MenuItem";
 import ViewHeadlineIcon from '@mui/icons-material/ViewHeadline';
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import { EditorDocument } from "../store/app";
+import { EditorDocument } from '../store/types';
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import SvgIcon from '@mui/material/SvgIcon';

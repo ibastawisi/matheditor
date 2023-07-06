@@ -8,7 +8,7 @@ import Editor from "../lexical";
 
 import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
-import { EditorDocument } from "../store/app";
+import { EditorDocument } from '../store/types';
 import Fab from "@mui/material/Fab";
 import EditIcon from '@mui/icons-material/Edit';
 import useScrollTrigger from "@mui/material/useScrollTrigger";

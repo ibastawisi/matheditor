@@ -9,7 +9,7 @@ import Editor from "../lexical";
 import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
 import documentDB from "../db";
-import { EditorDocument } from "../store/app";
+import { EditorDocument } from '../store/types';
 
 const EditDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();

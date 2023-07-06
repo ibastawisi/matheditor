@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store";
 import UserCard from "./UserCard";
 import CircularProgress from "@mui/material/CircularProgress";
-import { AdminDocument, User, UserDocument } from "../store/app";
+import { AdminDocument, User, UserDocument } from '../store/types';
 import useLocalStorage from "../hooks/useLocalStorage";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";

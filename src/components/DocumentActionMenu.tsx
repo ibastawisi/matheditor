@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EditorDocument } from '../store/app';
+import { EditorDocument } from '../store/types';
 import { AppDispatch, RootState, actions } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
 import IconButton from '@mui/material/IconButton';
@@ -375,7 +375,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
         }
         {options.includes('upload') &&
           variant === "local" && !isUpToDate &&
-          <MenuItem onClick={isUploaded? handleUpdate: handleCreate}>
+          <MenuItem onClick={isUploaded ? handleUpdate : handleCreate}>
             <ListItemIcon>
               {isUploaded ? <CloudSyncIcon /> : <CloudUploadIcon />}
             </ListItemIcon>

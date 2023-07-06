@@ -12,7 +12,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { actions, RootState } from '../../../../store';
 
 export default function GraphDialog({ editor, node }: { editor: LexicalEditor, node: GraphNode | null; }) {
-  const open = useSelector((state: RootState) => state.app.ui.dialogs.graph?.open) || false;
+  const open = useSelector((state: RootState) => state.app.ui.dialogs.graph.open);
   const graphType = useSelector((state: RootState) => state.app.ui.dialogs.graph?.type) || GraphType["2D"];
   const dispatch = useDispatch();
   const [parameters, setParameters] = useState<any>(null);

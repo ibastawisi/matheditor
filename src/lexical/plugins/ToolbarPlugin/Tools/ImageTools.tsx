@@ -2,11 +2,9 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { LexicalEditor, } from "lexical";
 import { $isImageNode, ImageNode } from "../../../nodes/ImageNode";
-
 import { SxProps, Theme } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useState } from "react";
 import { SketchNode, $isSketchNode } from "../../../nodes/SketchNode";
 import { $isGraphNode, GraphNode, GraphType } from "../../../nodes/GraphNode";
 import { useDispatch } from "react-redux";

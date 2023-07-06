@@ -1,69 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { validate } from 'uuid';
-import { SerializedEditorState } from 'lexical';
 import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import { createDocument, deleteDocument, getAllDocuments, getAllUsers, getAuthenticatedUser, getDocument, logout, updateDocument } from '../services';
-import { RootState } from '../store';
 import documentDB from '../db';
 import { GraphType } from '../lexical/nodes/GraphNode';
-
-export interface Alert {
-  title: string;
-  content: string;
-  action?: string;
-}
-export interface Announcement {
-  message: string;
-  action?: {
-    label: string
-    onClick: string
-  }
-  timeout?: number
-}
-export interface AppState {
-  documents: UserDocument[];
-  user: User | null;
-  ui: {
-    isLoading: boolean;
-    isSaving: boolean;
-    announcements: Announcement[],
-    alerts: Alert[],
-    dialogs: {
-      image?: { open: boolean };
-      graph?: { open: boolean; type: GraphType; };
-      sketch?: { open: boolean };
-      table?: { open: boolean };
-    }
-  };
-  admin: {
-    users: User[]
-    documents: AdminDocument[]
-  } | null;
-}
-
-export interface EditorDocument {
-  id: string;
-  name: string;
-  data: SerializedEditorState;
-  createdAt: string;
-  updatedAt: string;
-  isPublic?: boolean;
-}
-export type DocumentWithUserId = UserDocument & { userId: string };
-export type DocumentWithAuthor = UserDocument & { author: User };
-export type AdminDocument = DocumentWithUserId & DocumentWithAuthor;
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  picture: string;
-  admin: boolean;
-  createdAt: string;
-  updatedAt: string;
-  documents: UserDocument[];
-}
-
-export type UserDocument = Omit<EditorDocument, "data">;
+import { AppState, EditorDocument, User, Announcement, Alert } from './types';
 
 const initialState: AppState = {
   documents: [],
@@ -83,6 +23,12 @@ const initialState: AppState = {
   admin: null,
 };
 
+export const loadAsync = createAsyncThunk('app/loadAsync', async (_, thunkAPI) => {
+  Promise.allSettled([
+    thunkAPI.dispatch(loadDocumentsAsync()),
+    thunkAPI.dispatch(loadUserAsync()),
+  ]);
+});
 export const loadUserAsync = createAsyncThunk('app/loadUserAsync', async (_, thunkAPI) => {
   thunkAPI.dispatch(showLoading())
   try {
@@ -200,20 +146,6 @@ export const appSlice = createSlice({
   name: 'app',
   initialState,
   reducers: {
-    loadConfig: (state) => {
-      // migrate from localStorage to indexeddb
-      try {
-        localStorage.removeItem('editor');
-        const documents = Object.keys({ ...localStorage }).filter((key: string) => validate(key));
-        documents.forEach(key => {
-          const document = JSON.parse(localStorage.getItem(key) as string);
-          documentDB.add(document).then(() => localStorage.removeItem(key));
-        });
-      } catch (error) {
-        console.error("migration to indexeddb failed: " + error);
-      }
-      state.ui = { ...initialState.ui, isLoading: false };
-    },
     loadDocument: (state, action: PayloadAction<EditorDocument>) => {
       if (!state.documents.find(d => d.id === action.payload.id)) {
         const documents = state.documents.filter(d => d.id !== action.payload.id);
@@ -230,11 +162,9 @@ export const appSlice = createSlice({
     saveDocument: (state, action: PayloadAction<EditorDocument>) => {
       const document = action.payload;
       documentDB.update(document);
-      const userDocument = state.documents.find(d => d.id === document.id);
-      if (userDocument) {
-        userDocument.name = document.name;
-        userDocument.updatedAt = document.updatedAt;
-      }
+      const oldUserDocument = state.documents.find(d => d.id === document.id);
+      const { data, ...newUserDocument } = document;
+      if (oldUserDocument) Object.assign(oldUserDocument, newUserDocument);
     },
     updateDocument: (state, action: PayloadAction<{ id: string, partial: Partial<EditorDocument> }>) => {
       const { id, partial } = action.payload;
@@ -266,12 +196,15 @@ export const appSlice = createSlice({
     setUser: (state, action: PayloadAction<User | null>) => {
       state.user = action.payload;
     },
-    setDialogs: (state, action: PayloadAction<AppState["ui"]["dialogs"]>) => {
+    setDialogs: (state, action: PayloadAction<Partial<AppState["ui"]["dialogs"]>>) => {
       state.ui.dialogs = { ...state.ui.dialogs, ...action.payload };
     }
   },
   extraReducers: (builder) => {
     builder
+      .addCase(loadAsync.fulfilled, (state, action) => {
+        state.ui = { ...initialState.ui, isLoading: false }
+      })
       .addCase(loadUserAsync.fulfilled, (state, action) => {
         state.user = action.payload;
       })
@@ -297,9 +230,9 @@ export const appSlice = createSlice({
       .addCase(updateDocumentAsync.fulfilled, (state, action) => {
         if (state.user && action.payload) {
           const { id, partial } = action.payload;
-          const userDocument = state.user?.documents.find(d => d.id === id);
-          const { data, ...userDocumentWithoutData } = partial;
-          if (userDocument) Object.assign(userDocument, userDocumentWithoutData);
+          const oldUserDocument = state.user?.documents.find(d => d.id === id);
+          const { data, ...newUserDocument } = partial;
+          if (oldUserDocument) Object.assign(oldUserDocument, newUserDocument);
         }
       })
       .addCase(updateDocumentAsync.rejected, (state, action) => {

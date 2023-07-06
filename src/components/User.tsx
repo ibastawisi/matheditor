@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { useParams } from 'react-router-dom';
 import UserCard from "./UserCard";
-import { User, UserDocument } from "../store/app";
+import { User, UserDocument } from '../store/types';
 import { getUser } from "../services";
 import DocumentCard from "./DocumentCard";
 import { SortOption } from "../hooks/useSort";
@@ -36,15 +36,13 @@ const User: React.FC = () => {
     <Helmet><title>{user ? `${user.name}'s Profile` : "Profile"}</title></Helmet>
     <UserCard user={user} variant="public" />
     {user && <Box sx={{ gap: 1, my: 2 }}>
-      <Box sx={{ display: "flex", flexWrap: "wrap-reverse", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>
-        <Typography variant="h6" component="h2" sx={{ textAlign: "center" }}>Published Documents</Typography>
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
-          <SortControl<UserDocument> data={user.documents} onSortChange={setSortedDocuments} sortOptions={documentSortOptions} initialSortDirection="desc" />
-        </Box>
+      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>
+        <Typography variant="h6" component="h2" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Published Documents</Typography>
+        <SortControl<UserDocument> data={user.documents} onSortChange={setSortedDocuments} sortOptions={documentSortOptions} initialSortDirection="desc" />
       </Box>
       <Grid container spacing={2}>
         {!user?.documents?.length &&
-          <Grid item xs={12}>
+          <Grid item xs={12} sx={{ my: 3 }}>
             <Typography variant="overline" component="p" sx={{ textAlign: "center" }}>
               No documents found
             </Typography>
