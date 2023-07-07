@@ -5,12 +5,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store";
 import DocumentCard from "./DocumentCard";
 import Button from "@mui/material/Button";
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { actions } from "../store";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import StorageIcon from '@mui/icons-material/Storage';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { EditorDocument, UserDocument } from '../store/types';
+import { EditorDocument, User, UserDocument } from '../store/types';
 import { validate } from "uuid";
 import UserCard from "./UserCard";
 import Avatar from "@mui/material/Avatar";
@@ -23,6 +23,7 @@ import ArticleIcon from '@mui/icons-material/Article';
 import HelpIcon from '@mui/icons-material/Help';
 import SortControl from "./SortControl";
 import { SortOption } from "../hooks/useSort";
+import Pagination from "@mui/material/Pagination";
 
 const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.app.documents);
@@ -39,6 +40,9 @@ const Documents: React.FC = () => {
     { label: 'Created', value: 'createdAt' },
     { label: 'Name', value: 'name' },
   ];
+  const pages = Math.ceil(allDocuments.length / 12);
+  const [page, setPage] = useState(1);
+  const handlePageChange = (_: any, value: number) => setPage(value);
 
   useEffect(() => {
     if ("launchQueue" in window && "LaunchParams" in window) {
@@ -149,29 +153,33 @@ const Documents: React.FC = () => {
             </Box>
           </Box>
         </Box>
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <Card variant="outlined">
-              <CardActionArea component={RouterLink} to="/playground">
-                <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>} />
-              </CardActionArea>
-            </Card>
-          </Grid>
-          <Grid item xs={6}>
-            <Card variant="outlined">
-              <CardActionArea component={RouterLink} to="/tutorial">
-                <CardHeader title="Tutorial" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><HelpIcon /></Avatar>} />
-              </CardActionArea>
-            </Card>
-          </Grid>
-          {sortedDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
-            <DocumentCard document={document} variant={localDocuments.includes(document.id) ? "local" : "cloud"} />
-          </Grid>)}
-          {!user && <Grid item xs={12}><UserCard /></Grid>}
-        </Grid>
+        <DocumentsTree user={user} documents={sortedDocuments.slice((page - 1) * 12, page * 12)} localDocuments={localDocuments} />
+        {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}
       </Box>
     </>
   )
 }
 
+const DocumentsTree: React.FC<{ user: User | null, documents: UserDocument[], localDocuments: string[] }> = memo(({ user, documents, localDocuments }) => {
+  return <Grid container spacing={2}>
+    <Grid item xs={6}>
+      <Card variant="outlined">
+        <CardActionArea component={RouterLink} to="/playground">
+          <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>} />
+        </CardActionArea>
+      </Card>
+    </Grid>
+    <Grid item xs={6}>
+      <Card variant="outlined">
+        <CardActionArea component={RouterLink} to="/tutorial">
+          <CardHeader title="Tutorial" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><HelpIcon /></Avatar>} />
+        </CardActionArea>
+      </Card>
+    </Grid>
+    {documents.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
+      <DocumentCard document={document} variant={localDocuments.includes(document.id) ? "local" : "cloud"} />
+    </Grid>)}
+    {!user && <Grid item xs={12}><UserCard /></Grid>}
+  </Grid>
+});
 export default Documents;

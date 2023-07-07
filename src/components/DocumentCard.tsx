@@ -27,7 +27,9 @@ export const MarkdownIcon = () => <SvgIcon viewBox="0 0 640 512" fontSize='small
 </SvgIcon>;
 
 
-const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 'local' | 'cloud' | 'public' | 'admin' }> = memo(({ document, variant }) => {
+export type DocumentCardVariant = 'local' | 'cloud' | 'public' | 'admin';
+
+const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: DocumentCardVariant }> = memo(({ document, variant }) => {
   const user = useSelector((state: RootState) => state.app.user);
   const cloudDocument = user?.documents?.find(d => d.id === document.id);
   const isUploaded = !!cloudDocument || variant === "public" || variant === "admin";
