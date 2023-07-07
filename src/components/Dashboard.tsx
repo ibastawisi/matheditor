@@ -19,7 +19,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DocumentCard from "./DocumentCard";
 import { SortOption } from "../hooks/useSort";
 import SortControl from "./SortControl";
-import isEqual from 'fast-deep-equal';
 
 const Dashboard: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -43,7 +42,7 @@ const Dashboard: React.FC = () => {
       <LocalDocumentsGrid documents={documents} />
       <CloudDocumentsGrid documents={user.documents} />
     </Box>}
-    {admin && <Box sx={{ my: 3 }}>
+    {user?.admin && admin && <Box sx={{ my: 3 }}>
       <AdminDocumentsGrid documents={admin.documents} />
       <UserGrid users={admin.users} />
     </Box>}
@@ -52,7 +51,7 @@ const Dashboard: React.FC = () => {
 
 export default Dashboard;
 
-const UserGrid: React.FC<{ users: User[] }> = ({ users }) => {
+const UserGrid: React.FC<{ users: User[] }> = memo(({ users }) => {
   const [sortedUsers, setSortedUsers] = useState(users);
   const usersortOptions: SortOption<User>[] = [
     { label: 'Created', value: 'createdAt' },
@@ -60,7 +59,7 @@ const UserGrid: React.FC<{ users: User[] }> = ({ users }) => {
     { label: 'Documents', value: 'documents' },
   ];
 
-  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true, enter: false, exit: false }} sx={{ my: 2, '& .MuiCollapse-hidden': { display: 'none' } }}>
+  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true }} sx={{ my: 2 }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <Typography>Users</Typography>
       <Typography sx={{ color: 'text.secondary', mx: 1 }}>({users.length})</Typography>
@@ -72,7 +71,7 @@ const UserGrid: React.FC<{ users: User[] }> = ({ users }) => {
       <UsersTree users={sortedUsers} />
     </AccordionDetails>
   </Accordion>
-};
+});
 
 const UsersTree: React.FC<{ users: User[] }> = memo(({ users }) => {
   return <Grid container spacing={2}>
@@ -80,9 +79,9 @@ const UsersTree: React.FC<{ users: User[] }> = memo(({ users }) => {
       <UserCard user={user} variant="admin" />
     </Grid>)}
   </Grid>
-}, isEqual);
+});
 
-const AdminDocumentsGrid: React.FC<{ documents: AdminDocument[] }> = ({ documents }) => {
+const AdminDocumentsGrid: React.FC<{ documents: AdminDocument[] }> = memo(({ documents }) => {
   const [sortedDocuments, setSortedDocuments] = useState(documents);
   const documentSortOptions: SortOption<AdminDocument>[] = [
     { label: 'Updated', value: 'updatedAt' },
@@ -90,7 +89,7 @@ const AdminDocumentsGrid: React.FC<{ documents: AdminDocument[] }> = ({ document
     { label: 'Name', value: 'name' },
     { label: 'Author', value: 'author.name' },
   ];
-  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true, enter: false, exit: false }} sx={{ my: 2, '& .MuiCollapse-hidden': { display: 'none' } }}>
+  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true }} sx={{ my: 2 }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <Typography>Admin Documents</Typography>
       <Typography sx={{ color: 'text.secondary', mx: 1 }}>({documents.length})</Typography>
@@ -102,7 +101,7 @@ const AdminDocumentsGrid: React.FC<{ documents: AdminDocument[] }> = ({ document
       <AdminDocumentsTree documents={sortedDocuments} />
     </AccordionDetails>
   </Accordion>
-};
+});
 
 const AdminDocumentsTree: React.FC<{ documents: AdminDocument[] }> = memo(({ documents }) => {
   return <Grid container spacing={2}>
@@ -110,16 +109,16 @@ const AdminDocumentsTree: React.FC<{ documents: AdminDocument[] }> = memo(({ doc
       <DocumentCard document={document} variant="admin" />
     </Grid>)}
   </Grid>
-}, isEqual);
+});
 
-const CloudDocumentsGrid: React.FC<{ documents: UserDocument[] }> = ({ documents }) => {
+const CloudDocumentsGrid: React.FC<{ documents: UserDocument[] }> = memo(({ documents }) => {
   const [sortedDocuments, setSortedDocuments] = useState(documents);
   const documentSortOptions: SortOption<UserDocument>[] = [
     { label: 'Updated', value: 'updatedAt' },
     { label: 'Created', value: 'createdAt' },
     { label: 'Name', value: 'name' },
   ];
-  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true, enter: false, exit: false }} sx={{ my: 2, '& .MuiCollapse-hidden': { display: 'none' } }}>
+  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true }} sx={{ my: 2 }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <Typography>Cloud Documents</Typography>
       <Typography sx={{ color: 'text.secondary', mx: 1 }}>({documents.length})</Typography>
@@ -131,7 +130,7 @@ const CloudDocumentsGrid: React.FC<{ documents: UserDocument[] }> = ({ documents
       <CloudDocumentsTree documents={sortedDocuments} />
     </AccordionDetails>
   </Accordion>
-};
+});
 
 const CloudDocumentsTree: React.FC<{ documents: UserDocument[] }> = memo(({ documents }) => {
   return <Grid container spacing={2}>
@@ -139,16 +138,16 @@ const CloudDocumentsTree: React.FC<{ documents: UserDocument[] }> = memo(({ docu
       <DocumentCard document={document} variant="cloud" />
     </Grid>)}
   </Grid>
-}, isEqual);
+});
 
-const LocalDocumentsGrid: React.FC<{ documents: UserDocument[] }> = ({ documents }) => {
+const LocalDocumentsGrid: React.FC<{ documents: UserDocument[] }> = memo(({ documents }) => {
   const [sortedDocuments, setSortedDocuments] = useState(documents);
   const documentSortOptions: SortOption<UserDocument>[] = [
     { label: 'Updated', value: 'updatedAt' },
     { label: 'Created', value: 'createdAt' },
     { label: 'Name', value: 'name' },
   ];
-  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true, enter: false, exit: false }} sx={{ my: 2, '& .MuiCollapse-hidden': { display: 'none' } }}>
+  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true }} sx={{ my: 2 }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <Typography>Local Documents</Typography>
       <Typography sx={{ color: 'text.secondary', mx: 1 }}>({documents.length})</Typography>
@@ -160,7 +159,7 @@ const LocalDocumentsGrid: React.FC<{ documents: UserDocument[] }> = ({ documents
       <LocalDocumentsTree documents={sortedDocuments} />
     </AccordionDetails>
   </Accordion>
-}
+});
 
 const LocalDocumentsTree: React.FC<{ documents: UserDocument[] }> = memo(({ documents }) => {
   return <Grid container spacing={2}>
@@ -168,4 +167,4 @@ const LocalDocumentsTree: React.FC<{ documents: UserDocument[] }> = memo(({ docu
       <DocumentCard document={document} variant="local" />
     </Grid>)}
   </Grid>
-}, isEqual);
+});

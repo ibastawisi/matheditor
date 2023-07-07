@@ -17,8 +17,9 @@ import CardActionArea from '@mui/material/CardActionArea';
 import ArticleIcon from '@mui/icons-material/Article';
 import Chip from "@mui/material/Chip";
 import Avatar from '@mui/material/Avatar';
+import { memo } from 'react';
 
-export default function UserCard({ user, variant = 'user' }: { user?: User | null, variant?: 'user' | 'public' | 'admin' }) {
+const UserCard: React.FC<{ user?: User | null, variant?: 'user' | 'public' | 'admin' }> = memo(({ user, variant = 'user' }) => {
   const dispatch = useDispatch<AppDispatch>();
   const login = async () => {
     const googleLoginURL = BACKEND_URL + "/auth/login";
@@ -80,4 +81,6 @@ export default function UserCard({ user, variant = 'user' }: { user?: User | nul
       }
     </Card>
   );
-}
+});
+
+export default UserCard;
