@@ -21,7 +21,7 @@ import {
   $getNodeByKey,
   createEditor,
 } from 'lexical';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import isEqual from 'fast-deep-equal';
 
 import StickyEditorTheme from './StickyEditorTheme';
@@ -38,6 +38,7 @@ export default function StickyComponent({ nodeKey, color, data, }: { data?: Seri
   const [rootEditor] = useLexicalComposerContext();
   const isEditable = useLexicalEditable();
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
+  const [isDraggable, setDraggable] = useState(false);
 
   const initialState = data ? rootEditor.parseEditorState(JSON.stringify(data)) : undefined;
 
@@ -108,7 +109,7 @@ export default function StickyComponent({ nodeKey, color, data, }: { data?: Seri
   }
 
   return (
-    <div ref={stickyContainerRef} className={"sticky-note-container" + (isSelected ? " draggable" : "")} draggable={isSelected} {...{ theme: 'light' }}>
+    <div ref={stickyContainerRef} className={"sticky-note-container" + (isSelected ? " selected" : "")} draggable={isDraggable} {...{ theme: 'light' }}>
       {isEditable && (<div className='sticky-tools'>
         <IconButton sx={{ displayPrint: 'none' }} onClick={handleDelete} aria-label="Delete sticky note" title="Delete" color='inherit' size='small'>
           <DeleteIcon fontSize='inherit' />
@@ -116,7 +117,8 @@ export default function StickyComponent({ nodeKey, color, data, }: { data?: Seri
         <IconButton sx={{ displayPrint: 'none' }} color='inherit' size='small' aria-label="Change sticky note color" title="Color" onClick={handleColorChange}>
           <FormatPaintIcon fontSize='inherit' />
         </IconButton>
-        {isSelected && <IconButton className='drag-btn' sx={{ displayPrint: 'none', mr: "auto" }} color='inherit' size='small' aria-label="Drag sticky note" title="Drag">
+        {isSelected && <IconButton className='drag-btn' sx={{ displayPrint: 'none', mr: "auto" }} color='inherit' size='small' aria-label="Drag sticky note" title="Drag"
+          onMouseDown={() => setDraggable(true)} onMouseUp={() => setDraggable(false)}>
           <DragIndicatorIcon fontSize='inherit' />
         </IconButton>
         }

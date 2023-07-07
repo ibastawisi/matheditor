@@ -112,6 +112,8 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
     element.setAttribute('src', this.__src);
     element.dataset.value = this.__value;
     element.dataset.graphType = this.__graphType as string;
+    element.setAttribute('width', this.__width.toString());
+    element.setAttribute('height', this.__height.toString());
     return { element };
   }
 

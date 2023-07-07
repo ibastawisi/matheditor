@@ -269,7 +269,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
       <style>
         html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;box-sizing:border-box;-webkit-text-size-adjust:100%;}
         *,*::before,*::after{box-sizing:inherit;}
-        body{font-family:"Roboto","Helvetica","Arial",sans-serif;font-weight:400;font-size:1rem;line-height:1.5;letter-spacing:0.00938em;max-width:1200px;margin:2rem auto;padding:0 1.5rem;}
+        body{font-family:"Roboto","Helvetica","Arial",sans-serif;font-weight:400;font-size:1rem;line-height:1.5;letter-spacing:0.00938em;max-width:1200px;margin:2rem auto;padding:0 1.5rem;white-space:pre-wrap;word-break:break-word;}
         img{max-width:100%;background-color:white;}
         .ML__mathlive{padding:4px;}
         @font-face{font-family:Virgil;src:url(https://unpkg.com/@excalidraw/excalidraw/dist/excalidraw-assets/Virgil.woff2);}

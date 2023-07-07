@@ -9,10 +9,7 @@
 
  .sticky-note-wrapper {
   float: right;
- }
-
- .sticky-note-wrapper:not(:first-of-type) {
-  margin-right: 0.5rem;
+  margin: 0.5rem 0 0.5rem 0.5rem;
  }
 
 .StickyNode__contentEditable {
@@ -119,11 +116,14 @@
   pointer-events: none;
 }
 
-.sticky-note-container.draggable .drag-btn {
+.sticky-note-container.selected {
+  box-shadow: 0 0 0 2px #90caf9;
+}
+
+.sticky-note-container.selected .drag-btn {
   cursor: grab;
 }
 
-.sticky-note-container.draggable .drag-btn:active {
+.sticky-note-container.selected .drag-btn:active {
   cursor: grabbing;
 }
-
