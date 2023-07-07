@@ -130,7 +130,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
         const localDocument = await documentDB.getByID(document.id);
         if (localDocument) return JSON.stringify(localDocument);
         break;
-      case "cloud":
+      default:
         const response = await dispatch(actions.app.getDocumentAsync(document.id));
         const { payload, error } = response as any;
         if (!error) return JSON.stringify(payload);

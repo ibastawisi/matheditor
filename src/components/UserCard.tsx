@@ -46,7 +46,7 @@ const UserCard: React.FC<{ user?: User | null, variant?: 'user' | 'public' | 'ad
   return (
     <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between', height: '100%' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', width: 0, flex: 1 }}>
-        <CardActionArea component={RouterLink} to={user ? `/user/${user.id}` : '/dashboard'} sx={{ flex: '1 0 auto', w: '100%' }}>
+        <CardActionArea component={RouterLink} to={user ? `/user/${user.id}` : '/dashboard'} sx={{ flex: '1 0 auto' }}>
           <CardContent>
             <Typography variant={variant !== 'admin' ? "h6" : "subtitle1"}>
               {user ? user.name : <Skeleton variant="text" width={190} />}
@@ -55,7 +55,7 @@ const UserCard: React.FC<{ user?: User | null, variant?: 'user' | 'public' | 'ad
               {user ? user.email : <Skeleton variant="text" width={150} />}
             </Typography>
             {user && variant === 'admin' && <Typography variant="subtitle2" color="text.secondary">
-              Registered At: {new Date(user.createdAt).toLocaleDateString()}
+              {new Date(user.createdAt).toLocaleString()}
             </Typography>
             }
           </CardContent>
@@ -71,14 +71,16 @@ const UserCard: React.FC<{ user?: User | null, variant?: 'user' | 'public' | 'ad
           </IconButton>}
         </CardActions>
       </Box>
-      {user ?
-        <Avatar
-          sx={{ width: 112, height: 112, mx: 2, alignSelf: 'center', flexShrink: 0 }}
-          src={user.picture}
-          alt={user.name}
-        /> :
-        <Skeleton variant="circular" width={112} height={112} sx={{ mx: 2, alignSelf: 'center', flexShrink: 0 }} />
-      }
+      <CardActionArea component={RouterLink} to={user ? `/user/${user.id}` : '/dashboard'} sx={{ display: 'flex', width: 'auto' }}>
+        {user ?
+          <Avatar
+            sx={{ width: 112, height: 112, mx: 2, alignSelf: 'center', flexShrink: 0 }}
+            src={user.picture}
+            alt={user.name}
+          /> :
+          <Skeleton variant="circular" width={112} height={112} sx={{ mx: 2, alignSelf: 'center', flexShrink: 0 }} />
+        }
+      </CardActionArea>
     </Card>
   );
 });

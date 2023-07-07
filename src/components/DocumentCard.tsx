@@ -16,7 +16,6 @@ import MobileFriendlyIcon from '@mui/icons-material/MobileFriendly';
 import LinkIcon from '@mui/icons-material/Link';
 import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import CloudIcon from '@mui/icons-material/Cloud';
-
 import SvgIcon from '@mui/material/SvgIcon';
 import DocumentActionMenu, { options } from './DocumentActionMenu';
 import Typography from '@mui/material/Typography';
@@ -53,13 +52,13 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
             variant === "admin" ?
               <>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Author: {(document as AdminDocument).author.name}
+                  {(document as AdminDocument).author.name}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Created: {new Date(document.createdAt).toLocaleString()}
+                <Typography variant="subtitle2" color="text.secondary">
+                  {new Date(document.createdAt).toLocaleString()}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Updated: {new Date(document.updatedAt).toLocaleString()}
+                <Typography variant="subtitle2" color="text.secondary">
+                  {new Date(document.updatedAt).toLocaleString()}
                 </Typography>
               </>
               : new Date(document.createdAt).toLocaleDateString()

@@ -39,11 +39,11 @@ const Dashboard: React.FC = () => {
     <Box sx={{ mt: 2 }}>
       <FormControlLabel control={<Switch checked={config.debug} onChange={e => setConfig({ ...config, debug: e.target.checked })} />} label="Show Editor Debug View" />
     </Box>
-    {user && <Box sx={{ my: 2 }}>
+    <Box sx={{ my: 2 }}>
       <DocumentsGrid documents={documents} title="Local Documents" variant="local" />
-      <DocumentsGrid documents={user.documents} title="Cloud Documents" variant="cloud" />
-      <DocumentsGrid documents={user.documents.filter(d => d.isPublic)} title="Public Documents" variant="public" />
-    </Box>}
+      {user && <DocumentsGrid documents={user.documents} title="Cloud Documents" variant="cloud" />}
+      {user && <DocumentsGrid documents={user.documents.filter(d => d.isPublic)} title="Public Documents" variant="public" />}
+    </Box>
     {user?.admin && admin && <Box sx={{ my: 3 }}>
       <DocumentsGrid documents={admin.documents} title="Admin Documents" variant="admin" />
       <UserGrid users={admin.users} />
@@ -81,7 +81,7 @@ const UserGrid: React.FC<{ users: User[] }> = memo(({ users }) => {
 
 const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string, variant: DocumentCardVariant }> = memo(({ documents, title, variant }) => {
   const [sortedDocuments, setSortedDocuments] = useState(documents);
-  const documentSortOptions: SortOption<UserDocument>[]  = [
+  const documentSortOptions: SortOption<UserDocument>[] = [
     { label: 'Updated', value: 'updatedAt' },
     { label: 'Created', value: 'createdAt' },
     { label: 'Name', value: 'name' },
