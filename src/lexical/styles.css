@@ -79,6 +79,15 @@
   height: 100% !important;
 }
 
+.GeoGebraFrame .mainMenu > .menuView tr:first-of-type tr:nth-of-type(4),
+.GeoGebraFrame .mainMenu > .menuView tr:first-of-type tr:nth-of-type(5),
+.GeoGebraFrame .mainMenu > .menuView tr:first-of-type tr:nth-of-type(6),
+.GeoGebraFrame .mainMenu > .menuView tr:first-of-type tr:nth-of-type(8),
+.GeoGebraFrame .mainMenu > .menuView > tbody > tr:nth-last-of-type(1),
+.GeoGebraFrame .mainMenu > .menuView > tbody > tr:nth-last-of-type(2) {
+  display: none;
+}
+
 hr[data-lexical-decorator] {
   border: none;
   padding: 0.5em 0;
