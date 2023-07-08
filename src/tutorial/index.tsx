@@ -747,7 +747,7 @@ const task5Checkpoints = [
     }
   },
   {
-    name: "Insert a 2D Graph after this line",
+    name: "Insert a Graph after this line",
     steps: <>
       <Typography variant="subtitle2" gutterBottom>
         1. Click the empty line below
@@ -759,7 +759,7 @@ const task5Checkpoints = [
         </IconButton> button in the toolbar
       </Typography>
       <Typography variant="subtitle2">
-        3. Select <GraphIcon /> 2D Graph from the menu
+        3. Select <GraphIcon /> Graph from the menu
       </Typography>
     </>,
     check: (editorState?: EditorState) => {
@@ -771,39 +771,7 @@ const task5Checkpoints = [
             const paragraphNode = node.getParent()?.getNextSibling();
             if (!$isParagraphNode(paragraphNode)) return result;
             const target = paragraphNode.getFirstChild();
-            if (target?.__type === "graph" && target.__graphType === "2D") result = true;
-          }
-        });
-      })
-      return result;
-    }
-  },
-  {
-    name: "Insert a 3D Graph after this line",
-    steps: <>
-      <Typography variant="subtitle2" gutterBottom>
-        1. Click the empty line below
-      </Typography>
-      <Typography variant="subtitle2" gutterBottom>
-        2. Click the
-        <IconButton aria-label='Insert'>
-          <AddIcon />
-        </IconButton> button in the toolbar
-      </Typography>
-      <Typography variant="subtitle2">
-        3. Select <ViewInArIcon sx={{ verticalAlign: "middle" }} /> 3D Graph from the menu
-      </Typography>
-    </>,
-    check: (editorState?: EditorState) => {
-      let result = false;
-      if (!editorState) return result;
-      editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 4) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!$isParagraphNode(paragraphNode)) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target?.__type === "graph" && target.__graphType === "3D") result = true;
+            if (target?.__type === "graph") result = true;
           }
         });
       })
@@ -831,7 +799,7 @@ const task5Checkpoints = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if (node.__value === 5) {
+          if (node.__value === 4) {
             const paragraphNode = node.getParent()?.getNextSibling();
             if (!$isParagraphNode(paragraphNode)) return result;
             const target = paragraphNode.getFirstChild();
@@ -863,7 +831,7 @@ const task5Checkpoints = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if (node.__value === 6) {
+          if (node.__value === 5) {
             const paragraphNode = node.getParent()?.getNextSibling();
             if (!$isParagraphNode(paragraphNode)) return result;
             const target = paragraphNode.getFirstChild();
@@ -895,7 +863,7 @@ const task5Checkpoints = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if (node.__value === 7) {
+          if (node.__value === 6) {
             const paragraphNode = node.getParent()?.getNextSibling();
             if (!$isParagraphNode(paragraphNode)) return result;
             const target = paragraphNode.getNextSibling();
@@ -927,11 +895,12 @@ const task5Checkpoints = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if (node.__value === 8) {
+          if (node.__value === 7) {
             const paragraphNode = node.getParent()?.getNextSibling();
             if (!$isParagraphNode(paragraphNode)) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target?.__type === "sticky") result = true;
+            const children = paragraphNode.getChildren();
+            const containsSticky = children.some((child) => child.__type === "sticky");
+            if (containsSticky) result = true;
           }
         });
       })
@@ -1283,13 +1252,13 @@ const task6Checkpoints = [
 
 const task7Checkpoints = [
   {
-    name: "Insert a 2D Graph after this line",
+    name: "Insert a Graph after this line",
     steps: <>
       <Typography variant="subtitle2" gutterBottom>
         1. Click the empty line below then type
       </Typography>
       <Typography variant="subtitle2" gutterBottom>
-        {'/2d'}
+        {'/plot'}
       </Typography>
       <Typography variant="subtitle2" gutterBottom>
         2. Press Enter
@@ -1307,39 +1276,7 @@ const task7Checkpoints = [
             const paragraphNode = node.getParent()?.getNextSibling();
             if (!$isParagraphNode(paragraphNode)) return result;
             const target = paragraphNode.getFirstChild();
-            if (target?.__type === "graph" && target.__graphType === "2D") result = true;
-          }
-        });
-      })
-      return result;
-    }
-  },
-  {
-    name: "Insert a 3D Graph after this line",
-    steps: <>
-      <Typography variant="subtitle2" gutterBottom>
-        1. Click the empty line below then type
-      </Typography>
-      <Typography variant="subtitle2" gutterBottom>
-        {'/3d'}
-      </Typography>
-      <Typography variant="subtitle2" gutterBottom>
-        2. Press Enter
-      </Typography>
-      <Typography variant="subtitle2" gutterBottom>
-        3. Type a function then click insert button
-      </Typography>
-    </>,
-    check: (editorState?: EditorState) => {
-      let result = false;
-      if (!editorState) return result;
-      editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 2) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!$isParagraphNode(paragraphNode)) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target?.__type === "graph" && target.__graphType === "3D") result = true;
+            if (target?.__type === "graph") result = true;
           }
         });
       })
@@ -1367,7 +1304,7 @@ const task7Checkpoints = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if (node.__value === 3) {
+          if (node.__value === 2) {
             const paragraphNode = node.getParent()?.getNextSibling();
             if (!$isParagraphNode(paragraphNode)) return result;
             const target = paragraphNode.getFirstChild();
@@ -1396,7 +1333,7 @@ const task7Checkpoints = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if (node.__value === 4) {
+          if (node.__value === 3) {
             const paragraphNode = node.getParent()?.getNextSibling();
             if (!$isParagraphNode(paragraphNode)) return result;
             const target = paragraphNode.getNextSibling();

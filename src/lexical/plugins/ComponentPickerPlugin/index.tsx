@@ -32,7 +32,6 @@ import {
 import { useCallback, useMemo, useState } from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { GraphType } from '../../nodes/GraphNode';
 import { INSERT_MATH_COMMAND } from '../MathPlugin';
 import { INSERT_STICKY_COMMAND } from '../StickyPlugin';
 
@@ -165,7 +164,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
   const dispatch = useDispatch();
   const openImageDialog = () => dispatch(actions.app.setDialogs({ image: { open: true } }));
   const openTableDialog = () => dispatch(actions.app.setDialogs({ table: { open: true } }));
-  const openGraphDialog = (type: GraphType) => dispatch(actions.app.setDialogs({ graph: { open: true, type } }));
+  const openGraphDialog = () => dispatch(actions.app.setDialogs({ graph: { open: true } }));
   const openSketchDialog = () => dispatch(actions.app.setDialogs({ sketch: { open: true } }));
 
   const checkForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
@@ -319,17 +318,11 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
         onSelect: () =>
           editor.dispatchCommand(INSERT_MATH_COMMAND, { value: '' }),
       }),
-      new ComponentPickerOption('2D Graph', {
+      new ComponentPickerOption('Graph', {
         icon: GraphIcon,
-        keywords: ['geogebra', 'graph', 'plot', '2d'],
-        keyboardShortcut: '/2d',
-        onSelect: () => { openGraphDialog(GraphType['2D']) },
-      }),
-      new ComponentPickerOption('3D Graph', {
-        icon: <ViewInArIcon />,
-        keywords: ['geogebra', 'graph', 'plot', '3d'],
-        keyboardShortcut: '/3d',
-        onSelect: () => { openGraphDialog(GraphType['3D']) },
+        keywords: ['geogebra', 'graph', 'plot', '2d', '3d'],
+        keyboardShortcut: '/plot',
+        onSelect: openGraphDialog,
       }),
       new ComponentPickerOption('Sketch', {
         icon: <BrushIcon />,

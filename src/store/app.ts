@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import { createDocument, deleteDocument, getAllDocuments, getAllUsers, getAuthenticatedUser, getDocument, logout, updateDocument } from '../services';
 import documentDB from '../db';
-import { GraphType } from '../lexical/nodes/GraphNode';
 import { AppState, EditorDocument, User, Announcement, Alert } from './types';
 
 const initialState: AppState = {
@@ -15,7 +14,7 @@ const initialState: AppState = {
     alerts: [],
     dialogs: {
       image: { open: false },
-      graph: { open: false, type: GraphType["2D"] },
+      graph: { open: false },
       sketch: { open: false },
       table: { open: false }
     }

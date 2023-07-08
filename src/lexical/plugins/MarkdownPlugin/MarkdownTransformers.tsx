@@ -45,7 +45,7 @@ import {
 import { $createMathNode, $isMathNode, MathNode } from '../../nodes/MathNode';
 import { $createImageNode, $isImageNode, ImageNode } from '../../nodes/ImageNode';
 import emojiList from '../../plugins/EmojiPickerPlugin/emoji-list';
-import { $createGraphNode, $isGraphNode, GraphNode, GraphType } from '../../nodes/GraphNode';
+import { $createGraphNode, $isGraphNode, GraphNode } from '../../nodes/GraphNode';
 import { $createSketchNode, $isSketchNode, SketchNode } from '../../nodes/SketchNode';
 import { $createStickyNode, $isStickyNode } from '../../nodes/StickyNode';
 import { $createCodeNode, $isCodeNode, CodeNode } from '../../nodes/CodeNode';
@@ -102,15 +102,14 @@ export const GRAPH: TextMatchTransformer = {
     }
     const src = node.getSrc();
     const altText = node.getType();
-    const graphType = node.getGraphType();
-    const url = graphType === GraphType["2D"] ? svgtoBase64(src) : src;
+    const url = src.startsWith('data:image/svg+xml')? svgtoBase64(src): src;
     return `![${altText}](${url})`;
   },
-  importRegExp: /<graph src="([^"]+?)" value="([^"]+?)" type="([^"]+?)"\s?\/>\s?/,
-  regExp: /<graph src="([^"]+?)" value="([^"]+?)" type="([^"]+?)"\s?\/>\s?$/,
+  importRegExp: /<graph src="([^"]+?)" value="([^"]+?)"\s?\/>\s?/,
+  regExp: /<graph src="([^"]+?)" value="([^"]+?)"\s?\/>\s?$/,
   replace: (textNode, match) => {
-    const [, src, value, graphType] = match;
-    const graphNode = $createGraphNode({ src, value, graphType: graphType as GraphType });
+    const [, src, value] = match;
+    const graphNode = $createGraphNode({ src, value });
     textNode.replace(graphNode);
   },
   trigger: '>',

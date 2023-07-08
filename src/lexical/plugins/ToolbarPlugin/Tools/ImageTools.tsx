@@ -6,14 +6,14 @@ import { SxProps, Theme } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { SketchNode, $isSketchNode } from "../../../nodes/SketchNode";
-import { $isGraphNode, GraphNode, GraphType } from "../../../nodes/GraphNode";
+import { $isGraphNode, GraphNode} from "../../../nodes/GraphNode";
 import { useDispatch } from "react-redux";
 import { actions } from "../../../../store";
 
 export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor, node: ImageNode | GraphNode | SketchNode, sx?: SxProps<Theme> | undefined }): JSX.Element {
   const dispatch = useDispatch();
   const openImageDialog = () => dispatch(actions.app.setDialogs({ image: { open: true } }));
-  const openGraphDialog = () => dispatch(actions.app.setDialogs({ graph: { open: true, type: node.getGraphType() || GraphType["2D"] } }));
+  const openGraphDialog = () => dispatch(actions.app.setDialogs({ graph: { open: true } }));
   const openSketchDialog = () => dispatch(actions.app.setDialogs({ sketch: { open: true } }));
 
   return (
@@ -26,7 +26,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
           </ToggleButton>
         }
         {$isGraphNode(node) &&
-          <ToggleButton value={node.getGraphType()}
+          <ToggleButton value="graph"
             onClick={openGraphDialog}>
             <EditIcon />
           </ToggleButton>

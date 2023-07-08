@@ -18,20 +18,13 @@ export interface GraphPayload {
   height?: number;
   src: string;
   value: string;
-  graphType: GraphType;
-}
-
-export enum GraphType {
-  "2D" = '2D',
-  "3D" = '3D',
 }
 
 function convertGraphElement(domNode: Node): null | DOMConversionOutput {
   if (domNode instanceof HTMLImageElement) {
     const { src } = domNode;
     const value = domNode.dataset.value as string;
-    const graphType = domNode.dataset.graphType as GraphType;
-    const node = $createGraphNode({ src, value, graphType });
+    const node = $createGraphNode({ src, value });
     return { node };
   }
   return null;
@@ -41,7 +34,6 @@ function GraphComponent({
   nodeKey,
   src,
   value,
-  graphType,
   width,
   height,
   resizable,
@@ -49,7 +41,6 @@ function GraphComponent({
   nodeKey: NodeKey;
   src: string;
   value: string;
-  graphType: GraphType;
   width: 'inherit' | number;
   height: 'inherit' | number;
   resizable: boolean;
@@ -63,7 +54,6 @@ export type SerializedGraphNode = Spread<
   {
     src: string;
     value: string;
-    graphType: GraphType;
     width?: number;
     height?: number;
     type: 'graph';
@@ -75,7 +65,6 @@ export type SerializedGraphNode = Spread<
 export class GraphNode extends DecoratorNode<JSX.Element> {
   __src: string;
   __value: string;
-  __graphType: GraphType;
   __width: 'inherit' | number;
   __height: 'inherit' | number;
 
@@ -87,7 +76,6 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
     return new GraphNode(
       node.__src,
       node.__value,
-      node.__graphType,
       node.__width,
       node.__height,
       node.__key,
@@ -95,12 +83,11 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
   }
 
   static importJSON(serializedNode: SerializedGraphNode): GraphNode {
-    const { width, height, src, value, graphType } =
+    const { width, height, src, value } =
       serializedNode;
     const node = $createGraphNode({
       src,
       value,
-      graphType,
       width,
       height,
     });
@@ -111,7 +98,6 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
     const element = document.createElement('img');
     element.setAttribute('src', this.__src);
     element.dataset.value = this.__value;
-    element.dataset.graphType = this.__graphType as string;
     element.setAttribute('width', this.__width.toString());
     element.setAttribute('height', this.__height.toString());
     return { element };
@@ -129,7 +115,6 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
   constructor(
     src: string,
     value: string,
-    graphType: GraphType,
     width?: 'inherit' | number,
     height?: 'inherit' | number,
     key?: NodeKey,
@@ -139,14 +124,12 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
     this.__width = width || 'inherit';
     this.__height = height || 'inherit';
     this.__value = value;
-    this.__graphType = graphType;
   }
 
   exportJSON(): SerializedGraphNode {
     return {
       src: this.getSrc(),
       value: this.getValue(),
-      graphType: this.getGraphType(),
       width: this.__width === 'inherit' ? 0 : this.__width,
       height: this.__height === 'inherit' ? 0 : this.__height,
       type: 'graph',
@@ -197,14 +180,6 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
     return this.__value;
   }
 
-  getGraphType(): GraphType {
-    return this.__graphType;
-  }
-
-  getType(): string {
-    return this.__graphType + " Graph";
-  }
-
   decorate(): JSX.Element {
     return (
       <GraphComponent
@@ -213,7 +188,6 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
         src={this.getSrc()}
         nodeKey={this.getKey()}
         value={this.getValue()}
-        graphType={this.getGraphType()}
         resizable={true}
       />
     );
@@ -223,7 +197,6 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
 export function $createGraphNode({
   src,
   value,
-  graphType,
   key,
   width,
   height,
@@ -231,7 +204,6 @@ export function $createGraphNode({
   return new GraphNode(
     src,
     value,
-    graphType,
     width,
     height,
     key,

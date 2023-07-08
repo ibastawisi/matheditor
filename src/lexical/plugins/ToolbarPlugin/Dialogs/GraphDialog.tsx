@@ -4,7 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import { INSERT_GRAPH_COMMAND } from '../../GraphPlugin';
-import { GraphNode, GraphType } from '../../../nodes/GraphNode';
+import { GraphNode } from '../../../nodes/GraphNode';
 import { memo, useEffect, useId, useRef, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
@@ -14,7 +14,6 @@ import { $getSelection } from 'lexical';
 
 export default function GraphDialog({ editor, node }: { editor: LexicalEditor, node: GraphNode | null; }) {
   const open = useSelector((state: RootState) => state.app.ui.dialogs.graph.open);
-  const graphType = useSelector((state: RootState) => state.app.ui.dialogs.graph?.type) || GraphType["2D"];
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const key = useId();
@@ -35,13 +34,13 @@ export default function GraphDialog({ editor, node }: { editor: LexicalEditor, n
     showTutorialLink: true,
     width: window.innerWidth,
     height: window.innerHeight - 52.5,
-    appName: graphType === GraphType["2D"] ? 'suite' : '3d',
+    appName: 'suite',
     ggbBase64: node?.getValue() ?? "",
     appletOnLoad() { setLoading(false); },
   };
 
   const insertGraph = (src: string, value: string) => {
-    if (!node) editor.dispatchCommand(INSERT_GRAPH_COMMAND, { src, value, graphType },);
+    if (!node) editor.dispatchCommand(INSERT_GRAPH_COMMAND, { src, value },);
     else editor.update(() => node.update(src, value));
   };
 
@@ -59,20 +58,28 @@ export default function GraphDialog({ editor, node }: { editor: LexicalEditor, n
 
   const getBase64Src = () => new Promise<string>((resolve, reject) => {
     const app = (window as any).ggbApplet;
-    if (graphType === GraphType["2D"]) {
-      app.exportSVG((html: string) => {
-        const src = "data:image/svg+xml," + encodeURIComponent(html);
+    const xml = app.getXML();
+    const subApp = xml.match(/subApp="(.+?)"/)?.[1];
+    switch (subApp) {
+      case "graphing":
+      case "geometry":
+      case "cas": {
+        app.exportSVG((html: string) => {
+          const src = "data:image/svg+xml," + encodeURIComponent(html);
+          resolve(src);
+        });
+      }
+        break;
+      default: {
+        const src = "data:image/png;base64," + app.getPNGBase64(1, true, 72);
         resolve(src);
-      });
-    } else {
-      const src = "data:image/png;base64," + app.getPNGBase64(1, true, 72);
-      resolve(src);
+      }
     }
   });
 
 
   const handleClose = () => {
-    dispatch(actions.app.setDialogs({ graph: { open: false, type: graphType } }));
+    dispatch(actions.app.setDialogs({ graph: { open: false } }));
     setLoading(true);
   }
 

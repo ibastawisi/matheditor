@@ -11,13 +11,9 @@ import ImageIcon from '@mui/icons-material/Image';
 import TableIcon from '@mui/icons-material/TableChart';
 import FunctionsIcon from '@mui/icons-material/Functions';
 import BrushIcon from '@mui/icons-material/Brush';
-import ViewInArIcon from '@mui/icons-material/ViewInAr';
-
 import IconButton from '@mui/material/IconButton';
 import { INSERT_MATH_COMMAND } from '../../MathPlugin';
-
 import SvgIcon from '@mui/material/SvgIcon';
-import { GraphType } from '../../../nodes/GraphNode';
 import { INSERT_STICKY_COMMAND } from '../../StickyPlugin';
 import StickyNote2Icon from '@mui/icons-material/StickyNote2';
 import Typography from '@mui/material/Typography';
@@ -42,7 +38,7 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }): J
   const dispatch = useDispatch();
   const openImageDialog = () => dispatch(actions.app.setDialogs({ image: { open: true } }));
   const openTableDialog = () => dispatch(actions.app.setDialogs({ table: { open: true } }));
-  const openGraphDialog = (type: GraphType) => dispatch(actions.app.setDialogs({ graph: { open: true, type } }));
+  const openGraphDialog = () => dispatch(actions.app.setDialogs({ graph: { open: true } }));
   const openSketchDialog = () => dispatch(actions.app.setDialogs({ sketch: { open: true } }));
 
   return (
@@ -66,19 +62,12 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }): J
           <ListItemText>Math</ListItemText>
           <Typography variant="body2" color="text.secondary">$$</Typography>
         </MenuItem>
-        <MenuItem onClick={() => { openGraphDialog(GraphType['2D']); handleClose(); }}>
+        <MenuItem onClick={() => { openGraphDialog(); handleClose(); }}>
           <ListItemIcon>
             <GraphIcon />
           </ListItemIcon>
-          <ListItemText>2D Graph</ListItemText>
-          <Typography variant="body2" color="text.secondary">/2d</Typography>
-        </MenuItem>
-        <MenuItem onClick={() => { openGraphDialog(GraphType['3D']); handleClose(); }}>
-          <ListItemIcon>
-            <ViewInArIcon />
-          </ListItemIcon>
-          <ListItemText>3D graph</ListItemText>
-          <Typography variant="body2" color="text.secondary">/3d</Typography>
+          <ListItemText>Graph</ListItemText>
+          <Typography variant="body2" color="text.secondary">/plot</Typography>
         </MenuItem>
         <MenuItem onClick={() => { openSketchDialog(); handleClose(); }}>
           <ListItemIcon>

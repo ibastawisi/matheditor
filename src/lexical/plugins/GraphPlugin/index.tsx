@@ -93,7 +93,6 @@ function onDragStart(event: DragEvent): boolean {
     'application/x-lexical-drag',
     JSON.stringify({
       data: {
-        graphType: node.__graphType,
         key: node.getKey(),
         src: node.__src,
         width: node.__width,

@@ -1,6 +1,4 @@
 import { SerializedEditorState } from 'lexical';
-import { GraphType } from '../lexical/nodes/GraphNode';
-
 
 export interface Alert {
   title: string;
@@ -25,7 +23,7 @@ export interface AppState {
     alerts: Alert[];
     dialogs: {
       image: { open: boolean; };
-      graph: { open: boolean; type: GraphType; };
+      graph: { open: boolean; };
       sketch: { open: boolean; };
       table: { open: boolean; };
     };
