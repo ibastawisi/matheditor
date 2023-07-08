@@ -15,7 +15,7 @@ math-field::part(virtual-keyboard-toggle) {
 }
 
 [theme=dark] math-field {
-  --contains-highlight-backround-color: rgba(255,255,255,0.1);
+  --contains-highlight-background-color: rgba(255,255,255,0.1);
   --selection-background-color: #546E7A;
   --selection-color: white;
 }
@@ -54,14 +54,6 @@ math-field:not(:focus) {
   --keycap-height: 52px !important;
   --keyboard-height: 295px !important;
   --keyboard-zindex: 9999;
-}
-
-.MLK__backdrop {
-  overflow: initial !important;
-}
-
-.MLK__rows {
-  margin: auto !important;
 }
 
 .MLK__rows>.row div {
