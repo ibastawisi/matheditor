@@ -84,10 +84,6 @@
       #e7bfe1 100%);
 }
 
-.sticky-note ::selection {
-  background-color: #90caf9 !important;
-}
-
 .sticky-tools {
   position: absolute;
   top: 0;
@@ -117,7 +113,7 @@
 }
 
 .sticky-note-container.selected {
-  box-shadow: 0 0 0 2px #90caf9;
+  box-shadow: 0 0 0 2px rgb(95 183 255 / 75%);
 }
 
 .sticky-note-container.selected .drag-btn {

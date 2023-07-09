@@ -24,8 +24,8 @@ header {
   z-index: 9999;
 }
 
-[theme=dark] ::selection {
-  background-color: #546E7A;
+::selection {
+  background-color: rgb(95 183 255 / 50%);
 }
 
 @media print {

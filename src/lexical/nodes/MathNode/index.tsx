@@ -82,7 +82,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
         mathfield.executeCommand(isBefore ? 'moveToMathfieldStart' : 'moveToMathfieldEnd');
       });
     }
-  }, [ref, isSelected]);
+  }, [ref, isSelected, selection]);
 
   useEffect(() => {
     const mathfield = ref.current;

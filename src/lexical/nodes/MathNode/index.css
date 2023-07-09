@@ -8,6 +8,7 @@ math-field {
   color: inherit;
   width: 100%;
   user-select: none;
+--selection-color: #nope;
 }
 
 math-field::part(virtual-keyboard-toggle) {
@@ -16,29 +17,13 @@ math-field::part(virtual-keyboard-toggle) {
 
 [theme=dark] math-field {
   --contains-highlight-background-color: rgba(255,255,255,0.1);
-  --selection-background-color: #546E7A;
-  --selection-color: white;
+  --selection-background-color: rgb(95 183 255 / 50%);
 }
 
-[theme=dark] ::selection {
-  background-color: #546E7A;
+math-field.selection-active {
+  background-color: rgb(95 183 255 / 50%);
 }
 
-[theme=light] math-field.selection-active {
-  background-color: #3390ff;
-  color: white;
-  --selection-color: white;
-}
-
-[theme=dark] math-field.selection-active {
-  background-color: #546E7A;
-  color: white;
-  --selection-color: white;
-}
-
-math-field:not(:focus) {
-  --selection-color: #nope;
-}
 
 [theme=light] #mathlive-environment-popover {
   --environment-panel-background: #fff;
