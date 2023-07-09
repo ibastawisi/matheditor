@@ -2,12 +2,13 @@
 import { $createNodeSelection, $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, DOMExportOutput, EditorConfig, GridSelection, LexicalEditor, LexicalNode, NodeKey, NodeSelection, RangeSelection, SerializedLexicalNode, Spread, } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey, DecoratorNode, } from 'lexical';
-import { createRef, useCallback, useEffect, useState } from 'react';
+import { createRef, useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 import { MathfieldElement, MathfieldElementAttributes, convertLatexToMarkup } from "mathlive";
 import { DOMAttributes } from "react";
 import './index.css';
+import { IS_MOBILE } from '../../../shared/environment';
 
 type CustomElement<T> = Partial<T & DOMAttributes<T>>;
 
@@ -53,18 +54,26 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
     );
   }, []);
 
+  useLayoutEffect(() => {
+    const mathfield = ref.current;
+    if (!mathfield) return;
+    if (!isMathField(mathfield)) return;
+    // highlight when range selected
+    const active = isSelected && $isRangeSelection(selection);
+    mathfield.classList.toggle("selection-active", active);
+    // disable pointer events on mobile when not selected
+    if (IS_MOBILE) {
+      const span = mathfield.shadowRoot!.firstElementChild! as HTMLSpanElement;
+      span.style.pointerEvents = isSelected ? "auto" : "none";
+    }
+  }, [ref, isSelected, selection]);
+
   useEffect(() => {
     const mathfield = ref.current;
     if (!mathfield) return;
     if (!isMathField(mathfield)) return;
-
     // reselect when selection is lost and mathfield is focused
     if (!selection && document.activeElement === mathfield) setSelected(true);
-
-    // highlight when range selected
-    const active = isSelected && $isRangeSelection(selection);
-    mathfield.classList.toggle("selection-active", active);
-
     // focus when node selected
     if (isSelected && !mathfield.hasFocus()) {
       if (!$isNodeSelection(selection)) return;
@@ -116,6 +125,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
       clearSelection();
       setSelected(true);
       focus(mathfield);
+      if (mathfield.selectionIsCollapsed) mathfield.setCaretPoint(event.clientX, event.clientY);
     });
 
     mathfield.addEventListener("keydown", event => {
@@ -164,7 +174,7 @@ function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathCompone
     });
   }, []);
 
-  return <math-field ref={ref} read-only={true} />;
+  return <math-field ref={ref} />;
 }
 
 export type SerializedMathNode = Spread<{ type: 'math'; value: string; style: string }, SerializedLexicalNode>;

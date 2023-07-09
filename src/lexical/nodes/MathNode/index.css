@@ -8,7 +8,8 @@ math-field {
   color: inherit;
   width: 100%;
   user-select: none;
---selection-color: #nope;
+  pointer-events: all;
+  --selection-color: #nope;
 }
 
 math-field::part(virtual-keyboard-toggle) {
