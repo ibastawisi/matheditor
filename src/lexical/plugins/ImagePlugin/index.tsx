@@ -23,7 +23,7 @@ import {
   DROP_COMMAND,
 } from 'lexical';
 import { useEffect } from 'react';
-import getDOMSelection from '../../../shared/getDOMSelection';
+import getDOMSelection from '../../shared/getDOMSelection';
 
 import { $createImageNode, $isImageNode, ImageNode, ImagePayload, } from '../../nodes/ImageNode';
 

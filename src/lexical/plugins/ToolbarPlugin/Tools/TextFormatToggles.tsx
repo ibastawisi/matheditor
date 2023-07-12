@@ -12,7 +12,7 @@ import SubscriptIcon from '@mui/icons-material/Subscript';
 import SuperscriptIcon from '@mui/icons-material/Superscript';
 import { mergeRegister, } from '@lexical/utils';
 
-import { IS_APPLE } from '../../../../shared/environment';
+import { IS_APPLE } from '../../../shared/environment';
 import { useCallback, useEffect, useState } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import ColorPicker from './ColorPicker';

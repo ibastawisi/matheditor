@@ -33,10 +33,13 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
 import HtmlIcon from '@mui/icons-material/Html';
-import theme from '../lexical/theme.css?inline';
-import stickyStyles from '../lexical/nodes/StickyNode/StickyNode.css?inline';
-import { generateMarkdown, generateHtml } from '../lexical/utils/generateExportContent';
-import { MarkdownIcon } from './DocumentCard';
+import { exportHtml } from "../lexical/utils/exportHtml";
+import { exportMarkdown } from "../lexical/utils/exportMarkdown";
+import SvgIcon from '@mui/material/SvgIcon';
+export const MarkdownIcon = () => <SvgIcon viewBox="0 0 640 512" fontSize='small'>
+  <path d="M593.8 59.1H46.2C20.7 59.1 0 79.8 0 105.2v301.5c0 25.5 20.7 46.2 46.2 46.2h547.7c25.5 0 46.2-20.7 46.1-46.1V105.2c0-25.4-20.7-46.1-46.2-46.1zM338.5 360.6H277v-120l-61.5 76.9-61.5-76.9v120H92.3V151.4h61.5l61.5 76.9 61.5-76.9h61.5v209.2zm135.3 3.1L381.5 256H443V151.4h61.5V256H566z" />
+</SvgIcon>;
+
 
 export type options = ('rename' | 'download' | 'fork' | 'share' | 'publish' | 'upload' | 'delete' | 'export')[];
 type DocumentActionMenuProps = {
@@ -219,8 +222,8 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
     closeMenu();
     const payload = await getPayload();
     if (!payload) return dispatch(actions.app.announce({ message: "Can't find document data" }));
-    const { data } = JSON.parse(payload);
-    const markdown = await generateMarkdown(data);
+    const document = JSON.parse(payload);
+    const markdown = await exportMarkdown(document)
     const blob = new Blob([markdown], { type: "text/markdown" });
     const link = window.document.createElement("a");
     link.download = document.name + ".md";
@@ -241,9 +244,8 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
     closeMenu();
     const payload = await getPayload();
     if (!payload) return dispatch(actions.app.announce({ message: "Can't find document data" }));
-    const { data } = JSON.parse(payload);
-    const htmlString = await generateHtml(data);
-    const html = addHead(htmlString);
+    const document = JSON.parse(payload);
+    const html = await exportHtml(document);
     const blob = new Blob([html], { type: "text/html" });
     const link = window.document.createElement("a");
     link.download = document.name + ".html";
@@ -256,30 +258,6 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
     });
     link.dispatchEvent(evt);
     link.remove();
-  };
-
-  const addHead = (html: string) => {
-    const head = `
-    <head>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width,initial-scale=1" />
-      <meta name="title" content="${document.name}" />
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
-      <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive-static.css" />
-      <style>
-        html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;box-sizing:border-box;-webkit-text-size-adjust:100%;}
-        *,*::before,*::after{box-sizing:inherit;}
-        body{font-family:"Roboto","Helvetica","Arial",sans-serif;font-weight:400;font-size:1rem;line-height:1.5;letter-spacing:0.00938em;max-width:1200px;margin:2rem auto;padding:0 1.5rem;white-space:pre-wrap;word-break:break-word;}
-        img{max-width:100%;background-color:white;}
-        .ML__mathlive{padding:4px;}
-        @font-face{font-family:Virgil;src:url(https://unpkg.com/@excalidraw/excalidraw/dist/excalidraw-assets/Virgil.woff2);}
-        @font-face{font-family:Cascadia;src:url(https://unpkg.com/@excalidraw/excalidraw/dist/excalidraw-assets/Cascadia.woff2);}
-        ${theme}
-        ${stickyStyles}
-      </style>
-    </head>
-    `;
-    return `<html>${head}<body>${html}</body></html>`;
   };
 
   return (

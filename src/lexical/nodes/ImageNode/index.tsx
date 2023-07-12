@@ -20,8 +20,8 @@ import {
 } from 'lexical';
 
 import { DecoratorNode } from 'lexical';
-import { ImageComponent } from './ImageComponent';
-
+import { Suspense, lazy } from 'react';
+const ImageComponent = lazy(() => import('./ImageComponent'));
 
 export interface ImagePayload {
   altText: string;
@@ -173,14 +173,16 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 
   decorate(): JSX.Element {
     return (
-      <ImageComponent
-        src={this.__src}
-        altText={this.__altText}
-        width={this.__width}
-        height={this.__height}
-        nodeKey={this.getKey()}
-        resizable={true}
-      />
+      <Suspense fallback={null}>
+        <ImageComponent
+          src={this.__src}
+          altText={this.__altText}
+          width={this.__width}
+          height={this.__height}
+          nodeKey={this.getKey()}
+          resizable={true}
+        />
+      </Suspense>
     );
   }
 }

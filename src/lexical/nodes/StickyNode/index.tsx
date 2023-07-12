@@ -20,10 +20,7 @@ import { $createNodeSelection, $setSelection, DecoratorNode } from 'lexical';
 import * as React from 'react';
 import { Suspense } from 'react';
 
-const StickyComponent = React.lazy(
-  // @ts-ignore
-  () => import('./StickyComponent'),
-);
+const StickyComponent = React.lazy(() => import('./StickyComponent'));
 
 type StickyNoteColor = 'pink' | 'yellow';
 

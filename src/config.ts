@@ -1,1 +1,1 @@
-export const BACKEND_URL = import.meta.env.PROD ? 'https://api.matheditor.ml' : 'http://localhost:3001';
+export const BACKEND_URL = import.meta.env.BACKEND_URL ?? 'http://localhost:3001';

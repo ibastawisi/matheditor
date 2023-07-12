@@ -29,7 +29,7 @@ import { Rect } from '../../utils/rect';
 
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import IconButton from '@mui/material/IconButton';
-import { IS_MOBILE } from '../../../shared/environment';
+import { IS_MOBILE } from '../../shared/environment';
 
 const SPACE = 4;
 const TARGET_LINE_HALF_HEIGHT = 2;

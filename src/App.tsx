@@ -1,12 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
 import './App.css';
 import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
 import { Route, Routes } from "react-router-dom";
 import ThemeProvider from './components/ThemeProvider';
 import { lazy, Suspense, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState, actions } from './store';
+import { Provider, useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState, actions, store } from './store';
 import { Helmet } from 'react-helmet';
 import { BACKEND_URL } from './config';
 
@@ -18,6 +22,10 @@ import SplashScreen from './components/SplashScreen';
 
 import Home from './components/Home';
 import NewDocument from './components/NewDocument';
+import { registerSW } from 'virtual:pwa-register';
+import { sendToVercelAnalytics } from './analytics';
+import reportWebVitals from './reportWebVitals';
+
 const Privacy = lazy(() => import('./components/Privacy'));
 const Playground = lazy(() => import('./components/Playground'));
 const Tutorial = lazy(() => import('./components/Tutorial'));
@@ -70,4 +78,22 @@ function App() {
   );
 }
 
-export default App;
+export const updateSW = registerSW({
+  onNeedRefresh() {
+    store.dispatch(actions.app.announce(
+      {
+        message: "New update available!",
+        action: { label: "Apply update", onClick: "updateSW(true)" },
+        timeout: 6000
+      }
+    ));
+  },
+});
+
+if (import.meta.env.PROD) {
+  reportWebVitals(sendToVercelAnalytics);
+}
+
+const container = () => <Provider store={store}><App /></Provider>;
+
+export default container;

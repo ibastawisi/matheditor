@@ -20,8 +20,9 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "types": [
-      "vite-plugin-pwa/client"
-    ]
+      "vite-plugin-pwa/client",
+      "mathlive/dist/types/mathlive-ssr.d.ts"
+    ],
   },
   "include": [
     "src"

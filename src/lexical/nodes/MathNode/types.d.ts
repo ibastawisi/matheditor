@@ -1,0 +1,1 @@
+declare module 'mathlive/dist/mathlive-ssr'

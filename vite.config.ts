@@ -6,7 +6,8 @@ import { visualizer } from "rollup-plugin-visualizer";
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
-    'import.meta.env.VERCEL_ANALYTICS_ID': JSON.stringify(process.env.VERCEL_ANALYTICS_ID)
+    'import.meta.env.VERCEL_ANALYTICS_ID': JSON.stringify(process.env.VERCEL_ANALYTICS_ID),
+    'import.meta.env.BACKEND_URL': JSON.stringify(process.env.BACKEND_URL),
   },
   build: {
     sourcemap: false,

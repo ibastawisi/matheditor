@@ -84,7 +84,7 @@ function LazyImage({
   );
 }
 
-export function ImageComponent({
+export default function ImageComponent({
   src,
   altText,
   nodeKey,

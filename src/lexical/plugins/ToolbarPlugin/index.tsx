@@ -23,7 +23,7 @@ import { BlockFormatSelect } from './Menus/BlockFormatSelect';
 import InsertToolMenu from './Menus/InsertToolMenu';
 import TextFormatToggles from './Tools/TextFormatToggles';
 import AlignTextMenu from './Menus/AlignTextMenu';
-import { IS_APPLE } from '../../../shared/environment';
+import { IS_APPLE } from '../../shared/environment';
 import { $isMathNode } from '../../nodes/MathNode';
 import MathTools from './Tools/MathTools';
 import { $isImageNode } from '../../nodes/ImageNode';

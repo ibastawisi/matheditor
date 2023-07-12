@@ -4,7 +4,7 @@ import { $getNodeByKey } from 'lexical';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
-import { IS_MOBILE } from '../../../shared/environment';
+import { IS_MOBILE } from '../../shared/environment';
 import { MathfieldElement, MathfieldElementAttributes } from "mathlive";
 import { DOMAttributes } from "react";
 import './index.css';
@@ -28,7 +28,7 @@ export type MathComponentProps = { initialValue: string; nodeKey: NodeKey; mathf
 
 
 
-export function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathComponentProps): JSX.Element {
+export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathComponentProps): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [selection, setSelection] = useState<RangeSelection | NodeSelection | GridSelection | null>(null);
   const [lastRangeSelection, setLastRangeSelection] = useState<RangeSelection | null>(null);

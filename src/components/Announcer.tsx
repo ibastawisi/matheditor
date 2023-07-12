@@ -6,7 +6,7 @@ import Button from '@mui/material/Button';
 import React from 'react';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import { updateSW } from '../main';
+import { updateSW } from '../App';
 
 function Announcer() {
   const announcement = useSelector((state: RootState) => state.app.ui.announcements[0]);

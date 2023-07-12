@@ -10,7 +10,8 @@ import { $createNodeSelection, $setSelection, DOMConversionMap, DOMConversionOut
 
 import { DecoratorNode, } from 'lexical';
 
-import { ImageComponent } from '../ImageNode/ImageComponent';
+import { Suspense, lazy } from 'react';
+const ImageComponent = lazy(() => import('../ImageNode/ImageComponent'));
 
 export interface GraphPayload {
   key?: NodeKey;
@@ -46,7 +47,9 @@ function GraphComponent({
   resizable: boolean;
 }): JSX.Element {
   return (
-    <ImageComponent nodeKey={nodeKey} width={width} height={height} src={src} altText="" resizable={resizable} />
+    <Suspense fallback={null}>
+      <ImageComponent nodeKey={nodeKey} width={width} height={height} src={src} altText="" resizable={resizable} />
+    </Suspense>
   );
 }
 

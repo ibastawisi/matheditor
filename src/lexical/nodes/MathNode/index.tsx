@@ -3,7 +3,8 @@ import { $createNodeSelection, $setSelection, DOMExportOutput, LexicalNode, Node
 import { DecoratorNode, } from 'lexical';
 import { createRef } from 'react';
 import { MathfieldElement, convertLatexToMarkup } from "mathlive";
-import { MathComponent } from './MathComponent';
+import { Suspense, lazy } from 'react';
+const MathComponent = lazy(() => import('./MathComponent'));
 
 export type SerializedMathNode = Spread<{ type: 'math'; value: string; style: string }, SerializedLexicalNode>;
 
@@ -107,7 +108,11 @@ export class MathNode extends DecoratorNode<JSX.Element> {
   }
 
   decorate(): JSX.Element {
-    return <MathComponent initialValue={this.__value} nodeKey={this.__key} mathfieldRef={this.__mathfieldRef} />
+    return (
+      <Suspense fallback={null}>
+        <MathComponent initialValue={this.__value} nodeKey={this.__key} mathfieldRef={this.__mathfieldRef} />
+      </Suspense>
+    );
   }
 }
 

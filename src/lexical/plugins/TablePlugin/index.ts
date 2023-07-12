@@ -35,7 +35,7 @@ import {
   COMMAND_PRIORITY_EDITOR,
 } from 'lexical';
 import { useEffect } from 'react';
-import invariant from '../../../shared/invariant';
+import invariant from '../../shared/invariant';
 
 // TODO extract to utils
 function $insertFirst(parent: ElementNode, node: LexicalNode): void {

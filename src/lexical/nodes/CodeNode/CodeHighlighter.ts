@@ -36,7 +36,7 @@ import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-cpp';
 import 'prismjs/components/prism-csharp';
 
-import {mergeRegister} from '@lexical/utils';
+import { mergeRegister } from '@lexical/utils';
 import {
   $createLineBreakNode,
   $createTextNode,
@@ -70,8 +70,8 @@ import {
   getLastCodeNodeOfLine,
 } from './CodeHighlightNode';
 
-import {$isCodeNode, CodeNode} from './CodeNode';
-import invariant from '../../../shared/invariant';
+import { $isCodeNode, CodeNode } from './CodeNode';
+import invariant from '../../shared/invariant';
 
 type TokenContent = string | Token | (string | Token)[];
 
@@ -106,7 +106,7 @@ export function getStartOfCodeInLine(
     node: CodeHighlightNode | TabNode | LineBreakNode;
     offset: number;
   } = null;
-  let lastNonBlank: null | {node: CodeHighlightNode; offset: number} = null;
+  let lastNonBlank: null | { node: CodeHighlightNode; offset: number } = null;
   let node: null | CodeHighlightNode | TabNode | LineBreakNode = anchor;
   let nodeOffset = offset;
   let nodeTextContent = anchor.getTextContent();
@@ -119,8 +119,8 @@ export function getStartOfCodeInLine(
       }
       invariant(
         $isCodeHighlightNode(node) ||
-          $isTabNode(node) ||
-          $isLineBreakNode(node),
+        $isTabNode(node) ||
+        $isLineBreakNode(node),
         'Expected a valid Code Node: CodeHighlightNode, TabNode, LineBreakNode',
       );
       if ($isLineBreakNode(node)) {
@@ -178,7 +178,7 @@ export function getStartOfCodeInLine(
 function findNextNonBlankInLine(
   anchor: LexicalNode,
   offset: number,
-): null | {node: CodeHighlightNode; offset: number} {
+): null | { node: CodeHighlightNode; offset: number } {
   let node: null | LexicalNode = anchor;
   let nodeOffset = offset;
   let nodeTextContent = anchor.getTextContent();
@@ -310,7 +310,7 @@ function codeNodeTransform(
           currentNode.getChildren(),
           highlightNodes,
         );
-        const {from, to, nodesForReplacement} = diffRange;
+        const { from, to, nodesForReplacement } = diffRange;
 
         if (from !== to || nodesForReplacement.length) {
           node.splice(from, to - from, nodesForReplacement);
@@ -347,7 +347,7 @@ function getHighlightNodes(tokens: (string | Token)[]): LexicalNode[] {
         }
       }
     } else {
-      const {content} = token;
+      const { content } = token;
       if (typeof content === 'string') {
         nodes.push($createCodeHighlightNode(content, token.type));
       } else if (
@@ -552,9 +552,9 @@ function handleTab(shiftKey: boolean): null | LexicalCommand<void> {
   const firstNode = selectionNodes[0];
   invariant(
     $isCodeNode(firstNode) ||
-      $isCodeHighlightNode(firstNode) ||
-      $isTabNode(firstNode) ||
-      $isLineBreakNode(firstNode),
+    $isCodeHighlightNode(firstNode) ||
+    $isTabNode(firstNode) ||
+    $isLineBreakNode(firstNode),
     'Expected selection firstNode to be CodeHighlightNode or TabNode',
   );
   if ($isCodeNode(firstNode)) {
@@ -621,9 +621,9 @@ function handleMultilineIndent(type: LexicalCommand<void>): boolean {
   const firstNode = selectionNodes[0];
   invariant(
     $isCodeNode(firstNode) ||
-      $isCodeHighlightNode(firstNode) ||
-      $isTabNode(firstNode) ||
-      $isLineBreakNode(firstNode),
+    $isCodeHighlightNode(firstNode) ||
+    $isTabNode(firstNode) ||
+    $isLineBreakNode(firstNode),
     'Expected selection firstNode to be CodeHighlightNode or CodeTabNode',
   );
   if ($isCodeNode(firstNode)) {
@@ -662,7 +662,7 @@ function handleShiftLines(
 
   // I'm not quite sure why, but it seems like calling anchor.getNode() collapses the selection here
   // So first, get the anchor and the focus, then get their nodes
-  const {anchor, focus} = selection;
+  const { anchor, focus } = selection;
   const anchorOffset = anchor.offset;
   const focusOffset = focus.offset;
   const anchorNode = anchor.getNode();
@@ -755,8 +755,8 @@ function handleShiftLines(
 
   const maybeInsertionPoint =
     $isCodeHighlightNode(sibling) ||
-    $isTabNode(sibling) ||
-    $isLineBreakNode(sibling)
+      $isTabNode(sibling) ||
+      $isLineBreakNode(sibling)
       ? arrowIsUp
         ? getFirstCodeNodeOfLine(sibling)
         : getLastCodeNodeOfLine(sibling)
@@ -791,7 +791,7 @@ function handleMoveTo(
     return false;
   }
 
-  const {anchor, focus} = selection;
+  const { anchor, focus } = selection;
   const anchorNode = anchor.getNode();
   const focusNode = focus.getNode();
   const isMoveToStart = type === MOVE_TO_START;
@@ -806,7 +806,7 @@ function handleMoveTo(
   if (isMoveToStart) {
     const start = getStartOfCodeInLine(focusNode, focus.offset);
     if (start !== null) {
-      const {node, offset} = start;
+      const { node, offset } = start;
       if ($isLineBreakNode(node)) {
         node.selectNext(0, 0);
       } else {

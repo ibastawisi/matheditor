@@ -9,7 +9,8 @@
 import { $createNodeSelection, $setSelection, DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, LexicalNode, NodeKey, SerializedLexicalNode, Spread, } from 'lexical';
 import { DecoratorNode, } from 'lexical';
 import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
-import { SketchComponent } from './SketchComponent';
+import { Suspense, lazy } from 'react';
+const SketchComponent = lazy(() => import('./SketchComponent'));
 
 export interface SketchPayload {
   key?: NodeKey;
@@ -165,14 +166,16 @@ export class SketchNode extends DecoratorNode<JSX.Element> {
 
   decorate(): JSX.Element {
     return (
-      <SketchComponent
-        width={this.__width}
-        height={this.__height}
-        src={this.getSrc()}
-        nodeKey={this.getKey()}
-        value={this.getValue()}
-        resizable={true}
-      />
+      <Suspense fallback={null}>
+        <SketchComponent
+          width={this.__width}
+          height={this.__height}
+          src={this.getSrc()}
+          nodeKey={this.getKey()}
+          value={this.getValue()}
+          resizable={true}
+        />
+      </Suspense>
     );
   }
 }

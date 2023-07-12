@@ -47,7 +47,7 @@ import {
   KEY_TAB_COMMAND,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
-import invariant from '../../../shared/invariant';
+import invariant from '../../shared/invariant';
 
 import { TableSelection } from './LexicalTableSelection';
 import { getStyleObjectFromCSS } from '../utils';

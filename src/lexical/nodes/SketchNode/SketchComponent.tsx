@@ -1,7 +1,7 @@
 import { NodeKey } from 'lexical';
 import { useEffect, useState } from 'react';
 import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
-import { ImageComponent } from '../ImageNode/ImageComponent';
+import ImageComponent from '../ImageNode/ImageComponent';
 import Virgil from "@excalidraw/excalidraw/dist/excalidraw-assets/Virgil.woff2";
 import Cascadia from "@excalidraw/excalidraw/dist/excalidraw-assets/Cascadia.woff2";
 
@@ -22,7 +22,7 @@ const arrayBufferToBase64Font = (buffer: ArrayBuffer) => {
   return `data:font/woff2;base64,${btoa(binary)}`;
 }
 
-export function SketchComponent({
+export default function SketchComponent({
   nodeKey, width, height, src, value, resizable,
 }: {
   width: 'inherit' | number;
