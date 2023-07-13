@@ -3,7 +3,7 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import { INSERT_GRAPH_COMMAND } from '../../GraphPlugin';
+import { INSERT_GRAPH_COMMAND, InsertGraphPayload } from '../../GraphPlugin';
 import { GraphNode } from '../../../nodes/GraphNode';
 import { memo, useEffect, useId, useRef, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -39,9 +39,9 @@ export default function GraphDialog({ editor, node }: { editor: LexicalEditor, n
     appletOnLoad() { setLoading(false); },
   };
 
-  const insertGraph = (src: string, value: string) => {
-    if (!node) editor.dispatchCommand(INSERT_GRAPH_COMMAND, { src, value },);
-    else editor.update(() => node.update(src, value));
+  const insertGraph = (payload: InsertGraphPayload) => {
+    if (!node) editor.dispatchCommand(INSERT_GRAPH_COMMAND, payload,);
+    else editor.update(() => node.update(payload));
   };
 
   const handleSubmit = async () => {
@@ -51,7 +51,7 @@ export default function GraphDialog({ editor, node }: { editor: LexicalEditor, n
     editor.getEditorState().read(() => {
       const selection = $getSelection()?.clone() ?? null;
       editor.update(() => $setSelection(selection));
-      insertGraph(src, value);
+      insertGraph({ src, value });
       handleClose();
     })
   };

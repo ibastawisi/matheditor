@@ -1,4 +1,4 @@
-import { NodeKey } from 'lexical';
+import { LexicalEditor, NodeKey } from 'lexical';
 import { useEffect, useState } from 'react';
 import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
 import ImageComponent from '../ImageNode/ImageComponent';
@@ -23,7 +23,7 @@ const arrayBufferToBase64Font = (buffer: ArrayBuffer) => {
 }
 
 export default function SketchComponent({
-  nodeKey, width, height, src, value, resizable,
+  nodeKey, width, height, src, value, resizable, showCaption, caption
 }: {
   width: 'inherit' | number;
   height: 'inherit' | number;
@@ -31,6 +31,8 @@ export default function SketchComponent({
   nodeKey: NodeKey;
   resizable: boolean;
   value?: NonDeleted<ExcalidrawElement>[];
+  showCaption: boolean;
+  caption: LexicalEditor;
 }): JSX.Element {
 
   const [source, setSource] = useState<string | null>(null);
@@ -49,6 +51,6 @@ export default function SketchComponent({
   }, [src]);
 
   return (
-    <ImageComponent nodeKey={nodeKey} width={width} height={height} src={source || src} altText="" resizable={resizable} />
+    <ImageComponent nodeKey={nodeKey} width={width} height={height} src={source || src} altText="" resizable={resizable} showCaption={showCaption} caption={caption} />
   );
 }

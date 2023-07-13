@@ -6,30 +6,27 @@
  *
  */
 
-import { $createNodeSelection, $setSelection, DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, LexicalNode, NodeKey, SerializedLexicalNode, Spread, } from 'lexical';
-import { DecoratorNode, } from 'lexical';
+import { DOMConversionMap, DOMConversionOutput, DOMExportOutput, LexicalEditor, LexicalNode, NodeKey, Spread, } from 'lexical';
 import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
+
+import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
 import { Suspense, lazy } from 'react';
 const SketchComponent = lazy(() => import('./SketchComponent'));
 
-export interface SketchPayload {
-  key?: NodeKey;
-  width?: number;
-  height?: number;
-  style?: string;
-  src: string;
+export type SketchPayload = Spread<{
   /**
  * @deprecated The value is now embedded in the src
  */
   value?: NonDeleted<ExcalidrawElement>[]
-}
+}, ImagePayload>
 
 
 function convertSketchElement(domNode: Node): null | DOMConversionOutput {
   if (domNode instanceof HTMLImageElement) {
-    const { src } = domNode;
+    const { alt: altText, src } = domNode;
+    const style = domNode.style.cssText;
     const value: NonDeleted<ExcalidrawElement>[] = domNode.dataset.value ? JSON.parse(domNode.dataset.value) : [];
-    const node = $createSketchNode({ src, value });
+    const node = $createSketchNode({ src, altText, value, style });
     return { node };
   }
   return null;
@@ -37,22 +34,14 @@ function convertSketchElement(domNode: Node): null | DOMConversionOutput {
 
 export type SerializedSketchNode = Spread<
   {
-    width?: number;
-    height?: number;
-    style?: string;
-    src: string;
     value?: NonDeleted<ExcalidrawElement>[];
     type: 'sketch';
     version: 1;
   },
-  SerializedLexicalNode
+  SerializedImageNode
 >;
 
-export class SketchNode extends DecoratorNode<JSX.Element> {
-  __width: 'inherit' | number;
-  __height: 'inherit' | number;
-  __style?: string;
-  __src: string;
+export class SketchNode extends ImageNode {
   __value?: NonDeleted<ExcalidrawElement>[];
 
   static getType(): string {
@@ -62,24 +51,36 @@ export class SketchNode extends DecoratorNode<JSX.Element> {
   static clone(node: SketchNode): SketchNode {
     return new SketchNode(
       node.__src,
+      node.__altText,
       node.__value,
       node.__width,
       node.__height,
       node.__style,
+      node.__showCaption,
+      node.__caption,
       node.__key,
     );
   }
 
   static importJSON(serializedNode: SerializedSketchNode): SketchNode {
-    const { width, height, src, value, style } =
+    const { width, height, src, value, style, showCaption, caption, altText } =
       serializedNode;
     const node = $createSketchNode({
+      src,
+      value,
       width,
       height,
       style,
-      src,
-      value
+      showCaption,
+      altText,
     });
+    if (caption) {
+      const nestedEditor = node.__caption;
+      const editorState = nestedEditor.parseEditorState(caption.editorState);
+      if (!editorState.isEmpty()) {
+        nestedEditor.setEditorState(editorState);
+      }
+    }
     return node;
   }
 
@@ -104,84 +105,35 @@ export class SketchNode extends DecoratorNode<JSX.Element> {
 
   constructor(
     src: string,
+    altText: string,
     value?: NonDeleted<ExcalidrawElement>[],
     width?: 'inherit' | number,
     height?: 'inherit' | number,
     style?: string,
+    showCaption?: boolean,
+    caption?: LexicalEditor,
     key?: NodeKey,
   ) {
-    super(key);
-    this.__src = src;
-    this.__width = width || 'inherit';
-    this.__height = height || 'inherit';
-    this.__style = style;
+    super(src, altText, width, height, style, showCaption, caption, key);
     this.__value = value;
   }
 
   exportJSON(): SerializedSketchNode {
     return {
-      width: this.__width === 'inherit' ? 0 : this.__width,
-      height: this.__height === 'inherit' ? 0 : this.__height,
-      style: this.__style,
-      src: this.getSrc(),
-      value: this.getValue(),
+      ...super.exportJSON(),
+      value: this.__value,
       type: 'sketch',
       version: 1,
     };
+
   }
 
-  setWidthAndHeight(
-    width: 'inherit' | number,
-    height: 'inherit' | number,
-  ): void {
+  update(payload: Partial<SketchPayload>): void {
     const writable = this.getWritable();
-    writable.__width = width;
-    writable.__height = height;
+    super.update(payload);
+    writable.__value = payload.value ?? writable.__value;
   }
 
-  update(src: string, value?: NonDeleted<ExcalidrawElement>[]): void {
-    const writable = this.getWritable();
-    writable.__src = src;
-    writable.__value = value;
-  }
-
-  select() {
-    const nodeSelection = $createNodeSelection();
-    nodeSelection.add(this.getKey());
-    $setSelection(nodeSelection);
-  }
-
-  createDOM(config: EditorConfig): HTMLElement {
-    const span = document.createElement('span');
-    const theme = config.theme;
-    const className = theme.image;
-    if (className !== undefined) {
-      span.className = className;
-    }
-    if (this.__style) {
-      span.style.cssText = this.__style;
-    }
-    return span;
-  }
-
-  updateDOM(prevNode: SketchNode): boolean {
-    return prevNode.__style !== this.__style;
-  }
-
-  getStyle(): string | undefined {
-    const self = this.getLatest();
-    return self.__style;
-  }
-
-  setStyle(style: string): this {
-    const self = this.getWritable();
-    self.__style = style;
-    return self;
-  }
-
-  getSrc(): string {
-    return this.__src;
-  }
 
   getValue(): NonDeleted<ExcalidrawElement>[] | undefined {
     return this.__value;
@@ -197,6 +149,8 @@ export class SketchNode extends DecoratorNode<JSX.Element> {
           nodeKey={this.getKey()}
           value={this.getValue()}
           resizable={true}
+          showCaption={this.__showCaption}
+          caption={this.__caption}
         />
       </Suspense>
     );
@@ -205,18 +159,24 @@ export class SketchNode extends DecoratorNode<JSX.Element> {
 
 export function $createSketchNode({
   src,
-  height,
-  width,
-  style,
+  altText = "Graph",
+  value,
   key,
-  value
+  width,
+  height,
+  style,
+  showCaption,
+  caption,
 }: SketchPayload): SketchNode {
   return new SketchNode(
     src,
+    altText,
     value,
     width,
     height,
     style,
+    showCaption,
+    caption,
     key,
   );
 }

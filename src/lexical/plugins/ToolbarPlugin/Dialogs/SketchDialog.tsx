@@ -1,5 +1,5 @@
 import { LexicalEditor } from 'lexical';
-import { INSERT_SKETCH_COMMAND } from '../../SketchPlugin';
+import { INSERT_SKETCH_COMMAND, InsertSketchPayload } from '../../SketchPlugin';
 import { Suspense, lazy, useEffect, useState } from 'react';
 import LogicGates from "./SketchLibraries/Logic-Gates.json";
 import CircuitComponents from "./SketchLibraries/circuit-components.json";
@@ -29,6 +29,11 @@ export default function useSketchDialog({ editor, node }: { editor: LexicalEdito
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [excalidrawAPI, open]);
 
+  const insertSketch = (payload: InsertSketchPayload) => {
+    if (!node) editor.dispatchCommand(INSERT_SKETCH_COMMAND, payload,);
+    else editor.update(() => node.update(payload));
+  };
+
   const handleSubmit = async () => {
     const elements = excalidrawAPI?.getSceneElements();
     const files = excalidrawAPI?.getFiles();
@@ -45,8 +50,7 @@ export default function useSketchDialog({ editor, node }: { editor: LexicalEdito
     const serialized = new XMLSerializer().serializeToString(element);
     const src = "data:image/svg+xml," + encodeURIComponent(serialized);
 
-    if (!node) editor.dispatchCommand(INSERT_SKETCH_COMMAND, { src },);
-    else editor.update(() => node.update(src));
+    insertSketch({ src });
     closeDialog();
   };
 

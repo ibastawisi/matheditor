@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { EditorState } from 'lexical';
+import { EditorState, LexicalEditor } from 'lexical';
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { useSharedHistoryContext } from "./context/SharedHistoryContext";
@@ -71,18 +71,27 @@ const Editor: React.FC<{ document: EditorDocument, editable: boolean, onChange?:
       <Box className="editor">
         <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(validateData(document.data)), editable }}>
           <ToolbarPlugin />
-          <EditorPlugins contentEditable={<ContentEditable className="editor-input" onContextMenu={disableContextMenu} />} onChange={handleChange} showDebugView={config.debug} />
+          <EditorPlugins
+            contentEditable={<ContentEditable className="editor-input" onContextMenu={disableContextMenu} />}
+            placeholder={null}
+            onChange={handleChange}
+            showDebugView={config.debug} />
         </LexicalComposer>
       </Box>
     );
   }
 
-export const EditorPlugins: React.FC<{ contentEditable: React.ReactElement; onChange: (editorState: EditorState) => void; showDebugView?: boolean; }> =
-  ({ contentEditable, onChange, showDebugView }) => {
+export const EditorPlugins: React.FC<{
+  contentEditable: React.ReactElement;
+  placeholder: JSX.Element | ((isEditable: boolean) => JSX.Element | null) | null;
+  onChange: (editorState: EditorState, editor: LexicalEditor) => void;
+  showDebugView?: boolean;
+}> =
+  ({ contentEditable, placeholder, onChange, showDebugView }) => {
     const { historyState } = useSharedHistoryContext();
     return (
       <>
-        <RichTextPlugin contentEditable={contentEditable} ErrorBoundary={LexicalErrorBoundary} placeholder={null} />
+        <RichTextPlugin contentEditable={contentEditable} ErrorBoundary={LexicalErrorBoundary} placeholder={placeholder} />
         <HistoryPlugin externalHistoryState={historyState} />
         <OnChangePlugin ignoreHistoryMergeTagChange ignoreSelectionChange onChange={onChange} />
         {showDebugView && <TreeViewPlugin />}

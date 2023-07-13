@@ -8,7 +8,10 @@
 
 import {
   $isRangeSelection,
+  $setSelection,
   GridSelection,
+  KEY_ENTER_COMMAND,
+  KEY_ESCAPE_COMMAND,
   LexicalEditor,
   NodeKey,
   NodeSelection,
@@ -34,7 +37,11 @@ import {
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import ImageResizer from './ImageResizer';
-import { getStyleObjectFromCSS } from '../../nodes/utils';
+import { ContentEditable } from '@lexical/react/LexicalContentEditable';
+import { LexicalNestedComposer } from '@lexical/react/LexicalNestedComposer';
+import { EditorPlugins } from '../..';
+import { $isImageNode } from '.';
+import Typography from '@mui/material/Typography';
 
 const imageCache = new Set();
 
@@ -60,7 +67,7 @@ function LazyImage({
   height,
   onLoad,
 }: {
-  altText: string;
+  altText?: string;
   className: string | null;
   height: 'inherit' | number;
   imageRef: { current: null | HTMLImageElement };
@@ -92,13 +99,17 @@ export default function ImageComponent({
   width,
   height,
   resizable,
+  showCaption,
+  caption,
 }: {
-  altText: string;
+  altText?: string;
   height: 'inherit' | number;
   nodeKey: NodeKey;
   resizable: boolean;
   src: string;
   width: 'inherit' | number;
+  showCaption: boolean;
+  caption: LexicalEditor;
 }): JSX.Element {
   const imageRef = useRef<null | HTMLImageElement>(null);
   const [isSelected, setSelected, clearSelection] =
@@ -109,6 +120,47 @@ export default function ImageComponent({
     RangeSelection | NodeSelection | GridSelection | null
   >(null);
   const activeEditorRef = useRef<LexicalEditor | null>(null);
+
+  const onEnter = useCallback(
+    (event: KeyboardEvent) => {
+      const latestSelection = $getSelection();
+      if (
+        isSelected &&
+        $isNodeSelection(latestSelection) &&
+        latestSelection.getNodes().length === 1
+      ) {
+        if (showCaption) {
+          // Move focus into nested editor
+          $setSelection(null);
+          event.preventDefault();
+          caption.focus();
+          return true;
+        }
+      }
+      return false;
+    },
+    [caption, isSelected, showCaption],
+  );
+
+  const onEscape = useCallback(
+    (event: KeyboardEvent) => {
+      if (
+        activeEditorRef.current === caption
+      ) {
+        $setSelection(null);
+        editor.update(() => {
+          setSelected(true);
+          const parentRootElement = editor.getRootElement();
+          if (parentRootElement !== null) {
+            parentRootElement.focus();
+          }
+        });
+        return true;
+      }
+      return false;
+    },
+    [caption, editor, setSelected],
+  );
 
   const onDelete = useCallback(
     (payload: KeyboardEvent) => {
@@ -192,6 +244,13 @@ export default function ImageComponent({
         onDelete,
         COMMAND_PRIORITY_LOW,
       ),
+      editor.registerCommand(KEY_ENTER_COMMAND, onEnter, COMMAND_PRIORITY_LOW),
+      editor.registerCommand(
+        KEY_ESCAPE_COMMAND,
+        onEscape,
+        COMMAND_PRIORITY_LOW,
+      ),
+
     );
     return () => {
       isMounted = false;
@@ -204,6 +263,8 @@ export default function ImageComponent({
     isSelected,
     nodeKey,
     onDelete,
+    onEnter,
+    onEscape,
     setSelected,
   ]);
 
@@ -243,13 +304,22 @@ export default function ImageComponent({
     }
   }
 
+  const onChange = () => {
+    editor.update(() => {
+      const node = $getNodeByKey(nodeKey);
+      if ($isImageNode(node)) {
+        node.setCaption(caption);
+      }
+    });
+  }
+
   const draggable = isSelected && $isNodeSelection(selection) && !isResizing;
   const isFocused = $isNodeSelection(selection) && (isSelected || isResizing);
 
   return (
     <Suspense fallback={null}>
       <>
-        <div draggable={draggable}>
+        <div draggable={draggable} className='image-container'>
           <LazyImage
             className={
               isFocused
@@ -263,14 +333,25 @@ export default function ImageComponent({
             width={width}
             height={height}
           />
+          {resizable && $isNodeSelection(selection) && isFocused && (
+            <ImageResizer
+              editor={editor}
+              imageRef={imageRef}
+              onResizeStart={onResizeStart}
+              onResizeEnd={onResizeEnd}
+            />
+          )}
         </div>
-        {resizable && $isNodeSelection(selection) && isFocused && (
-          <ImageResizer
-            editor={editor}
-            imageRef={imageRef}
-            onResizeStart={onResizeStart}
-            onResizeEnd={onResizeEnd}
-          />
+        {showCaption && (
+          <div className="image-caption-container">
+            <LexicalNestedComposer initialEditor={caption}>
+              <EditorPlugins contentEditable={<ContentEditable className="image-contentEditable" />} placeholder={
+                (editable) => (
+                  editable ? <Typography color="text.secondary" className="image-placeholder">Write a caption</Typography> : null
+                )
+              } onChange={onChange} />
+            </LexicalNestedComposer>
+          </div>
         )}
       </>
     </Suspense>

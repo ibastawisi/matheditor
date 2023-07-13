@@ -16,11 +16,11 @@ span.editor-image {
   display: inline-block;
   position: relative;
   z-index: 1;
-  margin: 0.5rem;
 }
 
-.editor-image>div {
+.editor-image .image-container {
   display: flex;
+  position: relative;
 }
 
 .editor-image img {
@@ -40,6 +40,38 @@ span.editor-image {
 
 .editor-image img.focused.draggable:active {
   cursor: grabbing
+}
+
+.editor-image .image-caption-container {
+  display: block;
+  min-width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.image-contentEditable {
+  border: 0px;
+  resize: none;
+  cursor: text;
+  display: block;
+  position: relative;
+  tab-size: 1;
+  outline: 0px;
+  padding: 10px 0;
+  min-height: 40px;
+  text-align: left;
+}
+
+.image-placeholder {
+  overflow: hidden;
+  position: absolute;
+  text-overflow: ellipsis;
+  top: 10px;
+  left: 0;
+  user-select: none;
+  white-space: nowrap;
+  display: inline-block;
+  pointer-events: none;
 }
 
 .editor-image .image-resizer {

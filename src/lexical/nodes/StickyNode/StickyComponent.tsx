@@ -125,7 +125,7 @@ export default function StickyComponent({ nodeKey, color, data, }: { data?: Seri
       </div>)}
       <div className={`sticky-note ${color}`}>
         <LexicalNestedComposer initialEditor={stickyEditor.current}>
-          <EditorPlugins contentEditable={<ContentEditable className="StickyNode__contentEditable" />} onChange={onChange} />
+          <EditorPlugins contentEditable={<ContentEditable className="StickyNode__contentEditable" />} placeholder={null} onChange={onChange} />
         </LexicalNestedComposer>
       </div>
     </div >

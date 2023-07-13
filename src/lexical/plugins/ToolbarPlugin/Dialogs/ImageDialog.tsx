@@ -1,6 +1,5 @@
 import { LexicalEditor } from 'lexical';
-import { InsertImagePayload } from '../../ImagePlugin';
-import { INSERT_IMAGE_COMMAND } from '../../ImagePlugin';
+import { INSERT_IMAGE_COMMAND, InsertImagePayload } from '../../ImagePlugin';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import Box from '@mui/material/Box';
 import { useEffect, useState } from 'react';
@@ -65,8 +64,9 @@ export default function useImageDialog({ editor, node }: { editor: LexicalEditor
 
   const isDisabled = formData.src === '';
 
-  const onClick = (payload: InsertImagePayload) => {
-    editor.dispatchCommand(INSERT_IMAGE_COMMAND, payload);
+  const insertImage = (payload: InsertImagePayload) => {
+    if (!node) editor.dispatchCommand(INSERT_IMAGE_COMMAND, payload,);
+    else editor.update(() => node.update(payload));
     handleClose();
   };
 
@@ -106,7 +106,7 @@ export default function useImageDialog({ editor, node }: { editor: LexicalEditor
       </Button>
       <Button
         disabled={isDisabled}
-        onClick={() => onClick(formData)}>
+        onClick={() => insertImage(formData)}>
         Confirm
       </Button>
     </DialogActions>

@@ -5,7 +5,7 @@ import { $isImageNode, ImageNode } from "../../../nodes/ImageNode";
 import { SxProps, Theme } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { SketchNode } from "../../../nodes/SketchNode";
+import { $isSketchNode, SketchNode } from "../../../nodes/SketchNode";
 import { $isGraphNode, GraphNode } from "../../../nodes/GraphNode";
 import { useDispatch } from "react-redux";
 import { actions } from "../../../../store";
@@ -13,6 +13,8 @@ import { $patchStyle, getStyleObjectFromCSS } from '../../../nodes/utils';
 import SvgIcon from '@mui/material/SvgIcon';
 import { useState } from "react";
 import ViewHeadlineIcon from '@mui/icons-material/ViewHeadline';
+import ClosedCaptionIcon from '@mui/icons-material/ClosedCaption';
+import ClosedCaptionDisabledIcon from '@mui/icons-material/ClosedCaptionDisabled';
 
 const FormatImageRightIcon = () => <SvgIcon viewBox='0 -960 960 960'>
   <path xmlns="http://www.w3.org/2000/svg" d="M450-285v-390h390v390H450Zm60-60h270v-270H510v270ZM120-120v-60h720v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h720v60H120Z" />
@@ -28,7 +30,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
   const openImageDialog = () => dispatch(actions.app.setDialogs({ image: { open: true } }));
   const openGraphDialog = () => dispatch(actions.app.setDialogs({ graph: { open: true } }));
   const openSketchDialog = () => dispatch(actions.app.setDialogs({ sketch: { open: true } }));
-  const openDialog = $isImageNode(node) ? openImageDialog : $isGraphNode(node) ? openGraphDialog : openSketchDialog;
+  const openDialog = $isGraphNode(node) ? openGraphDialog : $isSketchNode(node) ? openSketchDialog : openImageDialog;
 
   const [style, setStyle] = useState(currentNodeStyle());
 
@@ -49,6 +51,12 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
     });
   }
 
+  const toggleShowCaption = () => {
+    editor.update(() => {
+      node.setShowCaption(!node.getShowCaption());
+    });
+  };
+
   return (
     <>
       <ToggleButtonGroup size="small" sx={{ ...sx }} >
@@ -56,6 +64,10 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
         <ToggleButton value="edit" key="edit"
           onClick={openDialog}>
           <EditIcon />
+        </ToggleButton>
+        <ToggleButton value="caption" key="caption"
+          onClick={toggleShowCaption}>
+          {node.getShowCaption() ? <ClosedCaptionDisabledIcon /> : <ClosedCaptionIcon />}
         </ToggleButton>
         <ToggleButton value="float-left" key="float-left"
           onClick={() => {
@@ -65,7 +77,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
         </ToggleButton>
         <ToggleButton value="float-none" key="float-none"
           onClick={() => {
-            updateStyle({ "float": "none", "margin": "0.5em", "max-width": "100%" });
+            updateStyle({ "float": "none", "margin": "0", "max-width": "100%" });
           }}>
           <ViewHeadlineIcon />
         </ToggleButton>,

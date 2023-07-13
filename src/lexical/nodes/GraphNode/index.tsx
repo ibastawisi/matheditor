@@ -6,73 +6,38 @@
  *
  */
 
-import { $createNodeSelection, $setSelection, DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, LexicalNode, NodeKey, SerializedLexicalNode, Spread, } from 'lexical';
+import { DOMConversionMap, DOMConversionOutput, LexicalEditor, LexicalNode, NodeKey, Spread, } from 'lexical';
 
-import { DecoratorNode, } from 'lexical';
-
+import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
 import { Suspense, lazy } from 'react';
 const ImageComponent = lazy(() => import('../ImageNode/ImageComponent'));
 
-export interface GraphPayload {
-  key?: NodeKey;
-  width?: number;
-  height?: number;
-  style?: string;
-  src: string;
+export type GraphPayload = Spread<{
   value: string;
-}
+}, ImagePayload>
 
 function convertGraphElement(domNode: Node): null | DOMConversionOutput {
   if (domNode instanceof HTMLImageElement) {
-    const { src } = domNode;
+    const { alt: altText, src } = domNode;
+    const style = domNode.style.cssText;
     const value = domNode.dataset.value as string;
-    const node = $createGraphNode({ src, value });
+    const node = $createGraphNode({ src, altText, value, style });
     return { node };
   }
   return null;
 }
 
-function GraphComponent({
-  nodeKey,
-  src,
-  value,
-  width,
-  height,
-  resizable,
-}: {
-  nodeKey: NodeKey;
-  src: string;
-  value: string;
-  width: 'inherit' | number;
-  height: 'inherit' | number;
-  resizable: boolean;
-}): JSX.Element {
-  return (
-    <Suspense fallback={null}>
-      <ImageComponent nodeKey={nodeKey} width={width} height={height} src={src} altText="" resizable={resizable} />
-    </Suspense>
-  );
-}
-
 export type SerializedGraphNode = Spread<
   {
-    src: string;
     value: string;
-    width?: number;
-    height?: number;
-    style?: string;
     type: 'graph';
     version: 1;
   },
-  SerializedLexicalNode
+  SerializedImageNode
 >;
 
-export class GraphNode extends DecoratorNode<JSX.Element> {
-  __src: string;
+export class GraphNode extends ImageNode {
   __value: string;
-  __width: 'inherit' | number;
-  __height: 'inherit' | number;
-  __style?: string;
 
   static getType(): string {
     return 'graph';
@@ -81,16 +46,19 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
   static clone(node: GraphNode): GraphNode {
     return new GraphNode(
       node.__src,
+      node.__altText,
       node.__value,
       node.__width,
       node.__height,
       node.__style,
+      node.__showCaption,
+      node.__caption,
       node.__key,
     );
   }
 
   static importJSON(serializedNode: SerializedGraphNode): GraphNode {
-    const { width, height, src, value, style } =
+    const { width, height, src, value, style, showCaption, caption, altText } =
       serializedNode;
     const node = $createGraphNode({
       src,
@@ -98,18 +66,17 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
       width,
       height,
       style,
+      showCaption,
+      altText
     });
+    if (caption) {
+      const nestedEditor = node.__caption;
+      const editorState = nestedEditor.parseEditorState(caption.editorState);
+      if (!editorState.isEmpty()) {
+        nestedEditor.setEditorState(editorState);
+      }
+    }
     return node;
-  }
-
-  exportDOM(): DOMExportOutput {
-    const element = document.createElement('img');
-    element.setAttribute('src', this.__src);
-    element.dataset.value = this.__value;
-    element.setAttribute('width', this.__width.toString());
-    element.setAttribute('height', this.__height.toString());
-    element.style.cssText = this.__style || '';
-    return { element };
   }
 
   static importDOM(): DOMConversionMap | null {
@@ -123,83 +90,33 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
 
   constructor(
     src: string,
+    altText: string,
     value: string,
     width?: 'inherit' | number,
     height?: 'inherit' | number,
     style?: string,
+    showCaption?: boolean,
+    caption?: LexicalEditor,
     key?: NodeKey,
   ) {
-    super(key);
-    this.__src = src;
-    this.__width = width || 'inherit';
-    this.__height = height || 'inherit';
+    super(src, altText, width, height, style, showCaption, caption, key);
     this.__value = value;
-    this.__style = style;
   }
 
   exportJSON(): SerializedGraphNode {
     return {
-      src: this.getSrc(),
-      value: this.getValue(),
-      width: this.__width === 'inherit' ? 0 : this.__width,
-      height: this.__height === 'inherit' ? 0 : this.__height,
-      style: this.__style,
+      ...super.exportJSON(),
+      value: this.__value,
       type: 'graph',
       version: 1,
     };
+    
   }
 
-  setWidthAndHeight(
-    width: 'inherit' | number,
-    height: 'inherit' | number,
-  ): void {
+  update(payload: Partial<GraphPayload>): void {
+    super.update(payload);
     const writable = this.getWritable();
-    writable.__width = width;
-    writable.__height = height;
-  }
-
-  update(src: string, value: string): void {
-    const writable = this.getWritable();
-    writable.__src = src;
-    writable.__value = value;
-  }
-
-  getStyle(): string | undefined {
-    const self = this.getLatest();
-    return self.__style;
-  }
-
-  setStyle(style: string): this {
-    const self = this.getWritable();
-    self.__style = style;
-    return self;
-  }
-
-  select() {
-    const nodeSelection = $createNodeSelection();
-    nodeSelection.add(this.getKey());
-    $setSelection(nodeSelection);
-  }
-
-  createDOM(config: EditorConfig): HTMLElement {
-    const span = document.createElement('span');
-    const theme = config.theme;
-    const className = theme.image;
-    if (className !== undefined) {
-      span.className = className;
-    }
-    if (this.__style) {
-      span.style.cssText = this.__style;
-    }
-    return span;
-  }
-
-  updateDOM(prevNode: GraphNode): boolean {
-    return prevNode.__style !== this.__style;
-  }
-
-  getSrc(): string {
-    return this.__src;
+    writable.__value = payload.value ?? writable.__value;
   }
 
   getValue(): string {
@@ -208,16 +125,21 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
 
   decorate(): JSX.Element {
     return (
-      <GraphComponent
-        width={this.__width}
-        height={this.__height}
-        src={this.getSrc()}
-        nodeKey={this.getKey()}
-        value={this.getValue()}
-        resizable={true}
-      />
+      <Suspense fallback={null}>
+        <ImageComponent
+          src={this.__src}
+          altText={this.__altText}
+          width={this.__width}
+          height={this.__height}
+          nodeKey={this.getKey()}
+          resizable={true}
+          showCaption={this.__showCaption}
+          caption={this.__caption}
+        />
+      </Suspense>
     );
   }
+
 }
 
 export function $createGraphNode({
@@ -226,14 +148,20 @@ export function $createGraphNode({
   key,
   width,
   height,
-  style
+  style,
+  showCaption,
+  caption,
+  altText = 'Graph',
 }: GraphPayload): GraphNode {
   return new GraphNode(
     src,
+    altText,
     value,
     width,
     height,
     style,
+    showCaption,
+    caption,
     key,
   );
 }
