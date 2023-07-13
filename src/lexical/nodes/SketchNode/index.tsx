@@ -79,9 +79,9 @@ export class SketchNode extends DecoratorNode<JSX.Element> {
   }
 
   exportDOM(): DOMExportOutput {
-    const element = document.createElement('img');
-    element.setAttribute('src', this.__src);
-    element.setAttribute('alt', this.__altText);
+    const container = document.createElement('span');
+    container.innerHTML = decodeURIComponent(this.__src.split(',')[1]);
+    const element = container.firstElementChild as HTMLElement;
     element.setAttribute('width', this.__width.toString());
     element.setAttribute('height', this.__height.toString());
     return { element };
