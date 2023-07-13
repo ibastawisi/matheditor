@@ -16,6 +16,7 @@ export interface SketchPayload {
   key?: NodeKey;
   width?: number;
   height?: number;
+  style?: string;
   src: string;
   /**
  * @deprecated The value is now embedded in the src
@@ -38,6 +39,7 @@ export type SerializedSketchNode = Spread<
   {
     width?: number;
     height?: number;
+    style?: string;
     src: string;
     value?: NonDeleted<ExcalidrawElement>[];
     type: 'sketch';
@@ -49,6 +51,7 @@ export type SerializedSketchNode = Spread<
 export class SketchNode extends DecoratorNode<JSX.Element> {
   __width: 'inherit' | number;
   __height: 'inherit' | number;
+  __style?: string;
   __src: string;
   __value?: NonDeleted<ExcalidrawElement>[];
 
@@ -62,16 +65,18 @@ export class SketchNode extends DecoratorNode<JSX.Element> {
       node.__value,
       node.__width,
       node.__height,
+      node.__style,
       node.__key,
     );
   }
 
   static importJSON(serializedNode: SerializedSketchNode): SketchNode {
-    const { width, height, src, value } =
+    const { width, height, src, value, style } =
       serializedNode;
     const node = $createSketchNode({
       width,
       height,
+      style,
       src,
       value
     });
@@ -84,6 +89,7 @@ export class SketchNode extends DecoratorNode<JSX.Element> {
     const element = container.firstElementChild as HTMLElement;
     element.setAttribute('width', this.__width.toString());
     element.setAttribute('height', this.__height.toString());
+    element.style.cssText = this.__style || '';
     return { element };
   }
 
@@ -101,12 +107,14 @@ export class SketchNode extends DecoratorNode<JSX.Element> {
     value?: NonDeleted<ExcalidrawElement>[],
     width?: 'inherit' | number,
     height?: 'inherit' | number,
+    style?: string,
     key?: NodeKey,
   ) {
     super(key);
     this.__src = src;
     this.__width = width || 'inherit';
     this.__height = height || 'inherit';
+    this.__style = style;
     this.__value = value;
   }
 
@@ -114,6 +122,7 @@ export class SketchNode extends DecoratorNode<JSX.Element> {
     return {
       width: this.__width === 'inherit' ? 0 : this.__width,
       height: this.__height === 'inherit' ? 0 : this.__height,
+      style: this.__style,
       src: this.getSrc(),
       value: this.getValue(),
       type: 'sketch',
@@ -149,11 +158,25 @@ export class SketchNode extends DecoratorNode<JSX.Element> {
     if (className !== undefined) {
       span.className = className;
     }
+    if (this.__style) {
+      span.style.cssText = this.__style;
+    }
     return span;
   }
 
-  updateDOM(): false {
-    return false;
+  updateDOM(prevNode: SketchNode): boolean {
+    return prevNode.__style !== this.__style;
+  }
+
+  getStyle(): string | undefined {
+    const self = this.getLatest();
+    return self.__style;
+  }
+
+  setStyle(style: string): this {
+    const self = this.getWritable();
+    self.__style = style;
+    return self;
   }
 
   getSrc(): string {
@@ -184,6 +207,7 @@ export function $createSketchNode({
   src,
   height,
   width,
+  style,
   key,
   value
 }: SketchPayload): SketchNode {
@@ -192,6 +216,7 @@ export function $createSketchNode({
     value,
     width,
     height,
+    style,
     key,
   );
 }

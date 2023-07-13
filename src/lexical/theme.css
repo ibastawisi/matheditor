@@ -18,7 +18,6 @@
   margin: 0;
   margin-bottom: 8px;
   position: relative;
-  display: flow-root;
 }
 
 .LexicalTheme__paragraph:last-child {

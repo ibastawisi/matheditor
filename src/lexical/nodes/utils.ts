@@ -53,18 +53,18 @@ export function $getNodeStyleValueForProperty(
   return defaultValue;
 }
 
-export function $addNodeStyle(node: TextNode | MathNode): void {
+export function $addNodeStyle(node: LexicalNode): void {
   const CSSText = node.getStyle();
   const styles = getStyleObjectFromRawCSS(CSSText);
   CSS_TO_STYLES.set(CSSText, styles);
 }
 
 export function $patchNodeStyle(
-  target: TextNode | MathNode,
+  target: LexicalNode,
   patch: Record<string, string | null>,
 ): void {
   if (!('getStyle' in target)) return;
-  const prevStyles = getStyleObjectFromCSS(target.getStyle());
+  const prevStyles = getStyleObjectFromCSS(target.getStyle() || '');
   const newStyles = Object.entries(patch).reduce<Record<string, string>>(
     (styles, [key, value]) => {
       if (value === null) {
@@ -82,10 +82,10 @@ export function $patchNodeStyle(
 }
 
 
-const getStylableNodes = (nodes: LexicalNode[]): Array<TextNode | MathNode> => {
-  const stylableNodes: Array<TextNode | MathNode> = [];
+const getStylableNodes = (nodes: LexicalNode[]): LexicalNode[] => {
+  const stylableNodes: LexicalNode[] = [];
   for (let node of nodes) {
-    if ($isTextNode(node) || $isMathNode(node)) {
+    if ('getStyle' in node) {
       stylableNodes.push(node);
     } else if ($isElementNode(node)) {
       stylableNodes.push(...getStylableNodes(node.getChildren()));

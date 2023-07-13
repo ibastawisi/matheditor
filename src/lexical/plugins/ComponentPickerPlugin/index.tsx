@@ -54,7 +54,6 @@ import ImageIcon from '@mui/icons-material/Image';
 import TableIcon from '@mui/icons-material/TableChart';
 import FunctionsIcon from '@mui/icons-material/Functions';
 import BrushIcon from '@mui/icons-material/Brush';
-import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import StickyNote2Icon from '@mui/icons-material/StickyNote2';
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';

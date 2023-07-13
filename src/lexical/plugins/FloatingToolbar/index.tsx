@@ -139,7 +139,7 @@ function FloatingToolbar({ editor, anchorElem }: { editor: LexicalEditor; anchor
   if (!isEditable) return null;
 
   return (
-    <Paper ref={popupCharStylesEditorRef} sx={{ position: "absolute", top: 0, left: 0, willChange: "transform", displayPrint: "none" }}>
+    <Paper ref={popupCharStylesEditorRef} sx={{ position: "absolute", top: 0, left: 0, willChange: "transform", displayPrint: "none", zIndex: 1500 }}>
       <TextFormatToggles editor={editor} />
     </Paper>
   );

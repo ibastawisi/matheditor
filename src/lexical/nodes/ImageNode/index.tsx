@@ -29,6 +29,7 @@ export interface ImagePayload {
   key?: NodeKey;
   src: string;
   width?: number;
+  style?: string;
 }
 
 function convertImageElement(domNode: Node): null | DOMConversionOutput {
@@ -46,6 +47,7 @@ export type SerializedImageNode = Spread<
     height?: number;
     src: string;
     width?: number;
+    style?: string;
     type: 'image';
     version: 1;
   },
@@ -57,6 +59,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   __altText: string;
   __width: 'inherit' | number;
   __height: 'inherit' | number;
+  __style?: string;
 
   static getType(): string {
     return 'image';
@@ -68,18 +71,20 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       node.__altText,
       node.__width,
       node.__height,
+      node.__style,
       node.__key,
     );
   }
 
   static importJSON(serializedNode: SerializedImageNode): ImageNode {
-    const { altText, height, width, src } =
+    const { altText, height, width, src, style } =
       serializedNode;
     const node = $createImageNode({
       altText,
       height,
       src,
       width,
+      style
     });
     return node;
   }
@@ -90,6 +95,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     element.setAttribute('alt', this.__altText);
     element.setAttribute('width', this.__width.toString());
     element.setAttribute('height', this.__height.toString());
+    element.style.cssText = this.__style || '';
     return { element };
   }
 
@@ -107,6 +113,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     altText: string,
     width?: 'inherit' | number,
     height?: 'inherit' | number,
+    style?: string,
     key?: NodeKey,
   ) {
     super(key);
@@ -114,6 +121,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     this.__altText = altText;
     this.__width = width || 'inherit';
     this.__height = height || 'inherit';
+    this.__style = style;
   }
 
   exportJSON(): SerializedImageNode {
@@ -121,6 +129,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       altText: this.getAltText(),
       height: this.__height === 'inherit' ? 0 : this.__height,
       src: this.getSrc(),
+      style: this.__style,
       type: 'image',
       version: 1,
       width: this.__width === 'inherit' ? 0 : this.__width,
@@ -143,6 +152,17 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     writable.__src = src;
   }
 
+  getStyle(): string | undefined {
+    const self = this.getLatest();
+    return self.__style;
+  }
+
+  setStyle(style: string): this {
+    const self = this.getWritable();
+    self.__style = style;
+    return self;
+  }
+
   select() {
     const nodeSelection = $createNodeSelection();
     nodeSelection.add(this.getKey());
@@ -156,11 +176,14 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     if (className !== undefined) {
       span.className = className;
     }
+    if (this.__style) {
+      span.style.cssText = this.__style;
+    }
     return span;
   }
 
-  updateDOM(): false {
-    return false;
+  updateDOM(prevNode: ImageNode): boolean {
+    return prevNode.__style !== this.__style;
   }
 
   getSrc(): string {
@@ -192,6 +215,7 @@ export function $createImageNode({
   height,
   src,
   width,
+  style,
   key,
 }: ImagePayload): ImageNode {
   return new ImageNode(
@@ -199,6 +223,7 @@ export function $createImageNode({
     altText,
     width,
     height,
+    style,
     key,
   );
 }

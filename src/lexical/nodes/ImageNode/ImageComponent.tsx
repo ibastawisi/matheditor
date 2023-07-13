@@ -34,6 +34,7 @@ import {
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import ImageResizer from './ImageResizer';
+import { getStyleObjectFromCSS } from '../../nodes/utils';
 
 const imageCache = new Set();
 

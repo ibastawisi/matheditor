@@ -17,6 +17,7 @@ export interface GraphPayload {
   key?: NodeKey;
   width?: number;
   height?: number;
+  style?: string;
   src: string;
   value: string;
 }
@@ -59,6 +60,7 @@ export type SerializedGraphNode = Spread<
     value: string;
     width?: number;
     height?: number;
+    style?: string;
     type: 'graph';
     version: 1;
   },
@@ -70,6 +72,7 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
   __value: string;
   __width: 'inherit' | number;
   __height: 'inherit' | number;
+  __style?: string;
 
   static getType(): string {
     return 'graph';
@@ -81,18 +84,20 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
       node.__value,
       node.__width,
       node.__height,
+      node.__style,
       node.__key,
     );
   }
 
   static importJSON(serializedNode: SerializedGraphNode): GraphNode {
-    const { width, height, src, value } =
+    const { width, height, src, value, style } =
       serializedNode;
     const node = $createGraphNode({
       src,
       value,
       width,
       height,
+      style,
     });
     return node;
   }
@@ -103,6 +108,7 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
     element.dataset.value = this.__value;
     element.setAttribute('width', this.__width.toString());
     element.setAttribute('height', this.__height.toString());
+    element.style.cssText = this.__style || '';
     return { element };
   }
 
@@ -120,6 +126,7 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
     value: string,
     width?: 'inherit' | number,
     height?: 'inherit' | number,
+    style?: string,
     key?: NodeKey,
   ) {
     super(key);
@@ -127,6 +134,7 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
     this.__width = width || 'inherit';
     this.__height = height || 'inherit';
     this.__value = value;
+    this.__style = style;
   }
 
   exportJSON(): SerializedGraphNode {
@@ -135,6 +143,7 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
       value: this.getValue(),
       width: this.__width === 'inherit' ? 0 : this.__width,
       height: this.__height === 'inherit' ? 0 : this.__height,
+      style: this.__style,
       type: 'graph',
       version: 1,
     };
@@ -155,6 +164,17 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
     writable.__value = value;
   }
 
+  getStyle(): string | undefined {
+    const self = this.getLatest();
+    return self.__style;
+  }
+
+  setStyle(style: string): this {
+    const self = this.getWritable();
+    self.__style = style;
+    return self;
+  }
+
   select() {
     const nodeSelection = $createNodeSelection();
     nodeSelection.add(this.getKey());
@@ -168,11 +188,14 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
     if (className !== undefined) {
       span.className = className;
     }
+    if (this.__style) {
+      span.style.cssText = this.__style;
+    }
     return span;
   }
 
-  updateDOM(): false {
-    return false;
+  updateDOM(prevNode: GraphNode): boolean {
+    return prevNode.__style !== this.__style;
   }
 
   getSrc(): string {
@@ -203,12 +226,14 @@ export function $createGraphNode({
   key,
   width,
   height,
+  style
 }: GraphPayload): GraphNode {
   return new GraphNode(
     src,
     value,
     width,
     height,
+    style,
     key,
   );
 }

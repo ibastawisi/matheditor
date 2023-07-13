@@ -103,6 +103,7 @@ function onDragStart(event: DragEvent): boolean {
         key: node.getKey(),
         src: node.__src,
         width: node.__width,
+        style: node.__style,
       },
       type: 'image',
     }),
@@ -182,7 +183,7 @@ function canDropImage(event: DragEvent): boolean {
     target instanceof HTMLElement &&
     !target.closest('code, span.editor-image, div.sticky-note') &&
     target.parentElement &&
-    target.parentElement.closest('div.ContentEditable__root')
+    target.parentElement.closest('div.editor-input')
   );
 }
 

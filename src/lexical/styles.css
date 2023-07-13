@@ -110,3 +110,7 @@ hr[data-lexical-decorator].selected {
 .excalidraw.excalidraw-modal-container {
   z-index: 1500 !important;
 }
+
+#typeahead-menu {
+  z-index: 1500;
+}

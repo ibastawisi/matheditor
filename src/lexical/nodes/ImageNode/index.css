@@ -15,6 +15,8 @@ span.editor-image {
   cursor: default;
   display: inline-block;
   position: relative;
+  z-index: 1;
+  margin: 0.5rem;
 }
 
 .editor-image>div {
