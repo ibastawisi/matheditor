@@ -20,12 +20,12 @@ import Announcer from './components/Announcer';
 import AlertDialog from './components/Alert';
 import SplashScreen from './components/SplashScreen';
 
-import Home from './components/Home';
-import NewDocument from './components/NewDocument';
 import { registerSW } from 'virtual:pwa-register';
 import { sendToVercelAnalytics } from './analytics';
 import reportWebVitals from './reportWebVitals';
 
+const Home = lazy(() => import('./components/Home'));
+const NewDocument = lazy(() => import('./components/NewDocument'));
 const Privacy = lazy(() => import('./components/Privacy'));
 const Playground = lazy(() => import('./components/Playground'));
 const Tutorial = lazy(() => import('./components/Tutorial'));

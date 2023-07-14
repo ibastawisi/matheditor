@@ -21,7 +21,7 @@ import { $createNodeSelection, $setSelection, DecoratorNode, createEditor } from
 import * as React from 'react';
 import { Suspense } from 'react';
 import { editorConfig } from './config';
-import { $generateHtmlFromNodes } from '../../utils/exportHtml';
+import { $generateHtmlFromNodes } from '@lexical/html';
 
 const StickyComponent = React.lazy(() => import('./StickyComponent'));
 
@@ -94,8 +94,10 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const { element } = super.exportDOM(editor);
     if (!element) return { element };
-    const html = $generateHtmlFromNodes(this.__editor);
-    element.innerHTML = `<div class="sticky-note-container" theme="light"><div class="sticky-note ${this.__color}"><div class="StickyNode__contentEditable">${html}</div></div></div>`
+    this.__editor.getEditorState().read(() => {
+      const html = $generateHtmlFromNodes(this.__editor);
+      element.innerHTML = `<div class="sticky-note-container" theme="light"><div class="sticky-note ${this.__color}"><div class="StickyNode__contentEditable">${html}</div></div></div>`
+    });
     return { element };
   };
 

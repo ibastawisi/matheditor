@@ -21,8 +21,7 @@
     "jsx": "react-jsx",
     "types": [
       "vite-plugin-pwa/client",
-      "mathlive/dist/types/mathlive-ssr.d.ts"
-    ],
+    ]
   },
   "include": [
     "src"

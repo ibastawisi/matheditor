@@ -1,14 +1,10 @@
-import { $getRoot, $isElementNode, $isTextNode, GridSelection, LexicalEditor, LexicalNode, NodeSelection, RangeSelection, type SerializedEditorState } from "lexical";
-import {
-  $cloneWithProperties,
-  $sliceSelectedTextNodeContent,
-} from '@lexical/selection';
+import { type SerializedEditorState } from "lexical";
 import { EditorDocument } from "../../store/types";
-import { $isStickyNode } from "../nodes/StickyNode";
 import { createHeadlessEditor } from "@lexical/headless";
 import { editorConfig } from "../config";
 import theme from '../theme.css?inline';
 import stickyStyles from '../nodes/StickyNode/StickyNode.css?inline';
+import { $generateHtmlFromNodes } from '@lexical/html';
 
 const editor = createHeadlessEditor(editorConfig);
 
@@ -50,88 +46,3 @@ export const exportHtml = async (document: EditorDocument) => {
     `;
   return `<html>${head}<body>${body}</body></html>`;
 };
-
-export function $generateHtmlFromNodes(
-  editor: LexicalEditor,
-  selection?: RangeSelection | NodeSelection | GridSelection | null,
-): string {
-  if (typeof document === 'undefined' || typeof window === 'undefined') {
-    throw new Error(
-      'To use $generateHtmlFromNodes in headless mode please initialize a headless browser implementation such as JSDom before calling this function.',
-    );
-  }
-
-  const container = document.createElement('div');
-  editor.getEditorState().read(() => {
-    const root = $getRoot();
-    const topLevelChildren = root.getChildren();
-    for (let i = 0; i < topLevelChildren.length; i++) {
-      const topLevelNode = topLevelChildren[i];
-      $appendNodesToHTML(editor, topLevelNode, container, selection);
-    }
-  });
-  return container.innerHTML;
-}
-
-function $appendNodesToHTML(
-  editor: LexicalEditor,
-  currentNode: LexicalNode,
-  parentElement: HTMLElement | DocumentFragment,
-  selection: RangeSelection | NodeSelection | GridSelection | null = null,
-): boolean {
-  let shouldInclude =
-    selection != null ? currentNode.isSelected(selection) : true;
-  const shouldExclude =
-    $isElementNode(currentNode) && currentNode.excludeFromCopy('html');
-  let target = currentNode;
-
-  if (selection !== null) {
-    let clone = $cloneWithProperties<LexicalNode>(currentNode);
-    clone =
-      $isTextNode(clone) && selection != null
-        ? $sliceSelectedTextNodeContent(selection, clone)
-        : clone;
-    target = clone;
-  }
-  const children = $isElementNode(target) ? target.getChildren() : [];
-  const { element, after } = target.exportDOM(editor);
-
-  if (!element) {
-    return false;
-  }
-
-  const fragment = document.createDocumentFragment();
-
-  for (let i = 0; i < children.length; i++) {
-    const childNode = children[i];
-    const shouldIncludeChild = $appendNodesToHTML(
-      editor,
-      childNode,
-      fragment,
-      selection,
-    );
-
-    if (
-      !shouldInclude &&
-      $isElementNode(currentNode) &&
-      shouldIncludeChild &&
-      currentNode.extractWithChild(childNode, selection, 'html')
-    ) {
-      shouldInclude = true;
-    }
-  }
-
-  if (shouldInclude && !shouldExclude) {
-    element.append(fragment);
-    parentElement.append(element);
-
-    if (after) {
-      const newElement = after.call(target, element);
-      if (newElement) element.replaceWith(newElement);
-    }
-  } else {
-    parentElement.append(fragment);
-  }
-
-  return shouldInclude;
-}

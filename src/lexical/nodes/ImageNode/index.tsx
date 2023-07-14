@@ -28,7 +28,7 @@ import {
 import { DecoratorNode } from 'lexical';
 import { Suspense, lazy } from 'react';
 import { editorConfig } from './config';
-import { $generateHtmlFromNodes } from '../../utils/exportHtml';
+import { $generateHtmlFromNodes } from '@lexical/html';
 
 const ImageComponent = lazy(() => import('./ImageComponent'));
 
@@ -123,7 +123,9 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     element.appendChild(img);
     if (!this.__showCaption) return { element };
     const caption = document.createElement('figcaption');
-    caption.innerHTML = $generateHtmlFromNodes(this.__caption);
+    this.__caption.getEditorState().read(() => {
+      caption.innerHTML = $generateHtmlFromNodes(this.__caption);
+    });
     element.appendChild(caption);
     return { element };
   }

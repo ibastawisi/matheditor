@@ -11,7 +11,7 @@ import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/elem
 
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
 import { Suspense, lazy } from 'react';
-import { $generateHtmlFromNodes } from '../../utils/exportHtml';
+import { $generateHtmlFromNodes } from '@lexical/html';
 const SketchComponent = lazy(() => import('./SketchComponent'));
 
 export type SketchPayload = Spread<{
@@ -94,7 +94,9 @@ export class SketchNode extends ImageNode {
     this.__height !== 'inherit' && svg.setAttribute('height', this.__height.toString());
     if (!this.__showCaption) return { element };
     const caption = document.createElement('figcaption');
-    caption.innerHTML = $generateHtmlFromNodes(this.__caption);
+    this.__caption.getEditorState().read(() => {
+      caption.innerHTML = $generateHtmlFromNodes(this.__caption);
+    });
     element.appendChild(caption);
     return { element };
   }
