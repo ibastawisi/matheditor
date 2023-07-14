@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { User } from '../store/types';
+import { User } from '../types';
 import Button from '@mui/material/Button';
 import { useDispatch } from 'react-redux';
 import { actions, AppDispatch } from '../store';

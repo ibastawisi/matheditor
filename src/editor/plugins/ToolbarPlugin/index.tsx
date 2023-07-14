@@ -1,4 +1,4 @@
-import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, ElementNode, LexicalNode, NodeKey, RangeSelection, TextNode } from 'lexical';
+import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, ElementNode, LexicalCommand, LexicalNode, NodeKey, RangeSelection, TextNode, createCommand } from 'lexical';
 import { $isCodeNode, CODE_LANGUAGE_MAP, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from '../../nodes/CodeNode';
 import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -33,6 +33,25 @@ import { $isGraphNode } from '../../nodes/GraphNode';
 import { $patchStyle } from '../../nodes/utils';
 import { ImageDialog, GraphDialog, SketchDialog, TableDialog } from './Dialogs';
 import { $isStickyNode } from '../../nodes/StickyNode';
+
+type EditorDialogs = {
+  image: {
+    open: boolean;
+  };
+  graph: {
+    open: boolean;
+  };
+  sketch: {
+    open: boolean;
+  };
+  table: {
+    open: boolean;
+  };
+};
+
+export type SetDialogsPayload = Readonly<Partial<EditorDialogs>>;
+
+export const SET_DIALOGS_COMMAND: LexicalCommand<SetDialogsPayload> = createCommand();
 
 export const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -114,6 +133,20 @@ export default function ToolbarPlugin() {
   const [codeLanguage, setCodeLanguage] = useState<string>('');
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
   const [selectedNode, setSelectedNode] = useState<LexicalNode | null>(null);
+  const [dialogs, setDialogs] = useState<EditorDialogs>({
+    image: {
+      open: false,
+    },
+    graph: {
+      open: false,
+    },
+    sketch: {
+      open: false,
+    },
+    table: {
+      open: false,
+    },
+  });
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -218,6 +251,17 @@ export default function ToolbarPlugin() {
     );
   }, [activeEditor, updateToolbar]);
 
+  useEffect(() => {
+    return activeEditor.registerCommand<SetDialogsPayload>(
+        SET_DIALOGS_COMMAND,
+        (payload) => {
+          setDialogs({...dialogs, ...payload});
+          return false;
+        },
+        COMMAND_PRIORITY_CRITICAL,
+      );
+  }, [activeEditor, dialogs]);
+
   const applyStyleText = useCallback(
     (styles: Record<string, string>) => {
       activeEditor.update(() => {
@@ -292,7 +336,7 @@ export default function ToolbarPlugin() {
   if (!isEditable) return null;
 
   const showMathTools = $isMathNode(selectedNode);
-  const showImageTools = $isImageNode(selectedNode) || $isGraphNode(selectedNode) || $isSketchNode(selectedNode);
+  const showImageTools = $isImageNode(selectedNode);
   return (
     <>
       <AppBar className='toolbar-appbar' elevation={trigger ? 4 : 0} position={trigger ? 'fixed' : 'static'}>
@@ -337,10 +381,10 @@ export default function ToolbarPlugin() {
         </Toolbar >
       </AppBar>
       {trigger && <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })} />}
-      <ImageDialog editor={activeEditor} node={$isImageNode(selectedNode) ? selectedNode : null} />
-      <GraphDialog editor={activeEditor} node={$isGraphNode(selectedNode) ? selectedNode : null} />
-      <SketchDialog editor={activeEditor} node={$isSketchNode(selectedNode) ? selectedNode : null} />
-      <TableDialog editor={activeEditor} />
+      <ImageDialog editor={activeEditor} node={$isImageNode(selectedNode) ? selectedNode : null} open={dialogs.image.open} />
+      <GraphDialog editor={activeEditor} node={$isGraphNode(selectedNode) ? selectedNode : null} open={dialogs.graph.open} />
+      <SketchDialog editor={activeEditor} node={$isSketchNode(selectedNode) ? selectedNode : null} open={dialogs.sketch.open} />
+      <TableDialog editor={activeEditor} open={dialogs.table.open} />
     </>
   );
 }

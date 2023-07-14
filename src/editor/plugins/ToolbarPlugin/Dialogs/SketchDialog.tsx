@@ -1,25 +1,21 @@
 import { LexicalEditor } from 'lexical';
 import { INSERT_SKETCH_COMMAND, InsertSketchPayload } from '../../SketchPlugin';
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState, memo } from 'react';
 import LogicGates from "./SketchLibraries/Logic-Gates.json";
 import CircuitComponents from "./SketchLibraries/circuit-components.json";
 import { SketchNode } from '../../../nodes/SketchNode';
 import { ExcalidrawImperativeAPI, LibraryItems_anyVersion } from '@excalidraw/excalidraw/types/types';
 import { ImportedLibraryData } from '@excalidraw/excalidraw/types/data/types';
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, useTheme } from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
-import { actions, RootState } from '../../../../store';
+import { SET_DIALOGS_COMMAND } from '..';
 
 const Excalidraw = lazy(() => import('@excalidraw/excalidraw').then((module) => ({ default: module.Excalidraw })));
 
 export type ExcalidrawElementFragment = { isDeleted?: boolean; };
 
-export default function useSketchDialog({ editor, node }: { editor: LexicalEditor, node: SketchNode | null; }) {
+function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: SketchNode | null; open: boolean; }) {
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI | null>(null);
   const theme = useTheme();
-  const open = useSelector((state: RootState) => state.app.ui.dialogs.sketch.open);
-  const dispatch = useDispatch();
-  const closeDialog = () => dispatch(actions.app.setDialogs({ sketch: { open: false } }));
 
   useEffect(() => {
     if (!excalidrawAPI) return;
@@ -51,8 +47,13 @@ export default function useSketchDialog({ editor, node }: { editor: LexicalEdito
     const src = "data:image/svg+xml," + encodeURIComponent(serialized);
 
     insertSketch({ src });
-    closeDialog();
+    handleClose();
   };
+
+  const handleClose = () => {
+    editor.dispatchCommand(SET_DIALOGS_COMMAND, { sketch: { open: false } })
+  };
+
 
   const loadSceneOrLibrary = async () => {
     const src = node?.getSrc();
@@ -79,7 +80,7 @@ export default function useSketchDialog({ editor, node }: { editor: LexicalEdito
 
   const libraryItems = [...LogicGates.library, ...CircuitComponents.libraryItems] as any as LibraryItems_anyVersion;
 
-  return <Dialog open={open} fullScreen={true} onClose={closeDialog} disableEscapeKeyDown>
+  return <Dialog open={open} fullScreen={true} onClose={handleClose} disableEscapeKeyDown>
     <DialogContent sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 0, overflow: "hidden" }}>
       {open &&
         <Suspense fallback={<CircularProgress size={36} disableShrink />}>
@@ -91,7 +92,7 @@ export default function useSketchDialog({ editor, node }: { editor: LexicalEdito
         </Suspense>}
     </DialogContent>
     <DialogActions>
-      <Button autoFocus onClick={closeDialog}>
+      <Button autoFocus onClick={handleClose}>
         Cancel
       </Button>
       <Button onClick={handleSubmit}>
@@ -100,3 +101,5 @@ export default function useSketchDialog({ editor, node }: { editor: LexicalEdito
     </DialogActions>
   </Dialog>;
 }
+
+export default memo(SketchDialog);

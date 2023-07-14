@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EditorDocument } from '../store/types';
+import { EditorDocument } from '../types';
 import { AppDispatch, RootState, actions } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
 import IconButton from '@mui/material/IconButton';
@@ -33,8 +33,6 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
 import HtmlIcon from '@mui/icons-material/Html';
-import { exportHtml } from "../lexical/utils/exportHtml";
-import { exportMarkdown } from "../lexical/utils/exportMarkdown";
 import SvgIcon from '@mui/material/SvgIcon';
 export const MarkdownIcon = () => <SvgIcon viewBox="0 0 640 512" fontSize='small'>
   <path d="M593.8 59.1H46.2C20.7 59.1 0 79.8 0 105.2v301.5c0 25.5 20.7 46.2 46.2 46.2h547.7c25.5 0 46.2-20.7 46.1-46.1V105.2c0-25.4-20.7-46.1-46.2-46.1zM338.5 360.6H277v-120l-61.5 76.9-61.5-76.9v120H92.3V151.4h61.5l61.5 76.9 61.5-76.9h61.5v209.2zm135.3 3.1L381.5 256H443V151.4h61.5V256H566z" />
@@ -223,7 +221,8 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
     const payload = await getPayload();
     if (!payload) return dispatch(actions.app.announce({ message: "Can't find document data" }));
     const document = JSON.parse(payload);
-    const markdown = await exportMarkdown(document)
+    const { exportMarkdown } = await import("../utils/exportMarkdown");
+    const markdown = await exportMarkdown(document);
     const blob = new Blob([markdown], { type: "text/markdown" });
     const link = window.document.createElement("a");
     link.download = document.name + ".md";
@@ -245,6 +244,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
     const payload = await getPayload();
     if (!payload) return dispatch(actions.app.announce({ message: "Can't find document data" }));
     const document = JSON.parse(payload);
+    const { exportHtml } = await import("../utils/exportHtml");
     const html = await exportHtml(document);
     const blob = new Blob([html], { type: "text/html" });
     const link = window.document.createElement("a");

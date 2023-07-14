@@ -1,25 +1,7 @@
-import { type SerializedEditorState } from "lexical";
-import { EditorDocument } from "../../store/types";
-import { createHeadlessEditor } from "@lexical/headless";
-import { editorConfig } from "../config";
-import theme from '../theme.css?inline';
-import stickyStyles from '../nodes/StickyNode/StickyNode.css?inline';
-import { $generateHtmlFromNodes } from '@lexical/html';
-
-const editor = createHeadlessEditor(editorConfig);
-
-const generateHtml = (data: SerializedEditorState) => new Promise<string>((resolve, reject) => {
-  const editorState = editor.parseEditorState(data);
-  editor.setEditorState(editorState);
-  editorState.read(() => {
-    let html = $generateHtmlFromNodes(editor);
-    const regex = /<p\b[^>]*>(?:(?!<\/p>).)*<div\b[^>]*class="sticky-note-wrapper"[^>]*>(?:(?!<\/div>).)*<\/div>(?:(?!<\/p>).)*<\/p>/g;
-    const matches = html.match(regex);
-    if (!matches) return resolve(html);
-    matches.forEach((match) => html = html.replace(match, match.replace(/^<p/, '<div').replace(/<\/p>$/, '</div>')));
-    resolve(html);
-  });
-});
+import { EditorDocument } from "../types";
+import theme from '../editor/theme.css?inline';
+import stickyStyles from '../editor/nodes/StickyNode/StickyNode.css?inline';
+import { generateHtml } from "../editor/utils/generateHtml";
 
 export const exportHtml = async (document: EditorDocument) => {
   const body = await generateHtml(document.data);
@@ -46,3 +28,5 @@ export const exportHtml = async (document: EditorDocument) => {
     `;
   return `<html>${head}<body>${body}</body></html>`;
 };
+
+export default exportHtml;

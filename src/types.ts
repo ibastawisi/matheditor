@@ -1,4 +1,4 @@
-import { SerializedEditorState } from 'lexical';
+import type { SerializedEditorState } from './editor/types';
 
 export interface Alert {
   title: string;
@@ -21,12 +21,6 @@ export interface AppState {
     isSaving: boolean;
     announcements: Announcement[];
     alerts: Alert[];
-    dialogs: {
-      image: { open: boolean; };
-      graph: { open: boolean; };
-      sketch: { open: boolean; };
-      table: { open: boolean; };
-    };
   };
   admin: {
     users: User[];

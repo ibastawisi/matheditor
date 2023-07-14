@@ -9,14 +9,12 @@ import TextField from '@mui/material/TextField';
 import ArticleIcon from '@mui/icons-material/Article';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { EditorDocument } from '../store/types';
+import { EditorDocument } from '../types';
 import { useDispatch } from "react-redux";
 import { actions } from "../store";
 import { AppDispatch } from "../store";
-import { SerializedEditorState } from "lexical/LexicalEditorState";
-import { SerializedHeadingNode } from "@lexical/rich-text";
-import { SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "lexical";
 import documentDB from "../db";
+import { SerializedEditorState, SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "../editor/types";
 
 const NewDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();

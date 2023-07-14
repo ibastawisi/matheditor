@@ -1,5 +1,5 @@
 import setupIndexedDB, { getStore } from "./hooks/use-indexeddb";
-import { EditorDocument } from './store/types';
+import { EditorDocument } from './types';
 
 const idbConfig = {
   databaseName: "matheditor",

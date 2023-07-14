@@ -2,8 +2,8 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getDocument } from "./services";
-import { exportHtml } from "./lexical/utils/exportHtml";
-import type { EditorDocument } from "./store/types";
+import { exportHtml } from "./utils/exportHtml";
+import type { EditorDocument } from "./types";
 import { Helmet } from "react-helmet";
 
 const EmbedDocument: React.FC = () => {

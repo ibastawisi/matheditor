@@ -7,7 +7,7 @@ import { Helmet } from "react-helmet";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store";
 import UserCard from "./UserCard";
-import { User, UserDocument } from '../store/types';
+import { User, UserDocument } from '../types';
 import useLocalStorage from "../hooks/useLocalStorage";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";

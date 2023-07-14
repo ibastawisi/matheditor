@@ -6,7 +6,7 @@ import { useState, useEffect, memo } from "react";
 import { Helmet } from "react-helmet";
 import { useParams } from 'react-router-dom';
 import UserCard from "./UserCard";
-import { User, UserDocument } from '../store/types';
+import { User, UserDocument } from '../types';
 import { getUser } from "../services";
 import DocumentCard from "./DocumentCard";
 import { SortOption } from "../hooks/useSort";

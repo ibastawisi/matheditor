@@ -1,5 +1,4 @@
 import type { SerializedEditorState } from "lexical";
-import type { EditorDocument } from "../../store/types";
 import { TRANSFORMERS } from '../plugins/MarkdownPlugin/MarkdownTransformers';
 import { $convertToMarkdownString } from '@lexical/markdown';
 import { $isStickyNode } from "../nodes/StickyNode";
@@ -30,8 +29,3 @@ export const generateMarkdown = (data: SerializedEditorState) => new Promise<str
     })).then(() => resolve(markdown));
   });
 });
-
-export const exportMarkdown = async (document: EditorDocument) => {
-  const markdown = await generateMarkdown(document.data);
-  return markdown;
-}

@@ -61,8 +61,7 @@ import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
 
 import SvgIcon from '@mui/material/SvgIcon';
-import { useDispatch } from 'react-redux';
-import { actions } from '../../../store';
+import { SET_DIALOGS_COMMAND } from '../ToolbarPlugin';
 const H1Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M200 776V376h60v170h180V376h60v400h-60V606H260v170h-60Zm500 0V436h-80v-60h140v400h-60Z" />
 </SvgIcon>;
@@ -160,11 +159,10 @@ class ComponentPickerOption extends MenuOption {
 export default function ComponentPickerMenuPlugin(): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [queryString, setQueryString] = useState<string | null>(null);
-  const dispatch = useDispatch();
-  const openImageDialog = () => dispatch(actions.app.setDialogs({ image: { open: true } }));
-  const openTableDialog = () => dispatch(actions.app.setDialogs({ table: { open: true } }));
-  const openGraphDialog = () => dispatch(actions.app.setDialogs({ graph: { open: true } }));
-  const openSketchDialog = () => dispatch(actions.app.setDialogs({ sketch: { open: true } }));
+  const openImageDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND,({ image: { open: true } }));
+  const openTableDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND,({ table: { open: true } }));
+  const openGraphDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND,({ graph: { open: true } }));
+  const openSketchDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND,({ sketch: { open: true } }));
 
   const checkForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
     minLength: 0,

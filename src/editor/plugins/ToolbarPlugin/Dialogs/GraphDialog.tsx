@@ -8,13 +8,10 @@ import { GraphNode } from '../../../nodes/GraphNode';
 import { memo, useEffect, useId, useRef, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
-import { useSelector, useDispatch } from 'react-redux';
-import { actions, RootState } from '../../../../store';
 import { $getSelection } from 'lexical';
+import { SET_DIALOGS_COMMAND } from '..';
 
-export default function GraphDialog({ editor, node }: { editor: LexicalEditor, node: GraphNode | null; }) {
-  const open = useSelector((state: RootState) => state.app.ui.dialogs.graph.open);
-  const dispatch = useDispatch();
+function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: GraphNode | null; open: boolean; }) {
   const [loading, setLoading] = useState(true);
   const key = useId();
 
@@ -79,7 +76,7 @@ export default function GraphDialog({ editor, node }: { editor: LexicalEditor, n
 
 
   const handleClose = () => {
-    dispatch(actions.app.setDialogs({ graph: { open: false } }));
+    editor.dispatchCommand(SET_DIALOGS_COMMAND, { graph: { open: false} })
     setLoading(true);
   }
 
@@ -113,3 +110,5 @@ const GeogebraApplet = memo(({ parameters }: { parameters: any }) => {
 
   return <div ref={containerRef} />;
 }, (prevProps, nextProps) => prevProps.parameters.key === nextProps.parameters.key);
+
+export default memo(GraphDialog);

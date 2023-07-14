@@ -1,9 +1,8 @@
-import { memo } from 'react';
-import { EditorState, LexicalEditor } from 'lexical';
-import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import type { EditorState, LexicalEditor } from "lexical";
+import { LexicalComposer, InitialConfigType } from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { useSharedHistoryContext } from "./context/SharedHistoryContext";
-
+import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
@@ -11,7 +10,6 @@ import { TablePlugin } from './plugins/TablePlugin';
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
-import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import MarkdownPlugin from "./plugins/MarkdownPlugin/MarkdownShortcutPlugin";
 import TreeViewPlugin from "./plugins/TreeViewPlugin";
@@ -32,62 +30,19 @@ import ClickableLinkPlugin from './plugins/LinkPlugin/ClickableLinkPlugin';
 import ComponentPickerMenuPlugin from './plugins/ComponentPickerPlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 import TabFocusPlugin from './plugins/TabFocusPlugin';
-
-import { useDispatch } from "react-redux";
-import { validate } from 'uuid';
-import { AppDispatch } from "../store";
-import { actions } from "../store";
-import { EditorDocument } from '../store/types';
-
-import Box from '@mui/material/Box';
-import isEqual from 'fast-deep-equal'
-import { validateData } from './utils/state';
-import "./styles.css";
 import DragDropPaste from './plugins/DragDropPastePlugin';
 import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
-import useLocalStorage from '../hooks/useLocalStorage';
 import { IS_MOBILE } from './shared/environment';
-import { editorConfig } from './config';
-
-const Editor: React.FC<{ document: EditorDocument, editable: boolean, onChange?: (editorState: EditorState) => void }> =
-  ({ document, editable, onChange }) => {
-    const [config] = useLocalStorage('config', { debug: false });
-    const dispatch = useDispatch<AppDispatch>();
-
-    function handleChange(editorState: EditorState) {
-      if (!editable) return;
-      const data = editorState.toJSON();
-      if (isEqual(data, document.data)) return;
-      const updatedDocument: EditorDocument = { ...document, data, updatedAt: new Date().toISOString() };
-      validate(document.id) && dispatch(actions.app.saveDocument(updatedDocument));
-      onChange && onChange(editorState);
-    }
-
-    const disableContextMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      if (IS_MOBILE) e.preventDefault();
-    }
-
-    return (
-      <Box className="editor">
-        <LexicalComposer initialConfig={{ ...editorConfig, editorState: JSON.stringify(validateData(document.data)), editable }}>
-          <ToolbarPlugin />
-          <EditorPlugins
-            contentEditable={<ContentEditable className="editor-input" onContextMenu={disableContextMenu} />}
-            placeholder={null}
-            onChange={handleChange}
-            showDebugView={config.debug} />
-        </LexicalComposer>
-      </Box>
-    );
-  }
+import { editorConfig } from "./config";
+import "./styles.css";
 
 export const EditorPlugins: React.FC<{
   contentEditable: React.ReactElement;
-  placeholder: JSX.Element | ((isEditable: boolean) => JSX.Element | null) | null;
+  placeholder?: JSX.Element | ((isEditable: boolean) => JSX.Element | null) | null;
   onChange: (editorState: EditorState, editor: LexicalEditor) => void;
   showDebugView?: boolean;
 }> =
-  ({ contentEditable, placeholder, onChange, showDebugView }) => {
+  ({ contentEditable, placeholder = null, onChange, showDebugView }) => {
     const { historyState } = useSharedHistoryContext();
     return (
       <>
@@ -123,4 +78,16 @@ export const EditorPlugins: React.FC<{
     )
   };
 
-export default memo(Editor, (prev, next) => prev.document.id === next.document.id);
+export const Editor: React.FC<{ initialConfig: Partial<InitialConfigType>, appConfig: { debug: boolean }, onChange: (editorState: EditorState) => void }> = ({ initialConfig, appConfig, onChange }) => {
+
+  const disableContextMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (IS_MOBILE) e.preventDefault();
+  }
+
+  return (
+    <LexicalComposer initialConfig={{ ...editorConfig, ...initialConfig }}>
+      <ToolbarPlugin />
+      <EditorPlugins contentEditable={<ContentEditable className="editor-input" onContextMenu={disableContextMenu} />} onChange={onChange} showDebugView={appConfig.debug} />
+    </LexicalComposer>
+  );
+}

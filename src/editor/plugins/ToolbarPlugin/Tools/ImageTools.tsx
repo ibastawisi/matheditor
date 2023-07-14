@@ -1,20 +1,19 @@
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { LexicalEditor, } from "lexical";
-import { $isImageNode, ImageNode } from "../../../nodes/ImageNode";
+import { ImageNode } from "../../../nodes/ImageNode";
 import { SxProps, Theme } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { $isSketchNode, SketchNode } from "../../../nodes/SketchNode";
 import { $isGraphNode, GraphNode } from "../../../nodes/GraphNode";
-import { useDispatch } from "react-redux";
-import { actions } from "../../../../store";
 import { $patchStyle, getStyleObjectFromCSS } from '../../../nodes/utils';
 import SvgIcon from '@mui/material/SvgIcon';
 import { useState } from "react";
 import ViewHeadlineIcon from '@mui/icons-material/ViewHeadline';
 import ClosedCaptionIcon from '@mui/icons-material/ClosedCaption';
 import ClosedCaptionDisabledIcon from '@mui/icons-material/ClosedCaptionDisabled';
+import { SET_DIALOGS_COMMAND } from "..";
 
 const FormatImageRightIcon = () => <SvgIcon viewBox='0 -960 960 960'>
   <path xmlns="http://www.w3.org/2000/svg" d="M450-285v-390h390v390H450Zm60-60h270v-270H510v270ZM120-120v-60h720v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h720v60H120Z" />
@@ -26,10 +25,9 @@ const FormatImageLeftIcon = () => <SvgIcon viewBox='0 -960 960 960'>
 
 
 export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor, node: ImageNode | GraphNode | SketchNode, sx?: SxProps<Theme> | undefined }): JSX.Element {
-  const dispatch = useDispatch();
-  const openImageDialog = () => dispatch(actions.app.setDialogs({ image: { open: true } }));
-  const openGraphDialog = () => dispatch(actions.app.setDialogs({ graph: { open: true } }));
-  const openSketchDialog = () => dispatch(actions.app.setDialogs({ sketch: { open: true } }));
+  const openImageDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ image: { open: true } }));
+  const openGraphDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ graph: { open: true } }));
+  const openSketchDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ sketch: { open: true } }));
   const openDialog = $isGraphNode(node) ? openGraphDialog : $isSketchNode(node) ? openSketchDialog : openImageDialog;
 
   const [style, setStyle] = useState(currentNodeStyle());

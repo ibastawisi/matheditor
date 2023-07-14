@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import Editor from "../lexical";
+import Editor from "./Editor";
 import { Helmet } from "react-helmet";
 import playgroundTemplate from '../templates/Playground.json';
-import { EditorDocument } from '../store/types';
+import { EditorDocument } from '../types';
 
 const Playground: React.FC = () => {
   const document = playgroundTemplate as unknown as EditorDocument;

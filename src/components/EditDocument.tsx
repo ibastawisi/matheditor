@@ -4,12 +4,12 @@ import { useDispatch } from "react-redux";
 import { actions } from "../store";
 import { AppDispatch } from "../store";
 import { useParams } from "react-router-dom";
-import Editor from "../lexical";
+import Editor from "./Editor";
 
 import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
 import documentDB from "../db";
-import { EditorDocument } from '../store/types';
+import { EditorDocument } from '../types';
 
 const EditDocument: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();

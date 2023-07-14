@@ -1,7 +1,7 @@
 import { LexicalEditor } from 'lexical';
 import { INSERT_TABLE_COMMAND } from '../../../nodes/TableNode';
 import Box from '@mui/material/Box';
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import useTheme from '@mui/material/styles/useTheme';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -16,14 +16,9 @@ import Add from '@mui/icons-material/Add';
 import Remove from '@mui/icons-material/Remove';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { useDispatch, useSelector } from 'react-redux';
-import { actions, RootState } from '../../../../store';
+import { SET_DIALOGS_COMMAND } from '..';
 
-export default function useTableDialog({ editor }: { editor: LexicalEditor }) {
-  const open = useSelector((state: RootState) => state.app.ui.dialogs.table.open);
-  const dispatch = useDispatch();
-  const closeDialog = () => dispatch(actions.app.setDialogs({ table: { open: false } }));
-
+function TableDialog({ editor, open }: { editor: LexicalEditor, open: boolean }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [formData, setFormData] = useState({ rows: '3', columns: '3', includeHeaders: true });
@@ -40,13 +35,17 @@ export default function useTableDialog({ editor }: { editor: LexicalEditor }) {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     editor.dispatchCommand(INSERT_TABLE_COMMAND, formData);
-    closeDialog();
+    handleClose();
   };
+
+  const handleClose = () => {
+    editor.dispatchCommand(SET_DIALOGS_COMMAND, { graph: { open: false } })
+  }
 
   return <Dialog
     open={open}
     fullScreen={fullScreen}
-    onClose={closeDialog}
+    onClose={handleClose}
     aria-labelledby="table-dialog-title"
     disableEscapeKeyDown
   >
@@ -69,7 +68,7 @@ export default function useTableDialog({ editor }: { editor: LexicalEditor }) {
       </Box>
     </DialogContent>
     <DialogActions>
-      <Button autoFocus onClick={closeDialog}>
+      <Button autoFocus onClick={handleClose}>
         Cancel
       </Button>
       <Button onClick={handleSubmit}>
@@ -78,3 +77,5 @@ export default function useTableDialog({ editor }: { editor: LexicalEditor }) {
     </DialogActions>
   </Dialog>;
 }
+
+export default memo(TableDialog);

@@ -2,7 +2,7 @@ import { LexicalEditor } from 'lexical';
 import { INSERT_IMAGE_COMMAND, InsertImagePayload } from '../../ImagePlugin';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import Box from '@mui/material/Box';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import useTheme from '@mui/material/styles/useTheme';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -14,17 +14,13 @@ import Typography from '@mui/material/Typography';
 
 import Compressor from 'compressorjs';
 import { ImageNode } from '../../../nodes/ImageNode';
-import { useSelector, useDispatch } from 'react-redux';
-import { actions, RootState } from '../../../../store';
 import DialogTitle from '@mui/material/DialogTitle';
+import { SET_DIALOGS_COMMAND } from '..';
 
-export default function useImageDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode | null; }) {
+function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: ImageNode | null; open: boolean; }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [formData, setFormData] = useState({ src: '', altText: '' });
-  const open = useSelector((state: RootState) => state.app.ui.dialogs.image.open);
-  const dispatch = useDispatch();
-  const closeDialog = () => dispatch(actions.app.setDialogs({ image: { open: false } }));
 
   useEffect(() => {
     if (node) {
@@ -71,7 +67,7 @@ export default function useImageDialog({ editor, node }: { editor: LexicalEditor
   };
 
   const handleClose = () => {
-    closeDialog();
+    editor.dispatchCommand(SET_DIALOGS_COMMAND, { image: { open: false } })
     setFormData({ src: '', altText: '' });
     setTimeout(() => { editor.focus(); }, 0);
   }
@@ -112,3 +108,5 @@ export default function useImageDialog({ editor, node }: { editor: LexicalEditor
     </DialogActions>
   </Dialog>;
 }
+
+export default memo(ImageDialog);

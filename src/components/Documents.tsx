@@ -10,7 +10,7 @@ import { actions } from "../store";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import StorageIcon from '@mui/icons-material/Storage';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { EditorDocument, User, UserDocument } from '../store/types';
+import { EditorDocument, User, UserDocument } from '../types';
 import { validate } from "uuid";
 import UserCard from "./UserCard";
 import Avatar from "@mui/material/Avatar";

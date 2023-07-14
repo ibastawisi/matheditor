@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import { createDocument, deleteDocument, getAllDocuments, getAllUsers, getAuthenticatedUser, getDocument, logout, updateDocument } from '../services';
 import documentDB from '../db';
-import { AppState, EditorDocument, User, Announcement, Alert } from './types';
+import { AppState, Announcement, Alert, EditorDocument, User } from '../types';
 
 const initialState: AppState = {
   documents: [],
@@ -12,12 +12,6 @@ const initialState: AppState = {
     isSaving: false,
     announcements: [],
     alerts: [],
-    dialogs: {
-      image: { open: false },
-      graph: { open: false },
-      sketch: { open: false },
-      table: { open: false }
-    }
   },
   admin: null,
 };
@@ -195,9 +189,6 @@ export const appSlice = createSlice({
     setUser: (state, action: PayloadAction<User | null>) => {
       state.user = action.payload;
     },
-    setDialogs: (state, action: PayloadAction<Partial<AppState["ui"]["dialogs"]>>) => {
-      state.ui.dialogs = { ...state.ui.dialogs, ...action.payload };
-    }
   },
   extraReducers: (builder) => {
     builder

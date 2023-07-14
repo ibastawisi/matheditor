@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import Editor from "../lexical";
+import Editor from "./Editor";
 import { Helmet } from "react-helmet";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
-import { EditorState } from "lexical";
+import type { EditorState } from "../editor/types";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CheckIcon from "@mui/icons-material/Check";

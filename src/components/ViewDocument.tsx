@@ -4,11 +4,11 @@ import { useDispatch } from "react-redux";
 import { actions } from "../store";
 import { AppDispatch } from "../store";
 import { useParams, Link as RouterLink } from "react-router-dom";
-import Editor from "../lexical";
+import Editor from "./Editor";
 
 import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
-import { EditorDocument } from '../store/types';
+import { EditorDocument } from '../types';
 import Fab from "@mui/material/Fab";
 import EditIcon from '@mui/icons-material/Edit';
 import useScrollTrigger from "@mui/material/useScrollTrigger";

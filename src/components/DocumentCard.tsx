@@ -4,7 +4,7 @@ import CardHeader from '@mui/material/CardHeader';
 import CardActions from '@mui/material/CardActions';
 import Avatar from '@mui/material/Avatar';
 import { Link as RouterLink } from 'react-router-dom';
-import { AdminDocument, EditorDocument, UserDocument } from '../store/types';
+import { AdminDocument, EditorDocument, UserDocument } from '../types';
 import ArticleIcon from '@mui/icons-material/Article';
 import { RootState } from '../store';
 import { useSelector } from 'react-redux';
