@@ -21,8 +21,6 @@ import AlertDialog from './components/Alert';
 import SplashScreen from './components/SplashScreen';
 
 import { registerSW } from 'virtual:pwa-register';
-import { sendToVercelAnalytics } from './analytics';
-import reportWebVitals from './reportWebVitals';
 
 const Home = lazy(() => import('./components/Home'));
 const NewDocument = lazy(() => import('./components/NewDocument'));
@@ -89,10 +87,6 @@ export const updateSW = registerSW({
     ));
   },
 });
-
-if (import.meta.env.PROD) {
-  reportWebVitals(sendToVercelAnalytics);
-}
 
 const container = () => <Provider store={store}><App /></Provider>;
 
