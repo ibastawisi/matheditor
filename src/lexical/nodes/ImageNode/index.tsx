@@ -27,9 +27,8 @@ import {
 
 import { DecoratorNode } from 'lexical';
 import { Suspense, lazy } from 'react';
-import { editorConfig } from '../../config';
-import { $generateHtmlFromNodes } from "../utils";
-
+import { editorConfig } from './config';
+import { $generateHtmlFromNodes } from '../../utils/exportHtml';
 
 const ImageComponent = lazy(() => import('./ImageComponent'));
 

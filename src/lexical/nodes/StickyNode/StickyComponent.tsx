@@ -1,8 +1,6 @@
 import {
   NodeKey,
-  SerializedEditorState,
   LexicalEditor,
-  EditorState,
   $getSelection,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
@@ -19,45 +17,29 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { LexicalNestedComposer } from '@lexical/react/LexicalNestedComposer';
 import {
   $getNodeByKey,
-  createEditor,
 } from 'lexical';
 import { useEffect, useRef, useState } from 'react';
-import isEqual from 'fast-deep-equal';
 
-import StickyEditorTheme from './StickyEditorTheme';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import FormatPaintIcon from '@mui/icons-material/FormatPaint';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import IconButton from '@mui/material/IconButton';
 import { EditorPlugins } from '../../index';
-import { $isStickyNode } from '.';
 import useLexicalEditable from '@lexical/react/useLexicalEditable';
 
-export default function StickyComponent({ nodeKey, color, data, }: { data?: SerializedEditorState; color: 'pink' | 'yellow'; nodeKey: NodeKey; }): JSX.Element {
-  const [rootEditor] = useLexicalComposerContext();
+export default function StickyComponent({ nodeKey, color, stickyEditor }: { stickyEditor: LexicalEditor; color: 'pink' | 'yellow'; nodeKey: NodeKey; }): JSX.Element {
+  const [editor] = useLexicalComposerContext();
   const isEditable = useLexicalEditable();
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
   const [isDraggable, setDraggable] = useState(false);
 
-  const initialState = data ? rootEditor.parseEditorState(JSON.stringify(data)) : undefined;
-
-  const stickyEditor = useRef<LexicalEditor>(createEditor({ editorState: initialState, editable: isEditable, theme: StickyEditorTheme }));
   const stickyContainerRef = useRef<null | HTMLDivElement>(null);
 
-  useEffect(() => {
-    const editor = stickyEditor.current;
-    if (editor && data) {
-      const oldState = editor.getEditorState().toJSON();
-      if (isEqual(oldState, data)) return;
-      const newState = editor.parseEditorState(data);
-      editor.setEditorState(newState);
-    }
-  }, [stickyEditor, data]);
 
   useEffect(() => {
     mergeRegister(
-      stickyEditor.current.registerCommand(
+      stickyEditor.registerCommand(
         SELECTION_CHANGE_COMMAND,
         () => {
           const selection = $getSelection();
@@ -80,30 +62,28 @@ export default function StickyComponent({ nodeKey, color, data, }: { data?: Seri
   ]);
 
   const handleDelete = () => {
-    rootEditor.update(() => {
+    editor.update(() => {
       const node = $getNodeByKey(nodeKey);
-      if ($isStickyNode(node)) {
+      if (node) {
         node.remove();
       }
     });
   };
 
   const handleColorChange = () => {
-    rootEditor.update(() => {
+    editor.update(() => {
       const node = $getNodeByKey(nodeKey);
-      if ($isStickyNode(node)) {
+      if (node) {
         node.toggleColor();
       }
     });
   };
 
-  const onChange = (editorState: EditorState) => {
-    const newData = editorState.toJSON();
-    if (isEqual(data, newData)) return;
-    rootEditor.update(() => {
+  const onChange = () => {
+    editor.update(() => {
       const node = $getNodeByKey(nodeKey);
-      if ($isStickyNode(node)) {
-        node.setData(newData);
+      if (node) {
+        node.setEditor(stickyEditor);
       }
     });
   }
@@ -124,7 +104,7 @@ export default function StickyComponent({ nodeKey, color, data, }: { data?: Seri
         }
       </div>)}
       <div className={`sticky-note ${color}`}>
-        <LexicalNestedComposer initialEditor={stickyEditor.current}>
+        <LexicalNestedComposer initialEditor={stickyEditor}>
           <EditorPlugins contentEditable={<ContentEditable className="StickyNode__contentEditable" />} placeholder={null} onChange={onChange} />
         </LexicalNestedComposer>
       </div>

@@ -1,5 +1,8 @@
-import type { SerializedEditorState } from "lexical";
-import { $generateHtmlFromNodes } from "@lexical/html";
+import { $getRoot, $isElementNode, $isTextNode, GridSelection, LexicalEditor, LexicalNode, NodeSelection, RangeSelection, type SerializedEditorState } from "lexical";
+import {
+  $cloneWithProperties,
+  $sliceSelectedTextNodeContent,
+} from '@lexical/selection';
 import { EditorDocument } from "../../store/types";
 import { $isStickyNode } from "../nodes/StickyNode";
 import { createHeadlessEditor } from "@lexical/headless";
@@ -14,38 +17,13 @@ const generateHtml = (data: SerializedEditorState) => new Promise<string>((resol
   editor.setEditorState(editorState);
   editorState.read(() => {
     let html = $generateHtmlFromNodes(editor);
-    const fragment = document.createElement('div');
-    fragment.innerHTML = html;
-    const stickyElements = fragment.querySelectorAll('sticky');
-    if (!stickyElements.length) return resolve(html);
-    convertStickyElements(stickyElements, editorState).then(() => resolve(fragment.innerHTML));
+    const regex = /<p\b[^>]*>(?:(?!<\/p>).)*<div\b[^>]*class="sticky-note-wrapper"[^>]*>(?:(?!<\/div>).)*<\/div>(?:(?!<\/p>).)*<\/p>/g;
+    const matches = html.match(regex);
+    if (!matches) return resolve(html);
+    matches.forEach((match) => html = html.replace(match, match.replace(/^<p/, '<div').replace(/<\/p>$/, '</div>')));
+    resolve(html);
   });
 });
-
-const convertStickyElements = (elements: NodeListOf<Element>, editorState: any) => {
-  return Promise.all(Array.from(elements).map((element) => {
-    const key = element.getAttribute('key')!;
-    const node = editorState._nodeMap.get(key);
-    if (!$isStickyNode(node)) return Promise.resolve();
-    const data = node.getData();
-    const color = node.__color;
-    if (!data) return Promise.resolve();
-    return generateHtml(data).then((html) => {
-      const wrapper = document.createElement('div');
-      wrapper.className = "sticky-note-wrapper";
-      wrapper.innerHTML = `<div class="sticky-note-container" theme="light"><div class="sticky-note ${color}"><div class="StickyNode__contentEditable">${html}</div></div></div>`;
-      element.replaceWith(wrapper);
-      const parentElement = wrapper.parentElement!;
-      // if the parent element is a paragraph, we need to replace it with a div
-      if (parentElement.tagName === "P") {
-        const div = document.createElement('div');
-        Array.from(parentElement.attributes).forEach((attr) => div.setAttribute(attr.name, attr.value))
-        div.append(...parentElement.children);
-        parentElement.replaceWith(div);
-      }
-    })
-  }))
-}
 
 export const exportHtml = async (document: EditorDocument) => {
   const body = await generateHtml(document.data);
@@ -72,3 +50,88 @@ export const exportHtml = async (document: EditorDocument) => {
     `;
   return `<html>${head}<body>${body}</body></html>`;
 };
+
+export function $generateHtmlFromNodes(
+  editor: LexicalEditor,
+  selection?: RangeSelection | NodeSelection | GridSelection | null,
+): string {
+  if (typeof document === 'undefined' || typeof window === 'undefined') {
+    throw new Error(
+      'To use $generateHtmlFromNodes in headless mode please initialize a headless browser implementation such as JSDom before calling this function.',
+    );
+  }
+
+  const container = document.createElement('div');
+  editor.getEditorState().read(() => {
+    const root = $getRoot();
+    const topLevelChildren = root.getChildren();
+    for (let i = 0; i < topLevelChildren.length; i++) {
+      const topLevelNode = topLevelChildren[i];
+      $appendNodesToHTML(editor, topLevelNode, container, selection);
+    }
+  });
+  return container.innerHTML;
+}
+
+function $appendNodesToHTML(
+  editor: LexicalEditor,
+  currentNode: LexicalNode,
+  parentElement: HTMLElement | DocumentFragment,
+  selection: RangeSelection | NodeSelection | GridSelection | null = null,
+): boolean {
+  let shouldInclude =
+    selection != null ? currentNode.isSelected(selection) : true;
+  const shouldExclude =
+    $isElementNode(currentNode) && currentNode.excludeFromCopy('html');
+  let target = currentNode;
+
+  if (selection !== null) {
+    let clone = $cloneWithProperties<LexicalNode>(currentNode);
+    clone =
+      $isTextNode(clone) && selection != null
+        ? $sliceSelectedTextNodeContent(selection, clone)
+        : clone;
+    target = clone;
+  }
+  const children = $isElementNode(target) ? target.getChildren() : [];
+  const { element, after } = target.exportDOM(editor);
+
+  if (!element) {
+    return false;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  for (let i = 0; i < children.length; i++) {
+    const childNode = children[i];
+    const shouldIncludeChild = $appendNodesToHTML(
+      editor,
+      childNode,
+      fragment,
+      selection,
+    );
+
+    if (
+      !shouldInclude &&
+      $isElementNode(currentNode) &&
+      shouldIncludeChild &&
+      currentNode.extractWithChild(childNode, selection, 'html')
+    ) {
+      shouldInclude = true;
+    }
+  }
+
+  if (shouldInclude && !shouldExclude) {
+    element.append(fragment);
+    parentElement.append(element);
+
+    if (after) {
+      const newElement = after.call(target, element);
+      if (newElement) element.replaceWith(newElement);
+    }
+  } else {
+    parentElement.append(fragment);
+  }
+
+  return shouldInclude;
+}

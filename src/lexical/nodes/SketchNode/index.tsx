@@ -11,7 +11,7 @@ import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/elem
 
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
 import { Suspense, lazy } from 'react';
-import { $generateHtmlFromNodes } from '../utils';
+import { $generateHtmlFromNodes } from '../../utils/exportHtml';
 const SketchComponent = lazy(() => import('./SketchComponent'));
 
 export type SketchPayload = Spread<{

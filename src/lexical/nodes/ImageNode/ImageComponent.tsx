@@ -170,7 +170,7 @@ export default function ImageComponent({
         const event: KeyboardEvent = payload;
         event.preventDefault();
         const node = $getNodeByKey(nodeKey);
-        if (node) {
+        if ($isImageNode(node)) {
           node.selectPrevious();
           node.remove();
         }
@@ -281,7 +281,7 @@ export default function ImageComponent({
 
     editor.update(() => {
       const node = $getNodeByKey(nodeKey);
-      if (!node) return;
+      if (!$isImageNode(node)) return;
       node.setWidthAndHeight(nextWidth, nextHeight);
     });
   };
