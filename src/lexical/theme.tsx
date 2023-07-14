@@ -59,9 +59,8 @@ const theme: EditorThemeClasses = {
     h5: 'LexicalTheme__h5',
     h6: 'LexicalTheme__h6',
   },
-  image: 'editor-image',
+  image: 'LexicalTheme__image',
   indent: 'LexicalTheme__indent',
-  inlineImage: 'inline-editor-image',
   link: 'LexicalTheme__link',
   list: {
     listitem: 'LexicalTheme__listItem',

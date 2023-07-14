@@ -32,45 +32,45 @@ export default function GraphPlugin(): JSX.Element | null {
       );
     }
 
-return mergeRegister(
-  editor.registerCommand<InsertGraphPayload>(
-    INSERT_GRAPH_COMMAND,
-    (payload) => {
-      const graphNode = $createGraphNode(payload);
-      $insertNodes([graphNode]);
-      if ($isRootNode(graphNode.getParentOrThrow())) {
-        $wrapNodeInElement(graphNode, $createParagraphNode)
-      }
-      graphNode.select();
-      return true;
-    },
-    COMMAND_PRIORITY_EDITOR,
-  ),
-  editor.registerCommand<DragEvent>(
-    DRAGSTART_COMMAND,
-    (event) => {
-      return onDragStart(event);
-    },
-    COMMAND_PRIORITY_HIGH,
-  ),
-  editor.registerCommand<DragEvent>(
-    DRAGOVER_COMMAND,
-    (event) => {
-      return onDragover(event);
-    },
-    COMMAND_PRIORITY_LOW,
-  ),
-  editor.registerCommand<DragEvent>(
-    DROP_COMMAND,
-    (event) => {
-      return onDrop(event, editor);
-    },
-    COMMAND_PRIORITY_HIGH,
-  ),
-);
+    return mergeRegister(
+      editor.registerCommand<InsertGraphPayload>(
+        INSERT_GRAPH_COMMAND,
+        (payload) => {
+          const graphNode = $createGraphNode(payload);
+          $insertNodes([graphNode]);
+          if ($isRootNode(graphNode.getParentOrThrow())) {
+            $wrapNodeInElement(graphNode, $createParagraphNode)
+          }
+          graphNode.select();
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ),
+      editor.registerCommand<DragEvent>(
+        DRAGSTART_COMMAND,
+        (event) => {
+          return onDragStart(event);
+        },
+        COMMAND_PRIORITY_HIGH,
+      ),
+      editor.registerCommand<DragEvent>(
+        DRAGOVER_COMMAND,
+        (event) => {
+          return onDragover(event);
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand<DragEvent>(
+        DROP_COMMAND,
+        (event) => {
+          return onDrop(event, editor);
+        },
+        COMMAND_PRIORITY_HIGH,
+      ),
+    );
   }, [editor]);
 
-return null;
+  return null;
 }
 
 const TRANSPARENT_IMAGE =
@@ -175,7 +175,7 @@ function canDropGraph(event: DragEvent): boolean {
   return !!(
     target &&
     target instanceof HTMLElement &&
-    !target.closest('code, span.editor-image, div.sticky-note') &&
+    !target.closest('code, figure.LexicalTheme__image, div.sticky-note') &&
     target.parentElement &&
     target.parentElement.closest('div.editor-input')
   );

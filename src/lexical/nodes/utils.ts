@@ -1,5 +1,8 @@
-import { $isElementNode, $isTextNode, LexicalNode, TextNode } from "lexical";
-import { $isMathNode, MathNode } from "./MathNode";
+import { $getRoot, $isElementNode, $isTextNode, GridSelection, LexicalEditor, LexicalNode, NodeSelection, RangeSelection, RootNode } from "lexical";
+import {
+  $cloneWithProperties,
+  $sliceSelectedTextNodeContent,
+} from '@lexical/selection';
 
 export const CSS_TO_STYLES: Map<string, Record<string, string>> = new Map();
 
@@ -99,4 +102,89 @@ export function $patchStyle(
   patch: Record<string, string | null>,
 ): void {
   getStylableNodes(nodes).forEach((node) => $patchNodeStyle(node, patch));
+}
+
+export function $generateHtmlFromNodes(
+  editor: LexicalEditor,
+  selection?: RangeSelection | NodeSelection | GridSelection | null,
+): string {
+  if (typeof document === 'undefined' || typeof window === 'undefined') {
+    throw new Error(
+      'To use $generateHtmlFromNodes in headless mode please initialize a headless browser implementation such as JSDom before calling this function.',
+    );
+  }
+
+  const container = document.createElement('div');
+  editor.getEditorState().read(() => {
+    const root = $getRoot();
+    const topLevelChildren = root.getChildren();
+    for (let i = 0; i < topLevelChildren.length; i++) {
+      const topLevelNode = topLevelChildren[i];
+      $appendNodesToHTML(editor, topLevelNode, container, selection);
+    }
+  });
+  return container.innerHTML;
+}
+
+function $appendNodesToHTML(
+  editor: LexicalEditor,
+  currentNode: LexicalNode,
+  parentElement: HTMLElement | DocumentFragment,
+  selection: RangeSelection | NodeSelection | GridSelection | null = null,
+): boolean {
+  let shouldInclude =
+    selection != null ? currentNode.isSelected(selection) : true;
+  const shouldExclude =
+    $isElementNode(currentNode) && currentNode.excludeFromCopy('html');
+  let target = currentNode;
+
+  if (selection !== null) {
+    let clone = $cloneWithProperties<LexicalNode>(currentNode);
+    clone =
+      $isTextNode(clone) && selection != null
+        ? $sliceSelectedTextNodeContent(selection, clone)
+        : clone;
+    target = clone;
+  }
+  const children = $isElementNode(target) ? target.getChildren() : [];
+  const { element, after } = target.exportDOM(editor);
+
+  if (!element) {
+    return false;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  for (let i = 0; i < children.length; i++) {
+    const childNode = children[i];
+    const shouldIncludeChild = $appendNodesToHTML(
+      editor,
+      childNode,
+      fragment,
+      selection,
+    );
+
+    if (
+      !shouldInclude &&
+      $isElementNode(currentNode) &&
+      shouldIncludeChild &&
+      currentNode.extractWithChild(childNode, selection, 'html')
+    ) {
+      shouldInclude = true;
+    }
+  }
+
+  if (shouldInclude && !shouldExclude) {
+    element.append(fragment);
+    parentElement.append(element);
+
+    if (after) {
+      const newElement = after.call(target, element);
+      if (newElement) element.replaceWith(newElement);
+    }
+  } else {
+    parentElement.append(fragment);
+  }
+
+  return shouldInclude;
 }

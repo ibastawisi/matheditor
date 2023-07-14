@@ -11,45 +11,12 @@
   touch-action: none;
 }
 
-span.editor-image {
-  cursor: default;
-  display: inline-block;
-  position: relative;
-  z-index: 1;
-}
-
-.editor-image .image-container {
-  display: flex;
+.LexicalTheme__image .image-control-wrapper {
+  display: inline-flex;
   position: relative;
 }
 
-.editor-image img {
-  max-width: 100%;
-  background-color: white;
-  scroll-margin-top: 88px;
-  scroll-margin-bottom: 24px;
-}
-
-.editor-image img.focused {
-  outline: 2px solid rgb(95 183 255 / 75%);
-}
-
-.editor-image img.focused.draggable {
-  cursor: grab
-}
-
-.editor-image img.focused.draggable:active {
-  cursor: grabbing
-}
-
-.editor-image .image-caption-container {
-  display: block;
-  min-width: 100%;
-  overflow: hidden;
-  position: relative;
-}
-
-.image-contentEditable {
+.caption-contentEditable {
   border: 0px;
   resize: none;
   cursor: text;
@@ -57,12 +24,11 @@ span.editor-image {
   position: relative;
   tab-size: 1;
   outline: 0px;
-  padding: 10px 0;
-  min-height: 40px;
+  min-height: 24px;
   text-align: left;
 }
 
-.image-placeholder {
+.caption-placeholder {
   overflow: hidden;
   position: absolute;
   text-overflow: ellipsis;
@@ -74,62 +40,62 @@ span.editor-image {
   pointer-events: none;
 }
 
-.editor-image .image-resizer {
+.LexicalTheme__image .image-resizer {
   position: absolute;
   padding: 0;
   color: rgb(95 183 255 / 75%) !important;
 }
 
-.editor-image .image-resizer.image-resizer-n {
+.LexicalTheme__image .image-resizer.image-resizer-n {
   top: 0;
   left: 50%;
   transform: translate(-50%, -50%);
   cursor: n-resize;
 }
 
-.editor-image .image-resizer.image-resizer-ne {
+.LexicalTheme__image .image-resizer.image-resizer-ne {
   top: 0;
   right: 0;
   transform: translate(50%, -50%);
   cursor: ne-resize;
 }
 
-.editor-image .image-resizer.image-resizer-e {
+.LexicalTheme__image .image-resizer.image-resizer-e {
   bottom: 50%;
   right: 0;
   transform: translate(50%, 50%);
   cursor: e-resize;
 }
 
-.editor-image .image-resizer.image-resizer-se {
+.LexicalTheme__image .image-resizer.image-resizer-se {
   bottom: 0;
   right: 0;
   transform: translate(50%, 50%);
   cursor: nwse-resize;
 }
 
-.editor-image .image-resizer.image-resizer-s {
+.LexicalTheme__image .image-resizer.image-resizer-s {
   bottom: 0;
   left: 50%;
   transform: translate(-50%, 50%);
   cursor: s-resize;
 }
 
-.editor-image .image-resizer.image-resizer-sw {
+.LexicalTheme__image .image-resizer.image-resizer-sw {
   bottom: 0;
   left: 0;
   transform: translate(-50%, 50%);
   cursor: sw-resize;
 }
 
-.editor-image .image-resizer.image-resizer-w {
+.LexicalTheme__image .image-resizer.image-resizer-w {
   bottom: 50%;
   left: 0;
   transform: translate(-50%, 50%);
   cursor: w-resize;
 }
 
-.editor-image .image-resizer.image-resizer-nw {
+.LexicalTheme__image .image-resizer.image-resizer-nw {
   top: 0;
   left: 0;
   transform: translate(-50%, -50%);
@@ -137,7 +103,7 @@ span.editor-image {
 }
 
 @media print {
-  .editor-image img.focused {
+  .LexicalTheme__image img.focused {
     outline: none !important;
   }
 

@@ -175,7 +175,7 @@ function canDropSticky(event: DragEvent): boolean {
   return !!(
     target &&
     target instanceof HTMLElement &&
-    !target.closest('code, span.editor-image, div.sticky-note-container') &&
+    !target.closest('code, figure.LexicalTheme__image, div.sticky-note-container') &&
     target.parentElement &&
     target.parentElement.closest('div.editor-input')
   );

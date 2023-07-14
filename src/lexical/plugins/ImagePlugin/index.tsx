@@ -181,7 +181,7 @@ function canDropImage(event: DragEvent): boolean {
   return !!(
     target &&
     target instanceof HTMLElement &&
-    !target.closest('code, span.editor-image, div.sticky-note') &&
+    !target.closest('code, figure.LexicalTheme__image, div.sticky-note') &&
     target.parentElement &&
     target.parentElement.closest('div.editor-input')
   );

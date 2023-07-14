@@ -65,6 +65,7 @@ function LazyImage({
   src,
   width,
   height,
+  draggable,
   onLoad,
 }: {
   altText?: string;
@@ -73,6 +74,7 @@ function LazyImage({
   imageRef: { current: null | HTMLImageElement };
   src: string;
   width: 'inherit' | number;
+  draggable: boolean
   onLoad: () => void;
 }): JSX.Element {
   useSuspenseImage(src);
@@ -86,7 +88,7 @@ function LazyImage({
         height,
         width,
       }}
-      draggable="false"
+      draggable={draggable}
       onLoad={onLoad}
     />
   );
@@ -319,39 +321,46 @@ export default function ImageComponent({
   return (
     <Suspense fallback={null}>
       <>
-        <div draggable={draggable} className='image-container'>
+        {(resizable && $isNodeSelection(selection) && isFocused) ?
+          <ImageResizer
+            editor={editor}
+            imageRef={imageRef}
+            onResizeStart={onResizeStart}
+            onResizeEnd={onResizeEnd}
+          >
+            <LazyImage
+              className={isFocused ? `focused ${$isNodeSelection(selection) ? 'draggable' : ''}` : null}
+              src={src}
+              altText={altText}
+              imageRef={imageRef}
+              onLoad={onLoad}
+              width={width}
+              height={height}
+              draggable={draggable}
+            />
+          </ImageResizer>
+          :
           <LazyImage
-            className={
-              isFocused
-                ? `focused ${$isNodeSelection(selection) ? 'draggable' : ''}`
-                : null
-            }
+            className={isFocused ? `focused ${$isNodeSelection(selection) ? 'draggable' : ''}` : null}
             src={src}
             altText={altText}
             imageRef={imageRef}
             onLoad={onLoad}
             width={width}
             height={height}
+            draggable={draggable}
           />
-          {resizable && $isNodeSelection(selection) && isFocused && (
-            <ImageResizer
-              editor={editor}
-              imageRef={imageRef}
-              onResizeStart={onResizeStart}
-              onResizeEnd={onResizeEnd}
-            />
-          )}
-        </div>
+        }
         {showCaption && (
-          <div className="image-caption-container">
+          <figcaption>
             <LexicalNestedComposer initialEditor={caption}>
-              <EditorPlugins contentEditable={<ContentEditable className="image-contentEditable" />} placeholder={
+              <EditorPlugins contentEditable={<ContentEditable className="caption-contentEditable" />} placeholder={
                 (editable) => (
-                  editable ? <Typography color="text.secondary" className="image-placeholder">Write a caption</Typography> : null
+                  editable ? <Typography color="text.secondary" className="caption-placeholder">Write a caption</Typography> : null
                 )
               } onChange={onChange} />
             </LexicalNestedComposer>
-          </div>
+          </figcaption>
         )}
       </>
     </Suspense>

@@ -29,12 +29,14 @@ export default function ImageResizer({
   imageRef,
   maxWidth,
   editor,
+  children,
 }: {
   editor: LexicalEditor;
   imageRef: { current: null | HTMLElement };
   maxWidth?: number;
   onResizeEnd: (width: 'inherit' | number, height: 'inherit' | number) => void;
-  onResizeStart: () => void;
+    onResizeStart: () => void;
+  children: React.ReactNode;
 }): JSX.Element {
   const controlWrapperRef = useRef<HTMLDivElement>(null);
   const userSelect = useRef({
@@ -239,6 +241,7 @@ export default function ImageResizer({
   };
   return (
     <div ref={controlWrapperRef} className="image-control-wrapper">
+      {children}
       <Radio checked={true}
         className="image-resizer image-resizer-n"
         onPointerDown={(event) => {

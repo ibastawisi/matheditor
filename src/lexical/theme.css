@@ -425,3 +425,40 @@
 .LexicalTheme__embedBlockFocus {
   outline: 2px solid rgb(60, 132, 244);
 }
+
+.LexicalTheme__image {
+  cursor: default;
+  display: inline-flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+  margin: 0;
+}
+
+.LexicalTheme__image img {
+  max-width: 100%;
+  background-color: white;
+  scroll-margin-top: 88px;
+  scroll-margin-bottom: 24px;
+}
+
+.LexicalTheme__image img.focused {
+  outline: 2px solid rgb(95 183 255 / 75%);
+}
+
+.LexicalTheme__image img.focused.draggable {
+  cursor: grab
+}
+
+.LexicalTheme__image img.focused.draggable:active {
+  cursor: grabbing
+}
+
+.LexicalTheme__image figcaption {
+  display: block;
+  min-width: 100%;
+  overflow: hidden;
+  position: relative;
+  padding: 10px 0;
+  min-height: 40px;
+}

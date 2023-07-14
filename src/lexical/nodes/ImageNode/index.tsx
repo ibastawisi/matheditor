@@ -8,6 +8,9 @@
 
 import {
   $createNodeSelection,
+  $createParagraphNode,
+  $createTextNode,
+  $getRoot,
   $setSelection,
   DOMConversionMap,
   DOMConversionOutput,
@@ -25,6 +28,8 @@ import {
 import { DecoratorNode } from 'lexical';
 import { Suspense, lazy } from 'react';
 import { editorConfig } from '../../config';
+import { $generateHtmlFromNodes } from "../utils";
+
 
 const ImageComponent = lazy(() => import('./ImageComponent'));
 
@@ -108,13 +113,19 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return node;
   }
 
-  exportDOM(): DOMExportOutput {
-    const element = document.createElement('img');
-    element.setAttribute('src', this.__src);
-    element.setAttribute('alt', this.__altText || '');
-    element.setAttribute('width', this.__width.toString());
-    element.setAttribute('height', this.__height.toString());
-    element.style.cssText = this.__style || '';
+  exportDOM(editor: LexicalEditor): DOMExportOutput {
+    const { element } = super.exportDOM(editor);
+    if (!element) return { element };
+    const img = document.createElement('img');
+    img.setAttribute('src', this.__src);
+    img.setAttribute('alt', this.__altText || '');
+    img.setAttribute('width', this.__width.toString());
+    img.setAttribute('height', this.__height.toString());
+    element.appendChild(img);
+    if (!this.__showCaption) return { element };
+    const caption = document.createElement('figcaption');
+    caption.innerHTML = $generateHtmlFromNodes(this.__caption);
+    element.appendChild(caption);
     return { element };
   }
 
@@ -144,7 +155,17 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     this.__height = height || 'inherit';
     this.__style = style;
     this.__showCaption = showCaption || false;
-    this.__caption = caption || createEditor(editorConfig);
+    if (caption) this.__caption = caption
+    else {
+      const editor = createEditor(editorConfig);
+      editor.update(() => {
+        const root = $getRoot();
+        const paragraph = $createParagraphNode().setFormat('center');
+        paragraph.append($createTextNode(altText));
+        root.append(paragraph);
+      });
+      this.__caption = editor;
+    }
   }
 
   exportJSON(): SerializedImageNode {
@@ -225,16 +246,16 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   }
 
   createDOM(config: EditorConfig): HTMLElement {
-    const span = document.createElement('span');
+    const figure = document.createElement('figure');
     const theme = config.theme;
     const className = theme.image;
     if (className !== undefined) {
-      span.className = className;
+      figure.className = className;
     }
     if (this.__style) {
-      span.style.cssText = this.__style;
+      figure.style.cssText = this.__style;
     }
-    return span;
+    return figure;
   }
 
   updateDOM(prevNode: ImageNode): boolean {

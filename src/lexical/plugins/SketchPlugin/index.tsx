@@ -32,45 +32,45 @@ export default function SketchPlugin(): JSX.Element | null {
       );
     }
 
-return mergeRegister(
-  editor.registerCommand<InsertSketchPayload>(
-    INSERT_SKETCH_COMMAND,
-    (payload) => {
-      const sketchNode = $createSketchNode(payload);
-      $insertNodes([sketchNode]);
-      if ($isRootNode(sketchNode.getParentOrThrow())) {
-        $wrapNodeInElement(sketchNode, $createParagraphNode)
-      }
-      sketchNode.select();
-      return true;
-    },
-    COMMAND_PRIORITY_EDITOR,
-  ),
-  editor.registerCommand<DragEvent>(
-    DRAGSTART_COMMAND,
-    (event) => {
-      return onDragStart(event);
-    },
-    COMMAND_PRIORITY_HIGH,
-  ),
-  editor.registerCommand<DragEvent>(
-    DRAGOVER_COMMAND,
-    (event) => {
-      return onDragover(event);
-    },
-    COMMAND_PRIORITY_LOW,
-  ),
-  editor.registerCommand<DragEvent>(
-    DROP_COMMAND,
-    (event) => {
-      return onDrop(event, editor);
-    },
-    COMMAND_PRIORITY_HIGH,
-  ),
-);
+    return mergeRegister(
+      editor.registerCommand<InsertSketchPayload>(
+        INSERT_SKETCH_COMMAND,
+        (payload) => {
+          const sketchNode = $createSketchNode(payload);
+          $insertNodes([sketchNode]);
+          if ($isRootNode(sketchNode.getParentOrThrow())) {
+            $wrapNodeInElement(sketchNode, $createParagraphNode)
+          }
+          sketchNode.select();
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ),
+      editor.registerCommand<DragEvent>(
+        DRAGSTART_COMMAND,
+        (event) => {
+          return onDragStart(event);
+        },
+        COMMAND_PRIORITY_HIGH,
+      ),
+      editor.registerCommand<DragEvent>(
+        DRAGOVER_COMMAND,
+        (event) => {
+          return onDragover(event);
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand<DragEvent>(
+        DROP_COMMAND,
+        (event) => {
+          return onDrop(event, editor);
+        },
+        COMMAND_PRIORITY_HIGH,
+      ),
+    );
   }, [editor]);
 
-return null;
+  return null;
 }
 
 const TRANSPARENT_IMAGE =
@@ -175,7 +175,7 @@ function canDropSketch(event: DragEvent): boolean {
   return !!(
     target &&
     target instanceof HTMLElement &&
-    !target.closest('code, span.editor-image, div.sticky-note') &&
+    !target.closest('code, figure.LexicalTheme__image, div.sticky-note') &&
     target.parentElement &&
     target.parentElement.closest('div.editor-input')
   );

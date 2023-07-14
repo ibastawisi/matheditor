@@ -11,6 +11,7 @@ import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/elem
 
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
 import { Suspense, lazy } from 'react';
+import { $generateHtmlFromNodes } from '../utils';
 const SketchComponent = lazy(() => import('./SketchComponent'));
 
 export type SketchPayload = Spread<{
@@ -84,13 +85,17 @@ export class SketchNode extends ImageNode {
     return node;
   }
 
-  exportDOM(): DOMExportOutput {
-    const container = document.createElement('span');
-    container.innerHTML = decodeURIComponent(this.__src.split(',')[1]);
-    const element = container.firstElementChild as HTMLElement;
-    element.setAttribute('width', this.__width.toString());
-    element.setAttribute('height', this.__height.toString());
-    element.style.cssText = this.__style || '';
+  exportDOM(editor: LexicalEditor): DOMExportOutput {
+    const { element } = super.exportDOM(editor);
+    if (!element) return { element };
+    element.innerHTML = decodeURIComponent(this.__src.split(',')[1]);
+    const svg = element.firstElementChild!;
+    this.__width !== 'inherit' && svg.setAttribute('width', this.__width.toString());
+    this.__height !== 'inherit' && svg.setAttribute('height', this.__height.toString());
+    if (!this.__showCaption) return { element };
+    const caption = document.createElement('figcaption');
+    caption.innerHTML = $generateHtmlFromNodes(this.__caption);
+    element.appendChild(caption);
     return { element };
   }
 
@@ -159,7 +164,7 @@ export class SketchNode extends ImageNode {
 
 export function $createSketchNode({
   src,
-  altText = "Graph",
+  altText = "Sketch",
   value,
   key,
   width,
