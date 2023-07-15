@@ -96,7 +96,7 @@ function onDragStart(event: DragEvent): boolean {
     JSON.stringify({
       data: {
         color: node.__color,
-        data: node.__data,
+        editor: node.__editor,
         key: node.getKey(),
       },
       type: 'sticky',

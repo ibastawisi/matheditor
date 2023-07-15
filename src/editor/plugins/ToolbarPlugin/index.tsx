@@ -253,13 +253,13 @@ export default function ToolbarPlugin() {
 
   useEffect(() => {
     return activeEditor.registerCommand<SetDialogsPayload>(
-        SET_DIALOGS_COMMAND,
-        (payload) => {
-          setDialogs({...dialogs, ...payload});
-          return false;
-        },
-        COMMAND_PRIORITY_CRITICAL,
-      );
+      SET_DIALOGS_COMMAND,
+      (payload) => {
+        setDialogs({ ...dialogs, ...payload });
+        return false;
+      },
+      COMMAND_PRIORITY_CRITICAL,
+    );
   }, [activeEditor, dialogs]);
 
   const applyStyleText = useCallback(
