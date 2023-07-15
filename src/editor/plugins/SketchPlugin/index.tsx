@@ -39,9 +39,8 @@ export default function SketchPlugin(): JSX.Element | null {
           const sketchNode = $createSketchNode(payload);
           $insertNodes([sketchNode]);
           if ($isRootNode(sketchNode.getParentOrThrow())) {
-            $wrapNodeInElement(sketchNode, $createParagraphNode)
+            $wrapNodeInElement(sketchNode, $createParagraphNode).selectEnd();
           }
-          sketchNode.select();
           return true;
         },
         COMMAND_PRIORITY_EDITOR,

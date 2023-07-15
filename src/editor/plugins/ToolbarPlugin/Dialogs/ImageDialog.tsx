@@ -1,4 +1,4 @@
-import { LexicalEditor } from 'lexical';
+import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
 import { INSERT_IMAGE_COMMAND, InsertImagePayload } from '../../ImagePlugin';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import Box from '@mui/material/Box';
@@ -63,15 +63,30 @@ function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: Imag
   const insertImage = (payload: InsertImagePayload) => {
     if (!node) editor.dispatchCommand(INSERT_IMAGE_COMMAND, payload,);
     else editor.update(() => node.update(payload));
-    handleClose();
+  };
+
+  const closeDialog = () => {
+    editor.dispatchCommand(SET_DIALOGS_COMMAND, { image: { open: false } })
+    setFormData({ src: '', altText: '' });
+  }
+
+  const restoreSelection = () => {
+    editor.getEditorState().read(() => {
+      const selection = $getSelection()?.clone() ?? null;
+      editor.update(() => $setSelection(selection));
+    })
+  }
+
+  const handleSubmit = async () => {
+    insertImage(formData);
+    closeDialog();
+    setTimeout(() => { editor.focus() }, 0);
   };
 
   const handleClose = () => {
-    editor.dispatchCommand(SET_DIALOGS_COMMAND, { image: { open: false } })
-    setFormData({ src: '', altText: '' });
-    setTimeout(() => { editor.focus(); }, 0);
+    closeDialog();
+    restoreSelection();
   }
-
 
   return <Dialog
     open={!!open}
@@ -102,7 +117,7 @@ function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: Imag
       </Button>
       <Button
         disabled={isDisabled}
-        onClick={() => insertImage(formData)}>
+        onClick={handleSubmit}>
         Confirm
       </Button>
     </DialogActions>

@@ -1,4 +1,4 @@
-import { LexicalEditor } from 'lexical';
+import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
 import { INSERT_TABLE_COMMAND } from '../../../nodes/TableNode';
 import Box from '@mui/material/Box';
 import React, { memo, useState } from 'react';
@@ -35,11 +35,25 @@ function TableDialog({ editor, open }: { editor: LexicalEditor, open: boolean })
   const handleSubmit = (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     editor.dispatchCommand(INSERT_TABLE_COMMAND, formData);
-    handleClose();
+    closeDialog();
+    setTimeout(() => { editor.focus() }, 0);
   };
 
+  const closeDialog = () => {
+    editor.dispatchCommand(SET_DIALOGS_COMMAND, { table: { open: false } })
+    setFormData({ rows: '3', columns: '3', includeHeaders: true });
+  }
+
+  const restoreSelection = () => {
+    editor.getEditorState().read(() => {
+      const selection = $getSelection()?.clone() ?? null;
+      editor.update(() => $setSelection(selection));
+    })
+  }
+
   const handleClose = () => {
-    editor.dispatchCommand(SET_DIALOGS_COMMAND, { graph: { open: false } })
+    closeDialog();
+    restoreSelection();
   }
 
   return <Dialog

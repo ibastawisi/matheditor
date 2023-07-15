@@ -45,12 +45,10 @@ function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: Grap
     const app = (window as any).ggbApplet;
     const src = await getBase64Src();
     const value = app.getBase64();
-    editor.getEditorState().read(() => {
-      const selection = $getSelection()?.clone() ?? null;
-      editor.update(() => $setSelection(selection));
-      insertGraph({ src, value });
-      handleClose();
-    })
+    restoreSelection();
+    insertGraph({ src, value });
+    closeDialog();
+    setTimeout(() => { editor.focus() }, 0);
   };
 
   const getBase64Src = () => new Promise<string>((resolve, reject) => {
@@ -74,10 +72,21 @@ function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: Grap
     }
   });
 
+  const closeDialog = () => {
+    editor.dispatchCommand(SET_DIALOGS_COMMAND, { graph: { open: false } })
+    setLoading(true);
+  }
+
+  const restoreSelection = () => {
+    editor.getEditorState().read(() => {
+      const selection = $getSelection()?.clone() ?? null;
+      editor.update(() => $setSelection(selection));
+    })
+  }
 
   const handleClose = () => {
-    editor.dispatchCommand(SET_DIALOGS_COMMAND, { graph: { open: false} })
-    setLoading(true);
+    closeDialog();
+    restoreSelection();
   }
 
   return <Dialog open={open} fullScreen={true} onClose={handleClose} disableEscapeKeyDown>

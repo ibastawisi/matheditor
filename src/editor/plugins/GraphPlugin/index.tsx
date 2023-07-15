@@ -39,9 +39,8 @@ export default function GraphPlugin(): JSX.Element | null {
           const graphNode = $createGraphNode(payload);
           $insertNodes([graphNode]);
           if ($isRootNode(graphNode.getParentOrThrow())) {
-            $wrapNodeInElement(graphNode, $createParagraphNode)
+            $wrapNodeInElement(graphNode, $createParagraphNode).selectEnd();
           }
-          graphNode.select();
           return true;
         },
         COMMAND_PRIORITY_EDITOR,

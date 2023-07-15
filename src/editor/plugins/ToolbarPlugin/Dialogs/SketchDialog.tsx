@@ -1,4 +1,4 @@
-import { LexicalEditor } from 'lexical';
+import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
 import { INSERT_SKETCH_COMMAND, InsertSketchPayload } from '../../SketchPlugin';
 import { Suspense, lazy, useEffect, useState, memo } from 'react';
 import LogicGates from "./SketchLibraries/Logic-Gates.json";
@@ -47,13 +47,25 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ske
     const src = "data:image/svg+xml," + encodeURIComponent(serialized);
 
     insertSketch({ src });
-    handleClose();
+    closeDialog();
+    setTimeout(() => { editor.focus() }, 0);
   };
+
+  const closeDialog = () => {
+    editor.dispatchCommand(SET_DIALOGS_COMMAND, { sketch: { open: false } })
+  }
+
+  const restoreSelection = () => {
+    editor.getEditorState().read(() => {
+      const selection = $getSelection()?.clone() ?? null;
+      editor.update(() => $setSelection(selection));
+    })
+  }
 
   const handleClose = () => {
-    editor.dispatchCommand(SET_DIALOGS_COMMAND, { sketch: { open: false } })
-  };
-
+    closeDialog();
+    restoreSelection();
+  }
 
   const loadSceneOrLibrary = async () => {
     const src = node?.getSrc();
