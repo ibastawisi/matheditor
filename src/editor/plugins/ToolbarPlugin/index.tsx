@@ -32,6 +32,7 @@ import { $isSketchNode } from '../../nodes/SketchNode';
 import { $isGraphNode } from '../../nodes/GraphNode';
 import { $patchStyle } from '../../nodes/utils';
 import { ImageDialog, GraphDialog, SketchDialog, TableDialog } from './Dialogs';
+import useLexicalEditable from '@lexical/react/useLexicalEditable';
 import { $isStickyNode } from '../../nodes/StickyNode';
 
 type EditorDialogs = {
@@ -120,7 +121,7 @@ export function positionEditorElement(
   }
 }
 
-export default function ToolbarPlugin() {
+function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
   const [activeEditor, setActiveEditor] = useState(editor);
   const [blockType, setBlockType] = useState<keyof typeof blockTypeToBlockName>('paragraph');
@@ -131,7 +132,6 @@ export default function ToolbarPlugin() {
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState<string>('');
-  const [isEditable, setIsEditable] = useState(() => editor.isEditable());
   const [selectedNode, setSelectedNode] = useState<LexicalNode | null>(null);
   const [dialogs, setDialogs] = useState<EditorDialogs>({
     image: {
@@ -150,6 +150,14 @@ export default function ToolbarPlugin() {
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
+    if ($isNodeSelection(selection)) {
+      const node = selection.getNodes()[0];
+      setSelectedNode(node);
+      setSelectedElementKey(null);
+      setBlockType('paragraph');
+    } else {
+      setSelectedNode(null);
+    }
     if ($isRangeSelection(selection)) {
       const anchorNode = selection.anchor.getNode();
       const element =
@@ -196,22 +204,11 @@ export default function ToolbarPlugin() {
       setFontFamily(
         $getSelectionStyleValueForProperty(selection, 'font-family', 'Roboto'),
       );
-      setSelectedNode(null);
-    }
-
-    if ($isNodeSelection(selection)) {
-      const node = selection.getNodes()[0];
-      setSelectedNode(node);
-    }
-
-    if (selection === null) {
-      setSelectedNode(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeEditor]);
 
   useEffect(() => {
-    setIsEditable(editor.isEditable());
     return mergeRegister(
       editor.registerCommand(
         SELECTION_CHANGE_COMMAND,
@@ -333,10 +330,9 @@ export default function ToolbarPlugin() {
     threshold: 32,
   });
 
-  if (!isEditable) return null;
-
   const showMathTools = $isMathNode(selectedNode);
   const showImageTools = $isImageNode(selectedNode);
+  const showTextTools = (!showMathTools && !showImageTools) || $isStickyNode(selectedNode);
   return (
     <>
       <AppBar className='toolbar-appbar' elevation={trigger ? 4 : 0} position={trigger ? 'fixed' : 'static'}>
@@ -354,7 +350,7 @@ export default function ToolbarPlugin() {
           <Box sx={{ display: "flex", gap: 0.5 }}>
             {showMathTools && <MathTools editor={activeEditor} node={selectedNode} />}
             {showImageTools && <ImageTools editor={activeEditor} node={selectedNode} />}
-            {(!selectedNode || $isStickyNode(selectedNode)) && <>
+            {showTextTools && <>
               {blockType in blockTypeToBlockName && <BlockFormatSelect blockType={blockType} editor={activeEditor} />}
               {blockType === 'code' ? (
                 <Select size='small' onChange={onCodeLanguageSelect} value={codeLanguage}>
@@ -375,7 +371,7 @@ export default function ToolbarPlugin() {
             }
           </Box>
           <Box sx={{ display: "flex" }}>
-            {blockType !== 'code' && <InsertToolMenu editor={activeEditor} />}
+            <InsertToolMenu editor={activeEditor} />
             <AlignTextMenu editor={activeEditor} isRTL={isRTL} />
           </Box>
         </Toolbar >
@@ -389,3 +385,7 @@ export default function ToolbarPlugin() {
   );
 }
 
+export default function useToolbarPlugin(): null | JSX.Element {
+  const isEditable = useLexicalEditable();
+  return isEditable ? <ToolbarPlugin /> : null;
+}

@@ -79,11 +79,7 @@ export const EditorPlugins: React.FC<{
   };
 
 export const Editor: React.FC<{ initialConfig: Partial<InitialConfigType>, appConfig: { debug: boolean }, onChange: (editorState: EditorState) => void }> = ({ initialConfig, appConfig, onChange }) => {
-
-  const disableContextMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (IS_MOBILE) e.preventDefault();
-  }
-
+  const disableContextMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => { if (IS_MOBILE) e.preventDefault(); }
   return (
     <LexicalComposer initialConfig={{ ...editorConfig, ...initialConfig }}>
       <ToolbarPlugin />
