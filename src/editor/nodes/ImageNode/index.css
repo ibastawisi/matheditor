@@ -7,16 +7,16 @@
  *
  */
 
-.image-control-wrapper--resizing {
-  touch-action: none;
-}
-
 .LexicalTheme__image .image-control-wrapper {
   display: inline-flex;
   position: relative;
 }
 
-.caption-contentEditable {
+.LexicalTheme__image .image-control-wrapper--resizing {
+  touch-action: none;
+}
+
+.LexicalTheme__image .nested-contentEditable {
   border: 0px;
   resize: none;
   cursor: text;
@@ -28,12 +28,13 @@
   text-align: left;
 }
 
-.caption-placeholder {
+.LexicalTheme__image .nested-placeholder {
   overflow: hidden;
   position: absolute;
   text-overflow: ellipsis;
   top: 10px;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
   user-select: none;
   white-space: nowrap;
   display: inline-block;

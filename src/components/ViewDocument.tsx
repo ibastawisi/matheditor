@@ -4,8 +4,7 @@ import { useDispatch } from "react-redux";
 import { actions } from "../store";
 import { AppDispatch } from "../store";
 import { useParams, Link as RouterLink } from "react-router-dom";
-import Editor from "./Editor";
-
+import Viewer from "../editor/Viewer";
 import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
 import { EditorDocument } from '../types';
@@ -46,7 +45,7 @@ const ViewDocument: React.FC = () => {
 
   return document.id === params.id ? <>
     <Helmet><title>{document.name}</title></Helmet>
-    <Editor document={document} editable={false} />
+    <Viewer initialConfig={{ editorState: JSON.stringify(document.data) }} />
     <Transition in={slideTrigger} timeout={225}>
       <Fab variant="extended" size='medium' component={RouterLink} to={`/new/${document.id}`} state={{ data: document.data }}
         sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 24, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>

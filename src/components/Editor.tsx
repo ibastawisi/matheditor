@@ -9,7 +9,7 @@ import isEqual from 'fast-deep-equal'
 import useLocalStorage from '../hooks/useLocalStorage';
 import { AppDispatch, actions } from '../store';
 import { EditorDocument } from '../types';
-import { Editor } from '../editor';
+import Editor from "../editor/Editor";
 import type { EditorState } from '../editor/types';
 
 const Container: React.FC<{ document: EditorDocument, editable: boolean, onChange?: (editorState: EditorState) => void }> = ({ document, editable, onChange }) => {

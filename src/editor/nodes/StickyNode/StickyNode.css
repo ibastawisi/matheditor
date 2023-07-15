@@ -12,7 +12,7 @@
   margin: 0.5rem 0 0.5rem 0.5rem;
  }
 
-.StickyNode__contentEditable {
+.sticky-note-wrapper .nested-contentEditable {
   min-height: 100px;
   border: 0;
   resize: none;
@@ -24,7 +24,7 @@
   outline: 0;
 }
 
-.StickyNode__placeholder {
+.sticky-note-wrapper .nested-placeholder {
   color: #999;
   overflow: hidden;
   position: absolute;
@@ -122,4 +122,8 @@
 
 .sticky-note-container.selected .drag-btn:active {
   cursor: grabbing;
+}
+
+.sticky-note-wrapper .draggable-block-menu {
+  display: none;
 }
