@@ -12,7 +12,6 @@ import type {
   DOMConversionOutput,
   DOMExportOutput,
   EditorConfig,
-  LexicalEditor,
   LexicalNode,
   NodeKey,
   ParagraphNode,
@@ -21,7 +20,7 @@ import type {
   Spread,
   TabNode,
 } from 'lexical';
-import type {CodeHighlightNode} from '.';
+import type { CodeHighlightNode } from '@lexical/code';
 
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
@@ -38,7 +37,7 @@ import 'prismjs/components/prism-typescript';
 import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-cpp';
 
-import {addClassNamesToElement, isHTMLElement} from '@lexical/utils';
+import { addClassNamesToElement, isHTMLElement } from '@lexical/utils';
 import {
   $applyNodeReplacement,
   $createLineBreakNode,
@@ -46,7 +45,6 @@ import {
   ElementNode,
   $isTabNode,
   $createTabNode,
-  $isLineBreakNode,
 } from 'lexical';
 import {
   $isCodeHighlightNode,
@@ -130,23 +128,6 @@ export class CodeNode extends ElementNode {
     return false;
   }
 
-  exportDOM(editor: LexicalEditor): DOMExportOutput {
-    const { element } = super.exportDOM(editor);
-    if (element) {
-      const children = this.getChildren();
-      const childrenLength = children.length;
-      let gutter = '1';
-      let count = 1;
-      for (let i = 0; i < childrenLength; i++) {
-        if ($isLineBreakNode(children[i])) {
-          gutter += '\n' + ++count;
-        }
-      }
-      element.setAttribute('data-gutter', gutter);
-    }
-    return { element };
-  }
-
   static importDOM(): DOMConversionMap | null {
     return {
       // Typically <pre> is used for code blocks, and <code> for inline code styles
@@ -159,9 +140,9 @@ export class CodeNode extends ElementNode {
 
         return isMultiLine
           ? {
-              conversion: convertPreElement,
-              priority: 1,
-            }
+            conversion: convertPreElement,
+            priority: 1,
+          }
           : null;
       },
       div: (node: Node) => ({
@@ -342,7 +323,7 @@ function convertPreElement(domNode: Node): DOMConversionOutput {
   if (isHTMLElement(domNode)) {
     language = domNode.getAttribute(LANGUAGE_DATA_ATTRIBUTE);
   }
-  return {node: $createCodeNode(language)};
+  return { node: $createCodeNode(language) };
 }
 
 function convertDivElement(domNode: Node): DOMConversionOutput {
@@ -367,11 +348,11 @@ function convertDivElement(domNode: Node): DOMConversionOutput {
 }
 
 function convertTableElement(): DOMConversionOutput {
-  return {node: $createCodeNode()};
+  return { node: $createCodeNode() };
 }
 
 function convertCodeNoop(): DOMConversionOutput {
-  return {node: null};
+  return { node: null };
 }
 
 function convertTableCellElement(domNode: Node): DOMConversionOutput {

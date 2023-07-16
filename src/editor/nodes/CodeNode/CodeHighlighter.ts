@@ -236,30 +236,6 @@ function textNodeTransform(
   }
 }
 
-function updateCodeGutter(node: CodeNode, editor: LexicalEditor): void {
-  const codeElement = editor.getElementByKey(node.getKey());
-  if (codeElement === null) {
-    return;
-  }
-  const children = node.getChildren();
-  const childrenLength = children.length;
-  // @ts-ignore: internal field
-  if (childrenLength === codeElement.__cachedChildrenLength) {
-    // Avoid updating the attribute if the children length hasn't changed.
-    return;
-  }
-  // @ts-ignore:: internal field
-  codeElement.__cachedChildrenLength = childrenLength;
-  let gutter = '1';
-  let count = 1;
-  for (let i = 0; i < childrenLength; i++) {
-    if ($isLineBreakNode(children[i])) {
-      gutter += '\n' + ++count;
-    }
-  }
-  codeElement.setAttribute('data-gutter', gutter);
-}
-
 // Using `skipTransforms` to prevent extra transforms since reformatting the code
 // will not affect code block content itself.
 //
@@ -329,10 +305,13 @@ function codeNodeTransform(
   );
 }
 
-function getHighlightNodes(tokens: (string | Token)[]): LexicalNode[] {
+function getHighlightNodes(
+  tokens: Array<string | Token>,
+  type?: string,
+): LexicalNode[] {
   const nodes: LexicalNode[] = [];
 
-  tokens.forEach((token) => {
+  for (const token of tokens) {
     if (typeof token === 'string') {
       const partials = token.split(/(\n|\t)/);
       const partialsLength = partials.length;
@@ -343,24 +322,18 @@ function getHighlightNodes(tokens: (string | Token)[]): LexicalNode[] {
         } else if (part === '\t') {
           nodes.push($createTabNode());
         } else if (part.length > 0) {
-          nodes.push($createCodeHighlightNode(part));
+          nodes.push($createCodeHighlightNode(part, type));
         }
       }
     } else {
       const { content } = token;
       if (typeof content === 'string') {
-        nodes.push($createCodeHighlightNode(content, token.type));
-      } else if (
-        Array.isArray(content) &&
-        content.length === 1 &&
-        typeof content[0] === 'string'
-      ) {
-        nodes.push($createCodeHighlightNode(content[0], token.type));
+        nodes.push(...getHighlightNodes([content], token.type));
       } else if (Array.isArray(content)) {
-        nodes.push(...getHighlightNodes(content));
+        nodes.push(...getHighlightNodes(content, token.type));
       }
     }
-  });
+  }
 
   return nodes;
 }
@@ -841,18 +814,6 @@ export function registerCodeHighlighting(
   }
 
   return mergeRegister(
-    editor.registerMutationListener(CodeNode, (mutations) => {
-      editor.update(() => {
-        for (const [key, type] of mutations) {
-          if (type !== 'destroyed') {
-            const node = $getNodeByKey(key);
-            if (node !== null) {
-              updateCodeGutter(node as CodeNode, editor);
-            }
-          }
-        }
-      });
-    }),
     editor.registerNodeTransform(CodeNode, (node) =>
       codeNodeTransform(node, editor, tokenizer as Tokenizer),
     ),

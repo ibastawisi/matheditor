@@ -137,17 +137,43 @@
 }
 
 .LexicalTheme__code:before {
-  content: attr(data-gutter);
+  content: '';
   position: absolute;
   background-color: #eee;
   left: 0;
   top: 0;
+  bottom: 0;
   border-right: 1px solid #ccc;
   padding: 8px;
   color: #777;
   white-space: pre-wrap;
   text-align: right;
   min-width: 25px;
+  counter-reset: line-number;
+}
+
+.LexicalTheme__code>span:first-child,
+.LexicalTheme__code>br:first-child,
+.LexicalTheme__code>br+span,
+.LexicalTheme__code>br+br {
+  counter-increment: line-number;
+}
+
+.LexicalTheme__code>span:first-child:before,
+.LexicalTheme__code>br+span:before,
+.LexicalTheme__code>br+br:before {
+  color: #777;
+  content: counter(line-number);
+  user-select: none;
+  position: absolute;
+  left: 5px;
+  width: 50px;
+}
+
+.LexicalTheme__code>br+br {
+  display: block;
+  content: counter(line-number);
+  height: 20px;
 }
 
 [theme=dark] .LexicalTheme__code {

@@ -45,7 +45,7 @@ import {
 } from 'lexical';
 import * as Prism from 'prismjs';
 
-import {$createCodeNode} from './CodeNode';
+import { $createCodeNode } from './CodeNode';
 
 export const DEFAULT_CODE_LANGUAGE = 'javascript';
 
