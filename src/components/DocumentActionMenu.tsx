@@ -33,13 +33,14 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
 import HtmlIcon from '@mui/icons-material/Html';
+import CodeIcon from '@mui/icons-material/Code';
 import SvgIcon from '@mui/material/SvgIcon';
 export const MarkdownIcon = () => <SvgIcon viewBox="0 0 640 512" fontSize='small'>
   <path d="M593.8 59.1H46.2C20.7 59.1 0 79.8 0 105.2v301.5c0 25.5 20.7 46.2 46.2 46.2h547.7c25.5 0 46.2-20.7 46.1-46.1V105.2c0-25.4-20.7-46.1-46.2-46.1zM338.5 360.6H277v-120l-61.5 76.9-61.5-76.9v120H92.3V151.4h61.5l61.5 76.9 61.5-76.9h61.5v209.2zm135.3 3.1L381.5 256H443V151.4h61.5V256H566z" />
 </SvgIcon>;
 
 
-export type options = ('rename' | 'download' | 'fork' | 'share' | 'publish' | 'upload' | 'delete' | 'export')[];
+export type options = ('rename' | 'download' | 'fork' | 'share' | 'publish' | 'upload' | 'delete' | 'export' | 'embed')[];
 type DocumentActionMenuProps = {
   document: Omit<EditorDocument, 'data'>;
   variant: 'local' | 'cloud' | 'public' | 'admin';
@@ -77,29 +78,31 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
     if (!user) return dispatch(actions.app.announce({ message: "Please login to use cloud storage" }));
     if (isUpToDate) return dispatch(actions.app.announce({ message: "Document is up to date" }));
     const storedDocument: EditorDocument = await documentDB.getByID(document.id);
-    // const updatedDocument: EditorDocument = {
-    //   ...storedDocument,
-    //   isPublic: cloudDocument?.isPublic
-    // };
     return await dispatch(actions.app.updateDocumentAsync({ id: document.id, partial: storedDocument }));
+  };
+
+  const ensureUpToDate = async () => {
+    if (variant != 'public' && !user) {
+      dispatch(actions.app.announce({ message: "Please login to use cloud storage" }));
+      return false;
+    }
+    if (variant === "local" && !isUploaded) {
+      dispatch(actions.app.announce({ message: "Saving document to the cloud" }));
+      const result = await handleCreate();
+      if (result.type === actions.app.createDocumentAsync.rejected.type) return false;
+    };
+    if (variant === "local" && isUpToDate && !isUpToDate) {
+      dispatch(actions.app.announce({ message: "Updating document in the cloud" }));
+      const result = await handleUpdate();
+      if (result.type === actions.app.updateDocumentAsync.rejected.type) return false;
+    };
+    return true;
   };
 
   const handleShare = async () => {
     closeMenu();
-    if (variant != 'public' && !user) return dispatch(actions.app.announce({ message: "Please login to use cloud storage" }));
-
-    if (variant === "local" && !isUploaded) {
-      dispatch(actions.app.announce({ message: "Saving document to the cloud" }));
-      const result = await handleCreate();
-      if (result.type === actions.app.createDocumentAsync.rejected.type) return;
-    };
-
-    if (variant === "local" && isUpToDate && !isUpToDate) {
-      dispatch(actions.app.announce({ message: "Updating document in the cloud" }));
-      const result = await handleUpdate();
-      if (result.type === actions.app.updateDocumentAsync.rejected.type) return;
-    };
-
+    const result = await ensureUpToDate();
+    if (!result) return;
     const shareData = {
       title: document.name,
       url: window.location.origin + "/view/" + document.id
@@ -110,6 +113,15 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
       navigator.clipboard.writeText(shareData.url);
       dispatch(actions.app.announce({ message: "Link copied to clipboard" }));
     }
+  };
+
+  const handleEmbed = async () => {
+    closeMenu();
+    const result = await ensureUpToDate();
+    if (!result) return;
+    const iframe = `<iframe src="${window.location.origin}/embed/${document.id}" width="100%" height="100%" frameborder="0"></iframe>`;
+    navigator.clipboard.writeText(iframe);
+    dispatch(actions.app.announce({ message: "Embed code copied to clipboard" }));
   };
 
   const handleDelete = async () => {
@@ -343,6 +355,14 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
               </ListItemButton>
             </List>
           </Collapse>
+        }
+        {options.includes('embed') &&
+          <MenuItem onClick={handleEmbed}>
+            <ListItemIcon>
+              <CodeIcon />
+            </ListItemIcon>
+            <ListItemText>Embed</ListItemText>
+          </MenuItem>
         }
         {options.includes('fork') && <MenuItem onClick={handleFork}>
           <ListItemIcon>

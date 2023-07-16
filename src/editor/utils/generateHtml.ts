@@ -10,9 +10,11 @@ export const generateHtml = (data: SerializedEditorState) => new Promise<string>
   editor.setEditorState(editorState);
   editorState.read(() => {
     let html = $generateHtmlFromNodes(editor);
-    const regex = /<p\b[^>]*>(?:(?!<\/p>).)*<div\b[^>]*class="sticky-note-wrapper"[^>]*>(?:(?!<\/div>).)*<\/div>(?:(?!<\/p>).)*<\/p>/g;
-    const matches = html.match(regex);
-    if (!matches) return resolve(html);
+    const stickyRegex = /<p\b[^>]*>(?:(?!<\/p>).)*<div\b[^>]*class="sticky-note-wrapper"[^>]*>(?:(?!<\/div>).)*<\/div>(?:(?!<\/p>).)*<\/p>/gs;
+    const figureRegex = /<p\b[^>]*>(?:(?!<\/p>).)*<figure\b[^>]*>(?:(?!<\/figure>).)*<\/figure>(?:(?!<\/p>).)*<\/p>/gs;
+    const stickies = html.match(stickyRegex) || [];
+    const figures = html.match(figureRegex) || [];
+    const matches = [...stickies, ...figures];
     matches.forEach((match) => html = html.replace(match, match.replace(/^<p/, '<div').replace(/<\/p>$/, '</div>')));
     resolve(html);
   });

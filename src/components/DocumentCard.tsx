@@ -30,12 +30,12 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
   const isPublic = cloudDocument?.isPublic || variant === "public" && document.isPublic;
 
   const options: options = variant === "local" ?
-    ['rename', 'download', 'export', 'upload', 'fork', 'share', 'delete']
+    ['rename', 'download', 'export', 'embed', 'upload', 'fork', 'share', 'delete']
     : variant === "cloud" ?
-      ['rename', 'download', 'fork', 'share', 'publish', 'delete', 'export']
+      ['rename', 'download', 'export', 'embed', 'fork', 'share', 'publish', 'delete']
       : variant === "public" ?
-        ['fork', 'share', 'export']
-        : ['fork', 'share', 'export']
+        ['fork', 'share', 'export', 'embed']
+        : ['fork', 'share', 'export', 'embed']
 
   return (
     <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
