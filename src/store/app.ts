@@ -125,7 +125,7 @@ export const loadAdminAsync = createAsyncThunk('app/loadAdminAsync', async (_, t
   thunkAPI.dispatch(showLoading())
   try {
     const [users, documents] = await Promise.all([getAllUsers(), getAllDocuments()]);
-    const response = { users, documents: documents.map(document => ({ ...document, author: users.find(user => user.id === document.userId) || { name: "Unknown" } as User })) };
+    const response = { users, documents: documents.map(document => ({ ...document, author: users.find(user => user.id === document.authorId) || { name: "Unknown" } as User })) };
     return response
   } catch (error: any) {
     const message = error.response?.data?.error || error.message;

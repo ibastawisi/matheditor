@@ -77,7 +77,7 @@ const NewDocument: React.FC = () => {
     const data = await getData(name);
     const createdAt = new Date().toISOString();
     if (!data) return;
-    const document: EditorDocument = { id: uuidv4(), name, data, createdAt, updatedAt: createdAt };
+    const document: EditorDocument = { id: uuidv4(), name, data, createdAt, updatedAt: createdAt, baseId: params.id };
     documentDB.add(document);
     navigate(`/edit/${document.id}`);
   };

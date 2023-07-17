@@ -35,10 +35,11 @@ export interface EditorDocument {
   createdAt: string;
   updatedAt: string;
   isPublic?: boolean;
+  baseId?: string;
 }
-export type DocumentWithUserId = UserDocument & { userId: string; };
+export type DocumentWithAuthorId = UserDocument & { authorId: string; };
 export type DocumentWithAuthor = UserDocument & { author: User; };
-export type AdminDocument = DocumentWithUserId & DocumentWithAuthor;
+export type AdminDocument = DocumentWithAuthorId & DocumentWithAuthor;
 export interface User {
   id: string;
   name: string;

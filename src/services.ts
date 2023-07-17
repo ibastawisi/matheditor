@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { DocumentWithUserId, EditorDocument, User } from './types';
+import { DocumentWithAuthorId, EditorDocument, User } from './types';
 import { BACKEND_URL } from './config';
 
 const createDocument = async (data: EditorDocument) => {
@@ -38,7 +38,7 @@ const getAllUsers = async () => {
 }
 
 const getAllDocuments = async () => {
-  const response = await axios.get<DocumentWithUserId[]>(BACKEND_URL + '/documents', { withCredentials: true })
+  const response = await axios.get<DocumentWithAuthorId[]>(BACKEND_URL + '/documents', { withCredentials: true })
   return response.data;
 }
 
