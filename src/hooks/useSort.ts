@@ -40,7 +40,7 @@ export function useSort<T>({ data, onSortChange, sortOptions, initialSortKey, in
   useEffect(() => {
     // Create a copy before sorting, as the original array is frozen in strict mode.
     const sortedData = [...data];
-    if (sortedData?.length) {
+    if (sortedData) {
       sortedData.sort(compareObjectsByKey(sortKey, sortDirection === 'asc'));
 
       if (onSortChange) {

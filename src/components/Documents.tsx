@@ -24,6 +24,11 @@ import HelpIcon from '@mui/icons-material/Help';
 import SortControl from "./SortControl";
 import { SortOption } from "../hooks/useSort";
 import Pagination from "@mui/material/Pagination";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ReportIcon from '@mui/icons-material/Report';
 
 const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.app.documents);
@@ -179,7 +184,34 @@ const DocumentsTree: React.FC<{ user: User | null, documents: UserDocument[], lo
     {documents.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
       <DocumentCard document={document} variant={localDocuments.includes(document.id) ? "local" : "cloud"} />
     </Grid>)}
+    {documents.length === 0 && <Grid item xs={12}><LocalDataMissing /></Grid>}
     {!user && <Grid item xs={12}><UserCard /></Grid>}
   </Grid>
 });
+
+const LocalDataMissing: React.FC = () => {
+  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true }} sx={{ my: 2 }}>
+    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+      <ReportIcon sx={{ color: 'error.main', mr: 1 }} />
+      <Typography>Can't find your data?</Typography>
+    </AccordionSummary>
+    <AccordionDetails>
+      <Typography>Due to a recent update, the website domain has been changed, to recover your data, please follow the steps below:</Typography>
+      <br />
+      <Typography variant="subtitle2" gutterBottom>
+        1. <a href="https://matheditor.ml">Visit the old domain</a> and click
+        <Button variant="outlined" startIcon={<StorageIcon />} size="small" sx={{ m: 1 }}>
+          Backup
+        </Button> to download a backup file.
+      </Typography>
+      <Typography variant="subtitle2" gutterBottom>
+        2. <a href="https://matheditor.me">Visit the new domain</a> and click
+        <Button variant="outlined" startIcon={<UploadFileIcon />} size="small" sx={{ m: 1 }}>
+          Import
+        </Button> to import the backup file.
+      </Typography>
+    </AccordionDetails>
+  </Accordion>
+}
+
 export default Documents;
