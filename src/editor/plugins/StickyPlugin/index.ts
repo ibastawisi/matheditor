@@ -1,3 +1,4 @@
+"use client"
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -75,12 +76,12 @@ export default function StickyPlugin(): JSX.Element | null {
   return null;
 }
 
-const TRANSPARENT_STICKY =
-  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-const img = document.createElement('img');
-img.src = TRANSPARENT_STICKY;
-
 function onDragStart(event: DragEvent): boolean {
+  const TRANSPARENT_STICKY =
+    'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+  const img = document.createElement('img');
+  img.src = TRANSPARENT_STICKY;
+
   const node = getStickyNodeInSelection();
   if (!node) {
     return false;

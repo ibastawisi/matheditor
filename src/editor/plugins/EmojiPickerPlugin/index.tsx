@@ -1,3 +1,4 @@
+"use client"
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -97,7 +98,7 @@ export default function EmojiPickerPlugin() {
 
   useEffect(() => {
     // @ts-ignore
-    import('./emoji-list.ts').then((file) => setEmojis(file.default));
+    import('./emoji-list.ts').then((file) => setEmojis(file.default)).catch((e) => console.error(e));
   }, []);
 
   const emojiOptions = useMemo(

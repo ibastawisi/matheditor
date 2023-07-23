@@ -1,3 +1,6 @@
+"use client"
+import { usePathname } from 'next/navigation';
+import RouterLink from 'next/link'
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import useScrollTrigger from '@mui/material/useScrollTrigger';
@@ -12,19 +15,20 @@ import Zoom from '@mui/material/Zoom';
 import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useContext } from 'react';
-import { ColorModeContext } from './ThemeProvider';
+import { ColorModeContext } from '@/theme/ThemeProvider';
 import useTheme from '@mui/material/styles/useTheme';
 import { useSelector } from 'react-redux';
-import { RootState } from '../store';
+import { RootState } from '@/store';
 import Avatar from '@mui/material/Avatar';
-import LoadingBar from 'react-redux-loading-bar';
-import logo from "../assets/logo.svg";
+import logo from "@/public/logo.svg";
+import Image from 'next/image';
+import NextNProgress from 'nextjs-progressbar';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
+  const pathname = usePathname()
   const trigger = useScrollTrigger({
-    disableHysteresis: !!['/edit', '/playground', '/tutorial'].find(path => location.pathname.startsWith(path)),
+    disableHysteresis: !!['/edit', '/playground', '/tutorial'].find(path => pathname.startsWith(path)),
     threshold: 32,
   });
   return (
@@ -61,33 +65,36 @@ function ScrollTop({ children }: { children: React.ReactElement }) {
 }
 
 const TopAppBar: React.FC<{}> = () => {
-  const location = useLocation();
   const colorMode = useContext(ColorModeContext);
   const theme = useTheme();
   const user = useSelector((state: RootState) => state.app.user);
+  const pathname = usePathname()
+  const showPrintButton = !!['/edit', '/view', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
 
-  const showPrintButton = !!['/edit', '/view', '/playground', '/tutorial'].find(path => location.pathname.startsWith(path));
+  const handlePrint = () => {
+    window.print();
+  }
 
   return (
     <>
-      <LoadingBar className='loading-bar' style={{ position: 'fixed' }} />
+      <NextNProgress color="#29D" startPosition={0.3} stopDelayMs={200} height={3} showOnShallow={true} />
       <HideOnScroll>
         <AppBar sx={{ displayPrint: "none", zIndex: 1200 }}>
           <Toolbar sx={{ minHeight: 64 }}>
-            <Link component={RouterLink} to="/">
+            <Link component={RouterLink} href="/">
               <Box sx={{ display: "flex" }}>
-                <img src={logo} alt="Logo" width={32} height={32} />
+                <Image src={logo} alt="Logo" width={32} height={32} />
                 <Typography variant="h6" component="div" sx={{ marginInlineStart: 2, color: "white" }}>Math Editor</Typography>
               </Box>
             </Link>
             <Box sx={{ flexGrow: 1 }} />
-            <IconButton component={RouterLink} to="/dashboard" aria-label="Dashboard">
+            <IconButton component={RouterLink} href="/dashboard" aria-label="Dashboard">
               <Avatar alt={user?.name} src={user?.picture} sx={{ width: 30, height: 30 }} />
             </IconButton>
             <IconButton onClick={colorMode.toggleColorMode} color="inherit" aria-label='Toggle dark mode'>
               {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
             </IconButton>
-            {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={window.print}>
+            {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={handlePrint}>
               <PrintIcon />
             </IconButton>}
           </Toolbar>

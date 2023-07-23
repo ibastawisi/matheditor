@@ -1,20 +1,18 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+"use client"
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { actions } from "../store";
-import { AppDispatch } from "../store";
-import { useParams } from "react-router-dom";
+import { actions } from "@/store";
+import { AppDispatch } from "@/store";
 import Editor from "./Editor";
 
 import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
-import documentDB from "../db";
-import { EditorDocument } from '../types';
+import documentDB from "@/indexeddb";
+import { EditorDocument } from '@/types';
 
-const EditDocument: React.FC = () => {
+const EditDocument: React.FC<{ params: { id?: string } }> = ({ params }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [document, setDocument] = useState<EditorDocument | null>(null);
-  const params = useParams<{ id: string }>();
 
   useEffect(() => {
     const loadDocument = async (id: string) => {

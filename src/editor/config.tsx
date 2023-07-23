@@ -1,3 +1,4 @@
+"use client"
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { TableCellNode, TableNode, TableRowNode } from "./nodes/TableNode";
 import { ListItemNode, ListNode } from "@lexical/list";

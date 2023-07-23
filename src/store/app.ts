@@ -1,8 +1,8 @@
+"use client"
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { showLoading, hideLoading } from 'react-redux-loading-bar';
-import { createDocument, deleteDocument, getAllDocuments, getAllUsers, getAuthenticatedUser, getDocument, logout, updateDocument } from '../services';
-import documentDB from '../db';
-import { AppState, Announcement, Alert, EditorDocument, User } from '../types';
+import { createDocument, deleteDocument, getAllDocuments, getAllUsers, getAuthenticatedUser, getDocument, logout, updateDocument } from '@/service';
+import documentDB from '@/indexeddb';
+import { AppState, Announcement, Alert, EditorDocument, User } from '@/types';
 
 const initialState: AppState = {
   documents: [],
@@ -23,20 +23,17 @@ export const loadAsync = createAsyncThunk('app/loadAsync', async (_, thunkAPI) =
   ]);
 });
 export const loadUserAsync = createAsyncThunk('app/loadUserAsync', async (_, thunkAPI) => {
-  thunkAPI.dispatch(showLoading())
   try {
     const response = await getAuthenticatedUser()
+    if (!response) throw new Error("Failed to load user data");
     return response
   } catch (error: any) {
     const message = error.response?.data?.error || error.message;
     return thunkAPI.rejectWithValue(message);
-  } finally {
-    thunkAPI.dispatch(hideLoading())
   }
 });
 
 export const loadDocumentsAsync = createAsyncThunk('app/loadDocumentsAsync', async (_, thunkAPI) => {
-  thunkAPI.dispatch(showLoading())
   try {
     const documents = await documentDB.getAll();
     const userDocuments = documents.map(document => {
@@ -47,39 +44,30 @@ export const loadDocumentsAsync = createAsyncThunk('app/loadDocumentsAsync', asy
   } catch (error: any) {
     const message = error.response?.data?.error || error.message;
     return thunkAPI.rejectWithValue(message);
-  } finally {
-    thunkAPI.dispatch(hideLoading())
   }
 });
 
 export const logoutAsync = createAsyncThunk('app/logoutAsync', async (_, thunkAPI) => {
   try {
-    thunkAPI.dispatch(showLoading())
     const response = await logout();
     return response;
   } catch (error: any) {
     const message = error.response?.data?.error || error.message;
     return thunkAPI.rejectWithValue(message);
-  } finally {
-    thunkAPI.dispatch(hideLoading())
   }
 });
 
 export const getDocumentAsync = createAsyncThunk('app/getDocumentAsync', async (id: string, thunkAPI) => {
   try {
-    thunkAPI.dispatch(showLoading());
     const response = await getDocument(id);
     return response;
   } catch (error: any) {
     const message: string = error.response?.data?.error || error.message;
     return thunkAPI.rejectWithValue(message);
-  } finally {
-    thunkAPI.dispatch(hideLoading())
   }
 });
 
 export const createDocumentAsync = createAsyncThunk('app/createDocumentAsync', async (document: EditorDocument, thunkAPI) => {
-  thunkAPI.dispatch(showLoading());
   try {
     await createDocument(document);
     const { data, ...userDocument } = document;
@@ -88,13 +76,10 @@ export const createDocumentAsync = createAsyncThunk('app/createDocumentAsync', a
   } catch (error: any) {
     const message: string = error.response?.data?.error || error.message;
     return thunkAPI.rejectWithValue(message);
-  } finally {
-    thunkAPI.dispatch(hideLoading())
   }
 });
 
 export const updateDocumentAsync = createAsyncThunk('app/updateDocumentAsync', async (payloadCreator: { id: string, partial: Partial<EditorDocument> }, thunkAPI) => {
-  thunkAPI.dispatch(showLoading());
   const { id, partial } = payloadCreator;
   try {
     await updateDocument(id, partial);
@@ -103,35 +88,28 @@ export const updateDocumentAsync = createAsyncThunk('app/updateDocumentAsync', a
   } catch (error: any) {
     const message: string = error.response?.data?.error || error.message;
     return thunkAPI.rejectWithValue(message);
-  } finally {
-    thunkAPI.dispatch(hideLoading())
   }
 });
 
 export const deleteDocumentAsync = createAsyncThunk('app/deleteDocumentAsync', async (id: string, thunkAPI) => {
   try {
-    thunkAPI.dispatch(showLoading());
     await deleteDocument(id);
     return id;
   } catch (error: any) {
     const message = error.response?.data?.error || error.message;
     return thunkAPI.rejectWithValue(message);
-  } finally {
-    thunkAPI.dispatch(hideLoading())
   }
 });
 
 export const loadAdminAsync = createAsyncThunk('app/loadAdminAsync', async (_, thunkAPI) => {
-  thunkAPI.dispatch(showLoading())
   try {
     const [users, documents] = await Promise.all([getAllUsers(), getAllDocuments()]);
+    if (!users || !documents) throw new Error("Failed to load admin data");
     const response = { users, documents: documents.map(document => ({ ...document, author: users.find(user => user.id === document.authorId) || { name: "Unknown" } as User })) };
     return response
   } catch (error: any) {
     const message = error.response?.data?.error || error.message;
     return thunkAPI.rejectWithValue(message);
-  } finally {
-    thunkAPI.dispatch(hideLoading())
   }
 });
 
@@ -149,7 +127,7 @@ export const appSlice = createSlice({
           if (!document) {
             documentDB.add(action.payload);
           }
-        });
+        }).catch((e) => console.error(e));
       }
     },
     saveDocument: (state, action: PayloadAction<EditorDocument>) => {

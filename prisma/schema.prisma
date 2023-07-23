@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Document {
+  id        String     @id @default(uuid()) @db.Uuid
+  name      String
+  data      Json
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @default(now()) @map("updated_at")
+  authorId  String     @map("author_id") @db.Uuid
+  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  isPublic  Boolean    @default(false) @map("is_public")
+  baseId    String?    @map("base_id") @db.Uuid
+  base      Document?  @relation("BaseForks", fields: [baseId], references: [id])
+  forks     Document[] @relation("BaseForks")
+
+  @@map("documents")
+}
+
+model User {
+  id        String     @id @default(uuid()) @db.Uuid
+  googleId  String     @map("google_id")
+  name      String
+  email     String
+  picture   String
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @default(now()) @map("updated_at")
+  admin     Boolean    @default(false)
+  disabled  Boolean    @default(false)
+  documents Document[]
+
+  @@map("users")
+}

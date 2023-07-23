@@ -1,4 +1,5 @@
-import type { SerializedEditorState } from './editor/types';
+"use client"
+import type { SerializedEditorState } from 'lexical';
 
 export interface Alert {
   title: string;

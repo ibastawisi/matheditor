@@ -1,3 +1,5 @@
+"use client"
+/* eslint-disable @next/next/no-img-element */
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -40,6 +42,7 @@ import ImageResizer from './ImageResizer';
 import { $isImageNode } from '.';
 import useLexicalEditable from '@lexical/react/useLexicalEditable';
 import Typography from '@mui/material/Typography';
+
 const NestedEditor = lazy(() => import('../../NestedEditor'));
 const NestedViewer = lazy(() => import('../../NestedViewer'));
 
@@ -68,7 +71,7 @@ function LazyImage({
   draggable,
   onLoad,
 }: {
-  altText?: string;
+  altText: string;
   className: string | null;
   height: 'inherit' | number;
   imageRef: { current: null | HTMLImageElement };
@@ -104,7 +107,7 @@ export default function ImageComponent({
   showCaption,
   caption,
 }: {
-  altText?: string;
+  altText: string;
   height: 'inherit' | number;
   nodeKey: NodeKey;
   resizable: boolean;
@@ -183,7 +186,6 @@ export default function ImageComponent({
 
   useEffect(() => {
     onLoad();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSelected, imageRef]);
 
   useEffect(() => {

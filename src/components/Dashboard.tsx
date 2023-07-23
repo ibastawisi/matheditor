@@ -1,23 +1,23 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+"use client"
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useState, useEffect, memo } from "react";
 import { Helmet } from "react-helmet";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../store";
+import { AppDispatch, RootState } from "@/store";
 import UserCard from "./UserCard";
-import { User, UserDocument } from '../types';
-import useLocalStorage from "../hooks/useLocalStorage";
+import { User, UserDocument } from '@/types';
+import useLocalStorage from "@/hooks/useLocalStorage";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
-import { actions } from "../store";
+import { actions } from "@/store";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DocumentCard, { DocumentCardVariant } from "./DocumentCard";
-import { SortOption } from "../hooks/useSort";
+import { SortOption } from "@/hooks/useSort";
 import SortControl from "./SortControl";
 import Pagination from "@mui/material/Pagination";
 

@@ -1,3 +1,5 @@
+"use client"
+import { DOMAttributes } from "react";
 import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, GridSelection, NodeKey, NodeSelection, RangeSelection } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey } from 'lexical';
@@ -6,7 +8,6 @@ import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import { mergeRegister } from '@lexical/utils';
 import { IS_MOBILE } from '../../shared/environment';
 import { MathfieldElement, MathfieldElementAttributes } from "mathlive";
-import { DOMAttributes } from "react";
 import './index.css';
 import { $isMathNode } from '.';
 

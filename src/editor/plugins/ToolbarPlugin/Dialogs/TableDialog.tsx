@@ -1,3 +1,4 @@
+"use client"
 import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
 import { INSERT_TABLE_COMMAND } from '../../../nodes/TableNode';
 import Box from '@mui/material/Box';

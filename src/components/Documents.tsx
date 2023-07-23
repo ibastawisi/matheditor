@@ -1,3 +1,6 @@
+"use client"
+import { useRouter } from 'next/navigation';
+import RouterLink from 'next/link'
 import Box from "@mui/material/Box"
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
@@ -9,13 +12,12 @@ import React, { memo, useEffect, useState } from "react";
 import { actions } from "../store";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import StorageIcon from '@mui/icons-material/Storage';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { EditorDocument, User, UserDocument } from '../types';
+import { EditorDocument, User, UserDocument } from '@/types';
 import { validate } from "uuid";
 import UserCard from "./UserCard";
 import Avatar from "@mui/material/Avatar";
 import PostAddIcon from '@mui/icons-material/PostAdd';
-import documentDB from "../db";
+import documentDB from "../indexeddb";
 import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardHeader from "@mui/material/CardHeader";
@@ -34,7 +36,8 @@ const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.app.documents);
   const user = useSelector((state: RootState) => state.app.user);
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
   const localDocuments = documents.map(d => d.id);
   const cloudDocuments = user?.documents.filter(d => !localDocuments.includes(d.id)) || [];
   const allDocuments = [...documents, ...cloudDocuments];
@@ -140,7 +143,7 @@ const Documents: React.FC = () => {
     <>
       <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5 }}>
         <Avatar sx={{ my: 2, bgcolor: 'primary.main' }}><PostAddIcon /></Avatar>
-        <Button variant="outlined" component={RouterLink} to="/new">New document</Button>
+        <Button variant="outlined" component={RouterLink} href="/new">New document</Button>
       </Box>
       <Box sx={{ my: 3 }}>
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", gap: 1, mb: 1 }}>
@@ -169,14 +172,14 @@ const DocumentsTree: React.FC<{ user: User | null, documents: UserDocument[], lo
   return <Grid container spacing={2}>
     <Grid item xs={6}>
       <Card variant="outlined">
-        <CardActionArea component={RouterLink} to="/playground">
+        <CardActionArea component={RouterLink} href="/playground">
           <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>} />
         </CardActionArea>
       </Card>
     </Grid>
     <Grid item xs={6}>
       <Card variant="outlined">
-        <CardActionArea component={RouterLink} to="/tutorial">
+        <CardActionArea component={RouterLink} href="/tutorial">
           <CardHeader title="Tutorial" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><HelpIcon /></Avatar>} />
         </CardActionArea>
       </Card>
@@ -193,7 +196,7 @@ const LocalDataMissing: React.FC = () => {
   return <Accordion disableGutters TransitionProps={{ mountOnEnter: true }} sx={{ my: 2 }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <ReportIcon sx={{ color: 'error.main', mr: 1 }} />
-      <Typography>Can't find your data?</Typography>
+      <Typography>{"Can't find your data?"}</Typography>
     </AccordionSummary>
     <AccordionDetails>
       <Typography>Due to a recent update, the website domain has been changed, to recover your data, please follow the steps below:</Typography>

@@ -1,3 +1,4 @@
+"use client"
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -6,11 +7,9 @@
  *
  */
 
-// eslint-disable-next-line simple-import-sort/imports
 import type {
   DOMConversionMap,
   DOMConversionOutput,
-  DOMExportOutput,
   EditorConfig,
   LexicalNode,
   NodeKey,

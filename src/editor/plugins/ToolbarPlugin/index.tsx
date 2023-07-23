@@ -1,3 +1,4 @@
+"use client"
 import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, ElementNode, LexicalCommand, LexicalNode, NodeKey, RangeSelection, TextNode, createCommand } from 'lexical';
 import { $isCodeNode, CODE_LANGUAGE_MAP, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from '../../nodes/CodeNode';
 import { $isListNode, ListNode, } from '@lexical/list';

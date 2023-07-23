@@ -1,14 +1,15 @@
+"use client"
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { EditorDocument } from '../types';
-import { AppDispatch, RootState, actions } from '../store';
+import { useRouter } from 'next/navigation';
+import { EditorDocument } from '@/types';
+import { AppDispatch, RootState, actions } from '@/store';
 import { useDispatch, useSelector } from 'react-redux';
 import IconButton from '@mui/material/IconButton';
 import DownloadIcon from '@mui/icons-material/Download';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import ShareIcon from '@mui/icons-material/Share';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
-import documentDB from '../db';
+import documentDB from '@/indexeddb';
 import { useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -64,7 +65,8 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
   const isUpToDate = cloudDocument?.updatedAt === document.updatedAt;
   const isPublic = cloudDocument?.isPublic;
 
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
 
   const handleCreate = async () => {
     closeMenu();

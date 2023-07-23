@@ -1,36 +1,40 @@
+"use client"
+import { useRouter } from 'next/navigation';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import { v4 as uuidv4 } from "uuid";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import TextField from '@mui/material/TextField';
 import ArticleIcon from '@mui/icons-material/Article';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { EditorDocument } from '../types';
+import { EditorDocument } from '@/types';
 import { useDispatch } from "react-redux";
 import { actions } from "../store";
 import { AppDispatch } from "../store";
-import documentDB from "../db";
-import { SerializedEditorState, SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "../editor/types";
+import documentDB from "../indexeddb";
+import { SerializedEditorState, SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "@/editor/types";
 
-const NewDocument: React.FC = () => {
+const NewDocument: React.FC<{ params: { id?: string }, data?: SerializedEditorState }> = ({ params, data }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
-  const params = useParams<{ id: string }>();
-  const location = useLocation();
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
 
   const getData = async (name: string) => {
     if (params.id) {
-      const locationData = (location.state as { data: SerializedEditorState } | null)?.data;
-      if (locationData) return locationData;
-      const localData = await documentDB.getByID(params.id).then(doc => doc?.data);
-      if (localData) return localData;
-      const res = await dispatch(actions.app.getDocumentAsync(params.id));
-      const cloudData = (res.payload as any).data;
-      if (cloudData) return cloudData;
+      try {
+        const locationData = data;
+        if (locationData) return locationData;
+        const localData = await documentDB.getByID(params.id).then(doc => doc?.data);
+        if (localData) return localData;
+        const res = await dispatch(actions.app.getDocumentAsync(params.id));
+        const cloudData = (res.payload as any).data;
+        if (cloudData) return cloudData;
+      } catch (e) {
+        console.error(e);
+      }
     } else {
       const headingText: SerializedTextNode = {
         detail: 0,

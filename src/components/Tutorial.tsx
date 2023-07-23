@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+"use client"
 import Editor from "./Editor";
 import { Helmet } from "react-helmet";
 import useLocalStorage from "../hooks/useLocalStorage";
@@ -18,7 +18,7 @@ import Collapse from "@mui/material/Collapse";
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
-import { tasks, checkpoints } from "..//tutorial";
+import { tasks, checkpoints } from "@//tutorial";
 import Divider from "@mui/material/Divider";
 const Tutorial: React.FC = () => {
   const [editorState, setEditorState] = useState<EditorState>();

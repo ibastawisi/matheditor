@@ -1,3 +1,4 @@
+"use client"
 import type { EditorState, LexicalEditor } from "lexical";
 import { useSharedHistoryContext } from "../context/SharedHistoryContext";
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';

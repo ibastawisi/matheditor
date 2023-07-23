@@ -1,3 +1,4 @@
+"use client"
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -6,7 +7,6 @@
  *
  */
 
-// eslint-disable-next-line simple-import-sort/imports
 import type {
   LexicalCommand,
   LexicalEditor,
@@ -16,6 +16,7 @@ import type {
   LineBreakNode,
   GridSelection,
   NodeKey,
+  ElementNode,
 } from 'lexical';
 
 import * as Prism from 'prismjs';
@@ -365,7 +366,7 @@ function updateAndRetainSelection(
 
   // Calculating previous text offset (all text node prior to anchor + anchor own text offset)
   if (!isNewLineAnchor) {
-    const anchorNode = anchor.getNode();
+    const anchorNode: ElementNode = anchor.getNode();
     textOffset =
       anchorOffset +
       anchorNode.getPreviousSiblings().reduce((offset, _node) => {

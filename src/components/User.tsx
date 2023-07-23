@@ -1,25 +1,24 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+"use client"
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useState, useEffect, memo } from "react";
 import { Helmet } from "react-helmet";
-import { useParams } from 'react-router-dom';
 import UserCard from "./UserCard";
-import { User, UserDocument } from '../types';
-import { getUser } from "../services";
+import { User, UserDocument } from '@/types';
+import { getUser } from "../service";
 import DocumentCard from "./DocumentCard";
 import { SortOption } from "../hooks/useSort";
 import SortControl from "./SortControl";
 import Pagination from "@mui/material/Pagination";
 
-const User: React.FC = () => {
+const User: React.FC<{ params: { id?: string } }> = ({ params }) => {
   const [user, setUser] = useState<User | null>(null);
-  const params = useParams<{ id: string }>();
 
   useEffect(() => {
     const loadUser = async (id: string) => {
       const user = await getUser(id);
+      if (!user) return;
       setUser(user);
     }
     params.id && loadUser(params.id);

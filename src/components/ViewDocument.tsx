@@ -1,22 +1,21 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+"use client"
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { actions } from "../store";
 import { AppDispatch } from "../store";
-import { useParams, Link as RouterLink } from "react-router-dom";
-import Viewer from "../editor/Viewer";
+import RouterLink from 'next/link'
+import Viewer from "@/editor/Viewer";
 import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
-import { EditorDocument } from '../types';
+import { EditorDocument } from '@/types';
 import Fab from "@mui/material/Fab";
 import EditIcon from '@mui/icons-material/Edit';
 import useScrollTrigger from "@mui/material/useScrollTrigger";
 import { Transition } from 'react-transition-group';
-import documentDB from "../db";
+import documentDB from "../indexeddb";
 
-const ViewDocument: React.FC = () => {
+const ViewDocument: React.FC<{ params: { id?: string } }> = ({ params }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const params = useParams<{ id: string }>();
   const [document, setDocument] = useState<EditorDocument | null>(null);
   const slideTrigger = useScrollTrigger({
     disableHysteresis: true,
@@ -47,7 +46,7 @@ const ViewDocument: React.FC = () => {
     <Helmet><title>{document.name}</title></Helmet>
     <Viewer initialConfig={{ editorState: JSON.stringify(document.data) }} />
     <Transition in={slideTrigger} timeout={225}>
-      <Fab variant="extended" size='medium' component={RouterLink} to={`/new/${document.id}`} state={{ data: document.data }}
+      <Fab variant="extended" size='medium' component={RouterLink} href={{ pathname: `/new/${document.id}`, query: { data: JSON.stringify(document.data) } } as any}
         sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 24, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>
         <EditIcon />Fork
       </Fab>

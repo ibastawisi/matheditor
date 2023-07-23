@@ -1,10 +1,11 @@
+"use client"
 import * as React from 'react';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
 import CardActions from '@mui/material/CardActions';
 import Avatar from '@mui/material/Avatar';
-import { Link as RouterLink } from 'react-router-dom';
-import { AdminDocument, EditorDocument, UserDocument } from '../types';
+import RouterLink from 'next/link'
+import { AdminDocument, EditorDocument } from '@/types';
 import ArticleIcon from '@mui/icons-material/Article';
 import { RootState } from '../store';
 import { useSelector } from 'react-redux';
@@ -39,7 +40,7 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
 
   return (
     <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
-      <CardActionArea component={RouterLink} to={`/${variant === 'public' || variant === 'admin' ? 'view' : 'edit'}/${document.id}`} sx={{ flexGrow: 1 }}>
+      <CardActionArea component={RouterLink} href={`/${variant === 'public' || variant === 'admin' ? 'view' : 'edit'}/${document.id}`} sx={{ flexGrow: 1 }}>
         <CardHeader
           title={document.name}
           subheader={

@@ -1,7 +1,8 @@
-import { EditorDocument } from "../types";
-import theme from '../editor/theme.css?inline';
-import stickyStyles from '../editor/nodes/StickyNode/StickyNode.css?inline';
-import { generateHtml } from "../editor/utils/generateHtml";
+"use client"
+import { EditorDocument } from "@/types";
+import theme from '@/editor/theme.css?inline';
+import stickyStyles from '@/editor/nodes/StickyNode/StickyNode.css?inline';
+import { generateHtml } from "@/editor/utils/generateHtml";
 
 export const exportHtml = async (document: EditorDocument) => {
   const body = await generateHtml(document.data);
