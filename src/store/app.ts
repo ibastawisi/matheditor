@@ -6,7 +6,6 @@ import { AppState, Announcement, Alert, EditorDocument, User } from '@/types';
 
 const initialState: AppState = {
   documents: [],
-  user: null,
   ui: {
     isLoading: true,
     isSaving: false,
@@ -164,20 +163,11 @@ export const appSlice = createSlice({
     clearAlert: (state) => {
       state.ui.alerts.shift();
     },
-    setUser: (state, action: PayloadAction<User | null>) => {
-      state.user = action.payload;
-    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(loadAsync.fulfilled, (state, action) => {
         state.ui = { ...initialState.ui, isLoading: false }
-      })
-      .addCase(loadUserAsync.fulfilled, (state, action) => {
-        state.user = action.payload;
-      })
-      .addCase(logoutAsync.fulfilled, (state, action) => {
-        state.user = null;
       })
       .addCase(loadDocumentsAsync.fulfilled, (state, action) => {
         state.documents = action.payload;
@@ -186,31 +176,13 @@ export const appSlice = createSlice({
         const message = action.payload as string;
         state.ui.announcements.push({ message });
       })
-      .addCase(createDocumentAsync.fulfilled, (state, action) => {
-        if (state.user && action.payload) {
-          state.user.documents.unshift(action.payload);
-        }
-      })
       .addCase(createDocumentAsync.rejected, (state, action) => {
         const message = action.payload as string;
         state.ui.announcements.push({ message });
       })
-      .addCase(updateDocumentAsync.fulfilled, (state, action) => {
-        if (state.user && action.payload) {
-          const { id, partial } = action.payload;
-          const oldUserDocument = state.user?.documents.find(d => d.id === id);
-          const { data, ...newUserDocument } = partial;
-          if (oldUserDocument) Object.assign(oldUserDocument, newUserDocument);
-        }
-      })
       .addCase(updateDocumentAsync.rejected, (state, action) => {
         const message = action.payload as string;
         state.ui.announcements.push({ message });
-      })
-      .addCase(deleteDocumentAsync.fulfilled, (state, action) => {
-        if (state.user) {
-          state.user.documents = state.user.documents.filter(doc => doc.id !== action.payload);
-        }
       })
       .addCase(deleteDocumentAsync.rejected, (state, action) => {
         const message = action.payload as string;

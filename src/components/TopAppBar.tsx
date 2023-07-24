@@ -24,6 +24,8 @@ import Avatar from '@mui/material/Avatar';
 import logo from "@/public/logo.svg";
 import Image from 'next/image';
 import NextNProgress from 'nextjs-progressbar';
+import { useSession } from 'next-auth/react';
+import { User } from '@/types';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname()
@@ -67,7 +69,8 @@ function ScrollTop({ children }: { children: React.ReactElement }) {
 const TopAppBar: React.FC<{}> = () => {
   const colorMode = useContext(ColorModeContext);
   const theme = useTheme();
-  const user = useSelector((state: RootState) => state.app.user);
+  const { data: session, status } = useSession();
+  const user = session?.user as User | null;
   const pathname = usePathname()
   const showPrintButton = !!['/edit', '/view', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
 
@@ -89,7 +92,7 @@ const TopAppBar: React.FC<{}> = () => {
             </Link>
             <Box sx={{ flexGrow: 1 }} />
             <IconButton component={RouterLink} href="/dashboard" aria-label="Dashboard">
-              <Avatar alt={user?.name} src={user?.picture} sx={{ width: 30, height: 30 }} />
+              <Avatar alt={user?.name} src={user?.image ?? undefined} sx={{ width: 30, height: 30 }} />
             </IconButton>
             <IconButton onClick={colorMode.toggleColorMode} color="inherit" aria-label='Toggle dark mode'>
               {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}

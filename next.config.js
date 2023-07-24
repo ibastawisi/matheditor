@@ -16,7 +16,6 @@ const config = {
     })
     return config
   },
-  distDir: 'dist',
 }
 
 module.exports = withBundleAnalyzer(config);

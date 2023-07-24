@@ -31,13 +31,16 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ReportIcon from '@mui/icons-material/Report';
+import { useSession } from 'next-auth/react';
 
 const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.app.documents);
-  const user = useSelector((state: RootState) => state.app.user);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
+  const { data: session, status } = useSession();
+  const user = session?.user as User | null;
+
   const localDocuments = documents.map(d => d.id);
   const cloudDocuments = user?.documents.filter(d => !localDocuments.includes(d.id)) || [];
   const allDocuments = [...documents, ...cloudDocuments];
@@ -161,14 +164,15 @@ const Documents: React.FC = () => {
             </Box>
           </Box>
         </Box>
-        <DocumentsTree user={user} documents={sortedDocuments.slice((page - 1) * 12, page * 12)} localDocuments={localDocuments} />
+        <DocumentsTree documents={sortedDocuments.slice((page - 1) * 12, page * 12)} localDocuments={localDocuments} />
+        {!user && <Grid item xs={12}><UserCard status={status} /></Grid>}
         {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}
       </Box>
     </>
   )
 }
 
-const DocumentsTree: React.FC<{ user: User | null, documents: UserDocument[], localDocuments: string[] }> = memo(({ user, documents, localDocuments }) => {
+const DocumentsTree: React.FC<{ documents: UserDocument[], localDocuments: string[] }> = memo(({ documents, localDocuments }) => {
   return <Grid container spacing={2}>
     <Grid item xs={6}>
       <Card variant="outlined">
@@ -188,7 +192,6 @@ const DocumentsTree: React.FC<{ user: User | null, documents: UserDocument[], lo
       <DocumentCard document={document} variant={localDocuments.includes(document.id) ? "local" : "cloud"} />
     </Grid>)}
     {documents.length === 0 && <Grid item xs={12}><LocalDataMissing /></Grid>}
-    {!user && <Grid item xs={12}><UserCard /></Grid>}
   </Grid>
 });
 

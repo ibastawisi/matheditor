@@ -5,7 +5,7 @@ import CardHeader from '@mui/material/CardHeader';
 import CardActions from '@mui/material/CardActions';
 import Avatar from '@mui/material/Avatar';
 import RouterLink from 'next/link'
-import { AdminDocument, EditorDocument } from '@/types';
+import { AdminDocument, EditorDocument, User } from '@/types';
 import ArticleIcon from '@mui/icons-material/Article';
 import { RootState } from '../store';
 import { useSelector } from 'react-redux';
@@ -20,15 +20,17 @@ import CloudIcon from '@mui/icons-material/Cloud';
 import DocumentActionMenu, { options } from './DocumentActionMenu';
 import Typography from '@mui/material/Typography';
 import { memo } from 'react';
+import { useSession } from 'next-auth/react';
 
 export type DocumentCardVariant = 'local' | 'cloud' | 'public' | 'admin';
 
 const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: DocumentCardVariant }> = memo(({ document, variant }) => {
-  const user = useSelector((state: RootState) => state.app.user);
+  const { data: session } = useSession();
+  const user = session?.user as User | null;
   const cloudDocument = user?.documents?.find(d => d.id === document.id);
   const isUploaded = !!cloudDocument || variant === "public" || variant === "admin";
   const isUpToDate = cloudDocument?.updatedAt === document.updatedAt;
-  const isPublic = cloudDocument?.isPublic || variant === "public" && document.isPublic;
+  const published = cloudDocument?.published || variant === "public" && document.published;
 
   const options: options = variant === "local" ?
     ['rename', 'download', 'export', 'embed', 'upload', 'fork', 'share', 'delete']
@@ -68,8 +70,8 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
           label={variant === "local" ? "Local" : "Cloud"}
         />
         {isUploaded && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }}
-          icon={isPublic ? <PublicIcon /> : <LinkIcon />}
-          label={isPublic ? "Public" : "Shared"}
+          icon={published ? <PublicIcon /> : <LinkIcon />}
+          label={published ? "Public" : "Shared"}
         />}
         {isUploaded && variant === "local" && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={isUpToDate ? <CloudDoneIcon /> : <CloudSyncIcon />} label={isUpToDate ? "Up to date" : "Out of Sync"} />}
         <DocumentActionMenu document={document} variant={variant} options={options} />

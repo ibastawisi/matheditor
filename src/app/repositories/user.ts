@@ -1,4 +1,4 @@
-import { Prisma, prisma } from "@/app/prisma";
+import { Prisma, prisma } from "@/lib/prisma";
 
 const findAllUsers = async () => {
   return prisma.user.findMany({
@@ -9,7 +9,7 @@ const findAllUsers = async () => {
           name: true,
           createdAt: true,
           updatedAt: true,
-          isPublic: true,
+          published: true,
         },
         orderBy: {
           updatedAt: 'desc'
@@ -29,10 +29,10 @@ const findUserById = async (id: string) => {
       id: true,
       name: true,
       email: true,
-      picture: true,
+      image: true,
       createdAt: true,
       updatedAt: true,
-      admin: true,
+      role: true,
       disabled: true,
       documents: {
         select: {
@@ -40,7 +40,7 @@ const findUserById = async (id: string) => {
           name: true,
           createdAt: true,
           updatedAt: true,
-          isPublic: true,
+          published: true,
         },
         orderBy: {
           updatedAt: 'desc'
@@ -57,21 +57,21 @@ const findPublicUserById = async (id: string) => {
       id: true,
       name: true,
       email: true,
-      picture: true,
+      image: true,
       createdAt: true,
       updatedAt: true,
-      admin: true,
+      role: true,
       disabled: true,
       documents: {
         where: {
-          isPublic: true
+          published: true
         },
         select: {
           id: true,
           name: true,
           createdAt: true,
           updatedAt: true,
-          isPublic: true,
+          published: true,
         },
         orderBy: {
           updatedAt: 'desc'
@@ -81,14 +81,15 @@ const findPublicUserById = async (id: string) => {
   });
 }
 
-const findUserByGoogleId = async (googleId: string) => {
+const findUserByEmail = async (email: string) => {
   return prisma.user.findFirst({
-    where: { googleId },
+    where: { email },
     select: {
       id: true,
       name: true,
       email: true,
-      picture: true,
+      image: true,
+      role: true,
       createdAt: true,
       updatedAt: true,
       documents: {
@@ -97,7 +98,7 @@ const findUserByGoogleId = async (googleId: string) => {
           name: true,
           createdAt: true,
           updatedAt: true,
-          isPublic: true,
+          published: true,
         },
         orderBy: {
           updatedAt: 'desc'
@@ -105,6 +106,37 @@ const findUserByGoogleId = async (googleId: string) => {
       }
     }
   });
+}
+
+const findUserBySessionId = async (sessionId: string) => {
+  const session = await prisma.session.findUnique({
+    where: { id: sessionId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+          createdAt: true,
+          updatedAt: true,
+          documents: {
+            select: {
+              id: true,
+              name: true,
+              createdAt: true,
+              updatedAt: true,
+              published: true,
+            },
+            orderBy: {
+              updatedAt: 'desc'
+            }
+          }
+        }
+      }
+    }
+  });
+  return session?.user;
 }
 
 const createUser = async (data: Prisma.UserCreateInput) => {
@@ -124,39 +156,6 @@ const deleteUser = async (id: string) => {
   });
 }
 
-const getUsersCount = async () => {
-  return prisma.user.count();
-}
-
-const getLatestUsers = async () => {
-  return prisma.user.findMany({
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      picture: true,
-      createdAt: true,
-      updatedAt: true,
-      documents: {
-        select: {
-          id: true,
-          name: true,
-          createdAt: true,
-          updatedAt: true,
-          isPublic: true,
-        },
-        orderBy: {
-          updatedAt: 'desc'
-        }
-      }
-    },
-    orderBy: {
-      updatedAt: 'desc'
-    },
-    take: 5
-  });
-}
-
 const findUserMetadata = async (id: string) => {
   return prisma.user.findUnique({
     where: { id },
@@ -164,10 +163,10 @@ const findUserMetadata = async (id: string) => {
       id: true,
       name: true,
       email: true,
-      picture: true,
+      image: true,
       createdAt: true,
     }
   });
 }
 
-export { findAllUsers, findUserById, findUserByGoogleId, createUser, updateUser, deleteUser, getUsersCount, getLatestUsers, findPublicUserById, findUserMetadata };
+export { findAllUsers, findUserById, findUserByEmail, findUserBySessionId, createUser, updateUser, deleteUser, findPublicUserById, findUserMetadata };

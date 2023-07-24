@@ -16,7 +16,6 @@ export interface Announcement {
 }
 export interface AppState {
   documents: UserDocument[];
-  user: User | null;
   ui: {
     isLoading: boolean;
     isSaving: boolean;
@@ -35,7 +34,7 @@ export interface EditorDocument {
   data: SerializedEditorState;
   createdAt: string;
   updatedAt: string;
-  isPublic?: boolean;
+  published?: boolean;
   baseId?: string;
 }
 export type DocumentWithAuthorId = UserDocument & { authorId: string; };
@@ -45,8 +44,8 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  picture: string;
-  admin: boolean;
+  image: string | null;
+  role: "user" | "superuser" | "admin";
   createdAt: string;
   updatedAt: string;
   documents: UserDocument[];

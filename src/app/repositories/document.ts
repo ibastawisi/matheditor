@@ -1,4 +1,4 @@
-import { Prisma, prisma } from "@/app/prisma";
+import { Prisma, prisma } from "@/lib/prisma";
 
 const findAllDocuments = async () => {
   return prisma.document.findMany({
@@ -8,7 +8,7 @@ const findAllDocuments = async () => {
       createdAt: true,
       updatedAt: true,
       authorId: true,
-      isPublic: true,
+      published: true,
     },
     orderBy: {
       updatedAt: 'desc'
@@ -50,7 +50,7 @@ const findDocumentMetadata = async (id: string) => {
       author: {
         select: {
           name: true,
-          picture: true,
+          image: true,
           email: true,
         }
       }
@@ -75,24 +75,4 @@ const deleteDocument = async (id: string) => {
   });
 }
 
-const getDocumentsCount = async () => {
-  return prisma.document.count();
-}
-
-const getLatestDocuments = async () => {
-  return prisma.document.findMany({
-    select: {
-      id: true,
-      name: true,
-      createdAt: true,
-      updatedAt: true,
-      authorId: true,
-    },
-    orderBy: {
-      updatedAt: 'desc'
-    },
-    take: 5
-  });
-}
-
-export { findAllDocuments, findDocumentById, findDocumentAuthorId, findDocumentMetadata, createDocument, updateDocument, deleteDocument, getDocumentsCount, getLatestDocuments };
+export { findAllDocuments, findDocumentById, findDocumentAuthorId, findDocumentMetadata, createDocument, updateDocument, deleteDocument };
