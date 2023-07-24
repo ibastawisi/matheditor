@@ -7,8 +7,19 @@ const findAllDocuments = async () => {
       name: true,
       createdAt: true,
       updatedAt: true,
-      authorId: true,
+      author: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          email: true,
+          createdAt: true,
+          updatedAt: true,
+          role: true,
+        }
+      },
       published: true,
+      baseId: true,
     },
     orderBy: {
       updatedAt: 'desc'
@@ -25,6 +36,7 @@ const findDocumentById = async (id: string) => {
       createdAt: true,
       updatedAt: true,
       data: true,
+      baseId: true,
     }
   });
 }

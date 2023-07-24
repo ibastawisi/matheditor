@@ -1,19 +1,14 @@
 "use client"
-import { appSlice, deleteDocumentAsync, getDocumentAsync, loadUserAsync, loadDocumentsAsync, logoutAsync, createDocumentAsync, loadAdminAsync, updateDocumentAsync, loadAsync } from "./app";
+import { appSlice, deleteDocumentAsync, getDocumentAsync,  createDocumentAsync, updateDocumentAsync } from "./app";
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
 export const actions = {
   app: {
     ...appSlice.actions,
-    loadAsync,
-    loadUserAsync,
-    loadDocumentsAsync,
-    logoutAsync,
     getDocumentAsync,
     createDocumentAsync,
     updateDocumentAsync,
     deleteDocumentAsync,
-    loadAdminAsync,
   },
 };
 

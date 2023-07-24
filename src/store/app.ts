@@ -1,8 +1,8 @@
 "use client"
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { createDocument, deleteDocument, getAllDocuments, getAllUsers, getAuthenticatedUser, getDocument, logout, updateDocument } from '@/service';
+import { createDocument, deleteDocument, getDocument, updateDocument } from '@/service';
 import documentDB from '@/indexeddb';
-import { AppState, Announcement, Alert, EditorDocument, User } from '@/types';
+import { AppState, Announcement, Alert, EditorDocument } from '@/types';
 
 const initialState: AppState = {
   documents: [],
@@ -12,49 +12,7 @@ const initialState: AppState = {
     announcements: [],
     alerts: [],
   },
-  admin: null,
 };
-
-export const loadAsync = createAsyncThunk('app/loadAsync', async (_, thunkAPI) => {
-  Promise.allSettled([
-    thunkAPI.dispatch(loadDocumentsAsync()),
-    thunkAPI.dispatch(loadUserAsync()),
-  ]);
-});
-export const loadUserAsync = createAsyncThunk('app/loadUserAsync', async (_, thunkAPI) => {
-  try {
-    const response = await getAuthenticatedUser()
-    if (!response) throw new Error("Failed to load user data");
-    return response
-  } catch (error: any) {
-    const message = error.response?.data?.error || error.message;
-    return thunkAPI.rejectWithValue(message);
-  }
-});
-
-export const loadDocumentsAsync = createAsyncThunk('app/loadDocumentsAsync', async (_, thunkAPI) => {
-  try {
-    const documents = await documentDB.getAll();
-    const userDocuments = documents.map(document => {
-      const { data, ...userDocument } = document;
-      return userDocument;
-    }).sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
-    return userDocuments;
-  } catch (error: any) {
-    const message = error.response?.data?.error || error.message;
-    return thunkAPI.rejectWithValue(message);
-  }
-});
-
-export const logoutAsync = createAsyncThunk('app/logoutAsync', async (_, thunkAPI) => {
-  try {
-    const response = await logout();
-    return response;
-  } catch (error: any) {
-    const message = error.response?.data?.error || error.message;
-    return thunkAPI.rejectWithValue(message);
-  }
-});
 
 export const getDocumentAsync = createAsyncThunk('app/getDocumentAsync', async (id: string, thunkAPI) => {
   try {
@@ -94,18 +52,6 @@ export const deleteDocumentAsync = createAsyncThunk('app/deleteDocumentAsync', a
   try {
     await deleteDocument(id);
     return id;
-  } catch (error: any) {
-    const message = error.response?.data?.error || error.message;
-    return thunkAPI.rejectWithValue(message);
-  }
-});
-
-export const loadAdminAsync = createAsyncThunk('app/loadAdminAsync', async (_, thunkAPI) => {
-  try {
-    const [users, documents] = await Promise.all([getAllUsers(), getAllDocuments()]);
-    if (!users || !documents) throw new Error("Failed to load admin data");
-    const response = { users, documents: documents.map(document => ({ ...document, author: users.find(user => user.id === document.authorId) || { name: "Unknown" } as User })) };
-    return response
   } catch (error: any) {
     const message = error.response?.data?.error || error.message;
     return thunkAPI.rejectWithValue(message);
@@ -166,12 +112,6 @@ export const appSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loadAsync.fulfilled, (state, action) => {
-        state.ui = { ...initialState.ui, isLoading: false }
-      })
-      .addCase(loadDocumentsAsync.fulfilled, (state, action) => {
-        state.documents = action.payload;
-      })
       .addCase(getDocumentAsync.rejected, (state, action) => {
         const message = action.payload as string;
         state.ui.announcements.push({ message });
@@ -187,9 +127,6 @@ export const appSlice = createSlice({
       .addCase(deleteDocumentAsync.rejected, (state, action) => {
         const message = action.payload as string;
         state.ui.announcements.push({ message });
-      })
-      .addCase(loadAdminAsync.fulfilled, (state, action) => {
-        state.admin = action.payload;
       })
   }
 });

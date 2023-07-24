@@ -1,4 +1,3 @@
-"use client"
 export default function Privacy() {
   return (
     <div>
@@ -23,12 +22,12 @@ export default function Privacy() {
         We do not collect information from our users if they choose not to use the cloud storage feature.
         <br />
         Otherwise, upon login we collect the following personal information:
-        <ul>
-          <li>Username</li>
-          <li>Email</li>
-          <li>Profile picture</li>
-        </ul>
       </p>
+      <ul>
+        <li>Username</li>
+        <li>Email</li>
+        <li>Profile picture</li>
+      </ul>
       <p>
         <strong>{"Do we use 'cookies'?"}</strong>
       </p>

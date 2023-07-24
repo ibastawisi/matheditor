@@ -10,6 +10,7 @@ const findAllUsers = async () => {
           createdAt: true,
           updatedAt: true,
           published: true,
+          baseId: true,
         },
         orderBy: {
           updatedAt: 'desc'

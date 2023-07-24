@@ -14,6 +14,11 @@ export interface Announcement {
   };
   timeout?: number;
 }
+export interface Admin {
+  users: User[];
+  documents: AdminDocument[];
+}
+
 export interface AppState {
   documents: UserDocument[];
   ui: {
@@ -22,10 +27,6 @@ export interface AppState {
     announcements: Announcement[];
     alerts: Alert[];
   };
-  admin: {
-    users: User[];
-    documents: AdminDocument[];
-  } | null;
 }
 
 export interface EditorDocument {
@@ -37,18 +38,22 @@ export interface EditorDocument {
   published?: boolean;
   baseId?: string;
 }
-export type DocumentWithAuthorId = UserDocument & { authorId: string; };
-export type DocumentWithAuthor = UserDocument & { author: User; };
-export type AdminDocument = DocumentWithAuthorId & DocumentWithAuthor;
+
+export type UserDocument = Omit<EditorDocument, "data">;
+export type AdminDocument = UserDocument & { author: Omit<User, "documents"> };
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  image: string | null;
+  image: string;
   role: "user" | "superuser" | "admin";
   createdAt: string;
   updatedAt: string;
   documents: UserDocument[];
 }
 
-export type UserDocument = Omit<EditorDocument, "data">;
+export interface Admin {
+  users: User[];
+  documents: AdminDocument[];
+}

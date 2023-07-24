@@ -18,12 +18,9 @@ import Typography from '@mui/material/Typography';
 import { useContext } from 'react';
 import { ColorModeContext } from '@/theme/ThemeProvider';
 import useTheme from '@mui/material/styles/useTheme';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
 import Avatar from '@mui/material/Avatar';
 import logo from "@/public/logo.svg";
 import Image from 'next/image';
-import NextNProgress from 'nextjs-progressbar';
 import { useSession } from 'next-auth/react';
 import { User } from '@/types';
 
@@ -80,13 +77,12 @@ const TopAppBar: React.FC<{}> = () => {
 
   return (
     <>
-      <NextNProgress color="#29D" startPosition={0.3} stopDelayMs={200} height={3} showOnShallow={true} />
       <HideOnScroll>
         <AppBar sx={{ displayPrint: "none", zIndex: 1200 }}>
           <Toolbar sx={{ minHeight: 64 }}>
             <Link component={RouterLink} href="/">
               <Box sx={{ display: "flex" }}>
-                <Image src={logo} alt="Logo" width={32} height={32} />
+                <Image src={logo} alt="Logo" width={32} height={32} priority />
                 <Typography variant="h6" component="div" sx={{ marginInlineStart: 2, color: "white" }}>Math Editor</Typography>
               </Box>
             </Link>

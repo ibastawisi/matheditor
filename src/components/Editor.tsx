@@ -1,5 +1,5 @@
 "use client"
-import React from 'react';
+import React, { Suspense } from 'react';
 import { memo } from 'react';
 import { useDispatch } from "react-redux";
 import { validate } from 'uuid';
@@ -8,8 +8,11 @@ import isEqual from 'fast-deep-equal'
 import useLocalStorage from '../hooks/useLocalStorage';
 import { AppDispatch, actions } from '../store';
 import { EditorDocument } from '@/types';
-import Editor from "@/editor/Editor";
 import type { EditorState } from '@/editor/types';
+import dynamic from "next/dynamic";
+import SplashScreen from './SplashScreen';
+
+const Editor = dynamic(() => import("@/editor/Editor"), { ssr: false, loading: () => <SplashScreen title="Loading Editor" /> });
 
 const Container: React.FC<{ document: EditorDocument, editable: boolean, onChange?: (editorState: EditorState) => void }> = ({ document, editable, onChange }) => {
   const [appConfig] = useLocalStorage('config', { debug: false });

@@ -4,14 +4,11 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useState, useEffect, memo } from "react";
 import { Helmet } from "react-helmet";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store";
 import UserCard from "./UserCard";
-import { User, UserDocument } from '@/types';
+import { Admin, User, UserDocument } from '@/types';
 import useLocalStorage from "@/hooks/useLocalStorage";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
-import { actions } from "@/store";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -21,26 +18,27 @@ import { SortOption } from "@/hooks/useSort";
 import SortControl from "./SortControl";
 import Pagination from "@mui/material/Pagination";
 import { useSession } from "next-auth/react";
+import documentDB from "@/indexeddb";
 
-const Dashboard: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const documents = useSelector((state: RootState) => state.app.documents);
-  const admin = useSelector((state: RootState) => state.app.admin);
-  const [config, setConfig] = useLocalStorage('config', { debug: false });
-  const { data: session, status } = useSession();
-  const user = session?.user as User | null;
+const Dashboard: React.FC<{ user?: User, admin?: Admin }> = ({ user, admin }) => {
+  const [documents, setDocuments] = useState<UserDocument[]>([]);
+  const { status } = useSession();
 
   useEffect(() => {
-    if (user?.role !== "admin") return;
-    !admin && dispatch(actions.app.loadAdminAsync());
-  }, [user]);
+    const loadLocalDocuments = async () => {
+      const documents = await documentDB.getAll();
+      const userDocuments = documents.map(document => {
+        const { data, ...userDocument } = document;
+        return userDocument;
+      }).sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
+      setDocuments(userDocuments);
+    }
+    loadLocalDocuments();
+  }, []);
 
   return <Box>
     <Helmet><title>Dashboard</title></Helmet>
     <UserCard user={user} status={status} />
-    <Box sx={{ mt: 2 }}>
-      <FormControlLabel control={<Switch checked={config.debug} onChange={e => setConfig({ ...config, debug: e.target.checked })} />} label="Show Editor Debug View" />
-    </Box>
     <Box sx={{ my: 2 }}>
       <DocumentsGrid documents={documents} title="Local Documents" variant="local" />
       {user && <DocumentsGrid documents={user.documents} title="Cloud Documents" variant="cloud" />}
@@ -66,7 +64,7 @@ const UserGrid: React.FC<{ users: User[] }> = memo(({ users }) => {
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
 
-  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true }} sx={{ my: 2 }}>
+  return <Accordion disableGutters sx={{ my: 2 }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <Typography>Users</Typography>
       <Typography sx={{ color: 'text.secondary', mx: 1 }}>({users.length})</Typography>
@@ -94,7 +92,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string, varian
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
 
-  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true }} sx={{ my: 2 }}>
+  return <Accordion disableGutters sx={{ my: 2 }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <Typography>{title}</Typography>
       <Typography sx={{ color: 'text.secondary', mx: 1 }}>({documents.length})</Typography>

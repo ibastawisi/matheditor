@@ -1,10 +1,6 @@
 "use client"
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { actions } from "../store";
-import { AppDispatch } from "../store";
 import RouterLink from 'next/link'
-import Viewer from "@/editor/Viewer";
 import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
 import { EditorDocument } from '@/types';
@@ -13,9 +9,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import useScrollTrigger from "@mui/material/useScrollTrigger";
 import { Transition } from 'react-transition-group';
 import documentDB from "../indexeddb";
+import dynamic from "next/dynamic";
 
-const ViewDocument: React.FC<{ params: { id?: string } }> = ({ params }) => {
-  const dispatch = useDispatch<AppDispatch>();
+const Viewer = dynamic(() => import("@/editor/Viewer"), { ssr: false, loading: () => <SplashScreen title="Loading Viewer" /> });
+
+const ViewDocument: React.FC<{ params: { id?: string }, cloudDocument?: EditorDocument }> = ({ params, cloudDocument }) => {
   const [document, setDocument] = useState<EditorDocument | null>(null);
   const slideTrigger = useScrollTrigger({
     disableHysteresis: true,
@@ -24,15 +22,11 @@ const ViewDocument: React.FC<{ params: { id?: string } }> = ({ params }) => {
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
-      // load from local storage
       const storedDocument = await documentDB.getByID(id);
       if (storedDocument) {
         setDocument(storedDocument);
-      } else {
-        // load from server
-        const response = await dispatch(actions.app.getDocumentAsync(id));
-        const { payload, error } = response as any;
-        if (!error) setDocument(payload);
+      } else if (cloudDocument) {
+        setDocument(cloudDocument);
       }
     }
     params.id && loadDocument(params.id);

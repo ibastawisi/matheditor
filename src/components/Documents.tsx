@@ -4,8 +4,8 @@ import RouterLink from 'next/link'
 import Box from "@mui/material/Box"
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../store";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../store";
 import DocumentCard from "./DocumentCard";
 import Button from "@mui/material/Button";
 import React, { memo, useEffect, useState } from "react";
@@ -34,7 +34,7 @@ import ReportIcon from '@mui/icons-material/Report';
 import { useSession } from 'next-auth/react';
 
 const Documents: React.FC = () => {
-  const documents = useSelector((state: RootState) => state.app.documents);
+  const [documents, setDocuments] = useState<UserDocument[]>([]);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
@@ -56,6 +56,18 @@ const Documents: React.FC = () => {
   const handlePageChange = (_: any, value: number) => setPage(value);
 
   useEffect(() => {
+    const loadLocalDocuments = async () => {
+      const documents = await documentDB.getAll();
+      const userDocuments = documents.map(document => {
+        const { data, ...userDocument } = document;
+        return userDocument;
+      }).sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
+      setDocuments(userDocuments);
+    }
+    loadLocalDocuments();
+  }, []);
+
+  useEffect(() => {
     if ("launchQueue" in window && "LaunchParams" in window) {
       (window as any).launchQueue.setConsumer(
         async (launchParams: { files: FileSystemFileHandle[] }) => {
@@ -74,7 +86,6 @@ const Documents: React.FC = () => {
       await loadFromFile(files[0]);
     } else {
       Array.from(files).forEach(async file => await loadFromFile(file));
-      dispatch(actions.app.loadDocumentsAsync());
     }
   }
 
