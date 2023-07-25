@@ -11,6 +11,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import { $getSelection } from 'lexical';
 import { SET_DIALOGS_COMMAND } from '..';
+import Script from 'next/script';
 
 function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: GraphNode | null; open: boolean; }) {
   const [loading, setLoading] = useState(true);
@@ -18,7 +19,6 @@ function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: Grap
 
   const parameters = {
     key,
-    showLogging: false,
     showToolBar: true,
     borderColor: null,
     showMenuBar: true,
@@ -109,16 +109,23 @@ function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: Grap
 const GeogebraApplet = memo(({ parameters }: { parameters: any }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  const injectContainer = () => {
     const applet = new (window as any).GGBApplet(parameters, '5.0');
     applet.setHTML5Codebase('/geogebra/HTML5/5.0/web3d/');
     applet.inject(containerRef.current);
-    const resizeHandler = () => (window as any).ggbApplet.setSize(window.innerWidth, window.innerHeight - 52.5);
+  }
+
+  const resizeHandler = () => (window as any).ggbApplet?.setSize(window.innerWidth, window.innerHeight - 52.5);
+
+  useEffect(() => {
     window.addEventListener('resize', resizeHandler);
     return () => window.removeEventListener('resize', resizeHandler);
-  }, [parameters]);
+  }, []);
 
-  return <div ref={containerRef} />;
+  return <>
+    <div ref={containerRef} />
+    <Script src="/geogebra/deployggb.js" onReady={injectContainer} />
+  </>;
 }, (prevProps, nextProps) => prevProps.parameters.key === nextProps.parameters.key);
 
 export default memo(GraphDialog);

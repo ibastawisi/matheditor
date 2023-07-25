@@ -1,4 +1,3 @@
-"use client"
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -29,7 +28,7 @@ import {
 import { DecoratorNode } from 'lexical';
 import { Suspense, lazy } from 'react';
 import { editorConfig } from './config';
-import { $generateHtmlFromNodes } from '@lexical/html';
+import { $generateHtmlFromNodes } from '@/editor/utils/html';
 
 const ImageComponent = lazy(() => import('./ImageComponent'));
 

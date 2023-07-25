@@ -1,4 +1,3 @@
-"use client"
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -22,7 +21,7 @@ import { $createNodeSelection, $setSelection, DecoratorNode, createEditor } from
 import * as React from 'react';
 import { Suspense } from 'react';
 import { editorConfig } from './config';
-import { $generateHtmlFromNodes } from '@lexical/html';
+import { $generateHtmlFromNodes } from '@/editor/utils/html';
 
 const StickyComponent = React.lazy(() => import('./StickyComponent'));
 

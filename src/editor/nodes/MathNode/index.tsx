@@ -1,4 +1,3 @@
-"use client"
 import { $createNodeSelection, $setSelection, DOMExportOutput, LexicalNode, NodeKey, SerializedLexicalNode, Spread, } from 'lexical';
 import { DecoratorNode, } from 'lexical';
 import { createRef } from 'react';

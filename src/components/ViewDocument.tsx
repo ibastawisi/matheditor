@@ -8,23 +8,25 @@ import Fab from "@mui/material/Fab";
 import EditIcon from '@mui/icons-material/Edit';
 import useScrollTrigger from "@mui/material/useScrollTrigger";
 import { Transition } from 'react-transition-group';
-import documentDB from "../indexeddb";
 import dynamic from "next/dynamic";
+import useIndexedDBStore from "@/hooks/useIndexedDB";
 
 const Viewer = dynamic(() => import("@/editor/Viewer"), { ssr: false, loading: () => <SplashScreen title="Loading Viewer" /> });
 
 const ViewDocument: React.FC<{ params: { id?: string }, cloudDocument?: EditorDocument }> = ({ params, cloudDocument }) => {
-  const [document, setDocument] = useState<EditorDocument | null>(null);
+  const [document, setDocument] = useState(cloudDocument);
   const slideTrigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 100,
   });
 
+  const documentDB = useIndexedDBStore<EditorDocument>('documents');
+
   useEffect(() => {
     const loadDocument = async (id: string) => {
-      const storedDocument = await documentDB.getByID(id);
-      if (storedDocument) {
-        setDocument(storedDocument);
+      const localDocument = await documentDB.getByID(id);
+      if (localDocument) {
+        setDocument(localDocument);
       } else if (cloudDocument) {
         setDocument(cloudDocument);
       }
@@ -37,7 +39,7 @@ const ViewDocument: React.FC<{ params: { id?: string }, cloudDocument?: EditorDo
   }
 
   return document.id === params.id ? <>
-    <Helmet><title>{document.name}</title></Helmet>
+    <Helmet title={`${document.name} | Math Editor`} />
     <Viewer initialConfig={{ editorState: JSON.stringify(document.data) }} />
     <Transition in={slideTrigger} timeout={225}>
       <Fab variant="extended" size='medium' component={RouterLink} href={{ pathname: `/new/${document.id}`, query: { data: JSON.stringify(document.data) } } as any}

@@ -1,8 +1,7 @@
-"use client"
 import type { SerializedEditorState } from "lexical";
 import { createHeadlessEditor } from "@lexical/headless";
 import { editorConfig } from "../config";
-import { $generateHtmlFromNodes } from '@lexical/html';
+import { $generateHtmlFromNodes } from "./html";
 
 const editor = createHeadlessEditor(editorConfig);
 

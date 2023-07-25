@@ -1,6 +1,6 @@
 import { OgMetadata } from "@/app/api/og/route";
 import { findDocumentById, findDocumentMetadata } from "@/app/repositories/document";
-import ViewDocument from "@/components/ViewDocument";
+import NewDocument from "@/components/NewDocument";
 import { EditorDocument } from "@/types";
 import { Metadata } from "next";
 
@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     if (document) {
       metadata.title = document.name;
       metadata.subtitle = new Date(document.createdAt).toDateString()
-      metadata.description = `View ${document.name} on Math Editor`;
+      metadata.description = `New ${document.name} on Math Editor`;
       metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
     } else {
       metadata.title = 'Error 404';
@@ -36,6 +36,6 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
 export default async function Page({ params }: { params: { id: string } }) {
   const document = await findDocumentById(params.id) as unknown as EditorDocument;
-  if (!document) return <ViewDocument params={params} />;
-  return <ViewDocument params={params} cloudDocument={document} />;
+  if (!document) return <NewDocument params={params} />;
+  return <NewDocument params={params} cloudDocument={document} />;
 }

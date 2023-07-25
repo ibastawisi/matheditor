@@ -5,10 +5,7 @@ import Typography from "@mui/material/Typography";
 import { useState, useEffect, memo } from "react";
 import { Helmet } from "react-helmet";
 import UserCard from "./UserCard";
-import { Admin, User, UserDocument } from '@/types';
-import useLocalStorage from "@/hooks/useLocalStorage";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Switch from "@mui/material/Switch";
+import { Admin, EditorDocument, User, UserDocument } from '@/types';
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -18,9 +15,11 @@ import { SortOption } from "@/hooks/useSort";
 import SortControl from "./SortControl";
 import Pagination from "@mui/material/Pagination";
 import { useSession } from "next-auth/react";
-import documentDB from "@/indexeddb";
+import useIndexedDBStore from "@/hooks/useIndexedDB";
 
 const Dashboard: React.FC<{ user?: User, admin?: Admin }> = ({ user, admin }) => {
+  const documentDB = useIndexedDBStore<EditorDocument>('documents');
+
   const [documents, setDocuments] = useState<UserDocument[]>([]);
   const { status } = useSession();
 
@@ -37,7 +36,7 @@ const Dashboard: React.FC<{ user?: User, admin?: Admin }> = ({ user, admin }) =>
   }, []);
 
   return <Box>
-    <Helmet><title>Dashboard</title></Helmet>
+    <Helmet title="Dashboard | Math Editor" />
     <UserCard user={user} status={status} />
     <Box sx={{ my: 2 }}>
       <DocumentsGrid documents={documents} title="Local Documents" variant="local" />

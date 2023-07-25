@@ -21,8 +21,8 @@ export default function ToggleColorMode({ children }: { children: React.ReactNod
 
   useEffect(() => {
     document.body.setAttribute('theme', mode);
-    const colorScheme = document.querySelector('meta[name="color-scheme"]') as HTMLMetaElement;
-    colorScheme.content = mode;
+    const colorScheme = document.querySelector('meta[name="color-scheme"]') as HTMLMetaElement | null;
+    if (colorScheme) colorScheme.content = mode;
   }, [mode]);
 
   const theme = useMemo(() => createTheme({ palette: { mode, }, }), [mode],);

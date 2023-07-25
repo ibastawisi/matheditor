@@ -1,4 +1,3 @@
-"use client"
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -12,7 +11,8 @@ import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/elem
 
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
 import { Suspense, lazy } from 'react';
-import { $generateHtmlFromNodes } from '@lexical/html';
+import { $generateHtmlFromNodes } from '@/editor/utils/html';
+
 const SketchComponent = lazy(() => import('./SketchComponent'));
 
 export type SketchPayload = Spread<{

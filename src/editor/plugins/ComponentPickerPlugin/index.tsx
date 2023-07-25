@@ -14,7 +14,7 @@ import {
   INSERT_UNORDERED_LIST_COMMAND,
 } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode';
+import { INSERT_HORIZONTAL_RULE_COMMAND } from '@/editor/nodes/HorizontalRuleNode';
 import {
   LexicalTypeaheadMenuPlugin,
   MenuOption,
@@ -160,10 +160,10 @@ class ComponentPickerOption extends MenuOption {
 export default function ComponentPickerMenuPlugin(): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [queryString, setQueryString] = useState<string | null>(null);
-  const openImageDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND,({ image: { open: true } }));
-  const openTableDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND,({ table: { open: true } }));
-  const openGraphDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND,({ graph: { open: true } }));
-  const openSketchDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND,({ sketch: { open: true } }));
+  const openImageDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ image: { open: true } }));
+  const openTableDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ table: { open: true } }));
+  const openGraphDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ graph: { open: true } }));
+  const openSketchDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ sketch: { open: true } }));
 
   const checkForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
     minLength: 0,

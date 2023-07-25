@@ -11,7 +11,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import {
   $createHorizontalRuleNode,
   INSERT_HORIZONTAL_RULE_COMMAND,
-} from '@lexical/react/LexicalHorizontalRuleNode';
+} from '@/editor/nodes/HorizontalRuleNode';
 import { $insertNodeToNearestRoot } from '@lexical/utils';
 import {
   $getSelection,

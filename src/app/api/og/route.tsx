@@ -2,14 +2,14 @@
 import { ImageResponse } from 'next/server';
 export const runtime = 'edge';
 
-interface Metadata {
+export interface OgMetadata {
   id: string;
   title?: string;
   subtitle?: string;
   description?: string;
   user?: {
     name: string;
-    picture: string;
+    image: string;
     email: string;
   };
 }
@@ -17,7 +17,7 @@ interface Metadata {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const metadata = JSON.parse(decodeURIComponent(searchParams.get('metadata') as string)) as Metadata;
+    const metadata = JSON.parse(decodeURIComponent(searchParams.get('metadata') as string)) as OgMetadata;
     const { title, subtitle, description, user } = metadata;
     return new ImageResponse(
       (
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
             </div>
             {user && <div style={{ display: "flex" }} tw="flex flex-row">
               <img
-                src={user.picture}
+                src={user.image}
                 tw="w-20 h-20 rounded-full"
                 alt={user.name}
               />

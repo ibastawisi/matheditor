@@ -2,14 +2,13 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { EditorDocument, User } from '@/types';
-import { AppDispatch, RootState, actions } from '@/store';
-import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, actions } from '@/store';
+import { useDispatch } from 'react-redux';
 import IconButton from '@mui/material/IconButton';
 import DownloadIcon from '@mui/icons-material/Download';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import ShareIcon from '@mui/icons-material/Share';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
-import documentDB from '@/indexeddb';
 import { useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -37,6 +36,7 @@ import HtmlIcon from '@mui/icons-material/Html';
 import CodeIcon from '@mui/icons-material/Code';
 import SvgIcon from '@mui/material/SvgIcon';
 import { useSession } from 'next-auth/react';
+import useIndexedDBStore from '@/hooks/useIndexedDB';
 export const MarkdownIcon = () => <SvgIcon viewBox="0 0 640 512" fontSize='small'>
   <path d="M593.8 59.1H46.2C20.7 59.1 0 79.8 0 105.2v301.5c0 25.5 20.7 46.2 46.2 46.2h547.7c25.5 0 46.2-20.7 46.1-46.1V105.2c0-25.4-20.7-46.1-46.2-46.1zM338.5 360.6H277v-120l-61.5 76.9-61.5-76.9v120H92.3V151.4h61.5l61.5 76.9 61.5-76.9h61.5v209.2zm135.3 3.1L381.5 256H443V151.4h61.5V256H566z" />
 </SvgIcon>;
@@ -50,6 +50,8 @@ type DocumentActionMenuProps = {
 };
 
 function DocumentActionMenu({ document, variant, options }: DocumentActionMenuProps): JSX.Element {
+  const documentDB = useIndexedDBStore<EditorDocument>('documents');
+
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const openMenu = (event: React.MouseEvent<HTMLElement>) => {

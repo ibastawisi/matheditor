@@ -6,8 +6,8 @@ import { findAllUsers } from "@/app/repositories/user";
 import { findAllDocuments } from "@/app/repositories/document";
 
 export const metadata: Metadata = {
-  title: 'Dashboard',
-  description: 'Manage your documents'
+  title: 'Dashboard | Math Editor',
+  description: 'Manage your account and documents on Math Editor'
 }
 
 const page = async () => {

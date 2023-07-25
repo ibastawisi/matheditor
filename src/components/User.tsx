@@ -11,7 +11,7 @@ import { SortOption } from "../hooks/useSort";
 import SortControl from "./SortControl";
 import Pagination from "@mui/material/Pagination";
 
-const User: React.FC<{ user: User }> = ({ user }) => {
+const User: React.FC<{ user?: User }> = ({ user }) => {
   const [sortedDocuments, setSortedDocuments] = useState(user?.documents || []);
   const documentSortOptions: SortOption<UserDocument>[] = [
     { label: 'Updated', value: 'updatedAt' },
@@ -23,7 +23,7 @@ const User: React.FC<{ user: User }> = ({ user }) => {
   const handlePageChange = (_: any, value: number) => setPage(value);
 
   return <Box>
-    <Helmet><title>{user ? `${user.name}'s Profile` : "Profile"}</title></Helmet>
+    <Helmet title={`${user?.name ?? "User Not Found"} | Math Editor`} />
     <UserCard user={user} variant="public" />
     {user && <Box sx={{ gap: 1, my: 2 }}>
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>

@@ -10,7 +10,8 @@ export const exportHtml = async (document: EditorDocument) => {
     <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width,initial-scale=1" />
-      <meta name="title" content="${document.name}" />
+      <title>${document.name}</title>
+      <meta name="color-scheme" content="light dark" />
       <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
       <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive-static.css" />
       <style>

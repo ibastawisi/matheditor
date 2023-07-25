@@ -1,6 +1,6 @@
-'use client'
-import SplashScreen from "@/components/SplashScreen";
+"use client"
 import { useEffect } from 'react'
+import SplashScreen from './loading'
 
 export default function Error({
   error,
@@ -14,6 +14,6 @@ export default function Error({
   }, [error])
 
   return (
-    <SplashScreen title="Internal Server Error" />
+    <SplashScreen title="Something went wrong" loading={false} />
   )
-} 
+}

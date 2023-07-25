@@ -1,8 +1,12 @@
 import { OgMetadata } from "@/app/api/og/route";
 import { findDocumentById, findDocumentMetadata } from "@/app/repositories/document";
-import ViewDocument from "@/components/ViewDocument";
 import { EditorDocument } from "@/types";
 import { Metadata } from "next";
+import { JSDOM } from "jsdom";
+import parse from 'html-react-parser';
+import { generateHtml } from "@/editor/utils/generateHtml";
+import EmbedDocument from "@/components/EmbedDocument";
+import { notFound } from 'next/navigation'
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const metadata: OgMetadata = { id: params.id };
@@ -34,8 +38,19 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   }
 }
 
+
 export default async function Page({ params }: { params: { id: string } }) {
   const document = await findDocumentById(params.id) as unknown as EditorDocument;
-  if (!document) return <ViewDocument params={params} />;
-  return <ViewDocument params={params} cloudDocument={document} />;
+  if (!document) notFound();
+  const dom = new JSDOM()
+  global.window = dom.window as unknown as Window & typeof globalThis
+  global.document = dom.window.document
+  global.DocumentFragment = dom.window.DocumentFragment
+  global.Element = dom.window.Element
+  global.navigator = dom.window.navigator
+
+  const html = await generateHtml(document.data);
+  const children = parse(html);
+
+  return <EmbedDocument>{children}</EmbedDocument>
 }

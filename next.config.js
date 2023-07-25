@@ -10,10 +10,6 @@ const config = {
       type: "asset/resource",
       parser: { dataUrlCondition: { maxSize: 100000 } },
     })
-    config.module.rules.push({
-      test: /\.css\?inline$/,
-      type: "asset/inline",
-    })
     return config
   },
 }
