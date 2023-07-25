@@ -8,26 +8,22 @@ import { EditorDocument } from '@/types';
 import type { EditorState } from '@/editor/types';
 import dynamic from "next/dynamic";
 import SplashScreen from './SplashScreen';
-import useIndexedDBStore from '@/hooks/useIndexedDB';
+import { useDispatch } from 'react-redux';
+import { AppDispatch, actions } from '@/store';
 
 const Editor = dynamic(() => import("@/editor/Editor"), { ssr: false, loading: () => <SplashScreen title="Loading Editor" /> });
 
 const Container: React.FC<{ document: EditorDocument, onChange?: (editorState: EditorState) => void }> = ({ document, onChange }) => {
 
-  const documentDB = useIndexedDBStore<EditorDocument>('documents');
-  
+  const dispatch = useDispatch<AppDispatch>();
+
   function handleChange(editorState: EditorState) {
     const data = editorState.toJSON();
     if (isEqual(data, document.data)) return;
-    try {
-      const updatedDocument: EditorDocument = { ...document, data, updatedAt: new Date().toISOString() };
-      validate(document.id) && documentDB.update(updatedDocument);
-      onChange && onChange(editorState);
-    } catch (e) {
-      console.error(e);
-    }
+    const updatedDocument: EditorDocument = { ...document, data, updatedAt: new Date().toISOString() };
+    validate(document.id) && dispatch(actions.saveDocument(updatedDocument));
+    onChange && onChange(editorState);
   }
-
   return (
     <Box className="editor">
       <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={handleChange} />

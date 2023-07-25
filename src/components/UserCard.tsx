@@ -35,7 +35,7 @@ const UserCard: React.FC<{ user?: User | null, variant?: 'user' | 'public' | 'ad
       await navigator.share(shareData)
     } catch (err) {
       navigator.clipboard.writeText(shareData.url);
-      dispatch(actions.app.announce({ message: "Link copied to clipboard" }));
+      dispatch(actions.announce({ message: "Link copied to clipboard" }));
     }
   };
 

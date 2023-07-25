@@ -12,14 +12,14 @@ export const metadata: Metadata = {
 
 const page = async () => {
   const session = await getServerSession(authOptions);
-  if (!session) return <Dashboard />
+  if (!session) return <Dashboard initialUser={null} />
   const { user } = session;
   const { role } = user;
-  if (role !== "admin") return <Dashboard user={JSON.parse(JSON.stringify(user))} />
+  if (role !== "admin") return <Dashboard initialUser={JSON.parse(JSON.stringify(user))} />
   const users = await findAllUsers();
   const documents = await findAllDocuments();
   const admin = { users, documents };
-  return <Dashboard user={user} admin={JSON.parse(JSON.stringify(admin))} />
+  return <Dashboard initialUser={user} admin={JSON.parse(JSON.stringify(admin))} />
 }
 
 export default page;

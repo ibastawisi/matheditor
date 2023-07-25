@@ -9,12 +9,12 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
 function Announcer() {
-  const announcement = useSelector((state: RootState) => state.app.ui.announcements[0]);
+  const announcement = useSelector((state: RootState) => state.app.announcements[0]);
   const dispatch = useDispatch();
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
 
-  const handleClose = () => dispatch(actions.app.clearAnnouncement());
+  const handleClose = () => dispatch(actions.clearAnnouncement());
   const handleConfirm = () => {
     const serializedAction = announcement?.action?.onClick;
     if (serializedAction) {
@@ -22,7 +22,7 @@ function Announcer() {
       const action = new Function("dispatch", "actions", "navigate", serializedAction);
       action.bind(null, dispatch, actions, navigate)();
     }
-    dispatch(actions.app.clearAnnouncement());
+    dispatch(actions.clearAnnouncement());
   }
 
   if (!announcement) return null;

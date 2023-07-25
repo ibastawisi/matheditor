@@ -1,19 +1,22 @@
-"use client"
-import { appSlice, deleteDocumentAsync, getDocumentAsync,  createDocumentAsync, updateDocumentAsync } from "./app";
+import { appSlice, deleteDocumentAsync, getDocumentAsync, loadDocumentsAsync, createDocumentAsync, updateDocumentAsync, loadAsync } from "./app";
+import { loadingBarReducer, showLoading, hideLoading } from 'react-redux-loading-bar'
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
 export const actions = {
-  app: {
-    ...appSlice.actions,
-    getDocumentAsync,
-    createDocumentAsync,
-    updateDocumentAsync,
-    deleteDocumentAsync,
-  },
+  ...appSlice.actions,
+  loadAsync,
+  loadDocumentsAsync,
+  getDocumentAsync,
+  createDocumentAsync,
+  updateDocumentAsync,
+  deleteDocumentAsync,
+  showLoading,
+  hideLoading
 };
 
 export const reducers = {
   app: appSlice.reducer,
+  loadingBar: loadingBarReducer,
 }
 export const store = configureStore({ reducer: reducers });
 

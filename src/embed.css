@@ -16,16 +16,6 @@ body {
   padding: 4px;
 }
 
-@font-face {
-  font-family: Virgil;
-  src: url(https://unpkg.com/@excalidraw/excalidraw/dist/excalidraw-assets/Virgil.woff2);
-}
-
-@font-face {
-  font-family: Cascadia;
-  src: url(https://unpkg.com/@excalidraw/excalidraw/dist/excalidraw-assets/Cascadia.woff2);
-}
-
 hr {
   border: none;
   padding: 0.5em 0;

@@ -20,13 +20,11 @@ import CloudIcon from '@mui/icons-material/Cloud';
 import DocumentActionMenu, { options } from './DocumentActionMenu';
 import Typography from '@mui/material/Typography';
 import { memo } from 'react';
-import { useSession } from 'next-auth/react';
 
 export type DocumentCardVariant = 'local' | 'cloud' | 'public' | 'admin';
 
 const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: DocumentCardVariant }> = memo(({ document, variant }) => {
-  const { data: session } = useSession();
-  const user = session?.user as User | null;
+  const user = useSelector((state: RootState) => state.app.user);
   const cloudDocument = user?.documents?.find(d => d.id === document.id);
   const isUploaded = !!cloudDocument || variant === "public" || variant === "admin";
   const isUpToDate = cloudDocument?.updatedAt === document.updatedAt;

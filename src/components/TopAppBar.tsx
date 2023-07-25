@@ -15,7 +15,7 @@ import Zoom from '@mui/material/Zoom';
 import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { ColorModeContext } from '@/theme/ThemeProvider';
 import useTheme from '@mui/material/styles/useTheme';
 import Avatar from '@mui/material/Avatar';
@@ -23,6 +23,9 @@ import logo from "@/public/logo.svg";
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { User } from '@/types';
+import { LoadingBar } from 'react-redux-loading-bar';
+import { useDispatch } from 'react-redux';
+import { AppDispatch, actions } from '@/store';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname()
@@ -65,18 +68,24 @@ function ScrollTop({ children }: { children: React.ReactElement }) {
 
 const TopAppBar: React.FC<{}> = () => {
   const colorMode = useContext(ColorModeContext);
+  const dispatch = useDispatch<AppDispatch>();
   const theme = useTheme();
   const { data: session, status } = useSession();
   const user = session?.user as User | null;
-  const pathname = usePathname()
+  const pathname = usePathname();
   const showPrintButton = !!['/edit', '/view', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
 
   const handlePrint = () => {
     window.print();
   }
 
+  useEffect(() => {
+    dispatch(actions.setUser(user));
+  }, [user]);
+
   return (
     <>
+      <LoadingBar className='loading-bar' style={{ position: 'fixed' }} />
       <HideOnScroll>
         <AppBar sx={{ displayPrint: "none", zIndex: 1200 }}>
           <Toolbar sx={{ minHeight: 64 }}>

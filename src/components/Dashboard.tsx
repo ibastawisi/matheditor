@@ -4,8 +4,11 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useState, useEffect, memo } from "react";
 import { Helmet } from "react-helmet";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
 import UserCard from "./UserCard";
-import { Admin, EditorDocument, User, UserDocument } from '@/types';
+import { Admin, User, UserDocument } from '@/types';
+import { actions } from "@/store";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -15,24 +18,19 @@ import { SortOption } from "@/hooks/useSort";
 import SortControl from "./SortControl";
 import Pagination from "@mui/material/Pagination";
 import { useSession } from "next-auth/react";
-import useIndexedDBStore from "@/hooks/useIndexedDB";
 
-const Dashboard: React.FC<{ user?: User, admin?: Admin }> = ({ user, admin }) => {
-  const documentDB = useIndexedDBStore<EditorDocument>('documents');
-
-  const [documents, setDocuments] = useState<UserDocument[]>([]);
+const Dashboard: React.FC<{ initialUser: User | null, admin?: Admin }> = ({ initialUser, admin }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const documents = useSelector((state: RootState) => state.app.documents);
+  const user = useSelector((state: RootState) => state.app.user);
+  const initialized = useSelector((state: RootState) => state.app.initialized);
   const { status } = useSession();
 
   useEffect(() => {
-    const loadLocalDocuments = async () => {
-      const documents = await documentDB.getAll();
-      const userDocuments = documents.map(document => {
-        const { data, ...userDocument } = document;
-        return userDocument;
-      }).sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
-      setDocuments(userDocuments);
+    if (!initialized) {
+      dispatch(actions.setUser(initialUser));
+      dispatch(actions.loadAsync());
     }
-    loadLocalDocuments();
   }, []);
 
   return <Box>

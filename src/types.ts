@@ -20,13 +20,11 @@ export interface Admin {
 }
 
 export interface AppState {
+  user: User | null;
   documents: UserDocument[];
-  ui: {
-    isLoading: boolean;
-    isSaving: boolean;
-    announcements: Announcement[];
-    alerts: Alert[];
-  };
+  announcements: Announcement[];
+  alerts: Alert[];
+  initialized: boolean;
 }
 
 export interface EditorDocument {

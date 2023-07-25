@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { EditorDocument, User } from '@/types';
-import { AppDispatch, actions } from '@/store';
-import { useDispatch } from 'react-redux';
+import { AppDispatch, RootState, actions } from '@/store';
+import { useDispatch, useSelector } from 'react-redux';
 import IconButton from '@mui/material/IconButton';
 import DownloadIcon from '@mui/icons-material/Download';
 import DeleteForever from '@mui/icons-material/DeleteForever';
@@ -35,8 +35,8 @@ import ImportExportIcon from '@mui/icons-material/ImportExport';
 import HtmlIcon from '@mui/icons-material/Html';
 import CodeIcon from '@mui/icons-material/Code';
 import SvgIcon from '@mui/material/SvgIcon';
-import { useSession } from 'next-auth/react';
-import useIndexedDBStore from '@/hooks/useIndexedDB';
+import documentDB from '@/indexeddb';
+
 export const MarkdownIcon = () => <SvgIcon viewBox="0 0 640 512" fontSize='small'>
   <path d="M593.8 59.1H46.2C20.7 59.1 0 79.8 0 105.2v301.5c0 25.5 20.7 46.2 46.2 46.2h547.7c25.5 0 46.2-20.7 46.1-46.1V105.2c0-25.4-20.7-46.1-46.2-46.1zM338.5 360.6H277v-120l-61.5 76.9-61.5-76.9v120H92.3V151.4h61.5l61.5 76.9 61.5-76.9h61.5v209.2zm135.3 3.1L381.5 256H443V151.4h61.5V256H566z" />
 </SvgIcon>;
@@ -50,8 +50,6 @@ type DocumentActionMenuProps = {
 };
 
 function DocumentActionMenu({ document, variant, options }: DocumentActionMenuProps): JSX.Element {
-  const documentDB = useIndexedDBStore<EditorDocument>('documents');
-
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const openMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -62,8 +60,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
   };
 
   const dispatch = useDispatch<AppDispatch>();
-  const { data: session } = useSession();
-  const user = session?.user as User | null;
+  const user = useSelector((state: RootState) => state.app.user);
   const cloudDocument = user?.documents?.find(d => d.id === document.id);
   const isUploaded = !!cloudDocument;
   const isUpToDate = cloudDocument?.updatedAt === document.updatedAt;
@@ -74,33 +71,33 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
 
   const handleCreate = async () => {
     closeMenu();
-    if (!user) return dispatch(actions.app.announce({ message: "Please login to use cloud storage" }));
+    if (!user) return dispatch(actions.announce({ message: "Please login to use cloud storage" }));
     const storedDocument: EditorDocument = await documentDB.getByID(document.id);
-    return await dispatch(actions.app.createDocumentAsync(storedDocument));
+    return await dispatch(actions.createDocumentAsync(storedDocument));
   };
 
   const handleUpdate = async () => {
     closeMenu();
-    if (!user) return dispatch(actions.app.announce({ message: "Please login to use cloud storage" }));
-    if (isUpToDate) return dispatch(actions.app.announce({ message: "Document is up to date" }));
+    if (!user) return dispatch(actions.announce({ message: "Please login to use cloud storage" }));
+    if (isUpToDate) return dispatch(actions.announce({ message: "Document is up to date" }));
     const storedDocument: EditorDocument = await documentDB.getByID(document.id);
-    return await dispatch(actions.app.updateDocumentAsync({ id: document.id, partial: storedDocument }));
+    return await dispatch(actions.updateDocumentAsync({ id: document.id, partial: storedDocument }));
   };
 
   const ensureUpToDate = async () => {
     if (variant != 'public' && !user) {
-      dispatch(actions.app.announce({ message: "Please login to use cloud storage" }));
+      dispatch(actions.announce({ message: "Please login to use cloud storage" }));
       return false;
     }
     if (variant === "local" && !isUploaded) {
-      dispatch(actions.app.announce({ message: "Saving document to the cloud" }));
+      dispatch(actions.announce({ message: "Saving document to the cloud" }));
       const result = await handleCreate();
-      if (result.type === actions.app.createDocumentAsync.rejected.type) return false;
+      if (result.type === actions.createDocumentAsync.rejected.type) return false;
     };
     if (variant === "local" && isUpToDate && !isUpToDate) {
-      dispatch(actions.app.announce({ message: "Updating document in the cloud" }));
+      dispatch(actions.announce({ message: "Updating document in the cloud" }));
       const result = await handleUpdate();
-      if (result.type === actions.app.updateDocumentAsync.rejected.type) return false;
+      if (result.type === actions.updateDocumentAsync.rejected.type) return false;
     };
     return true;
   };
@@ -117,7 +114,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
       await navigator.share(shareData);
     } catch (err) {
       navigator.clipboard.writeText(shareData.url);
-      dispatch(actions.app.announce({ message: "Link copied to clipboard" }));
+      dispatch(actions.announce({ message: "Link copied to clipboard" }));
     }
   };
 
@@ -127,18 +124,18 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
     if (!result) return;
     const iframe = `<iframe src="${window.location.origin}/embed/${document.id}" width="100%" height="100%" frameborder="0"></iframe>`;
     navigator.clipboard.writeText(iframe);
-    dispatch(actions.app.announce({ message: "Embed code copied to clipboard" }));
+    dispatch(actions.announce({ message: "Embed code copied to clipboard" }));
   };
 
   const handleDelete = async () => {
     closeMenu();
-    dispatch(actions.app.alert(
+    dispatch(actions.alert(
       {
         title: `Delete ${variant} document`,
         content: `Are you sure you want to delete ${document.name}?`,
         action: variant === "local" ?
-          `dispatch(actions.app.deleteDocument("${document.id}"))` :
-          `dispatch(actions.app.deleteDocumentAsync("${document.id}"))`
+          `dispatch(actions.deleteDocument("${document.id}"))` :
+          `dispatch(actions.deleteDocumentAsync("${document.id}"))`
       }
     ));
   };
@@ -150,7 +147,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
         if (localDocument) return JSON.stringify(localDocument);
         break;
       default:
-        const response = await dispatch(actions.app.getDocumentAsync(document.id));
+        const response = await dispatch(actions.getDocumentAsync(document.id));
         const { payload, error } = response as any;
         if (!error) return JSON.stringify(payload);
         break;
@@ -160,7 +157,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
   const handleSave = async () => {
     closeMenu();
     const payload = await getPayload();
-    if (!payload) return dispatch(actions.app.announce({ message: "Can't find document data" }));
+    if (!payload) return dispatch(actions.announce({ message: "Can't find document data" }));
     const blob = new Blob([payload], { type: "text/json" });
     const link = window.document.createElement("a");
 
@@ -181,10 +178,10 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
   const togglePublic = async () => {
     closeMenu();
     try {
-      await dispatch(actions.app.updateDocumentAsync({ id: document.id, partial: { published: !isPublished } }));
-      dispatch(actions.app.announce({ message: `Document ${isPublished ? "unpublished" : "published"} successfully` }));
+      await dispatch(actions.updateDocumentAsync({ id: document.id, partial: { published: !isPublished } }));
+      dispatch(actions.announce({ message: `Document ${isPublished ? "unpublished" : "published"} successfully` }));
     } catch (err) {
-      dispatch(actions.app.announce({ message: "Can't update document data" }));
+      dispatch(actions.announce({ message: "Can't update document data" }));
     }
   };
 
@@ -215,13 +212,13 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
         updatedAt: new Date().toISOString()
       };
       if (variant === "local") {
-        dispatch(actions.app.updateDocument({ id: document.id, partial }));
+        dispatch(actions.updateDocument({ id: document.id, partial }));
       }
       if (isUploaded) {
-        await dispatch(actions.app.updateDocumentAsync({ id: document.id, partial }));
+        await dispatch(actions.updateDocumentAsync({ id: document.id, partial }));
       }
     } catch (err) {
-      dispatch(actions.app.announce({ message: "Can't update document data" }));
+      dispatch(actions.announce({ message: "Can't update document data" }));
     }
   };
 
@@ -237,7 +234,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
     toggleExportMenu();
     closeMenu();
     const payload = await getPayload();
-    if (!payload) return dispatch(actions.app.announce({ message: "Can't find document data" }));
+    if (!payload) return dispatch(actions.announce({ message: "Can't find document data" }));
     const document = JSON.parse(payload);
     const { exportMarkdown } = await import("../utils/exportMarkdown");
     const markdown = await exportMarkdown(document);
@@ -260,7 +257,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
     toggleExportMenu();
     closeMenu();
     const payload = await getPayload();
-    if (!payload) return dispatch(actions.app.announce({ message: "Can't find document data" }));
+    if (!payload) return dispatch(actions.announce({ message: "Can't find document data" }));
     const document = JSON.parse(payload);
     const { exportHtml } = await import("../utils/exportHtml");
     const html = await exportHtml(document);
