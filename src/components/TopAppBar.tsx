@@ -25,7 +25,6 @@ import { useSession } from 'next-auth/react';
 import { User } from '@/types';
 import { useDispatch } from 'react-redux';
 import { AppDispatch, actions } from '@/store';
-import NProgress from "nprogress";
 import ProgressBar from './Progressbar';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {

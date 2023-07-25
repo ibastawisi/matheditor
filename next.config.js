@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.NODE_ENV === "production"
-})
+
+const withPWA = require("@imbios/next-pwa")({
+  dest: "public",
+  disable: process.env.NODE_ENV === 'development',
+});
+
 
 const config = {
   webpack: (config, options) => {
@@ -17,4 +20,4 @@ const config = {
   },
 }
 
-module.exports = withBundleAnalyzer(config);
+module.exports = withPWA(config);

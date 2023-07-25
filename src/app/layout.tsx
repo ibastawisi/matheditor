@@ -17,7 +17,29 @@ export const metadata: Metadata = {
   {
     media: "(prefers-color-scheme: dark)",
     color: "#121212"
-  }]
+    }],
+  twitter: {
+    card: "summary_large_image",
+    creator: "@imamdev_",
+    images: "https://example.com/og.png",
+  },
+  applicationName: "Math Editor",
+  appleWebApp: {
+    capable: true,
+    title: "Math Editor",
+    statusBarStyle: "default",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  viewport:
+    "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover",
+  manifest: "/manifest.json",
+  icons: [
+    { rel: "apple-touch-icon", url: "/apple-touch-icon.png" },
+    { rel: "shortcut icon", url: "/favicon.ico" },
+  ],
+  keywords: ["Math", "Editor", "Latex", "Math Editor", "Math Editor Online"],
 
 }
 

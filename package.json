@@ -14,6 +14,7 @@
     "@emotion/styled": "^11.11.0",
     "@excalidraw/excalidraw": "^0.15.2",
     "@fontsource/roboto": "^5.0.5",
+    "@imbios/next-pwa": "^1.1.1",
     "@lexical/headless": "^0.11.3",
     "@lexical/react": "^0.11.3",
     "@mui/icons-material": "^5.14.1",

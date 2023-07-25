@@ -8,6 +8,7 @@ import Container from '@mui/material/Container';
 import TopAppBar from '@/components/TopAppBar';
 import AlertDialog from "@/components/Alert";
 import Announcer from "@/components/Announcer";
+import PwaUpdater from "@/components/PwaUpdater";
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   return <ThemeRegistry options={{ key: 'mui', prepend: true }}>
@@ -34,6 +35,7 @@ export const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
         </Container>
         <AlertDialog />
         <Announcer />
+        {process.env.NODE_ENV === "production" && <PwaUpdater />}
       </Providers>
     )
   }
