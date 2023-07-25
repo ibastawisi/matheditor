@@ -1,3 +1,4 @@
+"use client"
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -78,12 +79,12 @@ export default function ImagesPlugin(): JSX.Element | null {
   return null;
 }
 
-const TRANSPARENT_IMAGE =
-  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-const img = document.createElement('img');
-img.src = TRANSPARENT_IMAGE;
-
 function onDragStart(event: DragEvent): boolean {
+  const TRANSPARENT_IMAGE =
+    'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+  const img = document.createElement('img');
+  img.src = TRANSPARENT_IMAGE;
+
   const node = getImageNodeInSelection();
   if (!node) {
     return false;

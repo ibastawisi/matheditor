@@ -3,7 +3,7 @@ import { TableCellNode, TableNode, TableRowNode } from "./nodes/TableNode";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "./nodes/CodeNode";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
-import { HorizontalRuleNode } from "@lexical/react/LexicalHorizontalRuleNode";
+import { HorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
 import { MathNode } from "./nodes/MathNode";
 import { ImageNode } from "./nodes/ImageNode";
 import { SketchNode } from './nodes/SketchNode';

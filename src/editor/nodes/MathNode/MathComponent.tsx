@@ -1,3 +1,5 @@
+"use client"
+import { DOMAttributes } from "react";
 import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, GridSelection, NodeKey, NodeSelection, RangeSelection } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey } from 'lexical';
@@ -5,8 +7,7 @@ import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 import { IS_MOBILE } from '../../shared/environment';
-import { MathfieldElement, MathfieldElementAttributes } from "mathlive";
-import { DOMAttributes } from "react";
+import type { MathfieldElement, MathfieldElementAttributes } from "mathlive";
 import './index.css';
 import { $isMathNode } from '.';
 
@@ -20,9 +21,11 @@ declare global {
   }
 }
 
-MathfieldElement.soundsDirectory = null;
-MathfieldElement.fontsDirectory = "/mathlive/fonts";
-MathfieldElement.computeEngine = null;
+import('mathlive').then(({ MathfieldElement }) => {
+  MathfieldElement.soundsDirectory = null;
+  MathfieldElement.fontsDirectory = "/mathlive/fonts";
+  MathfieldElement.computeEngine = null;
+});
 
 export type MathComponentProps = { initialValue: string; nodeKey: NodeKey; mathfieldRef: React.RefObject<MathfieldElement>; };
 
@@ -34,11 +37,9 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
   const [lastRangeSelection, setLastRangeSelection] = useState<RangeSelection | null>(null);
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
 
-  const isMathField = (el: HTMLElement) => el instanceof MathfieldElement;
-
   useEffect(() => {
     const mathfield = ref.current;
-    if (!mathfield || !isMathField(mathfield)) return;
+    if (!mathfield) return;
     if (initialValue !== mathfield.getValue()) {
       mathfield.setValue(initialValue, { silenceNotifications: true });
     }
@@ -59,7 +60,6 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
   useLayoutEffect(() => {
     const mathfield = ref.current;
     if (!mathfield) return;
-    if (!isMathField(mathfield)) return;
     // highlight when range selected
     const active = isSelected && $isRangeSelection(selection);
     mathfield.classList.toggle("selection-active", active);
@@ -73,7 +73,6 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
   useEffect(() => {
     const mathfield = ref.current;
     if (!mathfield) return;
-    if (!isMathField(mathfield)) return;
     // reselect when selection is lost and mathfield is focused
     if (!selection && document.activeElement === mathfield) setSelected(true);
     // focus when node selected
@@ -97,13 +96,9 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
 
   useEffect(() => {
     const mathfield = ref.current;
-    if (!mathfield || !isMathField(mathfield)) return;
+    if (!mathfield) return;
 
-    const readOnly = !editor.isEditable();
     mathfield.mathModeSpace = "\\,";
-    mathfield.readOnly = readOnly;
-
-    if (readOnly) return;
 
     // focus newly created mathfield
     if (isSelected && !mathfield.hasFocus()) {

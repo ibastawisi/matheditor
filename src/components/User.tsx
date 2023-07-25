@@ -1,31 +1,17 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+"use client"
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import { useState, useEffect, memo } from "react";
+import { useState, memo } from "react";
 import { Helmet } from "react-helmet";
-import { useParams } from 'react-router-dom';
 import UserCard from "./UserCard";
-import { User, UserDocument } from '../types';
-import { getUser } from "../services";
+import { User, UserDocument } from '@/types';
 import DocumentCard from "./DocumentCard";
 import { SortOption } from "../hooks/useSort";
 import SortControl from "./SortControl";
 import Pagination from "@mui/material/Pagination";
 
-const User: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const params = useParams<{ id: string }>();
-
-  useEffect(() => {
-    const loadUser = async (id: string) => {
-      const user = await getUser(id);
-      setUser(user);
-    }
-    params.id && loadUser(params.id);
-
-  }, []);
-
+const User: React.FC<{ user?: User }> = ({ user }) => {
   const [sortedDocuments, setSortedDocuments] = useState(user?.documents || []);
   const documentSortOptions: SortOption<UserDocument>[] = [
     { label: 'Updated', value: 'updatedAt' },
@@ -37,7 +23,7 @@ const User: React.FC = () => {
   const handlePageChange = (_: any, value: number) => setPage(value);
 
   return <Box>
-    <Helmet><title>{user ? `${user.name}'s Profile` : "Profile"}</title></Helmet>
+    <Helmet title={`${user?.name ?? "User Not Found"} | Math Editor`} />
     <UserCard user={user} variant="public" />
     {user && <Box sx={{ gap: 1, my: 2 }}>
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>

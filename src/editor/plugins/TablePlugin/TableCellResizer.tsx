@@ -1,3 +1,4 @@
+"use client"
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -10,7 +11,6 @@ import type { LexicalEditor } from 'lexical';
 
 import './TableCellResizer.css';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import useLexicalEditable from '@lexical/react/useLexicalEditable';
 import {
   $getTableColumnIndexFromTableCellNode,
   $getTableNodeFromLexicalNodeOrThrow,
@@ -369,13 +369,9 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
 
 export default function TableCellResizerPlugin(): null | ReactPortal {
   const [editor] = useLexicalComposerContext();
-  const isEditable = useLexicalEditable();
 
   return useMemo(
-    () =>
-      isEditable
-        ? createPortal(<TableCellResizer editor={editor} />, document.body)
-        : null,
-    [editor, isEditable],
+    () => createPortal(<TableCellResizer editor={editor} />, document.body),
+    [editor],
   );
 }

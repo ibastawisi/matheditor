@@ -4,7 +4,7 @@ export default function Privacy() {
       <h1>Privacy Policy</h1>
       <strong>Last Updated: Sept. 14, 2022</strong>
       <p>
-        This privacy policy has been compiled to better serve those who are
+        {`This privacy policy has been compiled to better serve those who are
         concerned with how their 'Personally Identifiable Information' (PII) is
         being used online. PII, as described in US privacy law and information
         security, is information that can be used on its own or with other
@@ -12,7 +12,7 @@ export default function Privacy() {
         identify an individual in context. Please read our privacy policy
         carefully to get a clear understanding of how we collect, use, protect
         or otherwise handle your Personally Identifiable Information in
-        accordance with our website.
+        accordance with our website.`}
       </p>
       <p>
         <strong>What personal information do we collect from the people that
@@ -22,14 +22,14 @@ export default function Privacy() {
         We do not collect information from our users if they choose not to use the cloud storage feature.
         <br />
         Otherwise, upon login we collect the following personal information:
-        <ul>
-          <li>Username</li>
-          <li>Email</li>
-          <li>Profile picture</li>
-        </ul>
       </p>
+      <ul>
+        <li>Username</li>
+        <li>Email</li>
+        <li>Profile picture</li>
+      </ul>
       <p>
-        <strong>Do we use 'cookies'?</strong>
+        <strong>{"Do we use 'cookies'?"}</strong>
       </p>
       <p>
         Yes. Cookies are small files that a site or its service provider places

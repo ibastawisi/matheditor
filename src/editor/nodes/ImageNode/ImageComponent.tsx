@@ -1,3 +1,5 @@
+"use client"
+/* eslint-disable @next/next/no-img-element */
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -38,10 +40,9 @@ import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
 
 import ImageResizer from './ImageResizer';
 import { $isImageNode } from '.';
-import useLexicalEditable from '@lexical/react/useLexicalEditable';
 import Typography from '@mui/material/Typography';
+
 const NestedEditor = lazy(() => import('../../NestedEditor'));
-const NestedViewer = lazy(() => import('../../NestedViewer'));
 
 const imageCache = new Set();
 
@@ -68,7 +69,7 @@ function LazyImage({
   draggable,
   onLoad,
 }: {
-  altText?: string;
+  altText: string;
   className: string | null;
   height: 'inherit' | number;
   imageRef: { current: null | HTMLImageElement };
@@ -104,7 +105,7 @@ export default function ImageComponent({
   showCaption,
   caption,
 }: {
-  altText?: string;
+  altText: string;
   height: 'inherit' | number;
   nodeKey: NodeKey;
   resizable: boolean;
@@ -118,7 +119,6 @@ export default function ImageComponent({
     useLexicalNodeSelection(nodeKey);
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [editor] = useLexicalComposerContext();
-  const isEditable = useLexicalEditable();
   const [selection, setSelection] = useState<
     RangeSelection | NodeSelection | GridSelection | null
   >(null);
@@ -183,7 +183,6 @@ export default function ImageComponent({
 
   useEffect(() => {
     onLoad();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSelected, imageRef]);
 
   useEffect(() => {
@@ -354,9 +353,9 @@ export default function ImageComponent({
         }
         {showCaption && (
           <figcaption>
-            {isEditable ? <NestedEditor initialEditor={caption} onChange={onChange}
+            <NestedEditor initialEditor={caption} onChange={onChange}
               placeholder={<Typography color="text.secondary" className="nested-placeholder">Write a caption</Typography>}
-            /> : <NestedViewer initialEditor={caption} />}
+            />
           </figcaption>
         )}
       </>

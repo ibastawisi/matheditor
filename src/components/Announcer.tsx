@@ -1,27 +1,28 @@
+"use client"
+import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { actions, RootState } from '../store';
 import Snackbar from '@mui/material/Snackbar';
 import Button from '@mui/material/Button';
 import React from 'react';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import { updateSW } from '../App';
 
 function Announcer() {
-  const announcement = useSelector((state: RootState) => state.app.ui.announcements[0]);
+  const announcement = useSelector((state: RootState) => state.announcements[0]);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
 
-  const handleClose = () => dispatch(actions.app.clearAnnouncement());
+  const handleClose = () => dispatch(actions.clearAnnouncement());
   const handleConfirm = () => {
     const serializedAction = announcement?.action?.onClick;
     if (serializedAction) {
       // eslint-disable-next-line no-new-func
-      const action = new Function("dispatch", "actions", "navigate", "updateSW", serializedAction);
-      action.bind(null, dispatch, actions, navigate, updateSW)();
+      const action = new Function("dispatch", "actions", "navigate", serializedAction);
+      action.bind(null, dispatch, actions, navigate)();
     }
-    dispatch(actions.app.clearAnnouncement());
+    dispatch(actions.clearAnnouncement());
   }
 
   if (!announcement) return null;

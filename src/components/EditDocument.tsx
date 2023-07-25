@@ -1,35 +1,31 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+"use client"
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { actions } from "../store";
-import { AppDispatch } from "../store";
-import { useParams } from "react-router-dom";
 import Editor from "./Editor";
 
 import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
-import documentDB from "../db";
-import { EditorDocument } from '../types';
+import { EditorDocument } from '@/types';
+import useIndexedDBStore from "@/hooks/useIndexedDB";
+import { AppDispatch, actions } from "@/store";
+import { useDispatch } from "react-redux";
 
-const EditDocument: React.FC = () => {
+const EditDocument: React.FC<{ params: { id?: string } }> = ({ params }) => {
+  const [document, setDocument] = useState<EditorDocument>();
+  const documentDB = useIndexedDBStore<EditorDocument>('documents');
   const dispatch = useDispatch<AppDispatch>();
-  const [document, setDocument] = useState<EditorDocument | null>(null);
-  const params = useParams<{ id: string }>();
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
-      // load from local storage
-      const storedDocument = await documentDB.getByID(id);
-      if (storedDocument) {
-        setDocument(storedDocument);
-        dispatch(actions.app.loadDocument(storedDocument));
+      const localDocument = await documentDB.getByID(id);
+      if (localDocument) {
+        setDocument(localDocument);
+        dispatch(actions.loadDocument(localDocument));
       } else {
-        // load from server
-        const response = await dispatch(actions.app.getDocumentAsync(id));
+        const response = await dispatch(actions.getDocumentAsync(id));
         const { payload, error } = response as any;
         if (!error) {
           setDocument(payload);
-          dispatch(actions.app.loadDocument(payload));
+          dispatch(actions.loadDocument(payload));
         }
       }
     }
@@ -40,8 +36,8 @@ const EditDocument: React.FC = () => {
   if (!document) return <SplashScreen title="Loading Document" />;
 
   return document?.id === params.id ? <>
-    <Helmet><title>{document.name}</title></Helmet>
-    <Editor document={document} editable={true} />
+    <Helmet title={`${document.name} | Math Editor`} />
+    <Editor document={document} />
   </> : <SplashScreen title="Loading Document" />;
 }
 

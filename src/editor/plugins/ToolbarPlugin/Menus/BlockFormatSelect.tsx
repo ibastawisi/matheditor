@@ -1,3 +1,4 @@
+"use client"
 import { DEPRECATED_$isGridSelection, LexicalEditor } from 'lexical';
 import { $createCodeNode } from '../../../nodes/CodeNode';
 import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, REMOVE_LIST_COMMAND } from '@lexical/list';

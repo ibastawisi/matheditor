@@ -1,3 +1,4 @@
+"use client"
 import {
   NodeKey,
   LexicalEditor,
@@ -23,14 +24,11 @@ import FormatPaintIcon from '@mui/icons-material/FormatPaint';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import IconButton from '@mui/material/IconButton';
-import useLexicalEditable from '@lexical/react/useLexicalEditable';
 
 const NestedEditor = lazy(() => import('../../NestedEditor'));
-const NestedViewer = lazy(() => import('../../NestedViewer'));
 
 export default function StickyComponent({ nodeKey, color, stickyEditor }: { stickyEditor: LexicalEditor; color: 'pink' | 'yellow'; nodeKey: NodeKey; }): JSX.Element {
   const [editor] = useLexicalComposerContext();
-  const isEditable = useLexicalEditable();
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
   const [isDraggable, setDraggable] = useState(false);
 
@@ -90,7 +88,7 @@ export default function StickyComponent({ nodeKey, color, stickyEditor }: { stic
 
   return (
     <div ref={stickyContainerRef} className={"sticky-note-container" + (isSelected ? " selected" : "")} draggable={isDraggable} {...{ theme: 'light' }}>
-      {isEditable && (<div className='sticky-tools'>
+      <div className='sticky-tools'>
         <IconButton sx={{ displayPrint: 'none' }} onClick={handleDelete} aria-label="Delete sticky note" title="Delete" color='inherit' size='small'>
           <DeleteIcon fontSize='inherit' />
         </IconButton>
@@ -102,9 +100,9 @@ export default function StickyComponent({ nodeKey, color, stickyEditor }: { stic
           <DragIndicatorIcon fontSize='inherit' />
         </IconButton>
         }
-      </div>)}
+      </div>
       <div className={`sticky-note ${color}`}>
-        {isEditable ? <NestedEditor initialEditor={stickyEditor} onChange={onChange} /> : <NestedViewer initialEditor={stickyEditor} />}
+        <NestedEditor initialEditor={stickyEditor} onChange={onChange} />
       </div>
     </div >
   );

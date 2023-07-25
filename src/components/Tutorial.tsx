@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+"use client"
 import Editor from "./Editor";
 import { Helmet } from "react-helmet";
 import useLocalStorage from "../hooks/useLocalStorage";
@@ -18,7 +18,7 @@ import Collapse from "@mui/material/Collapse";
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
-import { tasks, checkpoints } from "..//tutorial";
+import { tasks, checkpoints } from "@//tutorial";
 import Divider from "@mui/material/Divider";
 const Tutorial: React.FC = () => {
   const [editorState, setEditorState] = useState<EditorState>();
@@ -48,8 +48,8 @@ const Tutorial: React.FC = () => {
 
 
   return <>
-    <Helmet><title>{tasks[currentTask].name}</title></Helmet>
-    <Editor key={currentTask} document={tasks[currentTask]} editable={true} onChange={onChange} />
+    <Helmet title={`Tutorial | Math Editor`} />
+    <Editor key={currentTask} document={tasks[currentTask]} onChange={onChange} />
     <Paper sx={{ p: 2, displayPrint: 'none' }}>
       <Box key={`task-${currentTask}`} sx={{ mb: 2 }}>
         <Typography variant="h6">{tasks[currentTask].name}</Typography>

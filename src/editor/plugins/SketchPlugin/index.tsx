@@ -1,3 +1,4 @@
+"use client"
 import { $createParagraphNode, $insertNodes, $isRootNode, LexicalCommand, LexicalEditor } from 'lexical';
 import { $wrapNodeInElement, mergeRegister } from '@lexical/utils';
 import {
@@ -72,12 +73,12 @@ export default function SketchPlugin(): JSX.Element | null {
   return null;
 }
 
-const TRANSPARENT_IMAGE =
-  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-const img = document.createElement('img');
-img.src = TRANSPARENT_IMAGE;
-
 function onDragStart(event: DragEvent): boolean {
+  const TRANSPARENT_IMAGE =
+    'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+  const img = document.createElement('img');
+  img.src = TRANSPARENT_IMAGE;
+
   const node = getSketchNodeInSelection();
   if (!node) {
     return false;

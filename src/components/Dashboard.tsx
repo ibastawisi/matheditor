@@ -1,50 +1,47 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+"use client"
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useState, useEffect, memo } from "react";
 import { Helmet } from "react-helmet";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../store";
+import { AppDispatch, RootState } from "@/store";
 import UserCard from "./UserCard";
-import { User, UserDocument } from '../types';
-import useLocalStorage from "../hooks/useLocalStorage";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Switch from "@mui/material/Switch";
-import { actions } from "../store";
+import { Admin, User, UserDocument } from '@/types';
+import { actions } from "@/store";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DocumentCard, { DocumentCardVariant } from "./DocumentCard";
-import { SortOption } from "../hooks/useSort";
+import { SortOption } from "@/hooks/useSort";
 import SortControl from "./SortControl";
 import Pagination from "@mui/material/Pagination";
+import { useSession } from "next-auth/react";
 
-const Dashboard: React.FC = () => {
+const Dashboard: React.FC<{ initialUser: User | null, admin?: Admin }> = ({ initialUser, admin }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector((state: RootState) => state.app.user);
-  const documents = useSelector((state: RootState) => state.app.documents);
-  const admin = useSelector((state: RootState) => state.app.admin);
-  const [config, setConfig] = useLocalStorage('config', { debug: false });
+  const documents = useSelector((state: RootState) => state.documents);
+  const user = useSelector((state: RootState) => state.user);
+  const initialized = useSelector((state: RootState) => state.initialized);
+  const { status } = useSession();
 
   useEffect(() => {
-    if (!user?.admin) return;
-    !admin && dispatch(actions.app.loadAdminAsync());
-  }, [user]);
+    if (!initialized) {
+      dispatch(actions.setUser(initialUser));
+      dispatch(actions.loadAsync());
+    }
+  }, []);
 
   return <Box>
-    <Helmet><title>Dashboard</title></Helmet>
-    <UserCard user={user} />
-    <Box sx={{ mt: 2 }}>
-      <FormControlLabel control={<Switch checked={config.debug} onChange={e => setConfig({ ...config, debug: e.target.checked })} />} label="Show Editor Debug View" />
-    </Box>
+    <Helmet title="Dashboard | Math Editor" />
+    <UserCard user={user} status={status} />
     <Box sx={{ my: 2 }}>
       <DocumentsGrid documents={documents} title="Local Documents" variant="local" />
       {user && <DocumentsGrid documents={user.documents} title="Cloud Documents" variant="cloud" />}
-      {user && <DocumentsGrid documents={user.documents.filter(d => d.isPublic)} title="Public Documents" variant="public" />}
+      {user && <DocumentsGrid documents={user.documents.filter(d => d.published)} title="Published Documents" variant="public" />}
     </Box>
-    {user?.admin && admin && <Box sx={{ my: 3 }}>
+    {user?.role === "admin" && admin && <Box sx={{ my: 3 }}>
       <DocumentsGrid documents={admin.documents} title="Admin Documents" variant="admin" />
       <UserGrid users={admin.users} />
     </Box>}
@@ -64,7 +61,7 @@ const UserGrid: React.FC<{ users: User[] }> = memo(({ users }) => {
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
 
-  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true }} sx={{ my: 2 }}>
+  return <Accordion disableGutters sx={{ my: 2 }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <Typography>Users</Typography>
       <Typography sx={{ color: 'text.secondary', mx: 1 }}>({users.length})</Typography>
@@ -92,7 +89,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string, varian
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
 
-  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true }} sx={{ my: 2 }}>
+  return <Accordion disableGutters sx={{ my: 2 }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <Typography>{title}</Typography>
       <Typography sx={{ color: 'text.secondary', mx: 1 }}>({documents.length})</Typography>

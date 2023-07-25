@@ -1,3 +1,4 @@
+"use client"
 import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
 import { INSERT_SKETCH_COMMAND, InsertSketchPayload } from '../../SketchPlugin';
 import { Suspense, lazy, useEffect, useState, memo } from 'react';
@@ -33,7 +34,8 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ske
   const handleSubmit = async () => {
     const elements = excalidrawAPI?.getSceneElements();
     const files = excalidrawAPI?.getFiles();
-    const exportToSvg = await import('@excalidraw/excalidraw').then((module) => module.exportToSvg);
+    const exportToSvg = await import('@excalidraw/excalidraw').then((module) => module.exportToSvg).catch((e) => console.error(e));
+    if (!elements || !files || !exportToSvg) return;
     const element: SVGElement = await exportToSvg({
       appState: {
         exportEmbedScene: true,
@@ -72,9 +74,9 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ske
     const elements = node?.getValue();
     if (!src) return;
     const blob = await (await fetch(src)).blob();
-    const loadSceneOrLibraryFromBlob = await import('@excalidraw/excalidraw').then((module) => module.loadSceneOrLibraryFromBlob);
-    const MIME_TYPES = await import('@excalidraw/excalidraw').then((module) => module.MIME_TYPES);
     try {
+      const loadSceneOrLibraryFromBlob = await import('@excalidraw/excalidraw').then((module) => module.loadSceneOrLibraryFromBlob);
+      const MIME_TYPES = await import('@excalidraw/excalidraw').then((module) => module.MIME_TYPES);
       const contents = await loadSceneOrLibraryFromBlob(blob, null, elements ?? null);
       if (contents.type === MIME_TYPES.excalidraw) {
         excalidrawAPI?.addFiles(Object.values(contents.data.files));

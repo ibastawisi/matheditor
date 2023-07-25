@@ -1,3 +1,4 @@
+"use client"
 import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, ElementNode, LexicalCommand, LexicalNode, NodeKey, RangeSelection, TextNode, createCommand } from 'lexical';
 import { $isCodeNode, CODE_LANGUAGE_MAP, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from '../../nodes/CodeNode';
 import { $isListNode, ListNode, } from '@lexical/list';
@@ -32,7 +33,6 @@ import { $isSketchNode } from '../../nodes/SketchNode';
 import { $isGraphNode } from '../../nodes/GraphNode';
 import { $patchStyle } from '../../nodes/utils';
 import { ImageDialog, GraphDialog, SketchDialog, TableDialog } from './Dialogs';
-import useLexicalEditable from '@lexical/react/useLexicalEditable';
 import { $isStickyNode } from '../../nodes/StickyNode';
 
 type EditorDialogs = {
@@ -386,6 +386,5 @@ function ToolbarPlugin() {
 }
 
 export default function useToolbarPlugin(): null | JSX.Element {
-  const isEditable = useLexicalEditable();
-  return isEditable ? <ToolbarPlugin /> : null;
+  return <ToolbarPlugin />
 }

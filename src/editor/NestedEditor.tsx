@@ -1,3 +1,4 @@
+"use client"
 import type { EditorState, LexicalEditor } from "lexical";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { EditorPlugins } from "./plugins";

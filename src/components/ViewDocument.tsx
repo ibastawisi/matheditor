@@ -1,58 +1,29 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { actions } from "../store";
-import { AppDispatch } from "../store";
-import { useParams, Link as RouterLink } from "react-router-dom";
-import Viewer from "../editor/Viewer";
-import SplashScreen from "./SplashScreen";
-import { Helmet } from "react-helmet";
-import { EditorDocument } from '../types';
+"use client"
+import RouterLink from 'next/link'
 import Fab from "@mui/material/Fab";
 import EditIcon from '@mui/icons-material/Edit';
 import useScrollTrigger from "@mui/material/useScrollTrigger";
 import { Transition } from 'react-transition-group';
-import documentDB from "../db";
 
-const ViewDocument: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const params = useParams<{ id: string }>();
-  const [document, setDocument] = useState<EditorDocument | null>(null);
+import '@/editor/theme.css';
+import '@/editor/nodes/StickyNode/StickyNode.css';
+import "mathlive/static.css"
+
+const ViewDocument: React.FC<React.PropsWithChildren & { id: string }> = ({ id, children }) => {
   const slideTrigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 100,
   });
 
-  useEffect(() => {
-    const loadDocument = async (id: string) => {
-      // load from local storage
-      const storedDocument = await documentDB.getByID(id);
-      if (storedDocument) {
-        setDocument(storedDocument);
-      } else {
-        // load from server
-        const response = await dispatch(actions.app.getDocumentAsync(id));
-        const { payload, error } = response as any;
-        if (!error) setDocument(payload);
-      }
-    }
-    params.id && loadDocument(params.id);
-  }, []);
-
-  if (!document) {
-    return <SplashScreen title="Loading Document" />;
-  }
-
-  return document.id === params.id ? <>
-    <Helmet><title>{document.name}</title></Helmet>
-    <Viewer initialConfig={{ editorState: JSON.stringify(document.data) }} />
+  return <>
+    {children}
     <Transition in={slideTrigger} timeout={225}>
-      <Fab variant="extended" size='medium' component={RouterLink} to={`/new/${document.id}`} state={{ data: document.data }}
+      <Fab variant="extended" size='medium' component={RouterLink} href={`/new/${id}`}
         sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 24, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>
         <EditIcon />Fork
       </Fab>
     </Transition>
-  </> : <SplashScreen />;
+  </>
 }
 
 export default ViewDocument;

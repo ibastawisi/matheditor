@@ -1,3 +1,4 @@
+"use client"
 import { LexicalEditor, NodeKey } from 'lexical';
 import { useEffect, useState } from 'react';
 import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
@@ -39,13 +40,16 @@ export default function SketchComponent({
 
   useEffect(() => {
     async function embedFonts() {
-      const [virgil, cascadia] = await encodeFonts;
-      const fonts = `@font-face { font-family: 'Virgil'; src: url('${virgil}') format('woff2');} @font-face { font-family: 'Cascadia'; src: url('${cascadia}') format('woff2'); }`;
-      const encoded = src.substring(src.indexOf(',') + 1);
-      const decoded = decodeURIComponent(encoded);
-      const serialized = decoded.replace(/<style.*?>[\s\S]*<\/style>/, `<style class="style-fonts">${fonts}</style>`);
-
-      setSource(`data:image/svg+xml,${encodeURIComponent(serialized)}`);
+      try {
+        const [virgil, cascadia] = await encodeFonts;
+        const fonts = `@font-face { font-family: 'Virgil'; src: url('${virgil}') format('woff2');} @font-face { font-family: 'Cascadia'; src: url('${cascadia}') format('woff2'); }`;
+        const encoded = src.substring(src.indexOf(',') + 1);
+        const decoded = decodeURIComponent(encoded);
+        const serialized = decoded.replace(/<style.*?>[\s\S]*<\/style>/, `<style class="style-fonts">${fonts}</style>`);
+        setSource(`data:image/svg+xml,${encodeURIComponent(serialized)}`);
+      } catch (e) {
+        console.error(e);
+      }
     };
     embedFonts();
   }, [src]);

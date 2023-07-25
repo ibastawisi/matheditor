@@ -1,9 +1,9 @@
+"use client"
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import ListItemText from "@mui/material/ListItemText";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-
 import { SortProps, useSort } from "../hooks/useSort";
 import Box from "@mui/material/Box";
 import ToggleButton from "@mui/material/ToggleButton";

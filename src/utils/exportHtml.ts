@@ -1,7 +1,8 @@
-import { EditorDocument } from "../types";
-import theme from '../editor/theme.css?inline';
-import stickyStyles from '../editor/nodes/StickyNode/StickyNode.css?inline';
-import { generateHtml } from "../editor/utils/generateHtml";
+"use client"
+import { EditorDocument } from "@/types";
+import theme from '@/editor/theme.css?inline';
+import stickyStyles from '@/editor/nodes/StickyNode/StickyNode.css?inline';
+import { generateHtml } from "@/editor/utils/generateHtml";
 
 export const exportHtml = async (document: EditorDocument) => {
   const body = await generateHtml(document.data);
@@ -9,7 +10,8 @@ export const exportHtml = async (document: EditorDocument) => {
     <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width,initial-scale=1" />
-      <meta name="title" content="${document.name}" />
+      <title>${document.name}</title>
+      <meta name="color-scheme" content="light dark" />
       <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
       <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive-static.css" />
       <style>

@@ -1,4 +1,5 @@
-import type { SerializedEditorState } from './editor/types';
+"use client"
+import type { SerializedEditorState } from 'lexical';
 
 export interface Alert {
   title: string;
@@ -13,19 +14,17 @@ export interface Announcement {
   };
   timeout?: number;
 }
+export interface Admin {
+  users: User[];
+  documents: AdminDocument[];
+}
+
 export interface AppState {
-  documents: UserDocument[];
   user: User | null;
-  ui: {
-    isLoading: boolean;
-    isSaving: boolean;
-    announcements: Announcement[];
-    alerts: Alert[];
-  };
-  admin: {
-    users: User[];
-    documents: AdminDocument[];
-  } | null;
+  documents: UserDocument[];
+  announcements: Announcement[];
+  alerts: Alert[];
+  initialized: boolean;
 }
 
 export interface EditorDocument {
@@ -34,21 +33,25 @@ export interface EditorDocument {
   data: SerializedEditorState;
   createdAt: string;
   updatedAt: string;
-  isPublic?: boolean;
+  published?: boolean;
   baseId?: string;
 }
-export type DocumentWithAuthorId = UserDocument & { authorId: string; };
-export type DocumentWithAuthor = UserDocument & { author: User; };
-export type AdminDocument = DocumentWithAuthorId & DocumentWithAuthor;
+
+export type UserDocument = Omit<EditorDocument, "data">;
+export type AdminDocument = UserDocument & { author: Omit<User, "documents"> };
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  picture: string;
-  admin: boolean;
+  image: string;
+  role: "user" | "superuser" | "admin";
   createdAt: string;
   updatedAt: string;
   documents: UserDocument[];
 }
 
-export type UserDocument = Omit<EditorDocument, "data">;
+export interface Admin {
+  users: User[];
+  documents: AdminDocument[];
+}

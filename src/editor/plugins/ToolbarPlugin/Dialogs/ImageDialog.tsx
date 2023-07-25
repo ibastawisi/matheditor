@@ -1,3 +1,4 @@
+"use client"
 import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
 import { INSERT_IMAGE_COMMAND, InsertImagePayload } from '../../ImagePlugin';
 import UploadFileIcon from '@mui/icons-material/UploadFile';

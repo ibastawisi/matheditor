@@ -363,7 +363,7 @@ const task2Checkpoints = [
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
         <Select size='small' sx={{ width: 68, mx: 1 }} value='Roboto' readOnly>
-          <MenuItem key='Roboto' value='Roboto'>'Roboto'</MenuItem>
+          <MenuItem key='Roboto' value='Roboto'>Roboto</MenuItem>
         </Select>
         menu in the toolbar
       </Typography>
@@ -396,7 +396,7 @@ const task2Checkpoints = [
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
         <Select size='small' sx={{ width: 68, mx: 1 }} value='Roboto' readOnly>
-          <MenuItem key='Roboto' value='Roboto'>'Roboto'</MenuItem>
+          <MenuItem key='Roboto' value='Roboto'>Roboto</MenuItem>
         </Select>
         menu in the toolbar
       </Typography>

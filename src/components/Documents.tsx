@@ -1,3 +1,6 @@
+"use client"
+import { useRouter } from 'next/navigation';
+import RouterLink from 'next/link'
 import Box from "@mui/material/Box"
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
@@ -9,13 +12,11 @@ import React, { memo, useEffect, useState } from "react";
 import { actions } from "../store";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import StorageIcon from '@mui/icons-material/Storage';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { EditorDocument, User, UserDocument } from '../types';
+import { EditorDocument, User, UserDocument } from '@/types';
 import { validate } from "uuid";
 import UserCard from "./UserCard";
 import Avatar from "@mui/material/Avatar";
 import PostAddIcon from '@mui/icons-material/PostAdd';
-import documentDB from "../db";
 import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardHeader from "@mui/material/CardHeader";
@@ -29,12 +30,16 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ReportIcon from '@mui/icons-material/Report';
+import { useSession } from 'next-auth/react';
+import documentDB from '@/indexeddb';
 
 const Documents: React.FC = () => {
-  const documents = useSelector((state: RootState) => state.app.documents);
-  const user = useSelector((state: RootState) => state.app.user);
+  const documents = useSelector((state: RootState) => state.documents);
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
+  const { status } = useSession();
+  const user = useSelector((state: RootState) => state.user);
   const localDocuments = documents.map(d => d.id);
   const cloudDocuments = user?.documents.filter(d => !localDocuments.includes(d.id)) || [];
   const allDocuments = [...documents, ...cloudDocuments];
@@ -59,7 +64,6 @@ const Documents: React.FC = () => {
         },
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleFilesChange = async (files: FileList | File[] | null) => {
@@ -68,7 +72,7 @@ const Documents: React.FC = () => {
       await loadFromFile(files[0]);
     } else {
       Array.from(files).forEach(async file => await loadFromFile(file));
-      dispatch(actions.app.loadDocumentsAsync());
+      dispatch(actions.loadDocumentsAsync());
     }
   }
 
@@ -96,22 +100,22 @@ const Documents: React.FC = () => {
         });
       }
     } catch (error) {
-      dispatch(actions.app.announce({ message: "Invalid document data" }));
+      dispatch(actions.announce({ message: "Invalid document data" }));
     }
     return document;
   }
 
   function addDocument(document: EditorDocument, navigateTo?: boolean) {
     if (documents.find(d => d.id === document.id)) {
-      dispatch(actions.app.alert({
+      dispatch(actions.alert({
         title: "Document already exists",
         content: `Do you want to overwrite ${document.name}?`,
-        action: `dispatch(actions.app.deleteDocument("${document.id}"));
-         dispatch(actions.app.addDocument(${JSON.stringify(document)}));
+        action: `dispatch(actions.deleteDocument("${document.id}"));
+         dispatch(actions.addDocument(${JSON.stringify(document)}));
           ${navigateTo ? `navigate("/edit/${document.id}");` : ""}`
       }))
     } else {
-      dispatch(actions.app.addDocument(document));
+      dispatch(actions.addDocument(document));
       navigateTo && navigate(`/edit/${document.id}`);
     }
   }
@@ -140,7 +144,7 @@ const Documents: React.FC = () => {
     <>
       <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5 }}>
         <Avatar sx={{ my: 2, bgcolor: 'primary.main' }}><PostAddIcon /></Avatar>
-        <Button variant="outlined" component={RouterLink} to="/new">New document</Button>
+        <Button variant="outlined" component={RouterLink} href="/new">New document</Button>
       </Box>
       <Box sx={{ my: 3 }}>
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", gap: 1, mb: 1 }}>
@@ -158,25 +162,27 @@ const Documents: React.FC = () => {
             </Box>
           </Box>
         </Box>
-        <DocumentsTree user={user} documents={sortedDocuments.slice((page - 1) * 12, page * 12)} localDocuments={localDocuments} />
+        <DocumentsTree documents={sortedDocuments.slice((page - 1) * 12, page * 12)} localDocuments={localDocuments} />
+        {status !== "loading" && documents.length === 0 && <Grid item xs={12} sx={{ my: 2 }}><LocalDataMissing /></Grid>}
+        {!user && <Grid item xs={12} sx={{ my: 2 }}><UserCard status={status} /></Grid>}
         {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}
       </Box>
     </>
   )
 }
 
-const DocumentsTree: React.FC<{ user: User | null, documents: UserDocument[], localDocuments: string[] }> = memo(({ user, documents, localDocuments }) => {
+const DocumentsTree: React.FC<{ documents: UserDocument[], localDocuments: string[] }> = memo(({ documents, localDocuments }) => {
   return <Grid container spacing={2}>
     <Grid item xs={6}>
       <Card variant="outlined">
-        <CardActionArea component={RouterLink} to="/playground">
+        <CardActionArea component={RouterLink} href="/playground">
           <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>} />
         </CardActionArea>
       </Card>
     </Grid>
     <Grid item xs={6}>
       <Card variant="outlined">
-        <CardActionArea component={RouterLink} to="/tutorial">
+        <CardActionArea component={RouterLink} href="/tutorial">
           <CardHeader title="Tutorial" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><HelpIcon /></Avatar>} />
         </CardActionArea>
       </Card>
@@ -184,8 +190,6 @@ const DocumentsTree: React.FC<{ user: User | null, documents: UserDocument[], lo
     {documents.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
       <DocumentCard document={document} variant={localDocuments.includes(document.id) ? "local" : "cloud"} />
     </Grid>)}
-    {documents.length === 0 && <Grid item xs={12}><LocalDataMissing /></Grid>}
-    {!user && <Grid item xs={12}><UserCard /></Grid>}
   </Grid>
 });
 
@@ -193,7 +197,7 @@ const LocalDataMissing: React.FC = () => {
   return <Accordion disableGutters TransitionProps={{ mountOnEnter: true }} sx={{ my: 2 }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <ReportIcon sx={{ color: 'error.main', mr: 1 }} />
-      <Typography>Can't find your data?</Typography>
+      <Typography>{"Can't find your data?"}</Typography>
     </AccordionSummary>
     <AccordionDetails>
       <Typography>Due to a recent update, the website domain has been changed, to recover your data, please follow the steps below:</Typography>

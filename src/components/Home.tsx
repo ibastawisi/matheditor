@@ -1,3 +1,5 @@
+"use client"
+import { useRouter } from 'next/navigation';
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -5,15 +7,23 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import useLocalStorage from "../hooks/useLocalStorage";
 import Documents from "./Documents";
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState, actions } from '@/store';
 
 const Home: React.FC = () => {
   const [welcomed, setWelcomed] = useLocalStorage("welcomed", false);
-  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const initialized = useSelector((state: RootState) => state.initialized);
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
   const handleClose = () => setWelcomed(true);
-  useEffect(() => { window.scrollTo(0, 0); }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (!initialized) dispatch(actions.loadAsync());
+  }, []);
 
   return (
     <>

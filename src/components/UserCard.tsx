@@ -1,34 +1,30 @@
+"use client"
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { User } from '../types';
+import { User } from '@/types';
 import Button from '@mui/material/Button';
 import { useDispatch } from 'react-redux';
 import { actions, AppDispatch } from '../store';
 import CardActions from '@mui/material/CardActions';
 import Skeleton from '@mui/material/Skeleton';
-import { BACKEND_URL } from '../config';
 import GoogleIcon from '@mui/icons-material/Google';
 import IconButton from '@mui/material/IconButton';
 import ShareIcon from '@mui/icons-material/Share';
-import { Link as RouterLink } from 'react-router-dom';
+import RouterLink from 'next/link'
 import CardActionArea from '@mui/material/CardActionArea';
 import ArticleIcon from '@mui/icons-material/Article';
 import Chip from "@mui/material/Chip";
 import Avatar from '@mui/material/Avatar';
 import { memo } from 'react';
+import { signIn, signOut } from "next-auth/react";
 
-const UserCard: React.FC<{ user?: User | null, variant?: 'user' | 'public' | 'admin' }> = memo(({ user, variant = 'user' }) => {
+const UserCard: React.FC<{ user?: User | null, variant?: 'user' | 'public' | 'admin', status?: 'loading' | 'authenticated' | 'unauthenticated' }> = memo(({ user, variant = 'user', status }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const login = async () => {
-    const googleLoginURL = BACKEND_URL + "/auth/login";
-    window.open(googleLoginURL, "_blank", "width=500,height=600");
-  };
 
-  const logout = async () => {
-    dispatch(actions.app.logoutAsync());
-  }
+  const login = () => signIn("google");
+  const logout = () => signOut();
 
   const handleShare = async () => {
     const shareData = {
@@ -39,14 +35,14 @@ const UserCard: React.FC<{ user?: User | null, variant?: 'user' | 'public' | 'ad
       await navigator.share(shareData)
     } catch (err) {
       navigator.clipboard.writeText(shareData.url);
-      dispatch(actions.app.announce({ message: "Link copied to clipboard" }));
+      dispatch(actions.announce({ message: "Link copied to clipboard" }));
     }
   };
 
   return (
     <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between', height: '100%' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', width: 0, flex: 1 }}>
-        <CardActionArea component={RouterLink} to={user ? `/user/${user.id}` : '/dashboard'} sx={{ flex: '1 0 auto' }}>
+        <CardActionArea component={RouterLink} href={user ? `/user/${user.id}` : '/dashboard'} sx={{ flex: '1 0 auto' }}>
           <CardContent>
             <Typography variant={variant !== 'admin' ? "h6" : "subtitle1"}>
               {user ? user.name : <Skeleton variant="text" width={190} />}
@@ -60,25 +56,24 @@ const UserCard: React.FC<{ user?: User | null, variant?: 'user' | 'public' | 'ad
             }
           </CardContent>
         </CardActionArea>
-        <CardActions>
+        {status !== "loading" && <CardActions>
           {variant === 'user' && <>
             {user && <Button size='small' onClick={logout}>Logout</Button>}
             {!user && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>Login with Google</Button>}
           </>}
           {user && variant === 'admin' && <Chip icon={<ArticleIcon />} label={`${user.documents.length} documents`} />}
-          {variant !== 'admin' && <IconButton size="small" aria-label="Share" onClick={handleShare} disabled={!user}>
-            <ShareIcon />
-          </IconButton>}
-        </CardActions>
+          {variant !== 'admin' && <IconButton size="small" aria-label="Share" onClick={handleShare} disabled={!user}><ShareIcon /></IconButton>}
+        </CardActions>}
+
       </Box>
-      <CardActionArea component={RouterLink} to={user ? `/user/${user.id}` : '/dashboard'} sx={{ display: 'flex', width: 'auto' }}>
+      <CardActionArea component={RouterLink} href={user ? `/user/${user.id}` : '/dashboard'} sx={{ display: 'flex', width: 'auto' }}>
         {user ?
           <Avatar
-            sx={{ width: 112, height: 112, mx: 2, alignSelf: 'center', flexShrink: 0 }}
-            src={user.picture}
+            sx={{ width: 112, height: 112, m: 2, alignSelf: 'center', flexShrink: 0 }}
+            src={user.image ?? undefined}
             alt={user.name}
           /> :
-          <Skeleton variant="circular" width={112} height={112} sx={{ mx: 2, alignSelf: 'center', flexShrink: 0 }} />
+          <Skeleton variant="circular" width={112} height={112} sx={{ m: 2, alignSelf: 'center', flexShrink: 0 }} />
         }
       </CardActionArea>
     </Card>

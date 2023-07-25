@@ -1,3 +1,4 @@
+"use client"
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -24,7 +25,6 @@ import { getDOMRangeRect } from '../../utils/getDOMRangeRect';
 import { getSelectedNode } from '../../utils/getSelectedNode';
 import { setFloatingElemPosition } from '../../utils/setFloatingElemPosition';
 import TextFormatToggles from '../ToolbarPlugin/Tools/TextFormatToggles';
-import useLexicalEditable from '@lexical/react/useLexicalEditable';
 
 function FloatingToolbar({ editor, anchorElem }: { editor: LexicalEditor; anchorElem: HTMLElement; }) {
   const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null);
@@ -224,7 +224,5 @@ export default function FloatingTextFormatToolbarPlugin({
   anchorElem?: HTMLElement;
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
-  const isEditable = useLexicalEditable();
-  if (!isEditable) return null;
   return useFloatingToolbar(editor, anchorElem);
 }

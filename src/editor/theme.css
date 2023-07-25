@@ -18,6 +18,7 @@
   margin: 0;
   margin-bottom: 8px;
   position: relative;
+  overflow: hidden;
 }
 
 .LexicalTheme__paragraph:last-child {
@@ -521,4 +522,14 @@
 
 [theme=light] .LexicalTheme__tableCellHeader {
   background-color: rgba(0, 0, 0, 0.05);
+}
+
+@font-face {
+  font-family: Virgil;
+  src: url(https://unpkg.com/@excalidraw/excalidraw/dist/excalidraw-assets/Virgil.woff2);
+}
+
+@font-face {
+  font-family: Cascadia;
+  src: url(https://unpkg.com/@excalidraw/excalidraw/dist/excalidraw-assets/Cascadia.woff2);
 }

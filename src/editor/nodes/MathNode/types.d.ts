@@ -1,1 +1,0 @@
-declare module 'mathlive/dist/mathlive-ssr.min.mjs'
