@@ -11,7 +11,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { actions, RootState } from '../store';
 
 export default function AlertDialog() {
-  const alert = useSelector((state: RootState) => state.app.alerts[0]);
+  const alert = useSelector((state: RootState) => state.alerts[0]);
   const dispatch = useDispatch();
   const router = useRouter();
   const navigate = (path: string) => router.push(path);

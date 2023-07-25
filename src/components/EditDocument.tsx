@@ -9,7 +9,7 @@ import useIndexedDBStore from "@/hooks/useIndexedDB";
 import { AppDispatch, actions } from "@/store";
 import { useDispatch } from "react-redux";
 
-const EditDocument: React.FC<{ params: { id?: string }, cloudDocument?: EditorDocument }> = ({ params, cloudDocument }) => {
+const EditDocument: React.FC<{ params: { id?: string } }> = ({ params }) => {
   const [document, setDocument] = useState<EditorDocument>();
   const documentDB = useIndexedDBStore<EditorDocument>('documents');
   const dispatch = useDispatch<AppDispatch>();
@@ -20,9 +20,13 @@ const EditDocument: React.FC<{ params: { id?: string }, cloudDocument?: EditorDo
       if (localDocument) {
         setDocument(localDocument);
         dispatch(actions.loadDocument(localDocument));
-      } else if (cloudDocument) {
-        setDocument(cloudDocument);
-        dispatch(actions.loadDocument(cloudDocument));
+      } else {
+        const response = await dispatch(actions.getDocumentAsync(id));
+        const { payload, error } = response as any;
+        if (!error) {
+          setDocument(payload);
+          dispatch(actions.loadDocument(payload));
+        }
       }
     }
     params.id && loadDocument(params.id);

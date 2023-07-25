@@ -37,5 +37,5 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 export default async function Page({ params }: { params: { id: string } }) {
   const document = await findDocumentById(params.id) as unknown as EditorDocument;
   if (!document) return <NewDocument params={params} />;
-  return <NewDocument params={params} cloudDocument={document} />;
+  return <NewDocument params={params} cloudDocument={JSON.parse(JSON.stringify(document))} />
 }

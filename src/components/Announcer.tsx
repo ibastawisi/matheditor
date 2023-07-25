@@ -9,7 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
 function Announcer() {
-  const announcement = useSelector((state: RootState) => state.app.announcements[0]);
+  const announcement = useSelector((state: RootState) => state.announcements[0]);
   const dispatch = useDispatch();
   const router = useRouter();
   const navigate = (path: string) => router.push(path);

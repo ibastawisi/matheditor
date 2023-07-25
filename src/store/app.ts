@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { showLoading, hideLoading } from 'react-redux-loading-bar';
+import NProgress from "nprogress";
 import documentDB from '@/indexeddb';
 import { AppState, Announcement, Alert, EditorDocument, UserDocument } from '../types';
 import { createDocumentAction, deleteDocumentAction, getDocumentAction, updateDocumentAction } from '@/app/actions';
@@ -19,7 +19,7 @@ export const loadAsync = createAsyncThunk('app/loadAsync', async (_, thunkAPI) =
 });
 
 export const loadDocumentsAsync = createAsyncThunk('app/loadDocumentsAsync', async (_, thunkAPI) => {
-  thunkAPI.dispatch(showLoading())
+  NProgress.start();
   try {
     const documents = await documentDB.getAll();
     const userDocuments = documents.map(document => {
@@ -31,24 +31,24 @@ export const loadDocumentsAsync = createAsyncThunk('app/loadDocumentsAsync', asy
     const message = error.response?.data?.error || error.message;
     return thunkAPI.rejectWithValue(message);
   } finally {
-    thunkAPI.dispatch(hideLoading())
+    NProgress.done();
   }
 });
 export const getDocumentAsync = createAsyncThunk('app/getDocumentAsync', async (id: string, thunkAPI) => {
   try {
-    thunkAPI.dispatch(showLoading());
+    NProgress.start();
     const response = await getDocumentAction(id);
     return response;
   } catch (error: any) {
     const message: string = error.response?.data?.error || error.message;
     return thunkAPI.rejectWithValue(message);
   } finally {
-    thunkAPI.dispatch(hideLoading())
+    NProgress.done();
   }
 });
 
 export const createDocumentAsync = createAsyncThunk('app/createDocumentAsync', async (document: EditorDocument, thunkAPI) => {
-  thunkAPI.dispatch(showLoading());
+  NProgress.start();
   try {
     await createDocumentAction(document);
     const { data, ...userDocument } = document;
@@ -58,12 +58,12 @@ export const createDocumentAsync = createAsyncThunk('app/createDocumentAsync', a
     const message: string = error.response?.data?.error || error.message;
     return thunkAPI.rejectWithValue(message);
   } finally {
-    thunkAPI.dispatch(hideLoading())
+    NProgress.done();
   }
 });
 
 export const updateDocumentAsync = createAsyncThunk('app/updateDocumentAsync', async (payloadCreator: { id: string, partial: Partial<EditorDocument> }, thunkAPI) => {
-  thunkAPI.dispatch(showLoading());
+  NProgress.start();
   const { id, partial } = payloadCreator;
   try {
     await updateDocumentAction(id, partial);
@@ -73,20 +73,20 @@ export const updateDocumentAsync = createAsyncThunk('app/updateDocumentAsync', a
     const message: string = error.response?.data?.error || error.message;
     return thunkAPI.rejectWithValue(message);
   } finally {
-    thunkAPI.dispatch(hideLoading())
+    NProgress.done();
   }
 });
 
 export const deleteDocumentAsync = createAsyncThunk('app/deleteDocumentAsync', async (id: string, thunkAPI) => {
   try {
-    thunkAPI.dispatch(showLoading());
+    NProgress.start();
     await deleteDocumentAction(id);
     return id;
   } catch (error: any) {
     const message = error.response?.data?.error || error.message;
     return thunkAPI.rejectWithValue(message);
   } finally {
-    thunkAPI.dispatch(hideLoading())
+    NProgress.done();
   }
 });
 

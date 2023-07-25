@@ -60,7 +60,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
   };
 
   const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector((state: RootState) => state.app.user);
+  const user = useSelector((state: RootState) => state.user);
   const cloudDocument = user?.documents?.find(d => d.id === document.id);
   const isUploaded = !!cloudDocument;
   const isUpToDate = cloudDocument?.updatedAt === document.updatedAt;

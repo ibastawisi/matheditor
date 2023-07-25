@@ -19,7 +19,7 @@ const page = async () => {
   const users = await findAllUsers();
   const documents = await findAllDocuments();
   const admin = { users, documents };
-  return <Dashboard initialUser={user} admin={JSON.parse(JSON.stringify(admin))} />
+  return <Dashboard initialUser={JSON.parse(JSON.stringify(user))} admin={JSON.parse(JSON.stringify(admin))} />
 }
 
 export default page;

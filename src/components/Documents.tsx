@@ -34,12 +34,12 @@ import { useSession } from 'next-auth/react';
 import documentDB from '@/indexeddb';
 
 const Documents: React.FC = () => {
-  const documents = useSelector((state: RootState) => state.app.documents);
+  const documents = useSelector((state: RootState) => state.documents);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
   const { status } = useSession();
-  const user = useSelector((state: RootState) => state.app.user);
+  const user = useSelector((state: RootState) => state.user);
   const localDocuments = documents.map(d => d.id);
   const cloudDocuments = user?.documents.filter(d => !localDocuments.includes(d.id)) || [];
   const allDocuments = [...documents, ...cloudDocuments];

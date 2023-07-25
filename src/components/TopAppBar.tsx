@@ -23,9 +23,10 @@ import logo from "@/public/logo.svg";
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { User } from '@/types';
-import { LoadingBar } from 'react-redux-loading-bar';
 import { useDispatch } from 'react-redux';
 import { AppDispatch, actions } from '@/store';
+import NProgress from "nprogress";
+import ProgressBar from './Progressbar';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname()
@@ -85,7 +86,7 @@ const TopAppBar: React.FC<{}> = () => {
 
   return (
     <>
-      <LoadingBar className='loading-bar' style={{ position: 'fixed' }} />
+      <ProgressBar />
       <HideOnScroll>
         <AppBar sx={{ displayPrint: "none", zIndex: 1200 }}>
           <Toolbar sx={{ minHeight: 64 }}>

@@ -15,7 +15,7 @@ import { AppDispatch, RootState, actions } from '@/store';
 const Home: React.FC = () => {
   const [welcomed, setWelcomed] = useLocalStorage("welcomed", false);
   const dispatch = useDispatch<AppDispatch>();
-  const initialized = useSelector((state: RootState) => state.app.initialized);
+  const initialized = useSelector((state: RootState) => state.initialized);
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
   const handleClose = () => setWelcomed(true);

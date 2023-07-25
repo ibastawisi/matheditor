@@ -15,7 +15,7 @@ export async function createDocumentAction(body: EditorDocument) {
     return NextResponse.json({ error: 'account disabled, please contact admin' }, { status: 403 });
   }
   const document = await createDocument({ ...body, author: { connect: { id: user.id } } } as unknown as Prisma.DocumentCreateInput);
-  return document;
+  return JSON.parse(JSON.stringify(document));
 }
 
 export async function updateDocumentAction(id: string, body: Partial<EditorDocument>) {
@@ -30,7 +30,7 @@ export async function updateDocumentAction(id: string, body: Partial<EditorDocum
     return NextResponse.json({ error: 'you are not allowed to update this document' }, { status: 403 });
   }
   const document = await updateDocument(id, body as unknown as Prisma.DocumentUpdateInput);
-  return document;
+  return JSON.parse(JSON.stringify(document));
 }
 
 export async function deleteDocumentAction(id: string) {
@@ -53,5 +53,5 @@ export async function deleteDocumentAction(id: string) {
 export async function getDocumentAction(id: string) {
   const document = await findDocumentById(id);
   if (!document) return NextResponse.json({ error: 'document not found' }, { status: 404 });
-  return document;
+  return JSON.parse(JSON.stringify(document));
 }

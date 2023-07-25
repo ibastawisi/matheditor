@@ -21,9 +21,9 @@ import { useSession } from "next-auth/react";
 
 const Dashboard: React.FC<{ initialUser: User | null, admin?: Admin }> = ({ initialUser, admin }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const documents = useSelector((state: RootState) => state.app.documents);
-  const user = useSelector((state: RootState) => state.app.user);
-  const initialized = useSelector((state: RootState) => state.app.initialized);
+  const documents = useSelector((state: RootState) => state.documents);
+  const user = useSelector((state: RootState) => state.user);
+  const initialized = useSelector((state: RootState) => state.initialized);
   const { status } = useSession();
 
   useEffect(() => {

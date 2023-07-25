@@ -36,16 +36,17 @@
     "mathlive": "^0.95.0",
     "next": "13.4.12",
     "next-auth": "^4.22.3",
+    "nprogress": "^0.2.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-helmet": "^6.1.0",
     "react-redux": "^8.1.1",
-    "react-redux-loading-bar": "^5.0.4",
     "typescript": "5.1.6",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.1",
+    "@types/nprogress": "^0.2.0",
     "@types/prismjs": "^1.26.0",
     "@types/react-helmet": "^6.1.6",
     "@types/uuid": "^9.0.2",
