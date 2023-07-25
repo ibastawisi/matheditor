@@ -95,7 +95,7 @@ const NewDocument: React.FC<{ params?: { id?: string }, cloudDocument?: EditorDo
         <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>
         <Typography component="h1" variant="h5">{document ? `Fork ${document.name}` : "Create a new document"}</Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-          <TextField id="document-name" margin="normal" size="small" label="Document Name" name="documentName" autoComplete="off" fullWidth autoFocus sx={{ '& input': { height: 40 } }} />
+          <TextField id="document-name" margin="normal" size="small" label="Document Name" name="documentName" autoComplete="off" fullWidth autoFocus />
           <Button type="submit" fullWidth variant="contained" startIcon={<AddIcon />} sx={{ my: 2 }}>Create</Button>
         </Box>
       </Box>

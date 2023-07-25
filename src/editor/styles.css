@@ -3,7 +3,7 @@
 }
 
 .editor-input {
-  min-height: 150px;
+  min-height: 50vh;
   resize: none;
   font-size: 15px;
   caret-color: rgb(5, 5, 5);

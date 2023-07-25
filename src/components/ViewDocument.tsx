@@ -1,53 +1,29 @@
 "use client"
-import { useEffect, useState } from "react";
 import RouterLink from 'next/link'
-import SplashScreen from "./SplashScreen";
-import { Helmet } from "react-helmet";
-import { EditorDocument } from '@/types';
 import Fab from "@mui/material/Fab";
 import EditIcon from '@mui/icons-material/Edit';
 import useScrollTrigger from "@mui/material/useScrollTrigger";
 import { Transition } from 'react-transition-group';
-import dynamic from "next/dynamic";
-import useIndexedDBStore from "@/hooks/useIndexedDB";
 
-const Viewer = dynamic(() => import("@/editor/Viewer"), { ssr: false, loading: () => <SplashScreen title="Loading Viewer" /> });
+import '@/editor/theme.css';
+import '@/editor/nodes/StickyNode/StickyNode.css';
+import "mathlive/static.css"
 
-const ViewDocument: React.FC<{ params: { id?: string }, cloudDocument?: EditorDocument }> = ({ params, cloudDocument }) => {
-  const [document, setDocument] = useState(cloudDocument);
+const ViewDocument: React.FC<React.PropsWithChildren & { id: string }> = ({ id, children }) => {
   const slideTrigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 100,
   });
 
-  const documentDB = useIndexedDBStore<EditorDocument>('documents');
-
-  useEffect(() => {
-    const loadDocument = async (id: string) => {
-      const localDocument = await documentDB.getByID(id);
-      if (localDocument) {
-        setDocument(localDocument);
-      } else if (cloudDocument) {
-        setDocument(cloudDocument);
-      }
-    }
-    params.id && loadDocument(params.id);
-  }, []);
-
-  if (!document) {
-    return <SplashScreen title="Loading Document" />;
-  }
-
-  return document.id === params.id ? <>
-    <Helmet title={`${document.name} | Math Editor`} />
-    <Viewer initialConfig={{ editorState: JSON.stringify(document.data) }} />
+  return <>
+    {children}
     <Transition in={slideTrigger} timeout={225}>
-      <Fab variant="extended" size='medium' component={RouterLink} href={{ pathname: `/new/${document.id}`, query: { data: JSON.stringify(document.data) } } as any}
+      <Fab variant="extended" size='medium' component={RouterLink} href={`/new/${id}`}
         sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 24, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>
         <EditIcon />Fork
       </Fab>
     </Transition>
-  </> : <SplashScreen />;
+  </>
 }
 
 export default ViewDocument;

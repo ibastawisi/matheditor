@@ -12,12 +12,11 @@ import useIndexedDBStore from '@/hooks/useIndexedDB';
 
 const Editor = dynamic(() => import("@/editor/Editor"), { ssr: false, loading: () => <SplashScreen title="Loading Editor" /> });
 
-const Container: React.FC<{ document: EditorDocument, editable: boolean, onChange?: (editorState: EditorState) => void }> = ({ document, editable, onChange }) => {
+const Container: React.FC<{ document: EditorDocument, onChange?: (editorState: EditorState) => void }> = ({ document, onChange }) => {
 
   const documentDB = useIndexedDBStore<EditorDocument>('documents');
   
   function handleChange(editorState: EditorState) {
-    if (!editable) return;
     const data = editorState.toJSON();
     if (isEqual(data, document.data)) return;
     try {
@@ -31,7 +30,7 @@ const Container: React.FC<{ document: EditorDocument, editable: boolean, onChang
 
   return (
     <Box className="editor">
-      <Editor initialConfig={{ editorState: JSON.stringify(document.data), editable }} onChange={handleChange} />
+      <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={handleChange} />
     </Box>
   );
 }

@@ -204,7 +204,6 @@ function hideTargetLine(targetLineElem: HTMLElement | null) {
 function useDraggableBlockMenu(
   editor: LexicalEditor,
   anchorElem: HTMLElement,
-  isEditable: boolean,
 ) {
   const scrollerElem = anchorElem.parentElement;
 
@@ -354,8 +353,6 @@ function useDraggableBlockMenu(
     hideTargetLine(targetLineRef.current);
   }
 
-  if (!isEditable) return null;
-
   return createPortal(
     <>
       <IconButton
@@ -377,6 +374,5 @@ function useDraggableBlockMenu(
 export default function DraggableBlockPlugin() {
   const [editor] = useLexicalComposerContext();
   const anchorElem = editor.getRootElement()?.parentElement || document.body;
-  const isEditable = editor.isEditable() && !IS_MOBILE
-  return useDraggableBlockMenu(editor, anchorElem, isEditable);
+  return useDraggableBlockMenu(editor, anchorElem);
 }

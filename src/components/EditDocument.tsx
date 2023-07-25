@@ -29,7 +29,7 @@ const EditDocument: React.FC<{ params: { id?: string }, cloudDocument?: EditorDo
 
   return document?.id === params.id ? <>
     <Helmet title={`${document.name} | Math Editor`} />
-    <Editor document={document} editable={true} />
+    <Editor document={document} />
   </> : <SplashScreen title="Loading Document" />;
 }
 

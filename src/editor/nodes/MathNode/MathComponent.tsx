@@ -98,11 +98,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
     const mathfield = ref.current;
     if (!mathfield) return;
 
-    const readOnly = !editor.isEditable();
     mathfield.mathModeSpace = "\\,";
-    mathfield.readOnly = readOnly;
-
-    if (readOnly) return;
 
     // focus newly created mathfield
     if (isSelected && !mathfield.hasFocus()) {

@@ -40,11 +40,9 @@ import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
 
 import ImageResizer from './ImageResizer';
 import { $isImageNode } from '.';
-import useLexicalEditable from '@lexical/react/useLexicalEditable';
 import Typography from '@mui/material/Typography';
 
 const NestedEditor = lazy(() => import('../../NestedEditor'));
-const NestedViewer = lazy(() => import('../../NestedViewer'));
 
 const imageCache = new Set();
 
@@ -121,7 +119,6 @@ export default function ImageComponent({
     useLexicalNodeSelection(nodeKey);
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [editor] = useLexicalComposerContext();
-  const isEditable = useLexicalEditable();
   const [selection, setSelection] = useState<
     RangeSelection | NodeSelection | GridSelection | null
   >(null);
@@ -356,9 +353,9 @@ export default function ImageComponent({
         }
         {showCaption && (
           <figcaption>
-            {isEditable ? <NestedEditor initialEditor={caption} onChange={onChange}
+            <NestedEditor initialEditor={caption} onChange={onChange}
               placeholder={<Typography color="text.secondary" className="nested-placeholder">Write a caption</Typography>}
-            /> : <NestedViewer initialEditor={caption} />}
+            />
           </figcaption>
         )}
       </>

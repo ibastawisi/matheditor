@@ -14,7 +14,6 @@ import type {
 } from 'lexical';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import useLexicalEditable from '@lexical/react/useLexicalEditable';
 import {
   $deleteTableColumn__EXPERIMENTAL,
   $deleteTableRow__EXPERIMENTAL,
@@ -185,7 +184,6 @@ function TableActionMenu({
   anchorElRef,
 }: TableCellActionMenuProps) {
   const [editor] = useLexicalComposerContext();
-  const dropDownRef = useRef<HTMLDivElement | null>(null);
   const [tableCellNode, updateTableCellNode] = useState(_tableCellNode);
   const [selectionCounts, updateSelectionCounts] = useState({
     columns: 1,
@@ -568,10 +566,8 @@ function TableActionMenu({
 
 function TableCellActionMenuContainer({
   anchorElem,
-  cellMerge,
 }: {
   anchorElem: HTMLElement;
-  cellMerge: boolean;
 }): JSX.Element {
   const [editor] = useLexicalComposerContext();
 
@@ -693,19 +689,13 @@ function TableCellActionMenuContainer({
 
 export default function TableActionMenuPlugin({
   anchorElem = document.body,
-  cellMerge = false,
 }: {
   anchorElem?: HTMLElement;
-  cellMerge?: boolean;
 }): null | ReactPortal {
-  const isEditable = useLexicalEditable();
   return createPortal(
-    isEditable ? (
-      <TableCellActionMenuContainer
-        anchorElem={anchorElem}
-        cellMerge={cellMerge}
-      />
-    ) : null,
+    <TableCellActionMenuContainer
+      anchorElem={anchorElem}
+    />,
     anchorElem,
   );
 }
