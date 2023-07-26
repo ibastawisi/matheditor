@@ -19,7 +19,7 @@ import SortControl from "./SortControl";
 import Pagination from "@mui/material/Pagination";
 import { useSession } from "next-auth/react";
 
-const Dashboard: React.FC<{ initialUser: User | null, admin?: Admin }> = ({ initialUser, admin }) => {
+const Dashboard: React.FC<{ initialUser?: User | null, admin?: Admin }> = ({ initialUser, admin }) => {
   const dispatch = useDispatch<AppDispatch>();
   const documents = useSelector((state: RootState) => state.documents);
   const user = useSelector((state: RootState) => state.user);
@@ -28,8 +28,8 @@ const Dashboard: React.FC<{ initialUser: User | null, admin?: Admin }> = ({ init
 
   useEffect(() => {
     if (!initialized) {
-      dispatch(actions.setUser(initialUser));
       dispatch(actions.loadAsync());
+      initialUser && dispatch(actions.setUser(initialUser));
     }
   }, []);
 

@@ -9,7 +9,7 @@ import '@/editor/theme.css';
 import '@/editor/nodes/StickyNode/StickyNode.css';
 import "mathlive/static.css"
 
-const ViewDocument: React.FC<React.PropsWithChildren & { id: string }> = ({ id, children }) => {
+const ViewDocument: React.FC<React.PropsWithChildren & { params: { id?: string } }> = ({ params, children }) => {
   const slideTrigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 100,
@@ -18,7 +18,7 @@ const ViewDocument: React.FC<React.PropsWithChildren & { id: string }> = ({ id, 
   return <>
     {children}
     <Transition in={slideTrigger} timeout={225}>
-      <Fab variant="extended" size='medium' component={RouterLink} href={`/new/${id}`}
+      <Fab variant="extended" size='medium' component={RouterLink} prefetch={false} href={`/new/${params.id}`}
         sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 24, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>
         <EditIcon />Fork
       </Fab>

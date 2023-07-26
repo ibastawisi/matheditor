@@ -40,7 +40,7 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
 
   return (
     <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
-      <CardActionArea component={RouterLink} href={`/${variant === 'public' || variant === 'admin' ? 'view' : 'edit'}/${document.id}`} sx={{ flexGrow: 1 }}>
+      <CardActionArea component={RouterLink} prefetch={false} href={`/${variant === 'public' || variant === 'admin' ? 'view' : 'edit'}/${document.id}`} sx={{ flexGrow: 1 }}>
         <CardHeader
           title={document.name}
           subheader={

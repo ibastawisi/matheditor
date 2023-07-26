@@ -1,16 +1,22 @@
 {
+  "id": "matheditor.me",
   "short_name": "Math Editor",
   "name": "Math Editor",
   "description": "Write math reports as Easy as Pi",
   "orientation": "portrait",
   "dir": "ltr",
+  "lang": "en",
   "related_applications": [
     {
-      "platform": "web",
-      "url": "https://mateditor.me"
+      "platform": "webapp",
+      "url": "https://matheditor.me",
+      "id": "matheditor.me"
     }
   ],
   "prefer_related_applications": true,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
   "categories": [
     "education"
   ],
@@ -21,20 +27,21 @@
       "type": "image/x-icon"
     },
     {
-      "src": "/logo.svg",
+      "src": "logo.svg",
       "type": "image/svg+xml",
       "sizes": "512x512"
     },
     {
       "src": "android-chrome-192x192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
     },
     {
       "src": "android-chrome-512x512.png",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ],
   "file_handlers": [
@@ -60,8 +67,14 @@
       "launch_type": "single-client"
     }
   ],
-  "start_url": ".",
+  "start_url": "https://matheditor.me",
+  "scope": "https://matheditor.me",
   "display": "standalone",
   "theme_color": "#121212",
-  "background_color": "#181818"
+  "background_color": "#181818",
+  "display_override": [
+    "standalone",
+    "window-controls-overlay"
+  ],
+  "handle_links": "preferred"
 }

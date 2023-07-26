@@ -89,14 +89,14 @@ const TopAppBar: React.FC<{}> = () => {
       <HideOnScroll>
         <AppBar sx={{ displayPrint: "none", zIndex: 1200 }}>
           <Toolbar sx={{ minHeight: 64 }}>
-            <Link component={RouterLink} href="/">
+            <Link component={RouterLink} prefetch={false} href="/">
               <Box sx={{ display: "flex" }}>
                 <Image src={logo} alt="Logo" width={32} height={32} priority />
                 <Typography variant="h6" component="div" sx={{ marginInlineStart: 2, color: "white" }}>Math Editor</Typography>
               </Box>
             </Link>
             <Box sx={{ flexGrow: 1 }} />
-            <IconButton component={RouterLink} href="/dashboard" aria-label="Dashboard">
+            <IconButton component={RouterLink} prefetch={false} href="/dashboard" aria-label="Dashboard">
               <Avatar alt={user?.name} src={user?.image ?? undefined} sx={{ width: 30, height: 30 }} />
             </IconButton>
             <IconButton onClick={colorMode.toggleColorMode} color="inherit" aria-label='Toggle dark mode'>

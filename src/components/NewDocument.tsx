@@ -85,8 +85,7 @@ const NewDocument: React.FC<{ params?: { id?: string }, cloudDocument?: EditorDo
     const createdAt = new Date().toISOString();
     if (!data) return;
     const document: EditorDocument = { id: uuidv4(), name, data, createdAt, updatedAt: createdAt, baseId: params?.id };
-    documentDB.add(document);
-    navigate(`/edit/${document.id}`);
+    documentDB.add(document).then(() => navigate(`/edit/${document.id}`)).catch((e) => console.log(e));
   };
 
   return (

@@ -40,6 +40,7 @@ const Documents: React.FC = () => {
   const navigate = (path: string) => router.push(path);
   const { status } = useSession();
   const user = useSelector((state: RootState) => state.user);
+  const initialized = useSelector((state: RootState) => state.initialized);
   const localDocuments = documents.map(d => d.id);
   const cloudDocuments = user?.documents.filter(d => !localDocuments.includes(d.id)) || [];
   const allDocuments = [...documents, ...cloudDocuments];
@@ -144,7 +145,7 @@ const Documents: React.FC = () => {
     <>
       <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5 }}>
         <Avatar sx={{ my: 2, bgcolor: 'primary.main' }}><PostAddIcon /></Avatar>
-        <Button variant="outlined" component={RouterLink} href="/new">New document</Button>
+        <Button variant="outlined" component={RouterLink} prefetch={false} href="/new">New document</Button>
       </Box>
       <Box sx={{ my: 3 }}>
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", gap: 1, mb: 1 }}>
@@ -162,8 +163,8 @@ const Documents: React.FC = () => {
             </Box>
           </Box>
         </Box>
-        <DocumentsTree documents={sortedDocuments.slice((page - 1) * 12, page * 12)} localDocuments={localDocuments} />
-        {status !== "loading" && documents.length === 0 && <Grid item xs={12} sx={{ my: 2 }}><LocalDataMissing /></Grid>}
+        {initialized && <DocumentsTree documents={sortedDocuments.slice((page - 1) * 12, page * 12)} localDocuments={localDocuments} />}
+        {initialized && documents.length === 0 && <Grid item xs={12} sx={{ my: 2 }}><LocalDataMissing /></Grid>}
         {!user && <Grid item xs={12} sx={{ my: 2 }}><UserCard status={status} /></Grid>}
         {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}
       </Box>
@@ -175,14 +176,14 @@ const DocumentsTree: React.FC<{ documents: UserDocument[], localDocuments: strin
   return <Grid container spacing={2}>
     <Grid item xs={6}>
       <Card variant="outlined">
-        <CardActionArea component={RouterLink} href="/playground">
+        <CardActionArea component={RouterLink} prefetch={false} href="/playground">
           <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>} />
         </CardActionArea>
       </Card>
     </Grid>
     <Grid item xs={6}>
       <Card variant="outlined">
-        <CardActionArea component={RouterLink} href="/tutorial">
+        <CardActionArea component={RouterLink} prefetch={false} href="/tutorial">
           <CardHeader title="Tutorial" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><HelpIcon /></Avatar>} />
         </CardActionArea>
       </Card>
@@ -200,19 +201,19 @@ const LocalDataMissing: React.FC = () => {
       <Typography>{"Can't find your data?"}</Typography>
     </AccordionSummary>
     <AccordionDetails>
-      <Typography>Due to a recent update, the website domain has been changed, to recover your data, please follow the steps below:</Typography>
-      <br />
+      <Typography variant="h5" sx={{ mb: 3, textAlign: "center" }}>
+        matheditor.ml is now matheditor.me
+      </Typography>
+      <Typography gutterBottom>to recover your data, please follow the steps below:</Typography>
       <Typography variant="subtitle2" gutterBottom>
-        1. <a href="https://matheditor.ml">Visit the old domain</a> and click
-        <Button variant="outlined" startIcon={<StorageIcon />} size="small" sx={{ m: 1 }}>
+        <Button variant="outlined" startIcon={<StorageIcon />} size="small" sx={{ mr: 1 }}>
           Backup
-        </Button> to download a backup file.
+        </Button> your data from the <a href="https://matheditor.ml">old domain</a>.
       </Typography>
       <Typography variant="subtitle2" gutterBottom>
-        2. <a href="https://matheditor.me">Visit the new domain</a> and click
-        <Button variant="outlined" startIcon={<UploadFileIcon />} size="small" sx={{ m: 1 }}>
+        <Button variant="outlined" startIcon={<UploadFileIcon />} size="small" sx={{ mr: 1 }}>
           Import
-        </Button> to import the backup file.
+        </Button> your data to the <a href="https://matheditor.me">new domain</a>.
       </Typography>
     </AccordionDetails>
   </Accordion>

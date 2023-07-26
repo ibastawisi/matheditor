@@ -2,6 +2,10 @@
   position: relative;
 }
 
+.editor-container {
+  margin: 1rem auto;
+}
+
 .editor-input {
   min-height: 50vh;
   resize: none;
@@ -60,6 +64,7 @@
   .editor-container {
     margin-top: 0 !important;
   }
+
   .editor-input {
     padding: 0 !important;
     margin-top: 0 !important;

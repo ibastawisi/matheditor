@@ -7,7 +7,7 @@ import Link from "@mui/material/Link";
 
 const Footer: React.FC = () => {
   const version = packageJson.version;
-  const commitHash: string | undefined = process.env.VITE_VERCEL_GIT_COMMIT_SHA;
+  const commitHash: string | undefined = process.env.VERCEL_GIT_COMMIT_SHA;
   return (
     <Box component="footer" sx={{ displayPrint: "none", mt: "auto", p: 0.5, textAlign: "end" }}>
       <Typography variant="button" color="text.secondary">

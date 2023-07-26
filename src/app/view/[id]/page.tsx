@@ -38,8 +38,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   }
 }
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const document = await findDocumentById(params.id) as unknown as EditorDocument;
+export default async function Page({ params }: { params: { id: string } }) {  const document = await findDocumentById(params.id) as unknown as EditorDocument;
   if (!document) notFound();
   const dom = new JSDOM()
   global.window = dom.window as unknown as Window & typeof globalThis
@@ -51,5 +50,5 @@ export default async function Page({ params }: { params: { id: string } }) {
   const html = await generateHtml(document.data);
   const children = parse(html);
 
-  return <ViewDocument id={params.id}>{children}</ViewDocument>;
+  return <ViewDocument params={params}>{children}</ViewDocument>;
 }
