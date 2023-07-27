@@ -1146,7 +1146,7 @@ const task6Checkpoints = [
         1. Click the empty line below then type
       </Typography>
       <Typography variant="subtitle2" gutterBottom>
-        {'![Math Editor Logo](https://matheditor.ml/logo192.png)'}
+        {'![Math Editor Logo](https://matheditor.me/logo.svg)'}
       </Typography>
     </>,
     check: (editorState?: EditorState) => {

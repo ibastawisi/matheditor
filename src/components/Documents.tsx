@@ -12,7 +12,7 @@ import React, { memo, useEffect, useState } from "react";
 import { actions } from "../store";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import StorageIcon from '@mui/icons-material/Storage';
-import { EditorDocument, User, UserDocument } from '@/types';
+import { EditorDocument, UserDocument } from '@/types';
 import { validate } from "uuid";
 import UserCard from "./UserCard";
 import Avatar from "@mui/material/Avatar";

@@ -19,7 +19,7 @@ import { useContext, useEffect } from 'react';
 import { ColorModeContext } from '@/theme/ThemeProvider';
 import useTheme from '@mui/material/styles/useTheme';
 import Avatar from '@mui/material/Avatar';
-import logo from "@/public/logo.svg";
+import logo from "/public/logo.svg";
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { User } from '@/types';

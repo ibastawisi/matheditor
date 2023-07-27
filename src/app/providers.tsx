@@ -1,5 +1,4 @@
 "use client";
-
 import StoreProvider from "@/store/StoreProvider";
 import ThemeRegistry from "@/theme/ThemeRegistry";
 import { SessionProvider } from "next-auth/react";
@@ -9,6 +8,8 @@ import TopAppBar from '@/components/TopAppBar';
 import AlertDialog from "@/components/Alert";
 import Announcer from "@/components/Announcer";
 import PwaUpdater from "@/components/PwaUpdater";
+import Footer from "@/components/Footer";
+import Fallback from "@/components/Fallback";
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   return <ThemeRegistry options={{ key: 'mui', prepend: true }}>
@@ -31,8 +32,11 @@ export const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
       <Providers>
         <TopAppBar />
         <Container className='editor-container'>
-          {children}
+          <Fallback>
+            {children}
+          </Fallback>
         </Container>
+        <Footer />
         <AlertDialog />
         <Announcer />
         {process.env.NODE_ENV === "production" && <PwaUpdater />}

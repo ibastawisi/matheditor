@@ -1,3 +1,3 @@
-import dynamic from "next/dynamic";
-const Fallback = dynamic(() => import('@/components/Fallback'), { ssr: false });
+import Fallback from "@/components/Fallback";
+
 export default Fallback;

@@ -41,6 +41,7 @@ header {
 
 .editor-container {
   margin: 2rem auto;
+  min-height: calc(100vh - 130px);
 }
 
 .apexcharts-svg {

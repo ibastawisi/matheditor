@@ -14,7 +14,7 @@ const initialState: AppState = {
 
 export const loadAsync = createAsyncThunk('app/loadAsync', async (_, thunkAPI) => {
   Promise.allSettled([
-    thunkAPI.dispatch(loadDocumentsAsync()),
+    await thunkAPI.dispatch(loadDocumentsAsync()),
   ]);
 });
 

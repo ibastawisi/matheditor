@@ -2,10 +2,10 @@
 import Box from '@mui/material/Box';
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from '@mui/material/Typography';
-import logo from "@/public/logo.svg";
+import logo from "/public/logo.svg";
 import Image from 'next/image';
 
-const SplashScreen: React.FC<{ title?: string, loading?: boolean }> = ({ title, loading = true }) => {
+const SplashScreen: React.FC<{ title?: string, loading?: boolean }> = ({ title = "Loading", loading = true }) => {
   return (
     <div className='splash-screen'>
       <div className='splash-screen-content'>
