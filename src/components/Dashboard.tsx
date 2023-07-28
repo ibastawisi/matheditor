@@ -61,7 +61,7 @@ const UserGrid: React.FC<{ users: User[] }> = memo(({ users }) => {
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
 
-  return <Accordion disableGutters sx={{ my: 2 }}>
+  return <Accordion disableGutters sx={{ my: 2 }} TransitionProps={{ mountOnEnter: true }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <Typography>Users</Typography>
       <Typography sx={{ color: 'text.secondary', mx: 1 }}>({users.length})</Typography>
@@ -89,7 +89,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string, varian
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
 
-  return <Accordion disableGutters sx={{ my: 2 }}>
+  return <Accordion disableGutters sx={{ my: 2 }} TransitionProps={{ mountOnEnter: true }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <Typography>{title}</Typography>
       <Typography sx={{ color: 'text.secondary', mx: 1 }}>({documents.length})</Typography>

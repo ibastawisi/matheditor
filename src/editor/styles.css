@@ -1,13 +1,9 @@
-.editor {
-  position: relative;
-}
-
 .editor-container {
   margin: 1rem auto;
 }
 
 .editor-input {
-  min-height: 50vh;
+  flex: 1;
   resize: none;
   font-size: 15px;
   caret-color: rgb(5, 5, 5);
@@ -36,6 +32,7 @@
 }
 
 .tree-view-output {
+  margin-top: 1rem;
   font-size: 12px;
 }
 
@@ -93,6 +90,7 @@
 }
 
 hr[data-lexical-decorator] {
+  width: 100%;
   border: none;
   padding: 0.5em 0;
   cursor: pointer;

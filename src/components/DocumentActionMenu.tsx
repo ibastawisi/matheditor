@@ -1,7 +1,7 @@
 "use client"
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { EditorDocument, User } from '@/types';
+import { EditorDocument } from '@/types';
 import { AppDispatch, RootState, actions } from '@/store';
 import { useDispatch, useSelector } from 'react-redux';
 import IconButton from '@mui/material/IconButton';
@@ -26,13 +26,6 @@ import ListItemText from '@mui/material/ListItemText';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
-import ListItemButton from '@mui/material/ListItemButton';
-import Collapse from '@mui/material/Collapse';
-import List from '@mui/material/List';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import ImportExportIcon from '@mui/icons-material/ImportExport';
-import HtmlIcon from '@mui/icons-material/Html';
 import CodeIcon from '@mui/icons-material/Code';
 import SvgIcon from '@mui/material/SvgIcon';
 import documentDB from '@/indexeddb';
@@ -42,7 +35,7 @@ export const MarkdownIcon = () => <SvgIcon viewBox="0 0 640 512" fontSize='small
 </SvgIcon>;
 
 
-export type options = ('rename' | 'download' | 'fork' | 'share' | 'publish' | 'upload' | 'delete' | 'export' | 'embed')[];
+export type options = ('rename' | 'download' | 'fork' | 'share' | 'publish' | 'upload' | 'delete' | 'embed')[];
 type DocumentActionMenuProps = {
   document: Omit<EditorDocument, 'data'>;
   variant: 'local' | 'cloud' | 'public' | 'admin';
@@ -227,54 +220,6 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
     navigate(`/new/${document.id}`);
   };
 
-  const [exportOpen, setExportOpen] = useState(false);
-  const toggleExportMenu = () => setExportOpen(!exportOpen);
-
-  const exportToMarkdown = async () => {
-    toggleExportMenu();
-    closeMenu();
-    const payload = await getPayload();
-    if (!payload) return dispatch(actions.announce({ message: "Can't find document data" }));
-    const document = JSON.parse(payload);
-    const { exportMarkdown } = await import("../utils/exportMarkdown");
-    const markdown = await exportMarkdown(document);
-    const blob = new Blob([markdown], { type: "text/markdown" });
-    const link = window.document.createElement("a");
-    link.download = document.name + ".md";
-    link.href = window.URL.createObjectURL(blob);
-    link.dataset.downloadurl = ["text/markdown", link.download, link.href].join(":");
-    const evt = new MouseEvent("click", {
-      view: window,
-      bubbles: true,
-      cancelable: true,
-    });
-    link.dispatchEvent(evt);
-    link.remove();
-
-  };
-
-  const exportToHtml = async () => {
-    toggleExportMenu();
-    closeMenu();
-    const payload = await getPayload();
-    if (!payload) return dispatch(actions.announce({ message: "Can't find document data" }));
-    const document = JSON.parse(payload);
-    const { exportHtml } = await import("../utils/exportHtml");
-    const html = await exportHtml(document);
-    const blob = new Blob([html], { type: "text/html" });
-    const link = window.document.createElement("a");
-    link.download = document.name + ".html";
-    link.href = window.URL.createObjectURL(blob);
-    link.dataset.downloadurl = ["text/html", link.download, link.href].join(":");
-    const evt = new MouseEvent("click", {
-      view: window,
-      bubbles: true,
-      cancelable: true,
-    });
-    link.dispatchEvent(evt);
-    link.remove();
-  };
-
   return (
     <>
       <IconButton
@@ -331,33 +276,6 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
             </ListItemIcon>
             <ListItemText>Download</ListItemText>
           </MenuItem>
-        }
-        {options.includes('export') &&
-          <MenuItem onClick={toggleExportMenu}>
-            <ListItemIcon>
-              <ImportExportIcon />
-            </ListItemIcon>
-            <ListItemText primary="Export" />
-            {exportOpen ? <ExpandLess sx={{ ml: 2 }} /> : <ExpandMore sx={{ ml: 2 }} />}
-          </MenuItem>
-        }
-        {options.includes('export') &&
-          <Collapse in={exportOpen} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              <ListItemButton sx={{ pl: 4 }} onClick={exportToMarkdown}>
-                <ListItemIcon sx={{ minWidth: 0, mr: 1 }}>
-                  <MarkdownIcon />
-                </ListItemIcon>
-                <ListItemText primary="Markdown" />
-              </ListItemButton>
-              <ListItemButton sx={{ pl: 4 }} onClick={exportToHtml}>
-                <ListItemIcon sx={{ minWidth: 0, mr: 1 }}>
-                  <HtmlIcon />
-                </ListItemIcon>
-                <ListItemText primary="HTML" />
-              </ListItemButton>
-            </List>
-          </Collapse>
         }
         {options.includes('embed') &&
           <MenuItem onClick={handleEmbed}>

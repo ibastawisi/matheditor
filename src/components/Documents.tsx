@@ -51,9 +51,6 @@ const Documents: React.FC = () => {
     { label: 'Created', value: 'createdAt' },
     { label: 'Name', value: 'name' },
   ];
-  const pages = Math.ceil(allDocuments.length / 12);
-  const [page, setPage] = useState(1);
-  const handlePageChange = (_: any, value: number) => setPage(value);
 
   useEffect(() => {
     if ("launchQueue" in window && "LaunchParams" in window) {
@@ -163,39 +160,45 @@ const Documents: React.FC = () => {
             </Box>
           </Box>
         </Box>
-        {initialized && <DocumentsTree documents={sortedDocuments.slice((page - 1) * 12, page * 12)} localDocuments={localDocuments} />}
-        {initialized && documents.length === 0 && <Grid item xs={12} sx={{ my: 2 }}><LocalDataMissing /></Grid>}
-        {!user && <Grid item xs={12} sx={{ my: 2 }}><UserCard status={status} /></Grid>}
-        {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <Card variant="outlined">
+              <CardActionArea component={RouterLink} prefetch={false} href="/playground">
+                <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>} />
+              </CardActionArea>
+            </Card>
+          </Grid>
+          <Grid item xs={6}>
+            <Card variant="outlined">
+              <CardActionArea component={RouterLink} prefetch={false} href="/tutorial">
+                <CardHeader title="Tutorial" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><HelpIcon /></Avatar>} />
+              </CardActionArea>
+            </Card>
+          </Grid>
+          {status !== "authenticated" && <Grid item xs={12}><UserCard status={status} /></Grid>}
+          {initialized && <DocumentsTree documents={sortedDocuments} localDocuments={localDocuments} />}
+        </Grid>
       </Box>
     </>
   )
 }
 
 const DocumentsTree: React.FC<{ documents: UserDocument[], localDocuments: string[] }> = memo(({ documents, localDocuments }) => {
-  return <Grid container spacing={2}>
-    <Grid item xs={6}>
-      <Card variant="outlined">
-        <CardActionArea component={RouterLink} prefetch={false} href="/playground">
-          <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>} />
-        </CardActionArea>
-      </Card>
-    </Grid>
-    <Grid item xs={6}>
-      <Card variant="outlined">
-        <CardActionArea component={RouterLink} prefetch={false} href="/tutorial">
-          <CardHeader title="Tutorial" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><HelpIcon /></Avatar>} />
-        </CardActionArea>
-      </Card>
-    </Grid>
-    {documents.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
+  const pages = Math.ceil(documents.length / 12);
+  const [page, setPage] = useState(1);
+  const handlePageChange = (_: any, value: number) => setPage(value);
+  const pageDocuments = documents.slice((page - 1) * 12, page * 12);
+  return <>
+    {documents.length === 0 && <Grid item xs={12}><LocalDataMissing /></Grid>}
+    {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
       <DocumentCard document={document} variant={localDocuments.includes(document.id) ? "local" : "cloud"} />
     </Grid>)}
-  </Grid>
+    {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3, width: "100%" }} />}
+  </>
 });
 
 const LocalDataMissing: React.FC = () => {
-  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true }} sx={{ my: 2 }}>
+  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <ReportIcon sx={{ color: 'error.main', mr: 1 }} />
       <Typography>{"Can't find your data?"}</Typography>

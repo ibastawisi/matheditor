@@ -44,21 +44,6 @@ import Typography from '@mui/material/Typography';
 
 const NestedEditor = lazy(() => import('../../NestedEditor'));
 
-const imageCache = new Set();
-
-function useSuspenseImage(src: string) {
-  if (!imageCache.has(src)) {
-    throw new Promise((resolve) => {
-      const img = new Image();
-      img.src = src;
-      img.onload = () => {
-        imageCache.add(src);
-        resolve(null);
-      };
-    });
-  }
-}
-
 function LazyImage({
   altText,
   className,
@@ -78,7 +63,6 @@ function LazyImage({
   draggable: boolean
   onLoad: () => void;
 }): JSX.Element {
-  useSuspenseImage(src);
   return (
     <img
       className={className || undefined}

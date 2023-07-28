@@ -50,7 +50,7 @@ const Tutorial: React.FC = () => {
   return <>
     <Helmet title={`Tutorial | Math Editor`} />
     <Editor key={currentTask} document={tasks[currentTask]} onChange={onChange} />
-    <Paper sx={{ p: 2, displayPrint: 'none' }}>
+    <Paper sx={{ p: 2, mt: 3, displayPrint: 'none' }}>
       <Box key={`task-${currentTask}`} sx={{ mb: 2 }}>
         <Typography variant="h6">{tasks[currentTask].name}</Typography>
         <List>

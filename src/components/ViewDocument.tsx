@@ -5,9 +5,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import useScrollTrigger from "@mui/material/useScrollTrigger";
 import { Transition } from 'react-transition-group';
 
-import '@/editor/theme.css';
-import '@/editor/nodes/StickyNode/StickyNode.css';
 import "mathlive/static.css"
+import '@/editor/theme.css';
+import '@/embed.css';
 
 const ViewDocument: React.FC<React.PropsWithChildren & { params: { id?: string } }> = ({ params, children }) => {
   const slideTrigger = useScrollTrigger({
@@ -19,7 +19,7 @@ const ViewDocument: React.FC<React.PropsWithChildren & { params: { id?: string }
     {children}
     <Transition in={slideTrigger} timeout={225}>
       <Fab variant="extended" size='medium' component={RouterLink} prefetch={false} href={`/new/${params.id}`}
-        sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 24, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>
+        sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 32, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>
         <EditIcon />Fork
       </Fab>
     </Transition>

@@ -7,6 +7,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const withPWA = require("@imbios/next-pwa")({
   dest: "public",
   disable: process.env.NODE_ENV === 'development',
+  register: false,
   buildExcludes: ["app-build-manifest.json"],
   skipWaiting: false,
   mode: "production",
@@ -32,4 +33,4 @@ const config = {
   },
 }
 
-module.exports = withBundleAnalyzer(withPWA(config));
+module.exports = withPWA(withBundleAnalyzer(config));

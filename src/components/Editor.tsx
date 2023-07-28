@@ -2,7 +2,6 @@
 import React from 'react';
 import { memo } from 'react';
 import { validate } from 'uuid';
-import Box from '@mui/material/Box';
 import isEqual from 'fast-deep-equal'
 import { EditorDocument } from '@/types';
 import type { EditorState } from '@/editor/types';
@@ -25,9 +24,7 @@ const Container: React.FC<{ document: EditorDocument, onChange?: (editorState: E
     onChange && onChange(editorState);
   }
   return (
-    <Box className="editor">
-      <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={handleChange} />
-    </Box>
+    <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={handleChange} />
   );
 }
 

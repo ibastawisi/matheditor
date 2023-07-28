@@ -15,15 +15,12 @@ export default function ToggleColorMode({ children }: { children: React.ReactNod
   }), []);
 
   useEffect(() => {
-    setMode(prefersDarkMode ? 'dark' : 'light');
-  }, [prefersDarkMode]);
-
-
-  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const prefersLightTheme = window.matchMedia('(prefers-color-scheme: light)').matches;
+    const mode = prefersLightTheme ? 'light' : 'dark';
+    setMode(mode);
     document.body.setAttribute('theme', mode);
-    const colorScheme = document.querySelector('meta[name="color-scheme"]') as HTMLMetaElement | null;
-    if (colorScheme) colorScheme.content = mode;
-  }, [mode]);
+  }, [prefersDarkMode]);
 
   const theme = useMemo(() => createTheme({ palette: { mode, }, }), [mode],);
 

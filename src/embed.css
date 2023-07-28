@@ -1,22 +1,10 @@
-body {
-  max-width: 1200px;
-  margin: 2rem auto !important;
-  padding: 0 1.5rem !important;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.LexicalTheme__image img,
-.LexicalTheme__image svg {
-  max-width: 100%;
-  background-color: white;
-}
-
 .ML__mathlive {
   padding: 4px;
+  user-select: auto;
 }
 
 hr {
+  width: 100%;
   border: none;
   padding: 0.5em 0;
   cursor: pointer;

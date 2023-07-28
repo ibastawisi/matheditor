@@ -1,6 +1,5 @@
-import '@/editor/theme.css';
-import '@/editor/nodes/StickyNode/StickyNode.css';
 import "mathlive/static.css"
+import '@/editor/theme.css';
 import "@/embed.css"
 
 const EmbedDocument: React.FC<React.PropsWithChildren> = ({ children }) => {

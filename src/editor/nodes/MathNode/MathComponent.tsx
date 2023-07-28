@@ -23,7 +23,6 @@ declare global {
 
 import('mathlive').then(({ MathfieldElement }) => {
   MathfieldElement.soundsDirectory = null;
-  MathfieldElement.fontsDirectory = "/mathlive/fonts";
   MathfieldElement.computeEngine = null;
 });
 

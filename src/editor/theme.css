@@ -18,7 +18,6 @@
   margin: 0;
   margin-bottom: 8px;
   position: relative;
-  overflow: hidden;
 }
 
 .LexicalTheme__paragraph:last-child {
@@ -395,71 +394,82 @@
   min-height: 40px;
 }
 
-@media screen and (prefers-color-scheme: dark) {
-  .LexicalTheme__quote {
-    color: #a6a6a6;
-    border-left-color: #4d4d4d;
-  }
+ .sticky-note-wrapper {
+   float: right;
+   margin: 0.5rem 0 0.5rem 0.5rem;
+ }
 
-  .LexicalTheme__textCode {
-    background-color: rgb(30, 30, 30);
-  }
+ .sticky-note-wrapper .nested-contentEditable {
+   min-height: 100px;
+   border: 0;
+   resize: none;
+   color: rgba(0, 0, 0, 0.87);
+   caret-color: rgb(5, 5, 5);
+   display: block;
+   position: relative;
+   tab-size: 1;
+   outline: 0;
+ }
 
-  .LexicalTheme__code {
-    background-color: rgb(30, 30, 30);
-  }
+ .sticky-note-wrapper .nested-placeholder {
+   color: #999;
+   overflow: hidden;
+   position: absolute;
+   text-overflow: ellipsis;
+   top: 30px;
+   left: 20px;
+   width: 200px;
+   user-select: none;
+   white-space: nowrap;
+   display: inline-block;
+   pointer-events: none;
+ }
 
-  .LexicalTheme__code:before {
-    background-color: #333;
-    color: #858585;
-    border-right-color: #1e1e1e;
-  }
+ .sticky-note-container {
+   min-width: 200px;
+   max-width: 300px;
+   display: inline-block;
+   position: relative;
+ }
 
-  .LexicalTheme__code:after {
-    color: #858585;
-  }
+ .sticky-note {
+   padding: 20px;
+   position: relative;
+   color: rgba(0, 0, 0, 0.87);
+   border: 1px solid #e8e8e8;
+   border-bottom-right-radius: 60px 5px;
+   display: flow-root;
+ }
 
-  .LexicalTheme__tableCell {
-    border-color: rgba(255, 255, 255, 0.3);
-  }
+ .sticky-note:after {
+   content: '';
+   position: absolute;
+   z-index: -1;
+   right: -0px;
+   bottom: 20px;
+   width: 194px;
+   height: 25px;
+   box-shadow: 2px 15px 5px rgba(0, 0, 0, 0.4);
+   transform: matrix(-1, -0.1, 0, 1, 0, 0);
+ }
 
-  .LexicalTheme__tableCellHeader {
-    background-color: rgba(255, 255, 255, 0.05);
-  }
-}
+ .sticky-note.yellow {
+   border-top: 1px solid #fdfd86;
+   background: linear-gradient(135deg,
+       #ffff88 81%,
+       #ffff88 82%,
+       #ffff88 82%,
+       #ffffc6 100%);
+ }
 
-@media (prefers-color-scheme: light) {
-  .LexicalTheme__quote {
-    color: rgb(101, 103, 107);
-    border-left-color: rgb(206, 208, 212);
-  }
-
-  .LexicalTheme__textCode {
-    background-color: rgb(240, 242, 245);
-  }
-
-  .LexicalTheme__code {
-    background-color: rgb(240, 242, 245);
-  }
-
-  .LexicalTheme__code:before {
-    background-color: #eee;
-    border-right-color: #ccc;
-    color: #777;
-  }
-
-  .LexicalTheme__code:after {
-    color: rgba(0, 0, 0, 0.5);
-  }
-
-  .LexicalTheme__tableCell {
-    border-color: rgba(0, 0, 0, 0.3);
-  }
-
-  .LexicalTheme__tableCellHeader {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-}
+ .sticky-note.pink {
+   border-top: 1px solid #e7d1e4;
+   background: linear-gradient(135deg,
+       #f7cbe8 81%,
+       #f7cbe8 82%,
+       #f7cbe8 82%,
+       #e7bfe1 100%);
+ }
 
 @media screen {
   [theme=dark] .LexicalTheme__quote {
@@ -522,14 +532,4 @@
 
 [theme=light] .LexicalTheme__tableCellHeader {
   background-color: rgba(0, 0, 0, 0.05);
-}
-
-@font-face {
-  font-family: Virgil;
-  src: url(https://unpkg.com/@excalidraw/excalidraw/dist/excalidraw-assets/Virgil.woff2);
-}
-
-@font-face {
-  font-family: Cascadia;
-  src: url(https://unpkg.com/@excalidraw/excalidraw/dist/excalidraw-assets/Cascadia.woff2);
 }

@@ -31,12 +31,12 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
   const published = cloudDocument?.published || variant === "public" && document.published;
 
   const options: options = variant === "local" ?
-    ['rename', 'download', 'export', 'embed', 'upload', 'fork', 'share', 'delete']
+    ['rename', 'download', 'embed', 'upload', 'fork', 'share', 'delete']
     : variant === "cloud" ?
-      ['rename', 'download', 'export', 'embed', 'fork', 'share', 'publish', 'delete']
+      ['rename', 'download', 'embed', 'fork', 'share', 'publish', 'delete']
       : variant === "public" ?
-        ['fork', 'share', 'export', 'embed']
-        : ['fork', 'share', 'export', 'embed']
+        ['fork', 'share', 'embed']
+        : ['fork', 'share', 'embed']
 
   const href = `/${variant === 'public' || variant === 'admin' ? 'view' : 'edit'}/${document.id}`;
 

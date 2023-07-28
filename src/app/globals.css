@@ -1,16 +1,16 @@
-#root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+html {
+  color-scheme: dark light;
 }
 
 body {
-  color-scheme: auto;
   overflow-y: scroll !important;
   margin-left: 0 !important;
   margin-right: 0 !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 header {
@@ -21,6 +21,33 @@ header {
 
 ::selection {
   background-color: rgb(95 183 255 / 50%);
+}
+
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  background: red;
+  position: fixed;
+  z-index: 99999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+}
+
+#nprogress .peg {
+  display: block;
+  position: absolute;
+  right: 0px;
+  width: 100px;
+  height: 100%;
+  box-shadow: 0 0 10px red, 0 0 5px red;
+  opacity: 1.0;
+  -webkit-transform: rotate(3deg) translate(0px, -4px);
+  -ms-transform: rotate(3deg) translate(0px, -4px);
+  transform: rotate(3deg) translate(0px, -4px);
 }
 
 @media print {
@@ -34,14 +61,18 @@ header {
     color: rgba(0, 0, 0, 0.87) !important;
   }
 
-  .loading-bar {
+  #nprogress {
     display: none !important;
   }
 }
 
 .editor-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   margin: 2rem auto;
-  min-height: calc(100vh - 130px);
+  position: relative;
+  overflow: hidden;
 }
 
 .apexcharts-svg {
@@ -88,4 +119,178 @@ body:has(>.MuiDialog-root) {
   align-items: center;
   width: 100%;
   height: 100%;
+}
+
+@font-face {
+  font-family: Virgil;
+  src: url(/fonts/excalidraw/Virgil.woff2);
+}
+
+@font-face {
+  font-family: Cascadia;
+  src: url(/fonts/excalidraw/Cascadia.woff2);
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_AMS;
+  font-style: normal;
+  font-weight: 400;
+  src: url(/fonts/mathlive/KaTeX_AMS-Regular.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_Caligraphic;
+  font-style: normal;
+  font-weight: 700;
+  src: url(/fonts/mathlive/KaTeX_Caligraphic-Bold.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_Caligraphic;
+  font-style: normal;
+  font-weight: 400;
+  src: url(/fonts/mathlive/KaTeX_Caligraphic-Regular.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_Fraktur;
+  font-style: normal;
+  font-weight: 700;
+  src: url(/fonts/mathlive/KaTeX_Fraktur-Bold.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_Fraktur;
+  font-style: normal;
+  font-weight: 400;
+  src: url(/fonts/mathlive/KaTeX_Fraktur-Regular.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_Main;
+  font-style: italic;
+  font-weight: 700;
+  src: url(/fonts/mathlive/KaTeX_Main-BoldItalic.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_Main;
+  font-style: normal;
+  font-weight: 700;
+  src: url(/fonts/mathlive/KaTeX_Main-Bold.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_Main;
+  font-style: italic;
+  font-weight: 400;
+  src: url(/fonts/mathlive/KaTeX_Main-Italic.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_Main;
+  font-style: normal;
+  font-weight: 400;
+  src: url(/fonts/mathlive/KaTeX_Main-Regular.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_Math;
+  font-style: italic;
+  font-weight: 700;
+  src: url(/fonts/mathlive/KaTeX_Math-BoldItalic.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_Math;
+  font-style: italic;
+  font-weight: 400;
+  src: url(/fonts/mathlive/KaTeX_Math-Italic.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: "KaTeX_SansSerif";
+  font-style: normal;
+  font-weight: 700;
+  src: url(/fonts/mathlive/KaTeX_SansSerif-Bold.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: "KaTeX_SansSerif";
+  font-style: italic;
+  font-weight: 400;
+  src: url(/fonts/mathlive/KaTeX_SansSerif-Italic.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: "KaTeX_SansSerif";
+  font-style: normal;
+  font-weight: 400;
+  src: url(/fonts/mathlive/KaTeX_SansSerif-Regular.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_Script;
+  font-style: normal;
+  font-weight: 400;
+  src: url(/fonts/mathlive/KaTeX_Script-Regular.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_Size1;
+  font-style: normal;
+  font-weight: 400;
+  src: url(/fonts/mathlive/KaTeX_Size1-Regular.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_Size2;
+  font-style: normal;
+  font-weight: 400;
+  src: url(/fonts/mathlive/KaTeX_Size2-Regular.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_Size3;
+  font-style: normal;
+  font-weight: 400;
+  src: url(/fonts/mathlive/KaTeX_Size3-Regular.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_Size4;
+  font-style: normal;
+  font-weight: 400;
+  src: url(/fonts/mathlive/KaTeX_Size4-Regular.woff2) format("woff2")
+}
+
+@font-face {
+  font-display: "swap";
+  font-family: KaTeX_Typewriter;
+  font-style: normal;
+  font-weight: 400;
+  src: url(/fonts/mathlive/KaTeX_Typewriter-Regular.woff2) format("woff2")
+}
+
+:root {
+  --ML__static-fonts: true
 }
