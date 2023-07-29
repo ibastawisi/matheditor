@@ -19,8 +19,11 @@ export default function ToggleColorMode({ children }: { children: React.ReactNod
     const prefersLightTheme = window.matchMedia('(prefers-color-scheme: light)').matches;
     const mode = prefersLightTheme ? 'light' : 'dark';
     setMode(mode);
-    document.body.setAttribute('theme', mode);
   }, [prefersDarkMode]);
+
+  useEffect(() => {
+    document.body.setAttribute('theme', mode);
+  }, [mode]);
 
   const theme = useMemo(() => createTheme({ palette: { mode, }, }), [mode],);
 
