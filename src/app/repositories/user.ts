@@ -36,34 +36,6 @@ const findUserById = async (id: string) => {
       role: true,
       disabled: true,
       documents: {
-        select: {
-          id: true,
-          name: true,
-          createdAt: true,
-          updatedAt: true,
-          published: true,
-        },
-        orderBy: {
-          updatedAt: 'desc'
-        }
-      }
-    }
-  });
-}
-
-const findPublicUserById = async (id: string) => {
-  return prisma.user.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      image: true,
-      createdAt: true,
-      updatedAt: true,
-      role: true,
-      disabled: true,
-      documents: {
         where: {
           published: true
         },
@@ -170,4 +142,4 @@ const findUserMetadata = async (id: string) => {
   });
 }
 
-export { findAllUsers, findUserById, findUserByEmail, findUserBySessionId, createUser, updateUser, deleteUser, findPublicUserById, findUserMetadata };
+export { findAllUsers, findUserById, findUserByEmail, findUserBySessionId, createUser, updateUser, deleteUser, findUserMetadata };
