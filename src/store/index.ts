@@ -1,14 +1,23 @@
-import { appSlice, deleteDocumentAsync, getDocumentAsync, loadDocumentsAsync, createDocumentAsync, updateDocumentAsync, loadAsync } from "./app";
+import { appSlice, deleteCloudDocument, getCloudDocument, loadLocalDocuments, createCloudDocument, updateCloudDocument, load, getLocalDocument, createLocalDocument, deleteLocalDocument, loadCloudDocuments, updateLocalDocument, loadAdmin } from "./app";
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
 export const actions = {
   ...appSlice.actions,
-  loadAsync,
-  loadDocumentsAsync,
-  getDocumentAsync,
-  createDocumentAsync,
-  updateDocumentAsync,
-  deleteDocumentAsync,
+
+  load,
+  loadAdmin,
+  loadLocalDocuments,
+  loadCloudDocuments,
+
+  getLocalDocument,
+  createLocalDocument,
+  updateLocalDocument,
+  deleteLocalDocument,
+
+  getCloudDocument,
+  createCloudDocument,
+  updateCloudDocument,
+  deleteCloudDocument,
 };
 
 export const store = configureStore({ reducer: appSlice.reducer });

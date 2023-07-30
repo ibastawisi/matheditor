@@ -54,7 +54,8 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
 
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user);
-  const cloudDocument = user?.documents?.find(d => d.id === document.id);
+  const documents = useSelector((state: RootState) => state.documents);
+  const cloudDocument = documents.filter(d => d.variant === "cloud").find(d => d.id === document.id);
   const isUploaded = !!cloudDocument;
   const isUpToDate = cloudDocument?.updatedAt === document.updatedAt;
   const isPublished = cloudDocument?.published;
@@ -65,16 +66,20 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
   const handleCreate = async () => {
     closeMenu();
     if (!user) return dispatch(actions.announce({ message: "Please login to use cloud storage" }));
-    const storedDocument: EditorDocument = await documentDB.getByID(document.id);
-    return await dispatch(actions.createDocumentAsync(storedDocument));
+    const response = await dispatch(actions.getLocalDocument(document.id));
+    if (response.type === actions.getLocalDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't find local document" }));
+    const localDocument = response.payload as EditorDocument;
+    return await dispatch(actions.createCloudDocument(localDocument));
   };
 
   const handleUpdate = async () => {
     closeMenu();
     if (!user) return dispatch(actions.announce({ message: "Please login to use cloud storage" }));
     if (isUpToDate) return dispatch(actions.announce({ message: "Document is up to date" }));
-    const storedDocument: EditorDocument = await documentDB.getByID(document.id);
-    return await dispatch(actions.updateDocumentAsync({ id: document.id, partial: storedDocument }));
+    const response = await dispatch(actions.getLocalDocument(document.id));
+    if (response.type === actions.getLocalDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't find local document" }));
+    const localDocument = response.payload as EditorDocument;
+    return await dispatch(actions.updateCloudDocument({ id: document.id, partial: localDocument }));
   };
 
   const ensureUpToDate = async () => {
@@ -85,12 +90,12 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
     if (variant === "local" && !isUploaded) {
       dispatch(actions.announce({ message: "Saving document to the cloud" }));
       const result = await handleCreate();
-      if (result.type === actions.createDocumentAsync.rejected.type) return false;
+      if (result.type === actions.createCloudDocument.rejected.type) return false;
     };
     if (variant === "local" && isUpToDate && !isUpToDate) {
       dispatch(actions.announce({ message: "Updating document in the cloud" }));
       const result = await handleUpdate();
-      if (result.type === actions.updateDocumentAsync.rejected.type) return false;
+      if (result.type === actions.updateCloudDocument.rejected.type) return false;
     };
     return true;
   };
@@ -127,8 +132,8 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
         title: `Delete ${variant} document`,
         content: `Are you sure you want to delete ${document.name}?`,
         action: variant === "local" ?
-          `dispatch(actions.deleteDocument("${document.id}"))` :
-          `dispatch(actions.deleteDocumentAsync("${document.id}"))`
+          `dispatch(actions.deleteLocalDocument("${document.id}"))` :
+          `dispatch(actions.deleteCloudDocument("${document.id}"))`
       }
     ));
   };
@@ -136,14 +141,21 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
   const getPayload = async () => {
     switch (variant) {
       case "local":
-        const localDocument = await documentDB.getByID(document.id);
-        if (localDocument) return JSON.stringify(localDocument);
-        break;
+        {
+          const response = await dispatch(actions.getLocalDocument(document.id));
+          if (response.type === actions.getLocalDocument.fulfilled.type) {
+            return JSON.stringify(response.payload);
+          }
+          break;
+        }
       default:
-        const response = await dispatch(actions.getDocumentAsync(document.id));
-        const { payload, error } = response as any;
-        if (!error) return JSON.stringify(payload);
-        break;
+        {
+          const response = await dispatch(actions.getCloudDocument(document.id));
+          if (response.type === actions.getCloudDocument.fulfilled.type) {
+            return JSON.stringify(response.payload);
+          }
+          break;
+        }
     }
   };
 
@@ -170,11 +182,9 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
 
   const togglePublic = async () => {
     closeMenu();
-    try {
-      await dispatch(actions.updateDocumentAsync({ id: document.id, partial: { published: !isPublished } }));
+    const response = await dispatch(actions.updateCloudDocument({ id: document.id, partial: { published: !isPublished } }));
+    if (response.type === actions.updateCloudDocument.fulfilled.type) {
       dispatch(actions.announce({ message: `Document ${isPublished ? "unpublished" : "published"} successfully` }));
-    } catch (err) {
-      dispatch(actions.announce({ message: "Can't update document data" }));
     }
   };
 
@@ -199,19 +209,19 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
   const handleRename = async (event: any) => {
     event.preventDefault();
     closeRenameDialog();
-    try {
-      const partial: Partial<EditorDocument> = {
-        ...formData,
-        updatedAt: new Date().toISOString()
-      };
-      if (variant === "local") {
-        dispatch(actions.updateDocument({ id: document.id, partial }));
+    const partial: Partial<EditorDocument> = {
+      ...formData,
+      updatedAt: new Date().toISOString()
+    };
+    if (variant === "local") {
+      try {
+        dispatch(actions.updateLocalDocument({ id: document.id, partial }));
+      } catch (err) {
+        dispatch(actions.announce({ message: "Something went wrong" }));
       }
-      if (isUploaded) {
-        await dispatch(actions.updateDocumentAsync({ id: document.id, partial }));
-      }
-    } catch (err) {
-      dispatch(actions.announce({ message: "Can't update document data" }));
+    }
+    if (isUploaded) {
+      await dispatch(actions.updateCloudDocument({ id: document.id, partial }));
     }
   };
 

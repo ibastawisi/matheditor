@@ -39,11 +39,15 @@ const Documents: React.FC = () => {
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
   const { status } = useSession();
-  const user = useSelector((state: RootState) => state.user);
   const initialized = useSelector((state: RootState) => state.initialized);
-  const localDocuments = documents.map(d => d.id);
-  const cloudDocuments = user?.documents.filter(d => !localDocuments.includes(d.id)) || [];
-  const allDocuments = [...documents, ...cloudDocuments];
+  const localDocuments = documents.filter(d => d.variant === "local");
+  const cloudDocuments = documents.filter(d => d.variant === "cloud");
+  const allDocuments = [...localDocuments, ...cloudDocuments].reduce((acc, document) => {
+    if (!acc.find(d => d.id === document.id)) {
+      acc.push(document);
+    }
+    return acc;
+  }, [] as UserDocument[]);
 
   const [sortedDocuments, setSortedDocuments] = useState(allDocuments);
   const documentSortOptions: SortOption<UserDocument>[] = [
@@ -70,7 +74,7 @@ const Documents: React.FC = () => {
       await loadFromFile(files[0]);
     } else {
       Array.from(files).forEach(async file => await loadFromFile(file));
-      dispatch(actions.loadDocumentsAsync());
+      dispatch(actions.loadLocalDocuments());
     }
   }
 
@@ -108,13 +112,12 @@ const Documents: React.FC = () => {
       dispatch(actions.alert({
         title: "Document already exists",
         content: `Do you want to overwrite ${document.name}?`,
-        action: `dispatch(actions.deleteDocument("${document.id}"));
-         dispatch(actions.addDocument(${JSON.stringify(document)}));
-          ${navigateTo ? `navigate("/edit/${document.id}");` : ""}`
+        action: `dispatch(actions.updateLocalDocument(${document.id},${JSON.stringify(document)})).then(() => {${navigateTo ? `navigate("/edit/${document.id}");` : ""}})`
       }))
     } else {
-      dispatch(actions.addDocument(document));
-      navigateTo && navigate(`/edit/${document.id}`);
+      dispatch(actions.createLocalDocument(document)).then(() => {
+        navigateTo && navigate(`/edit/${document.id}`);
+      });
     }
   }
 
@@ -176,14 +179,14 @@ const Documents: React.FC = () => {
             </Card>
           </Grid>
           {status !== "authenticated" && <Grid item xs={12}><UserCard status={status} /></Grid>}
-          {initialized && <DocumentsTree documents={sortedDocuments} localDocuments={localDocuments} />}
+          {initialized && <DocumentsTree documents={sortedDocuments} />}
         </Grid>
       </Box>
     </>
   )
 }
 
-const DocumentsTree: React.FC<{ documents: UserDocument[], localDocuments: string[] }> = memo(({ documents, localDocuments }) => {
+const DocumentsTree: React.FC<{ documents: UserDocument[] }> = memo(({ documents }) => {
   const pages = Math.ceil(documents.length / 12);
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
@@ -191,7 +194,7 @@ const DocumentsTree: React.FC<{ documents: UserDocument[], localDocuments: strin
   return <>
     {documents.length === 0 && <Grid item xs={12}><LocalDataMissing /></Grid>}
     {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
-      <DocumentCard document={document} variant={localDocuments.includes(document.id) ? "local" : "cloud"} />
+      <DocumentCard document={document} variant={document.variant} />
     </Grid>)}
     {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3, width: "100%" }} />}
   </>

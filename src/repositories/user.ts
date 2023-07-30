@@ -63,20 +63,9 @@ const findUserByEmail = async (email: string) => {
       email: true,
       image: true,
       role: true,
+      disabled: true,
       createdAt: true,
       updatedAt: true,
-      documents: {
-        select: {
-          id: true,
-          name: true,
-          createdAt: true,
-          updatedAt: true,
-          published: true,
-        },
-        orderBy: {
-          updatedAt: 'desc'
-        }
-      }
     }
   });
 }

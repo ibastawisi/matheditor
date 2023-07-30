@@ -2,89 +2,174 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import NProgress from "nprogress";
 import documentDB from '@/indexeddb';
 import { AppState, Announcement, Alert, EditorDocument, UserDocument } from '../types';
-import { createDocumentAction, deleteDocumentAction, getDocumentAction, updateDocumentAction } from '@/app/actions';
+import { createDocumentAction, deleteDocumentAction, getAdminAction, getDocumentAction, getDocumentsAction, updateDocumentAction } from '@/actions';
 
 const initialState: AppState = {
-  user: null,
   documents: [],
   announcements: [],
   alerts: [],
   initialized: false,
 };
 
-export const loadAsync = createAsyncThunk('app/loadAsync', async (_, thunkAPI) => {
+export const load = createAsyncThunk('app/load', async (_, thunkAPI) => {
   Promise.allSettled([
-    await thunkAPI.dispatch(loadDocumentsAsync()),
+    await thunkAPI.dispatch(loadLocalDocuments()),
+    await thunkAPI.dispatch(loadCloudDocuments()),
   ]);
 });
 
-export const loadDocumentsAsync = createAsyncThunk('app/loadDocumentsAsync', async (_, thunkAPI) => {
+export const loadAdmin = createAsyncThunk('app/loadAdmin', async (_, thunkAPI) => {
+  NProgress.start();
+  try {
+    const { data, error } = await getAdminAction();
+    if (error) return thunkAPI.rejectWithValue(error);
+    return thunkAPI.fulfillWithValue(data);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
+  } finally {
+    NProgress.done();
+  }
+});
+
+export const loadLocalDocuments = createAsyncThunk('app/loadLocalDocuments', async (_, thunkAPI) => {
   NProgress.start();
   try {
     const documents = await documentDB.getAll();
-    const userDocuments = documents.map(document => {
+    const userDocuments: UserDocument[] = documents.map(document => {
       const { data, ...userDocument } = document;
-      return userDocument;
+      return { ...userDocument, variant: 'local' };
     });
-    return userDocuments;
+    return thunkAPI.fulfillWithValue(userDocuments);
   } catch (error: any) {
-    const message = error.response?.data?.error || error.message;
-    return thunkAPI.rejectWithValue(message);
-  } finally {
-    NProgress.done();
-  }
-});
-export const getDocumentAsync = createAsyncThunk('app/getDocumentAsync', async (id: string, thunkAPI) => {
-  try {
-    NProgress.start();
-    const response = await getDocumentAction(id);
-    return response;
-  } catch (error: any) {
-    const message: string = error.response?.data?.error || error.message;
-    return thunkAPI.rejectWithValue(message);
+    return thunkAPI.rejectWithValue(error.message);
   } finally {
     NProgress.done();
   }
 });
 
-export const createDocumentAsync = createAsyncThunk('app/createDocumentAsync', async (document: EditorDocument, thunkAPI) => {
+export const loadCloudDocuments = createAsyncThunk('app/loadCloudDocuments', async (_, thunkAPI) => {
   NProgress.start();
   try {
-    await createDocumentAction(document);
-    const { data, ...userDocument } = document;
-    thunkAPI.fulfillWithValue(userDocument);
-    return userDocument;
+    const { data, error } = await getDocumentsAction();
+    if (error) return thunkAPI.rejectWithValue(error);
+    if (!data) return thunkAPI.fulfillWithValue([] as UserDocument[]);
+    const userDocuments: UserDocument[] = data.map(document => ({ ...document, variant: 'cloud' }));
+    return thunkAPI.fulfillWithValue(userDocuments);
   } catch (error: any) {
-    const message: string = error.response?.data?.error || error.message;
-    return thunkAPI.rejectWithValue(message);
+    return thunkAPI.rejectWithValue(error.message);
   } finally {
     NProgress.done();
   }
 });
 
-export const updateDocumentAsync = createAsyncThunk('app/updateDocumentAsync', async (payloadCreator: { id: string, partial: Partial<EditorDocument> }, thunkAPI) => {
+export const getLocalDocument = createAsyncThunk('app/getLocalDocument', async (id: string, thunkAPI) => {
+  NProgress.start();
+  try {
+    const document = await documentDB.getByID(id);
+    if (!document) return thunkAPI.rejectWithValue('document not found');
+    return thunkAPI.fulfillWithValue(document);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
+  } finally {
+    NProgress.done();
+  }
+});
+
+export const getCloudDocument = createAsyncThunk('app/getCloudDocument', async (id: string, thunkAPI) => {
+  try {
+    NProgress.start();
+    const { data, error } = await getDocumentAction(id);
+    if (error) return thunkAPI.rejectWithValue(error);
+    if (!data) return thunkAPI.rejectWithValue('document not found');
+    return thunkAPI.fulfillWithValue(data);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
+  } finally {
+    NProgress.done();
+  }
+});
+
+export const createLocalDocument = createAsyncThunk('app/createLocalDocument', async (document: EditorDocument, thunkAPI) => {
+  NProgress.start();
+  try {
+    const id = await documentDB.add(document);
+    if (!id) return thunkAPI.rejectWithValue('failed to create document');
+    const { data, ...userDocument } = document;
+    const payload: UserDocument = { ...userDocument, variant: 'local' };
+    return thunkAPI.fulfillWithValue(payload);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
+  } finally {
+    NProgress.done();
+  }
+});
+
+export const createCloudDocument = createAsyncThunk('app/createCloudDocument', async (document: EditorDocument, thunkAPI) => {
+  NProgress.start();
+  try {
+    const { data, error } = await createDocumentAction(document);
+    if (error) return thunkAPI.rejectWithValue(error);
+    if (!data) return thunkAPI.rejectWithValue('failed to create document');
+    const payload: UserDocument = { ...data, variant: 'cloud' };
+    return thunkAPI.fulfillWithValue(payload);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
+  } finally {
+    NProgress.done();
+  }
+});
+
+export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', async (payloadCreator: { id: string, partial: Partial<EditorDocument> }, thunkAPI) => {
   NProgress.start();
   const { id, partial } = payloadCreator;
   try {
-    await updateDocumentAction(id, partial);
-    thunkAPI.fulfillWithValue(payloadCreator);
-    return payloadCreator;
+    documentDB.patch(id, partial);
+    const { data, ...userDocument } = await documentDB.getByID(id);
+    const payload: UserDocument = { ...userDocument, variant: 'local' };
+    return thunkAPI.fulfillWithValue(payload);
   } catch (error: any) {
-    const message: string = error.response?.data?.error || error.message;
-    return thunkAPI.rejectWithValue(message);
+    return thunkAPI.rejectWithValue(error.message);
   } finally {
     NProgress.done();
   }
 });
 
-export const deleteDocumentAsync = createAsyncThunk('app/deleteDocumentAsync', async (id: string, thunkAPI) => {
+export const updateCloudDocument = createAsyncThunk('app/updateCloudDocument', async (payloadCreator: { id: string, partial: Partial<EditorDocument> }, thunkAPI) => {
+  NProgress.start();
+  const { id, partial } = payloadCreator;
+  try {
+    const { data, error } = await updateDocumentAction(id, partial);
+    if (error) return thunkAPI.rejectWithValue(error);
+    if (!data) return thunkAPI.rejectWithValue('failed to update document');
+    const payload: UserDocument = { ...data, variant: 'cloud' };
+    return thunkAPI.fulfillWithValue(payload);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
+  } finally {
+    NProgress.done();
+  }
+});
+
+export const deleteLocalDocument = createAsyncThunk('app/deleteLocalDocument', async (id: string, thunkAPI) => {
+  NProgress.start();
+  try {
+    await documentDB.deleteByID(id);
+    return thunkAPI.fulfillWithValue(id);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
+  } finally {
+    NProgress.done();
+  }
+});
+
+export const deleteCloudDocument = createAsyncThunk('app/deleteCloudDocument', async (id: string, thunkAPI) => {
   try {
     NProgress.start();
-    await deleteDocumentAction(id);
-    return id;
+    const { data, error } = await deleteDocumentAction(id);
+    if (error) return thunkAPI.rejectWithValue(error);
+    return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
-    const message = error.response?.data?.error || error.message;
-    return thunkAPI.rejectWithValue(message);
+    return thunkAPI.rejectWithValue(error.message);
   } finally {
     NProgress.done();
   }
@@ -96,45 +181,6 @@ export const appSlice = createSlice({
   reducers: {
     setUser(state, action: PayloadAction<AppState["user"]>) {
       state.user = action.payload;
-    },
-    loadDocument: (state, action: PayloadAction<EditorDocument>) => {
-      if (!state.documents.find(d => d.id === action.payload.id)) {
-        const documents = state.documents.filter(d => d.id !== action.payload.id);
-        const { data, ...userDocument } = action.payload;
-        documents.unshift(userDocument);
-        state.documents = documents;
-        documentDB.getByID(action.payload.id).then((document) => {
-          if (!document) {
-            documentDB.add(action.payload);
-          }
-        });
-      }
-    },
-    loadCloudDocuments(state, action: PayloadAction<Omit<UserDocument, "variant">[]>) {
-      const documents = action.payload.map(document => ({ ...document, variant: "cloud" })) as UserDocument[];
-      state.documents.push(...documents);
-    },
-    saveDocument: (state, action: PayloadAction<EditorDocument>) => {
-      const document = action.payload;
-      documentDB.update(document);
-      const oldUserDocument = state.documents.find(d => d.id === document.id);
-      const { data, ...newUserDocument } = document;
-      if (oldUserDocument) Object.assign(oldUserDocument, newUserDocument);
-    },
-    updateDocument: (state, action: PayloadAction<{ id: string, partial: Partial<EditorDocument> }>) => {
-      const { id, partial } = action.payload;
-      documentDB.patch(id, partial);
-      const document = state.documents.find(d => d.id === id);
-      if (document) Object.assign(document, partial);
-    },
-    addDocument: (state, action: PayloadAction<EditorDocument>) => {
-      documentDB.add(action.payload);
-      const { data, ...userDocument } = action.payload;
-      state.documents.unshift({ ...userDocument });
-    },
-    deleteDocument: (state, action: PayloadAction<string>) => {
-      state.documents = state.documents.filter(d => d.id !== action.payload);
-      documentDB.deleteByID(action.payload);
     },
     announce: (state, action: PayloadAction<Announcement>) => {
       state.announcements.push(action.payload);
@@ -151,43 +197,71 @@ export const appSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loadAsync.fulfilled, (state, action) => {
+      .addCase(load.fulfilled, (state, action) => {
         state.initialized = true;
       })
-      .addCase(loadDocumentsAsync.fulfilled, (state, action) => {
-        state.documents = action.payload;
+      .addCase(loadAdmin.fulfilled, (state, action) => {
+        state.admin = action.payload;
       })
-      .addCase(getDocumentAsync.rejected, (state, action) => {
+      .addCase(loadLocalDocuments.fulfilled, (state, action) => {
+        const documents = action.payload;
+        if (documents) state.documents.push(...documents);
+      })
+      .addCase(loadCloudDocuments.fulfilled, (state, action) => {
+        const documents = action.payload;
+        if (documents) state.documents.push(...documents);
+      })
+      .addCase(getCloudDocument.rejected, (state, action) => {
         const message = action.payload as string;
         state.announcements.push({ message });
       })
-      .addCase(createDocumentAsync.fulfilled, (state, action) => {
-        if (state.user && action.payload) {
-          state.user.documents.unshift(action.payload);
-        }
+      .addCase(createLocalDocument.fulfilled, (state, action) => {
+        const document = action.payload;
+        state.documents.unshift(document);
       })
-      .addCase(createDocumentAsync.rejected, (state, action) => {
+      .addCase(createLocalDocument.rejected, (state, action) => {
         const message = action.payload as string;
         state.announcements.push({ message });
       })
-      .addCase(updateDocumentAsync.fulfilled, (state, action) => {
-        if (state.user && action.payload) {
-          const { id, partial } = action.payload;
-          const oldUserDocument = state.user?.documents.find(d => d.id === id);
-          const { data, ...newUserDocument } = partial;
-          if (oldUserDocument) Object.assign(oldUserDocument, newUserDocument);
-        }
+      .addCase(createCloudDocument.fulfilled, (state, action) => {
+        const document = action.payload;
+        state.documents.unshift(document);
       })
-      .addCase(updateDocumentAsync.rejected, (state, action) => {
+      .addCase(createCloudDocument.rejected, (state, action) => {
         const message = action.payload as string;
         state.announcements.push({ message });
       })
-      .addCase(deleteDocumentAsync.fulfilled, (state, action) => {
-        if (state.user) {
-          state.user.documents = state.user.documents.filter(doc => doc.id !== action.payload);
-        }
+      .addCase(updateLocalDocument.fulfilled, (state, action) => {
+        const document = action.payload;
+        state.documents = state.documents.map(doc => doc.variant === "local" && doc.id === document.id ? document : doc);
       })
-      .addCase(deleteDocumentAsync.rejected, (state, action) => {
+      .addCase(updateLocalDocument.rejected, (state, action) => {
+        const message = action.payload as string;
+        state.announcements.push({ message });
+      })
+      .addCase(updateCloudDocument.fulfilled, (state, action) => {
+        const document = action.payload;
+        state.documents = state.documents.map(doc => doc.variant === "cloud" && doc.id === document.id ? document : doc);
+      })
+      .addCase(updateCloudDocument.rejected, (state, action) => {
+        const message = action.payload as string;
+        state.announcements.push({ message });
+      })
+      .addCase(deleteLocalDocument.fulfilled, (state, action) => {
+        const id = action.payload;
+        const index = state.documents.findIndex(doc => doc.variant === "local" && doc.id === id);
+        if (index !== -1) state.documents.splice(index, 1);
+      })
+      .addCase(deleteLocalDocument.rejected, (state, action) => {
+        const message = action.payload as string;
+        state.announcements.push({ message });
+      })
+      .addCase(deleteCloudDocument.fulfilled, (state, action) => {
+        const id = action.payload;
+        const index = state.documents.findIndex(doc => doc.variant === "cloud" && doc.id === id);
+        if (index !== -1) state.documents.splice(index, 1);
+      })
+      .addCase(deleteCloudDocument.rejected, (state, action) => {
         const message = action.payload as string;
         state.announcements.push({ message });
       })

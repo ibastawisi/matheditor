@@ -6,6 +6,6 @@ export const metadata: Metadata = {
   description: 'Edit a document',
 }
 
-export default async function Page({ params }: { params: { id: string } }) {
-  return <EditDocument params={params} />;
+export default async function Page() {
+  return <EditDocument />;
 }

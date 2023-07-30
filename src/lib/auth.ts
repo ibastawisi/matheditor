@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import type { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import GoogleProvider from "next-auth/providers/google";
-import { findUserByEmail } from "@/app/repositories/user";
+import { findUserByEmail } from "@/repositories/user";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -18,9 +18,8 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         const user = await findUserByEmail(session.user.email);
         if (!user) return session;
-        session.user = user;
+        session.user = JSON.parse(JSON.stringify(user));
       }
-
       return session
     }
   }

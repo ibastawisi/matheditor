@@ -22,7 +22,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    if (!initialized) dispatch(actions.loadAsync());
+    if (!initialized) dispatch(actions.load());
   }, []);
 
   return (

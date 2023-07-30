@@ -14,13 +14,10 @@ export interface Announcement {
   };
   timeout?: number;
 }
-export interface Admin {
-  users: User[];
-  documents: AdminDocument[];
-}
-
+export type DocumentVariant = "local" | "cloud";
 export interface AppState {
-  user: User | null;
+  user?: User;
+  admin?: Admin;
   documents: UserDocument[];
   announcements: Announcement[];
   alerts: Alert[];
@@ -37,8 +34,9 @@ export interface EditorDocument {
   baseId?: string;
 }
 
-export type UserDocument = Omit<EditorDocument, "data">;
+export type UserDocument = Omit<EditorDocument, "data"> & { variant: DocumentVariant };
 export type AdminDocument = UserDocument & { author: Omit<User, "documents"> };
+export type AdminUser = User & { documents: UserDocument[] };
 
 export interface User {
   id: string;
@@ -48,10 +46,10 @@ export interface User {
   role: "user" | "superuser" | "admin";
   createdAt: string;
   updatedAt: string;
-  documents: UserDocument[];
+  disabled: boolean;
 }
 
 export interface Admin {
-  users: User[];
+  users: AdminUser[];
   documents: AdminDocument[];
 }

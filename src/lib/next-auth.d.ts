@@ -1,4 +1,4 @@
-import { User } from '@/prisma';
+import { User } from '@/types';
 
 declare module 'next-auth' {
   interface Session {

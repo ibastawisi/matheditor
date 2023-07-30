@@ -71,7 +71,7 @@ const TopAppBar: React.FC<{}> = () => {
   const dispatch = useDispatch<AppDispatch>();
   const theme = useTheme();
   const { data: session, status } = useSession();
-  const user = session?.user as User | null;
+  const user = session?.user;
   const pathname = usePathname();
   const showPrintButton = !!['/edit', '/view', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
 
@@ -80,8 +80,10 @@ const TopAppBar: React.FC<{}> = () => {
   }
 
   useEffect(() => {
-    dispatch(actions.setUser(user));
-  }, [user]);
+    if (status === "authenticated") {
+      dispatch(actions.setUser(user));
+    }
+  }, [status]);
 
   return (
     <>

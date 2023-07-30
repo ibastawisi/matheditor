@@ -4,7 +4,7 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import type { Metadata } from 'next';
-import LayoutProvider from "@/app/LayoutProvider";
+import LayoutProvider from "@/components/LayoutProvider";
 import ThemeRegistry from '@/theme/ThemeRegistry';
 
 export const metadata: Metadata = {

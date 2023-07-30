@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { User } from '@/types';
+import { AdminUser, User, UserDocument } from '@/types';
 import Button from '@mui/material/Button';
 import { useDispatch } from 'react-redux';
 import { actions, AppDispatch } from '../store';
@@ -20,7 +20,7 @@ import Avatar from '@mui/material/Avatar';
 import { memo } from 'react';
 import { signIn, signOut } from "next-auth/react";
 
-const UserCard: React.FC<{ user?: User | null, variant?: 'user' | 'public' | 'admin', status?: 'loading' | 'authenticated' | 'unauthenticated' }> = memo(({ user, variant = 'user', status }) => {
+const UserCard: React.FC<{ user?: User | AdminUser, variant?: 'user' | 'public' | 'admin', status?: 'loading' | 'authenticated' | 'unauthenticated' }> = memo(({ user, variant = 'user', status }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const login = () => signIn("google");
@@ -40,6 +40,10 @@ const UserCard: React.FC<{ user?: User | null, variant?: 'user' | 'public' | 'ad
   };
 
   const href = user ? `/user/${user.id}` : '/dashboard';
+  function isAdminUser(user?: User | AdminUser): user is AdminUser {
+    return variant === 'admin';
+  }
+  const isAdmin = isAdminUser(user);
 
   return (
     <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between', height: '100%' }}>
@@ -52,7 +56,7 @@ const UserCard: React.FC<{ user?: User | null, variant?: 'user' | 'public' | 'ad
             <Typography variant={variant !== 'admin' ? "subtitle1" : "subtitle2"} color="text.secondary" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {user ? user.email : <Skeleton variant="text" width={150} />}
             </Typography>
-            {user && variant === 'admin' && <Typography variant="subtitle2" color="text.secondary">
+            {isAdmin && <Typography variant="subtitle2" color="text.secondary">
               {new Date(user.createdAt).toLocaleString()}
             </Typography>
             }
@@ -63,7 +67,7 @@ const UserCard: React.FC<{ user?: User | null, variant?: 'user' | 'public' | 'ad
             {user && <Button size='small' onClick={logout}>Logout</Button>}
             {!user && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>Login with Google</Button>}
           </>}
-          {user && variant === 'admin' && <Chip icon={<ArticleIcon />} label={`${user.documents.length} documents`} />}
+          {isAdmin && <Chip icon={<ArticleIcon />} label={`${user.documents.length} documents`} />}
           {variant !== 'admin' && <IconButton size="small" aria-label="Share" onClick={handleShare} disabled={!user}><ShareIcon /></IconButton>}
         </CardActions>}
 

@@ -8,24 +8,27 @@ import { EditorDocument } from '@/types';
 import useIndexedDBStore from "@/hooks/useIndexedDB";
 import { AppDispatch, actions } from "@/store";
 import { useDispatch } from "react-redux";
+import { usePathname } from "next/navigation";
 
-const EditDocument: React.FC<{ params: { id?: string } }> = ({ params }) => {
+const EditDocument: React.FC = () => {
+  const pathname = usePathname();
+  const params = { id: pathname.split("/")[2] };
   const [document, setDocument] = useState<EditorDocument>();
   const documentDB = useIndexedDBStore<EditorDocument>('documents');
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
-      const localDocument = await documentDB.getByID(id);
-      if (localDocument) {
+      const localResponse = await dispatch(actions.getLocalDocument(id));
+      if (localResponse.type === actions.getLocalDocument.fulfilled.type) {
+        const localDocument = localResponse.payload as EditorDocument;
         setDocument(localDocument);
-        dispatch(actions.loadDocument(localDocument));
       } else {
-        const response = await dispatch(actions.getDocumentAsync(id));
-        const { payload, error } = response as any;
-        if (!error) {
-          setDocument(payload);
-          dispatch(actions.loadDocument(payload));
+        const cloudResponse = await dispatch(actions.getCloudDocument(id));
+        if (cloudResponse.type === actions.getCloudDocument.fulfilled.type) {
+          const cloudDocument = cloudResponse.payload as EditorDocument;
+          setDocument(cloudDocument);
+          dispatch(actions.createLocalDocument(cloudDocument));
         }
       }
     }

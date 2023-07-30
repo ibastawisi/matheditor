@@ -1,5 +1,5 @@
 "use client"
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
@@ -14,22 +14,31 @@ import { EditorDocument } from '@/types';
 import { SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "@/editor/types";
 import { useEffect, useState } from 'react';
 import useIndexedDBStore from '@/hooks/useIndexedDB';
+import { AppDispatch, actions } from '@/store';
+import { useDispatch } from 'react-redux';
 
-const NewDocument: React.FC<{ params?: { id?: string }, cloudDocument?: EditorDocument }> = ({ params, cloudDocument }) => {
-  const [document, setDocument] = useState(cloudDocument);
+const NewDocument: React.FC = () => {
+  const pathname = usePathname();
+  const params = { id: pathname.split("/")[2] };
+  const [document, setDocument] = useState<EditorDocument>();
   const documentDB = useIndexedDBStore<EditorDocument>('documents');
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
-      const locaalDocument = await documentDB.getByID(id);
-      if (locaalDocument) {
-        setDocument(locaalDocument);
-      } else if (cloudDocument) {
-        setDocument(cloudDocument);
-        documentDB.add(cloudDocument).catch((e) => console.error(e));
+      const localResponse = await dispatch(actions.getLocalDocument(id));
+      if (localResponse.type === actions.getLocalDocument.fulfilled.type) {
+        const localDocument = localResponse.payload as EditorDocument;
+        setDocument(localDocument);
+      } else {
+        const cloudResponse = await dispatch(actions.getCloudDocument(id));
+        if (cloudResponse.type === actions.getCloudDocument.fulfilled.type) {
+          const cloudDocument = cloudResponse.payload as EditorDocument;
+          setDocument(cloudDocument);
+        }
       }
     }
-    params?.id && loadDocument(params.id);
+    params.id && loadDocument(params.id);
 
   }, []);
 
@@ -85,7 +94,11 @@ const NewDocument: React.FC<{ params?: { id?: string }, cloudDocument?: EditorDo
     const createdAt = new Date().toISOString();
     if (!data) return;
     const document: EditorDocument = { id: uuidv4(), name, data, createdAt, updatedAt: createdAt, baseId: params?.id };
-    documentDB.add(document).then(() => navigate(`/edit/${document.id}`)).catch((e) => console.log(e));
+    dispatch(actions.createLocalDocument(document)).then((response) => {
+      if (response.type === actions.createLocalDocument.fulfilled.type) {
+        navigate(`/edit/${document.id}`);
+      }
+    });
   };
 
   return (
@@ -94,7 +107,7 @@ const NewDocument: React.FC<{ params?: { id?: string }, cloudDocument?: EditorDo
         <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>
         <Typography component="h1" variant="h5">{document ? `Fork ${document.name}` : "Create a new document"}</Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-          <TextField id="document-name" margin="normal" size="small" label="Document Name" name="documentName" autoComplete="off" fullWidth autoFocus />
+          <TextField id="document-name" margin="normal" size="small" label="Document Name" name="documentName" autoComplete="off" fullWidth autoFocus sx={{ '& .MuiInputBase-root': { height: 40 } }} />
           <Button type="submit" fullWidth variant="contained" startIcon={<AddIcon />} sx={{ my: 2 }}>Create</Button>
         </Box>
       </Box>

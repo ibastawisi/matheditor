@@ -1,5 +1,5 @@
 import { OgMetadata } from "@/app/api/og/route";
-import { findDocumentById, findDocumentMetadata } from "@/app/repositories/document";
+import { findDocumentById, findDocumentMetadata } from "@/repositories/document";
 import { EditorDocument } from "@/types";
 import { Metadata } from "next";
 import { JSDOM } from "jsdom";

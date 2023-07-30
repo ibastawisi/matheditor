@@ -7,7 +7,7 @@ import { Helmet } from "react-helmet";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import UserCard from "./UserCard";
-import { Admin, User, UserDocument } from '@/types';
+import { AdminUser, User, UserDocument } from '@/types';
 import { actions } from "@/store";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -19,7 +19,7 @@ import SortControl from "./SortControl";
 import Pagination from "@mui/material/Pagination";
 import { useSession } from "next-auth/react";
 
-const Dashboard: React.FC<{ initialUser?: User | null, admin?: Admin }> = ({ initialUser, admin }) => {
+const Dashboard: React.FC = ({ }) => {
   const dispatch = useDispatch<AppDispatch>();
   const documents = useSelector((state: RootState) => state.documents);
   const user = useSelector((state: RootState) => state.user);
@@ -28,18 +28,24 @@ const Dashboard: React.FC<{ initialUser?: User | null, admin?: Admin }> = ({ ini
 
   useEffect(() => {
     if (!initialized) {
-      dispatch(actions.loadAsync());
-      initialUser && dispatch(actions.setUser(initialUser));
+      dispatch(actions.load());
     }
   }, []);
+
+  const admin = useSelector((state: RootState) => state.admin);
+
+  useEffect(() => {
+    if (user?.role !== 'admin') return;
+    !admin && dispatch(actions.loadAdmin());
+  }, [user]);
 
   return <Box>
     <Helmet title="Dashboard | Math Editor" />
     <UserCard user={user} status={status} />
     <Box sx={{ my: 2 }}>
-      <DocumentsGrid documents={documents} title="Local Documents" variant="local" />
-      {user && <DocumentsGrid documents={user.documents} title="Cloud Documents" variant="cloud" />}
-      {user && <DocumentsGrid documents={user.documents.filter(d => d.published)} title="Published Documents" variant="public" />}
+      <DocumentsGrid documents={documents.filter(d => d.variant === "local")} title="Local Documents" variant="local" />
+      <DocumentsGrid documents={documents.filter(d => d.variant === "cloud")} title="Cloud Documents" variant="cloud" />
+      <DocumentsGrid documents={documents.filter(d => d.published)} title="Published Documents" variant="public" />
     </Box>
     {user?.role === "admin" && admin && <Box sx={{ my: 3 }}>
       <DocumentsGrid documents={admin.documents} title="Admin Documents" variant="admin" />
@@ -50,9 +56,9 @@ const Dashboard: React.FC<{ initialUser?: User | null, admin?: Admin }> = ({ ini
 
 export default Dashboard;
 
-const UserGrid: React.FC<{ users: User[] }> = memo(({ users }) => {
+const UserGrid: React.FC<{ users: AdminUser[] }> = memo(({ users }) => {
   const [sortedUsers, setSortedUsers] = useState(users);
-  const usersortOptions: SortOption<User>[] = [
+  const usersortOptions: SortOption<AdminUser>[] = [
     { label: 'Created', value: 'createdAt' },
     { label: 'Name', value: 'name' },
     { label: 'Documents', value: 'documents' },
@@ -68,7 +74,7 @@ const UserGrid: React.FC<{ users: User[] }> = memo(({ users }) => {
     </AccordionSummary>
     <AccordionDetails>
       <Box sx={{ display: "flex", justifyContent: 'flex-end', alignItems: "center", gap: 1, my: 2 }}>
-        <SortControl<User> data={users} onSortChange={setSortedUsers} sortOptions={usersortOptions} initialSortDirection="desc" />
+        <SortControl<AdminUser> data={users} onSortChange={setSortedUsers} sortOptions={usersortOptions} initialSortDirection="desc" />
       </Box>
       <UsersTree users={sortedUsers.slice((page - 1) * 12, page * 12)} />
       {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}

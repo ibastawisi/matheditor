@@ -11,14 +11,14 @@ import { SortOption } from "../hooks/useSort";
 import SortControl from "./SortControl";
 import Pagination from "@mui/material/Pagination";
 
-const User: React.FC<{ user?: User }> = ({ user }) => {
-  const [sortedDocuments, setSortedDocuments] = useState(user?.documents || []);
+const User: React.FC<{ user?: User, documents?: UserDocument[] }> = ({ user, documents }) => {
+  const [sortedDocuments, setSortedDocuments] = useState(documents || []);
   const documentSortOptions: SortOption<UserDocument>[] = [
     { label: 'Updated', value: 'updatedAt' },
     { label: 'Created', value: 'createdAt' },
     { label: 'Name', value: 'name' },
   ];
-  const pages = Math.ceil((user?.documents?.length ?? 0) / 12);
+  const pages = Math.ceil((documents?.length ?? 0) / 12);
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
 
@@ -28,7 +28,7 @@ const User: React.FC<{ user?: User }> = ({ user }) => {
     {user && <Box sx={{ gap: 1, my: 2 }}>
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>
         <Typography variant="h6" component="h2" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Published Documents</Typography>
-        <SortControl<UserDocument> data={user.documents} onSortChange={setSortedDocuments} sortOptions={documentSortOptions} initialSortDirection="desc" />
+        <SortControl<UserDocument> data={sortedDocuments} onSortChange={setSortedDocuments} sortOptions={documentSortOptions} initialSortDirection="desc" />
       </Box>
       <PublicDocumentsTree documents={sortedDocuments.slice((page - 1) * 12, page * 12)} />
       {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}

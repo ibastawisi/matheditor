@@ -31,6 +31,18 @@ const config = {
   experimental: {
     serverActions: true,
   },
-}
+  async rewrites() {
+    return [
+      {
+        source: "/new/:id",
+        destination: "/new",
+      },
+      {
+        source: "/edit/:id",
+        destination: "/edit",
+      },
+    ];
+  },
+};
 
 module.exports = withPWA(withBundleAnalyzer(config));

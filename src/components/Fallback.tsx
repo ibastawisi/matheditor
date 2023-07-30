@@ -13,12 +13,11 @@ const EditDocument = lazy(() => import('@/components/EditDocument'));
 
 const Fallback: React.FC<PropsWithChildren> = ({ children }) => {
   const pathname = usePathname();
-  const params = { id: pathname.split("/")[2] };
   const online = (typeof navigator === "undefined" ? true : navigator.onLine) || process.env.NODE_ENV === "development";
 
   if (online) return children;
-  if (pathname.startsWith("/new")) return <NewDocument params={params} />;
-  if (pathname.startsWith("/edit")) return <EditDocument params={params} />;
+  if (pathname.startsWith("/new")) return <NewDocument />;
+  if (pathname.startsWith("/edit")) return <EditDocument />;
   if (pathname.startsWith("/playground")) return <Playground />;
   if (pathname.startsWith("/tutorial")) return <Tutorial />;
   if (pathname.startsWith("/dashboard")) return <Dashboard />;
