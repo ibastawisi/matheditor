@@ -1,5 +1,5 @@
 "use client"
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
@@ -13,16 +13,14 @@ import Container from '@mui/material/Container';
 import { EditorDocument } from '@/types';
 import { SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "@/editor/types";
 import { useEffect, useState } from 'react';
-import useIndexedDBStore from '@/hooks/useIndexedDB';
 import { AppDispatch, actions } from '@/store';
 import { useDispatch } from 'react-redux';
 
 const NewDocument: React.FC = () => {
-  const pathname = usePathname();
-  const params = { id: pathname.split("/")[2] };
   const [document, setDocument] = useState<EditorDocument>();
-  const documentDB = useIndexedDBStore<EditorDocument>('documents');
   const dispatch = useDispatch<AppDispatch>();
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
@@ -38,9 +36,8 @@ const NewDocument: React.FC = () => {
         }
       }
     }
-    params.id && loadDocument(params.id);
-
-  }, []);
+    id && loadDocument(id);
+  }, [searchParams]);
 
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
@@ -93,12 +90,14 @@ const NewDocument: React.FC = () => {
     const data = await getData(name);
     const createdAt = new Date().toISOString();
     if (!data) return;
-    const document: EditorDocument = { id: uuidv4(), name, data, createdAt, updatedAt: createdAt, baseId: params?.id };
-    dispatch(actions.createLocalDocument(document)).then((response) => {
-      if (response.type === actions.createLocalDocument.fulfilled.type) {
-        navigate(`/edit/${document.id}`);
-      }
-    });
+    const document: EditorDocument = { id: uuidv4(), name, data, createdAt, updatedAt: createdAt };
+    if (id) document.baseId = id;
+    const response = await dispatch(actions.createLocalDocument(document))
+    if (response.type === actions.createLocalDocument.fulfilled.type) {
+      const href = `/edit?id=${document.id}`;
+      console.log(`Navigating to ${href}`);
+      navigate(href);
+    }
   };
 
   return (

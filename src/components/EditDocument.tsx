@@ -1,21 +1,18 @@
 "use client"
 import { useEffect, useState } from "react";
 import Editor from "./Editor";
-
 import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
 import { EditorDocument } from '@/types';
-import useIndexedDBStore from "@/hooks/useIndexedDB";
 import { AppDispatch, actions } from "@/store";
 import { useDispatch } from "react-redux";
-import { usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 const EditDocument: React.FC = () => {
-  const pathname = usePathname();
-  const params = { id: pathname.split("/")[2] };
   const [document, setDocument] = useState<EditorDocument>();
-  const documentDB = useIndexedDBStore<EditorDocument>('documents');
   const dispatch = useDispatch<AppDispatch>();
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
@@ -32,13 +29,13 @@ const EditDocument: React.FC = () => {
         }
       }
     }
-    params.id && loadDocument(params.id);
+    id && loadDocument(id);
 
-  }, []);
+  }, [searchParams]);
 
   if (!document) return <SplashScreen title="Loading Document" />;
 
-  return document?.id === params.id ? <>
+  return document?.id === id ? <>
     <Helmet title={`${document.name} | Math Editor`} />
     <Editor document={document} />
   </> : <SplashScreen title="Loading Document" />;

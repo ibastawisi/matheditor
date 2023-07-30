@@ -34,6 +34,20 @@ const PwaUpdater = () => {
         ));
       });
 
+      wb.addEventListener("activated", (event: any) => {
+        const origin = location.origin;
+        const urlsToCache = [
+          `${origin}/`,
+          `${origin}/playground`,
+          `${origin}/tutorial`,
+          `${origin}/new`,
+          `${origin}/edit`,
+          `${origin}/dashboard`,
+          `${origin}/privacy`,
+        ]
+        wb.messageSW({ type: "CACHE_URLS", payload: { urlsToCache } });
+      });
+
       wb.register();
     }
 

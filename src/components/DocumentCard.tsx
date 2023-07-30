@@ -38,11 +38,11 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
         ['fork', 'share', 'embed']
         : ['fork', 'share', 'embed']
 
-  const href = `/${variant === 'public' || variant === 'admin' ? 'view' : 'edit'}/${document.id}`;
+  const href = variant === "admin" || variant === "public" ? `/view/${document.id}` : `/edit?id=${document.id}`;
 
   return (
     <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
-      <CardActionArea component={RouterLink} prefetch={false} href={href} sx={{ flexGrow: 1 }}>
+      <CardActionArea component={RouterLink} href={href} sx={{ flexGrow: 1 }}>
         <CardHeader
           title={document.name}
           subheader={

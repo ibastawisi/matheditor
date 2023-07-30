@@ -11,11 +11,13 @@ const withPWA = require("@imbios/next-pwa")({
   buildExcludes: ["app-build-manifest.json"],
   skipWaiting: false,
   mode: "production",
-  cacheOnFrontEndNav: true,
+  cacheStartUrl: false,
+  dynamicStartUrl: false,
   reloadOnOnline: false,
   fallbacks: {
     document: "/~offline",
   },
+  runtimeCaching: require("./cache"),
 });
 
 
@@ -30,18 +32,6 @@ const config = {
   },
   experimental: {
     serverActions: true,
-  },
-  async rewrites() {
-    return [
-      {
-        source: "/new/:id",
-        destination: "/new",
-      },
-      {
-        source: "/edit/:id",
-        destination: "/edit",
-      },
-    ];
   },
 };
 

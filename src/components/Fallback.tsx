@@ -14,14 +14,13 @@ const EditDocument = lazy(() => import('@/components/EditDocument'));
 const Fallback: React.FC<PropsWithChildren> = ({ children }) => {
   const pathname = usePathname();
   const online = (typeof navigator === "undefined" ? true : navigator.onLine) || process.env.NODE_ENV === "development";
-
   if (online) return children;
-  if (pathname.startsWith("/new")) return <NewDocument />;
-  if (pathname.startsWith("/edit")) return <EditDocument />;
-  if (pathname.startsWith("/playground")) return <Playground />;
-  if (pathname.startsWith("/tutorial")) return <Tutorial />;
-  if (pathname.startsWith("/dashboard")) return <Dashboard />;
-  if (pathname.startsWith("/privacy")) return <Privacy />;
+  if (pathname === "/new") return <NewDocument />;
+  if (pathname === "/edit") return <EditDocument />;
+  if (pathname === "/playground") return <Playground />;
+  if (pathname === "/tutorial") return <Tutorial />;
+  if (pathname === "/dashboard") return <Dashboard />;
+  if (pathname === "/privacy") return <Privacy />;
   if (pathname === "/") return <Home />;
   return <SplashScreen title="You are offline" />;
 }

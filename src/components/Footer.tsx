@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
   const version = packageJson.version;
   const commitHash: string | undefined = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA;
   return (
-    <Box component="footer" sx={{ displayPrint: "none", mt: "auto", p: 0.5, textAlign: "end" }}>
+    <Box component="footer" sx={{ displayPrint: "none", mt: "auto", p: 1 }}>
       <Typography variant="button" color="text.secondary">
         v{version}
         {commitHash && <Link href={`https://github.com/ibastawisi/matheditor/commit/${commitHash?.substring(0, 7)}`} target="_blank"

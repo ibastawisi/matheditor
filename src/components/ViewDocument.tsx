@@ -18,8 +18,8 @@ const ViewDocument: React.FC<React.PropsWithChildren & { params: { id?: string }
   return <>
     {children}
     <Transition in={slideTrigger} timeout={225}>
-      <Fab variant="extended" size='medium' component={RouterLink} prefetch={false} href={`/new/${params.id}`}
-        sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 32, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>
+      <Fab variant="extended" size='medium' component={RouterLink} href={`/new?id=${params.id}`}
+        sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 16, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>
         <EditIcon />Fork
       </Fab>
     </Transition>

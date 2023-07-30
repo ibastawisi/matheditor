@@ -48,7 +48,7 @@ const UserCard: React.FC<{ user?: User | AdminUser, variant?: 'user' | 'public' 
   return (
     <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between', height: '100%' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', width: 0, flex: 1 }}>
-        <CardActionArea component={RouterLink} prefetch={false} href={href} sx={{ flex: '1 0 auto' }}>
+        <CardActionArea component={RouterLink} href={href} sx={{ flex: '1 0 auto' }}>
           <CardContent>
             <Typography variant={variant !== 'admin' ? "h6" : "subtitle1"}>
               {user ? user.name : <Skeleton variant="text" width={190} />}
@@ -72,7 +72,7 @@ const UserCard: React.FC<{ user?: User | AdminUser, variant?: 'user' | 'public' 
         </CardActions>}
 
       </Box>
-      <CardActionArea component={RouterLink} prefetch={false} href={href} sx={{ display: 'flex', width: 'auto' }}>
+      <CardActionArea component={RouterLink} href={href} sx={{ display: 'flex', width: 'auto' }}>
         {user ?
           <Avatar
             sx={{ width: 112, height: 112, m: 2, alignSelf: 'center', flexShrink: 0 }}
