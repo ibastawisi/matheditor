@@ -29,7 +29,7 @@ const findAllDocuments = async () => {
 
 const findDocumentsByAuthorId = async (authorId: string) => {
   return prisma.document.findMany({
-    where: { authorId },
+    where: { authorId, published: true },
     select: {
       id: true,
       name: true,

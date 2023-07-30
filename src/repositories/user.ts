@@ -70,37 +70,6 @@ const findUserByEmail = async (email: string) => {
   });
 }
 
-const findUserBySessionId = async (sessionId: string) => {
-  const session = await prisma.session.findUnique({
-    where: { id: sessionId },
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          image: true,
-          createdAt: true,
-          updatedAt: true,
-          documents: {
-            select: {
-              id: true,
-              name: true,
-              createdAt: true,
-              updatedAt: true,
-              published: true,
-            },
-            orderBy: {
-              updatedAt: 'desc'
-            }
-          }
-        }
-      }
-    }
-  });
-  return session?.user;
-}
-
 const createUser = async (data: Prisma.UserCreateInput) => {
   return prisma.user.create({ data });
 }
@@ -131,4 +100,4 @@ const findUserMetadata = async (id: string) => {
   });
 }
 
-export { findAllUsers, findUserById, findUserByEmail, findUserBySessionId, createUser, updateUser, deleteUser, findUserMetadata };
+export { findAllUsers, findUserById, findUserByEmail, createUser, updateUser, deleteUser, findUserMetadata };
