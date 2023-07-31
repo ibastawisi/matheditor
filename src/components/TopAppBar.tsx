@@ -22,10 +22,8 @@ import Avatar from '@mui/material/Avatar';
 import logo from "/public/logo.svg";
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
-import { User } from '@/types';
 import { useDispatch } from 'react-redux';
 import { AppDispatch, actions } from '@/store';
-import ProgressBar from './Progressbar';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname()
@@ -87,7 +85,6 @@ const TopAppBar: React.FC<{}> = () => {
 
   return (
     <>
-      <ProgressBar />
       <HideOnScroll>
         <AppBar sx={{ displayPrint: "none", zIndex: 1200 }}>
           <Toolbar sx={{ minHeight: 64 }}>

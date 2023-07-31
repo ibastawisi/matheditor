@@ -32,7 +32,6 @@ export const loadAdmin = createAsyncThunk('app/loadAdmin', async (_, thunkAPI) =
 });
 
 export const loadLocalDocuments = createAsyncThunk('app/loadLocalDocuments', async (_, thunkAPI) => {
-  NProgress.start();
   try {
     const documents = await documentDB.getAll();
     const userDocuments: UserDocument[] = documents.map(document => {
@@ -42,8 +41,6 @@ export const loadLocalDocuments = createAsyncThunk('app/loadLocalDocuments', asy
     return thunkAPI.fulfillWithValue(userDocuments);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
-  } finally {
-    NProgress.done();
   }
 });
 
@@ -63,15 +60,12 @@ export const loadCloudDocuments = createAsyncThunk('app/loadCloudDocuments', asy
 });
 
 export const getLocalDocument = createAsyncThunk('app/getLocalDocument', async (id: string, thunkAPI) => {
-  NProgress.start();
   try {
     const document = await documentDB.getByID(id);
     if (!document) return thunkAPI.rejectWithValue('document not found');
     return thunkAPI.fulfillWithValue(document);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
-  } finally {
-    NProgress.done();
   }
 });
 
@@ -90,7 +84,6 @@ export const getCloudDocument = createAsyncThunk('app/getCloudDocument', async (
 });
 
 export const createLocalDocument = createAsyncThunk('app/createLocalDocument', async (document: EditorDocument, thunkAPI) => {
-  NProgress.start();
   try {
     const id = await documentDB.add(document);
     if (!id) return thunkAPI.rejectWithValue('failed to create document');
@@ -99,8 +92,6 @@ export const createLocalDocument = createAsyncThunk('app/createLocalDocument', a
     return thunkAPI.fulfillWithValue(payload);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
-  } finally {
-    NProgress.done();
   }
 });
 
@@ -120,17 +111,14 @@ export const createCloudDocument = createAsyncThunk('app/createCloudDocument', a
 });
 
 export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', async (payloadCreator: { id: string, partial: Partial<EditorDocument> }, thunkAPI) => {
-  NProgress.start();
-  const { id, partial } = payloadCreator;
   try {
+  const { id, partial } = payloadCreator;
     documentDB.patch(id, partial);
     const { data, ...userDocument } = await documentDB.getByID(id);
     const payload: UserDocument = { ...userDocument, variant: 'local' };
     return thunkAPI.fulfillWithValue(payload);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
-  } finally {
-    NProgress.done();
   }
 });
 
@@ -151,14 +139,11 @@ export const updateCloudDocument = createAsyncThunk('app/updateCloudDocument', a
 });
 
 export const deleteLocalDocument = createAsyncThunk('app/deleteLocalDocument', async (id: string, thunkAPI) => {
-  NProgress.start();
   try {
     await documentDB.deleteByID(id);
     return thunkAPI.fulfillWithValue(id);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
-  } finally {
-    NProgress.done();
   }
 });
 
