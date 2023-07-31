@@ -35,21 +35,6 @@ const findUserById = async (id: string) => {
       updatedAt: true,
       role: true,
       disabled: true,
-      documents: {
-        where: {
-          published: true
-        },
-        select: {
-          id: true,
-          name: true,
-          createdAt: true,
-          updatedAt: true,
-          published: true,
-        },
-        orderBy: {
-          updatedAt: 'desc'
-        }
-      }
     }
   });
 }

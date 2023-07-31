@@ -29,6 +29,23 @@ const findAllDocuments = async () => {
 
 const findDocumentsByAuthorId = async (authorId: string) => {
   return prisma.document.findMany({
+    where: { authorId },
+    select: {
+      id: true,
+      name: true,
+      createdAt: true,
+      updatedAt: true,
+      published: true,
+      baseId: true,
+    },
+    orderBy: {
+      updatedAt: 'desc'
+    }
+  });
+}
+
+const findPuplishedDocumentsByAuthorId = async (authorId: string) => {
+  return prisma.document.findMany({
     where: { authorId, published: true },
     select: {
       id: true,
@@ -104,4 +121,4 @@ const deleteDocument = async (id: string) => {
   });
 }
 
-export { findAllDocuments, findDocumentsByAuthorId, findDocumentById, findDocumentAuthorId, findDocumentMetadata, createDocument, updateDocument, deleteDocument };
+export { findAllDocuments, findDocumentsByAuthorId, findPuplishedDocumentsByAuthorId, findDocumentById, findDocumentAuthorId, findDocumentMetadata, createDocument, updateDocument, deleteDocument };

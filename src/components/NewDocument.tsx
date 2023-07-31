@@ -95,7 +95,6 @@ const NewDocument: React.FC = () => {
     const response = await dispatch(actions.createLocalDocument(document))
     if (response.type === actions.createLocalDocument.fulfilled.type) {
       const href = `/edit?id=${document.id}`;
-      console.log(`Navigating to ${href}`);
       navigate(href);
     }
   };

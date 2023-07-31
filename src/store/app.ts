@@ -2,7 +2,9 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import NProgress from "nprogress";
 import documentDB from '@/indexeddb';
 import { AppState, Announcement, Alert, EditorDocument, UserDocument } from '../types';
-import { createDocumentAction, deleteDocumentAction, getAdminAction, getDocumentAction, getDocumentsAction, updateDocumentAction } from '@/actions';
+import { GetAdminResponse } from '@/app/api/admin/route';
+import { GetDocumentsResponse, PostDocumentsResponse } from '@/app/api/documents/route';
+import { DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from '@/app/api/documents/[id]/route';
 
 const initialState: AppState = {
   documents: [],
@@ -21,7 +23,8 @@ export const load = createAsyncThunk('app/load', async (_, thunkAPI) => {
 export const loadAdmin = createAsyncThunk('app/loadAdmin', async (_, thunkAPI) => {
   NProgress.start();
   try {
-    const { data, error } = await getAdminAction();
+    const response = await fetch('/api/admin');
+    const { data, error } = await response.json() as GetAdminResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
@@ -47,7 +50,8 @@ export const loadLocalDocuments = createAsyncThunk('app/loadLocalDocuments', asy
 export const loadCloudDocuments = createAsyncThunk('app/loadCloudDocuments', async (_, thunkAPI) => {
   NProgress.start();
   try {
-    const { data, error } = await getDocumentsAction();
+    const response = await fetch('/api/documents');
+    const { data, error } = await response.json() as GetDocumentsResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.fulfillWithValue([] as UserDocument[]);
     const userDocuments: UserDocument[] = data.map(document => ({ ...document, variant: 'cloud' }));
@@ -72,7 +76,8 @@ export const getLocalDocument = createAsyncThunk('app/getLocalDocument', async (
 export const getCloudDocument = createAsyncThunk('app/getCloudDocument', async (id: string, thunkAPI) => {
   try {
     NProgress.start();
-    const { data, error } = await getDocumentAction(id);
+    const response = await fetch(`/api/documents/${id}`);
+    const { data, error } = await response.json() as GetDocumentResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.rejectWithValue('document not found');
     return thunkAPI.fulfillWithValue(data);
@@ -98,7 +103,12 @@ export const createLocalDocument = createAsyncThunk('app/createLocalDocument', a
 export const createCloudDocument = createAsyncThunk('app/createCloudDocument', async (document: EditorDocument, thunkAPI) => {
   NProgress.start();
   try {
-    const { data, error } = await createDocumentAction(document);
+    const response = await fetch('/api/documents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(document),
+    });
+    const { data, error } = await response.json() as PostDocumentsResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.rejectWithValue('failed to create document');
     const payload: UserDocument = { ...data, variant: 'cloud' };
@@ -112,8 +122,9 @@ export const createCloudDocument = createAsyncThunk('app/createCloudDocument', a
 
 export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', async (payloadCreator: { id: string, partial: Partial<EditorDocument> }, thunkAPI) => {
   try {
-  const { id, partial } = payloadCreator;
-    documentDB.patch(id, partial);
+    const { id, partial } = payloadCreator;
+    const result = await documentDB.patch(id, partial);
+    if (!result) return thunkAPI.rejectWithValue('failed to update document')
     const { data, ...userDocument } = await documentDB.getByID(id);
     const payload: UserDocument = { ...userDocument, variant: 'local' };
     return thunkAPI.fulfillWithValue(payload);
@@ -126,7 +137,12 @@ export const updateCloudDocument = createAsyncThunk('app/updateCloudDocument', a
   NProgress.start();
   const { id, partial } = payloadCreator;
   try {
-    const { data, error } = await updateDocumentAction(id, partial);
+    const response = await fetch(`/api/documents/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(partial),
+    });
+    const { data, error } = await response.json() as PatchDocumentResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.rejectWithValue('failed to update document');
     const payload: UserDocument = { ...data, variant: 'cloud' };
@@ -150,8 +166,12 @@ export const deleteLocalDocument = createAsyncThunk('app/deleteLocalDocument', a
 export const deleteCloudDocument = createAsyncThunk('app/deleteCloudDocument', async (id: string, thunkAPI) => {
   try {
     NProgress.start();
-    const { data, error } = await deleteDocumentAction(id);
+    const response = await fetch(`/api/documents/${id}`, {
+      method: 'DELETE',
+    });
+    const { data, error } = await response.json() as DeleteDocumentResponse;
     if (error) return thunkAPI.rejectWithValue(error);
+    if (!data) return thunkAPI.rejectWithValue('failed to delete document');
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
