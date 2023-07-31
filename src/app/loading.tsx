@@ -1,3 +1,5 @@
 import SplashScreen from "@/components/SplashScreen";
 
-export default SplashScreen
+const page = () => <SplashScreen />;
+
+export default page;

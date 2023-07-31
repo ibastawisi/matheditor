@@ -35,6 +35,7 @@ import documentDB from '@/indexeddb';
 
 const Documents: React.FC = () => {
   const documents = useSelector((state: RootState) => state.documents);
+  const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
@@ -178,7 +179,7 @@ const Documents: React.FC = () => {
               </CardActionArea>
             </Card>
           </Grid>
-          {status !== "authenticated" && <Grid item xs={12}><UserCard status={status} /></Grid>}
+          {(!user || !initialized) && <Grid item xs={12}><UserCard status={status} user={user} /></Grid>}
           {initialized && <DocumentsTree documents={sortedDocuments} />}
         </Grid>
       </Box>

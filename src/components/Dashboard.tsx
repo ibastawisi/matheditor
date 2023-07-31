@@ -40,7 +40,7 @@ const Dashboard: React.FC = ({ }) => {
   }, [user]);
 
   return <Box>
-    <Helmet title="Dashboard | Math Editor" />
+    <Helmet title="Dashboard" />
     <UserCard user={user} status={status} />
     <Box sx={{ my: 2 }}>
       <DocumentsGrid documents={documents.filter(d => d.variant === "local")} title="Local Documents" variant="local" />

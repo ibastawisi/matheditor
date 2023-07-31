@@ -1,5 +1,11 @@
-import SplashScreen from './loading'
+import SplashScreen from '@/components/SplashScreen'
+import type { Metadata } from "next";
 
-export default function NotFound() {
-  return <SplashScreen title="Page Not Found" loading={false} />
+export const metadata: Metadata = {
+  title: 'Page not found',
+  description: 'Page not found',
 }
+
+const page = () => <SplashScreen title="Page not found" />;
+
+export default page;

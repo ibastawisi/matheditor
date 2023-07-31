@@ -23,7 +23,7 @@ const User: React.FC<{ user?: User, documents?: UserDocument[] }> = ({ user, doc
   const handlePageChange = (_: any, value: number) => setPage(value);
 
   return <Box>
-    <Helmet title={`${user?.name ?? "User Not Found"} | Math Editor`} />
+    <Helmet title={`${user?.name ?? "User Not Found"}`} />
     <UserCard user={user} variant="public" />
     {user && <Box sx={{ gap: 1, my: 2 }}>
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>

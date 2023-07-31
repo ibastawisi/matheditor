@@ -22,8 +22,8 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
-      response.error = 'not authenticated';
-      return NextResponse.json(response, { status: 401 })
+      response.data = [];
+      return NextResponse.json(response, { status: 200 })
     }
     const { user } = session;
     if (user.disabled) {

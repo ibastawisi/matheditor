@@ -48,7 +48,7 @@ const Tutorial: React.FC = () => {
 
 
   return <>
-    <Helmet title={`Tutorial | Math Editor`} />
+    <Helmet title="Tutorial" />
     <Editor key={currentTask} document={tasks[currentTask]} onChange={onChange} />
     <Paper sx={{ p: 2, mt: 3, displayPrint: 'none' }}>
       <Box key={`task-${currentTask}`} sx={{ mb: 2 }}>

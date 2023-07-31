@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const image = `/api/og?metadata=${encodeURIComponent(JSON.stringify(metadata))}`;
 
   return {
-    title: `${title} | Math Editor`,
+    title,
     description: description ?? subtitle,
     openGraph: {
       images: [image],

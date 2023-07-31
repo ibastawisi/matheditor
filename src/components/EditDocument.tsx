@@ -10,6 +10,7 @@ import { useSearchParams } from "next/navigation";
 
 const EditDocument: React.FC = () => {
   const [document, setDocument] = useState<EditorDocument>();
+  const [error, setError] = useState<string>();
   const dispatch = useDispatch<AppDispatch>();
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
@@ -26,6 +27,8 @@ const EditDocument: React.FC = () => {
           const cloudDocument = cloudResponse.payload as EditorDocument;
           setDocument(cloudDocument);
           dispatch(actions.createLocalDocument(cloudDocument));
+        } else if (cloudResponse.type === actions.getCloudDocument.rejected.type) {
+          setError(cloudResponse.payload as string);
         }
       }
     }
@@ -33,12 +36,13 @@ const EditDocument: React.FC = () => {
 
   }, [searchParams]);
 
+  if (error) return <SplashScreen title={error} />;
   if (!document) return <SplashScreen title="Loading Document" />;
 
-  return document?.id === id ? <>
-    <Helmet title={`${document.name} | Math Editor`} />
+  return <>
+    <Helmet title={`${document.name}`} />
     <Editor document={document} />
-  </> : <SplashScreen title="Loading Document" />;
+  </>;
 }
 
 export default EditDocument;
