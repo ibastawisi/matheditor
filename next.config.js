@@ -17,7 +17,7 @@ const withPWA = require("@imbios/next-pwa")({
   fallbacks: {
     document: "/~offline",
   },
-  runtimeCaching: require("./cache"),
+  cacheOnFrontEndNav: true,
 });
 
 

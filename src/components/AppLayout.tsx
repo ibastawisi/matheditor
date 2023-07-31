@@ -7,7 +7,6 @@ import AlertDialog from "@/components/Alert";
 import Announcer from "@/components/Announcer";
 import PwaUpdater from "@/components/PwaUpdater";
 import Footer from "@/components/Footer";
-import Fallback from "@/components/Fallback";
 
 const AppLayout = ({ children }: { children: React.ReactNode; }) => {
   return (
@@ -15,9 +14,7 @@ const AppLayout = ({ children }: { children: React.ReactNode; }) => {
       <StoreProvider>
         <TopAppBar />
         <Container className='editor-container'>
-          <Fallback>
-            {children}
-          </Fallback>
+          {children}
         </Container>
         <Footer />
         <AlertDialog />

@@ -11,7 +11,7 @@ const PlaygroundCard: React.FC = () => {
 
   return (
     <Card variant="outlined">
-      <CardActionArea component={RouterLink} href="/playground">
+      <CardActionArea component={RouterLink} prefetch={false} href="/playground">
         <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>} />
       </CardActionArea>
     </Card>

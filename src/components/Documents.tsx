@@ -145,7 +145,7 @@ const Documents: React.FC = () => {
     <>
       <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5 }}>
         <Avatar sx={{ my: 2, bgcolor: 'primary.main' }}><PostAddIcon /></Avatar>
-        <Button variant="outlined" component={RouterLink} href="/new">New document</Button>
+        <Button variant="outlined" component={RouterLink} prefetch={false} href="/new">New document</Button>
       </Box>
       <Box sx={{ my: 3 }}>
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", gap: 1, mb: 1 }}>
@@ -166,14 +166,14 @@ const Documents: React.FC = () => {
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <Card variant="outlined">
-              <CardActionArea component={RouterLink} href="/playground">
+              <CardActionArea component={RouterLink} prefetch={false} href="/playground">
                 <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>} />
               </CardActionArea>
             </Card>
           </Grid>
           <Grid item xs={6}>
             <Card variant="outlined">
-              <CardActionArea component={RouterLink} href="/tutorial">
+              <CardActionArea component={RouterLink} prefetch={false} href="/tutorial">
                 <CardHeader title="Tutorial" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><HelpIcon /></Avatar>} />
               </CardActionArea>
             </Card>
