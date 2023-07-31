@@ -108,7 +108,7 @@ const Documents: React.FC = () => {
   }
 
   function addDocument(document: EditorDocument, navigateTo?: boolean) {
-    if (documents.find(d => d.id === document.id)) {
+    if (documents.find(d => d.variant === "local" && d.id === document.id)) {
       dispatch(actions.alert({
         title: "Document already exists",
         content: `Do you want to overwrite ${document.name}?`,
