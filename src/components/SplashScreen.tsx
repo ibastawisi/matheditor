@@ -3,7 +3,7 @@ import Typography from '@mui/material/Typography';
 import logo from "/public/logo.svg";
 import Image from 'next/image';
 
-const SplashScreen: React.FC<{ title?: string }> = ({ title = "Loading" }) => {
+const SplashScreen: React.FC<{ title?: string }> = ({ title }) => {
   return (
     <div className='splash-screen'>
       <div className='splash-screen-content'>

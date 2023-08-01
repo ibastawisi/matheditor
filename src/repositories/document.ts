@@ -87,7 +87,7 @@ const findDocumentAuthorId = async (id: string) => {
 
 const findDocumentMetadata = async (id: string) => {
   return prisma.document.findUnique({
-    where: { id, published: true },
+    where: { id },
     select: {
       id: true,
       name: true,
