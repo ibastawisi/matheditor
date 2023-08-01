@@ -227,7 +227,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
 
   const handleFork = () => {
     closeMenu();
-    navigate(`/new?id=${document.id}`);
+    navigate(`/new/${document.id}`);
   };
 
   return (

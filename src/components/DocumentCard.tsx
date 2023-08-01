@@ -38,7 +38,7 @@ const DocumentCard: React.FC<{ document: Omit<EditorDocument, "data">, variant: 
         ['fork', 'share', 'embed']
         : ['fork', 'share', 'embed']
 
-  const href = variant === "admin" || variant === "public" ? `/view/${document.id}` : `/edit?id=${document.id}`;
+  const href = variant === "admin" || variant === "public" ? `/view/${document.id}` : `/edit/${document.id}`;
 
   return (
     <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>

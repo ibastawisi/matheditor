@@ -6,14 +6,14 @@ import { Helmet } from "react-helmet";
 import { EditorDocument } from '@/types';
 import { AppDispatch, actions } from "@/store";
 import { useDispatch } from "react-redux";
-import { useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 const EditDocument: React.FC = () => {
   const [document, setDocument] = useState<EditorDocument>();
   const [error, setError] = useState<string>();
   const dispatch = useDispatch<AppDispatch>();
-  const searchParams = useSearchParams();
-  const id = searchParams.get('id');
+  const pathname = usePathname();
+  const id = pathname.split('/')[2];
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
@@ -34,7 +34,7 @@ const EditDocument: React.FC = () => {
     }
     id && loadDocument(id);
 
-  }, [searchParams]);
+  }, [pathname]);
 
   if (error) return <SplashScreen title={error} />;
   if (!document) return <SplashScreen title="Loading Document" />;

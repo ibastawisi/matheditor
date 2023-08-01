@@ -1,5 +1,5 @@
 "use client"
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
@@ -19,8 +19,8 @@ import { useDispatch } from 'react-redux';
 const NewDocument: React.FC = () => {
   const [document, setDocument] = useState<EditorDocument>();
   const dispatch = useDispatch<AppDispatch>();
-  const searchParams = useSearchParams();
-  const id = searchParams.get('id');
+  const pathname = usePathname();
+  const id = pathname.split('/')[2];
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
@@ -37,7 +37,7 @@ const NewDocument: React.FC = () => {
       }
     }
     id && loadDocument(id);
-  }, [searchParams]);
+  }, [pathname]);
 
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
@@ -94,7 +94,7 @@ const NewDocument: React.FC = () => {
     if (id) document.baseId = id;
     const response = await dispatch(actions.createLocalDocument(document))
     if (response.type === actions.createLocalDocument.fulfilled.type) {
-      const href = `/edit?id=${document.id}`;
+      const href = `/edit/${document.id}`;
       navigate(href);
     }
   };

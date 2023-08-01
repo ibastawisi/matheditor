@@ -17,7 +17,7 @@ const withPWA = require("@imbios/next-pwa")({
   fallbacks: {
     document: "/~offline",
   },
-  cacheOnFrontEndNav: true,
+  runtimeCaching: require("./cache.js"),
 });
 
 
@@ -29,6 +29,18 @@ const config = {
       parser: { dataUrlCondition: { maxSize: 100000 } },
     })
     return config
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/new/:id',
+        destination: '/new',
+      },
+      {
+        source: '/edit/:id',
+        destination: '/edit',
+      },
+    ]
   },
 };
 

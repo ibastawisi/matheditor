@@ -1,5 +1,5 @@
-import Fallback from "@/components/Fallback";
+import SplashScreen from "@/components/SplashScreen";
 
-const page = () => <Fallback />;
+const page = () => <SplashScreen title="You are offline" />;
 
 export default page;
