@@ -7,7 +7,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { SortProps, useSort } from "../hooks/useSort";
 import Box from "@mui/material/Box";
 import ToggleButton from "@mui/material/ToggleButton";
-import { alpha } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import { memo } from 'react';
 import isEqual from 'fast-deep-equal';
 

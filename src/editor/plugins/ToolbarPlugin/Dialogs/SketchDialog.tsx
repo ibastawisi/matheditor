@@ -7,8 +7,13 @@ import CircuitComponents from "./SketchLibraries/circuit-components.json";
 import { SketchNode } from '../../../nodes/SketchNode';
 import { ExcalidrawImperativeAPI, LibraryItems_anyVersion } from '@excalidraw/excalidraw/types/types';
 import { ImportedLibraryData } from '@excalidraw/excalidraw/types/data/types';
-import { Button, CircularProgress, Dialog, DialogActions, DialogContent, useTheme } from '@mui/material';
 import { SET_DIALOGS_COMMAND } from '..';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import CircularProgress from '@mui/material/CircularProgress';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
+import { useTheme } from '@mui/material/styles';
 
 const Excalidraw = lazy(() => import('@excalidraw/excalidraw').then((module) => ({ default: module.Excalidraw })));
 
