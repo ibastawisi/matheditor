@@ -34,7 +34,7 @@ const EditDocument: React.FC = () => {
     }
     id && loadDocument(id);
 
-  }, [pathname]);
+  }, []);
 
   if (error) return <SplashScreen title={error} />;
   if (!document) return <SplashScreen title="Loading Document" />;

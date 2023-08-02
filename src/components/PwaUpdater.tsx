@@ -22,6 +22,20 @@ const PwaUpdater = () => {
 
       const wb = window.workbox;
 
+      wb.addEventListener("installed", () => {
+        const origin = location.origin;
+        const urlsToCache = [
+          `${origin}/`,
+          `${origin}/playground`,
+          `${origin}/tutorial`,
+          `${origin}/new`,
+          `${origin}/edit`,
+          `${origin}/dashboard`,
+          `${origin}/privacy`,
+        ]
+        wb.messageSW({ type: "CACHE_URLS", payload: { urlsToCache } });
+      });
+
       wb.addEventListener("waiting", () => {
         dispatch(actions.announce(
           {
@@ -35,17 +49,7 @@ const PwaUpdater = () => {
       });
 
       wb.addEventListener("activated", (event: any) => {
-        const origin = location.origin;
-        const urlsToCache = [
-          `${origin}/`,
-          `${origin}/playground`,
-          `${origin}/tutorial`,
-          `${origin}/new`,
-          `${origin}/edit`,
-          `${origin}/dashboard`,
-          `${origin}/privacy`,
-        ]
-        wb.messageSW({ type: "CACHE_URLS", payload: { urlsToCache } });
+        dispatch(actions.announce({ message: "App is now ready to work offline!", }));
       });
 
       wb.register();

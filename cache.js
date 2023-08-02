@@ -213,29 +213,14 @@ module.exports = [
       },
       plugins: [
         {
-          handlerDidError: async ({ request, error }) => {
+          cacheKeyWillBeUsed: async ({ request }) => {
             const pathname = new URL(request.url).pathname;
             const page = pathname.split("/")[1];
-              const cache = await caches.open("pages");
-              const cachedResponse = await cache.match(page);
-              if (cachedResponse) {
-                const response = new Response(cachedResponse.body);
-                return response;
-              }
-            throw error;
+            return page;
           }
         },
-        {
-          cacheWillUpdate: async ({ request, response }) => {
-            const pathname = new URL(request.url).pathname;
-            const id = pathname.split("/")[2];
-            if (id) return;
-            return response;
-          }
-        }
       ]
     },
-
   },
   {
     urlPattern: ({ url }) => {
