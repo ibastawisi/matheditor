@@ -197,8 +197,11 @@ module.exports = [
       const isSameOrigin = self.origin === url.origin;
       if (!isSameOrigin) return false;
       const pathname = url.pathname;
-      const searchParams = new URL(url.href).searchParams;
-      if (searchParams.get("_rsc")) return false;
+      if (pathname === "/") return true;
+      if (pathname === "/playground") return true;
+      if (pathname === "/tutorial") return true;
+      if (pathname === "/privacy") return true;
+      if (pathname === "/dashboard") return true;
       if (pathname.startsWith("/new")) return true;
       if (pathname.startsWith("/edit")) return true;
       return false;
@@ -208,42 +211,20 @@ module.exports = [
     options: {
       cacheName: "pages",
       expiration: {
-        maxEntries: 16,
+        maxEntries: 32,
         maxAgeSeconds: 24 * 60 * 60, // 24 hours
       },
       plugins: [
         {
           cacheKeyWillBeUsed: async ({ request }) => {
-            const pathname = new URL(request.url).pathname;
+            const url = new URL(request.url);
+            const pathname = url.pathname;
             const page = pathname.split("/")[1];
-            return page;
+            const rsc = url.searchParams.get("_rsc");
+            return `/${page}${rsc ? `?_rsc` : ""}`;
           }
         },
       ]
-    },
-  },
-  {
-    urlPattern: ({ url }) => {
-      const isSameOrigin = self.origin === url.origin;
-      if (!isSameOrigin) return false;
-      const pathname = url.pathname;
-      const searchParams = new URL(url.href).searchParams;
-      if (searchParams.get("_rsc")) return false;
-      if (pathname === "/") return true;
-      if (pathname === "/playground") return true;
-      if (pathname === "/tutorial") return true;
-      if (pathname === "/privacy") return true;
-      if (pathname === "/dashboard") return true;
-      return false;
-    },
-    handler: "StaleWhileRevalidate",
-    method: "GET",
-    options: {
-      cacheName: "pages",
-      expiration: {
-        maxEntries: 16,
-        maxAgeSeconds: 24 * 60 * 60, // 24 hours
-      },
     },
   },
   {

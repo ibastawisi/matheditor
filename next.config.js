@@ -30,18 +30,6 @@ const config = {
     })
     return config
   },
-  async rewrites() {
-    return [
-      {
-        source: '/new/:id',
-        destination: '/new',
-      },
-      {
-        source: '/edit/:id',
-        destination: '/edit',
-      },
-    ]
-  },
 };
 
 module.exports = withPWA(withBundleAnalyzer(config));
