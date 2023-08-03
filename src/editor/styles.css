@@ -1,7 +1,3 @@
-.editor-container {
-  margin: 1rem auto;
-}
-
 .editor-input {
   flex: 1;
   resize: none;
@@ -59,7 +55,7 @@
 
 @media print {
   .editor-container {
-    margin-top: 0 !important;
+    margin: 0 !important;
   }
 
   .editor-input {

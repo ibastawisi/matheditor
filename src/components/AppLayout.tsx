@@ -7,12 +7,14 @@ import AlertDialog from "@/components/Alert";
 import Announcer from "@/components/Announcer";
 import PwaUpdater from "@/components/PwaUpdater";
 import Footer from "@/components/Footer";
+import ProgressBar from "@/components/ProgressBar";
 
 const AppLayout = ({ children }: { children: React.ReactNode; }) => {
   return (
     <SessionProvider>
       <StoreProvider>
         <TopAppBar />
+        <ProgressBar />
         <Container className='editor-container'>
           {children}
         </Container>
