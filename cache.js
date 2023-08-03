@@ -193,6 +193,31 @@ module.exports = [
     },
   },
   {
+    urlPattern: ({ request, url: { pathname }, sameOrigin }) =>
+      request.headers.get("RSC") === "1" &&
+      sameOrigin &&
+      !pathname.startsWith("/api/"),
+    handler: "NetworkFirst",
+    options: {
+      cacheName: "pages-rsc",
+      expiration: {
+        maxEntries: 32,
+        maxAgeSeconds: 24 * 60 * 60, // 24 hours
+      },
+      plugins: [
+        {
+          cacheKeyWillBeUsed: async ({ request }) => {
+            const url = new URL(request.url);
+            const pathname = url.pathname;
+            const page = pathname.split("/")[1];
+            const rsc = url.searchParams.get("_rsc");
+            return `/${page}${rsc ? `?_rsc` : ""}`;
+          }
+        },
+      ]
+    },
+  },
+  {
     urlPattern: ({ url }) => {
       const isSameOrigin = self.origin === url.origin;
       if (!isSameOrigin) return false;
@@ -220,8 +245,7 @@ module.exports = [
             const url = new URL(request.url);
             const pathname = url.pathname;
             const page = pathname.split("/")[1];
-            const rsc = url.searchParams.get("_rsc");
-            return `/${page}${rsc ? `?_rsc` : ""}`;
+            return `/${page}`;
           }
         },
       ]
