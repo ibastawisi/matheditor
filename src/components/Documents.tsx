@@ -25,32 +25,29 @@ import HelpIcon from '@mui/icons-material/Help';
 import SortControl from "./SortControl";
 import { SortOption } from "../hooks/useSort";
 import Pagination from "@mui/material/Pagination";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ReportIcon from '@mui/icons-material/Report';
 import { useSession } from 'next-auth/react';
 import documentDB from '@/indexeddb';
+import { createSelector } from '@reduxjs/toolkit';
+import Collapse from '@mui/material/Collapse';
 
 const Documents: React.FC = () => {
-  const documents = useSelector((state: RootState) => state.documents);
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
   const { status } = useSession();
   const initialized = useSelector((state: RootState) => state.initialized);
-  const localDocuments = documents.filter(d => d.variant === "local");
-  const cloudDocuments = documents.filter(d => d.variant === "cloud");
-  const allDocuments = [...localDocuments, ...cloudDocuments].reduce((acc, document) => {
-    if (!acc.find(d => d.id === document.id)) {
-      acc.push(document);
-    }
-    return acc;
-  }, [] as UserDocument[]);
+  const selectDocuments = createSelector(
+    [(state: RootState) => state.documents, (state: RootState) => state.initialized], (documents, initialized) => {
+      if (!initialized) return [];
+      return documents.reduce((acc, document) => {
+        if (!acc.find(d => d.id === document.id)) acc.push(document);
+        return acc;
+      }, [] as UserDocument[]);
+    });
+  const documents = useSelector(selectDocuments);
 
-  const [sortedDocuments, setSortedDocuments] = useState(allDocuments);
+  const [sortedDocuments, setSortedDocuments] = useState(documents);
   const documentSortOptions: SortOption<UserDocument>[] = [
     { label: 'Updated', value: 'updatedAt' },
     { label: 'Created', value: 'createdAt' },
@@ -148,82 +145,54 @@ const Documents: React.FC = () => {
         <Avatar sx={{ my: 2, bgcolor: 'primary.main' }}><PostAddIcon /></Avatar>
         <Button variant="outlined" component={RouterLink} prefetch={false} href="/new">New document</Button>
       </Box>
-      <Box sx={{ my: 3 }}>
-        <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", gap: 1, mb: 1 }}>
-          <Typography variant="h6" component="h2" sx={{ display: { xs: 'none', sm: 'block' } }}>Documents</Typography>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
-            <SortControl<UserDocument> data={allDocuments} onSortChange={setSortedDocuments} sortOptions={documentSortOptions} initialSortDirection="desc" />
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center" }}>
-              <Button variant="outlined" startIcon={<UploadFileIcon />} component="label">
-                Import
-                <input type="file" hidden accept=".me" multiple onChange={e => handleFilesChange(e.target.files)} />
-              </Button>
-              <Button variant="outlined" startIcon={<StorageIcon />} onClick={backup}>
-                Backup
-              </Button>
-            </Box>
+      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", gap: 1, mb: 1 }}>
+        <Typography variant="h6" component="h2" sx={{ display: { xs: 'none', sm: 'block' } }}>Documents</Typography>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
+          <SortControl<UserDocument> data={documents} onSortChange={setSortedDocuments} sortOptions={documentSortOptions} initialSortDirection="desc" />
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center" }}>
+            <Button variant="outlined" startIcon={<UploadFileIcon />} component="label">
+              Import
+              <input type="file" hidden accept=".me" multiple onChange={e => handleFilesChange(e.target.files)} />
+            </Button>
+            <Button variant="outlined" startIcon={<StorageIcon />} onClick={backup}>
+              Backup
+            </Button>
           </Box>
         </Box>
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <Card variant="outlined">
-              <CardActionArea component={RouterLink} prefetch={false} href="/playground">
-                <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>} />
-              </CardActionArea>
-            </Card>
-          </Grid>
-          <Grid item xs={6}>
-            <Card variant="outlined">
-              <CardActionArea component={RouterLink} prefetch={false} href="/tutorial">
-                <CardHeader title="Tutorial" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><HelpIcon /></Avatar>} />
-              </CardActionArea>
-            </Card>
-          </Grid>
-          {(!user || !initialized) && <Grid item xs={12}><UserCard status={status} user={user} /></Grid>}
-          {initialized && <DocumentsTree documents={sortedDocuments} />}
-        </Grid>
       </Box>
+      <Grid container spacing={2} sx={{ mb: 2 }}>
+        <Grid item xs={6}>
+          <Card variant="outlined">
+            <CardActionArea component={RouterLink} prefetch={false} href="/playground">
+              <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>} />
+            </CardActionArea>
+          </Card>
+        </Grid>
+        <Grid item xs={6}>
+          <Card variant="outlined">
+            <CardActionArea component={RouterLink} prefetch={false} href="/tutorial">
+              <CardHeader title="Tutorial" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><HelpIcon /></Avatar>} />
+            </CardActionArea>
+          </Card>
+        </Grid>
+      </Grid>
+      <Collapse timeout={1000} in={!user} unmountOnExit><Box sx={{ mb: 2 }}><UserCard status={status} user={user} /></Box></Collapse>
+      {initialized && <DocumentsGrid documents={sortedDocuments} />}
     </>
   )
 }
 
-const DocumentsTree: React.FC<{ documents: UserDocument[] }> = memo(({ documents }) => {
+const DocumentsGrid: React.FC<{ documents: UserDocument[] }> = memo(({ documents }) => {
   const pages = Math.ceil(documents.length / 12);
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
   const pageDocuments = documents.slice((page - 1) * 12, page * 12);
-  return <>
-    {documents.length === 0 && <Grid item xs={12}><LocalDataMissing /></Grid>}
+  return <Grid container spacing={2}>
     {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
       <DocumentCard document={document} variant={document.variant} />
     </Grid>)}
     {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3, width: "100%" }} />}
-  </>
+  </Grid>
 });
-
-const LocalDataMissing: React.FC = () => {
-  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true }}>
-    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-      <ReportIcon sx={{ color: 'error.main', mr: 1 }} />
-      <Typography>{"Can't find your data?"}</Typography>
-    </AccordionSummary>
-    <AccordionDetails>
-      <Typography variant="h5" sx={{ mb: 3, textAlign: "center" }}>
-        matheditor.ml is now matheditor.me
-      </Typography>
-      <Typography gutterBottom>to recover your data, please follow the steps below:</Typography>
-      <Typography variant="subtitle2" gutterBottom>
-        <Button variant="outlined" startIcon={<StorageIcon />} size="small" sx={{ mr: 1 }}>
-          Backup
-        </Button> your data from the <a href="https://matheditor.ml">old domain</a>.
-      </Typography>
-      <Typography variant="subtitle2" gutterBottom>
-        <Button variant="outlined" startIcon={<UploadFileIcon />} size="small" sx={{ mr: 1 }}>
-          Import
-        </Button> your data to the <a href="https://matheditor.me">new domain</a>.
-      </Typography>
-    </AccordionDetails>
-  </Accordion>
-}
 
 export default Documents;
