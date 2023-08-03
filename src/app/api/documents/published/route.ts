@@ -2,6 +2,7 @@ import { findPublishedDocuments } from '@/repositories/document';
 import { UserDocument } from '@/types';
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
 export interface GetPublishedDocumentsResponse {
   data?: UserDocument[];
   error?: string;
