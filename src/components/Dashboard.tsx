@@ -45,7 +45,6 @@ const Dashboard: React.FC = ({ }) => {
     <Box sx={{ my: 2 }}>
       <DocumentsGrid documents={documents.filter(d => d.variant === "local")} title="Local Documents" variant="local" />
       <DocumentsGrid documents={documents.filter(d => d.variant === "cloud")} title="Cloud Documents" variant="cloud" />
-      <DocumentsGrid documents={documents.filter(d => d.variant === "published" && d.author?.id === user?.id)} title="Published Documents" variant="published" />
     </Box>
     {user?.role === "admin" && admin && <Box sx={{ my: 3 }}>
       <DocumentsGrid documents={admin.documents} title="Admin Documents" variant="admin" />
