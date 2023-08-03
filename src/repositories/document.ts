@@ -27,6 +27,32 @@ const findAllDocuments = async () => {
   });
 }
 
+const findPublishedDocuments = async () => {
+  return prisma.document.findMany({
+    where: { published: true },
+    select: {
+      id: true,
+      name: true,
+      createdAt: true,
+      updatedAt: true,
+      published: true,
+      baseId: true,
+      author: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          email: true,
+          role: true,
+        }
+      }
+    },
+    orderBy: {
+      updatedAt: 'desc'
+    }
+  });
+}
+
 const findDocumentsByAuthorId = async (authorId: string) => {
   return prisma.document.findMany({
     where: { authorId },
@@ -44,7 +70,7 @@ const findDocumentsByAuthorId = async (authorId: string) => {
   });
 }
 
-const findPuplishedDocumentsByAuthorId = async (authorId: string) => {
+const findPublishedDocumentsByAuthorId = async (authorId: string) => {
   return prisma.document.findMany({
     where: { authorId, published: true },
     select: {
@@ -71,6 +97,15 @@ const findDocumentById = async (id: string) => {
       updatedAt: true,
       data: true,
       baseId: true,
+      author: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          email: true,
+          role: true,
+        }
+      }
     }
   });
 }
@@ -121,4 +156,4 @@ const deleteDocument = async (id: string) => {
   });
 }
 
-export { findAllDocuments, findDocumentsByAuthorId, findPuplishedDocumentsByAuthorId, findDocumentById, findDocumentAuthorId, findDocumentMetadata, createDocument, updateDocument, deleteDocument };
+export { findAllDocuments, findPublishedDocuments, findDocumentsByAuthorId, findPublishedDocumentsByAuthorId, findDocumentById, findDocumentAuthorId, findDocumentMetadata, createDocument, updateDocument, deleteDocument };

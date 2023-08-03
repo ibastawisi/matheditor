@@ -7,13 +7,13 @@ import { Helmet } from "react-helmet";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import UserCard from "./UserCard";
-import { AdminUser, User, UserDocument } from '@/types';
+import { DocumentVariant, User, UserDocument } from '@/types';
 import { actions } from "@/store";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import DocumentCard, { DocumentCardVariant } from "./DocumentCard";
+import DocumentCard from "./DocumentCard";
 import { SortOption } from "@/hooks/useSort";
 import SortControl from "./SortControl";
 import Pagination from "@mui/material/Pagination";
@@ -45,7 +45,7 @@ const Dashboard: React.FC = ({ }) => {
     <Box sx={{ my: 2 }}>
       <DocumentsGrid documents={documents.filter(d => d.variant === "local")} title="Local Documents" variant="local" />
       <DocumentsGrid documents={documents.filter(d => d.variant === "cloud")} title="Cloud Documents" variant="cloud" />
-      <DocumentsGrid documents={documents.filter(d => d.published)} title="Published Documents" variant="public" />
+      <DocumentsGrid documents={documents.filter(d => d.variant === "published" && d.author?.id === user?.id)} title="Published Documents" variant="published" />
     </Box>
     {user?.role === "admin" && admin && <Box sx={{ my: 3 }}>
       <DocumentsGrid documents={admin.documents} title="Admin Documents" variant="admin" />
@@ -56,12 +56,12 @@ const Dashboard: React.FC = ({ }) => {
 
 export default Dashboard;
 
-const UserGrid: React.FC<{ users: AdminUser[] }> = memo(({ users }) => {
+const UserGrid: React.FC<{ users: User[] }> = memo(({ users }) => {
   const [sortedUsers, setSortedUsers] = useState(users);
-  const usersortOptions: SortOption<AdminUser>[] = [
+  const usersortOptions: SortOption<User>[] = [
     { label: 'Created', value: 'createdAt' },
+    { label: 'Updated', value: 'updatedAt'},
     { label: 'Name', value: 'name' },
-    { label: 'Documents', value: 'documents' },
   ];
   const pages = Math.ceil(users.length / 12);
   const [page, setPage] = useState(1);
@@ -74,7 +74,7 @@ const UserGrid: React.FC<{ users: AdminUser[] }> = memo(({ users }) => {
     </AccordionSummary>
     <AccordionDetails>
       <Box sx={{ display: "flex", justifyContent: 'flex-end', alignItems: "center", gap: 1, my: 2 }}>
-        <SortControl<AdminUser> data={users} onSortChange={setSortedUsers} sortOptions={usersortOptions} initialSortDirection="desc" />
+        <SortControl<User> data={users} onSortChange={setSortedUsers} sortOptions={usersortOptions} initialSortDirection="desc" />
       </Box>
       <UsersTree users={sortedUsers.slice((page - 1) * 12, page * 12)} />
       {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}
@@ -82,7 +82,7 @@ const UserGrid: React.FC<{ users: AdminUser[] }> = memo(({ users }) => {
   </Accordion>
 });
 
-const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string, variant: DocumentCardVariant }> = memo(({ documents, title, variant }) => {
+const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string, variant: DocumentVariant }> = memo(({ documents, title, variant }) => {
   const [sortedDocuments, setSortedDocuments] = useState(documents);
   const documentSortOptions: SortOption<UserDocument>[] = [
     { label: 'Updated', value: 'updatedAt' },
@@ -118,7 +118,7 @@ const UsersTree: React.FC<{ users: User[] }> = memo(({ users }) => {
   </Grid>
 });
 
-const DocumentsTree: React.FC<{ documents: UserDocument[], variant: 'local' | 'cloud' | 'public' | 'admin' }> = memo(({ documents, variant }) => {
+const DocumentsTree: React.FC<{ documents: UserDocument[], variant: DocumentVariant }> = memo(({ documents, variant }) => {
   return <Grid container spacing={2}>
     {documents.map(document => <Grid item xs={12} sm={6} md={4} key={document.id}>
       <DocumentCard document={document} variant={variant} />

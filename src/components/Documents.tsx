@@ -41,6 +41,10 @@ const Documents: React.FC = () => {
     [(state: RootState) => state.documents, (state: RootState) => state.initialized], (documents, initialized) => {
       if (!initialized) return [];
       return documents.reduce((acc, document) => {
+        if (acc.find(d => d.id === document.id && document.variant === "local")) {
+          acc = acc.filter(d => d.id !== document.id);
+          acc.push(document);
+        }
         if (!acc.find(d => d.id === document.id)) acc.push(document);
         return acc;
       }, [] as UserDocument[]);

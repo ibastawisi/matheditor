@@ -1,7 +1,7 @@
 "use client"
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { EditorDocument } from '@/types';
+import { DocumentVariant, EditorDocument } from '@/types';
 import { AppDispatch, RootState, actions } from '@/store';
 import { useDispatch, useSelector } from 'react-redux';
 import IconButton from '@mui/material/IconButton';
@@ -37,7 +37,7 @@ export const MarkdownIcon = () => <SvgIcon viewBox="0 0 640 512" fontSize='small
 export type options = ('rename' | 'download' | 'fork' | 'share' | 'publish' | 'upload' | 'delete' | 'embed')[];
 type DocumentActionMenuProps = {
   document: Omit<EditorDocument, 'data'>;
-  variant: 'local' | 'cloud' | 'public' | 'admin';
+  variant: DocumentVariant;
   options: options;
 };
 
@@ -82,7 +82,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
   };
 
   const ensureUpToDate = async () => {
-    if (variant != 'public' && !user) {
+    if (variant != 'published' && !user) {
       dispatch(actions.announce({ message: "Please login to use cloud storage" }));
       return false;
     }
@@ -179,8 +179,10 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
     link.remove();
   };
 
-  const togglePublic = async () => {
+  const togglePublished = async () => {
     closeMenu();
+    const result = await ensureUpToDate();
+    if (!result) return;
     const response = await dispatch(actions.updateCloudDocument({ id: document.id, partial: { published: !isPublished } }));
     if (response.type === actions.updateCloudDocument.fulfilled.type) {
       dispatch(actions.announce({ message: `Document ${isPublished ? "unpublished" : "published"} successfully` }));
@@ -321,8 +323,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
           </MenuItem>
         }
         {options.includes('publish') &&
-          isUploaded &&
-          <MenuItem onClick={togglePublic}>
+          <MenuItem onClick={togglePublished}>
             <ListItemIcon>
               {isPublished ? <PublicOffIcon /> : <PublicIcon />}
             </ListItemIcon>

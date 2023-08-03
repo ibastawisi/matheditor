@@ -14,7 +14,7 @@ export interface Announcement {
   };
   timeout?: number;
 }
-export type DocumentVariant = "local" | "cloud";
+export type DocumentVariant = "local" | "cloud" | "published" | "admin";
 export interface AppState {
   user?: User;
   admin?: Admin;
@@ -34,9 +34,7 @@ export interface EditorDocument {
   baseId?: string;
 }
 
-export type UserDocument = Omit<EditorDocument, "data"> & { variant: DocumentVariant };
-export type AdminDocument = UserDocument & { author: Omit<User, "documents"> };
-export type AdminUser = User & { documents: UserDocument[] };
+export type UserDocument = Omit<EditorDocument, "data"> & { variant: DocumentVariant, author?: Omit<User, "documents"> };
 
 export interface User {
   id: string;
@@ -50,6 +48,6 @@ export interface User {
 }
 
 export interface Admin {
-  users: AdminUser[];
-  documents: AdminDocument[];
+  users: User[];
+  documents: UserDocument[];
 }

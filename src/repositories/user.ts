@@ -2,21 +2,6 @@ import { Prisma, prisma } from "@/lib/prisma";
 
 const findAllUsers = async () => {
   return prisma.user.findMany({
-    include: {
-      documents: {
-        select: {
-          id: true,
-          name: true,
-          createdAt: true,
-          updatedAt: true,
-          published: true,
-          baseId: true,
-        },
-        orderBy: {
-          updatedAt: 'desc'
-        }
-      },
-    },
     orderBy: {
       updatedAt: 'desc'
     }

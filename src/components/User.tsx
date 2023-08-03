@@ -43,7 +43,7 @@ const User: React.FC<{ user?: User, documents?: UserDocument[] }> = ({ user, doc
 const PublicDocumentsTree: React.FC<{ documents: UserDocument[] }> = memo(({ documents }) => {
   return <Grid container spacing={2}>
     {documents.map(document => <Grid item xs={12} sm={6} md={4} key={document.id}>
-      <DocumentCard document={document} variant="public" />
+      <DocumentCard document={document} variant="published" />
     </Grid>)}
   </Grid>
 });

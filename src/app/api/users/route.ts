@@ -1,13 +1,13 @@
 import { authOptions } from '@/lib/auth';
 import { findAllUsers } from '@/repositories/user';
-import { AdminUser } from '@/types';
+import { User } from '@/types';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic';
 
 export interface GetUsersResponse {
-  data?: AdminUser[];
+  data?: User[];
   error?: string;
 }
 
@@ -29,7 +29,7 @@ export async function GET() {
       return NextResponse.json(response, { status: 403 })
     }
     const users = await findAllUsers();
-    response.data = users as unknown as AdminUser[];
+    response.data = users as unknown as User[];
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);

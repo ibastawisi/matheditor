@@ -17,6 +17,7 @@ export const load = createAsyncThunk('app/load', async (_, thunkAPI) => {
   Promise.allSettled([
     await thunkAPI.dispatch(loadLocalDocuments()),
     await thunkAPI.dispatch(loadCloudDocuments()),
+    await thunkAPI.dispatch(loadPublishedDocuments()),
   ]);
 });
 
@@ -55,6 +56,22 @@ export const loadCloudDocuments = createAsyncThunk('app/loadCloudDocuments', asy
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.fulfillWithValue([] as UserDocument[]);
     const userDocuments: UserDocument[] = data.map(document => ({ ...document, variant: 'cloud' }));
+    return thunkAPI.fulfillWithValue(userDocuments);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
+  } finally {
+    NProgress.done();
+  }
+});
+
+export const loadPublishedDocuments = createAsyncThunk('app/loadPublishedDocuments', async (_, thunkAPI) => {
+  NProgress.start();
+  try {
+    const response = await fetch('/api/documents/published');
+    const { data, error } = await response.json() as GetDocumentsResponse;
+    if (error) return thunkAPI.rejectWithValue(error);
+    if (!data) return thunkAPI.fulfillWithValue([] as UserDocument[]);
+    const userDocuments: UserDocument[] = data.map(document => ({ ...document, variant: 'published' }));
     return thunkAPI.fulfillWithValue(userDocuments);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
@@ -214,6 +231,10 @@ export const appSlice = createSlice({
         if (documents) state.documents.push(...documents);
       })
       .addCase(loadCloudDocuments.fulfilled, (state, action) => {
+        const documents = action.payload;
+        if (documents) state.documents.push(...documents);
+      })
+      .addCase(loadPublishedDocuments.fulfilled, (state, action) => {
         const documents = action.payload;
         if (documents) state.documents.push(...documents);
       })

@@ -2,7 +2,7 @@ import { OgMetadata } from "@/app/api/og/route";
 import { findUserById, findUserMetadata } from "@/repositories/user";
 import User from "@/components/User";
 import type { Metadata } from "next";
-import { findPuplishedDocumentsByAuthorId } from "@/repositories/document";
+import { findPublishedDocumentsByAuthorId } from "@/repositories/document";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const metadata: OgMetadata = { id: params.id };
@@ -36,6 +36,6 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
 export default async function Page({ params }: { params: { id: string } }) {
   const user = await findUserById(params.id);
-  const documents = await findPuplishedDocumentsByAuthorId(params.id);
+  const documents = await findPublishedDocumentsByAuthorId(params.id);
   return <User user={JSON.parse(JSON.stringify(user))} documents={JSON.parse(JSON.stringify(documents))} />
 }
