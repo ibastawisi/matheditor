@@ -203,6 +203,7 @@ export const appSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(load.fulfilled, (state, action) => {
+        state.documents = state.documents.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
         state.initialized = true;
       })
       .addCase(loadAdmin.fulfilled, (state, action) => {
@@ -230,7 +231,8 @@ export const appSlice = createSlice({
       })
       .addCase(createCloudDocument.fulfilled, (state, action) => {
         const document = action.payload;
-        state.documents.unshift(document);
+        const index = state.documents.findIndex(doc => doc.id === document.id);
+        state.documents.splice(index, 0, document);
       })
       .addCase(createCloudDocument.rejected, (state, action) => {
         const message = action.payload as string;
@@ -238,7 +240,8 @@ export const appSlice = createSlice({
       })
       .addCase(updateLocalDocument.fulfilled, (state, action) => {
         const document = action.payload;
-        state.documents = state.documents.map(doc => doc.variant === "local" && doc.id === document.id ? document : doc);
+        state.documents = state.documents.filter(doc => !(doc.variant === "local" && doc.id === document.id));
+        state.documents.unshift(document);
       })
       .addCase(updateLocalDocument.rejected, (state, action) => {
         const message = action.payload as string;
@@ -246,7 +249,8 @@ export const appSlice = createSlice({
       })
       .addCase(updateCloudDocument.fulfilled, (state, action) => {
         const document = action.payload;
-        state.documents = state.documents.map(doc => doc.variant === "cloud" && doc.id === document.id ? document : doc);
+        state.documents = state.documents.filter(doc => !(doc.variant === "cloud" && doc.id === document.id));
+        state.documents.unshift(document);
       })
       .addCase(updateCloudDocument.rejected, (state, action) => {
         const message = action.payload as string;
