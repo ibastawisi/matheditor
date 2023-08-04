@@ -11,7 +11,6 @@ const Footer: React.FC = () => {
   const commitHash: string | undefined = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA;
   return (
     <Box component="footer" sx={{ display: "flex", displayPrint: "none", mt: "auto", p: 1, gap: 1 }}>
-      <Typography variant="button" color="text.secondary">&copy; {new Date().getFullYear()} Math Editor</Typography>
       <Typography variant="button" color="text.secondary">
         v{version}
         {commitHash && <Link href={`https://github.com/ibastawisi/matheditor/commit/${commitHash?.substring(0, 7)}`} target="_blank"
