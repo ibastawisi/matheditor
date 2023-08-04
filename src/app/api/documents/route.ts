@@ -1,19 +1,18 @@
 import { authOptions } from '@/lib/auth';
-import { Prisma } from '@/lib/prisma';
-import { createDocument, findDocumentsByAuthorId } from '@/repositories/document';
-import { UserDocument } from '@/types';
+import { createDocument, findDocumentsByAuthorId, findUserDocument } from '@/repositories/document';
+import { CloudDocument } from '@/types';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
 export interface GetDocumentsResponse {
-  data?: UserDocument[];
+  data?: CloudDocument[];
   error?: string;
 }
 
 export interface PostDocumentsResponse {
-  data?: UserDocument;
+  data?: CloudDocument;
   error?: string;
 }
 
@@ -31,7 +30,7 @@ export async function GET() {
       return NextResponse.json(response, { status: 403 })
     }
     const documents = await findDocumentsByAuthorId(user.id);
-    response.data = documents as unknown as UserDocument[];
+    response.data = documents as unknown as CloudDocument[];
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
@@ -61,9 +60,9 @@ export async function POST(request: Request) {
       return NextResponse.json(response, { status: 400 })
     }
 
-    const document = await createDocument({ ...body, author: { connect: { id: user.id } } } as unknown as Prisma.DocumentCreateInput);
-    const { data, ...userDocument } = document;
-    response.data = userDocument as unknown as UserDocument;
+    await createDocument({ ...body, authorId: user.id });
+    const userDocument = await findUserDocument(body.id);
+    response.data = userDocument as unknown as CloudDocument;
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);

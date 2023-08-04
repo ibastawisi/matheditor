@@ -1,14 +1,17 @@
 import { authOptions } from '@/lib/auth';
 import { findAllDocuments } from '@/repositories/document';
 import { findAllUsers } from '@/repositories/user';
-import { Admin } from '@/types';
+import { User, CloudDocument } from '@/types';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
 export interface GetAdminResponse {
-  data?: Admin;
+  data?: {
+    users: User[];
+    documents: CloudDocument[];
+  }
   error?: string;
 }
 
@@ -32,8 +35,8 @@ export async function GET() {
     const users = await findAllUsers();
     const documents = await findAllDocuments();
     response.data = {
-      users: JSON.parse(JSON.stringify(users)),
-      documents: JSON.parse(JSON.stringify(documents)),
+      users: users as unknown as User[],
+      documents: documents as unknown as CloudDocument[],
     };
     return NextResponse.json(response, { status: 200 })
   } catch (error) {

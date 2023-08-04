@@ -1,7 +1,6 @@
 import { authOptions } from '@/lib/auth';
-import { Prisma } from '@/lib/prisma';
-import { deleteDocument, findDocumentAuthorId, findDocumentById, updateDocument } from '@/repositories/document';
-import { EditorDocument, UserDocument } from '@/types';
+import { deleteDocument, findDocumentAuthorId, findDocumentById, findUserDocument, updateDocument } from '@/repositories/document';
+import { EditorDocument, CloudDocument } from '@/types';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server'
 import { validate } from 'uuid';
@@ -9,12 +8,12 @@ import { validate } from 'uuid';
 export const dynamic = 'force-dynamic';
 
 export interface GetDocumentResponse {
-  data?: EditorDocument;
+  data?: EditorDocument & CloudDocument;
   error?: string;
 }
 
 export interface PatchDocumentResponse {
-  data?: UserDocument;
+  data?: CloudDocument;
   error?: string;
 }
 
@@ -35,7 +34,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       response.error = 'document not found';
       return NextResponse.json(response, { status: 404 })
     }
-    response.data = document as unknown as EditorDocument;
+    response.data = document as unknown as GetDocumentResponse['data'];
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
@@ -71,9 +70,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       response.error = 'bad input';
       return NextResponse.json(response, { status: 400 })
     }
-    const document = await updateDocument(params.id, body as unknown as Prisma.DocumentUpdateInput);
-    const { data, ...userDocument } = document;
-    response.data = userDocument as unknown as UserDocument;
+    await updateDocument(params.id, body);
+    const userDocument = await findUserDocument(params.id);
+    response.data = userDocument as unknown as CloudDocument;
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);

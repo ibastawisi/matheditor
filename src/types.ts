@@ -34,14 +34,27 @@ export interface EditorDocument {
   baseId?: string;
 }
 
-export type UserDocument = Omit<EditorDocument, "data"> & { variant: DocumentVariant, author?: Omit<User, "documents"> };
+export type UserDocument = Omit<EditorDocument, "data"> & {
+  variant: DocumentVariant,
+  author: {
+    id: string;
+    name: string;
+    image: string;
+    email: string;
+    role: UserRole;
+  }
+}
+
+export type CloudDocument = Omit<UserDocument, "variant">;
+
+export type UserRole = "user" | "superuser" | "admin";
 
 export interface User {
   id: string;
   name: string;
   email: string;
   image: string;
-  role: "user" | "superuser" | "admin";
+  role: UserRole;
   createdAt: string;
   updatedAt: string;
   disabled: boolean;

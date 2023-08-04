@@ -1,5 +1,4 @@
 import { authOptions } from "@/lib/auth";
-import { Prisma } from "@/lib/prisma";
 import { findUserById, updateUser, deleteUser } from "@/repositories/user";
 import { User, getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
@@ -69,7 +68,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       response.error = 'bad input';
       return NextResponse.json(response, { status: 400 })
     }
-    const result = await updateUser(params.id, body as unknown as Prisma.UserUpdateInput);
+    const result = await updateUser(params.id, body);
     response.data = result as unknown as User;
     return NextResponse.json(response, { status: 200 })
   } catch (error) {

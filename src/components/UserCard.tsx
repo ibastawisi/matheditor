@@ -63,7 +63,9 @@ const UserCard: React.FC<{ user?: User, variant?: 'user' | 'public' | 'admin', s
         {status !== "loading" && <CardActions>
           {variant === 'user' && <>
             {user && <Button size='small' onClick={logout}>Logout</Button>}
-            {!user && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>Login with Google</Button>}
+            {!user && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>
+              <Typography variant="button" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Login with Google</Typography>
+            </Button>}
           </>}
           {variant !== 'admin' && <IconButton size="small" aria-label="Share" onClick={handleShare} disabled={!user}><ShareIcon /></IconButton>}
         </CardActions>}

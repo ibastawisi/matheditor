@@ -7,17 +7,7 @@ const findAllDocuments = async () => {
       name: true,
       createdAt: true,
       updatedAt: true,
-      author: {
-        select: {
-          id: true,
-          name: true,
-          image: true,
-          email: true,
-          createdAt: true,
-          updatedAt: true,
-          role: true,
-        }
-      },
+      author: true,
       published: true,
       baseId: true,
     },
@@ -63,6 +53,15 @@ const findDocumentsByAuthorId = async (authorId: string) => {
       updatedAt: true,
       published: true,
       baseId: true,
+      author: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          email: true,
+          role: true,
+        }
+      }
     },
     orderBy: {
       updatedAt: 'desc'
@@ -80,6 +79,15 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
       updatedAt: true,
       published: true,
       baseId: true,
+      author: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          email: true,
+          role: true,
+        }
+      }
     },
     orderBy: {
       updatedAt: 'desc'
@@ -95,6 +103,7 @@ const findDocumentById = async (id: string) => {
       name: true,
       createdAt: true,
       updatedAt: true,
+      published: true,
       data: true,
       baseId: true,
       author: {
@@ -120,7 +129,7 @@ const findDocumentAuthorId = async (id: string) => {
   return document?.authorId;
 }
 
-const findDocumentMetadata = async (id: string) => {
+const findUserDocument = async (id: string) => {
   return prisma.document.findUnique({
     where: { id },
     select: {
@@ -128,11 +137,15 @@ const findDocumentMetadata = async (id: string) => {
       name: true,
       createdAt: true,
       updatedAt: true,
+      published: true,
+      baseId: true,
       author: {
         select: {
+          id: true,
           name: true,
           image: true,
           email: true,
+          role: true,
         }
       }
     }
@@ -156,4 +169,4 @@ const deleteDocument = async (id: string) => {
   });
 }
 
-export { findAllDocuments, findPublishedDocuments, findDocumentsByAuthorId, findPublishedDocumentsByAuthorId, findDocumentById, findDocumentAuthorId, findDocumentMetadata, createDocument, updateDocument, deleteDocument };
+export { findAllDocuments, findPublishedDocuments, findDocumentsByAuthorId, findPublishedDocumentsByAuthorId, findDocumentById, findDocumentAuthorId, findUserDocument, createDocument, updateDocument, deleteDocument };

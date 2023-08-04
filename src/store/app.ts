@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import NProgress from "nprogress";
 import documentDB from '@/indexeddb';
-import { AppState, Announcement, Alert, EditorDocument, UserDocument } from '../types';
+import { AppState, Announcement, Alert, EditorDocument, UserDocument, Admin } from '../types';
 import { GetAdminResponse } from '@/app/api/admin/route';
 import { GetDocumentsResponse, PostDocumentsResponse } from '@/app/api/documents/route';
 import { DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from '@/app/api/documents/[id]/route';
@@ -27,7 +27,11 @@ export const loadAdmin = createAsyncThunk('app/loadAdmin', async (_, thunkAPI) =
     const response = await fetch('/api/admin');
     const { data, error } = await response.json() as GetAdminResponse;
     if (error) return thunkAPI.rejectWithValue(error);
-    return thunkAPI.fulfillWithValue(data);
+    if (!data) return thunkAPI.fulfillWithValue({} as Admin);
+    const userDocuments: UserDocument[] = data.documents.map(document => {
+      return { ...document, variant: 'admin' } as UserDocument;
+    });
+    return thunkAPI.fulfillWithValue({users: data.users, documents: userDocuments});
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
   } finally {
@@ -40,7 +44,7 @@ export const loadLocalDocuments = createAsyncThunk('app/loadLocalDocuments', asy
     const documents = await documentDB.getAll();
     const userDocuments: UserDocument[] = documents.map(document => {
       const { data, ...userDocument } = document;
-      return { ...userDocument, variant: 'local' };
+      return { ...userDocument, variant: 'local' } as UserDocument;
     });
     return thunkAPI.fulfillWithValue(userDocuments);
   } catch (error: any) {
@@ -110,7 +114,7 @@ export const createLocalDocument = createAsyncThunk('app/createLocalDocument', a
     const id = await documentDB.add(document);
     if (!id) return thunkAPI.rejectWithValue('failed to create document');
     const { data, ...userDocument } = document;
-    const payload: UserDocument = { ...userDocument, variant: 'local' };
+    const payload: UserDocument = { ...userDocument, variant: 'local' } as UserDocument;
     return thunkAPI.fulfillWithValue(payload);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
@@ -143,7 +147,7 @@ export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', a
     const result = await documentDB.patch(id, partial);
     if (!result) return thunkAPI.rejectWithValue('failed to update document')
     const { data, ...userDocument } = await documentDB.getByID(id);
-    const payload: UserDocument = { ...userDocument, variant: 'local' };
+    const payload: UserDocument = { ...userDocument, variant: 'local' } as UserDocument;
     return thunkAPI.fulfillWithValue(payload);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
@@ -244,7 +248,8 @@ export const appSlice = createSlice({
       })
       .addCase(createLocalDocument.fulfilled, (state, action) => {
         const document = action.payload;
-        state.documents.unshift(document);
+        const index = state.documents.findIndex(doc => doc.id === document.id);
+        index === -1 ? state.documents.unshift(document) : state.documents.unshift(document);
       })
       .addCase(createLocalDocument.rejected, (state, action) => {
         const message = action.payload as string;
@@ -253,7 +258,7 @@ export const appSlice = createSlice({
       .addCase(createCloudDocument.fulfilled, (state, action) => {
         const document = action.payload;
         const index = state.documents.findIndex(doc => doc.id === document.id);
-        state.documents.splice(index, 0, document);
+        index === -1 ? state.documents.unshift(document) : state.documents.unshift(document);
       })
       .addCase(createCloudDocument.rejected, (state, action) => {
         const message = action.payload as string;

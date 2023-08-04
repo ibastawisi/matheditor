@@ -24,9 +24,10 @@ const EditDocument: React.FC = () => {
       } else {
         const cloudResponse = await dispatch(actions.getCloudDocument(id));
         if (cloudResponse.type === actions.getCloudDocument.fulfilled.type) {
-          const cloudDocument = cloudResponse.payload as EditorDocument;
-          setDocument(cloudDocument);
-          dispatch(actions.createLocalDocument(cloudDocument));
+          const cloudDocument = cloudResponse.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>['payload'];
+          const {author, ...localDocument} = cloudDocument;
+          setDocument(localDocument);
+          dispatch(actions.createLocalDocument(localDocument));
         } else if (cloudResponse.type === actions.getCloudDocument.rejected.type) {
           setError(cloudResponse.payload as string);
         }

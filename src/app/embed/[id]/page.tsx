@@ -1,5 +1,5 @@
 import { OgMetadata } from "@/app/api/og/route";
-import { findDocumentById, findDocumentMetadata } from "@/repositories/document";
+import { findDocumentById, findUserDocument } from "@/repositories/document";
 import { EditorDocument } from "@/types";
 import { Metadata } from "next";
 import { JSDOM } from "jsdom";
@@ -11,7 +11,7 @@ import { notFound } from 'next/navigation'
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const metadata: OgMetadata = { id: params.id };
   try {
-    const document = await findDocumentMetadata(params.id);
+    const document = await findUserDocument(params.id);
     if (document) {
       metadata.title = document.name;
       metadata.subtitle = new Date(document.createdAt).toDateString()
