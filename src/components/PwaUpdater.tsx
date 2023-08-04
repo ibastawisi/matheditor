@@ -26,12 +26,19 @@ const PwaUpdater = () => {
         const origin = location.origin;
         const urlsToCache = [
           `${origin}/`,
+          [`${origin}/?_rsc`, { headers: { "RSC": "1" } }],
           `${origin}/playground`,
+          [`${origin}/playground?_rsc`, { headers: { "RSC": "1" } }],
           `${origin}/tutorial`,
+          [`${origin}/tutorial?_rsc`, { headers: { "RSC": "1" } }],
           `${origin}/new`,
+          [`${origin}/new?_rsc`, { headers: { "RSC": "1" } }],
           `${origin}/edit`,
+          [`${origin}/edit?_rsc`, { headers: { "RSC": "1" } }],
           `${origin}/dashboard`,
+          [`${origin}/dashboard?_rsc`, { headers: { "RSC": "1" } }],
           `${origin}/privacy`,
+          [`${origin}/privacy?_rsc`, { headers: { "RSC": "1" } }],
         ]
         wb.messageSW({ type: "CACHE_URLS", payload: { urlsToCache } });
       });
