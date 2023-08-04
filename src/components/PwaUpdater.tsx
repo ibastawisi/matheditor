@@ -52,7 +52,7 @@ const PwaUpdater = () => {
         dispatch(actions.announce({ message: "App is now ready to work offline!", }));
       });
 
-      wb.register();
+      if (window.location.pathname === "/") wb.register();
     }
 
   }, []);

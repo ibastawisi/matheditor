@@ -176,7 +176,7 @@ const Documents: React.FC = () => {
           </Card>
         </Grid>
       </Grid>
-      <Collapse timeout={1000} in={!user} unmountOnExit><Box sx={{ mb: 2 }}><UserCard status={status} user={user} /></Box></Collapse>
+      <Collapse timeout={1000} in={!(user && initialized)} unmountOnExit><Box sx={{ mb: 2 }}><UserCard status={status} user={user} /></Box></Collapse>
       {initialized && <DocumentsGrid documents={sortedDocuments} />}
     </>
   )

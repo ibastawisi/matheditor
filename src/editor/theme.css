@@ -366,7 +366,8 @@
   margin: 0;
 }
 
-.LexicalTheme__image img {
+.LexicalTheme__image img,
+.LexicalTheme__image svg {
   max-width: 100%;
   background-color: white;
   scroll-margin-top: 88px;
