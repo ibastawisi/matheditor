@@ -41,6 +41,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        {process.env.NODE_ENV === 'production' && (
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5688177297424594"
+            crossOrigin="anonymous"></script>
+        )}
+      </head>
       <body>
         <ThemeRegistry options={{ key: 'mui', prepend: true }}>
           <LayoutProvider>
