@@ -6,7 +6,6 @@ import { $getNodeByKey } from 'lexical';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
-import { IS_MOBILE } from '../../shared/environment';
 import type { MathfieldElement, MathfieldElementAttributes } from "mathlive";
 import './index.css';
 import { $isMathNode } from '.';
@@ -62,11 +61,6 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
     // highlight when range selected
     const active = isSelected && $isRangeSelection(selection);
     mathfield.classList.toggle("selection-active", active);
-    // disable pointer events on mobile when not selected
-    if (IS_MOBILE) {
-      const span = mathfield.shadowRoot!.firstElementChild! as HTMLSpanElement;
-      span.style.pointerEvents = isSelected ? "auto" : "none";
-    }
   }, [ref, isSelected, selection]);
 
   useEffect(() => {
