@@ -110,7 +110,7 @@ const Documents: React.FC = () => {
       dispatch(actions.alert({
         title: "Document already exists",
         content: `Do you want to overwrite ${document.name}?`,
-        action: `dispatch(actions.updateLocalDocument(${document.id},${JSON.stringify(document)})).then(() => {${navigateTo ? `navigate("/edit/${document.id}");` : ""}})`
+        action: `dispatch(actions.updateLocalDocument({id:"${document.id}",partial:${JSON.stringify(document)}})).then(() => {${navigateTo ? `navigate("/edit/${document.id}");` : ""}})`
       }))
     } else {
       dispatch(actions.createLocalDocument(document)).then(() => {
