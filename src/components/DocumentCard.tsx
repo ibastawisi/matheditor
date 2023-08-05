@@ -22,12 +22,11 @@ import Typography from '@mui/material/Typography';
 import { memo } from 'react';
 
 const DocumentCard: React.FC<{ document: UserDocument, variant: DocumentVariant }> = memo(({ document, variant }) => {
-  const documents = useSelector((state: RootState) => state.documents);
   const user = useSelector((state: RootState) => state.user);
-  const cloudDocument = documents.filter(d => d.variant === "cloud").find(d => d.id === document.id);
-  const isUploaded = !!cloudDocument || variant === "published" || variant === "admin";
+  const cloudDocument = useSelector((state: RootState) => state.documents.filter(d => d.variant === "cloud").find(d => d.id === document.id));
+  const published = document.published || variant === "published";
+  const isUploaded = !!cloudDocument || published;
   const isUpToDate = cloudDocument?.updatedAt === document.updatedAt;
-  const published = cloudDocument?.published || variant === "published";
 
   const options: options = variant === "local" ?
     ['rename', 'download', 'embed', 'upload', 'fork', 'share', 'publish', 'delete']

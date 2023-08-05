@@ -44,30 +44,30 @@ const UserCard: React.FC<{ user?: User, variant?: 'user' | 'public' | 'admin', s
       <Box sx={{ display: 'flex', flexDirection: 'column', width: 0, flex: 1 }}>
         <CardActionArea component={RouterLink} prefetch={false} href={href} sx={{ flex: '1 0 auto' }}>
           <CardContent>
-            <Typography variant={variant !== 'admin' ? "h6" : "subtitle1"}>
+            <Typography variant={variant !== 'admin' ? "h6" : "subtitle1"}  sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {user ? user.name : <Skeleton variant="text" width={190} />}
             </Typography>
-            <Typography variant={variant !== 'admin' ? "subtitle1" : "subtitle2"} color="text.secondary" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <Typography variant={variant !== 'admin' ? "subtitle1" : "subtitle2"} color="text.secondary" sx={{ display: "block", lineHeight: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {user ? user.email : <Skeleton variant="text" width={150} />}
             </Typography>
             {user && variant === "admin" && <>
-              <Typography variant="subtitle2" color="text.secondary">
-                {new Date(user.createdAt).toLocaleString()}
+              <Typography variant="overline" sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} color="text.secondary">
+                Created: {new Date(user.createdAt).toLocaleString()}
               </Typography>
-              <Typography variant="subtitle2" color="text.secondary">
-                {new Date(user.updatedAt).toLocaleString()}
+              <Typography variant="overline" sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} color="text.secondary">
+                Updated: {new Date(user.updatedAt).toLocaleString()}
               </Typography>
             </>}
-          </CardContent>
+            </CardContent>
         </CardActionArea>
-        {status !== "loading" && <CardActions>
+        {status !== "loading" && variant !== 'admin' && <CardActions>
           {variant === 'user' && <>
             {user && <Button size='small' onClick={logout}>Logout</Button>}
             {!user && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>
               <Typography variant="button" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Login with Google</Typography>
             </Button>}
           </>}
-          {variant !== 'admin' && <IconButton size="small" aria-label="Share" onClick={handleShare} disabled={!user}><ShareIcon /></IconButton>}
+          <IconButton size="small" aria-label="Share" onClick={handleShare} disabled={!user}><ShareIcon /></IconButton>
         </CardActions>}
 
       </Box>
