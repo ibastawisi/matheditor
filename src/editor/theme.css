@@ -366,24 +366,11 @@
   margin: 0;
 }
 
-.LexicalTheme__image img,
-.LexicalTheme__image svg {
+.LexicalTheme__image > img,
+.LexicalTheme__image > svg {
   max-width: 100%;
+  height: auto;
   background-color: white;
-  scroll-margin-top: 88px;
-  scroll-margin-bottom: 24px;
-}
-
-.LexicalTheme__image img.focused {
-  outline: 2px solid rgb(95 183 255 / 75%);
-}
-
-.LexicalTheme__image img.focused.draggable {
-  cursor: grab
-}
-
-.LexicalTheme__image img.focused.draggable:active {
-  cursor: grabbing
 }
 
 .LexicalTheme__image figcaption {

@@ -21,3 +21,8 @@ hr:after {
   background-color: #ccc;
   line-height: 2px;
 }
+
+.LexicalTheme__paragraph:hover {
+  overflow-x: auto;
+  overflow-y: hidden;
+}

@@ -16,6 +16,26 @@
   touch-action: none;
 }
 
+.LexicalTheme__image img {
+  max-width: 100%;
+  height: auto;
+  background-color: white;
+  scroll-margin-top: 88px;
+  scroll-margin-bottom: 24px;
+}
+
+.LexicalTheme__image img.focused {
+  outline: 2px solid rgb(95 183 255 / 75%);
+}
+
+.LexicalTheme__image img.focused.draggable {
+  cursor: grab
+}
+
+.LexicalTheme__image img.focused.draggable:active {
+  cursor: grabbing
+}
+
 .LexicalTheme__image .nested-contentEditable {
   border: 0px;
   resize: none;
@@ -45,6 +65,10 @@
   position: absolute;
   padding: 0;
   color: rgb(95 183 255 / 75%) !important;
+}
+
+.LexicalTheme__image .image-resizer svg {
+  background-color: unset;
 }
 
 .LexicalTheme__image .image-resizer.image-resizer-n {

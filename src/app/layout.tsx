@@ -48,7 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
       </head>
       <body>
-        <ThemeRegistry options={{ key: 'mui', prepend: true }}>
+        <ThemeRegistry options={{ key: 'mui' }}>
           <LayoutProvider>
             {children}
           </LayoutProvider>
