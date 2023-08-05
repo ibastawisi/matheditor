@@ -48,7 +48,7 @@ const PwaUpdater = () => {
           {
             message: "New update available!",
             action: {
-              label: "Apply update", onClick: "window.workbox.messageSkipWaiting(); window.workbox.addEventListener('controlling', () => window.location.reload());"
+              label: "Apply & reload", onClick: "window.workbox.messageSkipWaiting(); window.workbox.addEventListener('controlling', () => window.location.reload());"
             },
             timeout: 6000
           }
