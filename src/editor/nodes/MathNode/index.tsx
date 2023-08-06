@@ -1,4 +1,4 @@
-import { $createNodeSelection, $setSelection, DOMExportOutput, LexicalNode, NodeKey, SerializedLexicalNode, Spread, } from 'lexical';
+import { $createNodeSelection, $setSelection, DOMExportOutput, EditorConfig, LexicalEditor, LexicalNode, NodeKey, SerializedLexicalNode, Spread, } from 'lexical';
 import { DecoratorNode, } from 'lexical';
 import { createRef } from 'react';
 import { MathfieldElement, convertLatexToMarkup } from "mathlive";
@@ -43,20 +43,24 @@ export class MathNode extends DecoratorNode<JSX.Element> {
     };
   }
 
-  exportDOM(): DOMExportOutput {
-    const element = this.createDOM();
-    element.innerHTML = convertLatexToMarkup(this.__value);
+  exportDOM(editor: LexicalEditor): DOMExportOutput {
+    const { element } = super.exportDOM(editor);
+    if (element !== null) {
+      element.innerHTML = convertLatexToMarkup(this.__value);
+    }
     return { element };
   }
 
-  createDOM(): HTMLElement {
+  createDOM(config: EditorConfig): HTMLElement {
     const dom = document.createElement('span');
     const style = this.__style;
     if (style !== '') {
       dom.style.cssText = style;
     }
-    dom.style.display = 'inline-flex';
-    dom.style.maxWidth = '100%';
+    const className = config.theme.math;
+    if (className !== undefined) {
+      dom.className = className;
+    }
     return dom;
   }
 

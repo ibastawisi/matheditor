@@ -67,7 +67,7 @@ function HorizontalRuleComponent({ nodeKey }: { nodeKey: NodeKey; }) {
   useEffect(() => {
     const hrElem = editor.getElementByKey(nodeKey);
     if (hrElem !== null) {
-      hrElem.className = isSelected ? 'selected' : '';
+      hrElem.classList.toggle('selected', isSelected);
     }
   }, [editor, isSelected, nodeKey]);
 

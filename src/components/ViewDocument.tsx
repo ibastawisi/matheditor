@@ -7,7 +7,6 @@ import { Transition } from 'react-transition-group';
 
 import "mathlive/static.css"
 import '@/editor/theme.css';
-import '@/embed.css';
 
 const ViewDocument: React.FC<React.PropsWithChildren & { params: { id?: string } }> = ({ params, children }) => {
   const slideTrigger = useScrollTrigger({

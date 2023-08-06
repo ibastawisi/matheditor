@@ -110,6 +110,8 @@ const theme: EditorThemeClasses = {
     underline: 'LexicalTheme__textUnderline',
     underlineStrikethrough: 'LexicalTheme__textUnderlineStrikethrough',
   },
+  hr: 'LexicalTheme__hr',
+  math: 'LexicalTheme__math',
 };
 
 export default theme;

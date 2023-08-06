@@ -19,10 +19,19 @@ import {
   Transformer,
 } from '@lexical/markdown';
 import {
+  $createTextNode,
+  $isParagraphNode,
+  $isTextNode,
+  ElementNode,
+  LexicalNode,
+} from 'lexical';
+
+import {
   $createHorizontalRuleNode,
   $isHorizontalRuleNode,
   HorizontalRuleNode,
-} from '@lexical/react/LexicalHorizontalRuleNode';
+} from '../../nodes/HorizontalRuleNode';
+
 import {
   $createTableCellNode,
   $createTableNode,
@@ -35,14 +44,6 @@ import {
   TableNode,
   TableRowNode,
 } from '../../nodes/TableNode';
-import {
-  $createTextNode,
-  $isParagraphNode,
-  $isTextNode,
-  ElementNode,
-  LexicalNode,
-} from 'lexical';
-
 import { $createMathNode, $isMathNode, MathNode } from '../../nodes/MathNode';
 import { $createImageNode, $isImageNode, ImageNode } from '../../nodes/ImageNode';
 import emojiList from '../../plugins/EmojiPickerPlugin/emoji-list';

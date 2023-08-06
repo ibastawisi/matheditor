@@ -281,6 +281,7 @@
   transform-origin: bottom left;
   transform: rotate(45deg)
 }
+
 .LexicalTheme__listItemUnchecked[dir='rtl']:after,
 .LexicalTheme__listItemChecked[dir='rtl']:after {
   left: auto;
@@ -366,8 +367,8 @@
   margin: 0;
 }
 
-.LexicalTheme__image > img,
-.LexicalTheme__image > svg {
+.LexicalTheme__image>img,
+.LexicalTheme__image>svg {
   max-width: 100%;
   height: auto;
   background-color: white;
@@ -382,82 +383,116 @@
   min-height: 40px;
 }
 
- .sticky-note-wrapper {
-   float: right;
-   margin: 0.5rem 0 0.5rem 0.5rem;
- }
+.sticky-note-wrapper {
+  float: right;
+  margin: 0.5rem 0 0.5rem 0.5rem;
+}
 
- .sticky-note-wrapper .nested-contentEditable {
-   min-height: 100px;
-   border: 0;
-   resize: none;
-   color: rgba(0, 0, 0, 0.87);
-   caret-color: rgb(5, 5, 5);
-   display: block;
-   position: relative;
-   tab-size: 1;
-   outline: 0;
- }
+.sticky-note-wrapper .nested-contentEditable {
+  min-height: 100px;
+  border: 0;
+  resize: none;
+  color: rgba(0, 0, 0, 0.87);
+  caret-color: rgb(5, 5, 5);
+  display: block;
+  position: relative;
+  tab-size: 1;
+  outline: 0;
+}
 
- .sticky-note-wrapper .nested-placeholder {
-   color: #999;
-   overflow: hidden;
-   position: absolute;
-   text-overflow: ellipsis;
-   top: 30px;
-   left: 20px;
-   width: 200px;
-   user-select: none;
-   white-space: nowrap;
-   display: inline-block;
-   pointer-events: none;
- }
+.sticky-note-wrapper .nested-placeholder {
+  color: #999;
+  overflow: hidden;
+  position: absolute;
+  text-overflow: ellipsis;
+  top: 30px;
+  left: 20px;
+  width: 200px;
+  user-select: none;
+  white-space: nowrap;
+  display: inline-block;
+  pointer-events: none;
+}
 
- .sticky-note-container {
-   min-width: 200px;
-   max-width: 300px;
-   display: inline-block;
-   position: relative;
- }
+.sticky-note-container {
+  min-width: 200px;
+  max-width: 300px;
+  display: inline-block;
+  position: relative;
+}
 
- .sticky-note {
-   padding: 20px;
-   position: relative;
-   color: rgba(0, 0, 0, 0.87);
-   border: 1px solid #e8e8e8;
-   border-bottom-right-radius: 60px 5px;
-   display: flow-root;
- }
+.sticky-note {
+  padding: 20px;
+  position: relative;
+  color: rgba(0, 0, 0, 0.87);
+  border: 1px solid #e8e8e8;
+  border-bottom-right-radius: 60px 5px;
+  display: flow-root;
+}
 
- .sticky-note:after {
-   content: '';
-   position: absolute;
-   z-index: -1;
-   right: -0px;
-   bottom: 20px;
-   width: 194px;
-   height: 25px;
-   box-shadow: 2px 15px 5px rgba(0, 0, 0, 0.4);
-   transform: matrix(-1, -0.1, 0, 1, 0, 0);
- }
+.sticky-note:after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  right: -0px;
+  bottom: 20px;
+  width: 194px;
+  height: 25px;
+  box-shadow: 2px 15px 5px rgba(0, 0, 0, 0.4);
+  transform: matrix(-1, -0.1, 0, 1, 0, 0);
+}
 
- .sticky-note.yellow {
-   border-top: 1px solid #fdfd86;
-   background: linear-gradient(135deg,
-       #ffff88 81%,
-       #ffff88 82%,
-       #ffff88 82%,
-       #ffffc6 100%);
- }
+.sticky-note.yellow {
+  border-top: 1px solid #fdfd86;
+  background: linear-gradient(135deg,
+      #ffff88 81%,
+      #ffff88 82%,
+      #ffff88 82%,
+      #ffffc6 100%);
+}
 
- .sticky-note.pink {
-   border-top: 1px solid #e7d1e4;
-   background: linear-gradient(135deg,
-       #f7cbe8 81%,
-       #f7cbe8 82%,
-       #f7cbe8 82%,
-       #e7bfe1 100%);
- }
+.sticky-note.pink {
+  border-top: 1px solid #e7d1e4;
+  background: linear-gradient(135deg,
+      #f7cbe8 81%,
+      #f7cbe8 82%,
+      #f7cbe8 82%,
+      #e7bfe1 100%);
+}
+
+.LexicalTheme__hr {
+  width: 100%;
+  border: none;
+  padding: 0.5em 0;
+  cursor: pointer;
+}
+
+.LexicalTheme__hr:after {
+  content: '';
+  display: block;
+  height: 2px;
+  background-color: #ccc;
+  line-height: 2px;
+}
+
+.LexicalTheme__hr.selected {
+  outline: 2px solid rgb(60, 132, 244);
+  user-select: none;
+}
+
+.LexicalTheme__math {
+  display: inline-flex;
+  max-width: 100%;
+}
+
+.LexicalTheme__math>.ML__mathlive {
+  user-select: auto;
+}
+
+.LexicalTheme__paragraph:has(> .LexicalTheme__math):hover {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
 
 @media screen {
   [theme=dark] .LexicalTheme__quote {
@@ -496,6 +531,7 @@
   color: rgb(101, 103, 107);
   border-left-color: rgb(206, 208, 212);
 }
+
 [theme=light] .LexicalTheme__textCode {
   background-color: rgb(240, 242, 245);
 }

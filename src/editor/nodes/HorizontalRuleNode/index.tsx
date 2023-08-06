@@ -9,7 +9,7 @@
 import type {
   DOMConversionMap,
   DOMConversionOutput,
-  DOMExportOutput,
+  EditorConfig,
   LexicalCommand,
   LexicalNode,
   SerializedLexicalNode,
@@ -60,12 +60,13 @@ export class HorizontalRuleNode extends DecoratorNode<JSX.Element> {
     };
   }
 
-  exportDOM(): DOMExportOutput {
-    return { element: document.createElement('hr') };
-  }
-
-  createDOM(): HTMLElement {
-    return document.createElement('hr');
+  createDOM(config: EditorConfig): HTMLElement {
+    const dom = document.createElement('hr');
+    const className = config.theme.hr;
+    if (className !== undefined) {
+      dom.className = className;
+    }
+    return dom;
   }
 
   getTextContent(): string {

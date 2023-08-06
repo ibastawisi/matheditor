@@ -89,26 +89,6 @@ body:has(>.MuiDialog-root) {
   display: none;
 }
 
-hr[data-lexical-decorator] {
-  width: 100%;
-  border: none;
-  padding: 0.5em 0;
-  cursor: pointer;
-}
-
-hr[data-lexical-decorator]:after {
-  content: '';
-  display: block;
-  height: 2px;
-  background-color: #ccc;
-  line-height: 2px;
-}
-
-hr[data-lexical-decorator].selected {
-  outline: 2px solid rgb(60, 132, 244);
-  user-select: none;
-}
-
 .excalidraw.excalidraw-modal-container {
   z-index: 1500 !important;
 }
