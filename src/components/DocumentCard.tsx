@@ -49,13 +49,24 @@ const DocumentCard: React.FC<{ document: UserDocument, variant: DocumentVariant 
           title={document.name}
           subheader={
             <>
-              <Typography variant="subtitle2" sx={{ display: "block", lineHeight: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} color="text.secondary">
+              <Typography variant="subtitle2"
+                sx={{ display: "block", lineHeight: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+                color="text.secondary"
+              >
                 {authorName}
               </Typography>
-              <Typography variant="overline" sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} color="text.secondary">
+              <Typography variant="overline"
+                sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+                color="text.secondary"
+                suppressHydrationWarning
+              >
                 Created: {new Date(document.createdAt).toLocaleString()}
               </Typography>
-              <Typography variant="overline" sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} color="text.secondary">
+              <Typography variant="overline"
+                sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+                color="text.secondary"
+                suppressHydrationWarning
+              >
                 Updated: {new Date(document.updatedAt).toLocaleString()}
               </Typography>
             </>
