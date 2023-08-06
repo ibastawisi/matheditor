@@ -21,7 +21,7 @@ const AppLayout = ({ children }: { children: React.ReactNode; }) => {
         <Footer />
         <AlertDialog />
         <Announcer />
-        {process.env.NODE_ENV === "production" && <PwaUpdater />}
+        <PwaUpdater />
       </StoreProvider>
     </SessionProvider>
   );

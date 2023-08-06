@@ -18,7 +18,7 @@ import Avatar from '@mui/material/Avatar';
 import { memo } from 'react';
 import { signIn, signOut } from "next-auth/react";
 
-const UserCard: React.FC<{ user?: User, variant?: 'user' | 'public' | 'admin', status?: 'loading' | 'authenticated' | 'unauthenticated' }> = memo(({ user, variant = 'user', status }) => {
+const UserCard: React.FC<{ user?: User, variant?: 'user' | 'public', status?: 'loading' | 'authenticated' | 'unauthenticated' }> = memo(({ user, variant = 'user', status }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const login = () => signIn("google", undefined, { prompt: "select_account" });
@@ -44,23 +44,15 @@ const UserCard: React.FC<{ user?: User, variant?: 'user' | 'public' | 'admin', s
       <Box sx={{ display: 'flex', flexDirection: 'column', width: 0, flex: 1 }}>
         <CardActionArea component={RouterLink} prefetch={false} href={href} sx={{ flex: '1 0 auto' }}>
           <CardContent>
-            <Typography variant={variant !== 'admin' ? "h6" : "subtitle1"}  sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <Typography variant="h6" sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {user ? user.name : <Skeleton variant="text" width={190} />}
             </Typography>
-            <Typography variant={variant !== 'admin' ? "subtitle1" : "subtitle2"} color="text.secondary" sx={{ display: "block", lineHeight: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <Typography variant="subtitle1" color="text.secondary" sx={{ display: "block", lineHeight: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {user ? user.email : <Skeleton variant="text" width={150} />}
             </Typography>
-            {user && variant === "admin" && <>
-              <Typography variant="overline" sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} color="text.secondary">
-                Created: {new Date(user.createdAt).toLocaleString()}
-              </Typography>
-              <Typography variant="overline" sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} color="text.secondary">
-                Updated: {new Date(user.updatedAt).toLocaleString()}
-              </Typography>
-            </>}
             </CardContent>
         </CardActionArea>
-        {status !== "loading" && variant !== 'admin' && <CardActions>
+        {status !== "loading" && <CardActions>
           {variant === 'user' && <>
             {user && <Button size='small' onClick={logout}>Logout</Button>}
             {!user && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>

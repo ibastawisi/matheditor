@@ -82,7 +82,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
   };
 
   const ensureUpToDate = async () => {
-    if (variant != 'published' && !user) {
+    if (!user) {
       dispatch(actions.announce({ message: "Please login to use cloud storage" }));
       return false;
     }

@@ -14,7 +14,6 @@ import CardActionArea from '@mui/material/CardActionArea';
 import PublicIcon from '@mui/icons-material/Public';
 import Chip from '@mui/material/Chip';
 import MobileFriendlyIcon from '@mui/icons-material/MobileFriendly';
-import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import CloudIcon from '@mui/icons-material/Cloud';
 import DocumentActionMenu, { options } from './DocumentActionMenu';
@@ -23,20 +22,19 @@ import { memo } from 'react';
 
 const DocumentCard: React.FC<{ document: UserDocument, variant: DocumentVariant }> = memo(({ document, variant }) => {
   const user = useSelector((state: RootState) => state.user);
+  const isOwner = variant === "cloud" && user && user.id === document.author.id;
   const cloudDocument = useSelector((state: RootState) => state.documents.filter(d => d.variant === "cloud").find(d => d.id === document.id));
-  const published = document.published || variant === "published";
-  const isUploaded = !!cloudDocument || published;
-  const isUpToDate = cloudDocument?.updatedAt === document.updatedAt;
+  const isUploaded = !!cloudDocument;
+  const isUpToDate = cloudDocument && cloudDocument.updatedAt === document.updatedAt;
+  const isPublished = cloudDocument && cloudDocument.published;
 
   const options: options = variant === "local" ?
     ['rename', 'download', 'embed', 'upload', 'fork', 'share', 'publish', 'delete']
-    : variant === "cloud" ?
-      ['rename', 'download', 'embed', 'fork', 'share', 'publish', 'delete']
-      : variant === "published" ?
-        ['fork', 'share', 'embed']
-        : ['fork', 'share', 'embed']
+    : isOwner ? ['rename', 'download', 'embed', 'fork', 'share', 'publish', 'delete']
+      : ['fork', 'share', 'embed'];
 
-  const href = variant === "admin" || variant === "published" ? `/view/${document.id}` : `/edit/${document.id}`;
+  const href = variant === "local" || isOwner ? `/edit/${document.id}` : `/view/${document.id}`;
+  const authorName = isUploaded ? cloudDocument.author.name : user ? user.name : "Local User";
 
   return (
     <Card variant="outlined"
@@ -52,7 +50,7 @@ const DocumentCard: React.FC<{ document: UserDocument, variant: DocumentVariant 
           subheader={
             <>
               <Typography variant="subtitle2" sx={{ display: "block", lineHeight: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} color="text.secondary">
-                {variant === "local" ? user?.name ?? "Local User" : document.author.name}
+                {authorName}
               </Typography>
               <Typography variant="overline" sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} color="text.secondary">
                 Created: {new Date(document.createdAt).toLocaleString()}
@@ -66,11 +64,10 @@ const DocumentCard: React.FC<{ document: UserDocument, variant: DocumentVariant 
         />
       </CardActionArea>
       <CardActions>
-        {variant === "admin" && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<VerifiedUserIcon />} label="Admin" />}
         {variant === "local" && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendlyIcon />} label="Local" />}
         {isUploaded && variant === "local" && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={isUpToDate ? <CloudDoneIcon /> : <CloudSyncIcon />} label={isUpToDate ? "Up to date" : "Out of Sync"} />}
         {variant === "cloud" && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudIcon />} label="Cloud" />}
-        {published && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<PublicIcon />} label="Published" />}
+        {isPublished && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<PublicIcon />} label="Published" />}
         <DocumentActionMenu document={document} variant={variant} options={options} />
       </CardActions>
     </Card>

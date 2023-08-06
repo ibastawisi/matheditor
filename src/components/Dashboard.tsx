@@ -7,7 +7,7 @@ import { Helmet } from "react-helmet";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import UserCard from "./UserCard";
-import { DocumentVariant, User, UserDocument } from '@/types';
+import { DocumentVariant, UserDocument } from '@/types';
 import { actions } from "@/store";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -32,13 +32,6 @@ const Dashboard: React.FC = ({ }) => {
     }
   }, []);
 
-  const admin = useSelector((state: RootState) => state.admin);
-
-  useEffect(() => {
-    if (user?.role !== 'admin') return;
-    !admin && dispatch(actions.loadAdmin());
-  }, [user]);
-
   return <Box>
     <Helmet title="Dashboard" />
     <UserCard user={user} status={status} />
@@ -46,40 +39,10 @@ const Dashboard: React.FC = ({ }) => {
       <DocumentsGrid documents={documents.filter(d => d.variant === "local")} title="Local Documents" variant="local" />
       <DocumentsGrid documents={documents.filter(d => d.variant === "cloud")} title="Cloud Documents" variant="cloud" />
     </Box>
-    {user?.role === "admin" && admin && <Box sx={{ my: 3 }}>
-      <DocumentsGrid documents={admin.documents} title="Admin Documents" variant="admin" />
-      <UserGrid users={admin.users} />
-    </Box>}
   </Box>;
 }
 
 export default Dashboard;
-
-const UserGrid: React.FC<{ users: User[] }> = memo(({ users }) => {
-  const [sortedUsers, setSortedUsers] = useState(users);
-  const usersortOptions: SortOption<User>[] = [
-    { label: 'Created', value: 'createdAt' },
-    { label: 'Updated', value: 'updatedAt'},
-    { label: 'Name', value: 'name' },
-  ];
-  const pages = Math.ceil(users.length / 12);
-  const [page, setPage] = useState(1);
-  const handlePageChange = (_: any, value: number) => setPage(value);
-
-  return <Accordion disableGutters sx={{ my: 2 }} TransitionProps={{ mountOnEnter: true }}>
-    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-      <Typography>Users</Typography>
-      <Typography sx={{ color: 'text.secondary', mx: 1 }}>({users.length})</Typography>
-    </AccordionSummary>
-    <AccordionDetails>
-      <Box sx={{ display: "flex", justifyContent: 'flex-end', alignItems: "center", gap: 1, my: 2 }}>
-        <SortControl<User> data={users} onSortChange={setSortedUsers} sortOptions={usersortOptions} initialSortDirection="desc" />
-      </Box>
-      <UsersTree users={sortedUsers.slice((page - 1) * 12, page * 12)} />
-      {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}
-    </AccordionDetails>
-  </Accordion>
-});
 
 const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string, variant: DocumentVariant }> = memo(({ documents, title, variant }) => {
   const [sortedDocuments, setSortedDocuments] = useState(documents);
@@ -88,8 +51,6 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string, varian
     { label: 'Created', value: 'createdAt' },
     { label: 'Name', value: 'name' },
   ];
-  const isAdminDocuments = variant === 'admin';
-  if (isAdminDocuments) (documentSortOptions as any).push({ label: 'Author', value: 'author.name' });
   const pages = Math.ceil(documents.length / 12);
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
@@ -107,14 +68,6 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string, varian
       {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}
     </AccordionDetails>
   </Accordion>
-});
-
-const UsersTree: React.FC<{ users: User[] }> = memo(({ users }) => {
-  return <Grid container spacing={2}>
-    {users.map(user => <Grid item xs={12} sm={6} md={4} key={user.id}>
-      <UserCard user={user} variant="admin" />
-    </Grid>)}
-  </Grid>
 });
 
 const DocumentsTree: React.FC<{ documents: UserDocument[], variant: DocumentVariant }> = memo(({ documents, variant }) => {

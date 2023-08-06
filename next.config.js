@@ -10,7 +10,6 @@ const withPWA = require("@imbios/next-pwa")({
   register: false,
   buildExcludes: ["app-build-manifest.json"],
   skipWaiting: false,
-  mode: "production",
   cacheStartUrl: false,
   dynamicStartUrl: false,
   reloadOnOnline: false,

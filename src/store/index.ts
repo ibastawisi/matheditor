@@ -1,11 +1,10 @@
-import { appSlice, deleteCloudDocument, getCloudDocument, loadLocalDocuments, createCloudDocument, updateCloudDocument, load, getLocalDocument, createLocalDocument, deleteLocalDocument, loadCloudDocuments, updateLocalDocument, loadAdmin } from "./app";
+import { appSlice, deleteCloudDocument, getCloudDocument, loadLocalDocuments, createCloudDocument, updateCloudDocument, load, getLocalDocument, createLocalDocument, deleteLocalDocument, loadCloudDocuments, updateLocalDocument } from "./app";
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
 export const actions = {
   ...appSlice.actions,
 
   load,
-  loadAdmin,
   loadLocalDocuments,
   loadCloudDocuments,
 

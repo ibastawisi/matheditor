@@ -14,10 +14,9 @@ export interface Announcement {
   };
   timeout?: number;
 }
-export type DocumentVariant = "local" | "cloud" | "published" | "admin";
+export type DocumentVariant = "local" | "cloud";
 export interface AppState {
   user?: User;
-  admin?: Admin;
   documents: UserDocument[];
   announcements: Announcement[];
   alerts: Alert[];
@@ -58,9 +57,4 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   disabled: boolean;
-}
-
-export interface Admin {
-  users: User[];
-  documents: UserDocument[];
 }

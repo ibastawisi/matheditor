@@ -1,8 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import NProgress from "nprogress";
 import documentDB from '@/indexeddb';
-import { AppState, Announcement, Alert, EditorDocument, UserDocument, Admin } from '../types';
-import { GetAdminResponse } from '@/app/api/admin/route';
+import { AppState, Announcement, Alert, EditorDocument, UserDocument } from '../types';
 import { GetDocumentsResponse, PostDocumentsResponse } from '@/app/api/documents/route';
 import { DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from '@/app/api/documents/[id]/route';
 
@@ -19,24 +18,6 @@ export const load = createAsyncThunk('app/load', async (_, thunkAPI) => {
     await thunkAPI.dispatch(loadCloudDocuments()),
     await thunkAPI.dispatch(loadPublishedDocuments()),
   ]);
-});
-
-export const loadAdmin = createAsyncThunk('app/loadAdmin', async (_, thunkAPI) => {
-  NProgress.start();
-  try {
-    const response = await fetch('/api/admin');
-    const { data, error } = await response.json() as GetAdminResponse;
-    if (error) return thunkAPI.rejectWithValue(error);
-    if (!data) return thunkAPI.fulfillWithValue({} as Admin);
-    const userDocuments: UserDocument[] = data.documents.map(document => {
-      return { ...document, variant: 'admin' } as UserDocument;
-    });
-    return thunkAPI.fulfillWithValue({users: data.users, documents: userDocuments});
-  } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.message);
-  } finally {
-    NProgress.done();
-  }
 });
 
 export const loadLocalDocuments = createAsyncThunk('app/loadLocalDocuments', async (_, thunkAPI) => {
@@ -75,7 +56,7 @@ export const loadPublishedDocuments = createAsyncThunk('app/loadPublishedDocumen
     const { data, error } = await response.json() as GetDocumentsResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.fulfillWithValue([] as UserDocument[]);
-    const userDocuments: UserDocument[] = data.map(document => ({ ...document, variant: 'published' }));
+    const userDocuments: UserDocument[] = data.map(document => ({ ...document, variant: 'cloud' }));
     return thunkAPI.fulfillWithValue(userDocuments);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
@@ -227,9 +208,6 @@ export const appSlice = createSlice({
         state.documents = state.documents.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
         state.initialized = true;
       })
-      .addCase(loadAdmin.fulfilled, (state, action) => {
-        state.admin = action.payload;
-      })
       .addCase(loadLocalDocuments.fulfilled, (state, action) => {
         const documents = action.payload;
         if (documents) state.documents.push(...documents);
@@ -249,7 +227,7 @@ export const appSlice = createSlice({
       .addCase(createLocalDocument.fulfilled, (state, action) => {
         const document = action.payload;
         const index = state.documents.findIndex(doc => doc.id === document.id);
-        index === -1 ? state.documents.unshift(document) : state.documents.unshift(document);
+        index === -1 ? state.documents.unshift(document) : state.documents.splice(index, 0, document);
       })
       .addCase(createLocalDocument.rejected, (state, action) => {
         const message = action.payload as string;
@@ -258,7 +236,7 @@ export const appSlice = createSlice({
       .addCase(createCloudDocument.fulfilled, (state, action) => {
         const document = action.payload;
         const index = state.documents.findIndex(doc => doc.id === document.id);
-        index === -1 ? state.documents.unshift(document) : state.documents.unshift(document);
+        state.documents.splice(index + 1, 0, document);
       })
       .addCase(createCloudDocument.rejected, (state, action) => {
         const message = action.payload as string;
@@ -276,7 +254,8 @@ export const appSlice = createSlice({
       .addCase(updateCloudDocument.fulfilled, (state, action) => {
         const document = action.payload;
         state.documents = state.documents.filter(doc => !(doc.variant === "cloud" && doc.id === document.id));
-        state.documents.unshift(document);
+        const index = state.documents.findIndex(doc => doc.variant === "local" && doc.id === document.id);
+        state.documents.splice(index + 1, 0, document);
       })
       .addCase(updateCloudDocument.rejected, (state, action) => {
         const message = action.payload as string;
