@@ -1,7 +1,6 @@
 "use client"
 import Editor from "./Editor";
 import { Helmet } from "react-helmet";
-import useLocalStorage from "../hooks/useLocalStorage";
 import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import type { EditorState } from "../editor/types";
@@ -22,7 +21,7 @@ import { tasks, checkpoints } from "@//tutorial";
 import Divider from "@mui/material/Divider";
 const Tutorial: React.FC = () => {
   const [editorState, setEditorState] = useState<EditorState>();
-  const [currentTask, setCurrentTask] = useLocalStorage<number>("currentTutorialTask", 0);
+  const [currentTask, setCurrentTask] = useState(0);
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   const onChange = (editorState: EditorState) => {

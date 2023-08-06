@@ -9,7 +9,6 @@ import { EditorPlugins } from "./plugins";
 import "./styles.css";
 
 export const Editor: React.FC<{ initialConfig: Partial<InitialConfigType>; onChange: (editorState: EditorState) => void; }> = ({ initialConfig, onChange }) => {
-  // const disableContextMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => { if (IS_MOBILE) e.preventDefault(); };
   return (
     <LexicalComposer initialConfig={{ ...editorConfig, ...initialConfig }}>
       <>
