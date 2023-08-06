@@ -22,19 +22,19 @@ import { memo } from 'react';
 
 const DocumentCard: React.FC<{ document: UserDocument, variant: DocumentVariant }> = memo(({ document, variant }) => {
   const user = useSelector((state: RootState) => state.user);
-  const isOwner = variant === "cloud" && user && user.id === document.author.id;
+  const isOwner = variant === "local" || document.author.id === user?.id;
   const cloudDocument = useSelector((state: RootState) => state.documents.filter(d => d.variant === "cloud").find(d => d.id === document.id));
-  const isUploaded = !!cloudDocument;
-  const isUpToDate = cloudDocument && cloudDocument.updatedAt === document.updatedAt;
-  const isPublished = cloudDocument && cloudDocument.published;
+  const isUploaded = variant === "cloud" || !!cloudDocument;
+  const isUpToDate = document.updatedAt === cloudDocument?.updatedAt;
+  const isPublished = document.published || cloudDocument?.published;
 
   const options: options = variant === "local" ?
     ['rename', 'download', 'embed', 'upload', 'fork', 'share', 'publish', 'delete']
     : isOwner ? ['rename', 'download', 'embed', 'fork', 'share', 'publish', 'delete']
       : ['fork', 'share', 'embed'];
 
-  const href = variant === "local" || isOwner ? `/edit/${document.id}` : `/view/${document.id}`;
-  const authorName = isUploaded ? cloudDocument.author.name : user ? user.name : "Local User";
+  const href = isOwner ? `/edit/${document.id}` : `/view/${document.id}`;
+  const authorName = document.author?.name ?? cloudDocument?.author.name ?? user?.name ?? "Local User";
 
   return (
     <Card variant="outlined"
