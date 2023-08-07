@@ -1,13 +1,14 @@
 import { OgMetadata } from "@/app/api/og/route";
-import { findUserById, findUserMetadata } from "@/repositories/user";
-import User from "@/components/User";
+import { findUserById } from "@/repositories/user";
 import type { Metadata } from "next";
 import { findPublishedDocumentsByAuthorId } from "@/repositories/document";
+import { notFound } from "next/navigation";
+import User from "@/components/User";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const metadata: OgMetadata = { id: params.id };
   try {
-    const user = await findUserMetadata(params.id);
+    const user = await findUserById(params.id);
     if (user) {
       metadata.title = user.name;
       metadata.subtitle = new Date(user.createdAt).toDateString()
@@ -36,6 +37,9 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
 export default async function Page({ params }: { params: { id: string } }) {
   const user = await findUserById(params.id);
-  const documents = await findPublishedDocumentsByAuthorId(params.id);
+  if (!user) notFound();
+  const documentsResponse = await findPublishedDocumentsByAuthorId(params.id);
+  const documents = documentsResponse.map(document => ({ ...document, variant: "cloud" }));
+
   return <User user={JSON.parse(JSON.stringify(user))} documents={JSON.parse(JSON.stringify(documents))} />
 }

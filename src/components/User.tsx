@@ -24,13 +24,13 @@ const User: React.FC<{ user?: User, documents?: UserDocument[] }> = ({ user, doc
 
   return <Box>
     <Helmet title={`${user?.name ?? "User Not Found"}`} />
-    <UserCard user={user} variant="public" />
+    <UserCard user={user} />
     {user && <Box sx={{ gap: 1, my: 2 }}>
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>
         <Typography variant="h6" component="h2" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Published Documents</Typography>
         <SortControl<UserDocument> data={sortedDocuments} onSortChange={setSortedDocuments} sortOptions={documentSortOptions} initialSortDirection="desc" />
       </Box>
-      <PublicDocumentsTree documents={sortedDocuments.slice((page - 1) * 12, page * 12)} />
+      <PublishedDocumentsTree documents={sortedDocuments.slice((page - 1) * 12, page * 12)} />
       {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}
       {!sortedDocuments.length && <Typography variant="overline" component="p" sx={{ my: 3, textAlign: "center" }}>
         No documents found
@@ -40,7 +40,7 @@ const User: React.FC<{ user?: User, documents?: UserDocument[] }> = ({ user, doc
   </Box>;
 }
 
-const PublicDocumentsTree: React.FC<{ documents: UserDocument[] }> = memo(({ documents }) => {
+const PublishedDocumentsTree: React.FC<{ documents: UserDocument[] }> = memo(({ documents }) => {
   return <Grid container spacing={2}>
     {documents.map(document => <Grid item xs={12} sm={6} md={4} key={document.id}>
       <DocumentCard document={document} variant="cloud" />

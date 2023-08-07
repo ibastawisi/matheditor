@@ -6,12 +6,10 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { useSelector, useDispatch } from 'react-redux';
-
-import { actions, RootState } from '../store';
+import { useDispatch, useSelector, actions } from '@/store';
 
 export default function AlertDialog() {
-  const alert = useSelector((state: RootState) => state.alerts[0]);
+  const alert = useSelector(state => state.alerts[0]);
   const dispatch = useDispatch();
   const router = useRouter();
   const navigate = (path: string) => router.push(path);

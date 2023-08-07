@@ -1,3 +1,4 @@
+import { useDispatch as useReduxDispatch, useSelector as useReduxSelector } from "react-redux";
 import { appSlice, deleteCloudDocument, getCloudDocument, loadLocalDocuments, createCloudDocument, updateCloudDocument, load, getLocalDocument, createLocalDocument, deleteLocalDocument, loadCloudDocuments, updateLocalDocument } from "./app";
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
@@ -29,3 +30,6 @@ export type AppThunk<ReturnType = void> = ThunkAction<
   unknown,
   Action<string>
 >; 	
+
+export const useDispatch: () => AppDispatch = useReduxDispatch;
+export const useSelector: <T>(selector: (state: RootState) => T) => T = useReduxSelector;

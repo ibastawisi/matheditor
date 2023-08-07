@@ -1,9 +1,8 @@
 "use client"
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { DocumentVariant, EditorDocument } from '@/types';
-import { AppDispatch, RootState, actions } from '@/store';
-import { useDispatch, useSelector } from 'react-redux';
+import { DocumentVariant, EditorDocument, UserDocument, isCloudDocument, isLocalDocument } from '@/types';
+import { useDispatch, useSelector, actions } from '@/store';
 import IconButton from '@mui/material/IconButton';
 import DownloadIcon from '@mui/icons-material/Download';
 import DeleteForever from '@mui/icons-material/DeleteForever';
@@ -36,7 +35,7 @@ export const MarkdownIcon = () => <SvgIcon viewBox="0 0 640 512" fontSize='small
 
 export type options = ('rename' | 'download' | 'fork' | 'share' | 'publish' | 'upload' | 'delete' | 'embed')[];
 type DocumentActionMenuProps = {
-  document: Omit<EditorDocument, 'data'>;
+  document: UserDocument;
   variant: DocumentVariant;
   options: options;
 };
@@ -51,13 +50,15 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
     setAnchorEl(null);
   };
 
-  const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector((state: RootState) => state.user);
-  const documents = useSelector((state: RootState) => state.documents);
-  const cloudDocument = documents.filter(d => d.variant === "cloud").find(d => d.id === document.id);
-  const isUploaded = !!cloudDocument;
-  const isUpToDate = cloudDocument?.updatedAt === document.updatedAt;
-  const isPublished = cloudDocument?.published;
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.user);
+  const isLocal = isLocalDocument(document);
+  const isCloud = isCloudDocument(document);
+  const isOwner = isLocal || document.author.id === user?.id;
+  const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(d => d.id === document.id));
+  const isUploaded = isLocal && !!cloudDocument;
+  const isUpToDate = isUploaded && document.updatedAt === cloudDocument.updatedAt;
+  const isPublished = isCloud ? document.published : isUploaded ? cloudDocument.published : false;
 
   const router = useRouter();
   const navigate = (path: string) => router.push(path);

@@ -11,32 +11,12 @@ const findAllUsers = async () => {
 const findUserById = async (id: string) => {
   return prisma.user.findUnique({
     where: { id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      image: true,
-      createdAt: true,
-      updatedAt: true,
-      role: true,
-      disabled: true,
-    }
   });
 }
 
 const findUserByEmail = async (email: string) => {
   return prisma.user.findFirst({
     where: { email },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      image: true,
-      role: true,
-      disabled: true,
-      createdAt: true,
-      updatedAt: true,
-    }
   });
 }
 
@@ -57,17 +37,5 @@ const deleteUser = async (id: string) => {
   });
 }
 
-const findUserMetadata = async (id: string) => {
-  return prisma.user.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      image: true,
-      createdAt: true,
-    }
-  });
-}
 
-export { findAllUsers, findUserById, findUserByEmail, createUser, updateUser, deleteUser, findUserMetadata };
+export { findAllUsers, findUserById, findUserByEmail, createUser, updateUser, deleteUser };

@@ -1,7 +1,6 @@
 "use client"
-import { AppDispatch, actions } from "@/store";
+import { useDispatch, actions } from '@/store';
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
 import type { Workbox } from 'workbox-window';
 
 declare global {
@@ -11,7 +10,7 @@ declare global {
 }
 
 const PwaUpdater = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (

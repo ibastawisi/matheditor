@@ -22,8 +22,7 @@ import Avatar from '@mui/material/Avatar';
 import logo from "/public/logo.svg";
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
-import { useDispatch } from 'react-redux';
-import { AppDispatch, actions } from '@/store';
+import { useDispatch, actions } from '@/store';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname()
@@ -66,7 +65,7 @@ function ScrollTop({ children }: { children: React.ReactElement }) {
 
 const TopAppBar: React.FC<{}> = () => {
   const colorMode = useContext(ColorModeContext);
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch();
   const theme = useTheme();
   const { data: session, status } = useSession();
   const user = session?.user;

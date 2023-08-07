@@ -9,13 +9,12 @@ import DialogTitle from "@mui/material/DialogTitle";
 import React, { useEffect } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import Documents from "./Documents";
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState, actions } from '@/store';
+import { useDispatch, useSelector, actions } from '@/store';
 
 const Home: React.FC = () => {
   const [welcomed, setWelcomed] = useLocalStorage("welcomed", false);
-  const dispatch = useDispatch<AppDispatch>();
-  const initialized = useSelector((state: RootState) => state.initialized);
+  const dispatch = useDispatch();
+  const initialized = useSelector(state => state.initialized);
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
   const handleClose = () => setWelcomed(true);

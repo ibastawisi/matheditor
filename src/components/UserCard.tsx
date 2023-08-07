@@ -3,10 +3,9 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { User } from '@/types';
+import { User, UserSessionStatus } from '@/types';
 import Button from '@mui/material/Button';
-import { useDispatch } from 'react-redux';
-import { actions, AppDispatch } from '../store';
+import { useDispatch, useSelector, actions } from '@/store';
 import CardActions from '@mui/material/CardActions';
 import Skeleton from '@mui/material/Skeleton';
 import GoogleIcon from '@mui/icons-material/Google';
@@ -18,9 +17,9 @@ import Avatar from '@mui/material/Avatar';
 import { memo } from 'react';
 import { signIn, signOut } from "next-auth/react";
 
-const UserCard: React.FC<{ user?: User, variant?: 'user' | 'public', status?: 'loading' | 'authenticated' | 'unauthenticated' }> = memo(({ user, variant = 'user', status }) => {
-  const dispatch = useDispatch<AppDispatch>();
-
+const UserCard: React.FC<{ user?: User, status?: UserSessionStatus }> = memo(({ user, status }) => {
+  const dispatch = useDispatch();
+  const showLoginActions = useSelector(state => state.user?.id === user?.id)
   const login = () => signIn("google", undefined, { prompt: "select_account" });
   const logout = () => signOut();
 
@@ -50,10 +49,10 @@ const UserCard: React.FC<{ user?: User, variant?: 'user' | 'public', status?: 'l
             <Typography variant="subtitle1" color="text.secondary" sx={{ display: "block", lineHeight: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {user ? user.email : <Skeleton variant="text" width={150} />}
             </Typography>
-            </CardContent>
+          </CardContent>
         </CardActionArea>
         {status !== "loading" && <CardActions>
-          {variant === 'user' && <>
+          {showLoginActions && <>
             {user && <Button size='small' onClick={logout}>Logout</Button>}
             {!user && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>
               <Typography variant="button" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Login with Google</Typography>

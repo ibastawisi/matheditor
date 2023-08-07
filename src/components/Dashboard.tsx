@@ -4,11 +4,9 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useState, useEffect, memo } from "react";
 import { Helmet } from "react-helmet";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store";
+import { useDispatch, useSelector, actions } from '@/store';
 import UserCard from "./UserCard";
 import { DocumentVariant, UserDocument } from '@/types';
-import { actions } from "@/store";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -20,10 +18,10 @@ import Pagination from "@mui/material/Pagination";
 import { useSession } from "next-auth/react";
 
 const Dashboard: React.FC = ({ }) => {
-  const dispatch = useDispatch<AppDispatch>();
-  const documents = useSelector((state: RootState) => state.documents);
-  const user = useSelector((state: RootState) => state.user);
-  const initialized = useSelector((state: RootState) => state.initialized);
+  const dispatch = useDispatch();
+  const documents = useSelector(state => state.documents);
+  const user = useSelector(state => state.user);
+  const initialized = useSelector(state => state.initialized);
   const { status } = useSession();
 
   useEffect(() => {

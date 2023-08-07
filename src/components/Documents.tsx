@@ -4,12 +4,10 @@ import RouterLink from 'next/link'
 import Box from "@mui/material/Box"
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../store";
+import { useDispatch, useSelector, actions, RootState } from '@/store';
 import DocumentCard from "./DocumentCard";
 import Button from "@mui/material/Button";
 import React, { memo, useEffect, useState } from "react";
-import { actions } from "../store";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import StorageIcon from '@mui/icons-material/Storage';
 import { EditorDocument, UserDocument } from '@/types';
@@ -31,12 +29,12 @@ import { createSelector } from '@reduxjs/toolkit';
 import Collapse from '@mui/material/Collapse';
 
 const Documents: React.FC = () => {
-  const user = useSelector((state: RootState) => state.user);
-  const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector(state => state.user);
+  const dispatch = useDispatch();
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
   const { status } = useSession();
-  const initialized = useSelector((state: RootState) => state.initialized);
+  const initialized = useSelector(state => state.initialized);
   const selectDocuments = createSelector(
     [(state: RootState) => state.documents, (state: RootState) => state.initialized], (documents, initialized) => {
       if (!initialized) return [];

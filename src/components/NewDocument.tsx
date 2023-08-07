@@ -13,12 +13,11 @@ import Container from '@mui/material/Container';
 import { EditorDocument } from '@/types';
 import { SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "@/editor/types";
 import { useEffect, useState } from 'react';
-import { AppDispatch, actions } from '@/store';
-import { useDispatch } from 'react-redux';
+import { useDispatch, actions } from '@/store';
 
 const NewDocument: React.FC = () => {
   const [document, setDocument] = useState<EditorDocument>();
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch();
   const pathname = usePathname();
   const id = pathname.split('/')[2];
 
