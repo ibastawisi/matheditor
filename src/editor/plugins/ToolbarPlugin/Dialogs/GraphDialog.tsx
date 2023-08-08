@@ -47,7 +47,7 @@ function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: Grap
     const src = await getBase64Src();
     const value = app.getBase64();
     restoreSelection();
-    insertGraph({ src, value });
+    insertGraph({ src, value, showCaption: true });
     closeDialog();
     setTimeout(() => { editor.focus() }, 0);
   };

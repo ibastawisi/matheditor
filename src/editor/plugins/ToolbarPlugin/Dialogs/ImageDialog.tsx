@@ -79,7 +79,7 @@ function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: Imag
   }
 
   const handleSubmit = async () => {
-    insertImage(formData);
+    insertImage({ ...formData, showCaption: true });
     closeDialog();
     setTimeout(() => { editor.focus() }, 0);
   };
