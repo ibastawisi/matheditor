@@ -12,6 +12,7 @@ import Box from '@mui/material/Box';
 import { $getSelection } from 'lexical';
 import { SET_DIALOGS_COMMAND } from '..';
 import Script from 'next/script';
+import { getImageDimensions } from '@/editor/nodes/utils';
 
 function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: GraphNode | null; open: boolean; }) {
   const [loading, setLoading] = useState(true);
@@ -47,7 +48,8 @@ function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: Grap
     const src = await getBase64Src();
     const value = app.getBase64();
     restoreSelection();
-    insertGraph({ src, value, showCaption: true });
+    const dimensions = await getImageDimensions(src);
+    insertGraph({ src, value, showCaption: true, ...dimensions });
     closeDialog();
     setTimeout(() => { editor.focus() }, 0);
   };

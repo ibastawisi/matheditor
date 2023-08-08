@@ -14,6 +14,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import { useTheme } from '@mui/material/styles';
+import { getImageDimensions } from '@/editor/nodes/utils';
 
 const Excalidraw = lazy(() => import('@excalidraw/excalidraw').then((module) => ({ default: module.Excalidraw })));
 
@@ -52,8 +53,9 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ske
 
     const serialized = new XMLSerializer().serializeToString(element);
     const src = "data:image/svg+xml," + encodeURIComponent(serialized);
+    const dimensions = await getImageDimensions(src);
 
-    insertSketch({ src, showCaption: true });
+    insertSketch({ src, showCaption: true, ...dimensions });
     closeDialog();
     setTimeout(() => { editor.focus() }, 0);
   };

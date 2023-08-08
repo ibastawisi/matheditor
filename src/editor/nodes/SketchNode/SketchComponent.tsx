@@ -18,13 +18,13 @@ const arrayBufferToBase64Font = (buffer: ArrayBuffer) => {
 }
 
 export default function SketchComponent({
-  nodeKey, width, height, src, value, resizable, showCaption, caption
+  nodeKey, width, height, src, altText, value, showCaption, caption
 }: {
-  width: 'inherit' | number;
-  height: 'inherit' | number;
+  width: number;
+  height: number;
   src: string;
+  altText: string;
   nodeKey: NodeKey;
-  resizable: boolean;
   value?: NonDeleted<ExcalidrawElement>[];
   showCaption: boolean;
   caption: LexicalEditor;
@@ -49,6 +49,6 @@ export default function SketchComponent({
   }, [src]);
 
   return (
-    <ImageComponent nodeKey={nodeKey} width={width} height={height} src={source || src} altText="" resizable={resizable} showCaption={showCaption} caption={caption} />
+    <ImageComponent nodeKey={nodeKey} width={width} height={height} src={source || src} altText={altText} showCaption={showCaption} caption={caption} />
   );
 }

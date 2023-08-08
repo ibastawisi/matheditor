@@ -17,6 +17,9 @@
 .LexicalTheme__paragraph {
   margin: 0;
   margin-bottom: 8px;
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0.00938em;
   position: relative;
 }
 
@@ -380,7 +383,7 @@
   overflow: hidden;
   position: relative;
   padding: 10px 0;
-  min-height: 40px;
+  min-height: 44px;
 }
 
 .sticky-note-wrapper {

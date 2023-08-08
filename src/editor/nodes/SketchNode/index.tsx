@@ -10,10 +10,9 @@ import { DOMConversionMap, DOMConversionOutput, DOMExportOutput, LexicalEditor, 
 import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
 
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
-import { Suspense, lazy } from 'react';
 import { $generateHtmlFromNodes } from '@/editor/utils/html';
 
-const SketchComponent = lazy(() => import('./SketchComponent'));
+import SketchComponent from './SketchComponent';
 
 export type SketchPayload = Spread<{
   /**
@@ -25,10 +24,10 @@ export type SketchPayload = Spread<{
 
 function convertSketchElement(domNode: Node): null | DOMConversionOutput {
   if (domNode instanceof HTMLImageElement) {
-    const { alt: altText, src } = domNode;
+    const { alt: altText, src, width, height } = domNode;
     const style = domNode.style.cssText;
     const value: NonDeleted<ExcalidrawElement>[] = domNode.dataset.value ? JSON.parse(domNode.dataset.value) : [];
-    const node = $createSketchNode({ src, altText, value, style });
+    const node = $createSketchNode({ src, altText, value, style, width, height });
     return { node };
   }
   return null;
@@ -54,9 +53,9 @@ export class SketchNode extends ImageNode {
     return new SketchNode(
       node.__src,
       node.__altText,
-      node.__value,
       node.__width,
       node.__height,
+      node.__value,
       node.__style,
       node.__showCaption,
       node.__caption,
@@ -91,8 +90,8 @@ export class SketchNode extends ImageNode {
     if (!element) return { element };
     element.innerHTML = decodeURIComponent(this.__src.split(',')[1]);
     const svg = element.firstElementChild!;
-    this.__width !== 'inherit' && svg.setAttribute('width', this.__width.toString());
-    this.__height !== 'inherit' && svg.setAttribute('height', this.__height.toString());
+    if (this.__width) svg.setAttribute('width', this.__width.toString());
+    if (this.__height) svg.setAttribute('height', this.__height.toString());
     if (!this.__showCaption) return { element };
     const caption = document.createElement('figcaption');
     this.__caption.getEditorState().read(() => {
@@ -114,9 +113,9 @@ export class SketchNode extends ImageNode {
   constructor(
     src: string,
     altText: string,
+    width: number,
+    height: number,
     value?: NonDeleted<ExcalidrawElement>[],
-    width?: 'inherit' | number,
-    height?: 'inherit' | number,
     style?: string,
     showCaption?: boolean,
     caption?: LexicalEditor,
@@ -149,18 +148,16 @@ export class SketchNode extends ImageNode {
 
   decorate(): JSX.Element {
     return (
-      <Suspense fallback={null}>
-        <SketchComponent
-          width={this.__width}
-          height={this.__height}
-          src={this.getSrc()}
-          nodeKey={this.getKey()}
-          value={this.getValue()}
-          resizable={true}
-          showCaption={this.__showCaption}
-          caption={this.__caption}
-        />
-      </Suspense>
+      <SketchComponent
+        width={this.__width}
+        height={this.__height}
+        src={this.getSrc()}
+        altText={this.getAltText()}
+        nodeKey={this.getKey()}
+        value={this.getValue()}
+        showCaption={this.__showCaption}
+        caption={this.__caption}
+      />
     );
   }
 }
@@ -179,9 +176,9 @@ export function $createSketchNode({
   return new SketchNode(
     src,
     altText,
-    value,
     width,
     height,
+    value,
     style,
     showCaption,
     caption,

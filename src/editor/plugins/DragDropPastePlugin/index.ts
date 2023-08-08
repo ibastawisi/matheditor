@@ -15,6 +15,7 @@ import { useEffect } from 'react';
 
 import { INSERT_IMAGE_COMMAND } from '../ImagePlugin';
 import Compressor from 'compressorjs';
+import { getImageDimensions } from '@/editor/nodes/utils';
 
 const ACCEPTABLE_IMAGE_TYPES = [
   'image/',
@@ -42,22 +43,28 @@ export default function DragDropPaste(): null {
                 success(result) {
                   const reader = new FileReader();
                   reader.readAsDataURL(result);
-                  reader.onloadend = () => {
-                    const base64data = reader.result;
-                    if (typeof base64data !== 'string') {
+                  reader.onloadend = async () => {
+                    if (typeof reader.result !== 'string') {
                       return;
                     }
+                    const dimensions = await getImageDimensions(reader.result);
                     editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-                      src: base64data,
+                      src: reader.result,
                       altText: file.name.replace(/\.[^/.]+$/, ""),
+                      showCaption: true,
+                      ...dimensions,
                     });
                   };
                 },
                 error(err) {
                   console.log(err.message);
-                  editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-                    src: result,
-                    altText: file.name.replace(/\.[^/.]+$/, ""),
+                  getImageDimensions(result).then((dimensions) => {
+                    editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+                      src: result,
+                      altText: file.name.replace(/\.[^/.]+$/, ""),
+                      showCaption: true,
+                      ...dimensions,
+                    });
                   });
                 }
               });

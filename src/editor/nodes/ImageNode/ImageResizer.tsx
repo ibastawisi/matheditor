@@ -30,13 +30,15 @@ export default function ImageResizer({
   maxWidth,
   editor,
   children,
+  showResizers
 }: {
   editor: LexicalEditor;
   imageRef: { current: null | HTMLElement };
   maxWidth?: number;
-  onResizeEnd: (width: 'inherit' | number, height: 'inherit' | number) => void;
-    onResizeStart: () => void;
+  onResizeEnd: (width: number, height: number) => void;
+  onResizeStart: () => void;
   children: React.ReactNode;
+  showResizers: boolean;
 }): JSX.Element {
   const controlWrapperRef = useRef<HTMLDivElement>(null);
   const userSelect = useRef({
@@ -44,8 +46,8 @@ export default function ImageResizer({
     value: 'default',
   });
   const positioningRef = useRef<{
-    currentHeight: 'inherit' | number;
-    currentWidth: 'inherit' | number;
+    currentHeight: number;
+    currentWidth: number;
     direction: number;
     isResizing: boolean;
     ratio: number;
@@ -242,54 +244,58 @@ export default function ImageResizer({
   return (
     <div ref={controlWrapperRef} className="image-control-wrapper">
       {children}
-      <Radio checked={true}
-        className="image-resizer image-resizer-n"
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.north);
-        }}
-      />
-      <Radio checked={true}
-        className="image-resizer image-resizer-ne"
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.north | Direction.east);
-        }}
-      />
-      <Radio checked={true}
-        className="image-resizer image-resizer-e"
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.east);
-        }}
-      />
-      <Radio checked={true}
-        className="image-resizer image-resizer-se"
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.south | Direction.east);
-        }}
-      />
-      <Radio checked={true}
-        className="image-resizer image-resizer-s"
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.south);
-        }}
-      />
-      <Radio checked={true}
-        className="image-resizer image-resizer-sw"
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.south | Direction.west);
-        }}
-      />
-      <Radio checked={true}
-        className="image-resizer image-resizer-w"
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.west);
-        }}
-      />
-      <Radio checked={true}
-        className="image-resizer image-resizer-nw"
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.north | Direction.west);
-        }}
-      />
+      {showResizers && (
+        <>
+          <Radio checked={true}
+            className="image-resizer image-resizer-n"
+            onPointerDown={(event) => {
+              handlePointerDown(event, Direction.north);
+            }}
+          />
+          <Radio checked={true}
+            className="image-resizer image-resizer-ne"
+            onPointerDown={(event) => {
+              handlePointerDown(event, Direction.north | Direction.east);
+            }}
+          />
+          <Radio checked={true}
+            className="image-resizer image-resizer-e"
+            onPointerDown={(event) => {
+              handlePointerDown(event, Direction.east);
+            }}
+          />
+          <Radio checked={true}
+            className="image-resizer image-resizer-se"
+            onPointerDown={(event) => {
+              handlePointerDown(event, Direction.south | Direction.east);
+            }}
+          />
+          <Radio checked={true}
+            className="image-resizer image-resizer-s"
+            onPointerDown={(event) => {
+              handlePointerDown(event, Direction.south);
+            }}
+          />
+          <Radio checked={true}
+            className="image-resizer image-resizer-sw"
+            onPointerDown={(event) => {
+              handlePointerDown(event, Direction.south | Direction.west);
+            }}
+          />
+          <Radio checked={true}
+            className="image-resizer image-resizer-w"
+            onPointerDown={(event) => {
+              handlePointerDown(event, Direction.west);
+            }}
+          />
+          <Radio checked={true}
+            className="image-resizer image-resizer-nw"
+            onPointerDown={(event) => {
+              handlePointerDown(event, Direction.north | Direction.west);
+            }}
+          />
+        </>
+      )}
     </div>
   );
 }

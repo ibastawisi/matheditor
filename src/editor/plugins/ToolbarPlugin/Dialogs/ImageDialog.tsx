@@ -17,32 +17,42 @@ import Compressor from 'compressorjs';
 import { ImageNode } from '../../../nodes/ImageNode';
 import DialogTitle from '@mui/material/DialogTitle';
 import { SET_DIALOGS_COMMAND } from '..';
+import { getImageDimensions } from '@/editor/nodes/utils';
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: ImageNode | null; open: boolean; }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const [formData, setFormData] = useState({ src: '', altText: '' });
+  const [formData, setFormData] = useState<InsertImagePayload>({ src: '', altText: '', width: 0, height: 0, showCaption: true });
 
   useEffect(() => {
     if (node) {
-      setFormData({ src: node.getSrc(), altText: node.getAltText() });
+      setFormData({ src: node.getSrc(), altText: node.getAltText(), width: node.getWidth(), height: node.getHeight(), showCaption: node.getShowCaption() });
     } else {
-      setFormData({ src: '', altText: '' });
+      setFormData({ src: '', altText: '', width: 0, height: 0, showCaption: true });
     }
   }, [node]);
 
-  const updateFormData = (event: any) => {
+  const updateFormData = async (event: any) => {
     const { name, value } = event.target;
+    if (name === 'src') {
+      const dimensions = await getImageDimensions(value);
+      setFormData({ ...formData, ...dimensions, [name]: value });
+    } else if (name === 'showCaption') {
+      setFormData({ ...formData, [name]: event.target.checked });
+    } else {
     setFormData({ ...formData, [name]: value });
+    }
   };
 
   const loadImage = (files: FileList | null) => {
     const reader = new FileReader();
-    reader.onload = function () {
+    reader.onload = async function () {
       if (typeof reader.result === 'string') {
-        setFormData({ src: reader.result, altText: files![0].name.replace(/\.[^/.]+$/, "") });
+        const dimensions = await getImageDimensions(reader.result);
+        setFormData({ src: reader.result, altText: files![0].name.replace(/\.[^/.]+$/, ""), ...dimensions, showCaption: true });
       }
-      return '';
     };
     if (files !== null) {
       new Compressor(files[0], {
@@ -68,7 +78,6 @@ function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: Imag
 
   const closeDialog = () => {
     editor.dispatchCommand(SET_DIALOGS_COMMAND, { image: { open: false } })
-    setFormData({ src: '', altText: '' });
   }
 
   const restoreSelection = () => {
@@ -79,7 +88,7 @@ function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: Imag
   }
 
   const handleSubmit = async () => {
-    insertImage({ ...formData, showCaption: true });
+    insertImage(formData);
     closeDialog();
     setTimeout(() => { editor.focus() }, 0);
   };
@@ -104,12 +113,15 @@ function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: Imag
         <Typography variant="h6" sx={{ mt: 1 }}>From URL</Typography>
         <TextField type="url" margin="normal" size="small" fullWidth
           value={formData.src} onChange={updateFormData} label="Image URL" name="src" autoComplete="src" autoFocus />
-        <TextField margin="normal" size="small" fullWidth value={formData.altText} onChange={updateFormData} label="Alt Text" name="altText" autoComplete="altText" />
         <Typography variant="h6" sx={{ mt: 1 }}>From File</Typography>
         <Button variant="outlined" sx={{ my: 2 }} startIcon={<UploadFileIcon />} component="label">
           Upload File
           <input type="file" hidden accept="image/*" onChange={e => loadImage(e.target.files)} autoFocus />
         </Button>
+        <TextField margin="normal" size="small" fullWidth value={formData.altText} onChange={updateFormData} label="Alt Text" name="altText" autoComplete="altText" />
+        <TextField margin="normal" size="small" fullWidth value={formData.width} onChange={updateFormData} label="Width" name="width" autoComplete="width" />
+        <TextField margin="normal" size="small" fullWidth value={formData.height} onChange={updateFormData} label="Height" name="height" autoComplete="height" />
+        <FormControlLabel control={<Switch checked={formData.showCaption} onChange={updateFormData} />} label="Show Caption" name="showCaption" />
       </Box>
     </DialogContent>
     <DialogActions>

@@ -89,6 +89,8 @@ export const IMAGE: TextMatchTransformer = {
     const imageNode = $createImageNode({
       altText,
       src,
+      width: 0,
+      height: 0,
     });
     textNode.replace(imageNode);
   },
@@ -111,7 +113,7 @@ export const GRAPH: TextMatchTransformer = {
   regExp: /<graph src="([^"]+?)" value="([^"]+?)"\s?\/>\s?$/,
   replace: (textNode, match) => {
     const [, src, value] = match;
-    const graphNode = $createGraphNode({ src, value });
+    const graphNode = $createGraphNode({ src, value, width: 0, height: 0 });
     textNode.replace(graphNode);
   },
   trigger: '>',
@@ -133,7 +135,7 @@ export const SKETCH: TextMatchTransformer = {
   regExp: /<sketch src="([^"]+?)"\s?\/>\s?$/,
   replace: (textNode, match) => {
     const [, src] = match;
-    const sketchNode = $createSketchNode({ src });
+    const sketchNode = $createSketchNode({ src, width: 0, height: 0 });
     textNode.replace(sketchNode);
   },
   trigger: '>',

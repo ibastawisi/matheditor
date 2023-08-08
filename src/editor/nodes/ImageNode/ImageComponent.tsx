@@ -56,10 +56,10 @@ function LazyImage({
 }: {
   altText: string;
   className: string | null;
-  height: 'inherit' | number;
+  height: number;
   imageRef: { current: null | HTMLImageElement };
   src: string;
-  width: 'inherit' | number;
+  width: number;
   draggable: boolean
   onLoad: () => void;
 }): JSX.Element {
@@ -69,10 +69,8 @@ function LazyImage({
       src={src}
       alt={altText}
       ref={imageRef}
-      style={{
-        height,
-        width,
-      }}
+      width={width || undefined}
+      height={height || undefined}
       draggable={draggable}
       onLoad={onLoad}
     />
@@ -85,16 +83,14 @@ export default function ImageComponent({
   nodeKey,
   width,
   height,
-  resizable,
   showCaption,
   caption,
 }: {
   altText: string;
-  height: 'inherit' | number;
+  height: number;
   nodeKey: NodeKey;
-  resizable: boolean;
   src: string;
-  width: 'inherit' | number;
+  width: number;
   showCaption: boolean;
   caption: LexicalEditor;
 }): JSX.Element {
@@ -255,8 +251,8 @@ export default function ImageComponent({
   ]);
 
   const onResizeEnd = (
-    nextWidth: 'inherit' | number,
-    nextHeight: 'inherit' | number,
+    nextWidth: number,
+    nextHeight: number,
   ) => {
     // Delay hiding the resize bars for click case
     setTimeout(() => {
@@ -303,46 +299,34 @@ export default function ImageComponent({
   const isFocused = $isNodeSelection(selection) && (isSelected || isResizing);
 
   return (
-    <Suspense fallback={null}>
-      <>
-        {(resizable && $isNodeSelection(selection) && isFocused) ?
-          <ImageResizer
-            editor={editor}
-            imageRef={imageRef}
-            onResizeStart={onResizeStart}
-            onResizeEnd={onResizeEnd}
-          >
-            <LazyImage
-              className={isFocused ? `focused ${$isNodeSelection(selection) ? 'draggable' : ''}` : null}
-              src={src}
-              altText={altText}
-              imageRef={imageRef}
-              onLoad={onLoad}
-              width={width}
-              height={height}
-              draggable={draggable}
-            />
-          </ImageResizer>
-          :
-          <LazyImage
-            className={isFocused ? `focused ${$isNodeSelection(selection) ? 'draggable' : ''}` : null}
-            src={src}
-            altText={altText}
-            imageRef={imageRef}
-            onLoad={onLoad}
-            width={width}
-            height={height}
-            draggable={draggable}
-          />
-        }
-        {showCaption && (
-          <figcaption>
+    <>
+      <ImageResizer
+        editor={editor}
+        imageRef={imageRef}
+        onResizeStart={onResizeStart}
+        onResizeEnd={onResizeEnd}
+        showResizers={isFocused}
+      >
+        <LazyImage
+          className={isFocused ? `focused ${$isNodeSelection(selection) ? 'draggable' : ''}` : null}
+          src={src}
+          altText={altText}
+          imageRef={imageRef}
+          onLoad={onLoad}
+          width={width}
+          height={height}
+          draggable={draggable}
+        />
+      </ImageResizer>
+      {showCaption && (
+        <figcaption>
+          <Suspense fallback={null}>
             <NestedEditor initialEditor={caption} onChange={onChange}
               placeholder={<Typography color="text.secondary" className="nested-placeholder">Write a caption</Typography>}
             />
-          </figcaption>
-        )}
-      </>
-    </Suspense>
+          </Suspense>
+        </figcaption>
+      )}
+    </>
   );
 }

@@ -26,18 +26,16 @@ import {
 } from 'lexical';
 
 import { DecoratorNode } from 'lexical';
-import { Suspense, lazy } from 'react';
 import { editorConfig } from './config';
 import { $generateHtmlFromNodes } from '@/editor/utils/html';
 
-const ImageComponent = lazy(() => import('./ImageComponent'));
-
+import ImageComponent from './ImageComponent';
 export interface ImagePayload {
   altText?: string;
-  height?: number;
+  height: number;
   key?: NodeKey;
   src: string;
-  width?: number;
+  width: number;
   style?: string;
   showCaption?: boolean;
   caption?: LexicalEditor;
@@ -45,8 +43,8 @@ export interface ImagePayload {
 
 function convertImageElement(domNode: Node): null | DOMConversionOutput {
   if (domNode instanceof HTMLImageElement) {
-    const { alt: altText, src } = domNode;
-    const node = $createImageNode({ altText, src });
+    const { alt: altText, src, width, height } = domNode;
+    const node = $createImageNode({ altText, src, width, height });
     return { node };
   }
   return null;
@@ -68,8 +66,8 @@ export type SerializedImageNode = Spread<
 export class ImageNode extends DecoratorNode<JSX.Element> {
   __src: string;
   __altText: string;
-  __width: 'inherit' | number;
-  __height: 'inherit' | number;
+  __width: number;
+  __height: number;
   __style?: string;
   __showCaption: boolean;
   __caption: LexicalEditor;
@@ -117,9 +115,9 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     if (!element) return { element };
     const img = document.createElement('img');
     img.setAttribute('src', this.__src);
-    img.setAttribute('alt', this.__altText || '');
-    img.setAttribute('width', this.__width.toString());
-    img.setAttribute('height', this.__height.toString());
+    img.setAttribute('alt', this.__altText);
+    if (this.__width) img.setAttribute('width', this.__width.toString());
+    if (this.__height) img.setAttribute('height', this.__height.toString());
     element.appendChild(img);
     if (!this.__showCaption) return { element };
     const caption = document.createElement('figcaption');
@@ -142,8 +140,8 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   constructor(
     src: string,
     altText: string,
-    width?: 'inherit' | number,
-    height?: 'inherit' | number,
+    width: number,
+    height: number,
     style?: string,
     showCaption?: boolean,
     caption?: LexicalEditor,
@@ -152,8 +150,8 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     super(key);
     this.__src = src;
     this.__altText = altText;
-    this.__width = width || 'inherit';
-    this.__height = height || 'inherit';
+    this.__width = width;
+    this.__height = height;
     this.__style = style;
     this.__showCaption = showCaption || false;
     if (caption) this.__caption = caption
@@ -172,20 +170,28 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   exportJSON(): SerializedImageNode {
     return {
       altText: this.getAltText(),
-      height: this.__height === 'inherit' ? 0 : this.__height,
+      height: this.__height,
       src: this.getSrc(),
       style: this.__style,
       type: 'image',
       version: 1,
-      width: this.__width === 'inherit' ? 0 : this.__width,
+      width: this.__width,
       showCaption: this.__showCaption,
       caption: this.__caption.toJSON(),
     };
   }
 
+  getWidth(): number {
+    return this.__width;
+  }
+
+  getHeight(): number {
+    return this.__height;
+  }
+
   setWidthAndHeight(
-    width: 'inherit' | number,
-    height: 'inherit' | number,
+    width: number,
+    height: number,
   ): void {
     const writable = this.getWritable();
     writable.__width = width;
@@ -230,13 +236,13 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 
   update(payload: Partial<ImagePayload>): void {
     const writable = this.getWritable();
-    writable.__src = payload.src || writable.__src;
-    writable.__altText = payload.altText || writable.__altText;
-    writable.__width = payload.width || writable.__width;
-    writable.__height = payload.height || writable.__height;
-    writable.__style = payload.style || writable.__style;
-    writable.__showCaption = payload.showCaption || writable.__showCaption;
-    writable.__caption = payload.caption || writable.__caption;
+    writable.__src = payload.src ?? writable.__src;
+    writable.__altText = payload.altText ?? writable.__altText;
+    writable.__width = payload.width ?? writable.__width;
+    writable.__height = payload.height ?? writable.__height;
+    writable.__style = payload.style ?? writable.__style;
+    writable.__showCaption = payload.showCaption ?? writable.__showCaption;
+    writable.__caption = payload.caption ?? writable.__caption;
   }
 
 
@@ -273,18 +279,15 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 
   decorate(): JSX.Element {
     return (
-      <Suspense fallback={null}>
-        <ImageComponent
-          src={this.__src}
-          altText={this.__altText}
-          width={this.__width}
-          height={this.__height}
-          nodeKey={this.getKey()}
-          resizable={true}
-          showCaption={this.__showCaption}
-          caption={this.__caption}
-        />
-      </Suspense>
+      <ImageComponent
+        src={this.__src}
+        altText={this.__altText}
+        width={this.__width}
+        height={this.__height}
+        nodeKey={this.getKey()}
+        showCaption={this.__showCaption}
+        caption={this.__caption}
+      />
     );
   }
 }

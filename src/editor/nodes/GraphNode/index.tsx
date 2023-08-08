@@ -9,8 +9,8 @@
 import { DOMConversionMap, DOMConversionOutput, LexicalEditor, LexicalNode, NodeKey, Spread, } from 'lexical';
 
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
-import { Suspense, lazy } from 'react';
-const ImageComponent = lazy(() => import('../ImageNode/ImageComponent'));
+
+import ImageComponent from '../ImageNode/ImageComponent';
 
 export type GraphPayload = Spread<{
   value: string;
@@ -18,10 +18,10 @@ export type GraphPayload = Spread<{
 
 function convertGraphElement(domNode: Node): null | DOMConversionOutput {
   if (domNode instanceof HTMLImageElement) {
-    const { alt: altText, src } = domNode;
+    const { alt: altText, src, width, height } = domNode;
     const style = domNode.style.cssText;
     const value = domNode.dataset.value as string;
-    const node = $createGraphNode({ src, altText, value, style });
+    const node = $createGraphNode({ src, altText, value, style, width, height });
     return { node };
   }
   return null;
@@ -92,8 +92,8 @@ export class GraphNode extends ImageNode {
     src: string,
     altText: string,
     value: string,
-    width?: 'inherit' | number,
-    height?: 'inherit' | number,
+    width: number,
+    height: number,
     style?: string,
     showCaption?: boolean,
     caption?: LexicalEditor,
@@ -125,18 +125,15 @@ export class GraphNode extends ImageNode {
 
   decorate(): JSX.Element {
     return (
-      <Suspense fallback={null}>
         <ImageComponent
           src={this.__src}
           altText={this.__altText}
           width={this.__width}
           height={this.__height}
           nodeKey={this.getKey()}
-          resizable={true}
           showCaption={this.__showCaption}
           caption={this.__caption}
         />
-      </Suspense>
     );
   }
 
