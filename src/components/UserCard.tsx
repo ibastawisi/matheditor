@@ -5,7 +5,7 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import { User, UserSessionStatus } from '@/types';
 import Button from '@mui/material/Button';
-import { useDispatch, useSelector, actions } from '@/store';
+import { useDispatch, actions } from '@/store';
 import CardActions from '@mui/material/CardActions';
 import Skeleton from '@mui/material/Skeleton';
 import GoogleIcon from '@mui/icons-material/Google';
@@ -19,7 +19,6 @@ import { signIn, signOut } from "next-auth/react";
 
 const UserCard: React.FC<{ user?: User, status?: UserSessionStatus }> = memo(({ user, status }) => {
   const dispatch = useDispatch();
-  const showLoginActions = useSelector(state => state.user?.id === user?.id)
   const login = () => signIn("google", undefined, { prompt: "select_account" });
   const logout = () => signOut();
 
@@ -51,16 +50,14 @@ const UserCard: React.FC<{ user?: User, status?: UserSessionStatus }> = memo(({ 
             </Typography>
           </CardContent>
         </CardActionArea>
-        {status !== "loading" && <CardActions>
-          {showLoginActions && <>
-            {user && <Button size='small' onClick={logout}>Logout</Button>}
-            {!user && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>
+        {status !== "loading" &&
+          <CardActions>
+            {status === "authenticated" && <Button size='small' onClick={logout}>Logout</Button>}
+            {status === "unauthenticated" && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>
               <Typography variant="button" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Login with Google</Typography>
             </Button>}
-          </>}
-          <IconButton size="small" aria-label="Share" onClick={handleShare} disabled={!user}><ShareIcon /></IconButton>
-        </CardActions>}
-
+            {user && <IconButton size="small" aria-label="Share" onClick={handleShare}><ShareIcon /></IconButton>}
+          </CardActions>}
       </Box>
       <CardActionArea component={RouterLink} prefetch={false} href={href} sx={{ display: 'flex', width: 'auto' }}>
         {user ?

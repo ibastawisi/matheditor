@@ -12,10 +12,10 @@ const initialState: AppState = {
 };
 
 export const load = createAsyncThunk('app/load', async (_, thunkAPI) => {
-  Promise.allSettled([
-    await thunkAPI.dispatch(loadLocalDocuments()),
-    await thunkAPI.dispatch(loadCloudDocuments()),
-    await thunkAPI.dispatch(loadPublishedDocuments()),
+  await Promise.allSettled([
+    thunkAPI.dispatch(loadLocalDocuments()),
+    thunkAPI.dispatch(loadCloudDocuments()),
+    thunkAPI.dispatch(loadPublishedDocuments()),
   ]);
 });
 
