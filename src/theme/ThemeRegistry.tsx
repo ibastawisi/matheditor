@@ -1,10 +1,10 @@
-"use client"
-import { useState } from 'react';
-import createCache, { Options } from '@emotion/cache';
-import { useServerInsertedHTML } from 'next/navigation';
-import { CacheProvider } from '@emotion/react';
-import CssBaseline from '@mui/material/CssBaseline';
-import ThemeProvider from './ThemeProvider';
+"use client";
+import { useState } from "react";
+import createCache, { Options } from "@emotion/cache";
+import { useServerInsertedHTML } from "next/navigation";
+import { CacheProvider } from "@emotion/react";
+import CssBaseline from "@mui/material/CssBaseline";
+import ThemeProvider from "./ThemeProvider";
 
 // This implementation is from emotion-js
 // https://github.com/emotion-js/emotion/issues/2928#issuecomment-1319747902
@@ -15,11 +15,14 @@ export default function ThemeRegistry(props: { options: Options; children: React
     const cache = createCache(options);
     cache.compat = true;
     const prevInsert = cache.insert;
-    let inserted: string[] = [];
+    let inserted: { name: string; isGlobal: boolean }[] = [];
     cache.insert = (...args) => {
-      const serialized = args[1];
+      const [selector, serialized] = args;
       if (cache.inserted[serialized.name] === undefined) {
-        inserted.push(serialized.name);
+        inserted.push({
+          "name": serialized.name,
+          "isGlobal": selector === ""
+        });
       }
       return prevInsert(...args);
     };
@@ -32,22 +35,49 @@ export default function ThemeRegistry(props: { options: Options; children: React
   });
 
   useServerInsertedHTML(() => {
-    const names = flush();
-    if (names.length === 0) {
+    const inserted = flush();
+    if (inserted.length === 0) {
       return null;
     }
-    let styles = '';
-    for (const name of names) {
-      styles += cache.inserted[name];
+    let styles = "";
+    let dataEmotionAttribute = cache.key;
+
+    const globals: {
+      name: string;
+      style: string;
+    }[] = [];
+
+    for (const { name, isGlobal } of inserted) {
+      const style = cache.inserted[name];
+
+      if (typeof style === "boolean") {
+        continue;
+      }
+
+      if (isGlobal) {
+        globals.push({ name, style });
+      } else {
+        styles += style;
+        dataEmotionAttribute += ` ${name}`;
+      }
     }
+
     return (
-      <style
-        key={cache.key}
-        data-emotion={`${cache.key} ${names.join(' ')}`}
-        dangerouslySetInnerHTML={{
-          __html: options.prepend ? `@layer emotion {${styles}}` : styles,
-        }}
-      />
+      <>
+        {globals.map(({ name, style }) => (
+          <style
+            key={name}
+            data-emotion={`${cache.key}-global ${name}`}
+            dangerouslySetInnerHTML={{ "__html": style }}
+          />
+        ))}
+        {styles !== "" && (
+          <style
+            data-emotion={dataEmotionAttribute}
+            dangerouslySetInnerHTML={{ "__html": styles }}
+          />
+        )}
+      </>
     );
   });
 

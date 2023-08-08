@@ -52,7 +52,6 @@ function LazyImage({
   width,
   height,
   draggable,
-  onLoad,
 }: {
   altText: string;
   className: string | null;
@@ -61,7 +60,6 @@ function LazyImage({
   src: string;
   width: number;
   draggable: boolean
-  onLoad: () => void;
 }): JSX.Element {
   return (
     <img
@@ -72,7 +70,6 @@ function LazyImage({
       width={width || undefined}
       height={height || undefined}
       draggable={draggable}
-      onLoad={onLoad}
     />
   );
 }
@@ -162,7 +159,7 @@ export default function ImageComponent({
   );
 
   useEffect(() => {
-    onLoad();
+    isSelected && onLoad();
   }, [isSelected, imageRef]);
 
   useEffect(() => {
@@ -271,19 +268,17 @@ export default function ImageComponent({
   };
 
   const onLoad = () => {
-    if (isSelected) {
-      editor.getEditorState().read(() => {
-        const selection = $getSelection();
-        if (!$isRangeSelection(selection)) {
-          const rootElement = editor.getRootElement();
-          rootElement?.focus();
-          const nativeSelection = window.getSelection();
-          nativeSelection?.removeAllRanges();
-          const element = imageRef.current;
-          element?.scrollIntoView({ block: 'nearest' });
-        }
-      });
-    }
+    editor.getEditorState().read(() => {
+      const selection = $getSelection();
+      if (!$isRangeSelection(selection)) {
+        const rootElement = editor.getRootElement();
+        rootElement?.focus();
+        const nativeSelection = window.getSelection();
+        nativeSelection?.removeAllRanges();
+        const element = imageRef.current;
+        element?.scrollIntoView({ block: 'nearest' });
+      }
+    });
   }
 
   const onChange = () => {
@@ -312,7 +307,6 @@ export default function ImageComponent({
           src={src}
           altText={altText}
           imageRef={imageRef}
-          onLoad={onLoad}
           width={width}
           height={height}
           draggable={draggable}
