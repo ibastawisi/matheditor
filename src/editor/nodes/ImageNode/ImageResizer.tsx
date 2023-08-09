@@ -247,21 +247,9 @@ export default function ImageResizer({
       {showResizers && (
         <>
           <Radio checked={true}
-            className="image-resizer image-resizer-n"
-            onPointerDown={(event) => {
-              handlePointerDown(event, Direction.north);
-            }}
-          />
-          <Radio checked={true}
             className="image-resizer image-resizer-ne"
             onPointerDown={(event) => {
               handlePointerDown(event, Direction.north | Direction.east);
-            }}
-          />
-          <Radio checked={true}
-            className="image-resizer image-resizer-e"
-            onPointerDown={(event) => {
-              handlePointerDown(event, Direction.east);
             }}
           />
           <Radio checked={true}
@@ -271,21 +259,9 @@ export default function ImageResizer({
             }}
           />
           <Radio checked={true}
-            className="image-resizer image-resizer-s"
-            onPointerDown={(event) => {
-              handlePointerDown(event, Direction.south);
-            }}
-          />
-          <Radio checked={true}
             className="image-resizer image-resizer-sw"
             onPointerDown={(event) => {
               handlePointerDown(event, Direction.south | Direction.west);
-            }}
-          />
-          <Radio checked={true}
-            className="image-resizer image-resizer-w"
-            onPointerDown={(event) => {
-              handlePointerDown(event, Direction.west);
             }}
           />
           <Radio checked={true}
