@@ -4,7 +4,7 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useState, useEffect, memo } from "react";
 import { Helmet } from "react-helmet";
-import { useDispatch, useSelector, actions } from '@/store';
+import { useDispatch, useSelector, actions, RootState } from '@/store';
 import UserCard from "./UserCard";
 import { DocumentVariant, UserDocument } from '@/types';
 import Accordion from "@mui/material/Accordion";
@@ -16,10 +16,19 @@ import { SortOption } from "@/hooks/useSort";
 import SortControl from "./SortControl";
 import Pagination from "@mui/material/Pagination";
 import { useSession } from "next-auth/react";
+import { createSelector } from "@reduxjs/toolkit";
 
 const Dashboard: React.FC = ({ }) => {
   const dispatch = useDispatch();
-  const documents = useSelector(state => state.documents);
+  const selectDocuments = createSelector(
+    [(state: RootState) => state.documents, (state: RootState) => state.initialized], (documents, initialized) => {
+      if (!initialized) return [];
+      return documents.reduce((acc, document) => {
+        if (!acc.find(d => d.id === document.id)) acc.push(document);
+        return acc;
+      }, [] as UserDocument[]);
+    });
+  const documents = useSelector(selectDocuments);
   const user = useSelector(state => state.user);
   const initialized = useSelector(state => state.initialized);
   const { status } = useSession();

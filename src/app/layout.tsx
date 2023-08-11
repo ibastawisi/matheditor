@@ -5,7 +5,7 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import type { Metadata } from 'next';
 import LayoutProvider from "@/components/LayoutProvider";
-import ThemeRegistry from '@/theme/ThemeRegistry';
+import ThemeProvider from '@/components/ThemeProvider';
 
 export const metadata: Metadata = {
   title: 'Math Editor',
@@ -42,11 +42,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <ThemeRegistry options={{ key: 'mui' }}>
+        <ThemeProvider>
           <LayoutProvider>
             {children}
           </LayoutProvider>
-        </ThemeRegistry>
+        </ThemeProvider>
       </body>
     </html>
   )

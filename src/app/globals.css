@@ -13,11 +13,6 @@ body {
   min-height: 100vh;
 }
 
-body[theme=light] {
-  color: rgba(0, 0, 0, 0.87);
-  background-color: rgb(255, 255, 255);
-}
-
 header {
   padding-left: 0 !important;
   padding-right: 0 !important;
@@ -87,26 +82,11 @@ header {
   justify-content: center;
   align-items: center;
   z-index: 1100;
-}
-
-@media (prefers-color-scheme: light) {
-  .splash-screen {
-    background-color: #fff;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .splash-screen {
-    background-color: #121212;
-  }
+  background-color: #121212;
 }
 
 [theme=light] .splash-screen {
   background-color: #fff;
-}
-
-[theme=dark] .splash-screen {
-  background-color: #121212;
 }
 
 .splash-screen-content {

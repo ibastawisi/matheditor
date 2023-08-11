@@ -1,4 +1,5 @@
 "use client"
+import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { createContext, useState, useMemo, useEffect } from "react";
@@ -30,6 +31,7 @@ export default function ToggleColorMode({ children }: { children: React.ReactNod
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
+        <CssBaseline />
         {children}
       </ThemeProvider>
     </ColorModeContext.Provider>

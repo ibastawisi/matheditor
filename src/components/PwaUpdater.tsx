@@ -54,10 +54,6 @@ const PwaUpdater = () => {
         ));
       });
 
-      wb.addEventListener("activated", (event: any) => {
-        dispatch(actions.announce({ message: "App is now ready to work offline!", }));
-      });
-
       if (window.location.pathname === "/") wb.register();
     }
 

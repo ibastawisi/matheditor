@@ -16,7 +16,7 @@ import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useContext, useEffect } from 'react';
-import { ColorModeContext } from '@/theme/ThemeProvider';
+import { ColorModeContext } from '@/components/ThemeProvider';
 import useTheme from '@mui/material/styles/useTheme';
 import Avatar from '@mui/material/Avatar';
 import logo from "/public/logo.svg";
