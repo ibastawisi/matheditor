@@ -132,7 +132,7 @@
     outline: none !important;
   }
 
-  .image-control-wrapper {
+  .image-control-wrapper .image-resizer {
     display: none !important;
   }
 }
