@@ -25,11 +25,13 @@ import { useSession } from 'next-auth/react';
 import { useDispatch, actions } from '@/store';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
-  const pathname = usePathname()
+  const pathname = usePathname();
+  const shouldHide = !!['/edit', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
   const trigger = useScrollTrigger({
-    disableHysteresis: !!['/edit', '/playground', '/tutorial'].find(path => pathname.startsWith(path)),
+    disableHysteresis: true,
     threshold: 32,
   });
+  if (!shouldHide) return children;
   return (
     <Slide appear={false} direction="down" in={!trigger}>{children}</Slide>
   );
