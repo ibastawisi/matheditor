@@ -1,7 +1,7 @@
 "use client"
 import Editor from "./Editor";
 import { Helmet } from "react-helmet";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Button from "@mui/material/Button";
 import type { EditorState } from "../editor/types";
 import Box from "@mui/material/Box";
@@ -16,13 +16,13 @@ import ListItemButton from "@mui/material/ListItemButton";
 import Collapse from "@mui/material/Collapse";
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-
-import { tasks, checkpoints } from "@//tutorial";
 import Divider from "@mui/material/Divider";
+
+import { tasks, checkpoints } from "@/tutorial";
+
 const Tutorial: React.FC = () => {
   const [editorState, setEditorState] = useState<EditorState>();
   const [currentTask, setCurrentTask] = useState(0);
-  useEffect(() => { window.scrollTo(0, 0); }, []);
 
   const onChange = (editorState: EditorState) => {
     setEditorState(editorState);
@@ -44,7 +44,6 @@ const Tutorial: React.FC = () => {
   const orderedCheckpoints = checkpoints[currentTask]
     .map((checkpoint, index) => ({ ...checkpoint, checked: checkpoint.check(editorState), index }))
     .sort((a, b) => a.checked === b.checked ? a.index - b.index : a.checked ? 1 : -1);
-
 
   return <>
     <Helmet title="Tutorial" />

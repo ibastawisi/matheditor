@@ -42,7 +42,8 @@ import ImageResizer from './ImageResizer';
 import { $isImageNode } from '.';
 import Typography from '@mui/material/Typography';
 
-const NestedEditor = lazy(() => import('../../NestedEditor'));
+import dynamic from 'next/dynamic';
+const NestedEditor = dynamic(() => import('@/editor/NestedEditor'), { ssr: false });
 
 function LazyImage({
   altText,

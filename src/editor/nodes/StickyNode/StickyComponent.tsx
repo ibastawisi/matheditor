@@ -25,7 +25,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import IconButton from '@mui/material/IconButton';
 
-const NestedEditor = lazy(() => import('../../NestedEditor'));
+import dynamic from 'next/dynamic';
+const NestedEditor = dynamic(() => import('@/editor/NestedEditor'), { ssr: false });
 
 export default function StickyComponent({ nodeKey, color, stickyEditor }: { stickyEditor: LexicalEditor; color: 'pink' | 'yellow'; nodeKey: NodeKey; }): JSX.Element {
   const [editor] = useLexicalComposerContext();
