@@ -36,8 +36,7 @@ const Documents: React.FC = () => {
   const { status } = useSession();
   const initialized = useSelector(state => state.initialized);
   const selectDocuments = createSelector(
-    [(state: RootState) => state.documents, (state: RootState) => state.initialized], (documents, initialized) => {
-      if (!initialized) return [];
+    [(state: RootState) => state.documents], (documents) => {
       return documents.reduce((acc, document) => {
         if (!acc.find(d => d.id === document.id)) acc.push(document);
         return acc;
@@ -175,7 +174,7 @@ const Documents: React.FC = () => {
         </Grid>
       </Grid>
       <Collapse timeout={1000} in={!(user && initialized)} unmountOnExit><Box sx={{ mb: 2 }}><UserCard status={status} user={user} /></Box></Collapse>
-      {initialized && <DocumentsGrid documents={sortedDocuments} />}
+      <DocumentsGrid documents={sortedDocuments} />
     </>
   )
 }

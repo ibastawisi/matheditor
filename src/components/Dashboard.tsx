@@ -21,8 +21,7 @@ import { createSelector } from "@reduxjs/toolkit";
 const Dashboard: React.FC = ({ }) => {
   const dispatch = useDispatch();
   const selectDocuments = createSelector(
-    [(state: RootState) => state.documents, (state: RootState) => state.initialized], (documents, initialized) => {
-      if (!initialized) return [];
+    [(state: RootState) => state.documents], (documents) => {
       return documents.reduce((acc, document) => {
         if (!acc.find(d => d.id === document.id)) acc.push(document);
         return acc;
