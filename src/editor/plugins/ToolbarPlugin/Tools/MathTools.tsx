@@ -47,7 +47,6 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
       const fontSize = $getNodeStyleValueForProperty(node, 'font-size', '15px');
       setFontSize(fontSize);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [node]);
 
   const applyStyleMath = useCallback(
@@ -56,8 +55,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
         $patchStyle([node], styles);
       });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [editor],
+    [editor, node],
   );
 
   const onFontSizeSelect = useCallback(
@@ -114,16 +112,17 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     handleClose();
   }, [editor, formData, handleClose, node]);
 
+  const openWolfram = useCallback(() => {
+    const mathfield = node.getMathfield();
+    if (!mathfield) return;
+    const selection = mathfield.selection;
+    const value = mathfield.getValue(selection, 'latex-unstyled') || mathfield.getValue('latex-unstyled');
+    window.open(`https://www.wolframalpha.com/input?i=${encodeURIComponent(value)}`);
+  }, [node]);
+
   return (<>
     <ToggleButtonGroup size="small" sx={{ ...sx }} >
-      <ToggleButton value="wolfram"
-        onClick={() => {
-          const mathfield = node.getMathfield();
-          if (!mathfield) return;
-          const selection = mathfield.selection;
-          const value = mathfield.getValue(selection, 'latex-unstyled') || mathfield.getValue('latex-unstyled');
-          window.open(`https://www.wolframalpha.com/input?i=${encodeURIComponent(value)}`)
-        }}>
+      <ToggleButton value="wolfram" onClick={openWolfram}>
         <WolframIcon />
       </ToggleButton>
       <ToggleButton value="edit" onClick={openEditDialog}>
@@ -164,4 +163,5 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     </Select>
   </>
   )
+
 }

@@ -98,7 +98,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
       focus(mathfield);
     }
 
-    mathfield.addEventListener("change", e => {
+    mathfield.addEventListener("input", e => {
       editor.update(() => {
         const value = mathfield.getValue();
         const node = $getNodeByKey(nodeKey);
