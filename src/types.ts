@@ -45,6 +45,7 @@ export type UserRole = "user" | "superuser" | "admin";
 
 export interface User {
   id: string;
+  handle: string | null;
   name: string;
   email: string;
   image: string;

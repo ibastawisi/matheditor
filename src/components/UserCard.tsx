@@ -25,7 +25,7 @@ const UserCard: React.FC<{ user?: User, status?: UserSessionStatus }> = memo(({ 
   const handleShare = async () => {
     const shareData = {
       title: `${user?.name}'s profile on Math Editor`,
-      url: window.location.origin + "/user/" + user?.id
+      url: window.location.origin + "/user/" + (user?.handle || user?.id)
     }
     try {
       await navigator.share(shareData)
@@ -35,7 +35,7 @@ const UserCard: React.FC<{ user?: User, status?: UserSessionStatus }> = memo(({ 
     }
   };
 
-  const href = user ? `/user/${user.id}` : '/dashboard';
+  const href = user ? `/user/${user.handle || user.id}` : '/dashboard';
 
   return (
     <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between', height: '100%' }}>

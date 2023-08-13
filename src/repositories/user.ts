@@ -14,6 +14,12 @@ const findUserById = async (id: string) => {
   });
 }
 
+const findUserByHandle = async (handle: string) => {
+  return prisma.user.findUnique({
+    where: { handle },
+  });
+}
+
 const findUserByEmail = async (email: string) => {
   return prisma.user.findFirst({
     where: { email },
@@ -38,4 +44,4 @@ const deleteUser = async (id: string) => {
 }
 
 
-export { findAllUsers, findUserById, findUserByEmail, createUser, updateUser, deleteUser };
+export { findAllUsers, findUserById, findUserByHandle, findUserByEmail, createUser, updateUser, deleteUser };
