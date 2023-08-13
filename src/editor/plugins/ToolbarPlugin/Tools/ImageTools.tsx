@@ -70,7 +70,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
         </ToggleButton>
         <ToggleButton value="float-left" key="float-left"
           onClick={() => {
-            updateStyle({ "float": "left", "margin": "1em 1em 0 0", "max-width": "50%" });
+            updateStyle({ "float": "left", "margin": "0 1em 0 0", "max-width": "50%" });
           }}>
           <FormatImageLeftIcon />
         </ToggleButton>
@@ -82,7 +82,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
         </ToggleButton>,
         <ToggleButton value="float-right" key="float-right"
           onClick={() => {
-            updateStyle({ "float": "right", "margin": "1em 0 0 1em", "max-width": "50%" });
+            updateStyle({ "float": "right", "margin": "0 0 0 1em", "max-width": "50%" });
           }}>
           <FormatImageRightIcon />
         </ToggleButton>
