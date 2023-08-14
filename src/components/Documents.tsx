@@ -185,8 +185,9 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[] }> = memo(({ documents
   const handlePageChange = (_: any, value: number) => setPage(value);
   const pageDocuments = documents.slice((page - 1) * 12, page * 12);
   return <Grid container spacing={2}>
+    {documents.length === 0 && Array.from({ length: 3 }).map((_, i) => <Grid item key={i} xs={12} sm={6} md={4}><DocumentCard /></Grid>)}
     {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
-      <DocumentCard document={document} variant={document.variant} />
+      <DocumentCard document={document} />
     </Grid>)}
     {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3, width: "100%" }} />}
   </Grid>

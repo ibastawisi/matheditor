@@ -34,8 +34,7 @@ const EditDocument: React.FC = () => {
         }
       }
     }
-    id && loadDocument(id);
-
+    id ? loadDocument(id) : setError("No document id provided");
   }, []);
 
   if (error) return <SplashScreen title={error} />;

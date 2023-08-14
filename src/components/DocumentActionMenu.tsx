@@ -1,7 +1,7 @@
 "use client"
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { DocumentVariant, EditorDocument, UserDocument, isCloudDocument, isLocalDocument } from '@/types';
+import { EditorDocument, UserDocument, isCloudDocument, isLocalDocument } from '@/types';
 import { useDispatch, useSelector, actions } from '@/store';
 import IconButton from '@mui/material/IconButton';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -36,11 +36,10 @@ export const MarkdownIcon = () => <SvgIcon viewBox="0 0 640 512" fontSize='small
 export type options = ('rename' | 'download' | 'fork' | 'share' | 'publish' | 'upload' | 'delete' | 'embed')[];
 type DocumentActionMenuProps = {
   document: UserDocument;
-  variant: DocumentVariant;
   options: options;
 };
 
-function DocumentActionMenu({ document, variant, options }: DocumentActionMenuProps): JSX.Element {
+function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX.Element {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const openMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -87,12 +86,12 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
       dispatch(actions.announce({ message: "Please login to use cloud storage" }));
       return false;
     }
-    if (variant === "local" && !isUploaded) {
+    if (isLocal && !isUploaded) {
       dispatch(actions.announce({ message: "Saving document to the cloud" }));
       const result = await handleCreate();
       if (result.type === actions.createCloudDocument.rejected.type) return false;
     };
-    if (variant === "local" && isUpToDate && !isUpToDate) {
+    if (isLocal && isUpToDate && !isUpToDate) {
       dispatch(actions.announce({ message: "Updating document in the cloud" }));
       const result = await handleUpdate();
       if (result.type === actions.updateCloudDocument.rejected.type) return false;
@@ -129,9 +128,9 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
     closeMenu();
     dispatch(actions.alert(
       {
-        title: `Delete ${variant} document`,
+        title: `Delete ${document.variant} document`,
         content: `Are you sure you want to delete ${document.name}?`,
-        action: variant === "local" ?
+        action: isLocal ?
           `dispatch(actions.deleteLocalDocument("${document.id}"))` :
           `dispatch(actions.deleteCloudDocument("${document.id}"))`
       }
@@ -139,7 +138,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
   };
 
   const getPayload = async () => {
-    switch (variant) {
+    switch (document.variant) {
       case "local":
         {
           const response = await dispatch(actions.getLocalDocument(document.id));
@@ -215,7 +214,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
       ...formData,
       updatedAt: new Date().toISOString()
     };
-    if (variant === "local") {
+    if (isLocal) {
       try {
         dispatch(actions.updateLocalDocument({ id: document.id, partial }));
       } catch (err) {
@@ -305,7 +304,7 @@ function DocumentActionMenu({ document, variant, options }: DocumentActionMenuPr
         </MenuItem>
         }
         {options.includes('upload') &&
-          variant === "local" && !isUpToDate &&
+          isLocal && !isUpToDate &&
           <MenuItem onClick={isUploaded ? handleUpdate : handleCreate}>
             <ListItemIcon>
               {isUploaded ? <CloudSyncIcon /> : <CloudUploadIcon />}

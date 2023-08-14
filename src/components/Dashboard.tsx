@@ -6,7 +6,7 @@ import { useState, useEffect, memo } from "react";
 import { Helmet } from "react-helmet";
 import { useDispatch, useSelector, actions, RootState } from '@/store';
 import UserCard from "./UserCard";
-import { DocumentVariant, UserDocument } from '@/types';
+import { UserDocument } from '@/types';
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -42,15 +42,15 @@ const Dashboard: React.FC = ({ }) => {
     <Helmet title="Dashboard" />
     <UserCard user={user} status={status} />
     <Box sx={{ my: 2 }}>
-      <DocumentsGrid documents={documents.filter(d => d.variant === "local")} title="Local Documents" variant="local" />
-      <DocumentsGrid documents={documents.filter(d => d.variant === "cloud")} title="Cloud Documents" variant="cloud" />
+      <DocumentsGrid documents={documents.filter(d => d.variant === "local")} title="Local Documents" />
+      <DocumentsGrid documents={documents.filter(d => d.variant === "cloud")} title="Cloud Documents" />
     </Box>
   </Box>;
 }
 
 export default Dashboard;
 
-const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string, variant: DocumentVariant }> = memo(({ documents, title, variant }) => {
+const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string }> = memo(({ documents, title }) => {
   const [sortedDocuments, setSortedDocuments] = useState(documents);
   const documentSortOptions: SortOption<UserDocument>[] = [
     { label: 'Updated', value: 'updatedAt' },
@@ -70,16 +70,16 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string, varian
       <Box sx={{ display: "flex", justifyContent: 'flex-end', alignItems: "center", gap: 1, my: 2 }}>
         <SortControl<UserDocument> data={documents} onSortChange={setSortedDocuments} sortOptions={documentSortOptions} initialSortDirection="desc" />
       </Box>
-      <DocumentsTree documents={sortedDocuments.slice((page - 1) * 12, page * 12)} variant={variant} />
+      <DocumentsTree documents={sortedDocuments.slice((page - 1) * 12, page * 12)} />
       {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}
     </AccordionDetails>
   </Accordion>
 });
 
-const DocumentsTree: React.FC<{ documents: UserDocument[], variant: DocumentVariant }> = memo(({ documents, variant }) => {
+const DocumentsTree: React.FC<{ documents: UserDocument[] }> = memo(({ documents }) => {
   return <Grid container spacing={2}>
     {documents.map(document => <Grid item xs={12} sm={6} md={4} key={document.id}>
-      <DocumentCard document={document} variant={variant} />
+      <DocumentCard document={document} />
     </Grid>)}
   </Grid>
 });
