@@ -19,31 +19,32 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import Divider from "@mui/material/Divider";
 
 import { tasks, checkpoints } from "@/tutorial";
+type CheckpointItem = typeof checkpoints[0][0];
 
 const Tutorial: React.FC = () => {
-  const [editorState, setEditorState] = useState<EditorState>();
   const [currentTask, setCurrentTask] = useState(0);
+  const [currentCheckpoints, setCurrentCheckpoints] = useState<(CheckpointItem & { checked?: boolean })[]>(checkpoints[0]);
 
   const onChange = (editorState: EditorState) => {
-    setEditorState(editorState);
+    const orderedCheckpoints = currentCheckpoints
+      .map((checkpoint, index) => ({ ...checkpoint, checked: checkpoint.check(editorState), index }))
+      .sort((a, b) => a.checked === b.checked ? a.index - b.index : a.checked ? 1 : -1);
+    setCurrentCheckpoints(orderedCheckpoints);
   };
 
   const nextTask = () => {
     if (currentTask < tasks.length - 1) {
       setCurrentTask(currentTask + 1);
+      setCurrentCheckpoints(checkpoints[currentTask + 1]);
     }
   };
 
   const previousTask = () => {
     if (currentTask > 0) {
       setCurrentTask(currentTask - 1);
+      setCurrentCheckpoints(checkpoints[currentTask - 1]);
     }
   };
-
-  // order checkpoints with checked last
-  const orderedCheckpoints = checkpoints[currentTask]
-    .map((checkpoint, index) => ({ ...checkpoint, checked: checkpoint.check(editorState), index }))
-    .sort((a, b) => a.checked === b.checked ? a.index - b.index : a.checked ? 1 : -1);
 
   return <>
     <Helmet title="Tutorial" />
@@ -52,8 +53,8 @@ const Tutorial: React.FC = () => {
       <Box key={`task-${currentTask}`} sx={{ mb: 2 }}>
         <Typography variant="h6">{tasks[currentTask].name}</Typography>
         <List>
-          {orderedCheckpoints.map((checkpoint, index) =>
-            <CheckpointItem key={`checkpoint-${index}`} name={checkpoint.name} steps={checkpoint.steps} checked={checkpoint.checked} />
+          {currentCheckpoints.map((checkpoint, index) =>
+            <CheckpointItem key={`checkpoint-${index}`} name={checkpoint.name} steps={checkpoint.steps} checked={!!checkpoint.checked} />
           )}
         </List>
       </Box>
