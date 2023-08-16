@@ -19,6 +19,7 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import Divider from "@mui/material/Divider";
 
 import { tasks, checkpoints } from "@/tutorial";
+import Pagination from "@mui/material/Pagination";
 type CheckpointItem = typeof checkpoints[0][0];
 
 const Tutorial: React.FC = () => {
@@ -32,19 +33,13 @@ const Tutorial: React.FC = () => {
     setCurrentCheckpoints(orderedCheckpoints);
   };
 
-  const nextTask = () => {
-    if (currentTask < tasks.length - 1) {
-      setCurrentTask(currentTask + 1);
-      setCurrentCheckpoints(checkpoints[currentTask + 1]);
-    }
-  };
-
-  const previousTask = () => {
-    if (currentTask > 0) {
-      setCurrentTask(currentTask - 1);
-      setCurrentCheckpoints(checkpoints[currentTask - 1]);
-    }
-  };
+  const pages = tasks.length;
+  const [page, setPage] = useState(1);
+  const handlePageChange = (_: any, value: number) => {
+    setPage(value);
+    setCurrentTask(value - 1);
+    setCurrentCheckpoints(checkpoints[value - 1]);
+  }
 
   return <>
     <Helmet title="Tutorial" />
@@ -58,10 +53,7 @@ const Tutorial: React.FC = () => {
           )}
         </List>
       </Box>
-      <Box sx={{ display: "flex", justifyContent: "end" }}>
-        <Button onClick={previousTask} disabled={currentTask === 0}>Previous</Button>
-        <Button onClick={nextTask} disabled={currentTask === tasks.length - 1}>Next</Button>
-      </Box>
+      <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3, width: "100%" }} />
     </Paper>
   </>;
 }
