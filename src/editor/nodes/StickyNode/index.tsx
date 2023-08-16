@@ -22,8 +22,7 @@ import * as React from 'react';
 import { Suspense } from 'react';
 import { editorConfig } from './config';
 import { $generateHtmlFromNodes } from '@/editor/utils/html';
-
-const StickyComponent = React.lazy(() => import('./StickyComponent'));
+import StickyComponent from './StickyComponent';
 
 type StickyNoteColor = 'pink' | 'yellow';
 

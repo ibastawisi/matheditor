@@ -4,21 +4,15 @@ import {
   LexicalEditor,
   $getSelection,
   SELECTION_CHANGE_COMMAND,
+  COMMAND_PRIORITY_LOW,
+  $getNodeByKey,
 } from 'lexical';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
-import {
-  COMMAND_PRIORITY_LOW,
-} from 'lexical';
-
-
 import './StickyNode.css';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import {
-  $getNodeByKey,
-} from 'lexical';
-import { useEffect, useRef, useState, lazy } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import FormatPaintIcon from '@mui/icons-material/FormatPaint';
 import DeleteIcon from '@mui/icons-material/Delete';

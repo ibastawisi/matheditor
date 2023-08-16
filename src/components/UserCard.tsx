@@ -51,7 +51,7 @@ const UserCard: React.FC<{ user?: User, status?: UserSessionStatus }> = memo(({ 
           </CardContent>
         </CardActionArea>
         {status !== "loading" &&
-          <CardActions>
+          <CardActions sx={{ height: 48 }}>
             {status === "authenticated" && <Button size='small' onClick={logout}>Logout</Button>}
             {status === "unauthenticated" && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>
               <Typography variant="button" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Login with Google</Typography>

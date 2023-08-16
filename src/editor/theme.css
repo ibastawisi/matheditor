@@ -384,12 +384,12 @@
 }
 
 .sticky-note-wrapper .nested-contentEditable {
-  min-height: 100px;
+  flex: 1;
   border: 0;
   resize: none;
   color: rgba(0, 0, 0, 0.87);
   caret-color: rgb(5, 5, 5);
-  display: block;
+  display: flow-root;
   position: relative;
   tab-size: 1;
   outline: 0;
@@ -417,12 +417,14 @@
 }
 
 .sticky-note {
+  min-height: 148px;
   padding: 20px;
   position: relative;
   color: rgba(0, 0, 0, 0.87);
   border: 1px solid #e8e8e8;
   border-bottom-right-radius: 60px 5px;
-  display: flow-root;
+  display: flex;
+  flex-direction: column;
 }
 
 .sticky-note:after {
