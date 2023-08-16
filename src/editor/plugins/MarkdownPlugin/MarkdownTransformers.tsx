@@ -23,6 +23,7 @@ import {
   $isParagraphNode,
   $isTextNode,
   ElementNode,
+  LexicalEditor,
   LexicalNode,
 } from 'lexical';
 
@@ -49,7 +50,7 @@ import { $createImageNode, $isImageNode, ImageNode } from '../../nodes/ImageNode
 import emojiList from '../../plugins/EmojiPickerPlugin/emoji-list';
 import { $createGraphNode, $isGraphNode, GraphNode } from '../../nodes/GraphNode';
 import { $createSketchNode, $isSketchNode, SketchNode } from '../../nodes/SketchNode';
-import { $createStickyNode, $isStickyNode } from '../../nodes/StickyNode';
+import { $createStickyNode, $isStickyNode, StickyNode } from '../../nodes/StickyNode';
 import { $createCodeNode, $isCodeNode, CodeNode } from '../../nodes/CodeNode';
 
 export const HR: ElementTransformer = {
@@ -106,7 +107,7 @@ export const GRAPH: TextMatchTransformer = {
     }
     const src = node.getSrc();
     const altText = node.getType();
-    const url = src.startsWith('data:image/svg+xml')? svgtoBase64(src): src;
+    const url = src.startsWith('data:image/svg+xml') ? svgtoBase64(src) : src;
     return `![${altText}](${url})`;
   },
   importRegExp: /<graph src="([^"]+?)" value="([^"]+?)"\s?\/>\s?/,
@@ -406,3 +407,22 @@ export const TRANSFORMERS: Array<Transformer> = [
   ...TEXT_MATCH_TRANSFORMERS,
   CODE,
 ];
+
+export default function createMarkdownTransformers(editor: LexicalEditor): Array<Transformer> {
+  const TRANSFORMERS: Array<Transformer> = [
+    HR,
+    MATH,
+    CHECK_LIST,
+    ...ELEMENT_TRANSFORMERS,
+    ...TEXT_FORMAT_TRANSFORMERS,
+    ...TEXT_MATCH_TRANSFORMERS,
+    CODE,
+  ];
+
+  if (editor.hasNode(TableNode)) TRANSFORMERS.push(TABLE);
+  if (editor.hasNode(ImageNode)) TRANSFORMERS.push(IMAGE);
+  if (editor.hasNode(GraphNode)) TRANSFORMERS.push(GRAPH);
+  if (editor.hasNode(SketchNode)) TRANSFORMERS.push(SKETCH);
+  if (editor.hasNode(StickyNode)) TRANSFORMERS.push(STICKY);
+  return TRANSFORMERS;
+} 

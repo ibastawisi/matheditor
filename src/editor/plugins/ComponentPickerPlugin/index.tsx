@@ -22,7 +22,7 @@ import {
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import { $createHeadingNode, $createQuoteNode } from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
-import { INSERT_TABLE_COMMAND } from '../../nodes/TableNode';
+import { INSERT_TABLE_COMMAND, TableNode } from '../../nodes/TableNode';
 import {
   $createParagraphNode,
   $getSelection,
@@ -63,6 +63,10 @@ import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
 
 import SvgIcon from '@mui/material/SvgIcon';
 import { SET_DIALOGS_COMMAND } from '../ToolbarPlugin';
+import { ImageNode } from '@/editor/nodes/ImageNode';
+import { GraphNode } from '@/editor/nodes/GraphNode';
+import { SketchNode } from '@/editor/nodes/SketchNode';
+import { StickyNode } from '@/editor/nodes/StickyNode';
 const H1Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M200 776V376h60v170h180V376h60v400h-60V606H260v170h-60Zm500 0V436h-80v-60h140v400h-60Z" />
 </SvgIcon>;
@@ -171,7 +175,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
 
   const getDynamicOptions = useCallback(() => {
     const options: Array<ComponentPickerOption> = [];
-
+    if (!editor.hasNode(TableNode)) return options;
     if (queryString == null) {
       return options;
     }
@@ -220,17 +224,6 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
 
   const options = useMemo(() => {
     const baseOptions = [
-      new ComponentPickerOption('Paragraph', {
-        icon: <ViewHeadlineIcon />,
-        keywords: ['normal', 'paragraph', 'p', 'text'],
-        onSelect: () =>
-          editor.update(() => {
-            const selection = $getSelection();
-            if ($isRangeSelection(selection)) {
-              $setBlocksType(selection, () => $createParagraphNode());
-            }
-          }),
-      }),
       ...Array.from({ length: 4 }, (_, i) => i + 1).map(
         (n) =>
           new ComponentPickerOption(`Heading ${n}`, {
@@ -316,37 +309,37 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
         onSelect: () =>
           editor.dispatchCommand(INSERT_MATH_COMMAND, { value: '' }),
       }),
-      new ComponentPickerOption('Graph', {
-        icon: GraphIcon,
-        keywords: ['geogebra', 'graph', 'plot', '2d', '3d'],
-        keyboardShortcut: '/plot',
-        onSelect: openGraphDialog,
-      }),
-      new ComponentPickerOption('Sketch', {
-        icon: <BrushIcon />,
-        keywords: ['excalidraw', 'sketch', 'drawing', 'diagram'],
-        keyboardShortcut: '/sketch',
-        onSelect: openSketchDialog,
-      }),
-      new ComponentPickerOption('Image', {
-        icon: <ImageIcon />,
-        keywords: ['image', 'photo', 'picture', 'img'],
-        keyboardShortcut: '/img',
-        onSelect: openImageDialog
-      }),
-      new ComponentPickerOption('Table', {
-        icon: <TableIcon />,
-        keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
-        keyboardShortcut: '/3x3',
-        onSelect: openTableDialog,
-      }),
-      new ComponentPickerOption('Note', {
-        icon: <StickyNote2Icon />,
-        keywords: ['sticky', 'note', 'sticky note'],
-        keyboardShortcut: '/note',
-        onSelect: () =>
-          editor.dispatchCommand(INSERT_STICKY_COMMAND, undefined),
-      }),
+      // new ComponentPickerOption('Graph', {
+      //   icon: GraphIcon,
+      //   keywords: ['geogebra', 'graph', 'plot', '2d', '3d'],
+      //   keyboardShortcut: '/plot',
+      //   onSelect: openGraphDialog,
+      // }),
+      // new ComponentPickerOption('Sketch', {
+      //   icon: <BrushIcon />,
+      //   keywords: ['excalidraw', 'sketch', 'drawing', 'diagram'],
+      //   keyboardShortcut: '/sketch',
+      //   onSelect: openSketchDialog,
+      // }),
+      // new ComponentPickerOption('Image', {
+      //   icon: <ImageIcon />,
+      //   keywords: ['image', 'photo', 'picture', 'img'],
+      //   keyboardShortcut: '/img',
+      //   onSelect: openImageDialog
+      // }),
+      // new ComponentPickerOption('Table', {
+      //   icon: <TableIcon />,
+      //   keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
+      //   keyboardShortcut: '/3x3',
+      //   onSelect: openTableDialog,
+      // }),
+      // new ComponentPickerOption('Note', {
+      //   icon: <StickyNote2Icon />,
+      //   keywords: ['sticky', 'note', 'sticky note'],
+      //   keyboardShortcut: '/note',
+      //   onSelect: () =>
+      //     editor.dispatchCommand(INSERT_STICKY_COMMAND, undefined),
+      // }),
       ...['left', 'center', 'right', 'justify'].map(
         (alignment) =>
           new ComponentPickerOption(`Align ${alignment}`, {
@@ -359,6 +352,62 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           }),
       ),
     ];
+
+    if (editor.hasNode(ImageNode)) {
+      baseOptions.push(
+        new ComponentPickerOption('Image', {
+          icon: <ImageIcon />,
+          keywords: ['image', 'photo', 'picture', 'img'],
+          keyboardShortcut: '/img',
+          onSelect: openImageDialog
+        }),
+      );
+    }
+
+    if (editor.hasNode(GraphNode)) {
+      baseOptions.push(
+        new ComponentPickerOption('Graph', {
+          icon: GraphIcon,
+          keywords: ['geogebra', 'graph', 'plot', '2d', '3d'],
+          keyboardShortcut: '/plot',
+          onSelect: openGraphDialog,
+        }),
+      );
+    }
+
+    if (editor.hasNode(SketchNode)) {
+      baseOptions.push(
+        new ComponentPickerOption('Sketch', {
+          icon: <BrushIcon />,
+          keywords: ['excalidraw', 'sketch', 'drawing', 'diagram'],
+          keyboardShortcut: '/sketch',
+          onSelect: openSketchDialog,
+        }),
+      );
+    }
+
+    if (editor.hasNode(StickyNode)) {
+      baseOptions.push(
+        new ComponentPickerOption('Note', {
+          icon: <StickyNote2Icon />,
+          keywords: ['sticky', 'note', 'sticky note'],
+          keyboardShortcut: '/note',
+          onSelect: () =>
+            editor.dispatchCommand(INSERT_STICKY_COMMAND, undefined),
+        }),
+      );
+    }
+
+    if (editor.hasNode(TableNode)) {
+      baseOptions.push(
+        new ComponentPickerOption('Table', {
+          icon: <TableIcon />,
+          keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
+          keyboardShortcut: '/3x3',
+          onSelect: openTableDialog,
+        }),
+      );
+    }
 
     const dynamicOptions = getDynamicOptions();
 

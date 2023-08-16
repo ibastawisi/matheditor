@@ -42,6 +42,7 @@ import ImageResizer from './ImageResizer';
 import { $isImageNode } from '.';
 import Typography from '@mui/material/Typography';
 
+import { editorConfig } from './config';
 import dynamic from 'next/dynamic';
 const NestedEditor = dynamic(() => import('@/editor/NestedEditor'), { ssr: false });
 
@@ -316,7 +317,7 @@ export default function ImageComponent({
       {showCaption && (
         <figcaption>
           <Suspense fallback={null}>
-            <NestedEditor initialEditor={caption} onChange={onChange}
+            <NestedEditor initialEditor={caption} initialNodes={editorConfig.nodes} onChange={onChange}
               placeholder={<Typography color="text.secondary" className="nested-placeholder">Write a caption</Typography>}
             />
           </Suspense>

@@ -28,12 +28,19 @@ import ComponentPickerMenuPlugin from './ComponentPickerPlugin';
 import TabFocusPlugin from './TabFocusPlugin';
 import DragDropPaste from './DragDropPastePlugin';
 import EmojiPickerPlugin from './EmojiPickerPlugin';
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { ImageNode } from "../nodes/ImageNode";
+import { SketchNode } from "../nodes/SketchNode";
+import { GraphNode } from "../nodes/GraphNode";
+import { StickyNode } from "../nodes/StickyNode";
+import { TableNode } from "../nodes/TableNode";
 
 export const EditorPlugins: React.FC<{
   contentEditable: React.ReactElement;
   placeholder?: JSX.Element | ((isEditable: boolean) => JSX.Element | null) | null;
   onChange: (editorState: EditorState, editor: LexicalEditor) => void;
 }> = ({ contentEditable, placeholder = null, onChange }) => {
+  const [editor] = useLexicalComposerContext();
   const { historyState } = useSharedHistoryContext();
 
   return (
@@ -51,16 +58,16 @@ export const EditorPlugins: React.FC<{
       <MarkdownPlugin />
       <FloatingToolbarPlugin />
       <HorizontalRulePlugin />
-      <TablePlugin />
-      <TableCellActionMenuPlugin />
-      <TableCellResizer />
+      {editor.hasNode(TableNode) && <TablePlugin />}
+      {editor.hasNode(TableNode) && <TableCellActionMenuPlugin /> }
+      {editor.hasNode(TableNode) && <TableCellResizer /> }
       <ComponentPickerMenuPlugin />
       <EmojiPickerPlugin />
       <MathPlugin />
-      <ImagePlugin />
-      <SketchPlugin />
-      <GraphPlugin />
-      <StickyPlugin />
+      {editor.hasNode(ImageNode) && <ImagePlugin />}
+      {editor.hasNode(SketchNode) && <SketchPlugin />}
+      {editor.hasNode(GraphNode) && <GraphPlugin />}
+      {editor.hasNode(StickyNode) && <StickyPlugin />}
       <DragDropPaste />
       <CodeHighlightPlugin />
       <AutoLinkPlugin />

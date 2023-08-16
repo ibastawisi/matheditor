@@ -25,6 +25,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import IconButton from '@mui/material/IconButton';
 
+import { editorConfig } from './config';
 import dynamic from 'next/dynamic';
 const NestedEditor = dynamic(() => import('@/editor/NestedEditor'), { ssr: false });
 
@@ -103,7 +104,7 @@ export default function StickyComponent({ nodeKey, color, stickyEditor }: { stic
         }
       </div>
       <div className={`sticky-note ${color}`}>
-        <NestedEditor initialEditor={stickyEditor} onChange={onChange} />
+        <NestedEditor initialEditor={stickyEditor} initialNodes={editorConfig.nodes} onChange={onChange} />
       </div>
     </div >
   );

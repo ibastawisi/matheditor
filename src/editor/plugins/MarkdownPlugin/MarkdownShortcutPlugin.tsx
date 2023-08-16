@@ -10,8 +10,12 @@
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
 import * as React from 'react';
 
-import { TRANSFORMERS } from './MarkdownTransformers';
+import createMarkdownTransformers from './MarkdownTransformers';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
-export default function MarkdownPlugin(): JSX.Element {
+export default function MarkdownPlugin(): JSX.Element | null {
+  const [editor] = useLexicalComposerContext();
+  if (!editor) return null;
+  const TRANSFORMERS = createMarkdownTransformers(editor);
   return <MarkdownShortcutPlugin transformers={TRANSFORMERS} />;
 }
