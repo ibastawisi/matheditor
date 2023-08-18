@@ -14,10 +14,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: 'https://matheditor.me/tutorial',
     },
     {
+      url: 'https://matheditor.me/new',
+    },
+    {
       url: 'https://matheditor.me/dashboard',
     },
     {
-      url: 'https://matheditor.me/new',
+      url: 'https://matheditor.me/privacy',
     },
     ...publishedDocuments.map((document) => ({
       url: `https://matheditor.me/view/${document.id}`,

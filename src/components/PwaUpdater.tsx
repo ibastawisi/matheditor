@@ -18,10 +18,9 @@ const PwaUpdater = () => {
       "serviceWorker" in navigator &&
       window.workbox !== undefined
     ) {
-
       const wb = window.workbox;
-
-      wb.addEventListener("installed", () => {
+      
+      wb.addEventListener("waiting", () => {
         const origin = location.origin;
         const urlsToCache = [
           `${origin}/`,
@@ -39,19 +38,17 @@ const PwaUpdater = () => {
           `${origin}/privacy`,
           [`${origin}/privacy?_rsc`, { headers: { "RSC": "1" } }],
         ]
-        wb.messageSW({ type: "CACHE_URLS", payload: { urlsToCache } });
-      });
-
-      wb.addEventListener("waiting", () => {
-        dispatch(actions.announce(
-          {
-            message: "New update available!",
-            action: {
-              label: "Apply & reload", onClick: "window.workbox.messageSkipWaiting(); window.workbox.addEventListener('controlling', () => window.location.reload());"
-            },
-            timeout: 6000
-          }
-        ));
+        wb.messageSW({ type: "CACHE_URLS", payload: { urlsToCache } }).then((event) => {
+          dispatch(actions.announce(
+            {
+              message: "New update available!",
+              action: {
+                label: "Apply & reload", onClick: "window.workbox.messageSkipWaiting(); window.workbox.addEventListener('controlling', () => window.location.reload());"
+              },
+              timeout: 6000
+            }
+          ));
+        });
       });
 
       if (window.location.pathname === "/") wb.register();
