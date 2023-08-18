@@ -60,13 +60,15 @@ import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
-
+import InsertPageBreakIcon from '@mui/icons-material/InsertPageBreak';
 import SvgIcon from '@mui/material/SvgIcon';
 import { SET_DIALOGS_COMMAND } from '../ToolbarPlugin';
 import { ImageNode } from '@/editor/nodes/ImageNode';
 import { GraphNode } from '@/editor/nodes/GraphNode';
 import { SketchNode } from '@/editor/nodes/SketchNode';
 import { StickyNode } from '@/editor/nodes/StickyNode';
+import { PageBreakNode } from '@/editor/nodes/PageBreakNode';
+import { INSERT_PAGE_BREAK } from '../PageBreakPlugin';
 const H1Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M200 776V376h60v170h180V376h60v400h-60V606H260v170h-60Zm500 0V436h-80v-60h140v400h-60Z" />
 </SvgIcon>;
@@ -405,6 +407,18 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
           keyboardShortcut: '/3x3',
           onSelect: openTableDialog,
+        }),
+      );
+    }
+
+    if (editor.hasNode(PageBreakNode)) {
+      baseOptions.push(
+        new ComponentPickerOption('Page Break', {
+          icon: <InsertPageBreakIcon />,
+          keywords: ['page break', 'break', 'page'],
+          keyboardShortcut: '/page',
+          onSelect: () =>
+            editor.dispatchCommand(INSERT_PAGE_BREAK, undefined),
         }),
       );
     }

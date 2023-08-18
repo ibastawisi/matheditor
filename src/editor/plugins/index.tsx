@@ -34,6 +34,8 @@ import { SketchNode } from "../nodes/SketchNode";
 import { GraphNode } from "../nodes/GraphNode";
 import { StickyNode } from "../nodes/StickyNode";
 import { TableNode } from "../nodes/TableNode";
+import { PageBreakNode } from "../nodes/PageBreakNode";
+import PageBreakPlugin from "./PageBreakPlugin";
 
 export const EditorPlugins: React.FC<{
   contentEditable: React.ReactElement;
@@ -71,6 +73,7 @@ export const EditorPlugins: React.FC<{
       <DragDropPaste />
       <CodeHighlightPlugin />
       <AutoLinkPlugin />
+      {editor.hasNode(PageBreakNode) && <PageBreakPlugin />}
     </>
   );
 };

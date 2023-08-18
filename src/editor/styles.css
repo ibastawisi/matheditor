@@ -96,3 +96,9 @@ body:has(>.MuiDialog-root) {
 #typeahead-menu {
   z-index: 1500;
 }
+
+@media print {
+  * {
+    overflow: visible !important;
+  }
+}

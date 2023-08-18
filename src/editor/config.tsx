@@ -10,6 +10,7 @@ import { SketchNode } from './nodes/SketchNode';
 import { GraphNode } from './nodes/GraphNode';
 import { StickyNode } from './nodes/StickyNode';
 import theme from "./theme";
+import { PageBreakNode } from "./nodes/PageBreakNode";
 
 export const editorConfig = {
   namespace: "matheditor",
@@ -38,5 +39,6 @@ export const editorConfig = {
     SketchNode,
     GraphNode,
     StickyNode,
+    PageBreakNode,
   ]
 };
