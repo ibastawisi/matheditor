@@ -45,9 +45,8 @@ function UserActionMenu({ user }: { user: User }): JSX.Element {
     handle: yup
       .string()
       .min(3, 'Handle must be at least 3 characters')
-      .max(20, 'Handle must be at most 20 characters')
       .matches(/^[a-zA-Z0-9-]*$/, 'Handle must only contain letters, numbers, and dashes')
-      .test('is-unique', 'Handle is already taken', value => new Promise(resolve => checkHandle(resolve, value )))
+      .test('is-unique', 'Handle is already taken', value => new Promise(resolve => checkHandle(resolve, value)))
   });
 
   const formik = useFormik({
@@ -82,7 +81,7 @@ function UserActionMenu({ user }: { user: User }): JSX.Element {
       <Dialog open={editDialogOpen} onClose={closeEditDialog} fullWidth maxWidth="xs">
         <form onSubmit={formik.handleSubmit} noValidate autoComplete="off">
           <DialogTitle>Edit User</DialogTitle>
-          <DialogContent>
+          <DialogContent sx={{ "& .MuiFormHelperText-root": { overflow: "hidden", textOverflow: "ellipsis" } }}>
             <TextField margin="normal" size="small" fullWidth
               id="handle"
               label="User Handle"

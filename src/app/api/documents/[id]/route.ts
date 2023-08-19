@@ -115,9 +115,6 @@ const validateHandle = async (handle: string) => {
   if (handle.length < 3) {
     return "Handle must be at least 3 characters long";
   }
-  if (handle.length > 20) {
-    return "Handle must be less than 20 characters long";
-  }
   if (!/^[a-zA-Z0-9-]+$/.test(handle)) {
     return "Handle must only contain letters, numbers, and dashes";
   }

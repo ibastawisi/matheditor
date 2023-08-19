@@ -20,7 +20,14 @@ const PwaUpdater = () => {
     ) {
       const wb = window.workbox;
       wb.addEventListener("activated", (event) => {
-        dispatch(actions.announce({ message: event.isUpdate ? "Update was installed." : "App is ready for offline use." }));
+        dispatch(actions.announce({
+          message: event.isUpdate ? "Update was installed." : "App is ready for offline use.",
+          timeout: 6000,
+          action: {
+            label: "Refresh",
+            onClick: "window.location.reload()"
+          }
+        }));
       });
       wb.addEventListener("installed", () => {
         const origin = location.origin;

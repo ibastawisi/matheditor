@@ -219,7 +219,6 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
     handle: yup
       .string()
       .min(3, 'Handle must be at least 3 characters')
-      .max(20, 'Handle must be at most 20 characters')
       .matches(/^[a-zA-Z0-9-]*$/, 'Handle must only contain letters, numbers, and dashes')
       .test('is-cloud', 'Document is not saved to the cloud', () => isCloud || isUploaded)
       .test('is-unique', 'Handle is already taken', value => new Promise(resolve => checkHandle(resolve, value)))
@@ -270,7 +269,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
         <Dialog open={editDialogOpen} onClose={closeEditDialog} fullWidth maxWidth="xs">
           <form onSubmit={formik.handleSubmit} noValidate autoComplete="off">
             <DialogTitle>Edit Document</DialogTitle>
-            <DialogContent>
+            <DialogContent sx={{ "& .MuiFormHelperText-root": { overflow: "hidden", textOverflow: "ellipsis" } }}>
               <TextField margin="normal" size="small" fullWidth
                 id="name"
                 label="Document Name"
