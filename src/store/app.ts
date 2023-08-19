@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import NProgress from "nprogress";
 import documentDB from '@/indexeddb';
-import { AppState, Announcement, Alert, EditorDocument, UserDocument, DocumentVariant, LocalDocument, CloudDocument } from '../types';
+import { AppState, Announcement, Alert, EditorDocument, UserDocument, DocumentVariant, LocalDocument, CloudDocument, User, PatchUserResponse } from '../types';
 import { GetDocumentsResponse, PostDocumentsResponse, DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from '@/types';
 
 const initialState: AppState = {
@@ -181,6 +181,29 @@ export const deleteCloudDocument = createAsyncThunk('app/deleteCloudDocument', a
   }
 });
 
+export const updateUser = createAsyncThunk('app/updateUser', async (payloadCreator: { id: string, partial: Partial<User> }, thunkAPI) => {
+  NProgress.start();
+  const { id, partial } = payloadCreator;
+  try {
+    const response = await fetch(`/api/users/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(partial),
+    });
+    const { data, error } = await response.json() as PatchUserResponse;
+    if (error) return thunkAPI.rejectWithValue(error);
+    if (!data) return thunkAPI.rejectWithValue('failed to update user');
+    const payload: User = data;
+    return thunkAPI.fulfillWithValue(payload);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
+  } finally {
+    NProgress.done();
+  }
+});
+
+
+
 export const appSlice = createSlice({
   name: 'app',
   initialState,
@@ -275,6 +298,14 @@ export const appSlice = createSlice({
         if (index !== -1) state.documents.splice(index, 1);
       })
       .addCase(deleteCloudDocument.rejected, (state, action) => {
+        const message = action.payload as string;
+        state.announcements.push({ message });
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        const user = action.payload;
+        state.user = user;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
         const message = action.payload as string;
         state.announcements.push({ message });
       })

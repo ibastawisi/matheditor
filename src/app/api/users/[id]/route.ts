@@ -45,8 +45,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       response.error = "Account is disabled for violating terms of service";
       return NextResponse.json(response, { status: 403 })
     }
-    if (user.role !== "admin") {
-      response.error = "Not authorized";
+    if (user.id !== params.id) {
+      response.error = "Unauthorized";
       return NextResponse.json(response, { status: 403 })
     }
     const body = await request.json();
@@ -54,7 +54,10 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       response.error = "Bad input";
       return NextResponse.json(response, { status: 400 })
     }
-    const result = await updateUser(params.id, body);
+    const result = await updateUser(params.id, {
+      handle: body.handle,
+    });
+
     response.data = result as unknown as PatchUserResponse["data"];
     return NextResponse.json(response, { status: 200 })
   } catch (error) {

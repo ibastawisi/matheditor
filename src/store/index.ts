@@ -1,5 +1,5 @@
 import { useDispatch as useReduxDispatch, useSelector as useReduxSelector } from "react-redux";
-import { appSlice, deleteCloudDocument, getCloudDocument, loadLocalDocuments, createCloudDocument, updateCloudDocument, load, getLocalDocument, createLocalDocument, deleteLocalDocument, loadCloudDocuments, updateLocalDocument } from "./app";
+import { appSlice, deleteCloudDocument, getCloudDocument, loadLocalDocuments, createCloudDocument, updateCloudDocument, load, getLocalDocument, createLocalDocument, deleteLocalDocument, loadCloudDocuments, updateLocalDocument, updateUser } from "./app";
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
 export const actions = {
@@ -18,6 +18,8 @@ export const actions = {
   createCloudDocument,
   updateCloudDocument,
   deleteCloudDocument,
+
+  updateUser,
 };
 
 export const store = configureStore({ reducer: appSlice.reducer });

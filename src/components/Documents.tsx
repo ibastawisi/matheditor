@@ -23,7 +23,6 @@ import HelpIcon from '@mui/icons-material/Help';
 import SortControl from "./SortControl";
 import { SortOption } from "../hooks/useSort";
 import Pagination from "@mui/material/Pagination";
-import { useSession } from 'next-auth/react';
 import documentDB from '@/indexeddb';
 import { createSelector } from '@reduxjs/toolkit';
 import Collapse from '@mui/material/Collapse';
@@ -33,7 +32,6 @@ const Documents: React.FC = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
-  const { status } = useSession();
   const initialized = useSelector(state => state.initialized);
   const selectDocuments = createSelector(
     [(state: RootState) => state.documents], (documents) => {
@@ -173,7 +171,7 @@ const Documents: React.FC = () => {
           </Card>
         </Grid>
       </Grid>
-      <Collapse timeout={1000} in={!(user && initialized)} unmountOnExit><Box sx={{ mb: 2 }}><UserCard status={status} user={user} /></Box></Collapse>
+      <Collapse timeout={1000} in={!(user && initialized)} unmountOnExit><Box sx={{ mb: 2 }}><UserCard user={user} /></Box></Collapse>
       <DocumentsGrid documents={sortedDocuments} />
     </>
   )

@@ -30,6 +30,7 @@
     "eslint": "8.47.0",
     "eslint-config-next": "13.4.18",
     "fast-deep-equal": "^3.1.3",
+    "formik": "^2.4.3",
     "html-react-parser": "^4.2.1",
     "jsdom": "^22.1.0",
     "jsdom-global": "^3.0.2",
@@ -43,7 +44,8 @@
     "react-helmet": "^6.1.0",
     "react-redux": "^8.1.2",
     "typescript": "5.1.6",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "yup": "^1.2.0"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.1",

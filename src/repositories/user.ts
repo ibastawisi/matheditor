@@ -43,5 +43,9 @@ const deleteUser = async (id: string) => {
   });
 }
 
+const checkHandleAvailability = async (handle: string) => {
+  const user = await findUserByHandle(handle);
+  return !user;
+}
 
-export { findAllUsers, findUserById, findUserByHandle, findUserByEmail, createUser, updateUser, deleteUser };
+export { findAllUsers, findUserById, findUserByHandle, findUserByEmail, createUser, updateUser, deleteUser, checkHandleAvailability };

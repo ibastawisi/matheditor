@@ -113,3 +113,8 @@ export interface DeleteDocumentResponse {
   data?: string;
   error?: string;
 }
+
+export interface CheckHandleResponse {
+  data?: boolean;
+  error?: string;
+}
