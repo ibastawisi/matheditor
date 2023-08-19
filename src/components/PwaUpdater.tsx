@@ -22,7 +22,7 @@ const PwaUpdater = () => {
       wb.addEventListener("activated", (event) => {
         dispatch(actions.announce({ message: event.isUpdate ? "Update was installed." : "App is ready for offline use." }));
       });
-      wb.addEventListener("waiting", () => {
+      wb.addEventListener("installed", () => {
         const origin = location.origin;
         const urlsToCache = [
           `${origin}/`,
