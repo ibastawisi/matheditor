@@ -30,6 +30,7 @@ const idbConfig = {
       name: "documents",
       id: { keyPath: "id" },
       indices: [
+        { name: "handle", keyPath: "handle", options: { unique: true } },
         { name: "name", keyPath: "name" },
         { name: "data", keyPath: "data" },
         { name: "createdAt", keyPath: "createdAt" },

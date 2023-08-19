@@ -1,5 +1,5 @@
 import { authOptions } from "@/lib/auth";
-import { deleteDocument, findDocumentAuthorId, findDocumentById, findUserDocument, updateDocument } from "@/repositories/document";
+import { checkHandleAvailability, deleteDocument, findDocumentAuthorId, findDocumentById, findDocumentIdByHandle, findUserDocument, updateDocument } from "@/repositories/document";
 import { DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server"
@@ -10,9 +10,15 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const response: GetDocumentResponse = {};
   try {
-    if (!validate(params.id)) {
-      response.error = "Invalid id";
-      return NextResponse.json(response, { status: 400 })
+    const isValidId = validate(params.id);
+    if (!isValidId) {
+      try {
+        const id = await findDocumentIdByHandle(params.id);
+        if (id) params.id = id;
+      } catch (error) {
+        response.error = "Document not found";
+        return NextResponse.json(response, { status: 404 })
+      }
     }
     const document = await findDocumentById(params.id);
     if (!document) {
@@ -55,6 +61,13 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       response.error = "Bad input"
       return NextResponse.json(response, { status: 400 })
     }
+    if(body.handle) {
+      const error = await validateHandle(body.handle);
+      if (error) {
+        response.error = error;
+        return NextResponse.json(response, { status: 400 })
+      }
+    }
     await updateDocument(params.id, body);
     const userDocument = await findUserDocument(params.id);
     response.data = userDocument as unknown as PatchDocumentResponse["data"];
@@ -96,4 +109,21 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     response.error = "Something went wrong";
     return NextResponse.json(response, { status: 500 })
   }
+}
+
+const validateHandle = async (handle: string) => {
+  if (handle.length < 3) {
+    return "Handle must be at least 3 characters long";
+  }
+  if (handle.length > 20) {
+    return "Handle must be less than 20 characters long";
+  }
+  if (!/^[a-zA-Z0-9-]+$/.test(handle)) {
+    return "Handle must only contain letters, numbers, and dashes";
+  }
+  const isAvailable = await checkHandleAvailability(handle);
+  if (!isAvailable) {
+    return "Handle is already taken";
+  }
+  return null;
 }

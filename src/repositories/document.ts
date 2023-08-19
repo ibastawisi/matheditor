@@ -4,6 +4,7 @@ const findAllDocuments = async () => {
   return prisma.document.findMany({
     select: {
       id: true,
+      handle: true,
       name: true,
       createdAt: true,
       updatedAt: true,
@@ -22,6 +23,7 @@ const findPublishedDocuments = async () => {
     where: { published: true },
     select: {
       id: true,
+      handle: true,
       name: true,
       createdAt: true,
       updatedAt: true,
@@ -30,6 +32,7 @@ const findPublishedDocuments = async () => {
       author: {
         select: {
           id: true,
+          handle: true,
           name: true,
           image: true,
           email: true,
@@ -48,6 +51,7 @@ const findDocumentsByAuthorId = async (authorId: string) => {
     where: { authorId },
     select: {
       id: true,
+      handle: true,
       name: true,
       createdAt: true,
       updatedAt: true,
@@ -56,6 +60,7 @@ const findDocumentsByAuthorId = async (authorId: string) => {
       author: {
         select: {
           id: true,
+          handle: true,
           name: true,
           image: true,
           email: true,
@@ -74,6 +79,7 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
     where: { authorId, published: true },
     select: {
       id: true,
+      handle: true,
       name: true,
       createdAt: true,
       updatedAt: true,
@@ -82,6 +88,7 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
       author: {
         select: {
           id: true,
+          handle: true,
           name: true,
           image: true,
           email: true,
@@ -100,6 +107,7 @@ const findDocumentById = async (id: string) => {
     where: { id },
     select: {
       id: true,
+      handle: true,
       name: true,
       createdAt: true,
       updatedAt: true,
@@ -109,6 +117,7 @@ const findDocumentById = async (id: string) => {
       author: {
         select: {
           id: true,
+          handle: true,
           name: true,
           image: true,
           email: true,
@@ -134,6 +143,7 @@ const findUserDocument = async (id: string) => {
     where: { id },
     select: {
       id: true,
+      handle: true,
       name: true,
       createdAt: true,
       updatedAt: true,
@@ -142,6 +152,7 @@ const findUserDocument = async (id: string) => {
       author: {
         select: {
           id: true,
+          handle: true,
           name: true,
           image: true,
           email: true,
@@ -169,4 +180,32 @@ const deleteDocument = async (id: string) => {
   });
 }
 
-export { findAllDocuments, findPublishedDocuments, findDocumentsByAuthorId, findPublishedDocumentsByAuthorId, findDocumentById, findDocumentAuthorId, findUserDocument, createDocument, updateDocument, deleteDocument };
+const findDocumentIdByHandle = async (handle: string) => {
+  const document = await prisma.document.findUnique({
+    where: { handle },
+    select: {
+      id: true,
+    }
+  });
+  return document?.id;
+}
+
+const checkHandleAvailability = async (handle: string) => {
+  const documentId = await findDocumentIdByHandle(handle);
+  return !documentId;
+}
+
+export {
+  findAllDocuments,
+  findPublishedDocuments,
+  findDocumentsByAuthorId,
+  findPublishedDocumentsByAuthorId,
+  findDocumentById,
+  findDocumentAuthorId,
+  findUserDocument,
+  createDocument,
+  updateDocument,
+  deleteDocument,
+  findDocumentIdByHandle,
+  checkHandleAvailability
+};

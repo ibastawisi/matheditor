@@ -8,7 +8,7 @@ import { Transition } from 'react-transition-group';
 import "mathlive/static.css"
 import '@/editor/theme.css';
 
-const ViewDocument: React.FC<React.PropsWithChildren & { params: { id?: string } }> = ({ params, children }) => {
+const ViewDocument: React.FC<React.PropsWithChildren & { params: { handle: string } }> = ({ params, children }) => {
   const slideTrigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 100,
@@ -17,7 +17,7 @@ const ViewDocument: React.FC<React.PropsWithChildren & { params: { id?: string }
   return <>
     {children}
     <Transition in={slideTrigger} timeout={225}>
-      <Fab variant="extended" size='medium' component={RouterLink} prefetch={false} href={`/new/${params.id}`}
+      <Fab variant="extended" size='medium' component={RouterLink} prefetch={false} href={`/new/${params.handle}`}
         sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 16, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>
         <EditIcon />Fork
       </Fab>

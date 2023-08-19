@@ -25,6 +25,7 @@ export interface AppState {
 
 export interface EditorDocument {
   id: string;
+  handle?: string | null;
   name: string;
   data: SerializedEditorState;
   createdAt: string;
@@ -33,7 +34,7 @@ export interface EditorDocument {
   baseId?: string;
 }
 
-type UserDocumentBase = Omit<EditorDocument, "data"> & { variant: DocumentVariant };
+type UserDocumentBase = Omit<EditorDocument, "data"> & { variant: DocumentVariant; };
 export type LocalDocument = UserDocumentBase & { variant: "local" }
 export type CloudDocument = UserDocumentBase & { variant: "cloud", author: User; }
 export type UserDocument = LocalDocument | CloudDocument;

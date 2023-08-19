@@ -1,5 +1,5 @@
 import { authOptions } from "@/lib/auth";
-import { findUserById, updateUser, deleteUser } from "@/repositories/user";
+import { findUserById, updateUser, deleteUser, checkHandleAvailability, findUserIdByHandle } from "@/repositories/user";
 import { DeleteUserResponse, GetUserResponse, PatchUserResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
@@ -10,13 +10,19 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const response: GetUserResponse = {};
   try {
-    if (!validate(params.id)) {
-      response.error = "Invalid id";
-      return NextResponse.json(response, { status: 400 })
+    const isValidId = validate(params.id);
+    if (!isValidId) {
+      try {
+        const id = await findUserIdByHandle(params.id);
+        if (id) params.id = id;
+      } catch (error) {
+        response.error = "User not found";
+        return NextResponse.json(response, { status: 404 })
+      }
     }
     const user = await findUserById(params.id);
     if (!user) {
-      response.error = "user Not found";
+      response.error = "User Not found";
       return NextResponse.json(response, { status: 404 })
     }
     response.data = user as unknown as GetUserResponse["data"];
@@ -53,6 +59,13 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     if (!body) {
       response.error = "Bad input";
       return NextResponse.json(response, { status: 400 })
+    }
+    if (body.handle) {
+      const errors = await validateHandle(body.handle);
+      if (errors) {
+        response.error = errors;
+        return NextResponse.json(response, { status: 400 })
+      }
     }
     const result = await updateUser(params.id, {
       handle: body.handle,
@@ -96,4 +109,22 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     response.error = "Something went wrong";
     return NextResponse.json(response, { status: 500 })
   }
+}
+
+const validateHandle = async (handle: string) => {
+  if (handle.length < 3) {
+    return "Handle must be at least 3 characters long";
+  }
+  if (handle.length > 20) {
+    return "Handle must be less than 20 characters long";
+  }
+  if (!/^[a-zA-Z0-9-]+$/.test(handle)) {
+    return "Handle must only contain letters, numbers, and dashes";
+  }
+  const isAvailable = await checkHandleAvailability(handle);
+  if (!isAvailable) {
+    return "Handle is already taken";
+  }
+
+  return null;
 }

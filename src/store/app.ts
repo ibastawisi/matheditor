@@ -3,6 +3,7 @@ import NProgress from "nprogress";
 import documentDB from '@/indexeddb';
 import { AppState, Announcement, Alert, EditorDocument, UserDocument, DocumentVariant, LocalDocument, CloudDocument, User, PatchUserResponse } from '../types';
 import { GetDocumentsResponse, PostDocumentsResponse, DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from '@/types';
+import { validate } from 'uuid';
 
 const initialState: AppState = {
   documents: [],
@@ -66,7 +67,8 @@ export const loadPublishedDocuments = createAsyncThunk('app/loadPublishedDocumen
 
 export const getLocalDocument = createAsyncThunk('app/getLocalDocument', async (id: string, thunkAPI) => {
   try {
-    const document = await documentDB.getByID(id);
+    const isValidId = validate(id);
+    const document = isValidId ? await documentDB.getByID(id) : await documentDB.getOneByKey("handle", id);
     if (!document) return thunkAPI.rejectWithValue('document not found');
     return thunkAPI.fulfillWithValue(document);
   } catch (error: any) {
@@ -124,6 +126,7 @@ export const createCloudDocument = createAsyncThunk('app/createCloudDocument', a
 export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', async (payloadCreator: { id: string, partial: Partial<EditorDocument> }, thunkAPI) => {
   try {
     const { id, partial } = payloadCreator;
+    debugger;
     const result = await documentDB.patch(id, partial);
     if (!result) return thunkAPI.rejectWithValue('failed to update document')
     const { data, ...userDocument } = await documentDB.getByID(id);

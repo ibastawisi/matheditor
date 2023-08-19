@@ -30,7 +30,6 @@ const Dashboard: React.FC = ({ }) => {
   const documents = useSelector(selectDocuments);
   const user = useSelector(state => state.user);
   const initialized = useSelector(state => state.initialized);
-  const { status } = useSession();
 
   useEffect(() => {
     if (!initialized) {
@@ -40,7 +39,7 @@ const Dashboard: React.FC = ({ }) => {
 
   return <Box>
     <Helmet title="Dashboard" />
-    <UserCard user={user} status={status} />
+    <UserCard user={user} />
     <Box sx={{ my: 2 }}>
       <DocumentsGrid documents={documents.filter(d => d.variant === "local")} title="Local Documents" />
       <DocumentsGrid documents={documents.filter(d => d.variant === "cloud")} title="Cloud Documents" />

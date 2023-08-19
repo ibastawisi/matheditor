@@ -15,13 +15,15 @@ import Chip from '@mui/material/Chip';
 import MobileFriendlyIcon from '@mui/icons-material/MobileFriendly';
 import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import CloudIcon from '@mui/icons-material/Cloud';
-import DocumentActionMenu, { options } from './DocumentActionMenu';
+import type { options } from './DocumentActionMenu';
 import Typography from '@mui/material/Typography';
-import { memo } from 'react';
+import { lazy, memo } from 'react';
 import Skeleton from '@mui/material/Skeleton';
 import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { SxProps, Theme } from '@mui/material/styles';
+
+const DocumentActionMenu = lazy(() => import('@/components/DocumentActionMenu'));
 
 const DocumentCard: React.FC<{ document?: UserDocument, sx?: SxProps<Theme> | undefined }> = memo(({ document, sx }) => {
   const user = useSelector(state => state.user);
@@ -35,11 +37,12 @@ const DocumentCard: React.FC<{ document?: UserDocument, sx?: SxProps<Theme> | un
 
   const options: options =
     isLocal ?
-      ['rename', 'download', 'embed', 'upload', 'fork', 'share', 'publish', 'delete']
-      : isOwner ? ['rename', 'download', 'embed', 'fork', 'share', 'publish', 'delete']
+      ['edit', 'download', 'embed', 'upload', 'fork', 'share', 'publish', 'delete']
+      : isOwner ? ['edit', 'download', 'embed', 'fork', 'share', 'publish', 'delete']
         : ['fork', 'share', 'embed'];
 
-  const href = isOwner ? `/edit/${document?.id}` : `/view/${document?.id}`;
+  const handle = document?.handle || document?.id;
+  const href = isOwner ? `/edit/${handle}` : `/view/${handle}`;
   const authorName = isCloud ? document.author.name : isUploaded ? cloudDocument.author.name : user ? user.name : 'Local User';
 
   return (

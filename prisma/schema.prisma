@@ -9,6 +9,7 @@ datasource db {
 
 model Document {
   id        String     @id @default(uuid()) @db.Uuid
+  handle    String?    @unique
   name      String
   data      Json
   createdAt DateTime   @default(now()) @map("created_at")
@@ -25,7 +26,7 @@ model Document {
 
 model User {
   id            String     @id @default(uuid()) @db.Uuid
-  handle        String?     @unique
+  handle        String?    @unique
   name          String
   email         String     @unique
   createdAt     DateTime   @default(now()) @map("created_at")

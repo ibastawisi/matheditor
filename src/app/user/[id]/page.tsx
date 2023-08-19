@@ -1,5 +1,5 @@
 import { OgMetadata } from "@/app/api/og/route";
-import { findUserByHandle, findUserById } from "@/repositories/user";
+import { findUserById, findUserIdByHandle } from "@/repositories/user";
 import type { Metadata } from "next";
 import { findPublishedDocumentsByAuthorId } from "@/repositories/document";
 import { notFound } from "next/navigation";
@@ -10,7 +10,17 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const metadata: OgMetadata = { id: params.id };
   try {
     const isValidId = validate(params.id);
-    const user = isValidId ? await findUserById(params.id) : await findUserByHandle(params.id);
+    if (!isValidId) {
+      try {
+        const id = await findUserIdByHandle(params.id);
+        if (id) params.id = id;
+      } catch (error) {
+        metadata.title = 'Error 404';
+        metadata.subtitle = 'User Not Found';
+        return metadata;
+      }
+    }
+    const user = await findUserById(params.id);
     if (user) {
       metadata.title = user.name;
       metadata.subtitle = new Date(user.createdAt).toDateString()
@@ -39,7 +49,15 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
 export default async function Page({ params }: { params: { id: string } }) {
   const isValidId = validate(params.id);
-  const user = isValidId ? await findUserById(params.id) : await findUserByHandle(params.id);
+  if (!isValidId) {
+    try {
+      const id = await findUserIdByHandle(params.id);
+      if (id) params.id = id;
+    } catch (error) {
+      notFound();
+    }
+  }
+  const user = await findUserById(params.id);
   if (!user) notFound();
   const documentsResponse = await findPublishedDocumentsByAuthorId(user.id);
   const documents = documentsResponse.map(document => ({ ...document, variant: "cloud" }));

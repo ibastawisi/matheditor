@@ -23,7 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: 'https://matheditor.me/privacy',
     },
     ...publishedDocuments.map((document) => ({
-      url: `https://matheditor.me/view/${document.id}`,
+      url: `https://matheditor.me/view/${document.handle || document.id}`,
       lastModified: document.updatedAt,
     })),
   ]
