@@ -8,7 +8,6 @@ import { useDispatch, useSelector, actions } from '@/store';
 import { usePathname } from "next/navigation";
 
 const EditDocument: React.FC = () => {
-  const user = useSelector(state => state.user);
   const [document, setDocument] = useState<EditorDocument>();
   const [error, setError] = useState<string>();
   const dispatch = useDispatch();
@@ -22,12 +21,10 @@ const EditDocument: React.FC = () => {
         const localDocument = localResponse.payload as EditorDocument;
         setDocument(localDocument);
       } else {
-        if (!user) return setError("Please log in to edit this document");
         const cloudResponse = await dispatch(actions.getCloudDocument(id));
         if (cloudResponse.type === actions.getCloudDocument.fulfilled.type) {
           const cloudDocument = cloudResponse.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>['payload'];
           const { author, ...localDocument } = cloudDocument;
-          if (author.id !== user.id) return setError("You don't have permission to edit this document");
           setDocument(localDocument);
           dispatch(actions.createLocalDocument(localDocument));
         } else if (cloudResponse.type === actions.getCloudDocument.rejected.type) {
@@ -36,7 +33,7 @@ const EditDocument: React.FC = () => {
       }
     }
     id ? loadDocument(id) : setError("No document id provided");
-  }, [user]);
+  }, []);
 
   if (error) return <SplashScreen title={error} />;
   if (!document) return <SplashScreen title="Loading Document" />;
