@@ -19,6 +19,7 @@ const PwaUpdater = () => {
       window.workbox !== undefined
     ) {
       const wb = window.workbox;
+      wb.addEventListener("waiting", () => { wb.messageSkipWaiting() });
       wb.addEventListener("activated", (event) => {
         dispatch(actions.announce({
           message: event.isUpdate ? "Update was installed." : "App is ready for offline use.",

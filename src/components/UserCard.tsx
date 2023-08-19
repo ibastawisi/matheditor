@@ -14,10 +14,11 @@ import ShareIcon from '@mui/icons-material/Share';
 import RouterLink from 'next/link'
 import CardActionArea from '@mui/material/CardActionArea';
 import Avatar from '@mui/material/Avatar';
-import { lazy, memo } from 'react';
+import { memo } from 'react';
 import { signIn, signOut, useSession } from "next-auth/react";
+import dynamic from 'next/dynamic';
 
-const UserActionMenu = lazy(() => import('@/components/UserActionMenu'));
+const UserActionMenu = dynamic(() => import('./UserActionMenu'), { ssr: false });
 
 const UserCard: React.FC<{ user?: User }> = memo(({ user }) => {
   const dispatch = useDispatch();
@@ -55,7 +56,7 @@ const UserCard: React.FC<{ user?: User }> = memo(({ user }) => {
           </CardContent>
         </CardActionArea>
         {status !== "loading" &&
-          <CardActions sx={{ height: 48 }}>
+          <CardActions sx={{ height: 48, "& button:nth-of-type(2)": { ml: "auto !important" } }}>
             {showActions && status === "authenticated" && <Button size='small' onClick={logout}>Logout</Button>}
             {showActions && status === "unauthenticated" && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>
               <Typography variant="button" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Login with Google</Typography>

@@ -74,7 +74,6 @@ function UserActionMenu({ user }: { user: User }): JSX.Element {
         aria-label='User Actions'
         onClick={openEditDialog}
         size="small"
-        sx={{ ml: "auto !important" }}
       >
         <SettingsIcon />
       </IconButton>

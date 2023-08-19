@@ -17,13 +17,14 @@ import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import CloudIcon from '@mui/icons-material/Cloud';
 import type { options } from './DocumentActionMenu';
 import Typography from '@mui/material/Typography';
-import { lazy, memo } from 'react';
+import { memo } from 'react';
 import Skeleton from '@mui/material/Skeleton';
 import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { SxProps, Theme } from '@mui/material/styles';
+import dynamic from 'next/dynamic';
 
-const DocumentActionMenu = lazy(() => import('@/components/DocumentActionMenu'));
+const DocumentActionMenu = dynamic(() => import('./DocumentActionMenu'), { ssr: false });
 
 const DocumentCard: React.FC<{ document?: UserDocument, sx?: SxProps<Theme> | undefined }> = memo(({ document, sx }) => {
   const user = useSelector(state => state.user);
@@ -86,7 +87,7 @@ const DocumentCard: React.FC<{ document?: UserDocument, sx?: SxProps<Theme> | un
           avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>}
         />
       </CardActionArea>
-      <CardActions>
+      <CardActions sx={{ "& button:first-of-type": { ml: "auto !important" } }}>
         {!document && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} label={<Skeleton variant="text" width={50} />} />}
         {!document && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} label={<Skeleton variant="text" width={70} />} />}
         {isLocal && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendlyIcon />} label="Local" />}

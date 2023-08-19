@@ -262,7 +262,6 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
           aria-label='User Actions'
           onClick={openEditDialog}
           size="small"
-          sx={{ ml: "auto" }}
         >
           <SettingsIcon />
         </IconButton>
@@ -309,7 +308,6 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
         aria-label='Document Actions'
         onClick={openMenu}
         size="small"
-        sx={{ ml: options.includes("edit") ? 0 : "auto" }}
       >
         <MoreVertIcon />
       </IconButton>
