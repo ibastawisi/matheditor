@@ -33,12 +33,15 @@ function UserActionMenu({ user }: { user: User }): JSX.Element {
   };
 
   const checkHandle = useCallback(debounce(async (resolve: (value: boolean) => void, value?: string) => {
-    if (!value) resolve(true);
-    if (value === user?.handle) resolve(true);
-    const response = await fetch(`/api/users/check?handle=${value}`);
-    const { data, error } = await response.json() as CheckHandleResponse;
-    if (error) resolve(false);
-    resolve(!!data);
+    if (!value) return resolve(true);
+    if (!navigator.onLine) return resolve(true);
+    if (value === user?.handle) return resolve(true);
+    try {
+      const response = await fetch(`/api/users/check?handle=${value}`);
+      const { data, error } = await response.json() as CheckHandleResponse;
+      if (error) return resolve(false);
+      return resolve(!!data);
+    } catch (err) { return resolve(false) }
   }, 500), [user]);
 
   const validationSchema = yup.object({
@@ -46,6 +49,7 @@ function UserActionMenu({ user }: { user: User }): JSX.Element {
       .string()
       .min(3, 'Handle must be at least 3 characters')
       .matches(/^[a-zA-Z0-9-]*$/, 'Handle must only contain letters, numbers, and dashes')
+      .test('is-online', 'Cannot change handle while offline', value => !value || value === user.handle || navigator.onLine)
       .test('is-unique', 'Handle is already taken', value => new Promise(resolve => checkHandle(resolve, value)))
   });
 
@@ -58,7 +62,7 @@ function UserActionMenu({ user }: { user: User }): JSX.Element {
       closeEditDialog();
       const shouldNavigate = pathname === `/user/${user.handle || user.id}`;
       const partial: Partial<User> = {};
-      if (values.handle && values.handle !== user.handle) partial.handle = values.handle;
+      if (values.handle !== user.handle) partial.handle = values.handle || null;
       if (Object.keys(partial).length === 0) return;
       const result = await dispatch(actions.updateUser({ id: user.id, partial }));
       if (result.type === actions.updateUser.fulfilled.type) {

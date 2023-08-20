@@ -204,12 +204,15 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
   };
 
   const checkHandle = useCallback(debounce(async (resolve: (value: boolean) => void, value?: string) => {
-    if (!value) resolve(true);
-    if (isCloud && value === document?.handle) resolve(true);
-    const response = await fetch(`/api/documents/check?handle=${value}`);
-    const { data, error } = await response.json() as CheckHandleResponse;
-    if (error) resolve(false);
-    resolve(!!data);
+    if (!value) return resolve(true);
+    if (!navigator.onLine) return resolve(true);
+    if ((isCloud || isUploaded) && value === document?.handle) return resolve(true);
+    try {
+      const response = await fetch(`/api/documents/check?handle=${value}`);
+      const { data, error } = await response.json() as CheckHandleResponse;
+      if (error) return resolve(false);
+      return resolve(!!data);
+    } catch (err) { return resolve(false) }
   }, 500), [document]);
 
   const validationSchema = yup.object({
@@ -220,7 +223,8 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
       .string()
       .min(3, 'Handle must be at least 3 characters')
       .matches(/^[a-zA-Z0-9-]*$/, 'Handle must only contain letters, numbers, and dashes')
-      .test('is-cloud', 'Document is not saved to the cloud', () => isCloud || isUploaded)
+      .test('is-online', 'Cannot change handle while offline', value => !value || value === document.handle || navigator.onLine)
+      .test('is-cloud', 'Document is not saved to the cloud', value => !value || value === document.handle || isCloud || isUploaded)
       .test('is-unique', 'Handle is already taken', value => new Promise(resolve => checkHandle(resolve, value)))
   });
 
@@ -237,8 +241,8 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
         partial.name = values.name;
         partial.updatedAt = new Date().toISOString();
       }
-      if (values.handle && values.handle !== document.handle) {
-        partial.handle = values.handle;
+      if (values.handle !== document.handle) {
+        partial.handle = values.handle || null;
       }
       if (Object.keys(partial).length === 0) return;
       if (isLocal) {
