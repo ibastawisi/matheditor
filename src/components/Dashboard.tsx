@@ -15,8 +15,9 @@ import DocumentCard from "./DocumentCard";
 import { SortOption } from "@/hooks/useSort";
 import SortControl from "./SortControl";
 import Pagination from "@mui/material/Pagination";
-import { useSession } from "next-auth/react";
 import { createSelector } from "@reduxjs/toolkit";
+import RouterLink from 'next/link';
+import Button from "@mui/material/Button";
 
 const Dashboard: React.FC = ({ }) => {
   const dispatch = useDispatch();
@@ -40,7 +41,10 @@ const Dashboard: React.FC = ({ }) => {
   return <Box>
     <Helmet title="Dashboard" />
     <UserCard user={user} />
-    <Box sx={{ my: 2 }}>
+    <Box sx={{ my: 2, display: "flex", flexDirection: "column", gap: 2 }}>
+      <Button component={RouterLink} href={user?.role === "admin" ? "/admin" : "/dashboard"} sx={{ mx: "auto" }}>
+        {user?.role === "admin" ? "Admin Dashboard" : "Dashboard"}
+      </Button>
       <DocumentsGrid documents={documents.filter(d => d.variant === "local")} title="Local Documents" />
       <DocumentsGrid documents={documents.filter(d => d.variant === "cloud")} title="Cloud Documents" />
     </Box>
@@ -60,7 +64,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string }> = me
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
 
-  return <Accordion disableGutters sx={{ my: 2 }} TransitionProps={{ mountOnEnter: true }}>
+  return <Accordion disableGutters TransitionProps={{ mountOnEnter: true }}>
     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
       <Typography>{title}</Typography>
       <Typography sx={{ color: 'text.secondary', mx: 1 }}>({documents.length})</Typography>
