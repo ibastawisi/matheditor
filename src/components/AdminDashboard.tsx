@@ -1,12 +1,10 @@
 "use client"
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { CloudDocument, User } from '@/types';
-import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import RouterLink from 'next/link';
 import Avatar from '@mui/material/Avatar';
-import Box from '@mui/material/Box';
 
 export default function AdminDashboard({ users, documents }: { users: User[], documents: CloudDocument[] }) {
 
@@ -54,37 +52,8 @@ export default function AdminDashboard({ users, documents }: { users: User[], do
 
   return (
     <>
-      <Typography variant="h6" component="h1" sx={{ my: 2 }}>Users</Typography>
-      <Box sx={{ height: 400, width: '100%' }}>
-        <DataGrid
-          rows={userRows}
-          columns={userColumns}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
-              },
-            },
-          }}
-          pageSizeOptions={[5]}
-        />
-      </Box>
-
-      <Typography variant="h6" component="h1" sx={{ my: 2 }}>Documents</Typography>
-      <Box sx={{ height: 400, width: '100%' }}>
-        <DataGrid
-          rows={documentRows}
-          columns={documentColumns}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
-              },
-            },
-          }}
-          pageSizeOptions={[5]}
-        />
-      </Box>
+      <DataGrid rows={userRows} columns={userColumns} initialState={{ pagination: { paginationModel: { pageSize: 5 } } }} pageSizeOptions={[5]} />
+      <DataGrid rows={documentRows} columns={documentColumns} initialState={{ pagination: { paginationModel: { pageSize: 5 } } }} pageSizeOptions={[5]} />
     </>
   );
 }
