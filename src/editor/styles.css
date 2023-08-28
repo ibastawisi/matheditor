@@ -54,13 +54,8 @@
 }
 
 @media print {
-  .editor-container {
-    margin: 0 !important;
-  }
-
-  .editor-input {
-    padding: 0 !important;
-    margin-top: 0 !important;
+  * {
+    overflow: visible !important;
   }
 
   *,
@@ -95,10 +90,4 @@ body:has(>.MuiDialog-root) {
 
 #typeahead-menu {
   z-index: 1500;
-}
-
-@media print {
-  * {
-    overflow: visible !important;
-  }
 }
