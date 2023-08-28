@@ -24,13 +24,11 @@ import ListItemText from '@mui/material/ListItemText';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
-import CodeIcon from '@mui/icons-material/Code';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { debounce } from '@mui/material/utils';
 import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
@@ -253,7 +251,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
     const result = await ensureUpToDate();
     if (!result) return;
     const format = formData.get("format") as string;
-    const handle = isCloud ? document.handle : isUploaded ? cloudDocument?.handle : document.id;
+    const handle = document.handle || document.id;
     const shareData = {
       title: document.name,
       url: `${window.location.origin}/${format}/${handle}`,
@@ -332,7 +330,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
               <RadioGroup row aria-label="share format" name="format" defaultValue="view">
                 <FormControlLabel value="view" control={<Radio />} label="View" />
                 <FormControlLabel value="embed" control={<Radio />} label="Embed" />
-                <FormControlLabel value="pdf" control={<Radio />} label="PDF" />
+                {/* <FormControlLabel value="pdf" control={<Radio />} label="PDF" /> */}
               </RadioGroup>
             </FormControl>
           </DialogContent>
