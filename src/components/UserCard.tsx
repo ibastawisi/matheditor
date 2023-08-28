@@ -16,9 +16,7 @@ import CardActionArea from '@mui/material/CardActionArea';
 import Avatar from '@mui/material/Avatar';
 import { memo } from 'react';
 import { signIn, signOut, useSession } from "next-auth/react";
-import dynamic from 'next/dynamic';
-
-const UserActionMenu = dynamic(() => import('./UserActionMenu'), { ssr: false });
+import UserActionMenu from './UserActionMenu';
 
 const UserCard: React.FC<{ user?: User }> = memo(({ user }) => {
   const dispatch = useDispatch();

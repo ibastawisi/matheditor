@@ -29,6 +29,11 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { debounce } from '@mui/material/utils';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Radio from '@mui/material/Radio';
 
 export type options = ('edit' | 'download' | 'fork' | 'share' | 'publish' | 'upload' | 'delete' | 'embed')[];
 type DocumentActionMenuProps = {
@@ -94,33 +99,6 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
       if (result.type === actions.updateCloudDocument.rejected.type) return false;
     };
     return true;
-  };
-
-  const handleShare = async () => {
-    closeMenu();
-    const result = await ensureUpToDate();
-    if (!result) return;
-    const handle = isCloud ? document.handle : isUploaded ? cloudDocument?.handle : document.id;
-    const shareData = {
-      title: document.name,
-      url: window.location.origin + "/view/" + handle,
-    };
-    try {
-      await navigator.share(shareData);
-    } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      dispatch(actions.announce({ message: "Link copied to clipboard" }));
-    }
-  };
-
-  const handleEmbed = async () => {
-    closeMenu();
-    const result = await ensureUpToDate();
-    if (!result) return;
-    const handle = isCloud ? document.handle : isUploaded ? cloudDocument?.handle : document.id;
-    const iframe = `<iframe src="${window.location.origin}/embed/${handle}" width="100%" height="100%" frameborder="0"></iframe>`;
-    navigator.clipboard.writeText(iframe);
-    dispatch(actions.announce({ message: "Embed code copied to clipboard" }));
   };
 
   const handleDelete = async () => {
@@ -258,6 +236,37 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
     },
   });
 
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+
+  const openShareDialog = () => {
+    closeMenu();
+    setShareDialogOpen(true);
+  };
+
+  const closeShareDialog = () => {
+    setShareDialogOpen(false);
+  };
+
+  const handleShare = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const result = await ensureUpToDate();
+    if (!result) return;
+    const format = formData.get("format") as string;
+    const handle = isCloud ? document.handle : isUploaded ? cloudDocument?.handle : document.id;
+    const shareData = {
+      title: document.name,
+      url: `${window.location.origin}/${format}/${handle}`,
+    };
+    try {
+      closeShareDialog();
+      await navigator.share(shareData);
+    } catch (err) {
+      navigator.clipboard.writeText(shareData.url);
+      dispatch(actions.announce({ message: "Link copied to clipboard" }));
+    }
+  };
+
   return (
     <>
       {options.includes("edit") && <>
@@ -315,6 +324,26 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
       >
         <MoreVertIcon />
       </IconButton>
+      {options.includes('share') && <Dialog open={shareDialogOpen} onClose={closeShareDialog} fullWidth maxWidth="xs">
+        <form onSubmit={handleShare}>
+          <DialogTitle>Share Document</DialogTitle>
+          <DialogContent>
+            <FormControl>
+              <RadioGroup row aria-label="share format" name="format" defaultValue="view">
+                <FormControlLabel value="view" control={<Radio />} label="View" />
+                <FormControlLabel value="embed" control={<Radio />} label="Embed" />
+                <FormControlLabel value="pdf" control={<Radio />} label="PDF" />
+              </RadioGroup>
+            </FormControl>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={closeShareDialog}>Cancel</Button>
+            <Button type='submit'>Share</Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+      }
+
       <Menu
         id="document-action-menu"
         aria-labelledby="document-action-button"
@@ -338,12 +367,12 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
             <ListItemText>Download</ListItemText>
           </MenuItem>
         }
-        {options.includes('embed') &&
-          <MenuItem onClick={handleEmbed}>
+        {options.includes('share') &&
+          <MenuItem onClick={openShareDialog}>
             <ListItemIcon>
-              <CodeIcon />
+              <ShareIcon />
             </ListItemIcon>
-            <ListItemText>Embed</ListItemText>
+            <ListItemText>Share</ListItemText>
           </MenuItem>
         }
         {options.includes('fork') && <MenuItem onClick={handleFork}>
@@ -362,14 +391,6 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
             <ListItemText>
               {isUploaded ? "Update Cloud" : "Save to Cloud"}
             </ListItemText>
-          </MenuItem>
-        }
-        {options.includes('share') &&
-          <MenuItem onClick={handleShare}>
-            <ListItemIcon>
-              <ShareIcon />
-            </ListItemIcon>
-            <ListItemText>Share</ListItemText>
           </MenuItem>
         }
         {options.includes('publish') &&

@@ -22,9 +22,8 @@ import Skeleton from '@mui/material/Skeleton';
 import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { SxProps, Theme } from '@mui/material/styles';
-import dynamic from 'next/dynamic';
+import DocumentActionMenu from './DocumentActionMenu';
 
-const DocumentActionMenu = dynamic(() => import('./DocumentActionMenu'), { ssr: false });
 
 const DocumentCard: React.FC<{ document?: UserDocument, sx?: SxProps<Theme> | undefined }> = memo(({ document, sx }) => {
   const user = useSelector(state => state.user);
