@@ -330,7 +330,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
               <RadioGroup row aria-label="share format" name="format" defaultValue="view">
                 <FormControlLabel value="view" control={<Radio />} label="View" />
                 <FormControlLabel value="embed" control={<Radio />} label="Embed" />
-                {/* <FormControlLabel value="pdf" control={<Radio />} label="PDF" /> */}
+                <FormControlLabel value="pdf" control={<Radio />} label="PDF" />
               </RadioGroup>
             </FormControl>
           </DialogContent>
