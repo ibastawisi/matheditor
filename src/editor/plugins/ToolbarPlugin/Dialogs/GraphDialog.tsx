@@ -20,6 +20,7 @@ function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: Grap
 
   const parameters = {
     key,
+    language: 'en',
     showToolBar: true,
     borderColor: null,
     showMenuBar: true,
