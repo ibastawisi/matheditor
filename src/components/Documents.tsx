@@ -172,18 +172,18 @@ const Documents: React.FC = () => {
         </Grid>
       </Grid>
       <Collapse timeout={1000} in={!(user && initialized)} unmountOnExit><Box sx={{ mb: 2 }}><UserCard user={user} /></Box></Collapse>
-      <DocumentsGrid documents={sortedDocuments} />
+      <DocumentsGrid documents={sortedDocuments} initialized={initialized} />
     </>
   )
 }
 
-const DocumentsGrid: React.FC<{ documents: UserDocument[] }> = memo(({ documents }) => {
+const DocumentsGrid: React.FC<{ documents: UserDocument[], initialized: boolean }> = memo(({ documents, initialized }) => {
   const pages = Math.ceil(documents.length / 12);
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
   const pageDocuments = documents.slice((page - 1) * 12, page * 12);
   return <Grid container spacing={2}>
-    {documents.length === 0 && Array.from({ length: 3 }).map((_, i) => <Grid item key={i} xs={12} sm={6} md={4}><DocumentCard /></Grid>)}
+    {!initialized && documents.length === 0 && Array.from({ length: 3 }).map((_, i) => <Grid item key={i} xs={12} sm={6} md={4}><DocumentCard /></Grid>)}
     {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
       <DocumentCard document={document} />
     </Grid>)}
