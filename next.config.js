@@ -29,6 +29,18 @@ const config = {
     })
     return config
   },
+  async rewrites() {
+    return [
+      {
+        source: '/new/:path*',
+        destination: '/new',
+      },
+      {
+        source: '/edit/:path*',
+        destination: '/edit',
+      },
+    ]
+  },
 };
 
 module.exports = withPWA(withBundleAnalyzer(config));
