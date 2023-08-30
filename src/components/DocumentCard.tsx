@@ -61,7 +61,7 @@ const DocumentCard: React.FC<{ document?: UserDocument, sx?: SxProps<Theme> | un
           title={document ? document.name : <Skeleton variant="text" width={190} />}
           subheader={
             <>
-              <Typography variant="subtitle2"
+              <Typography component="span" variant="subtitle2"
                 sx={{ display: "block", lineHeight: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
                 color="text.secondary"
               >

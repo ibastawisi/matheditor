@@ -32,6 +32,7 @@ function SortControl<T>(props: SortProps<T>) {
           borderColor: alpha(theme.palette.primary.main, 0.5),
           '&:hover': { borderColor: 'primary.main' },
         })}
+        aria-label="sort direction"
       >
         {sortDirection === 'asc' ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
       </ToggleButton>

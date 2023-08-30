@@ -5,7 +5,16 @@ import { findAllUsers } from "@/repositories/user";
 import { findAllDocuments } from "@/repositories/document";
 import AdminDashboard from "@/components/AdminDashboard";
 
-export default async function Page({ params }: { params: { id: string } }) {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Admin Dashboard",
+  description: "Admin Dashboard",
+}
+
+export const dynamic = "force-dynamic";
+
+export default async function Page() {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {

@@ -23,7 +23,7 @@ const UserCard: React.FC<{ user?: User }> = memo(({ user }) => {
   const login = () => signIn("google", undefined, { prompt: "select_account" });
   const logout = () => signOut();
   const showActions = useSelector(state => state.user?.id === user?.id);
-  const { status} = useSession();
+  const { status } = useSession();
 
   const handleShare = async () => {
     const shareData = {
@@ -45,10 +45,10 @@ const UserCard: React.FC<{ user?: User }> = memo(({ user }) => {
       <Box sx={{ display: 'flex', flexDirection: 'column', width: 0, flex: 1 }}>
         <CardActionArea component={RouterLink} prefetch={false} href={href} sx={{ flex: '1 0 auto' }}>
           <CardContent>
-            <Typography variant="h6" sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <Typography component="span" variant="h6" sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {user ? user.name : <Skeleton variant="text" width={190} />}
             </Typography>
-            <Typography variant="subtitle1" color="text.secondary" sx={{ display: "block", lineHeight: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <Typography component="span" variant="subtitle1" color="text.secondary" sx={{ display: "block", lineHeight: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {user ? user.email : <Skeleton variant="text" width={150} />}
             </Typography>
           </CardContent>
