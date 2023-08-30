@@ -237,7 +237,6 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
 
   const openShareDialog = () => {
-    closeMenu();
     setShareDialogOpen(true);
   };
 
@@ -269,8 +268,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
     <>
       {options.includes("edit") && <>
         <IconButton
-          id="user-action-button"
-          aria-label='User Actions'
+          aria-label='Edit Document'
           onClick={openEditDialog}
           size="small"
         >
@@ -310,10 +308,37 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
         </Dialog>
       </>
       }
-
+      {options.includes('share') && <>
+        <IconButton
+          aria-label="Share Document"
+          onClick={openShareDialog}
+          size="small"
+        >
+          <ShareIcon />
+        </IconButton>
+        <Dialog open={shareDialogOpen} onClose={closeShareDialog} fullWidth maxWidth="xs">
+          <form onSubmit={handleShare}>
+            <DialogTitle>Share Document</DialogTitle>
+            <DialogContent>
+              <FormControl>
+                <RadioGroup row aria-label="share format" name="format" defaultValue="view">
+                  <FormControlLabel value="view" control={<Radio />} label="View" />
+                  <FormControlLabel value="embed" control={<Radio />} label="Embed" />
+                  <FormControlLabel value="pdf" control={<Radio />} label="PDF" />
+                </RadioGroup>
+              </FormControl>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={closeShareDialog}>Cancel</Button>
+              <Button type='submit'>Share</Button>
+            </DialogActions>
+          </form>
+        </Dialog>
+      </>
+      }
       <IconButton
-        id="document-action-button"
-        aria-controls={open ? 'document-action-menu' : undefined}
+        id={`${document.id}-action-button`}
+        aria-controls={open ? `${document.id}-action-menu` : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         aria-label='Document Actions'
@@ -322,29 +347,9 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
       >
         <MoreVertIcon />
       </IconButton>
-      {options.includes('share') && <Dialog open={shareDialogOpen} onClose={closeShareDialog} fullWidth maxWidth="xs">
-        <form onSubmit={handleShare}>
-          <DialogTitle>Share Document</DialogTitle>
-          <DialogContent>
-            <FormControl>
-              <RadioGroup row aria-label="share format" name="format" defaultValue="view">
-                <FormControlLabel value="view" control={<Radio />} label="View" />
-                <FormControlLabel value="embed" control={<Radio />} label="Embed" />
-                <FormControlLabel value="pdf" control={<Radio />} label="PDF" />
-              </RadioGroup>
-            </FormControl>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={closeShareDialog}>Cancel</Button>
-            <Button type='submit'>Share</Button>
-          </DialogActions>
-        </form>
-      </Dialog>
-      }
-
       <Menu
-        id="document-action-menu"
-        aria-labelledby="document-action-button"
+        id={`${document.id}-action-menu`}
+        aria-labelledby={`${document.id}-action-button`}
         anchorEl={anchorEl}
         open={open}
         onClose={closeMenu}
@@ -363,14 +368,6 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
               <DownloadIcon />
             </ListItemIcon>
             <ListItemText>Download</ListItemText>
-          </MenuItem>
-        }
-        {options.includes('share') &&
-          <MenuItem onClick={openShareDialog}>
-            <ListItemIcon>
-              <ShareIcon />
-            </ListItemIcon>
-            <ListItemText>Share</ListItemText>
           </MenuItem>
         }
         {options.includes('fork') && <MenuItem onClick={handleFork}>
