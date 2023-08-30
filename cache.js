@@ -30,6 +30,14 @@ module.exports = [
             return `/${page}${rsc ? `?_rsc` : ""}`;
           }
         },
+        {
+          cacheWillUpdate: async ({ request, response }) => {
+            const pathname = new URL(request.url).pathname;
+            const id = pathname.split("/")[2];
+            if (id) return;
+            return response;
+          }
+        }
       ]
     },
   },
