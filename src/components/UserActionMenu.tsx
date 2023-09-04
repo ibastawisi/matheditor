@@ -15,6 +15,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { debounce } from '@mui/material/utils'
+import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 
 function UserActionMenu({ user }: { user: User }): JSX.Element {
   const dispatch = useDispatch();
@@ -70,6 +71,8 @@ function UserActionMenu({ user }: { user: User }): JSX.Element {
       }
     },
   });
+
+  useFixedBodyScroll(editDialogOpen);
 
   return (
     <>

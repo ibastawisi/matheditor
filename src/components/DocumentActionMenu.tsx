@@ -32,6 +32,7 @@ import FormControl from '@mui/material/FormControl';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
+import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 
 export type options = ('edit' | 'download' | 'fork' | 'share' | 'publish' | 'upload' | 'delete' | 'embed')[];
 type DocumentActionMenuProps = {
@@ -179,6 +180,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
     setEditDialogOpen(false);
   };
 
+
   const checkHandle = useCallback(debounce(async (resolve: (value: boolean) => void, value?: string) => {
     if (!value) return resolve(true);
     if (!navigator.onLine) return resolve(true);
@@ -264,6 +266,8 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
     }
   };
 
+  useFixedBodyScroll(editDialogOpen || shareDialogOpen);
+  
   return (
     <>
       {options.includes("edit") && <>

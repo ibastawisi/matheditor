@@ -18,6 +18,7 @@ import Remove from '@mui/icons-material/Remove';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { SET_DIALOGS_COMMAND } from '..';
+import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 
 function TableDialog({ editor, open }: { editor: LexicalEditor, open: boolean }) {
   const theme = useTheme();
@@ -56,6 +57,8 @@ function TableDialog({ editor, open }: { editor: LexicalEditor, open: boolean })
     closeDialog();
     restoreSelection();
   }
+
+  useFixedBodyScroll(open);
 
   return <Dialog
     open={open}

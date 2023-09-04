@@ -20,6 +20,7 @@ import { SET_DIALOGS_COMMAND } from '..';
 import { getImageDimensions } from '@/editor/nodes/utils';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 
 function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: ImageNode | null; open: boolean; }) {
   const theme = useTheme();
@@ -97,6 +98,8 @@ function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: Imag
     closeDialog();
     restoreSelection();
   }
+
+  useFixedBodyScroll(open);
 
   return <Dialog
     open={!!open}

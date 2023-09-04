@@ -7,6 +7,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useDispatch, useSelector, actions } from '@/store';
+import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 
 export default function AlertDialog() {
   const alert = useSelector(state => state.alerts[0]);
@@ -24,7 +25,10 @@ export default function AlertDialog() {
     dispatch(actions.clearAlert());
   }
 
+  useFixedBodyScroll(!!alert);
+  
   if (!alert) return null;
+
   return (
     <Dialog open onClose={handleClose}>
       <DialogTitle>{alert.title}</DialogTitle>

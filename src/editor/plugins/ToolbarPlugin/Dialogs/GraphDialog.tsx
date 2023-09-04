@@ -13,6 +13,7 @@ import { $getSelection } from 'lexical';
 import { SET_DIALOGS_COMMAND } from '..';
 import Script from 'next/script';
 import { getImageDimensions } from '@/editor/nodes/utils';
+import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 
 function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: GraphNode | null; open: boolean; }) {
   const [loading, setLoading] = useState(true);
@@ -92,6 +93,8 @@ function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: Grap
     closeDialog();
     restoreSelection();
   }
+
+  useFixedBodyScroll(open);
 
   return <Dialog open={open} fullScreen={true} onClose={handleClose} disableEscapeKeyDown>
     <DialogContent sx={{ p: 0, overflow: "hidden" }}>

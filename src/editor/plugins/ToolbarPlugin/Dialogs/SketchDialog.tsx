@@ -15,6 +15,7 @@ import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import { useTheme } from '@mui/material/styles';
 import { getImageDimensions } from '@/editor/nodes/utils';
+import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 
 const Excalidraw = lazy(() => import('@excalidraw/excalidraw').then((module) => ({ default: module.Excalidraw })));
 
@@ -100,6 +101,8 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ske
   };
 
   const libraryItems = [...LogicGates.library, ...CircuitComponents.libraryItems] as any as LibraryItems_anyVersion;
+
+  useFixedBodyScroll(open);
 
   return <Dialog open={open} fullScreen={true} onClose={handleClose} disableEscapeKeyDown>
     <DialogContent sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 0, overflow: "hidden" }}>

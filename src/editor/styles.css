@@ -65,10 +65,6 @@
   }
 }
 
-body:has(>.MuiDialog-root) {
-  overflow-y: hidden !important;
-}
-
 .applet_scaler,
 .gbb_preview {
   width: 100% !important;
