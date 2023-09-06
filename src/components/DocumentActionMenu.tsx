@@ -83,6 +83,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
   };
 
   const ensureUpToDate = async () => {
+    if (isCloud) return true;
     if (!user) {
       dispatch(actions.announce({ message: "Please login to use cloud storage" }));
       return false;
@@ -92,7 +93,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
       const result = await handleCreate();
       if (result.type === actions.createCloudDocument.rejected.type) return false;
     };
-    if (isLocal && isUpToDate && !isUpToDate) {
+    if (isLocal && !isUpToDate) {
       dispatch(actions.announce({ message: "Updating document in the cloud" }));
       const result = await handleUpdate();
       if (result.type === actions.updateCloudDocument.rejected.type) return false;
