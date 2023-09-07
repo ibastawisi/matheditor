@@ -52,8 +52,8 @@ export default function AdminDashboard({ users, documents }: { users: User[], do
 
   return (
     <>
-      <DataGrid rows={userRows} columns={userColumns} initialState={{ pagination: { paginationModel: { pageSize: 5 } } }} pageSizeOptions={[5]} />
-      <DataGrid rows={documentRows} columns={documentColumns} initialState={{ pagination: { paginationModel: { pageSize: 5 } } }} pageSizeOptions={[5]} />
+      <DataGrid rows={userRows} columns={userColumns} initialState={{ pagination: { paginationModel: { pageSize: 5 } } }} pageSizeOptions={[5, 10, 25]} />
+      <DataGrid rows={documentRows} columns={documentColumns} initialState={{ pagination: { paginationModel: { pageSize: 5 } } }} pageSizeOptions={[5, 10, 25]} />
     </>
   );
 }
