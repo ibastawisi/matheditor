@@ -17,7 +17,7 @@ import type {
   Spread,
 } from 'lexical';
 
-import { $createNodeSelection, $setSelection, DecoratorNode, createEditor } from 'lexical';
+import { $createNodeSelection, $getRoot, $setSelection, DecoratorNode, createEditor } from 'lexical';
 import * as React from 'react';
 import { Suspense } from 'react';
 import { editorConfig } from './config';
@@ -32,7 +32,7 @@ export interface StickyPayload {
 * @deprecated use editor instead
 */
   data?: SerializedEditorState;
-  editor?: LexicalEditor;
+  editor?: SerializedEditor;
 }
 
 export type SerializedStickyNode = Spread<
@@ -125,9 +125,11 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
   }
 
   select() {
-    const nodeSelection = $createNodeSelection();
-    nodeSelection.add(this.getKey());
-    $setSelection(nodeSelection);
+    const editor = this.getEditor();
+    editor.update(() => {
+      const root = $getRoot();
+      root.selectStart();
+    });
   }
 
   decorate(): JSX.Element {
@@ -153,5 +155,13 @@ export function $isStickyNode(
 
 export function $createStickyNode(payload?: StickyPayload): StickyNode {
   const color = payload?.color || 'yellow';
-  return new StickyNode(color);
+  const node = new StickyNode(color);
+  if (payload?.editor) {
+    const nestedEditor = node.__editor;
+    const editorState = nestedEditor.parseEditorState(payload.editor.editorState);
+    if (!editorState.isEmpty()) {
+      nestedEditor.setEditorState(editorState);
+    }
+  }
+  return node;
 }

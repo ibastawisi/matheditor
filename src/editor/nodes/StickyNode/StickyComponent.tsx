@@ -2,7 +2,6 @@
 import {
   NodeKey,
   LexicalEditor,
-  $getSelection,
   SELECTION_CHANGE_COMMAND,
   COMMAND_PRIORITY_LOW,
   $getNodeByKey,
@@ -30,29 +29,23 @@ export default function StickyComponent({ nodeKey, color, stickyEditor }: { stic
 
   const stickyContainerRef = useRef<null | HTMLDivElement>(null);
 
-
   useEffect(() => {
-    mergeRegister(
-      stickyEditor.registerCommand(
+    return mergeRegister(
+      editor.registerCommand(
         SELECTION_CHANGE_COMMAND,
-        () => {
-          const selection = $getSelection();
-          if (selection) {
+        (_, activeEditor) => {
+          if (activeEditor === stickyEditor) {
             clearSelection();
             setSelected(true);
-            return true;
           }
-          return false;
+          return true;
         },
         COMMAND_PRIORITY_LOW,
       ),
     );
   }, [
-    clearSelection,
     stickyEditor,
-    isSelected,
     nodeKey,
-    setSelected,
   ]);
 
   const handleDelete = () => {

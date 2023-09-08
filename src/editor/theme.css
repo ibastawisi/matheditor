@@ -381,6 +381,8 @@
 .sticky-note-wrapper {
   float: right;
   margin: 0.5rem 0 0.5rem 0.5rem;
+  position: relative;
+  z-index: 1;
 }
 
 .sticky-note-wrapper .nested-contentEditable {
