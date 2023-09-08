@@ -3,7 +3,6 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useState, useEffect, memo } from "react";
-import { Helmet } from "react-helmet";
 import { useDispatch, useSelector, actions, RootState } from '@/store';
 import UserCard from "./UserCard";
 import { UserDocument } from '@/types';
@@ -39,7 +38,6 @@ const Dashboard: React.FC = ({ }) => {
   }, []);
 
   return <Box>
-    <Helmet title="Dashboard" />
     <UserCard user={user} />
     <Box sx={{ my: 2, display: "flex", flexDirection: "column", gap: 2 }}>
       <Button component={RouterLink} href={user?.role === "admin" ? "/admin" : "/dashboard"} sx={{ mx: "auto" }}>

@@ -92,7 +92,7 @@ const TopAppBar: React.FC<{}> = () => {
             <Link component={RouterLink} prefetch={false} href="/">
               <Box sx={{ display: "flex" }}>
                 <Image src={logo} alt="Logo" width={32} height={32} priority />
-                <Typography variant="h6" component="div" sx={{ marginInlineStart: 2, color: "white" }}>Math Editor</Typography>
+                <Typography variant="h6" component="h1" sx={{ marginInlineStart: 2, color: "white" }}>Math Editor</Typography>
               </Box>
             </Link>
             <Box sx={{ flexGrow: 1 }} />

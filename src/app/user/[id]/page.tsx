@@ -7,7 +7,7 @@ import User from "@/components/User";
 import { validate } from "uuid";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const metadata: OgMetadata = { id: params.id };
+  const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
   try {
     const isValidId = validate(params.id);
     if (!isValidId) {
@@ -15,23 +15,20 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
         const id = await findUserIdByHandle(params.id);
         if (id) params.id = id;
       } catch (error) {
-        metadata.title = 'Error 404';
         metadata.subtitle = 'User Not Found';
         return metadata;
       }
     }
     const user = await findUserById(params.id);
     if (user) {
-      metadata.title = user.name;
+      metadata.title = `${user.name} | Math Editor`;
       metadata.subtitle = new Date(user.createdAt).toDateString()
-      metadata.description = `View document published by ${user.name} on Math Editor`;
+      metadata.description = `${user.name} | Math Editor`;
       metadata.user = { name: user.name, image: user.image!, email: user.email };
     } else {
-      metadata.title = 'Error 404';
       metadata.subtitle = 'User Not Found';
     }
   } catch (error) {
-    metadata.title = 'Error 500';
     metadata.subtitle = 'Internal Server Error';
   }
 

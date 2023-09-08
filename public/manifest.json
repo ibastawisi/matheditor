@@ -2,7 +2,7 @@
   "id": "matheditor.me",
   "short_name": "Math Editor",
   "name": "Math Editor",
-  "description": "Write math reports as Easy as Pi",
+  "description": "Math Editor is a free online text editor, with support for LaTeX, Geogebra, Excalidraw and markdown shortcuts. Edit, share and print math documents with ease.",
   "orientation": "portrait",
   "dir": "ltr",
   "lang": "en",

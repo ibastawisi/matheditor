@@ -8,7 +8,7 @@ import AdminDashboard from "@/components/AdminDashboard";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Admin Dashboard",
+  title: "Admin Dashboard | Math Editor",
   description: "Admin Dashboard",
 }
 

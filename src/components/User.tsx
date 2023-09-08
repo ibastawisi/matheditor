@@ -3,7 +3,6 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useState, memo } from "react";
-import { Helmet } from "react-helmet";
 import UserCard from "./UserCard";
 import { User, UserDocument } from '@/types';
 import DocumentCard from "./DocumentCard";
@@ -23,7 +22,6 @@ const User: React.FC<{ user?: User, documents?: UserDocument[] }> = ({ user, doc
   const handlePageChange = (_: any, value: number) => setPage(value);
 
   return <Box>
-    <Helmet title={`${user?.name ?? "User Not Found"}`} />
     <UserCard user={user} />
     {user && <Box sx={{ gap: 1, my: 2 }}>
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>

@@ -10,14 +10,13 @@ import parse from 'html-react-parser';
 import { validate } from "uuid";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const metadata: OgMetadata = { id: params.id };
+  const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
   const isValidId = validate(params.id);
   if (!isValidId) {
     try {
       const id = await findDocumentIdByHandle(params.id);
       if (id) params.id = id;
     } catch (error) {
-      metadata.title = 'Error 404';
       metadata.subtitle = 'Document Not Found';
       return metadata;
     }
@@ -25,16 +24,14 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   try {
     const document = await findUserDocument(params.id);
     if (document) {
-      metadata.title = document.name;
+      metadata.title = `${document.name} | Math Editor`;
       metadata.subtitle = new Date(document.createdAt).toDateString()
-      metadata.description = `View ${document.name} on Math Editor`;
+      metadata.description = `${document.name} | Math Editor`;
       metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
     } else {
-      metadata.title = 'Error 404';
       metadata.subtitle = 'Document Not Found';
     }
   } catch (error) {
-    metadata.title = 'Error 500';
     metadata.subtitle = 'Internal Server Error';
   }
 

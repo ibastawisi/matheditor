@@ -9,7 +9,7 @@ import ThemeProvider from '@/components/ThemeProvider';
 
 export const metadata: Metadata = {
   title: 'Math Editor',
-  description: 'Write math reports as Easy as Pi',
+  description: 'Math Editor is a free online text editor, with support for LaTeX, Geogebra, Excalidraw and markdown shortcuts. Create, share and print math documents with ease.',
   colorScheme: 'dark light',
   themeColor: [{
     media: "(prefers-color-scheme: light)",
@@ -34,8 +34,7 @@ export const metadata: Metadata = {
   icons: [
     { rel: "shortcut icon", url: "/favicon.ico" },
   ],
-  keywords: ["Math", "Editor", "Latex", "Math Editor", "Math Editor Online"],
-
+  keywords: ["Math Editor", "Online Math Editor", "Matheditor", "Math", "Editor", "Latex", "Geogebra", "Excalidraw", "Markdown"]
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
