@@ -17,7 +17,7 @@ import type {
   Spread,
 } from 'lexical';
 
-import { $getRoot, DecoratorNode, createEditor } from 'lexical';
+import { $getRoot, DecoratorNode, createEditor, isHTMLElement } from 'lexical';
 import * as React from 'react';
 import { Suspense } from 'react';
 import { editorConfig } from './config';
@@ -92,7 +92,7 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const { element } = super.exportDOM(editor);
-    if (element instanceof HTMLElement) {
+    if (element && isHTMLElement(element)) {
       this.__editor.getEditorState().read(() => {
         const html = $generateHtmlFromNodes(this.__editor);
         element.innerHTML = `<div class="sticky-note-container" theme="light"><div class="sticky-note ${this.__color}"><div class="nested-contentEditable">${html}</div></div></div>`

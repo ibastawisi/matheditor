@@ -6,7 +6,7 @@
  *
  */
 
-import { DOMConversionMap, DOMConversionOutput, DOMExportOutput, LexicalEditor, LexicalNode, NodeKey, Spread, } from 'lexical';
+import { DOMConversionMap, DOMConversionOutput, DOMExportOutput, LexicalEditor, LexicalNode, NodeKey, Spread, isHTMLElement, } from 'lexical';
 import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
 
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
@@ -87,7 +87,7 @@ export class SketchNode extends ImageNode {
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const { element } = super.exportDOM(editor);
-    if (element instanceof HTMLElement) {
+    if (element && isHTMLElement(element)) {
       element.innerHTML = decodeURIComponent(this.__src.split(',')[1]);
       const svg = element.firstElementChild!;
       if (this.__width) svg.setAttribute('width', this.__width.toString());

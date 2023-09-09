@@ -1,4 +1,4 @@
-import { $createNodeSelection, $setSelection, DOMExportOutput, EditorConfig, LexicalEditor, LexicalNode, NodeKey, SerializedLexicalNode, Spread, } from 'lexical';
+import { $createNodeSelection, $setSelection, DOMExportOutput, EditorConfig, LexicalEditor, LexicalNode, NodeKey, SerializedLexicalNode, Spread, isHTMLElement, } from 'lexical';
 import { DecoratorNode, } from 'lexical';
 import { createRef } from 'react';
 import { MathfieldElement, convertLatexToMarkup } from "mathlive";
@@ -44,7 +44,7 @@ export class MathNode extends DecoratorNode<JSX.Element> {
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const { element } = super.exportDOM(editor);
-    if (element instanceof HTMLElement) {
+    if (element && isHTMLElement(element)) {
       element.innerHTML = convertLatexToMarkup(this.__value);
     }
     return { element };

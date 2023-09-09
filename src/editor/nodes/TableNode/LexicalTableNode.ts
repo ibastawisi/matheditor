@@ -24,6 +24,7 @@ import {
   $applyNodeReplacement,
   $getNearestNodeFromDOMNode,
   DEPRECATED_GridNode,
+  isHTMLElement,
 } from 'lexical';
 
 import { $isTableCellNode } from './LexicalTableCellNode';
@@ -86,7 +87,7 @@ export class TableNode extends DEPRECATED_GridNode {
     return {
       ...super.exportDOM(editor),
       after: (tableElement) => {
-        if (tableElement instanceof HTMLElement) {
+        if (tableElement && isHTMLElement(tableElement)) {
           const newElement = tableElement.cloneNode() as ParentNode;
           const colGroup = document.createElement('colgroup');
           const tBody = document.createElement('tbody');
