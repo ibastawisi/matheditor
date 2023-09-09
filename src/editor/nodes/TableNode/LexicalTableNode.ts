@@ -86,7 +86,7 @@ export class TableNode extends DEPRECATED_GridNode {
     return {
       ...super.exportDOM(editor),
       after: (tableElement) => {
-        if (tableElement) {
+        if (tableElement instanceof HTMLElement) {
           const newElement = tableElement.cloneNode() as ParentNode;
           const colGroup = document.createElement('colgroup');
           const tBody = document.createElement('tbody');
@@ -135,10 +135,12 @@ export class TableNode extends DEPRECATED_GridNode {
       const row = cells[y];
 
       if (row == null) {
-        throw new Error(`Row not found at y:${y}`);
+        continue;
       }
 
-      const x = row.findIndex(({ elem }) => {
+      const x = row.findIndex((cell) => {
+        if (!cell) return;
+        const {elem} = cell;
         const cellNode = $getNearestNodeFromDOMNode(elem);
         return cellNode === tableCellNode;
       });

@@ -4,7 +4,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 })
 
-const withPWA = require("@imbios/next-pwa")({
+const withPWA = require("./next-pwa")({
   dest: "public",
   disable: process.env.NODE_ENV === 'development',
   register: false,
@@ -13,10 +13,6 @@ const withPWA = require("@imbios/next-pwa")({
   cacheStartUrl: false,
   dynamicStartUrl: false,
   reloadOnOnline: false,
-  fallbacks: {
-    document: "/~offline",
-  },
-  runtimeCaching: require("./cache.js"),
 });
 
 

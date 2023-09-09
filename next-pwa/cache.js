@@ -3,10 +3,8 @@
 // Workbox RuntimeCaching config: https://developers.google.com/web/tools/workbox/reference-docs/latest/module-workbox-build#.RuntimeCachingEntry
 module.exports = [
   {
-    urlPattern: ({ url }) => {
-      const isSameOrigin = self.origin === url.origin;
-      if (!isSameOrigin) return false;
-      const pathname = url.pathname;
+    urlPattern: ({ url: { pathname }, sameOrigin }) => {
+      if (!sameOrigin) return false;
       if (pathname === "/") return true;
       if (pathname === "/playground") return true;
       if (pathname === "/tutorial") return true;

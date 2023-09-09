@@ -87,7 +87,7 @@ function $appendNodesToHTML(
   const children = $isElementNode(target) ? target.getChildren() : [];
   const { element, after } = target.exportDOM(editor);
 
-  if (!element) {
+  if (!(element instanceof HTMLElement)) {
     return false;
   }
 

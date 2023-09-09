@@ -87,17 +87,18 @@ export class SketchNode extends ImageNode {
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const { element } = super.exportDOM(editor);
-    if (!element) return { element };
-    element.innerHTML = decodeURIComponent(this.__src.split(',')[1]);
-    const svg = element.firstElementChild!;
-    if (this.__width) svg.setAttribute('width', this.__width.toString());
-    if (this.__height) svg.setAttribute('height', this.__height.toString());
-    if (!this.__showCaption) return { element };
-    const caption = document.createElement('figcaption');
-    this.__caption.getEditorState().read(() => {
-      caption.innerHTML = $generateHtmlFromNodes(this.__caption);
-    });
-    element.appendChild(caption);
+    if (element instanceof HTMLElement) {
+      element.innerHTML = decodeURIComponent(this.__src.split(',')[1]);
+      const svg = element.firstElementChild!;
+      if (this.__width) svg.setAttribute('width', this.__width.toString());
+      if (this.__height) svg.setAttribute('height', this.__height.toString());
+      if (!this.__showCaption) return { element };
+      const caption = document.createElement('figcaption');
+      this.__caption.getEditorState().read(() => {
+        caption.innerHTML = $generateHtmlFromNodes(this.__caption);
+      });
+      element.appendChild(caption);
+    }
     return { element };
   }
 
