@@ -30,9 +30,7 @@ module.exports = [
         },
         {
           cacheWillUpdate: async ({ request, response }) => {
-            const pathname = new URL(request.url).pathname;
-            const id = pathname.split("/")[2];
-            if (id) return;
+            if (!request.headers.get("update")) return;
             return response;
           }
         }

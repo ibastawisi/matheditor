@@ -19,37 +19,39 @@ const PwaUpdater = () => {
       window.workbox !== undefined
     ) {
       const wb = window.workbox;
-      wb.addEventListener("waiting", () => { wb.messageSkipWaiting() });
-      wb.addEventListener("activated", (event) => {
-        dispatch(actions.announce({
-          message: event.isUpdate ? "Update was installed." : "App is ready for offline use.",
-          timeout: 6000,
-          action: {
-            label: "Refresh",
-            onClick: "window.location.reload()"
-          }
-        }));
-      });
-      wb.addEventListener("installed", () => {
+      wb.addEventListener("waiting", () => {
+        wb.messageSkipWaiting();
+       });
+      wb.addEventListener("controlling", (event) => {
         const origin = location.origin;
         const urlsToCache = [
-          `${origin}/`,
-          [`${origin}/?_rsc`, { headers: { "RSC": "1" } }],
-          `${origin}/playground`,
-          [`${origin}/playground?_rsc`, { headers: { "RSC": "1" } }],
-          `${origin}/tutorial`,
-          [`${origin}/tutorial?_rsc`, { headers: { "RSC": "1" } }],
-          `${origin}/new`,
-          [`${origin}/new?_rsc`, { headers: { "RSC": "1" } }],
-          `${origin}/edit`,
-          [`${origin}/edit?_rsc`, { headers: { "RSC": "1" } }],
-          `${origin}/dashboard`,
-          [`${origin}/dashboard?_rsc`, { headers: { "RSC": "1" } }],
-          `${origin}/privacy`,
-          [`${origin}/privacy?_rsc`, { headers: { "RSC": "1" } }],
+          [`${origin}/`, { headers: { "update": "1" } }],
+          [`${origin}/?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
+          [`${origin}/playground`, { headers: { "update": "1" } }],
+          [`${origin}/playground?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
+          [`${origin}/tutorial`, { headers: { "update": "1" } }],
+          [`${origin}/tutorial?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
+          [`${origin}/new`, { headers: { "update": "1" } }],
+          [`${origin}/new?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
+          [`${origin}/edit`, { headers: { "update": "1" } }],
+          [`${origin}/edit?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
+          [`${origin}/dashboard`, { headers: { "update": "1" } }],
+          [`${origin}/dashboard?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
+          [`${origin}/privacy`, { headers: { "update": "1" } }],
+          [`${origin}/privacy?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
         ]
-        wb.messageSW({ type: "CACHE_URLS", payload: { urlsToCache } }).then((event) => { wb.messageSkipWaiting() });
+        wb.messageSW({ type: "CACHE_URLS", payload: { urlsToCache } }).then(() => {
+          dispatch(actions.announce({
+            message: event.isUpdate ? "Update was installed." : "App is ready for offline use.",
+            timeout: 6000,
+            action: {
+              label: "Refresh",
+              onClick: "window.location.reload()"
+            }
+          }));
+        });
       });
+
       wb.register();
     }
   }, []);
