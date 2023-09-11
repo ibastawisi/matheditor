@@ -9,7 +9,7 @@ import ThemeProvider from '@/components/ThemeProvider';
 
 export const metadata: Metadata = {
   title: 'Math Editor',
-  description: 'Math Editor is a free online text editor, with support for LaTeX, Geogebra, Excalidraw and markdown shortcuts. Create, share and print math documents with ease.',
+  description: 'Math Editor is a free text editor, with support for LaTeX, Geogebra, Excalidraw and markdown shortcuts. Create, share and print math documents with ease.',
   colorScheme: 'dark light',
   themeColor: [{
     media: "(prefers-color-scheme: light)",
