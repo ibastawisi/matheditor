@@ -201,6 +201,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
     handle: yup
       .string()
       .min(3, 'Handle must be at least 3 characters')
+      .strict().lowercase('Handle must be lowercase')
       .matches(/^[a-zA-Z0-9-]*$/, 'Handle must only contain letters, numbers, and dashes')
       .test('is-online', 'Cannot change handle while offline', value => !value || value === document.handle || navigator.onLine)
       .test('is-cloud', 'Document is not saved to the cloud', value => !value || value === document.handle || isCloud || isUploaded)
@@ -280,7 +281,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
           <SettingsIcon />
         </IconButton>
         <Dialog open={editDialogOpen} onClose={closeEditDialog} fullWidth maxWidth="xs">
-          <form onSubmit={formik.handleSubmit} noValidate autoComplete="off">
+          <form onSubmit={formik.handleSubmit} noValidate autoComplete="off" spellCheck="false">
             <DialogTitle>Edit Document</DialogTitle>
             <DialogContent sx={{ "& .MuiFormHelperText-root": { overflow: "hidden", textOverflow: "ellipsis" } }}>
               <TextField margin="normal" size="small" fullWidth

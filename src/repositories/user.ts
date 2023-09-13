@@ -16,7 +16,7 @@ const findUserById = async (id: string) => {
 
 const findUserByHandle = async (handle: string) => {
   return prisma.user.findUnique({
-    where: { handle },
+    where: { handle: handle.toLowerCase() },
   });
 }
 
@@ -45,7 +45,7 @@ const deleteUser = async (id: string) => {
 
 const findUserIdByHandle = async (handle: string) => {
   const user = await prisma.user.findUnique({
-    where: { handle },
+    where: { handle: handle.toLowerCase() },
     select: {
       id: true,
     }
@@ -54,7 +54,7 @@ const findUserIdByHandle = async (handle: string) => {
 }
 
 const checkHandleAvailability = async (handle: string) => {
-  const userId = await findUserIdByHandle(handle);
+  const userId = await findUserIdByHandle(handle.toLowerCase());
   return !userId;
 }
 

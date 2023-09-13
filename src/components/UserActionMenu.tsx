@@ -49,6 +49,7 @@ function UserActionMenu({ user }: { user: User }): JSX.Element {
     handle: yup
       .string()
       .min(3, 'Handle must be at least 3 characters')
+      .strict().lowercase('Handle must be lowercase')
       .matches(/^[a-zA-Z0-9-]*$/, 'Handle must only contain letters, numbers, and dashes')
       .test('is-online', 'Cannot change handle while offline', value => !value || value === user.handle || navigator.onLine)
       .test('is-unique', 'Handle is already taken', value => new Promise(resolve => checkHandle(resolve, value)))
@@ -85,7 +86,7 @@ function UserActionMenu({ user }: { user: User }): JSX.Element {
         <SettingsIcon />
       </IconButton>
       <Dialog open={editDialogOpen} onClose={closeEditDialog} fullWidth maxWidth="xs">
-        <form onSubmit={formik.handleSubmit} noValidate autoComplete="off">
+        <form onSubmit={formik.handleSubmit} noValidate autoComplete="off" spellCheck="false">
           <DialogTitle>Edit User</DialogTitle>
           <DialogContent sx={{ "& .MuiFormHelperText-root": { overflow: "hidden", textOverflow: "ellipsis" } }}>
             <TextField margin="normal" size="small" fullWidth

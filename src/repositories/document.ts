@@ -182,7 +182,7 @@ const deleteDocument = async (id: string) => {
 
 const findDocumentIdByHandle = async (handle: string) => {
   const document = await prisma.document.findUnique({
-    where: { handle },
+    where: { handle: handle.toLowerCase() },
     select: {
       id: true,
     }
@@ -191,7 +191,7 @@ const findDocumentIdByHandle = async (handle: string) => {
 }
 
 const checkHandleAvailability = async (handle: string) => {
-  const documentId = await findDocumentIdByHandle(handle);
+  const documentId = await findDocumentIdByHandle(handle.toLowerCase());
   return !documentId;
 }
 
