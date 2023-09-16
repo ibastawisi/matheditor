@@ -20,6 +20,11 @@ import ColorPicker from './ColorPicker';
 import { $isMathNode, MathNode } from '../../../nodes/MathNode';
 import { $patchStyle } from '../../../nodes/utils';
 
+import SvgIcon from '@mui/material/SvgIcon';
+const HighlightIcon = () => <SvgIcon viewBox='0 -960 960 960' fontSize='small'>
+  <path xmlns="http://www.w3.org/2000/svg" d="M80 0v-160h800V0H80Zm504-480L480-584 320-424l103 104 161-160Zm-47-160 103 103 160-159-104-104-159 160Zm-84-29 216 216-189 190q-24 24-56.5 24T367-263l-27 23H140l126-125q-24-24-25-57.5t23-57.5l189-189Zm0 0 187-187q24-24 56.5-24t56.5 24l104 103q24 24 24 56.5T857-640L669-453 453-669Z" />
+</SvgIcon>;
+
 export default function TextFormatToggles({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> | undefined }): JSX.Element {
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
@@ -28,6 +33,7 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
   const [isSubscript, setIsSubscript] = useState(false);
   const [isSuperscript, setIsSuperscript] = useState(false);
   const [isCode, setIsCode] = useState(false);
+  const [isHighlight, setIsHighlight] = useState(false);
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -41,6 +47,7 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
       setIsSubscript(selection.hasFormat('subscript'));
       setIsSuperscript(selection.hasFormat('superscript'));
       setIsCode(selection.hasFormat('code'));
+      setIsHighlight(selection.hasFormat('highlight'));
 
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -92,7 +99,7 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
     editor.dispatchCommand(FORMAT_TEXT_COMMAND, button.value as TextFormatType);
   };
 
-  const formatObj = { isBold, isItalic, isUnderline, isStrikethrough, isSubscript, isSuperscript, isCode };
+  const formatObj = { isBold, isItalic, isUnderline, isStrikethrough, isSubscript, isSuperscript, isCode, isHighlight };
   const formatKeys = Object.keys(formatObj) as Array<keyof typeof formatObj>;
 
   const formats = formatKeys.reduce(
@@ -113,6 +120,9 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
     </ToggleButton>
     <ToggleButton value="underline" title={IS_APPLE ? 'Underline (⌘U)' : 'Underline (Ctrl+U)'} aria-label={`Format text to underlined. Shortcut: ${IS_APPLE ? '⌘U' : 'Ctrl+U'}`}>
       <FormatUnderlinedIcon />
+    </ToggleButton>
+    <ToggleButton value="highlight" title='Highlight selected text' aria-label='Highlight selected text'>
+      <HighlightIcon />
     </ToggleButton>
     <ToggleButton value="code" title='Format text to inline code' aria-label='Format text to inline code'>
       <CodeIcon />

@@ -519,6 +519,7 @@ const FORMAT_PREDICATES = [
     node.hasFormat('superscript') && 'Superscript',
   (node: LexicalNode | RangeSelection) =>
     node.hasFormat('underline') && 'Underline',
+  (node: LexicalNode | RangeSelection) => node.hasFormat('highlight') && 'Highlight',
 ];
 
 const DETAIL_PREDICATES = [
