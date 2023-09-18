@@ -1,8 +1,9 @@
 import { authOptions } from "@/lib/auth";
-import { checkHandleAvailability, deleteDocument, findDocumentAuthorId, findDocumentById, findDocumentIdByHandle, findUserDocument, updateDocument } from "@/repositories/document";
+import { deleteDocument, findDocumentAuthorId, findDocumentById, findDocumentIdByHandle, findUserDocument, updateDocument } from "@/repositories/document";
 import { DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server"
+import { createRevision } from "@/repositories/revision";
 import { validate } from "uuid";
 
 export const dynamic = "force-dynamic";
@@ -61,13 +62,24 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       response.error = "Bad input"
       return NextResponse.json(response, { status: 400 })
     }
-    if(body.handle) {
-      const error = await validateHandle(body.handle);
+    if (body.handle) {
+      const error = await validateHandle(params.id, body.handle);
       if (error) {
         response.error = error;
         return NextResponse.json(response, { status: 400 })
       }
     }
+    if (body.data) {
+      const revision = await createRevision({
+        documentId: params.id,
+        authorId: user.id,
+        createdAt: new Date().toISOString(),
+        data: body.data,
+      })
+      body.head = revision.id;
+      delete body.data;
+    }
+
     await updateDocument(params.id, body);
     const userDocument = await findUserDocument(params.id);
     response.data = userDocument as unknown as PatchDocumentResponse["data"];
@@ -111,15 +123,15 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   }
 }
 
-const validateHandle = async (handle: string) => {
+const validateHandle = async (id: string, handle: string) => {
   if (handle.length < 3) {
     return "Handle must be at least 3 characters long";
   }
   if (!/^[a-zA-Z0-9-]+$/.test(handle)) {
     return "Handle must only contain letters, numbers, and dashes";
   }
-  const isAvailable = await checkHandleAvailability(handle);
-  if (!isAvailable) {
+  const handleId = await findDocumentIdByHandle(handle);
+  if (handleId && handleId !== id) {
     return "Handle is already taken";
   }
   return null;

@@ -1,5 +1,21 @@
 import { useDispatch as useReduxDispatch, useSelector as useReduxSelector } from "react-redux";
-import { appSlice, deleteCloudDocument, getCloudDocument, loadLocalDocuments, createCloudDocument, updateCloudDocument, load, getLocalDocument, createLocalDocument, deleteLocalDocument, loadCloudDocuments, updateLocalDocument, updateUser } from "./app";
+import {
+  appSlice,
+  deleteCloudDocument,
+  getCloudDocument,
+  loadLocalDocuments,
+  createCloudDocument,
+  updateCloudDocument,
+  load,
+  getLocalDocument,
+  createLocalDocument,
+  deleteLocalDocument,
+  loadCloudDocuments,
+  updateLocalDocument,
+  updateUser,
+  deleteCloudRevision,
+  getCloudRevision
+} from "./app";
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
 export const actions = {
@@ -19,6 +35,9 @@ export const actions = {
   updateCloudDocument,
   deleteCloudDocument,
 
+  getCloudRevision,
+  deleteCloudRevision,
+
   updateUser,
 };
 
@@ -31,7 +50,7 @@ export type AppThunk<ReturnType = void> = ThunkAction<
   RootState,
   unknown,
   Action<string>
->; 	
+>;
 
 export const useDispatch: () => AppDispatch = useReduxDispatch;
 export const useSelector: <T>(selector: (state: RootState) => T) => T = useReduxSelector;

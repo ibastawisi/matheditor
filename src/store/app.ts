@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import NProgress from "nprogress";
 import documentDB from '@/indexeddb';
-import { AppState, Announcement, Alert, EditorDocument, UserDocument, DocumentVariant, LocalDocument, CloudDocument, User, PatchUserResponse } from '../types';
+import { AppState, Announcement, Alert, EditorDocument, LocalDocument, CloudDocument, User, PatchUserResponse, GetSessionResponse, DeleteRevisionResponse, GetRevisionResponse, isCloudDocument } from '../types';
 import { GetDocumentsResponse, PostDocumentsResponse, DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from '@/types';
 import { validate } from 'uuid';
 
@@ -14,10 +14,23 @@ const initialState: AppState = {
 
 export const load = createAsyncThunk('app/load', async (_, thunkAPI) => {
   await Promise.allSettled([
+    thunkAPI.dispatch(loadSession()),
     thunkAPI.dispatch(loadLocalDocuments()),
     thunkAPI.dispatch(loadCloudDocuments()),
     thunkAPI.dispatch(loadPublishedDocuments()),
   ]);
+});
+
+export const loadSession = createAsyncThunk('app/loadSession', async (_, thunkAPI) => {
+  try {
+    const response = await fetch('/api/auth/session');
+    const data = await response.json() as GetSessionResponse;
+    if (!data) return thunkAPI.rejectWithValue('unauthenticated');
+    const payload = data.user;
+    return thunkAPI.fulfillWithValue(payload);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
+  }
 });
 
 export const loadLocalDocuments = createAsyncThunk('app/loadLocalDocuments', async (_, thunkAPI) => {
@@ -183,6 +196,38 @@ export const deleteCloudDocument = createAsyncThunk('app/deleteCloudDocument', a
   }
 });
 
+export const getCloudRevision = createAsyncThunk('app/getCloudRevision', async (id: string, thunkAPI) => {
+  try {
+    NProgress.start();
+    const response = await fetch(`/api/revisions/${id}`);
+    const { data, error } = await response.json() as GetRevisionResponse;
+    if (error) return thunkAPI.rejectWithValue(error);
+    if (!data) return thunkAPI.rejectWithValue('revision not found');
+    return thunkAPI.fulfillWithValue(data);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
+  } finally {
+    NProgress.done();
+  }
+});
+
+export const deleteCloudRevision = createAsyncThunk('app/deleteCloudRevision', async (id: string, thunkAPI) => {
+  try {
+    NProgress.start();
+    const response = await fetch(`/api/revisions/${id}`, {
+      method: 'DELETE',
+    });
+    const { data, error } = await response.json() as DeleteRevisionResponse;
+    if (error) return thunkAPI.rejectWithValue(error);
+    if (!data) return thunkAPI.rejectWithValue('failed to delete revision');
+    return thunkAPI.fulfillWithValue(data);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
+  } finally {
+    NProgress.done();
+  }
+});
+
 export const updateUser = createAsyncThunk('app/updateUser', async (payloadCreator: { id: string, partial: Partial<User> }, thunkAPI) => {
   NProgress.start();
   const { id, partial } = payloadCreator;
@@ -231,6 +276,10 @@ export const appSlice = createSlice({
       .addCase(load.fulfilled, (state, action) => {
         state.documents = state.documents.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
         state.initialized = true;
+      })
+      .addCase(loadSession.fulfilled, (state, action) => {
+        const user = action.payload;
+        state.user = user;
       })
       .addCase(loadLocalDocuments.fulfilled, (state, action) => {
         const documents = action.payload;
@@ -300,6 +349,21 @@ export const appSlice = createSlice({
         if (index !== -1) state.documents.splice(index, 1);
       })
       .addCase(deleteCloudDocument.rejected, (state, action) => {
+        const message = action.payload as string;
+        state.announcements.push({ message });
+      })
+      .addCase(getCloudRevision.rejected, (state, action) => {
+        const message = action.payload as string;
+        state.announcements.push({ message });
+      })
+      .addCase(deleteCloudRevision.fulfilled, (state, action) => {
+        const { id, documentId } = action.payload;
+        const document = state.documents.filter(isCloudDocument).find(doc => doc.id === documentId);
+        if (document) {
+          document.revisions = document.revisions.filter(rev => rev.id !== id);
+        }
+      })
+      .addCase(deleteCloudRevision.rejected, (state, action) => {
         const message = action.payload as string;
         state.announcements.push({ message });
       })

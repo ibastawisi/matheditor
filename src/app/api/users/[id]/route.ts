@@ -1,5 +1,5 @@
 import { authOptions } from "@/lib/auth";
-import { findUserById, updateUser, deleteUser, checkHandleAvailability, findUserIdByHandle } from "@/repositories/user";
+import { findUserById, updateUser, deleteUser, findUserIdByHandle } from "@/repositories/user";
 import { DeleteUserResponse, GetUserResponse, PatchUserResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
@@ -61,7 +61,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       return NextResponse.json(response, { status: 400 })
     }
     if (body.handle) {
-      const errors = await validateHandle(body.handle);
+      const errors = await validateHandle(params.id, body.handle);
       if (errors) {
         response.error = errors;
         return NextResponse.json(response, { status: 400 })
@@ -111,17 +111,16 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   }
 }
 
-const validateHandle = async (handle: string) => {
+const validateHandle = async (id: string, handle: string) => {
   if (handle.length < 3) {
     return "Handle must be at least 3 characters long";
   }
   if (!/^[a-zA-Z0-9-]+$/.test(handle)) {
     return "Handle must only contain letters, numbers, and dashes";
   }
-  const isAvailable = await checkHandleAvailability(handle);
-  if (!isAvailable) {
+  const handleId = await findUserIdByHandle(handle);
+  if (handleId && handleId !== id) {
     return "Handle is already taken";
   }
-
   return null;
 }

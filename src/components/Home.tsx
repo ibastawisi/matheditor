@@ -6,23 +6,17 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import Documents from "./Documents";
-import { useDispatch, useSelector, actions } from '@/store';
 
 const Home: React.FC = () => {
   const [welcomed, setWelcomed] = useLocalStorage("welcomed", false);
-  const dispatch = useDispatch();
-  const initialized = useSelector(state => state.initialized);
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
   const handleClose = () => setWelcomed(true);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    if (!initialized) dispatch(actions.load());
-  }, []);
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
   return (
     <>

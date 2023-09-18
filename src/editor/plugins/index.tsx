@@ -36,6 +36,13 @@ import { StickyNode } from "../nodes/StickyNode";
 import { TableNode } from "../nodes/TableNode";
 import { PageBreakNode } from "../nodes/PageBreakNode";
 import PageBreakPlugin from "./PageBreakPlugin";
+import { useEffect } from "react";
+
+declare global {
+  interface Window {
+    editor?: LexicalEditor;
+  }
+}
 
 export const EditorPlugins: React.FC<{
   contentEditable: React.ReactElement;
@@ -44,6 +51,8 @@ export const EditorPlugins: React.FC<{
 }> = ({ contentEditable, placeholder = null, onChange }) => {
   const [editor] = useLexicalComposerContext();
   const { historyState } = useSharedHistoryContext();
+
+  useEffect(() => { window.editor = editor; }, [editor]);
 
   return (
     <>

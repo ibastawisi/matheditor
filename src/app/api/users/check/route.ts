@@ -3,7 +3,7 @@ import { CheckHandleResponse } from "@/types";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
-    const response: CheckHandleResponse = {};
+  const response: CheckHandleResponse = {};
   const { searchParams } = new URL(request.url);
   const handle = searchParams.get('handle');
   if (!handle) {

@@ -15,14 +15,15 @@ import Zoom from '@mui/material/Zoom';
 import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ColorModeContext } from '@/components/ThemeProvider';
 import useTheme from '@mui/material/styles/useTheme';
 import Avatar from '@mui/material/Avatar';
 import logo from "/public/logo.svg";
 import Image from 'next/image';
-import { useSession } from 'next-auth/react';
-import { useDispatch, actions } from '@/store';
+import { useDispatch, actions, useSelector } from '@/store';
+import RestoreIcon from '@mui/icons-material/Restore';
+import DocumentRevisions from './DocumentRevisions';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname();
@@ -69,20 +70,20 @@ const TopAppBar: React.FC<{}> = () => {
   const colorMode = useContext(ColorModeContext);
   const dispatch = useDispatch();
   const theme = useTheme();
-  const { data: session, status } = useSession();
-  const user = session?.user;
   const pathname = usePathname();
   const showPrintButton = !!['/edit', '/view', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
+  const showRevisionButton = !!['/edit'].find(path => pathname.startsWith(path));
+  const [revisionsDrawerOpen, setRevisionsDrawerOpen] = useState(false);
+  const initialized = useSelector(state => state.initialized);
+  const user = useSelector(state => state.user);
 
-  const handlePrint = () => {
-    window.print();
-  }
+  const toggleRevisionsDrawer = () => { setRevisionsDrawerOpen(!revisionsDrawerOpen); };
 
-  useEffect(() => {
-    if (status === "authenticated") {
-      dispatch(actions.setUser(user));
-    }
-  }, [status]);
+  const handlePrint = () => { window.print(); }
+
+  useEffect(() => { 
+    if (!initialized) dispatch(actions.load());
+   }, []);
 
   return (
     <>
@@ -105,6 +106,9 @@ const TopAppBar: React.FC<{}> = () => {
             {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={handlePrint}>
               <PrintIcon />
             </IconButton>}
+            {showRevisionButton && <IconButton aria-label="Revisions" color='inherit' onClick={() => { toggleRevisionsDrawer() }}>
+              <RestoreIcon />
+            </IconButton>}
           </Toolbar>
         </AppBar>
       </HideOnScroll>
@@ -114,6 +118,7 @@ const TopAppBar: React.FC<{}> = () => {
           <KeyboardArrowUpIcon />
         </Fab>
       </ScrollTop>
+      <DocumentRevisions open={revisionsDrawerOpen} onClose={toggleRevisionsDrawer} />
     </>
   );
 };

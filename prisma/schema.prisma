@@ -11,7 +11,6 @@ model Document {
   id        String     @id @default(uuid()) @db.Uuid
   handle    String?    @unique
   name      String
-  data      Json
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime   @default(now()) @map("updated_at")
   authorId  String     @map("author_id") @db.Uuid
@@ -20,8 +19,22 @@ model Document {
   baseId    String?    @map("base_id") @db.Uuid
   base      Document?  @relation("BaseForks", fields: [baseId], references: [id])
   forks     Document[] @relation("BaseForks")
+  revisions Revision[]
+  head      String?    @db.Uuid
 
   @@map("documents")
+}
+
+model Revision {
+  id         String   @id @default(uuid()) @db.Uuid
+  data       Json
+  createdAt  DateTime @default(now()) @map("created_at")
+  documentId String   @map("document_id") @db.Uuid
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  authorId   String   @map("author_id") @db.Uuid
+  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("revisions")
 }
 
 model User {
@@ -38,6 +51,7 @@ model User {
   documents     Document[]
   accounts      Account[]
   sessions      Session[]
+  revisions     Revision[]
 
   @@map("users")
 }

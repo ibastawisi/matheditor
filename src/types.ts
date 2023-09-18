@@ -1,5 +1,6 @@
 "use client"
 import type { SerializedEditorState } from 'lexical';
+import { Session } from 'next-auth';
 
 export interface Alert {
   title: string;
@@ -32,11 +33,24 @@ export interface EditorDocument {
   updatedAt: string;
   published?: boolean;
   baseId?: string;
+  head?: string;
 }
+
+export interface CloudDocumentRevision {
+  id: string;
+  documentId: string;
+  createdAt: string;
+  author: User;
+}
+
+export interface DocumentRevision extends CloudDocumentRevision {
+  data: SerializedEditorState;
+}
+
 
 type UserDocumentBase = Omit<EditorDocument, "data"> & { variant: DocumentVariant; };
 export type LocalDocument = UserDocumentBase & { variant: "local" }
-export type CloudDocument = UserDocumentBase & { variant: "cloud", author: User; }
+export type CloudDocument = UserDocumentBase & { variant: "cloud", author: User; revisions: CloudDocumentRevision[] }
 export type UserDocument = LocalDocument | CloudDocument;
 
 export const isLocalDocument = (document: UserDocument): document is LocalDocument => document.variant === "local";
@@ -57,13 +71,8 @@ export interface User {
 }
 
 export type UserSessionStatus = "authenticated" | "unauthenticated" | "loading";
-export interface GetAdminResponse {
-  data?: {
-    users: User[];
-    documents: CloudDocumentResponse[];
-  }
-  error?: string;
-}
+
+export type GetSessionResponse = Session | null;
 
 export interface GetUsersResponse {
   data?: User[];
@@ -119,3 +128,14 @@ export interface CheckHandleResponse {
   data?: boolean;
   error?: string;
 }
+
+export interface GetRevisionResponse {
+  data?: DocumentRevision;
+  error?: string;
+}
+
+export interface DeleteRevisionResponse {
+  data?: { id: string; documentId: string; };
+  error?: string;
+}
+

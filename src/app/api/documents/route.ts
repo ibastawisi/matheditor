@@ -1,8 +1,9 @@
 import { authOptions } from "@/lib/auth";
-import { createDocument, findDocumentsByAuthorId, findUserDocument } from "@/repositories/document";
+import { createDocument, findDocumentsByAuthorId, findUserDocument, updateDocument } from "@/repositories/document";
 import { GetDocumentsResponse, PostDocumentsResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
+import { createRevision } from "@/repositories/revision";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +49,17 @@ export async function POST(request: Request) {
       response.error = "Bad input"
       return NextResponse.json(response, { status: 400 })
     }
-    await createDocument({ ...body, authorId: user.id });
+
+    const { data, ...input } = body;
+    const document = await createDocument({ ...input, authorId: user.id });
+    const revision = await createRevision({
+      documentId: document.id,
+      authorId: user.id,
+      createdAt: new Date().toISOString(),
+      data
+    });
+    document.head = revision.id;
+    await updateDocument(document.id, { head: revision.id });
     const userDocument = await findUserDocument(body.id);
     response.data = userDocument as unknown as PostDocumentsResponse["data"];
     return NextResponse.json(response, { status: 200 })

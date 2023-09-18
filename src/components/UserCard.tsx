@@ -15,15 +15,16 @@ import RouterLink from 'next/link'
 import CardActionArea from '@mui/material/CardActionArea';
 import Avatar from '@mui/material/Avatar';
 import { memo } from 'react';
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, signOut} from "next-auth/react";
 import UserActionMenu from './UserActionMenu';
 
 const UserCard: React.FC<{ user?: User }> = memo(({ user }) => {
   const dispatch = useDispatch();
   const login = () => signIn("google", undefined, { prompt: "select_account" });
   const logout = () => signOut();
-  const showActions = useSelector(state => state.user?.id === user?.id);
-  const { status } = useSession();
+  const initialized = useSelector(state => state.initialized);
+  const sessionUser = useSelector(state => state.user);
+  const showActions = user?.id === sessionUser?.id;
 
   const handleShare = async () => {
     const shareData = {
@@ -53,10 +54,10 @@ const UserCard: React.FC<{ user?: User }> = memo(({ user }) => {
             </Typography>
           </CardContent>
         </CardActionArea>
-        {status !== "loading" &&
+        {initialized &&
           <CardActions sx={{ height: 48, "& button:nth-of-type(2)": { ml: "auto !important" } }}>
-            {showActions && status === "authenticated" && <Button size='small' onClick={logout}>Logout</Button>}
-            {showActions && status === "unauthenticated" && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>
+            {showActions && sessionUser && <Button size='small' onClick={logout}>Logout</Button>}
+            {showActions && !sessionUser && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>
               <Typography variant="button" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Login with Google</Typography>
             </Button>}
             {showActions && user && <UserActionMenu user={user} />}

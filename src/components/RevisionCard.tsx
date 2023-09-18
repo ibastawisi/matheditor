@@ -1,0 +1,83 @@
+"use client"
+import * as React from 'react';
+import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
+import CardActions from '@mui/material/CardActions';
+import Avatar from '@mui/material/Avatar';
+import { CloudDocumentRevision, EditorDocument, isCloudDocument } from '@/types';
+import CardActionArea from '@mui/material/CardActionArea';
+import { memo } from 'react';
+import IconButton from '@mui/material/IconButton';
+import { SxProps, Theme } from '@mui/material/styles';
+import Chip from '@mui/material/Chip';
+import CloudDoneIcon from '@mui/icons-material/CloudDone';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { actions, useDispatch, useSelector } from '@/store';
+import { CLEAR_HISTORY_COMMAND } from '@/editor';
+import { usePathname } from 'next/navigation';
+
+const RevisionCard: React.FC<{ revision: CloudDocumentRevision, isHead: boolean, sx?: SxProps<Theme> | undefined }> = memo(({ revision, isHead, sx }) => {
+  const dispatch = useDispatch();
+  const pathname = usePathname();
+  const id = pathname.split('/')[2];
+  const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(document => document.id === id || document.handle === id));
+
+  const restoreRevision = async () => {
+    const response = await dispatch(actions.getLocalDocument(id));
+    if (response.type === actions.getLocalDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't find local document" }));
+    const localDocument = response.payload as EditorDocument;
+    if (!cloudDocument) return await dispatch(actions.createCloudDocument(localDocument));
+    const isUpToDate = cloudDocument?.updatedAt === localDocument.updatedAt;
+    if (!isUpToDate) {
+      dispatch(actions.announce({ message: "Saving local changes before restoring revision" }));
+      await dispatch(actions.updateCloudDocument({ id: cloudDocument.id ?? id, partial: { data: localDocument.data, updatedAt: localDocument.updatedAt } }));
+    }
+    await dispatch(actions.updateCloudDocument({ id: revision.documentId, partial: { head: revision.id, updatedAt: revision.createdAt } }));
+    const res = await dispatch(actions.getCloudRevision(revision.id));
+    if (res.type === actions.getCloudRevision.fulfilled.type) {
+      const payload = res.payload as ReturnType<typeof actions.getCloudRevision.fulfilled>['payload'];
+      const editor = window.editor;
+      if (!editor) return;
+      editor.update(() => {
+        const state = editor.parseEditorState(payload.data);
+        editor.setEditorState(state);
+      })
+      editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined)
+      dispatch(actions.updateLocalDocument({ id: revision.documentId, partial: { data: payload.data, updatedAt: payload.createdAt } }));
+    }
+  }
+
+  const deleteRevision = async () => {
+    dispatch(actions.deleteCloudRevision(revision.id));
+  }
+
+  return (
+    <Card variant="outlined"
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        height: "100%",
+        maxWidth: "100%",
+        ...sx
+      }}>
+      <CardActionArea sx={{ flexGrow: 1 }} onClick={restoreRevision}>
+        <CardHeader sx={{ alignItems: "start", '& .MuiCardHeader-content': { overflow: "hidden", textOverflow: "ellipsis" } }}
+          title={new Date(revision.createdAt).toLocaleString()}
+          subheader={revision.author.name}
+          avatar={<Avatar sx={{ bgcolor: 'primary.main' }} src={revision.author.image}></Avatar>}
+        />
+      </CardActionArea>
+      <CardActions sx={{ "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
+        {isHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudDoneIcon />} label="Current" />}
+        {!isHead && <>
+          <IconButton aria-label="Delete Revision" size="small" disabled={isHead} onClick={deleteRevision}>
+            <DeleteIcon />
+          </IconButton>
+        </>}
+      </CardActions>
+    </Card>
+  );
+});
+
+export default RevisionCard;

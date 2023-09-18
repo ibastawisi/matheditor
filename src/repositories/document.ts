@@ -11,6 +11,24 @@ const findAllDocuments = async () => {
       author: true,
       published: true,
       baseId: true,
+      head: true,
+      revisions: {
+        select: {
+          id: true,
+          documentId: true,
+          createdAt: true,
+          author: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              image: true,
+              email: true,
+              role: true,
+            }
+          }
+        }
+      },
     },
     orderBy: {
       updatedAt: 'desc'
@@ -29,6 +47,24 @@ const findPublishedDocuments = async () => {
       updatedAt: true,
       published: true,
       baseId: true,
+      head: true,
+      revisions: {
+        select: {
+          id: true,
+          documentId: true,
+          createdAt: true,
+          author: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              image: true,
+              email: true,
+              role: true,
+            }
+          }
+        }
+      },
       author: {
         select: {
           id: true,
@@ -57,6 +93,24 @@ const findDocumentsByAuthorId = async (authorId: string) => {
       updatedAt: true,
       published: true,
       baseId: true,
+      head: true,
+      revisions: {
+        select: {
+          id: true,
+          documentId: true,
+          createdAt: true,
+          author: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              image: true,
+              email: true,
+              role: true,
+            }
+          }
+        }
+      },
       author: {
         select: {
           id: true,
@@ -85,6 +139,24 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
       updatedAt: true,
       published: true,
       baseId: true,
+      head: true,
+      revisions: {
+        select: {
+          id: true,
+          documentId: true,
+          createdAt: true,
+          author: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              image: true,
+              email: true,
+              role: true,
+            }
+          }
+        }
+      },
       author: {
         select: {
           id: true,
@@ -103,7 +175,7 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
 }
 
 const findDocumentById = async (id: string) => {
-  return prisma.document.findUnique({
+  const document = await prisma.document.findUnique({
     where: { id },
     select: {
       id: true,
@@ -112,8 +184,25 @@ const findDocumentById = async (id: string) => {
       createdAt: true,
       updatedAt: true,
       published: true,
-      data: true,
       baseId: true,
+      head: true,
+      revisions: {
+        select: {
+          id: true,
+          documentId: true,
+          createdAt: true,
+          author: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              image: true,
+              email: true,
+              role: true,
+            }
+          }
+        }
+      },
       author: {
         select: {
           id: true,
@@ -124,8 +213,13 @@ const findDocumentById = async (id: string) => {
           role: true,
         }
       }
-    }
+    },
   });
+
+  const head = document?.head;
+  if (!head) return document;
+  const revision = await prisma.revision.findUnique({ where: { id: head }, select: { data: true } });
+  return { ...document, data: revision?.data };
 }
 
 const findDocumentAuthorId = async (id: string) => {
@@ -149,6 +243,24 @@ const findUserDocument = async (id: string) => {
       updatedAt: true,
       published: true,
       baseId: true,
+      head: true,
+      revisions: {
+        select: {
+          id: true,
+          documentId: true,
+          createdAt: true,
+          author: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              image: true,
+              email: true,
+              role: true,
+            }
+          }
+        }
+      },
       author: {
         select: {
           id: true,
