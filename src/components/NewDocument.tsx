@@ -17,7 +17,7 @@ import { useDispatch, actions } from '@/store';
 import DocumentCard from './DocumentCard';
 
 const NewDocument: React.FC = () => {
-  const [document, setDocument] = useState<EditorDocument & UserDocument>();
+  const [base, setBase] = useState<EditorDocument & UserDocument>();
   const dispatch = useDispatch();
   const pathname = usePathname();
   const id = pathname.split('/')[2];
@@ -27,12 +27,12 @@ const NewDocument: React.FC = () => {
       const localResponse = await dispatch(actions.getLocalDocument(id));
       if (localResponse.type === actions.getLocalDocument.fulfilled.type) {
         const localDocument = localResponse.payload as ReturnType<typeof actions.getLocalDocument.fulfilled>["payload"];
-        setDocument({ ...localDocument, variant: "local" });
+        setBase({ ...localDocument, variant: "local" });
       } else {
         const cloudResponse = await dispatch(actions.getCloudDocument(id));
         if (cloudResponse.type === actions.getCloudDocument.fulfilled.type) {
           const cloudDocument = cloudResponse.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>["payload"];
-          setDocument({ ...cloudDocument, variant: "cloud" });
+          setBase({ ...cloudDocument, variant: "cloud" });
         }
       }
     }
@@ -43,7 +43,7 @@ const NewDocument: React.FC = () => {
   const navigate = (path: string) => router.push(path);
 
   const getData = async (name: string) => {
-    if (document) return document.data;
+    if (base) return base.data;
     else {
       const headingText: SerializedTextNode = {
         detail: 0,
@@ -90,11 +90,11 @@ const NewDocument: React.FC = () => {
     const data = await getData(name);
     const createdAt = new Date().toISOString();
     if (!data) return;
-    const document: EditorDocument = { id: uuidv4(), name, data, createdAt, updatedAt: createdAt };
-    if (id) document.baseId = id;
-    const response = await dispatch(actions.createLocalDocument(document))
+    const newDocument: EditorDocument = { id: uuidv4(), name, data, createdAt, updatedAt: createdAt };
+    if (base) newDocument.baseId = base.id;
+    const response = await dispatch(actions.createLocalDocument(newDocument))
     if (response.type === actions.createLocalDocument.fulfilled.type) {
-      const href = `/edit/${document.id}`;
+      const href = `/edit/${newDocument.id}`;
       navigate(href);
     }
   };
@@ -106,10 +106,10 @@ const NewDocument: React.FC = () => {
         <Typography component="h1" variant="h5">{id ? "Fork a document" : "Create a new document"}</Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField id="document-name" margin="normal" size="small" label="Document Name" name="documentName" autoComplete="off" fullWidth autoFocus sx={{ '& .MuiInputBase-root': { height: 40 } }} />
-          <Button type="submit" disabled={!!(id && !document)} fullWidth variant="contained" startIcon={<AddIcon />} sx={{ my: 2 }}>Create</Button>
+          <Button type="submit" disabled={!!(id && !base)} fullWidth variant="contained" startIcon={<AddIcon />} sx={{ my: 2 }}>Create</Button>
         </Box>
         {id && <Typography variant="overline" sx={{ color: 'text.secondary', my: 2 }}>Based on</Typography>}
-        {id && <DocumentCard document={document} sx={{width: 320}} />}
+        {id && <DocumentCard document={base} sx={{width: 320}} />}
       </Box>
     </Container>
   );
