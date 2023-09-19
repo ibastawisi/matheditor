@@ -53,7 +53,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       return NextResponse.json(response, { status: 403 })
     }
     const authorId = await findDocumentAuthorId(params.id);
-    if (user.id !== authorId) {
+    if (authorId && user.id !== authorId) {
       response.error = "You don't have permission to edit this document";
       return NextResponse.json(response, { status: 403 })
     }

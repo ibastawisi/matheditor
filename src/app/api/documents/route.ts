@@ -1,5 +1,5 @@
 import { authOptions } from "@/lib/auth";
-import { createDocument, findDocumentsByAuthorId, findUserDocument, updateDocument } from "@/repositories/document";
+import { createDocument, findDocumentAuthorId, findDocumentsByAuthorId, findUserDocument, updateDocument } from "@/repositories/document";
 import { GetDocumentsResponse, PostDocumentsResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
@@ -48,6 +48,12 @@ export async function POST(request: Request) {
     if (!body) {
       response.error = "Bad input"
       return NextResponse.json(response, { status: 400 })
+    }
+
+    const authorId = await findDocumentAuthorId(body.id);
+    if (authorId && user.id !== authorId) {
+      response.error = "You don't have permission to edit this document";
+      return NextResponse.json(response, { status: 403 })
     }
 
     const { data, ...input } = body;
