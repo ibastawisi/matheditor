@@ -6,19 +6,15 @@ import { $createHeadingNode, $createQuoteNode, HeadingTagType, } from '@lexical/
 import { $setBlocksType } from '@lexical/selection';
 import { $createParagraphNode, $getSelection, $isRangeSelection } from 'lexical';
 
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import CodeIcon from '@mui/icons-material/Code';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
 import ViewHeadlineIcon from '@mui/icons-material/ViewHeadline';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 import { blockTypeToBlockName } from '../index';
+import { Select, MenuItem, ListItemIcon, ListItemText, SvgIcon } from '@mui/material';
 
-import SvgIcon from '@mui/material/SvgIcon';
 const H1Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M200 776V376h60v170h180V376h60v400h-60V606H260v170h-60Zm500 0V436h-80v-60h140v400h-60Z" />
 </SvgIcon>;

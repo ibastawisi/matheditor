@@ -1,10 +1,9 @@
 "use client"
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { CloudDocument, User } from '@/types';
-import IconButton from '@mui/material/IconButton';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import RouterLink from 'next/link';
-import Avatar from '@mui/material/Avatar';
+import { Avatar, IconButton } from '@mui/material';
 
 export default function AdminDashboard({ users, documents }: { users: User[], documents: CloudDocument[] }) {
 

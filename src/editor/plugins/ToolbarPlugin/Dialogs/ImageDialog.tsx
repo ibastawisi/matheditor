@@ -2,25 +2,15 @@
 import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
 import { INSERT_IMAGE_COMMAND, InsertImagePayload } from '../../ImagePlugin';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
-import Box from '@mui/material/Box';
 import { useEffect, useState, memo } from 'react';
-import useTheme from '@mui/material/styles/useTheme';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import TextField from '@mui/material/TextField/TextField';
-import Typography from '@mui/material/Typography';
 
 import Compressor from 'compressorjs';
 import { ImageNode } from '../../../nodes/ImageNode';
-import DialogTitle from '@mui/material/DialogTitle';
 import { SET_DIALOGS_COMMAND } from '..';
 import { getImageDimensions } from '@/editor/nodes/utils';
-import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
+import { useTheme } from '@mui/material/styles';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Switch, TextField, Typography, useMediaQuery } from '@mui/material';
 
 function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: ImageNode | null; open: boolean; }) {
   const theme = useTheme();

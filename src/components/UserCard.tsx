@@ -1,22 +1,13 @@
 "use client"
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
 import { User } from '@/types';
-import Button from '@mui/material/Button';
 import { useSelector, useDispatch, actions } from '@/store';
-import CardActions from '@mui/material/CardActions';
-import Skeleton from '@mui/material/Skeleton';
 import GoogleIcon from '@mui/icons-material/Google';
-import IconButton from '@mui/material/IconButton';
 import ShareIcon from '@mui/icons-material/Share';
 import RouterLink from 'next/link'
-import CardActionArea from '@mui/material/CardActionArea';
-import Avatar from '@mui/material/Avatar';
 import { memo } from 'react';
 import { signIn, signOut} from "next-auth/react";
 import UserActionMenu from './UserActionMenu';
+import { Card, Box, CardActionArea, CardContent, Typography, Skeleton, CardActions, Button, IconButton, Avatar } from '@mui/material';
 
 const UserCard: React.FC<{ user?: User }> = memo(({ user }) => {
   const dispatch = useDispatch();

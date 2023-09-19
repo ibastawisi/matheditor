@@ -1,14 +1,10 @@
 import * as React from 'react';
-import Drawer from '@mui/material/Drawer';
-import Button from '@mui/material/Button';
 import { usePathname } from 'next/navigation';
 import { EditorDocument, isCloudDocument } from '@/types';
 import RevisionCard from './RevisionCard';
 import { useDispatch, actions, useSelector } from '@/store';
-import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import { Button, Drawer, Grid, IconButton, Typography } from '@mui/material';
 
 export default function DocumentRevisions({ open, onClose }: { open: boolean, onClose: () => void }) {
   const pathname = usePathname();

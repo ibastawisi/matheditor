@@ -1,13 +1,8 @@
 "use client"
 import { useRouter } from 'next/navigation';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
 import { useDispatch, useSelector, actions } from '@/store';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
 
 export default function AlertDialog() {
   const alert = useSelector(state => state.alerts[0]);

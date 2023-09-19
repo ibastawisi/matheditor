@@ -1,7 +1,5 @@
 "use client"
 import * as React from 'react';
-import ToggleButton from "@mui/material/ToggleButton";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { $getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND, LexicalEditor, COMMAND_PRIORITY_CRITICAL, SELECTION_CHANGE_COMMAND, TextFormatType, $isNodeSelection, } from "lexical";
 import { $patchStyleText, } from '@lexical/selection';
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
@@ -15,12 +13,13 @@ import { mergeRegister, } from '@lexical/utils';
 
 import { IS_APPLE } from '../../../shared/environment';
 import { useCallback, useEffect, useState } from 'react';
-import { SxProps, Theme } from '@mui/material/styles';
 import ColorPicker from './ColorPicker';
 import { $isMathNode, MathNode } from '../../../nodes/MathNode';
 import { $patchStyle } from '../../../nodes/utils';
 
-import SvgIcon from '@mui/material/SvgIcon';
+import { SxProps, Theme } from '@mui/material/styles';
+import { ToggleButtonGroup, ToggleButton, SvgIcon } from '@mui/material';
+
 const HighlightIcon = () => <SvgIcon viewBox='0 -960 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M80 0v-160h800V0H80Zm504-480L480-584 320-424l103 104 161-160Zm-47-160 103 103 160-159-104-104-159 160Zm-84-29 216 216-189 190q-24 24-56.5 24T367-263l-27 23H140l126-125q-24-24-25-57.5t23-57.5l189-189Zm0 0 187-187q24-24 56.5-24t56.5 24l104 103q24 24 24 56.5T857-640L669-453 453-669Z" />
 </SvgIcon>;

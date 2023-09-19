@@ -1,31 +1,22 @@
 "use client"
 import { useRouter } from 'next/navigation';
 import RouterLink from 'next/link'
-import Box from "@mui/material/Box"
-import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
 import { useDispatch, useSelector, actions, RootState } from '@/store';
 import DocumentCard from "./DocumentCard";
-import Button from "@mui/material/Button";
 import React, { memo, useEffect, useState } from "react";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import StorageIcon from '@mui/icons-material/Storage';
 import { EditorDocument, UserDocument } from '@/types';
 import { validate } from "uuid";
 import UserCard from "./UserCard";
-import Avatar from "@mui/material/Avatar";
 import PostAddIcon from '@mui/icons-material/PostAdd';
-import Card from "@mui/material/Card";
-import CardActionArea from "@mui/material/CardActionArea";
-import CardHeader from "@mui/material/CardHeader";
 import ArticleIcon from '@mui/icons-material/Article';
 import HelpIcon from '@mui/icons-material/Help';
 import SortControl from "./SortControl";
 import { SortOption } from "../hooks/useSort";
-import Pagination from "@mui/material/Pagination";
 import documentDB from '@/indexeddb';
 import { createSelector } from '@reduxjs/toolkit';
-import Collapse from '@mui/material/Collapse';
+import { Box, Avatar, Button, Typography, Grid, Card, CardActionArea, CardHeader, Collapse, Pagination } from '@mui/material';
 
 const Documents: React.FC = () => {
   const user = useSelector(state => state.user);

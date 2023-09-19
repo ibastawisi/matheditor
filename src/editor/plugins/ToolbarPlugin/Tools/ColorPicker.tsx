@@ -1,15 +1,11 @@
 "use client"
 import * as React from 'react';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import FormatClearIcon from '@mui/icons-material/FormatClear';
 import FormatColorFillIcon from '@mui/icons-material/FormatColorFill';
 import FormatColorResetIcon from '@mui/icons-material/FormatColorReset';
-import ToggleButton from '@mui/material/ToggleButton';
 import CircleIcon from '@mui/icons-material/Circle';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import ListItemText from '@mui/material/ListItemText';
-import ListSubheader from '@mui/material/ListSubheader';
+import { MenuItem, ListItemText, ToggleButton, Menu, ListSubheader } from '@mui/material';
 
 const textPalete = [
   "#d7170b",

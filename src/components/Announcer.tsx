@@ -1,11 +1,9 @@
 "use client"
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector, actions } from '@/store';
-import Snackbar from '@mui/material/Snackbar';
-import Button from '@mui/material/Button';
 import React from 'react';
-import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import { Snackbar, Button, IconButton } from '@mui/material';
 
 function Announcer() {
   const announcement = useSelector(state => state.announcements[0]);

@@ -1,5 +1,5 @@
 "use client"
-import { SelectChangeEvent } from '@mui/material/Select';
+import { SelectChangeEvent } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 export type SortDirection = "asc" | "desc";

@@ -1,5 +1,3 @@
-import ToggleButton from "@mui/material/ToggleButton";
-import Typography from "@mui/material/Typography";
 import type { EditorState } from "../editor/types";
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
@@ -9,6 +7,7 @@ import FormatStrikethroughIcon from '@mui/icons-material/FormatStrikethrough';
 import SubscriptIcon from '@mui/icons-material/Subscript';
 import SuperscriptIcon from '@mui/icons-material/Superscript';
 import FormatColorFillIcon from '@mui/icons-material/FormatColorFill';
+import { Typography, ToggleButton } from "@mui/material";
 
 const Checkpoint1 = [
   {

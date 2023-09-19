@@ -10,7 +10,6 @@
 import { $isCodeHighlightNode } from '../../nodes/CodeNode';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { mergeRegister } from '@lexical/utils';
-import Paper from '@mui/material/Paper';
 import {
   $getSelection,
   $isRangeSelection,
@@ -25,6 +24,7 @@ import { getDOMRangeRect } from '../../utils/getDOMRangeRect';
 import { getSelectedNode } from '../../utils/getSelectedNode';
 import { setFloatingElemPosition } from '../../utils/setFloatingElemPosition';
 import TextFormatToggles from '../ToolbarPlugin/Tools/TextFormatToggles';
+import { Paper } from '@mui/material';
 
 function FloatingToolbar({ editor, anchorElem }: { editor: LexicalEditor; anchorElem: HTMLElement; }) {
   const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null);

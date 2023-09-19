@@ -1,19 +1,14 @@
 "use client"
 import { LexicalEditor, $setSelection } from 'lexical';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
 import { INSERT_GRAPH_COMMAND, InsertGraphPayload } from '../../GraphPlugin';
 import { GraphNode } from '../../../nodes/GraphNode';
 import { memo, useEffect, useId, useRef, useState } from 'react';
-import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
 import { $getSelection } from 'lexical';
 import { SET_DIALOGS_COMMAND } from '..';
 import Script from 'next/script';
 import { getImageDimensions } from '@/editor/nodes/utils';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
+import { Dialog, DialogContent, Box, CircularProgress, DialogActions, Button } from '@mui/material';
 
 function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: GraphNode | null; open: boolean; }) {
   const [loading, setLoading] = useState(true);

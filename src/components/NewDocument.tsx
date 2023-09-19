@@ -1,20 +1,15 @@
 "use client"
 import { usePathname, useRouter } from 'next/navigation';
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import { v4 as uuidv4 } from "uuid";
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import TextField from '@mui/material/TextField';
 import ArticleIcon from '@mui/icons-material/Article';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
 import { EditorDocument, UserDocument } from '@/types';
 import { SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "@/editor/types";
 import { useEffect, useState } from 'react';
 import { useDispatch, actions } from '@/store';
 import DocumentCard from './DocumentCard';
+import { Container, Box, Avatar, Typography, TextField, Button } from '@mui/material';
 
 const NewDocument: React.FC = () => {
   const [base, setBase] = useState<EditorDocument & UserDocument>();

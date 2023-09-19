@@ -1,7 +1,6 @@
 "use client"
-import CssBaseline from "@mui/material/CssBaseline";
+import { CssBaseline, useMediaQuery } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { createContext, useState, useMemo, useEffect } from "react";
 
 export const ColorModeContext = createContext({ toggleColorMode: () => { } });

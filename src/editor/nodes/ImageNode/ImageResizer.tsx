@@ -6,7 +6,7 @@
  *
  */
 
-import Radio from '@mui/material/Radio';
+import { Radio } from '@mui/material';
 import type { LexicalEditor } from 'lexical';
 
 import * as React from 'react';

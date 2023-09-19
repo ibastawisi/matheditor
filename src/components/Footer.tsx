@@ -1,9 +1,7 @@
 "use client"
-import Box from "@mui/material/Box"
-import Typography from "@mui/material/Typography";
 import packageJson from '../../package.json';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import Link from "@mui/material/Link";
+import { Box, Typography, Link } from '@mui/material';
 import RouterLink from "next/link";
 
 const Footer: React.FC = () => {

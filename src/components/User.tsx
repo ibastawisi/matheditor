@@ -1,14 +1,11 @@
 "use client"
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
 import { useState, memo } from "react";
 import UserCard from "./UserCard";
 import { User, UserDocument } from '@/types';
 import DocumentCard from "./DocumentCard";
 import { SortOption } from "../hooks/useSort";
 import SortControl from "./SortControl";
-import Pagination from "@mui/material/Pagination";
+import { Box, Grid, Pagination, Typography } from "@mui/material";
 
 const User: React.FC<{ user?: User, documents?: UserDocument[] }> = ({ user, documents }) => {
   const [sortedDocuments, setSortedDocuments] = useState(documents || []);

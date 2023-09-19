@@ -1,10 +1,9 @@
-import Typography from "@mui/material/Typography";
 import type { EditorState } from "../editor/types";
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatIndentIncreaseIcon from '@mui/icons-material/FormatIndentIncrease';
-import IconButton from '@mui/material/IconButton';
+import { Typography, IconButton } from "@mui/material";
 
 const Checkpoint4 = [
   {

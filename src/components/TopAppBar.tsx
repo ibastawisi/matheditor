@@ -1,29 +1,19 @@
 "use client"
 import { usePathname } from 'next/navigation';
 import RouterLink from 'next/link'
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import useScrollTrigger from '@mui/material/useScrollTrigger';
-import Slide from '@mui/material/Slide';
-import IconButton from '@mui/material/IconButton';
 import PrintIcon from '@mui/icons-material/Print';
-import Fab from '@mui/material/Fab';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-import Zoom from '@mui/material/Zoom';
-import Link from '@mui/material/Link';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import { useContext, useEffect, useState } from 'react';
 import { ColorModeContext } from '@/components/ThemeProvider';
-import useTheme from '@mui/material/styles/useTheme';
-import Avatar from '@mui/material/Avatar';
 import logo from "/public/logo.svg";
 import Image from 'next/image';
 import { useDispatch, actions, useSelector } from '@/store';
 import RestoreIcon from '@mui/icons-material/Restore';
 import DocumentRevisions from './DocumentRevisions';
+import { useTheme } from '@mui/material/styles';
+import { useScrollTrigger, Slide, Zoom, Box, AppBar, Toolbar, Typography, IconButton, Avatar, Fab, Link } from '@mui/material';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname();
@@ -81,9 +71,9 @@ const TopAppBar: React.FC<{}> = () => {
 
   const handlePrint = () => { window.print(); }
 
-  useEffect(() => { 
+  useEffect(() => {
     if (!initialized) dispatch(actions.load());
-   }, []);
+  }, []);
 
   return (
     <>

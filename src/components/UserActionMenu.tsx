@@ -2,20 +2,14 @@
 import * as React from 'react';
 import { CheckHandleResponse, User } from '@/types';
 import { useDispatch, actions } from '@/store';
-import IconButton from '@mui/material/IconButton';
 import { useCallback, useState } from 'react';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import Button from '@mui/material/Button';
-import DialogActions from '@mui/material/DialogActions';
-import TextField from '@mui/material/TextField';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useRouter, usePathname } from 'next/navigation';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { debounce } from '@mui/material/utils'
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
+import { debounce } from '@mui/material/utils'
+import { IconButton, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button } from '@mui/material';
 
 function UserActionMenu({ user }: { user: User }): JSX.Element {
   const dispatch = useDispatch();

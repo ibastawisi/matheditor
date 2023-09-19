@@ -1,5 +1,5 @@
 "use client"
-import Typography from '@mui/material/Typography';
+import { Typography } from "@mui/material";
 import logo from "/public/logo.svg";
 import Image from 'next/image';
 

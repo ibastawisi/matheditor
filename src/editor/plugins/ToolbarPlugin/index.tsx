@@ -9,16 +9,8 @@ import { $getNearestNodeOfType, mergeRegister, } from '@lexical/utils';
 import { CAN_REDO_COMMAND, CAN_UNDO_COMMAND, REDO_COMMAND, SELECTION_CHANGE_COMMAND, UNDO_COMMAND, COMMAND_PRIORITY_CRITICAL, } from 'lexical';
 import { useCallback, useEffect, useState } from 'react';
 
-import Box from '@mui/material/Box';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
-
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import useScrollTrigger from '@mui/material/useScrollTrigger';
 
 import { BlockFormatSelect } from './Menus/BlockFormatSelect';
 import InsertToolMenu from './Menus/InsertToolMenu';
@@ -34,6 +26,7 @@ import { $isGraphNode } from '../../nodes/GraphNode';
 import { $patchStyle } from '../../nodes/utils';
 import { ImageDialog, GraphDialog, SketchDialog, TableDialog } from './Dialogs';
 import { $isStickyNode } from '../../nodes/StickyNode';
+import { SelectChangeEvent, useScrollTrigger, AppBar, Toolbar, Box, IconButton, Select, MenuItem } from '@mui/material';
 
 type EditorDialogs = {
   image: {

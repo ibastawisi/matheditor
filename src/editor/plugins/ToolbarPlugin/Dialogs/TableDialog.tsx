@@ -1,24 +1,13 @@
 "use client"
 import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
 import { INSERT_TABLE_COMMAND } from '../../../nodes/TableNode';
-import Box from '@mui/material/Box';
 import React, { memo, useState } from 'react';
-import useTheme from '@mui/material/styles/useTheme';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import TextField from '@mui/material/TextField/TextField';
-import FormControl from '@mui/material/FormControl';
-import IconButton from '@mui/material/IconButton';
 import Add from '@mui/icons-material/Add';
 import Remove from '@mui/icons-material/Remove';
-import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import { SET_DIALOGS_COMMAND } from '..';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
+import { useTheme } from '@mui/material/styles';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, IconButton, Switch, TextField, useMediaQuery } from '@mui/material';
 
 function TableDialog({ editor, open }: { editor: LexicalEditor, open: boolean }) {
   const theme = useTheme();

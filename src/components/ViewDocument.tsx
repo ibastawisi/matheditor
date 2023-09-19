@@ -1,9 +1,8 @@
 "use client"
 import RouterLink from 'next/link'
-import Fab from "@mui/material/Fab";
 import EditIcon from '@mui/icons-material/Edit';
-import useScrollTrigger from "@mui/material/useScrollTrigger";
 import { Transition } from 'react-transition-group';
+import { useScrollTrigger, Fab } from '@mui/material';
 
 import "mathlive/static.css"
 import '@/editor/theme.css';

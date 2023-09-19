@@ -40,10 +40,10 @@ import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
 
 import ImageResizer from './ImageResizer';
 import { $isImageNode } from '.';
-import Typography from '@mui/material/Typography';
 
 import { editorConfig } from './config';
 import dynamic from 'next/dynamic';
+import { Typography } from '@mui/material';
 const NestedEditor = dynamic(() => import('@/editor/NestedEditor'), { ssr: false });
 
 function LazyImage({

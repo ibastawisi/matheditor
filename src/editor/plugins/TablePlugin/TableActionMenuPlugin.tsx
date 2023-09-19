@@ -51,13 +51,8 @@ import invariant from '../../shared/invariant';
 
 import ColorPicker from '../ToolbarPlugin/Tools/ColorPicker';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import Box from '@mui/material/Box';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import ListItemText from '@mui/material/ListItemText';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import { $patchStyle, getStyleObjectFromCSS } from '../../nodes/utils';
+import { getStyleObjectFromCSS } from '../../nodes/utils';
+import { MenuItem, ListItemText, Menu, Divider, Box, IconButton } from '@mui/material';
 
 function computeSelectionCount(selection: GridSelection): {
   columns: number;

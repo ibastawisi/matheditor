@@ -1,7 +1,5 @@
-import Typography from "@mui/material/Typography";
+import { Typography, Select, MenuItem } from "@mui/material";
 import type { EditorState } from "../editor/types";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
 
 const Checkpoint2 = [
   {

@@ -1,4 +1,4 @@
-import Typography from "@mui/material/Typography";
+import { Typography } from "@mui/material";
 import type { EditorState } from "../editor/types";
 
 const Checkpoint7 = [

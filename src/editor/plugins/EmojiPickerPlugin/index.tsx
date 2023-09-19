@@ -13,6 +13,7 @@ import {
   MenuOption,
   useBasicTypeaheadTriggerMatch,
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
+import { MenuItem, ListItemIcon, ListItemText, Paper, MenuList } from '@mui/material';
 import {
   $createTextNode,
   $getSelection,
@@ -22,11 +23,6 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as ReactDOM from 'react-dom';
 
-import Paper from '@mui/material/Paper';
-import MenuList from '@mui/material/MenuList';
-import MenuItem from '@mui/material/MenuItem';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemIcon from '@mui/material/ListItemIcon';
 
 class EmojiOption extends MenuOption {
   title: string;

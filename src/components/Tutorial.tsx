@@ -2,22 +2,13 @@
 import Editor from "./Editor";
 import { useState } from "react";
 import type { EditorState } from "../editor/types";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import CheckIcon from "@mui/icons-material/Check";
 import ClearIcon from "@mui/icons-material/Clear";
-import Paper from "@mui/material/Paper";
-import List from "@mui/material/List";
-import ListItemText from "@mui/material/ListItemText";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemButton from "@mui/material/ListItemButton";
-import Collapse from "@mui/material/Collapse";
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import Divider from "@mui/material/Divider";
-
 import { tasks, checkpoints } from "@/tutorial";
-import Pagination from "@mui/material/Pagination";
+import { Paper, Box, Typography, List, Pagination, ListItemButton, ListItemIcon, ListItemText, Collapse, Divider } from "@mui/material";
+
 type CheckpointItem = typeof checkpoints[0][0];
 
 const Tutorial: React.FC = () => {

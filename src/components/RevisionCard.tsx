@@ -1,19 +1,13 @@
 "use client"
 import * as React from 'react';
-import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
-import CardActions from '@mui/material/CardActions';
-import Avatar from '@mui/material/Avatar';
 import { CloudDocumentRevision, EditorDocument, isCloudDocument } from '@/types';
-import CardActionArea from '@mui/material/CardActionArea';
 import { memo } from 'react';
-import IconButton from '@mui/material/IconButton';
-import { SxProps, Theme } from '@mui/material/styles';
-import Chip from '@mui/material/Chip';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { actions, useDispatch, useSelector } from '@/store';
 import { CLEAR_HISTORY_COMMAND } from '@/editor';
+import { SxProps, Theme } from '@mui/material/styles';
+import { Card, CardActionArea, CardHeader, Avatar, CardActions, Chip, IconButton } from '@mui/material';
 
 const RevisionCard: React.FC<{ revision: CloudDocumentRevision, isHead: boolean, sx?: SxProps<Theme> | undefined }> = memo(({ revision, isHead, sx }) => {
   const dispatch = useDispatch();

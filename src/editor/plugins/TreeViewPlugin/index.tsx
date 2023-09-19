@@ -34,14 +34,9 @@ import {
 import * as React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import Button from "@mui/material/Button";
-import Slider from "@mui/material/Slider";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
 import { $isMathNode } from "../../nodes/MathNode";
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import { AppBar, Box, Typography, Toolbar, Button, Slider } from '@mui/material';
 
 const NON_SINGLE_WIDTH_CHARS_REPLACEMENT: Readonly<Record<string, string>> =
   Object.freeze({

@@ -1,29 +1,21 @@
 "use client"
 import * as React from 'react';
-import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
-import CardActions from '@mui/material/CardActions';
-import Avatar from '@mui/material/Avatar';
 import RouterLink from 'next/link'
 import { UserDocument, isCloudDocument, isLocalDocument } from '@/types';
 import ArticleIcon from '@mui/icons-material/Article';
 import { useSelector } from '@/store';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
-import CardActionArea from '@mui/material/CardActionArea';
 import PublicIcon from '@mui/icons-material/Public';
-import Chip from '@mui/material/Chip';
 import MobileFriendlyIcon from '@mui/icons-material/MobileFriendly';
 import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import CloudIcon from '@mui/icons-material/Cloud';
 import type { options } from './DocumentActionMenu';
-import Typography from '@mui/material/Typography';
 import { memo } from 'react';
-import Skeleton from '@mui/material/Skeleton';
-import IconButton from '@mui/material/IconButton';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ShareIcon from '@mui/icons-material/Share';
-import { SxProps, Theme } from '@mui/material/styles';
 import DocumentActionMenu from './DocumentActionMenu';
+import { SxProps, Theme } from '@mui/material/styles';
+import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, IconButton } from '@mui/material';
 
 
 const DocumentCard: React.FC<{ document?: UserDocument, sx?: SxProps<Theme> | undefined }> = memo(({ document, sx }) => {

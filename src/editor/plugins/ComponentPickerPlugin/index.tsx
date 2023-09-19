@@ -24,7 +24,6 @@ import { $createHeadingNode, $createQuoteNode } from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
 import { INSERT_TABLE_COMMAND, TableNode } from '../../nodes/TableNode';
 import {
-  $createParagraphNode,
   $getSelection,
   $isRangeSelection,
   FORMAT_ELEMENT_COMMAND,
@@ -36,14 +35,6 @@ import * as ReactDOM from 'react-dom';
 import { INSERT_MATH_COMMAND } from '../MathPlugin';
 import { INSERT_STICKY_COMMAND } from '../StickyPlugin';
 
-import Paper from '@mui/material/Paper';
-import MenuList from '@mui/material/MenuList';
-import MenuItem from '@mui/material/MenuItem';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import Typography from '@mui/material/Typography';
-
-import ViewHeadlineIcon from '@mui/icons-material/ViewHeadline';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
@@ -61,7 +52,6 @@ import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
 import InsertPageBreakIcon from '@mui/icons-material/InsertPageBreak';
-import SvgIcon from '@mui/material/SvgIcon';
 import { SET_DIALOGS_COMMAND } from '../ToolbarPlugin';
 import { ImageNode } from '@/editor/nodes/ImageNode';
 import { GraphNode } from '@/editor/nodes/GraphNode';
@@ -69,6 +59,8 @@ import { SketchNode } from '@/editor/nodes/SketchNode';
 import { StickyNode } from '@/editor/nodes/StickyNode';
 import { PageBreakNode } from '@/editor/nodes/PageBreakNode';
 import { INSERT_PAGE_BREAK } from '../PageBreakPlugin';
+import { Paper, MenuList, MenuItem, ListItemIcon, ListItemText, Typography, SvgIcon } from '@mui/material';
+
 const H1Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M200 776V376h60v170h180V376h60v400h-60V606H260v170h-60Zm500 0V436h-80v-60h140v400h-60Z" />
 </SvgIcon>;

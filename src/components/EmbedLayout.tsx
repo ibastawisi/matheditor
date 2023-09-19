@@ -1,5 +1,5 @@
 "use client";
-import Container from "@mui/material/Container";
+import { Container } from "@mui/material";
 
 const EmbedLayout = ({ children }: { children: React.ReactNode; }) => {
   return <Container className='editor-container'>

@@ -1,20 +1,18 @@
 "use client"
-import ToggleButton from "@mui/material/ToggleButton";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { LexicalEditor, } from "lexical";
 import { ImageNode } from "../../../nodes/ImageNode";
-import { SxProps, Theme } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { $isSketchNode, SketchNode } from "../../../nodes/SketchNode";
 import { $isGraphNode, GraphNode } from "../../../nodes/GraphNode";
 import { $patchStyle, getStyleObjectFromCSS } from '../../../nodes/utils';
-import SvgIcon from '@mui/material/SvgIcon';
 import { useState } from "react";
 import ViewHeadlineIcon from '@mui/icons-material/ViewHeadline';
 import ClosedCaptionIcon from '@mui/icons-material/ClosedCaption';
 import ClosedCaptionDisabledIcon from '@mui/icons-material/ClosedCaptionDisabled';
 import { SET_DIALOGS_COMMAND } from "..";
+import { SxProps, Theme } from '@mui/material/styles';
+import { ToggleButtonGroup, ToggleButton, SvgIcon } from "@mui/material";
 
 const FormatImageRightIcon = () => <SvgIcon viewBox='0 -960 960 960'>
   <path xmlns="http://www.w3.org/2000/svg" d="M450-285v-390h390v390H450Zm60-60h270v-270H510v270ZM120-120v-60h720v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h720v60H120Z" />

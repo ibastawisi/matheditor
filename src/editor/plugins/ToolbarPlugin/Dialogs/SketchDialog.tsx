@@ -8,14 +8,10 @@ import { SketchNode } from '../../../nodes/SketchNode';
 import { ExcalidrawImperativeAPI, LibraryItems_anyVersion } from '@excalidraw/excalidraw/types/types';
 import { ImportedLibraryData } from '@excalidraw/excalidraw/types/data/types';
 import { SET_DIALOGS_COMMAND } from '..';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import CircularProgress from '@mui/material/CircularProgress';
-import DialogActions from '@mui/material/DialogActions';
-import Button from '@mui/material/Button';
-import { useTheme } from '@mui/material/styles';
 import { getImageDimensions } from '@/editor/nodes/utils';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
+import { useTheme } from '@mui/material/styles';
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent } from '@mui/material';
 
 const Excalidraw = lazy(() => import('@excalidraw/excalidraw').then((module) => ({ default: module.Excalidraw })));
 

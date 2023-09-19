@@ -1,22 +1,15 @@
 "use client"
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
 import { useState, useEffect, memo } from "react";
 import { useDispatch, useSelector, actions, RootState } from '@/store';
 import UserCard from "./UserCard";
 import { UserDocument } from '@/types';
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DocumentCard from "./DocumentCard";
 import { SortOption } from "@/hooks/useSort";
 import SortControl from "./SortControl";
-import Pagination from "@mui/material/Pagination";
 import { createSelector } from "@reduxjs/toolkit";
 import RouterLink from 'next/link';
-import Button from "@mui/material/Button";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Grid, Pagination, Typography } from "@mui/material";
 
 const Dashboard: React.FC = ({ }) => {
   const dispatch = useDispatch();
