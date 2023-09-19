@@ -1,9 +1,9 @@
 "use client"
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { CloudDocument, User } from '@/types';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import RouterLink from 'next/link';
 import { Avatar, IconButton } from '@mui/material';
+import { Visibility } from '@mui/icons-material';
 
 export default function AdminDashboard({ users, documents }: { users: User[], documents: CloudDocument[] }) {
 
@@ -39,7 +39,7 @@ export default function AdminDashboard({ users, documents }: { users: User[], do
       field: 'actions', headerName: 'Actions', width: 90, renderCell: (params) => {
         const handle = params.row.handle || params.row.id;
         return <IconButton component={RouterLink} href={`/view/${handle}`} aria-label="view">
-          <VisibilityIcon />
+          <Visibility />
         </IconButton>
       }
     },

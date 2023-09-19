@@ -6,25 +6,20 @@ import { $createHeadingNode, $createQuoteNode, HeadingTagType, } from '@lexical/
 import { $setBlocksType } from '@lexical/selection';
 import { $createParagraphNode, $getSelection, $isRangeSelection } from 'lexical';
 
-import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
-import CodeIcon from '@mui/icons-material/Code';
-import ViewHeadlineIcon from '@mui/icons-material/ViewHeadline';
-import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
-import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 import { blockTypeToBlockName } from '../index';
 import { Select, MenuItem, ListItemIcon, ListItemText, SvgIcon } from '@mui/material';
+import { ViewHeadline, FormatListBulleted, FormatListNumbered, PlaylistAddCheck, FormatQuote, Code } from '@mui/icons-material';
 
-const H1Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
+const H1 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M200 776V376h60v170h180V376h60v400h-60V606H260v170h-60Zm500 0V436h-80v-60h140v400h-60Z" />
 </SvgIcon>;
-const H2Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
+const H2 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M120 776V376h60v170h180V376h60v400h-60V606H180v170h-60Zm420 0V606q0-24.75 17.625-42.375T600 546h180V436H540v-60h240q25 0 42.5 17.625T840 436v110q0 24.75-17.625 42.375T780 606H600v110h240v60H540Z" />
 </SvgIcon>;
-const H3Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
+const H3 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M120 776V376h60v170h180V376h60v400h-60V606H180v170h-60Zm420 0v-60h240V606H620v-60h160V436H540v-60h240q25 0 42.5 17.625T840 436v280q0 24.75-17.625 42.375T780 776H540Z" />
 </SvgIcon>;
-const H4Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
+const H4 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M120 776V376h60v170h180V376h60v400h-60V606H180v170h-60Zm620 0V646H540V376h60v210h140V376h60v210h80v60h-80v130h-60Z" />
 </SvgIcon>;
 
@@ -128,61 +123,61 @@ export function BlockFormatSelect({ editor, blockType }: {
     }}>
       <MenuItem value='paragraph' onClick={formatParagraph}>
         <ListItemIcon>
-          <ViewHeadlineIcon fontSize="small" />
+          <ViewHeadline fontSize="small" />
         </ListItemIcon>
         <ListItemText>Normal</ListItemText>
       </MenuItem>
       <MenuItem value='h1' onClick={() => formatHeading('h1')}>
         <ListItemIcon>
-          <H1Icon />
+          <H1 />
         </ListItemIcon>
         <ListItemText>Heading 1</ListItemText>
       </MenuItem>
       <MenuItem value='h2' onClick={() => formatHeading('h2')}>
         <ListItemIcon>
-          <H2Icon />
+          <H2 />
         </ListItemIcon>
         <ListItemText>Heading 2</ListItemText>
       </MenuItem>
       <MenuItem value='h3' onClick={() => formatHeading('h3')}>
         <ListItemIcon>
-          <H3Icon />
+          <H3 />
         </ListItemIcon>
         <ListItemText>Heading 3</ListItemText>
       </MenuItem>
       <MenuItem value='h4' onClick={() => formatHeading('h4')}>
         <ListItemIcon>
-          <H4Icon />
+          <H4 />
         </ListItemIcon>
         <ListItemText>Heading 4</ListItemText>
       </MenuItem>
       <MenuItem value='bullet' onClick={formatBulletList}>
         <ListItemIcon>
-          <FormatListBulletedIcon fontSize="small" />
+          <FormatListBulleted fontSize="small" />
         </ListItemIcon>
         <ListItemText>Bullet List</ListItemText>
       </MenuItem>
       <MenuItem value='number' onClick={formatNumberedList}>
         <ListItemIcon>
-          <FormatListNumberedIcon fontSize="small" />
+          <FormatListNumbered fontSize="small" />
         </ListItemIcon>
         <ListItemText>Numbered List</ListItemText>
       </MenuItem>
       <MenuItem value='check' onClick={formatCheckList}>
         <ListItemIcon>
-          <PlaylistAddCheckIcon fontSize="small" />
+          <PlaylistAddCheck fontSize="small" />
         </ListItemIcon>
         <ListItemText>Check List</ListItemText>
       </MenuItem>
       <MenuItem value='quote' onClick={formatQuote}>
         <ListItemIcon>
-          <FormatQuoteIcon fontSize="small" />
+          <FormatQuote fontSize="small" />
         </ListItemIcon>
         <ListItemText>Quote</ListItemText>
       </MenuItem>
       <MenuItem value='code' onClick={formatCode}>
         <ListItemIcon>
-          <CodeIcon fontSize="small" />
+          <Code fontSize="small" />
         </ListItemIcon>
         <ListItemText>CodeBlock</ListItemText>
       </MenuItem>

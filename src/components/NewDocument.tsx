@@ -1,15 +1,14 @@
 "use client"
 import { usePathname, useRouter } from 'next/navigation';
-import AddIcon from "@mui/icons-material/Add";
 import { v4 as uuidv4 } from "uuid";
 import * as React from 'react';
-import ArticleIcon from '@mui/icons-material/Article';
 import { EditorDocument, UserDocument } from '@/types';
 import { SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "@/editor/types";
 import { useEffect, useState } from 'react';
 import { useDispatch, actions } from '@/store';
 import DocumentCard from './DocumentCard';
 import { Container, Box, Avatar, Typography, TextField, Button } from '@mui/material';
+import { Article, Add } from '@mui/icons-material';
 
 const NewDocument: React.FC = () => {
   const [base, setBase] = useState<EditorDocument & UserDocument>();
@@ -97,11 +96,11 @@ const NewDocument: React.FC = () => {
   return (
     <Container maxWidth="xs">
       <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>
+        <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}><Article /></Avatar>
         <Typography component="h1" variant="h5">{id ? "Fork a document" : "Create a new document"}</Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField id="document-name" margin="normal" size="small" label="Document Name" name="documentName" autoComplete="off" fullWidth autoFocus sx={{ '& .MuiInputBase-root': { height: 40 } }} />
-          <Button type="submit" disabled={!!(id && !base)} fullWidth variant="contained" startIcon={<AddIcon />} sx={{ my: 2 }}>Create</Button>
+          <Button type="submit" disabled={!!(id && !base)} fullWidth variant="contained" startIcon={<Add />} sx={{ my: 2 }}>Create</Button>
         </Box>
         {id && <Typography variant="overline" sx={{ color: 'text.secondary', my: 2 }}>Based on</Typography>}
         {id && <DocumentCard document={base} sx={{width: 320}} />}

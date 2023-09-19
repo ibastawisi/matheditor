@@ -1,12 +1,5 @@
+import { FormatBold, FormatItalic, FormatUnderlined, Code, FormatStrikethrough, Subscript, Superscript, FormatColorFill } from "@mui/icons-material";
 import type { EditorState } from "../editor/types";
-import FormatBoldIcon from '@mui/icons-material/FormatBold';
-import FormatItalicIcon from '@mui/icons-material/FormatItalic';
-import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
-import CodeIcon from '@mui/icons-material/Code';
-import FormatStrikethroughIcon from '@mui/icons-material/FormatStrikethrough';
-import SubscriptIcon from '@mui/icons-material/Subscript';
-import SuperscriptIcon from '@mui/icons-material/Superscript';
-import FormatColorFillIcon from '@mui/icons-material/FormatColorFill';
 import { Typography, ToggleButton } from "@mui/material";
 
 const Checkpoint1 = [
@@ -19,7 +12,7 @@ const Checkpoint1 = [
       <Typography variant="subtitle2">
         2. Click the
         <ToggleButton value="bold" size="small" sx={{ m: 1 }}>
-          <FormatBoldIcon />
+          <FormatBold />
         </ToggleButton>
         button in the toolbar
       </Typography>
@@ -49,7 +42,7 @@ const Checkpoint1 = [
       <Typography variant="subtitle2">
         2. Click the
         <ToggleButton value="italic" size="small" sx={{ m: 1 }}>
-          <FormatItalicIcon />
+          <FormatItalic />
         </ToggleButton>
         button in the toolbar
       </Typography>
@@ -79,7 +72,7 @@ const Checkpoint1 = [
       <Typography variant="subtitle2">
         2. Click the
         <ToggleButton value="underline" size="small" sx={{ m: 1 }}>
-          <FormatUnderlinedIcon />
+          <FormatUnderlined />
         </ToggleButton>
         button in the toolbar
       </Typography>
@@ -109,7 +102,7 @@ const Checkpoint1 = [
       <Typography variant="subtitle2">
         2. Click the
         <ToggleButton value="code" size="small" sx={{ m: 1 }}>
-          <CodeIcon />
+          <Code />
         </ToggleButton>
         button in the toolbar
       </Typography>
@@ -139,7 +132,7 @@ const Checkpoint1 = [
       <Typography variant="subtitle2">
         2. Click the
         <ToggleButton value="strike" size="small" sx={{ m: 1 }}>
-          <FormatStrikethroughIcon />
+          <FormatStrikethrough />
         </ToggleButton>
         button in the toolbar
       </Typography>
@@ -169,7 +162,7 @@ const Checkpoint1 = [
       <Typography variant="subtitle2">
         2. Click the
         <ToggleButton value="subscript" size="small" sx={{ m: 1 }}>
-          <SubscriptIcon />
+          <Subscript />
         </ToggleButton>
         button in the toolbar
       </Typography>
@@ -196,7 +189,7 @@ const Checkpoint1 = [
       <Typography variant="subtitle2">
         2. Click the
         <ToggleButton value="superscript" size="small" sx={{ m: 1 }}>
-          <SuperscriptIcon />
+          <Superscript />
         </ToggleButton>
         button in the toolbar
       </Typography>
@@ -223,7 +216,7 @@ const Checkpoint1 = [
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
         <ToggleButton value="text" size="small" sx={{ m: 1 }}>
-          <FormatColorFillIcon />
+          <FormatColorFill />
         </ToggleButton>
         button in the toolbar
       </Typography>
@@ -256,7 +249,7 @@ const Checkpoint1 = [
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
         <ToggleButton value="background" size="small" sx={{ m: 1 }}>
-          <FormatColorFillIcon />
+          <FormatColorFill />
         </ToggleButton>
         button in the toolbar
       </Typography>

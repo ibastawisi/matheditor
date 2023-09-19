@@ -1,11 +1,8 @@
+import { ViewHeadline, FormatListBulleted, FormatQuote, Code } from "@mui/icons-material";
 import type { EditorState } from "../editor/types";
-import CodeIcon from '@mui/icons-material/Code';
-import ViewHeadlineIcon from '@mui/icons-material/ViewHeadline';
-import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
-import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import { ListItemIcon, ListItemText, MenuItem, Select, SvgIcon, Typography } from "@mui/material";
 
-const H3Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small' sx={{ verticalAlign: "middle" }}>
+const H3 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small' sx={{ verticalAlign: "middle" }}>
   <path xmlns="http://www.w3.org/2000/svg" d="M120 776V376h60v170h180V376h60v400h-60V606H180v170h-60Zm420 0v-60h240V606H620v-60h160V436H540v-60h240q25 0 42.5 17.625T840 436v280q0 24.75-17.625 42.375T780 776H540Z" />
 </SvgIcon>;
 
@@ -26,14 +23,14 @@ const Checkpoint3 = [
         }}>
           <MenuItem value='paragraph'>
             <ListItemIcon>
-              <ViewHeadlineIcon fontSize="small" />
+              <ViewHeadline fontSize="small" />
             </ListItemIcon>
             <ListItemText>Normal</ListItemText>
           </MenuItem>
         </Select> menu in the toolbar
       </Typography>
       <Typography variant="subtitle2">
-        3. Select <H3Icon /> Heading 3 from the menu
+        3. Select <H3 /> Heading 3 from the menu
       </Typography>
     </>,
     check: (editorState?: EditorState) => {
@@ -66,14 +63,14 @@ const Checkpoint3 = [
         }}>
           <MenuItem value='paragraph'>
             <ListItemIcon>
-              <ViewHeadlineIcon fontSize="small" />
+              <ViewHeadline fontSize="small" />
             </ListItemIcon>
             <ListItemText>Normal</ListItemText>
           </MenuItem>
         </Select> menu in the toolbar
       </Typography>
       <Typography variant="subtitle2">
-        3. Select <FormatListBulletedIcon sx={{ verticalAlign: "middle" }} /> Bullet List from the menu
+        3. Select <FormatListBulleted sx={{ verticalAlign: "middle" }} /> Bullet List from the menu
       </Typography>
     </>,
     check: (editorState?: EditorState) => {
@@ -106,14 +103,14 @@ const Checkpoint3 = [
         }}>
           <MenuItem value='paragraph'>
             <ListItemIcon>
-              <ViewHeadlineIcon fontSize="small" />
+              <ViewHeadline fontSize="small" />
             </ListItemIcon>
             <ListItemText>Normal</ListItemText>
           </MenuItem>
         </Select> menu in the toolbar
       </Typography>
       <Typography variant="subtitle2">
-        3. Select <FormatQuoteIcon sx={{ verticalAlign: "middle" }} /> Quote from the menu
+        3. Select <FormatQuote sx={{ verticalAlign: "middle" }} /> Quote from the menu
       </Typography>
     </>,
     check: (editorState?: EditorState) => {
@@ -146,14 +143,14 @@ const Checkpoint3 = [
         }}>
           <MenuItem value='paragraph'>
             <ListItemIcon>
-              <ViewHeadlineIcon fontSize="small" />
+              <ViewHeadline fontSize="small" />
             </ListItemIcon>
             <ListItemText>Normal</ListItemText>
           </MenuItem>
         </Select> menu in the toolbar
       </Typography>
       <Typography variant="subtitle2">
-        3. Select <CodeIcon sx={{ verticalAlign: "middle" }} /> CodeBlock from the menu
+        3. Select <Code sx={{ verticalAlign: "middle" }} /> CodeBlock from the menu
       </Typography>
     </>,
     check: (editorState?: EditorState) => {

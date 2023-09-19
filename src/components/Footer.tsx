@@ -1,6 +1,6 @@
 "use client"
+import { GitHub } from '@mui/icons-material';
 import packageJson from '../../package.json';
-import GitHubIcon from '@mui/icons-material/GitHub';
 import { Box, Typography, Link } from '@mui/material';
 import RouterLink from "next/link";
 
@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
         v{version}
         {commitHash && <Link href={`https://github.com/ibastawisi/matheditor/commit/${commitHash?.substring(0, 7)}`} target="_blank"
           sx={{ textDecoration: "none" }}>
-          <GitHubIcon fontSize="inherit" sx={{ ml: 0.5, verticalAlign: "middle" }} /> {commitHash?.substring(0, 7)}
+          <GitHub fontSize="inherit" sx={{ ml: 0.5, verticalAlign: "middle" }} /> {commitHash?.substring(0, 7)}
         </Link>}
       </Typography>
       <Link component={RouterLink} prefetch={false} href="/privacy" sx={{ textDecoration: "none" }}>Privacy Policy</Link>

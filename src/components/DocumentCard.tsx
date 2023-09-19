@@ -2,20 +2,13 @@
 import * as React from 'react';
 import RouterLink from 'next/link'
 import { UserDocument, isCloudDocument, isLocalDocument } from '@/types';
-import ArticleIcon from '@mui/icons-material/Article';
 import { useSelector } from '@/store';
-import CloudDoneIcon from '@mui/icons-material/CloudDone';
-import PublicIcon from '@mui/icons-material/Public';
-import MobileFriendlyIcon from '@mui/icons-material/MobileFriendly';
-import CloudSyncIcon from '@mui/icons-material/CloudSync';
-import CloudIcon from '@mui/icons-material/Cloud';
 import type { options } from './DocumentActionMenu';
 import { memo } from 'react';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import ShareIcon from '@mui/icons-material/Share';
 import DocumentActionMenu from './DocumentActionMenu';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, IconButton } from '@mui/material';
+import { Article, MobileFriendly, CloudDone, CloudSync, Cloud, Public, Share, MoreVert } from '@mui/icons-material';
 
 
 const DocumentCard: React.FC<{ document?: UserDocument, sx?: SxProps<Theme> | undefined }> = memo(({ document, sx }) => {
@@ -76,20 +69,20 @@ const DocumentCard: React.FC<{ document?: UserDocument, sx?: SxProps<Theme> | un
               </Typography>
             </>
           }
-          avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>}
+          avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><Article /></Avatar>}
         />
       </CardActionArea>
       <CardActions sx={{ "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
         {!document && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} label={<Skeleton variant="text" width={50} />} />}
         {!document && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} label={<Skeleton variant="text" width={70} />} />}
-        {isLocal && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendlyIcon />} label="Local" />}
-        {isUploaded && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={isUpToDate ? <CloudDoneIcon /> : <CloudSyncIcon />} label={isUpToDate ? "Up to date" : "Out of Sync"} />}
-        {isCloud && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudIcon />} label="Cloud" />}
-        {isPublished && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<PublicIcon />} label="Published" />}
+        {isLocal && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Local" />}
+        {isUploaded && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={isUpToDate ? <CloudDone /> : <CloudSync />} label={isUpToDate ? "Up to date" : "Out of Sync"} />}
+        {isCloud && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
+        {isPublished && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Public />} label="Published" />}
         {document ? <DocumentActionMenu document={document} options={options} /> :
           <>
-            <IconButton aria-label="Share Document" size="small" sx={{ ml: "auto" }} disabled><ShareIcon /></IconButton>
-            <IconButton aria-label="Document Actions" size="small" disabled><MoreVertIcon /></IconButton>
+            <IconButton aria-label="Share Document" size="small" sx={{ ml: "auto" }} disabled><Share /></IconButton>
+            <IconButton aria-label="Document Actions" size="small" disabled><MoreVert /></IconButton>
           </>
         }
       </CardActions>

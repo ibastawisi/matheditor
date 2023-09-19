@@ -1,13 +1,12 @@
 "use client"
 import { User } from '@/types';
 import { useSelector, useDispatch, actions } from '@/store';
-import GoogleIcon from '@mui/icons-material/Google';
-import ShareIcon from '@mui/icons-material/Share';
 import RouterLink from 'next/link'
 import { memo } from 'react';
 import { signIn, signOut} from "next-auth/react";
 import UserActionMenu from './UserActionMenu';
 import { Card, Box, CardActionArea, CardContent, Typography, Skeleton, CardActions, Button, IconButton, Avatar } from '@mui/material';
+import { Google, Share } from '@mui/icons-material';
 
 const UserCard: React.FC<{ user?: User }> = memo(({ user }) => {
   const dispatch = useDispatch();
@@ -48,11 +47,11 @@ const UserCard: React.FC<{ user?: User }> = memo(({ user }) => {
         {initialized &&
           <CardActions sx={{ height: 48, "& button:nth-of-type(2)": { ml: "auto !important" } }}>
             {showActions && sessionUser && <Button size='small' onClick={logout}>Logout</Button>}
-            {showActions && !sessionUser && <Button size='small' startIcon={<GoogleIcon />} onClick={login}>
+            {showActions && !sessionUser && <Button size='small' startIcon={<Google />} onClick={login}>
               <Typography variant="button" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Login with Google</Typography>
             </Button>}
             {showActions && user && <UserActionMenu user={user} />}
-            {user && <IconButton size="small" aria-label="Share" onClick={handleShare}><ShareIcon /></IconButton>}
+            {user && <IconButton size="small" aria-label="Share" onClick={handleShare}><Share /></IconButton>}
           </CardActions>}
       </Box>
       <CardActionArea component={RouterLink} prefetch={false} href={href} sx={{ display: 'flex', width: 'auto' }}>

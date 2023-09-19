@@ -1,19 +1,15 @@
 "use client"
 import { usePathname } from 'next/navigation';
 import RouterLink from 'next/link'
-import PrintIcon from '@mui/icons-material/Print';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { useContext, useEffect, useState } from 'react';
 import { ColorModeContext } from '@/components/ThemeProvider';
 import logo from "/public/logo.svg";
 import Image from 'next/image';
 import { useDispatch, actions, useSelector } from '@/store';
-import RestoreIcon from '@mui/icons-material/Restore';
 import DocumentRevisions from './DocumentRevisions';
 import { useTheme } from '@mui/material/styles';
 import { useScrollTrigger, Slide, Zoom, Box, AppBar, Toolbar, Typography, IconButton, Avatar, Fab, Link } from '@mui/material';
+import { Brightness7, Brightness4, Print, Restore, KeyboardArrowUp } from '@mui/icons-material';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname();
@@ -91,13 +87,13 @@ const TopAppBar: React.FC<{}> = () => {
               <Avatar alt={user?.name} src={user?.image ?? undefined} sx={{ width: 30, height: 30 }} />
             </IconButton>
             <IconButton onClick={colorMode.toggleColorMode} color="inherit" aria-label='Toggle dark mode'>
-              {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+              {theme.palette.mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
             </IconButton>
             {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={handlePrint}>
-              <PrintIcon />
+              <Print />
             </IconButton>}
             {showRevisionButton && <IconButton aria-label="Revisions" color='inherit' onClick={() => { toggleRevisionsDrawer() }}>
-              <RestoreIcon />
+              <Restore />
             </IconButton>}
           </Toolbar>
         </AppBar>
@@ -105,7 +101,7 @@ const TopAppBar: React.FC<{}> = () => {
       <Toolbar id="back-to-top-anchor" sx={{ displayPrint: "none" }} />
       <ScrollTop>
         <Fab color="secondary" size="small" aria-label="scroll back to top">
-          <KeyboardArrowUpIcon />
+          <KeyboardArrowUp />
         </Fab>
       </ScrollTop>
       <DocumentRevisions open={revisionsDrawerOpen} onClose={toggleRevisionsDrawer} />

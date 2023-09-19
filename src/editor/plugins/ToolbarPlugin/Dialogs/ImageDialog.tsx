@@ -1,7 +1,6 @@
 "use client"
 import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
 import { INSERT_IMAGE_COMMAND, InsertImagePayload } from '../../ImagePlugin';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { useEffect, useState, memo } from 'react';
 
 import Compressor from 'compressorjs';
@@ -11,6 +10,7 @@ import { getImageDimensions } from '@/editor/nodes/utils';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Switch, TextField, Typography, useMediaQuery } from '@mui/material';
+import { UploadFile } from '@mui/icons-material';
 
 function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: ImageNode | null; open: boolean; }) {
   const theme = useTheme();
@@ -107,7 +107,7 @@ function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: Imag
         <TextField type="url" margin="normal" size="small" fullWidth
           value={formData.src} onChange={updateFormData} label="Image URL" name="src" autoComplete="src" autoFocus />
         <Typography variant="h6" sx={{ mt: 1 }}>From File</Typography>
-        <Button variant="outlined" sx={{ my: 2 }} startIcon={<UploadFileIcon />} component="label">
+        <Button variant="outlined" sx={{ my: 2 }} startIcon={<UploadFile />} component="label">
           Upload File
           <input type="file" hidden accept="image/*" onChange={e => loadImage(e.target.files)} autoFocus />
         </Button>

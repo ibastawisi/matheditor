@@ -1,11 +1,10 @@
 "use client"
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { SortProps, useSort } from "../hooks/useSort";
 import { memo } from 'react';
 import isEqual from 'fast-deep-equal';
 import { alpha } from "@mui/material/styles";
 import { Box, ToggleButton, Select, MenuItem, ListItemText } from '@mui/material';
+import { ArrowUpward, ArrowDownward } from "@mui/icons-material";
 
 function SortControl<T>(props: SortProps<T>) {
   const { sortOptions } = props;
@@ -30,7 +29,7 @@ function SortControl<T>(props: SortProps<T>) {
         })}
         aria-label="sort direction"
       >
-        {sortDirection === 'asc' ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
+        {sortDirection === 'asc' ? <ArrowUpward /> : <ArrowDownward />}
       </ToggleButton>
       <Select
         labelId="sort-select-label"

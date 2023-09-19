@@ -35,23 +35,6 @@ import * as ReactDOM from 'react-dom';
 import { INSERT_MATH_COMMAND } from '../MathPlugin';
 import { INSERT_STICKY_COMMAND } from '../StickyPlugin';
 
-import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
-import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
-import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
-import CodeIcon from '@mui/icons-material/Code';
-
-import HorizontalRuleIcon from '@mui/icons-material/HorizontalRule';
-import ImageIcon from '@mui/icons-material/Image';
-import TableIcon from '@mui/icons-material/TableChart';
-import FunctionsIcon from '@mui/icons-material/Functions';
-import BrushIcon from '@mui/icons-material/Brush';
-import StickyNote2Icon from '@mui/icons-material/StickyNote2';
-import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
-import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
-import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
-import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
-import InsertPageBreakIcon from '@mui/icons-material/InsertPageBreak';
 import { SET_DIALOGS_COMMAND } from '../ToolbarPlugin';
 import { ImageNode } from '@/editor/nodes/ImageNode';
 import { GraphNode } from '@/editor/nodes/GraphNode';
@@ -60,31 +43,32 @@ import { StickyNode } from '@/editor/nodes/StickyNode';
 import { PageBreakNode } from '@/editor/nodes/PageBreakNode';
 import { INSERT_PAGE_BREAK } from '../PageBreakPlugin';
 import { Paper, MenuList, MenuItem, ListItemIcon, ListItemText, Typography, SvgIcon } from '@mui/material';
+import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight, FormatAlignJustify, FormatListNumbered, FormatListBulleted, PlaylistAddCheck, FormatQuote, Code, Image, TableChart , HorizontalRule, Functions, Brush, StickyNote2, InsertPageBreak } from '@mui/icons-material';
 
-const H1Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
+const H1 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M200 776V376h60v170h180V376h60v400h-60V606H260v170h-60Zm500 0V436h-80v-60h140v400h-60Z" />
 </SvgIcon>;
-const H2Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
+const H2 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M120 776V376h60v170h180V376h60v400h-60V606H180v170h-60Zm420 0V606q0-24.75 17.625-42.375T600 546h180V436H540v-60h240q25 0 42.5 17.625T840 436v110q0 24.75-17.625 42.375T780 606H600v110h240v60H540Z" />
 </SvgIcon>;
-const H3Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
+const H3 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M120 776V376h60v170h180V376h60v400h-60V606H180v170h-60Zm420 0v-60h240V606H620v-60h160V436H540v-60h240q25 0 42.5 17.625T840 436v280q0 24.75-17.625 42.375T780 776H540Z" />
 </SvgIcon>;
-const H4Icon = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
+const H4 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M120 776V376h60v170h180V376h60v400h-60V606H180v170h-60Zm620 0V646H540V376h60v210h140V376h60v210h80v60h-80v130h-60Z" />
 </SvgIcon>;
 
-const HeadingIcon = (level: number) => level === 1 ? <H1Icon /> : level === 2 ? <H2Icon /> : level === 3 ? <H3Icon /> : <H4Icon />;
+const Heading = (level: number) => level === 1 ? <H1 /> : level === 2 ? <H2 /> : level === 3 ? <H3 /> : <H4 />;
 
 const GraphIcon = <SvgIcon viewBox='0 0 512 512' fontSize='small'>
   <path d="M500.364,244.365h-37.248c12.695-18.223,27.124-31.674,42.415-39.273c5.76-2.851,8.099-9.844,5.248-15.593    c-2.851-5.76-9.821-8.122-15.593-5.248c-24.041,11.927-45.894,34.804-63.185,66.129c-22.726,41.146-52.166,63.802-82.909,63.802    c-26.077,0-51.188-16.465-72.087-46.545H384c6.423,0,11.636-5.201,11.636-11.636c0-6.435-5.213-11.636-11.636-11.636H267.636v-128    h11.636c4.701,0,8.948-2.828,10.752-7.18s0.803-9.356-2.525-12.684l-23.273-23.273c-4.55-4.55-11.904-4.55-16.454,0L224.5,96.502    c-3.328,3.328-4.329,8.332-2.525,12.684s6.051,7.18,10.752,7.18h11.636V218.09c-23.599-28.323-51.7-43.543-81.455-43.543    c-37.876,0-72.972,24.879-99.607,69.818H11.636C5.213,244.365,0,249.567,0,256.001c0,6.435,5.213,11.636,11.636,11.636h37.248    C36.189,285.86,21.76,299.312,6.47,306.911c-5.76,2.851-8.099,9.844-5.248,15.593c2.025,4.108,6.144,6.47,10.426,6.47    c1.734,0,3.503-0.384,5.167-1.21C40.855,315.836,62.708,292.959,80,261.633c22.726-41.158,52.166-63.814,82.909-63.814    c26.077,0,51.188,16.465,72.087,46.545H128c-6.423,0-11.636,5.201-11.636,11.636c0,6.435,5.213,11.636,11.636,11.636h116.364    v162.909c0,6.435,5.213,11.636,11.636,11.636s11.636-5.201,11.636-11.636V293.913c23.599,28.323,51.7,43.543,81.455,43.543    c37.876,0,72.972-24.879,99.607-69.818h51.665c6.423,0,11.636-5.201,11.636-11.636C512,249.567,506.787,244.365,500.364,244.365z" />
 </SvgIcon>;
 
 const FormatAlignIcon = (alignment: string) =>
-  alignment === 'left' ? <FormatAlignLeftIcon /> :
-    alignment === 'center' ? <FormatAlignCenterIcon /> :
-      alignment === 'right' ? <FormatAlignRightIcon /> :
-        <FormatAlignJustifyIcon />;
+  alignment === 'left' ? <FormatAlignLeft /> :
+    alignment === 'center' ? <FormatAlignCenter /> :
+      alignment === 'right' ? <FormatAlignRight /> :
+        <FormatAlignJustify />;
 
 function IconMenu({ options, selectedIndex, setHighlightedIndex, selectOptionAndCleanUp }: {
   options: ComponentPickerOption[];
@@ -187,7 +171,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
 
       options.push(
         new ComponentPickerOption(`${rows}x${columns} Table`, {
-          icon: <TableIcon />,
+          icon: <TableChart />,
           keywords: ['table'],
           keyboardShortcut: `${rows}x${columns}`,
           onSelect: () =>
@@ -202,7 +186,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
         ...Array.from({ length: 5 }, (_, i) => i + 1).map(
           (columns) =>
             new ComponentPickerOption(`${rows}x${columns} Table`, {
-              icon: <TableIcon />,
+              icon: <TableChart />,
               keywords: ['table'],
               keyboardShortcut: `${rows}x${columns}`,
               onSelect: () =>
@@ -221,7 +205,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
       ...Array.from({ length: 4 }, (_, i) => i + 1).map(
         (n) =>
           new ComponentPickerOption(`Heading ${n}`, {
-            icon: HeadingIcon(n),
+            icon: Heading(n),
             keywords: ['heading', 'header', `h${n}`],
             keyboardShortcut: '#'.repeat(n),
             onSelect: () =>
@@ -237,28 +221,28 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           }),
       ),
       new ComponentPickerOption('Numbered List', {
-        icon: <FormatListNumberedIcon />,
+        icon: <FormatListNumbered />,
         keywords: ['numbered list', 'ordered list', 'ol'],
         keyboardShortcut: '1.',
         onSelect: () =>
           editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined),
       }),
       new ComponentPickerOption('Bulleted List', {
-        icon: <FormatListBulletedIcon />,
+        icon: <FormatListBulleted />,
         keywords: ['bulleted list', 'unordered list', 'ul'],
         keyboardShortcut: '*',
         onSelect: () =>
           editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined),
       }),
       new ComponentPickerOption('Check List', {
-        icon: <PlaylistAddCheckIcon />,
+        icon: <PlaylistAddCheck />,
         keywords: ['check list', 'todo list'],
         keyboardShortcut: '[x]',
         onSelect: () =>
           editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined),
       }),
       new ComponentPickerOption('Quote', {
-        icon: <FormatQuoteIcon />,
+        icon: <FormatQuote />,
         keywords: ['block quote'],
         keyboardShortcut: '>',
         onSelect: () =>
@@ -270,7 +254,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           }),
       }),
       new ComponentPickerOption('Code', {
-        icon: <CodeIcon />,
+        icon: <Code />,
         keywords: ['javascript', 'python', 'js', 'codeblock'],
         keyboardShortcut: '```',
         onSelect: () =>
@@ -290,14 +274,14 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           }),
       }),
       new ComponentPickerOption('Divider', {
-        icon: <HorizontalRuleIcon />,
+        icon: <HorizontalRule />,
         keywords: ['horizontal rule', 'divider', 'hr'],
         keyboardShortcut: '---',
         onSelect: () =>
           editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined),
       }),
       new ComponentPickerOption('Math', {
-        icon: <FunctionsIcon />,
+        icon: <Functions />,
         keywords: ['equation', 'latex', 'math'],
         keyboardShortcut: '$$',
         onSelect: () =>
@@ -310,25 +294,25 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
       //   onSelect: openGraphDialog,
       // }),
       // new ComponentPickerOption('Sketch', {
-      //   icon: <BrushIcon />,
+      //   icon: <Brush />,
       //   keywords: ['excalidraw', 'sketch', 'drawing', 'diagram'],
       //   keyboardShortcut: '/sketch',
       //   onSelect: openSketchDialog,
       // }),
       // new ComponentPickerOption('Image', {
-      //   icon: <ImageIcon />,
+      //   icon: <Image />,
       //   keywords: ['image', 'photo', 'picture', 'img'],
       //   keyboardShortcut: '/img',
       //   onSelect: openImageDialog
       // }),
       // new ComponentPickerOption('Table', {
-      //   icon: <TableIcon />,
+      //   icon: <TableChart />,
       //   keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
       //   keyboardShortcut: '/3x3',
       //   onSelect: openTableDialog,
       // }),
       // new ComponentPickerOption('Note', {
-      //   icon: <StickyNote2Icon />,
+      //   icon: <StickyNote2 />,
       //   keywords: ['sticky', 'note', 'sticky note'],
       //   keyboardShortcut: '/note',
       //   onSelect: () =>
@@ -350,7 +334,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
     if (editor.hasNode(ImageNode)) {
       baseOptions.push(
         new ComponentPickerOption('Image', {
-          icon: <ImageIcon />,
+          icon: <Image />,
           keywords: ['image', 'photo', 'picture', 'img'],
           keyboardShortcut: '/img',
           onSelect: openImageDialog
@@ -372,7 +356,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
     if (editor.hasNode(SketchNode)) {
       baseOptions.push(
         new ComponentPickerOption('Sketch', {
-          icon: <BrushIcon />,
+          icon: <Brush />,
           keywords: ['excalidraw', 'sketch', 'drawing', 'diagram'],
           keyboardShortcut: '/sketch',
           onSelect: openSketchDialog,
@@ -383,7 +367,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
     if (editor.hasNode(StickyNode)) {
       baseOptions.push(
         new ComponentPickerOption('Note', {
-          icon: <StickyNote2Icon />,
+          icon: <StickyNote2 />,
           keywords: ['sticky', 'note', 'sticky note'],
           keyboardShortcut: '/note',
           onSelect: () =>
@@ -395,7 +379,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
     if (editor.hasNode(TableNode)) {
       baseOptions.push(
         new ComponentPickerOption('Table', {
-          icon: <TableIcon />,
+          icon: <TableChart />,
           keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
           keyboardShortcut: '/3x3',
           onSelect: openTableDialog,
@@ -406,7 +390,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
     if (editor.hasNode(PageBreakNode)) {
       baseOptions.push(
         new ComponentPickerOption('Page Break', {
-          icon: <InsertPageBreakIcon />,
+          icon: <InsertPageBreak />,
           keywords: ['page break', 'break', 'page'],
           keyboardShortcut: '/page',
           onSelect: () =>

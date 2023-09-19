@@ -1,11 +1,7 @@
 "use client"
 import * as React from 'react';
-import FormatClearIcon from '@mui/icons-material/FormatClear';
-import FormatColorFillIcon from '@mui/icons-material/FormatColorFill';
-import FormatColorResetIcon from '@mui/icons-material/FormatColorReset';
-import CircleIcon from '@mui/icons-material/Circle';
-import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
 import { MenuItem, ListItemText, ToggleButton, Menu, ListSubheader } from '@mui/material';
+import { FormatColorFill, CircleOutlined, FormatClear, FormatColorReset, Circle } from '@mui/icons-material';
 
 const textPalete = [
   "#d7170b",
@@ -68,7 +64,7 @@ export default function ColorPicker({ onColorChange, toggle = "togglebutton" }
       </MenuItem>
       }
       {toggle === "togglebutton" && <ToggleButton size='small' value="color" onClick={handleClick} className="MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal">
-        <FormatColorFillIcon />
+        <FormatColorFill />
       </ToggleButton>}
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
@@ -78,20 +74,20 @@ export default function ColorPicker({ onColorChange, toggle = "togglebutton" }
         <ListSubheader key="text" sx={{ width: "100%" }}>Text</ListSubheader>
         {textPalete.map((color, index) => (
           <MenuItem key={index} onClick={e => { onChange("text", color); }}>
-            <CircleOutlinedIcon style={{ color }} />
+            <CircleOutlined style={{ color }} />
           </MenuItem>
         ))}
         <MenuItem key="clear-color" onClick={e => { onChange("text", 'inherit'); }}>
-          <FormatClearIcon />
+          <FormatClear />
         </MenuItem>
         <ListSubheader key="background" sx={{ width: "100%" }}>Background</ListSubheader>
         {backgroundPalete.map((color, index) => (
           <MenuItem key={index} onClick={e => { onChange("background", color); }}>
-            <CircleIcon style={{ backgroundColor: color, color: 'transparent' }} />
+            <Circle style={{ backgroundColor: color, color: 'transparent' }} />
           </MenuItem>
         ))}
         <MenuItem key="clear-background" onClick={e => { onChange("background", 'inherit'); }}>
-          <FormatColorResetIcon />
+          <FormatColorReset />
         </MenuItem>
       </Menu>
     </>

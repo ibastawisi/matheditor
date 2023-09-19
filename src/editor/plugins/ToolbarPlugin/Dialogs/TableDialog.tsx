@@ -2,12 +2,11 @@
 import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
 import { INSERT_TABLE_COMMAND } from '../../../nodes/TableNode';
 import React, { memo, useState } from 'react';
-import Add from '@mui/icons-material/Add';
-import Remove from '@mui/icons-material/Remove';
 import { SET_DIALOGS_COMMAND } from '..';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, IconButton, Switch, TextField, useMediaQuery } from '@mui/material';
+import { Remove, Add } from '@mui/icons-material';
 
 function TableDialog({ editor, open }: { editor: LexicalEditor, open: boolean }) {
   const theme = useTheme();

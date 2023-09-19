@@ -1,13 +1,8 @@
 "use client"
 import * as React from 'react';
 import { FORMAT_ELEMENT_COMMAND, INDENT_CONTENT_COMMAND, LexicalEditor, OUTDENT_CONTENT_COMMAND } from 'lexical';
-import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
-import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
-import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
-import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
-import FormatIndentDecreaseIcon from '@mui/icons-material/FormatIndentDecrease';
-import FormatIndentIncreaseIcon from '@mui/icons-material/FormatIndentIncrease';
 import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Divider } from '@mui/material';
+import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight, FormatAlignJustify, FormatIndentIncrease, FormatIndentDecrease } from '@mui/icons-material';
 
 export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor, isRTL: boolean }): JSX.Element {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -28,7 +23,7 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
         aria-expanded={open ? 'true' : undefined}
         aria-label='Align Text'
         onClick={handleClick}>
-        <FormatAlignLeftIcon />
+        <FormatAlignLeft />
       </IconButton>
       <Menu
         id="align-menu"
@@ -50,7 +45,7 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
           handleClose();
         }}>
           <ListItemIcon>
-            <FormatAlignLeftIcon fontSize="small" />
+            <FormatAlignLeft fontSize="small" />
           </ListItemIcon>
           <ListItemText>Left Align</ListItemText>
         </MenuItem>
@@ -59,7 +54,7 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
           handleClose();
         }}>
           <ListItemIcon>
-            <FormatAlignCenterIcon fontSize="small" />
+            <FormatAlignCenter fontSize="small" />
           </ListItemIcon>
           <ListItemText>Center Align</ListItemText>
         </MenuItem>
@@ -68,7 +63,7 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
           handleClose();
         }}>
           <ListItemIcon>
-            <FormatAlignRightIcon fontSize="small" />
+            <FormatAlignRight fontSize="small" />
           </ListItemIcon>
           <ListItemText>Right Align</ListItemText>
         </MenuItem>
@@ -77,7 +72,7 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
           handleClose();
         }}>
           <ListItemIcon>
-            <FormatAlignJustifyIcon fontSize="small" />
+            <FormatAlignJustify fontSize="small" />
           </ListItemIcon>
           <ListItemText>Justify Align</ListItemText>
         </MenuItem>
@@ -89,7 +84,7 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
           handleClose();
         }}>
           <ListItemIcon>
-            {isRTL ? <FormatIndentIncreaseIcon fontSize="small" /> : <FormatIndentDecreaseIcon fontSize="small" />}
+            {isRTL ? <FormatIndentIncrease fontSize="small" /> : <FormatIndentDecrease fontSize="small" />}
           </ListItemIcon>
           <ListItemText>Outdent</ListItemText>
         </MenuItem>
@@ -98,7 +93,7 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
           handleClose();
         }}>
           <ListItemIcon>
-            {isRTL ? <FormatIndentDecreaseIcon fontSize="small" /> : <FormatIndentIncreaseIcon fontSize="small" />}
+            {isRTL ? <FormatIndentDecrease fontSize="small" /> : <FormatIndentIncrease fontSize="small" />}
           </ListItemIcon>
           <ListItemText>Indent</ListItemText>
         </MenuItem>

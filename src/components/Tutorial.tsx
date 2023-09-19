@@ -2,12 +2,9 @@
 import Editor from "./Editor";
 import { useState } from "react";
 import type { EditorState } from "../editor/types";
-import CheckIcon from "@mui/icons-material/Check";
-import ClearIcon from "@mui/icons-material/Clear";
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
 import { tasks, checkpoints } from "@/tutorial";
 import { Paper, Box, Typography, List, Pagination, ListItemButton, ListItemIcon, ListItemText, Collapse, Divider } from "@mui/material";
+import { Check, Clear, ExpandLess, ExpandMore } from "@mui/icons-material";
 
 type CheckpointItem = typeof checkpoints[0][0];
 
@@ -56,7 +53,7 @@ const CheckpointItem = ({ name, steps, checked }: { name: string, steps: JSX.Ele
   return <>
     <ListItemButton onClick={handleClick}>
       <ListItemIcon>
-        {checked ? <CheckIcon /> : <ClearIcon />}
+        {checked ? <Check /> : <Clear />}
       </ListItemIcon>
       <ListItemText primary={name} sx={checked ? { textDecoration: "line-through" } : {}} />
       {open ? <ExpandLess /> : <ExpandMore />}

@@ -50,9 +50,9 @@ import { createPortal } from 'react-dom';
 import invariant from '../../shared/invariant';
 
 import ColorPicker from '../ToolbarPlugin/Tools/ColorPicker';
-import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { getStyleObjectFromCSS } from '../../nodes/utils';
 import { MenuItem, ListItemText, Menu, Divider, Box, IconButton } from '@mui/material';
+import { DragIndicator } from '@mui/icons-material';
 
 function computeSelectionCount(selection: GridSelection): {
   columns: number;
@@ -666,7 +666,7 @@ function TableCellActionMenuContainer({
               e.stopPropagation();
               setIsMenuOpen(!isMenuOpen);
             }}>
-            <DragIndicatorIcon fontSize='inherit' />
+            <DragIndicator fontSize='inherit' />
           </IconButton>
           {isMenuOpen && (
             <TableActionMenu

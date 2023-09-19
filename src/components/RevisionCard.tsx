@@ -2,12 +2,11 @@
 import * as React from 'react';
 import { CloudDocumentRevision, EditorDocument, isCloudDocument } from '@/types';
 import { memo } from 'react';
-import CloudDoneIcon from '@mui/icons-material/CloudDone';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { actions, useDispatch, useSelector } from '@/store';
 import { CLEAR_HISTORY_COMMAND } from '@/editor';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Avatar, CardActions, Chip, IconButton } from '@mui/material';
+import { CloudDone, Delete } from '@mui/icons-material';
 
 const RevisionCard: React.FC<{ revision: CloudDocumentRevision, isHead: boolean, sx?: SxProps<Theme> | undefined }> = memo(({ revision, isHead, sx }) => {
   const dispatch = useDispatch();
@@ -60,10 +59,10 @@ const RevisionCard: React.FC<{ revision: CloudDocumentRevision, isHead: boolean,
         />
       </CardActionArea>
       <CardActions sx={{ "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
-        {isHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudDoneIcon />} label="Current" />}
+        {isHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudDone />} label="Current" />}
         {!isHead && <>
           <IconButton aria-label="Delete Revision" size="small" disabled={isHead} onClick={deleteRevision}>
-            <DeleteIcon />
+            <Delete />
           </IconButton>
         </>}
       </CardActions>

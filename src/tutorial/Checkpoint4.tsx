@@ -1,8 +1,5 @@
+import { FormatAlignCenter, FormatAlignLeft, FormatAlignRight, FormatIndentIncrease } from "@mui/icons-material";
 import type { EditorState } from "../editor/types";
-import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
-import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
-import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
-import FormatIndentIncreaseIcon from '@mui/icons-material/FormatIndentIncrease';
 import { Typography, IconButton } from "@mui/material";
 
 const Checkpoint4 = [
@@ -15,11 +12,11 @@ const Checkpoint4 = [
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
         <IconButton aria-label='Align Text'>
-          <FormatAlignLeftIcon />
+          <FormatAlignLeft />
         </IconButton> menu in the toolbar
       </Typography>
       <Typography variant="subtitle2">
-        3. Select <FormatAlignCenterIcon sx={{ verticalAlign: "middle" }} /> Align Center from the menu
+        3. Select <FormatAlignCenter sx={{ verticalAlign: "middle" }} /> Align Center from the menu
       </Typography>
     </>,
     check: (editorState?: EditorState) => {
@@ -46,11 +43,11 @@ const Checkpoint4 = [
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
         <IconButton aria-label='Align Text'>
-          <FormatAlignLeftIcon />
+          <FormatAlignLeft />
         </IconButton> menu in the toolbar
       </Typography>
       <Typography variant="subtitle2">
-        3. Select <FormatAlignRightIcon sx={{ verticalAlign: "middle" }} /> Align Right from the menu
+        3. Select <FormatAlignRight sx={{ verticalAlign: "middle" }} /> Align Right from the menu
       </Typography>
     </>,
     check: (editorState?: EditorState) => {
@@ -77,11 +74,11 @@ const Checkpoint4 = [
       <Typography variant="subtitle2" gutterBottom>
         2. Click the
         <IconButton aria-label='Align Text'>
-          <FormatAlignLeftIcon />
+          <FormatAlignLeft />
         </IconButton> menu in the toolbar
       </Typography>
       <Typography variant="subtitle2">
-        3. Select <FormatIndentIncreaseIcon sx={{ verticalAlign: "middle" }} /> Indent from the menu
+        3. Select <FormatIndentIncrease sx={{ verticalAlign: "middle" }} /> Indent from the menu
       </Typography>
     </>,
     check: (editorState?: EditorState) => {

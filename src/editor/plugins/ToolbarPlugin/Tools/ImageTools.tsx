@@ -1,24 +1,20 @@
 "use client"
 import { LexicalEditor, } from "lexical";
 import { ImageNode } from "../../../nodes/ImageNode";
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { $isSketchNode, SketchNode } from "../../../nodes/SketchNode";
 import { $isGraphNode, GraphNode } from "../../../nodes/GraphNode";
 import { $patchStyle, getStyleObjectFromCSS } from '../../../nodes/utils';
 import { useState } from "react";
-import ViewHeadlineIcon from '@mui/icons-material/ViewHeadline';
-import ClosedCaptionIcon from '@mui/icons-material/ClosedCaption';
-import ClosedCaptionDisabledIcon from '@mui/icons-material/ClosedCaptionDisabled';
 import { SET_DIALOGS_COMMAND } from "..";
 import { SxProps, Theme } from '@mui/material/styles';
 import { ToggleButtonGroup, ToggleButton, SvgIcon } from "@mui/material";
+import { Edit, ClosedCaptionDisabled, ClosedCaption, ViewHeadline, Delete } from "@mui/icons-material";
 
-const FormatImageRightIcon = () => <SvgIcon viewBox='0 -960 960 960'>
+const FormatImageRight = () => <SvgIcon viewBox='0 -960 960 960'>
   <path xmlns="http://www.w3.org/2000/svg" d="M450-285v-390h390v390H450Zm60-60h270v-270H510v270ZM120-120v-60h720v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h720v60H120Z" />
 </SvgIcon>;
 
-const FormatImageLeftIcon = () => <SvgIcon viewBox='0 -960 960 960'>
+const FormatImageLeft = () => <SvgIcon viewBox='0 -960 960 960'>
   <path xmlns="http://www.w3.org/2000/svg" d="M120-285v-390h390v390H120Zm60-60h270v-270H180v270Zm-60-435v-60h720v60H120Zm450 165v-60h270v60H570Zm0 165v-60h270v60H570Zm0 165v-60h270v60H570ZM120-120v-60h720v60H120Z" />
 </SvgIcon>;
 
@@ -60,29 +56,29 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
 
         <ToggleButton value="edit" key="edit"
           onClick={openDialog}>
-          <EditIcon />
+          <Edit />
         </ToggleButton>
         <ToggleButton value="caption" key="caption"
           onClick={toggleShowCaption}>
-          {node.getShowCaption() ? <ClosedCaptionDisabledIcon /> : <ClosedCaptionIcon />}
+          {node.getShowCaption() ? <ClosedCaptionDisabled /> : <ClosedCaption />}
         </ToggleButton>
         <ToggleButton value="float-left" key="float-left"
           onClick={() => {
             updateStyle({ "float": "left", "margin": "0 1em 0 0", "max-width": "50%" });
           }}>
-          <FormatImageLeftIcon />
+          <FormatImageLeft />
         </ToggleButton>
         <ToggleButton value="float-none" key="float-none"
           onClick={() => {
             updateStyle({ "float": "none", "margin": "0", "max-width": "100%" });
           }}>
-          <ViewHeadlineIcon />
+          <ViewHeadline />
         </ToggleButton>,
         <ToggleButton value="float-right" key="float-right"
           onClick={() => {
             updateStyle({ "float": "right", "margin": "0 0 0 1em", "max-width": "50%" });
           }}>
-          <FormatImageRightIcon />
+          <FormatImageRight />
         </ToggleButton>
         <ToggleButton value="delete"
           onClick={() => {
@@ -91,7 +87,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
               node.remove();
             });
           }}>
-          <DeleteIcon />
+          <Delete />
         </ToggleButton>
       </ToggleButtonGroup>
     </>

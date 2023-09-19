@@ -3,8 +3,8 @@ import { usePathname } from 'next/navigation';
 import { EditorDocument, isCloudDocument } from '@/types';
 import RevisionCard from './RevisionCard';
 import { useDispatch, actions, useSelector } from '@/store';
-import CloseIcon from '@mui/icons-material/Close';
 import { Button, Drawer, Grid, IconButton, Typography } from '@mui/material';
+import { Close } from '@mui/icons-material';
 
 export default function DocumentRevisions({ open, onClose }: { open: boolean, onClose: () => void }) {
   const pathname = usePathname();
@@ -34,7 +34,7 @@ export default function DocumentRevisions({ open, onClose }: { open: boolean, on
       <Grid container spacing={1} sx={{ p: 1, width: 280 }}>
         <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6">Revisions</Typography>
-          <IconButton onClick={onClose}><CloseIcon /></IconButton>
+          <IconButton onClick={onClose}><Close /></IconButton>
         </Grid>
         <Grid item xs={12}>
           <Button variant="outlined" fullWidth onClick={createRevision}>Create Revision</Button>

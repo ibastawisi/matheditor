@@ -4,19 +4,15 @@ import RouterLink from 'next/link'
 import { useDispatch, useSelector, actions, RootState } from '@/store';
 import DocumentCard from "./DocumentCard";
 import React, { memo, useEffect, useState } from "react";
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-import StorageIcon from '@mui/icons-material/Storage';
 import { EditorDocument, UserDocument } from '@/types';
 import { validate } from "uuid";
 import UserCard from "./UserCard";
-import PostAddIcon from '@mui/icons-material/PostAdd';
-import ArticleIcon from '@mui/icons-material/Article';
-import HelpIcon from '@mui/icons-material/Help';
 import SortControl from "./SortControl";
 import { SortOption } from "../hooks/useSort";
 import documentDB from '@/indexeddb';
 import { createSelector } from '@reduxjs/toolkit';
 import { Box, Avatar, Button, Typography, Grid, Card, CardActionArea, CardHeader, Collapse, Pagination } from '@mui/material';
+import { PostAdd, UploadFile, Article, Help, Storage } from '@mui/icons-material';
 
 const Documents: React.FC = () => {
   const user = useSelector(state => state.user);
@@ -128,7 +124,7 @@ const Documents: React.FC = () => {
   return (
     <>
       <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5 }}>
-        <Avatar sx={{ my: 2, bgcolor: 'primary.main' }}><PostAddIcon /></Avatar>
+        <Avatar sx={{ my: 2, bgcolor: 'primary.main' }}><PostAdd /></Avatar>
         <Button variant="outlined" component={RouterLink} prefetch={false} href="/new">New document</Button>
       </Box>
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", gap: 1, mb: 1 }}>
@@ -136,11 +132,11 @@ const Documents: React.FC = () => {
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
           <SortControl<UserDocument> data={documents} onSortChange={setSortedDocuments} sortOptions={documentSortOptions} initialSortDirection="desc" />
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center" }}>
-            <Button variant="outlined" startIcon={<UploadFileIcon />} component="label">
+            <Button variant="outlined" startIcon={<UploadFile />} component="label">
               Import
               <input type="file" hidden accept=".me" multiple onChange={e => handleFilesChange(e.target.files)} />
             </Button>
-            <Button variant="outlined" startIcon={<StorageIcon />} onClick={backup}>
+            <Button variant="outlined" startIcon={<Storage />} onClick={backup}>
               Backup
             </Button>
           </Box>
@@ -150,14 +146,14 @@ const Documents: React.FC = () => {
         <Grid item xs={6}>
           <Card variant="outlined">
             <CardActionArea component={RouterLink} prefetch={false} href="/playground">
-              <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><ArticleIcon /></Avatar>} />
+              <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><Article /></Avatar>} />
             </CardActionArea>
           </Card>
         </Grid>
         <Grid item xs={6}>
           <Card variant="outlined">
             <CardActionArea component={RouterLink} prefetch={false} href="/tutorial">
-              <CardHeader title="Tutorial" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><HelpIcon /></Avatar>} />
+              <CardHeader title="Tutorial" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><Help /></Avatar>} />
             </CardActionArea>
           </Card>
         </Grid>

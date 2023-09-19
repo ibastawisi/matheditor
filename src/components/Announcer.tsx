@@ -2,8 +2,8 @@
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector, actions } from '@/store';
 import React from 'react';
-import CloseIcon from '@mui/icons-material/Close';
 import { Snackbar, Button, IconButton } from '@mui/material';
+import { Close } from '@mui/icons-material';
 
 function Announcer() {
   const announcement = useSelector(state => state.announcements[0]);
@@ -35,7 +35,7 @@ function Announcer() {
           {announcement.action.label}
         </Button>
         <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>
-          <CloseIcon fontSize="small" />
+          <Close fontSize="small" />
         </IconButton>
       </React.Fragment>
       : null}

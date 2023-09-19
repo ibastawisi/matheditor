@@ -3,13 +3,13 @@ import * as React from 'react';
 import { CheckHandleResponse, User } from '@/types';
 import { useDispatch, actions } from '@/store';
 import { useCallback, useState } from 'react';
-import SettingsIcon from '@mui/icons-material/Settings';
 import { useRouter, usePathname } from 'next/navigation';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { debounce } from '@mui/material/utils'
 import { IconButton, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button } from '@mui/material';
+import { Settings } from '@mui/icons-material';
 
 function UserActionMenu({ user }: { user: User }): JSX.Element {
   const dispatch = useDispatch();
@@ -77,7 +77,7 @@ function UserActionMenu({ user }: { user: User }): JSX.Element {
         onClick={openEditDialog}
         size="small"
       >
-        <SettingsIcon />
+        <Settings />
       </IconButton>
       <Dialog open={editDialogOpen} onClose={closeEditDialog} fullWidth maxWidth="xs">
         <form onSubmit={formik.handleSubmit} noValidate autoComplete="off" spellCheck="false">

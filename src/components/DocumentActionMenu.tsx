@@ -3,22 +3,13 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckHandleResponse, EditorDocument, UserDocument, isCloudDocument, isLocalDocument } from '@/types';
 import { useDispatch, useSelector, actions } from '@/store';
-import DownloadIcon from '@mui/icons-material/Download';
-import DeleteForever from '@mui/icons-material/DeleteForever';
-import ShareIcon from '@mui/icons-material/Share';
 import { useCallback, useState } from 'react';
-import PublicIcon from '@mui/icons-material/Public';
-import PublicOffIcon from '@mui/icons-material/PublicOff';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import CloudSyncIcon from '@mui/icons-material/CloudSync';
-import FileCopyIcon from '@mui/icons-material/FileCopy';
-import SettingsIcon from '@mui/icons-material/Settings';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { debounce } from '@mui/material/utils';
 import { IconButton, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, FormControl, RadioGroup, FormControlLabel, Radio, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Settings, Share, MoreVert, Download, FileCopy, CloudSync, CloudUpload, PublicOff, Public, DeleteForever } from '@mui/icons-material';
 
 export type options = ('edit' | 'download' | 'fork' | 'share' | 'publish' | 'upload' | 'delete' | 'embed')[];
 type DocumentActionMenuProps = {
@@ -264,7 +255,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
           onClick={openEditDialog}
           size="small"
         >
-          <SettingsIcon />
+          <Settings />
         </IconButton>
         <Dialog open={editDialogOpen} onClose={closeEditDialog} fullWidth maxWidth="xs">
           <form onSubmit={formik.handleSubmit} noValidate autoComplete="off" spellCheck="false">
@@ -306,7 +297,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
           onClick={openShareDialog}
           size="small"
         >
-          <ShareIcon />
+          <Share />
         </IconButton>
         <Dialog open={shareDialogOpen} onClose={closeShareDialog} fullWidth maxWidth="xs">
           <form onSubmit={handleShare}>
@@ -337,7 +328,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
         onClick={openMenu}
         size="small"
       >
-        <MoreVertIcon />
+        <MoreVert />
       </IconButton>
       <Menu
         id={`${document.id}-action-menu`}
@@ -357,14 +348,14 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
         {options.includes('download') &&
           <MenuItem onClick={handleSave}>
             <ListItemIcon>
-              <DownloadIcon />
+              <Download />
             </ListItemIcon>
             <ListItemText>Download</ListItemText>
           </MenuItem>
         }
         {options.includes('fork') && <MenuItem onClick={handleFork}>
           <ListItemIcon>
-            <FileCopyIcon />
+            <FileCopy />
           </ListItemIcon>
           <ListItemText>Fork</ListItemText>
         </MenuItem>
@@ -373,7 +364,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
           isLocal && !isUpToDate &&
           <MenuItem onClick={isUploaded ? handleUpdate : handleCreate}>
             <ListItemIcon>
-              {isUploaded ? <CloudSyncIcon /> : <CloudUploadIcon />}
+              {isUploaded ? <CloudSync /> : <CloudUpload />}
             </ListItemIcon>
             <ListItemText>
               {isUploaded ? "Update Cloud" : "Save to Cloud"}
@@ -383,7 +374,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
         {options.includes('publish') &&
           <MenuItem onClick={togglePublished}>
             <ListItemIcon>
-              {isPublished ? <PublicOffIcon /> : <PublicIcon />}
+              {isPublished ? <PublicOff /> : <Public />}
             </ListItemIcon>
             <ListItemText>{isPublished ? "Unpublish" : "Publish"}</ListItemText>
           </MenuItem>

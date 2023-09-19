@@ -12,14 +12,10 @@ import './StickyNode.css';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useEffect, useRef, useState } from 'react';
-
-import FormatPaintIcon from '@mui/icons-material/FormatPaint';
-import DeleteIcon from '@mui/icons-material/Delete';
-import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-
 import { editorConfig } from './config';
 import dynamic from 'next/dynamic';
 import { IconButton } from '@mui/material';
+import { Delete, FormatPaint, DragIndicator } from '@mui/icons-material';
 const NestedEditor = dynamic(() => import('@/editor/NestedEditor'), { ssr: false });
 
 export default function StickyComponent({ nodeKey, color, stickyEditor }: { stickyEditor: LexicalEditor; color: 'pink' | 'yellow'; nodeKey: NodeKey; }): JSX.Element {
@@ -79,14 +75,14 @@ export default function StickyComponent({ nodeKey, color, stickyEditor }: { stic
     <div ref={stickyContainerRef} className={"sticky-note-container" + (isSelected ? " selected" : "")} draggable={isDraggable} {...{ theme: 'light' }}>
       <div className='sticky-tools'>
         <IconButton sx={{ displayPrint: 'none' }} onClick={handleDelete} aria-label="Delete sticky note" title="Delete" color='inherit' size='small'>
-          <DeleteIcon fontSize='inherit' />
+          <Delete fontSize='inherit' />
         </IconButton>
         <IconButton sx={{ displayPrint: 'none' }} color='inherit' size='small' aria-label="Change sticky note color" title="Color" onClick={handleColorChange}>
-          <FormatPaintIcon fontSize='inherit' />
+          <FormatPaint fontSize='inherit' />
         </IconButton>
         {isSelected && <IconButton className='drag-btn' sx={{ displayPrint: 'none', mr: "auto" }} color='inherit' size='small' aria-label="Drag sticky note" title="Drag"
           onMouseDown={() => setDraggable(true)} onMouseUp={() => setDraggable(false)}>
-          <DragIndicatorIcon fontSize='inherit' />
+          <DragIndicator fontSize='inherit' />
         </IconButton>
         }
       </div>

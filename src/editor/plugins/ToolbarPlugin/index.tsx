@@ -8,10 +8,6 @@ import { $getSelectionStyleValueForProperty, $isAtNodeEnd, $isParentElementRTL, 
 import { $getNearestNodeOfType, mergeRegister, } from '@lexical/utils';
 import { CAN_REDO_COMMAND, CAN_UNDO_COMMAND, REDO_COMMAND, SELECTION_CHANGE_COMMAND, UNDO_COMMAND, COMMAND_PRIORITY_CRITICAL, } from 'lexical';
 import { useCallback, useEffect, useState } from 'react';
-
-import UndoIcon from '@mui/icons-material/Undo';
-import RedoIcon from '@mui/icons-material/Redo';
-
 import { BlockFormatSelect } from './Menus/BlockFormatSelect';
 import InsertToolMenu from './Menus/InsertToolMenu';
 import TextFormatToggles from './Tools/TextFormatToggles';
@@ -27,6 +23,7 @@ import { $patchStyle } from '../../nodes/utils';
 import { ImageDialog, GraphDialog, SketchDialog, TableDialog } from './Dialogs';
 import { $isStickyNode } from '../../nodes/StickyNode';
 import { SelectChangeEvent, useScrollTrigger, AppBar, Toolbar, Box, IconButton, Select, MenuItem } from '@mui/material';
+import { Redo, Undo } from '@mui/icons-material';
 
 type EditorDialogs = {
   image: {
@@ -333,11 +330,11 @@ function ToolbarPlugin() {
           <Box sx={{ display: "flex" }}>
             <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
               onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}>
-              <UndoIcon />
+              <Undo />
             </IconButton>
             <IconButton title={IS_APPLE ? 'Redo (⌘Y)' : 'Redo (Ctrl+Y)'} aria-label="Redo" disabled={!canRedo}
               onClick={() => { activeEditor.dispatchCommand(REDO_COMMAND, undefined); }}>
-              <RedoIcon />
+              <Redo />
             </IconButton>
           </Box>
           <Box sx={{ display: "flex", gap: 0.5 }}>
