@@ -12,7 +12,7 @@ import CloseIcon from '@mui/icons-material/Close';
 
 export default function DocumentRevisions({ open, onClose }: { open: boolean, onClose: () => void }) {
   const pathname = usePathname();
-  const id = pathname.split('/')[2];
+  const id = pathname.split('/')[2]?.toLowerCase();
   const document = useSelector(state => state.documents.filter(isCloudDocument).find(document => document.id === id || document.handle === id));
 
   const user = useSelector(state => state.user);

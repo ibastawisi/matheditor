@@ -12,7 +12,7 @@ const EditDocument: React.FC = () => {
   const [error, setError] = useState<string>();
   const dispatch = useDispatch();
   const pathname = usePathname();
-  const id = pathname.split('/')[2];
+  const id = pathname.split('/')[2]?.toLowerCase();
 
   useEffect(() => {
     const loadDocument = async (id: string) => {

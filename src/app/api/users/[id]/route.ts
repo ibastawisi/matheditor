@@ -15,6 +15,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
       try {
         const id = await findUserIdByHandle(params.id);
         if (id) params.id = id;
+        else {
+          response.error = "User not found";
+          return NextResponse.json(response, { status: 404 })
+        }
       } catch (error) {
         response.error = "User not found";
         return NextResponse.json(response, { status: 404 })
@@ -61,6 +65,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       return NextResponse.json(response, { status: 400 })
     }
     if (body.handle) {
+      body.handle = body.handle.toLowerCase();
       const errors = await validateHandle(params.id, body.handle);
       if (errors) {
         response.error = errors;

@@ -14,23 +14,20 @@ import CloudDoneIcon from '@mui/icons-material/CloudDone';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { actions, useDispatch, useSelector } from '@/store';
 import { CLEAR_HISTORY_COMMAND } from '@/editor';
-import { usePathname } from 'next/navigation';
 
 const RevisionCard: React.FC<{ revision: CloudDocumentRevision, isHead: boolean, sx?: SxProps<Theme> | undefined }> = memo(({ revision, isHead, sx }) => {
   const dispatch = useDispatch();
-  const pathname = usePathname();
-  const id = pathname.split('/')[2];
-  const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(document => document.id === id || document.handle === id));
+  const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(document => document.id === revision.documentId));
 
   const restoreRevision = async () => {
-    const response = await dispatch(actions.getLocalDocument(id));
+    const response = await dispatch(actions.getLocalDocument(revision.documentId));
     if (response.type === actions.getLocalDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't find local document" }));
     const localDocument = response.payload as EditorDocument;
     if (!cloudDocument) return await dispatch(actions.createCloudDocument(localDocument));
     const isUpToDate = cloudDocument?.updatedAt === localDocument.updatedAt;
     if (!isUpToDate) {
       dispatch(actions.announce({ message: "Saving local changes before restoring revision" }));
-      await dispatch(actions.updateCloudDocument({ id: cloudDocument.id ?? id, partial: { data: localDocument.data, updatedAt: localDocument.updatedAt } }));
+      await dispatch(actions.updateCloudDocument({ id: revision.documentId, partial: { data: localDocument.data, updatedAt: localDocument.updatedAt } }));
     }
     await dispatch(actions.updateCloudDocument({ id: revision.documentId, partial: { head: revision.id, updatedAt: revision.createdAt } }));
     const res = await dispatch(actions.getCloudRevision(revision.id));

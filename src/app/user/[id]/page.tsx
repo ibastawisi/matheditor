@@ -14,6 +14,10 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       try {
         const id = await findUserIdByHandle(params.id);
         if (id) params.id = id;
+        else {
+          metadata.subtitle = 'User Not Found';
+          return metadata;
+        }
       } catch (error) {
         metadata.subtitle = 'User Not Found';
         return metadata;
@@ -50,6 +54,7 @@ export default async function Page({ params }: { params: { id: string } }) {
     try {
       const id = await findUserIdByHandle(params.id);
       if (id) params.id = id;
+      else notFound();
     } catch (error) {
       notFound();
     }

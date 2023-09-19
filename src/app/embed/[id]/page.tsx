@@ -16,6 +16,10 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     try {
       const id = await findDocumentIdByHandle(params.id);
       if (id) params.id = id;
+      else {
+        metadata.subtitle = 'Document Not Found';
+        return metadata;
+      }
     } catch (error) {
       metadata.subtitle = 'Document Not Found';
       return metadata;
@@ -54,6 +58,7 @@ export default async function Page({ params }: { params: { id: string } }) {
     try {
       const id = await findDocumentIdByHandle(params.id);
       if (id) params.id = id;
+      else notFound();
     } catch (error) {
       notFound();
     }

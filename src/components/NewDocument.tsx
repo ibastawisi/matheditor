@@ -20,7 +20,7 @@ const NewDocument: React.FC = () => {
   const [base, setBase] = useState<EditorDocument & UserDocument>();
   const dispatch = useDispatch();
   const pathname = usePathname();
-  const id = pathname.split('/')[2];
+  const id = pathname.split('/')[2]?.toLowerCase();
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
