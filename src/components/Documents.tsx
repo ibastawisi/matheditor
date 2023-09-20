@@ -4,7 +4,7 @@ import RouterLink from 'next/link'
 import { useDispatch, useSelector, actions, RootState } from '@/store';
 import DocumentCard from "./DocumentCard";
 import React, { memo, useEffect, useState } from "react";
-import { EditorDocument, UserDocument } from '@/types';
+import { EditorDocument, UserDocument, isLocalDocument } from '@/types';
 import { validate } from "uuid";
 import UserCard from "./UserCard";
 import SortControl from "./SortControl";
@@ -23,7 +23,12 @@ const Documents: React.FC = () => {
   const selectDocuments = createSelector(
     [(state: RootState) => state.documents], (documents) => {
       return documents.reduce((acc, document) => {
-        if (!acc.find(d => d.id === document.id)) acc.push(document);
+        if (acc.find(d => d.id === document.id)){
+          if (isLocalDocument(document)) {
+            const index = acc.findIndex(d => d.id === document.id);
+            acc[index] = document;
+          }
+        } else acc.push(document);
         return acc;
       }, [] as UserDocument[]);
     });
@@ -125,7 +130,7 @@ const Documents: React.FC = () => {
     <>
       <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5 }}>
         <Avatar sx={{ my: 2, bgcolor: 'primary.main' }}><PostAdd /></Avatar>
-        <Button variant="outlined" component={RouterLink} prefetch={false} href="/new">New document</Button>
+        <Button variant="outlined" component={RouterLink} prefetch={false} scroll={false} href="/new">New document</Button>
       </Box>
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", gap: 1, mb: 1 }}>
         <Typography variant="h6" component="h2" sx={{ display: { xs: 'none', sm: 'block' } }}>Documents</Typography>
@@ -145,14 +150,14 @@ const Documents: React.FC = () => {
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid item xs={6}>
           <Card variant="outlined">
-            <CardActionArea component={RouterLink} prefetch={false} href="/playground">
+            <CardActionArea component={RouterLink} prefetch={false} scroll={false} href="/playground">
               <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><Article /></Avatar>} />
             </CardActionArea>
           </Card>
         </Grid>
         <Grid item xs={6}>
           <Card variant="outlined">
-            <CardActionArea component={RouterLink} prefetch={false} href="/tutorial">
+            <CardActionArea component={RouterLink} prefetch={false} scroll={false} href="/tutorial">
               <CardHeader title="Tutorial" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><Help /></Avatar>} />
             </CardActionArea>
           </Card>

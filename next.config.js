@@ -17,6 +17,7 @@ const withPWA = require("./next-pwa")({
 
 
 const config = {
+  reactStrictMode: false,
   webpack: (config, options) => {
     config.module.rules.push({
       test: /\.woff2?(\?v=\d+\.\d+\.\d+)?$/,

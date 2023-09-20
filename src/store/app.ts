@@ -283,15 +283,24 @@ export const appSlice = createSlice({
       })
       .addCase(loadLocalDocuments.fulfilled, (state, action) => {
         const documents = action.payload;
-        if (documents) state.documents.push(...documents);
+        documents.forEach(document => {
+          const index = state.documents.findIndex(doc => doc.id === document.id);
+          index === -1? state.documents.push(document): state.documents.splice(index, 0, document);
+        });
       })
       .addCase(loadCloudDocuments.fulfilled, (state, action) => {
         const documents = action.payload;
-        if (documents) state.documents.push(...documents);
+        documents.forEach(document => {
+          const index = state.documents.filter(isCloudDocument).findIndex(doc => doc.id === document.id);
+          index === -1? state.documents.push(document): Object.assign(state.documents[index], document);
+        });
       })
       .addCase(loadPublishedDocuments.fulfilled, (state, action) => {
         const documents = action.payload;
-        if (documents) state.documents.push(...documents);
+        documents.forEach(document => {
+          const index = state.documents.filter(isCloudDocument).findIndex(doc => doc.id === document.id);
+          index === -1? state.documents.push(document): Object.assign(state.documents[index], document);
+        });
       })
       .addCase(getCloudDocument.rejected, (state, action) => {
         const message = action.payload as string;

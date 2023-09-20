@@ -11,24 +11,6 @@ const findAllDocuments = async () => {
       author: true,
       published: true,
       baseId: true,
-      head: true,
-      revisions: {
-        select: {
-          id: true,
-          documentId: true,
-          createdAt: true,
-          author: {
-            select: {
-              id: true,
-              handle: true,
-              name: true,
-              image: true,
-              email: true,
-              role: true,
-            }
-          }
-        }
-      },
     },
     orderBy: {
       updatedAt: 'desc'
@@ -46,25 +28,6 @@ const findPublishedDocuments = async () => {
       createdAt: true,
       updatedAt: true,
       published: true,
-      baseId: true,
-      head: true,
-      revisions: {
-        select: {
-          id: true,
-          documentId: true,
-          createdAt: true,
-          author: {
-            select: {
-              id: true,
-              handle: true,
-              name: true,
-              image: true,
-              email: true,
-              role: true,
-            }
-          }
-        }
-      },
       author: {
         select: {
           id: true,
@@ -138,25 +101,6 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
       createdAt: true,
       updatedAt: true,
       published: true,
-      baseId: true,
-      head: true,
-      revisions: {
-        select: {
-          id: true,
-          documentId: true,
-          createdAt: true,
-          author: {
-            select: {
-              id: true,
-              handle: true,
-              name: true,
-              image: true,
-              email: true,
-              role: true,
-            }
-          }
-        }
-      },
       author: {
         select: {
           id: true,

@@ -41,7 +41,7 @@ const DocumentCard: React.FC<{ document?: UserDocument, sx?: SxProps<Theme> | un
         maxWidth: "100%",
         ...sx
       }}>
-      <CardActionArea component={RouterLink} prefetch={false} href={document ? href : "/"} sx={{ flexGrow: 1 }}>
+      <CardActionArea component={RouterLink} prefetch={false} scroll={false} href={document ? href : "/"} sx={{ flexGrow: 1 }}>
         <CardHeader sx={{ alignItems: "start", '& .MuiCardHeader-content': { overflow: "hidden", textOverflow: "ellipsis" } }}
           title={document ? document.name : <Skeleton variant="text" width={190} />}
           subheader={

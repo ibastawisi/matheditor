@@ -38,7 +38,7 @@ export default function AdminDashboard({ users, documents }: { users: User[], do
     {
       field: 'actions', headerName: 'Actions', width: 90, renderCell: (params) => {
         const handle = params.row.handle || params.row.id;
-        return <IconButton component={RouterLink} href={`/view/${handle}`} aria-label="view">
+        return <IconButton component={RouterLink} prefetch={false} scroll={false} href={`/view/${handle}`} aria-label="view">
           <Visibility />
         </IconButton>
       }

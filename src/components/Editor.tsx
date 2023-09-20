@@ -1,10 +1,10 @@
 "use client"
-import React from 'react';
+import { MutableRefObject } from 'react';
 import { memo } from 'react';
 import { validate } from 'uuid';
 import isEqual from 'fast-deep-equal'
 import { EditorDocument } from '@/types';
-import type { EditorState } from '@/editor/types';
+import type { EditorState, LexicalEditor } from '@/editor/types';
 import dynamic from "next/dynamic";
 import SplashScreen from './SplashScreen';
 import { useDispatch } from 'react-redux';
@@ -12,7 +12,7 @@ import { AppDispatch, actions } from '@/store';
 
 const Editor = dynamic(() => import("@/editor/Editor"), { ssr: false, loading: () => <SplashScreen title="Loading Editor" /> });
 
-const Container: React.FC<{ document: EditorDocument, onChange?: (editorState: EditorState) => void }> = ({ document, onChange }) => {
+const Container: React.FC<{ document: EditorDocument, editorRef?: MutableRefObject<LexicalEditor | null>, onChange?: (editorState: EditorState) => void }> = ({ document, editorRef, onChange }) => {
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -24,7 +24,7 @@ const Container: React.FC<{ document: EditorDocument, onChange?: (editorState: E
     onChange && onChange(editorState);
   }
   return (
-    <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={handleChange} />
+    <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={handleChange} editorRef={editorRef} />
   );
 }
 

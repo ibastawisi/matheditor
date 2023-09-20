@@ -1,39 +1,23 @@
 "use client"
-import { useState, useEffect, memo } from "react";
-import { useDispatch, useSelector, actions, RootState } from '@/store';
+import { useState, memo } from "react";
+import { useSelector } from '@/store';
 import UserCard from "./UserCard";
 import { UserDocument } from '@/types';
 import DocumentCard from "./DocumentCard";
 import { SortOption } from "@/hooks/useSort";
 import SortControl from "./SortControl";
-import { createSelector } from "@reduxjs/toolkit";
 import RouterLink from 'next/link';
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Grid, Pagination, Typography } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
 
 const Dashboard: React.FC = ({ }) => {
-  const dispatch = useDispatch();
-  const selectDocuments = createSelector(
-    [(state: RootState) => state.documents], (documents) => {
-      return documents.reduce((acc, document) => {
-        if (!acc.find(d => d.id === document.id)) acc.push(document);
-        return acc;
-      }, [] as UserDocument[]);
-    });
-  const documents = useSelector(selectDocuments);
+  const documents = useSelector(state => state.documents);
   const user = useSelector(state => state.user);
-  const initialized = useSelector(state => state.initialized);
-
-  useEffect(() => {
-    if (!initialized) {
-      dispatch(actions.load());
-    }
-  }, []);
 
   return <Box>
     <UserCard user={user} />
     <Box sx={{ my: 2, display: "flex", flexDirection: "column", gap: 2 }}>
-      <Button component={RouterLink} href={user?.role === "admin" ? "/admin" : "/dashboard"} sx={{ mx: "auto" }}>
+      <Button component={RouterLink} prefetch={false} scroll={false} href={user?.role === "admin" ? "/admin" : "/dashboard"} sx={{ mx: "auto" }}>
         {user?.role === "admin" ? "Admin Dashboard" : "Dashboard"}
       </Button>
       <DocumentsGrid documents={documents.filter(d => d.variant === "local")} title="Local Documents" />

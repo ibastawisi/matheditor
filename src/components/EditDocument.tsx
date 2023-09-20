@@ -1,11 +1,13 @@
 "use client"
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Editor from "./Editor";
 import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
 import { EditorDocument } from '@/types';
-import { useDispatch, useSelector, actions } from '@/store';
+import { useDispatch, actions } from '@/store';
 import { usePathname } from "next/navigation";
+import { LexicalEditor } from "@/editor";
+import DocumentRevisions from "./DocumentRevisions";
 
 const EditDocument: React.FC = () => {
   const [document, setDocument] = useState<EditorDocument>();
@@ -13,6 +15,7 @@ const EditDocument: React.FC = () => {
   const dispatch = useDispatch();
   const pathname = usePathname();
   const id = pathname.split('/')[2]?.toLowerCase();
+  const editorRef = useRef<LexicalEditor>(null);
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
@@ -24,7 +27,7 @@ const EditDocument: React.FC = () => {
         const cloudResponse = await dispatch(actions.getCloudDocument(id));
         if (cloudResponse.type === actions.getCloudDocument.fulfilled.type) {
           const cloudDocument = cloudResponse.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>['payload'];
-          const { author, revisions, head, ...localDocument } = cloudDocument;
+          const { author, published, baseId, revisions, head, ...localDocument } = cloudDocument;
           setDocument(localDocument);
           dispatch(actions.createLocalDocument(localDocument));
         } else if (cloudResponse.type === actions.getCloudDocument.rejected.type) {
@@ -40,7 +43,8 @@ const EditDocument: React.FC = () => {
 
   return <>
     <Helmet title={`${document.name} | Math Editor`} />
-    <Editor document={document} />
+    <Editor document={document} editorRef={editorRef} />
+    <DocumentRevisions document={document} editorRef={editorRef} />
   </>;
 }
 
