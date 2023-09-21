@@ -23,12 +23,7 @@ const Documents: React.FC = () => {
   const selectDocuments = createSelector(
     [(state: RootState) => state.documents], (documents) => {
       return documents.reduce((acc, document) => {
-        if (acc.find(d => d.id === document.id)){
-          if (isLocalDocument(document)) {
-            const index = acc.findIndex(d => d.id === document.id);
-            acc[index] = document;
-          }
-        } else acc.push(document);
+        if (!acc.find(d => d.id === document.id)) acc.push(document);
         return acc;
       }, [] as UserDocument[]);
     });

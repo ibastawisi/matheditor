@@ -9,7 +9,6 @@ import { MutableRefObject, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 export default function DocumentRevisions({ editorRef, document }: { editorRef: MutableRefObject<LexicalEditor | null>, document: EditorDocument }) {
-  const user = useSelector(state => state.user);
   const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(d => d.id === document.id));
   const dispatch = useDispatch();
 
@@ -44,6 +43,7 @@ export default function DocumentRevisions({ editorRef, document }: { editorRef: 
     const res = await dispatch(actions.getCloudRevision(id));
     if (res.type === actions.getCloudRevision.fulfilled.type) {
       const revision = res.payload as ReturnType<typeof actions.getCloudRevision.fulfilled>['payload'];
+      await dispatch(actions.updateCloudDocument({ id: document.id, partial: { head: id, updatedAt: revision.createdAt } }));
       const editor = editorRef.current;
       if (!editor) return;
       editor.update(() => {
@@ -51,7 +51,6 @@ export default function DocumentRevisions({ editorRef, document }: { editorRef: 
         editor.setEditorState(state);
         editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined)
         dispatch(actions.updateLocalDocument({ id: document.id, partial: { data: revision.data, updatedAt: revision.createdAt } }));
-        dispatch(actions.updateCloudDocument({ id: document.id, partial: { head: id, updatedAt: revision.createdAt } }));
       })
     }
   }

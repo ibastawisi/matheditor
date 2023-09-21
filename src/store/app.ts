@@ -291,14 +291,14 @@ export const appSlice = createSlice({
       .addCase(loadCloudDocuments.fulfilled, (state, action) => {
         const documents = action.payload;
         documents.forEach(document => {
-          const index = state.documents.filter(isCloudDocument).findIndex(doc => doc.id === document.id);
+          const index = state.documents.findIndex(doc => isCloudDocument(doc) && doc.id === document.id);
           index === -1? state.documents.push(document): Object.assign(state.documents[index], document);
         });
       })
       .addCase(loadPublishedDocuments.fulfilled, (state, action) => {
         const documents = action.payload;
         documents.forEach(document => {
-          const index = state.documents.filter(isCloudDocument).findIndex(doc => doc.id === document.id);
+          const index = state.documents.findIndex(doc => isCloudDocument(doc) && doc.id === document.id);
           index === -1? state.documents.push(document): Object.assign(state.documents[index], document);
         });
       })
