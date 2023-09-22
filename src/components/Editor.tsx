@@ -1,32 +1,21 @@
 "use client"
 import { MutableRefObject } from 'react';
 import { memo } from 'react';
-import { validate } from 'uuid';
-import isEqual from 'fast-deep-equal'
 import { EditorDocument } from '@/types';
 import type { EditorState, LexicalEditor } from '@/editor/types';
 import dynamic from "next/dynamic";
 import SplashScreen from './SplashScreen';
-import { useDispatch } from 'react-redux';
-import { AppDispatch, actions } from '@/store';
 
 const Editor = dynamic(() => import("@/editor/Editor"), { ssr: false, loading: () => <SplashScreen title="Loading Editor" /> });
 
-const Container: React.FC<{ document: EditorDocument, editorRef?: MutableRefObject<LexicalEditor | null>, onChange?: (editorState: EditorState) => void }> = ({ document, editorRef, onChange }) => {
-
-  const dispatch = useDispatch<AppDispatch>();
-
-  function handleChange(editorState: EditorState) {
-    const data = editorState.toJSON();
-    if (isEqual(data, document.data)) return;
-    const updatedDocument: EditorDocument = { ...document, data, updatedAt: new Date().toISOString() };
-    validate(document.id) && dispatch(actions.updateLocalDocument({ id: document.id, partial: updatedDocument }));
-    onChange && onChange(editorState);
-  }
+const Container: React.FC<{
+  document: EditorDocument,
+  editorRef?: MutableRefObject<LexicalEditor | null>,
+  onChange?: (editorState: EditorState, editor: LexicalEditor, tags: Set<string>) => void;
+}> = ({ document, editorRef, onChange }) => {
   return (
-    <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={handleChange} editorRef={editorRef} />
+    <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={onChange} editorRef={editorRef} />
   );
 }
-
 
 export default memo(Container, (prev, next) => prev.document.id === next.document.id);

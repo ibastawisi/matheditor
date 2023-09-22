@@ -40,7 +40,7 @@ import PageBreakPlugin from "./PageBreakPlugin";
 export const EditorPlugins: React.FC<{
   contentEditable: React.ReactElement;
   placeholder?: JSX.Element | ((isEditable: boolean) => JSX.Element | null) | null;
-  onChange: (editorState: EditorState, editor: LexicalEditor) => void;
+  onChange?: (editorState: EditorState, editor: LexicalEditor, tags: Set<string>) => void;
 }> = ({ contentEditable, placeholder = null, onChange }) => {
   const [editor] = useLexicalComposerContext();
   const { historyState } = useSharedHistoryContext();
@@ -49,7 +49,7 @@ export const EditorPlugins: React.FC<{
     <>
       <RichTextPlugin contentEditable={contentEditable} ErrorBoundary={LexicalErrorBoundary} placeholder={placeholder} />
       <HistoryPlugin externalHistoryState={historyState} />
-      <OnChangePlugin ignoreHistoryMergeTagChange ignoreSelectionChange onChange={onChange} />
+      {onChange && <OnChangePlugin ignoreHistoryMergeTagChange ignoreSelectionChange onChange={onChange} />}
       <ListPlugin />
       <CheckListPlugin />
       <LinkPlugin />

@@ -1,13 +1,14 @@
 "use client"
 import * as React from 'react';
-import { CloudDocumentRevision } from '@/types';
+import { DocumentRevision } from '@/types';
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Avatar, CardActions, Chip, IconButton } from '@mui/material';
 import { CloudDone, Delete } from '@mui/icons-material';
 
 const RevisionCard: React.FC<{
-  revision: CloudDocumentRevision, isHead: boolean,
+  revision: DocumentRevision,
+  isHead: boolean,
   restoreRevision: () => void, deleteRevision: () => void,
   sx?: SxProps<Theme> | undefined
 }> = memo(({ revision, isHead, restoreRevision, deleteRevision, sx }) => {

@@ -10,8 +10,11 @@ import "./styles.css";
 import { MutableRefObject } from "react";
 import { EditorRefPlugin } from '@lexical/react/LexicalEditorRefPlugin';
 
-export const Editor: React.FC<{ initialConfig: Partial<InitialConfigType>; onChange: (editorState: EditorState) => void; editorRef?: MutableRefObject<LexicalEditor | null> }> 
-= ({ initialConfig, onChange, editorRef }) => {
+export const Editor: React.FC<{
+  initialConfig: Partial<InitialConfigType>;
+  editorRef?: MutableRefObject<LexicalEditor | null>
+  onChange?: (editorState: EditorState, editor: LexicalEditor, tags: Set<string>) => void;
+}> = ({ initialConfig, onChange, editorRef }) => {
   return (
     <LexicalComposer initialConfig={{ ...editorConfig, ...initialConfig }}>
       <>

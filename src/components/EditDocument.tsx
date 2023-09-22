@@ -6,7 +6,7 @@ import { Helmet } from "react-helmet";
 import { EditorDocument } from '@/types';
 import { useDispatch, actions } from '@/store';
 import { usePathname } from "next/navigation";
-import { LexicalEditor } from "@/editor";
+import { EditorState, LexicalEditor } from "@/editor";
 import DocumentRevisions from "./DocumentRevisions";
 
 const EditDocument: React.FC = () => {
@@ -16,6 +16,17 @@ const EditDocument: React.FC = () => {
   const pathname = usePathname();
   const id = pathname.split('/')[2]?.toLowerCase();
   const editorRef = useRef<LexicalEditor>(null);
+
+  function handleChange(editorState: EditorState, editor: LexicalEditor, tags: Set<string>) {
+    if (!document) return;
+    const data = editorState.toJSON();
+    const updatedDocument: EditorDocument = { ...document, data, updatedAt: new Date().toISOString() };
+    try {
+      const payload = JSON.parse(tags.values().next().value);
+      if (payload.id === document.id) { Object.assign(updatedDocument, payload.partial); }
+    } catch (e) { }
+    dispatch(actions.updateLocalDocument({ id: document.id, partial: updatedDocument }));
+  }
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
@@ -43,8 +54,8 @@ const EditDocument: React.FC = () => {
 
   return <>
     <Helmet title={`${document.name} | Math Editor`} />
-    <Editor document={document} editorRef={editorRef} />
-    <DocumentRevisions document={document} editorRef={editorRef} />
+    <Editor document={document} editorRef={editorRef} onChange={handleChange} />
+    <DocumentRevisions documentId={document.id} editorRef={editorRef} />
   </>;
 }
 

@@ -14,7 +14,7 @@ import {
   updateLocalDocument,
   updateUser,
   deleteCloudRevision,
-  getCloudRevision
+  getCloudRevision,
 } from "./app";
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 

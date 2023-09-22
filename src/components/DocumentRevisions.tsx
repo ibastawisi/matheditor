@@ -1,4 +1,4 @@
-import { EditorDocument, isCloudDocument } from '@/types';
+import { EditorDocument, isCloudDocument, isLocalDocument } from '@/types';
 import RevisionCard from './RevisionCard';
 import { useDispatch, actions, useSelector } from '@/store';
 import { Button, Drawer, Grid, IconButton, Typography } from '@mui/material';
@@ -8,54 +8,58 @@ import { CLEAR_HISTORY_COMMAND } from '@/editor';
 import { MutableRefObject, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-export default function DocumentRevisions({ editorRef, document }: { editorRef: MutableRefObject<LexicalEditor | null>, document: EditorDocument }) {
-  const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(d => d.id === document.id));
+export default function DocumentRevisions({ editorRef, documentId }: { editorRef: MutableRefObject<LexicalEditor | null>, documentId: string }) {
+  const localDocument = useSelector(state => state.documents.filter(isLocalDocument).find(d => d.id === documentId));
+  const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(d => d.id === documentId));
+  const isUpToDate = localDocument?.updatedAt === cloudDocument?.updatedAt;
   const dispatch = useDispatch();
 
   const [open, setOpen] = useState(false);
   const onClose = () => { setOpen(!open); };
 
-  const getLocalDocument = async () => {
-    const response = await dispatch(actions.getLocalDocument(document.id));
-    if (response.type === actions.getLocalDocument.rejected.type) return;
-    const localDocument = response.payload as EditorDocument;
-    return localDocument;
+  const getRevision = async (revisionId: string) => {
+    const response = await dispatch(actions.getCloudRevision(revisionId));
+    if (response.type === actions.getCloudRevision.rejected.type) return;
+    const revision = response.payload as ReturnType<typeof actions.getCloudRevision.fulfilled>['payload'];
+    return revision;
+  }
+
+  const getLocalData = () => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const data = editor.getEditorState().toJSON();
+    return data;
   }
 
   const createRevision = async () => {
-    const localDocument = await getLocalDocument();
     if (!localDocument) return dispatch(actions.announce({ message: "Couldn't find local document" }));
-    if (!cloudDocument) return await dispatch(actions.createCloudDocument(localDocument));
-    const isUpToDate = cloudDocument?.updatedAt === localDocument.updatedAt;
+    const data = getLocalData();
+    if (!data) return dispatch(actions.announce({ message: "Couldn't get local data" }));
+    const editorDocument = { ...localDocument, data }
+    if (!cloudDocument) return dispatch(actions.createCloudDocument(editorDocument));
     if (isUpToDate) return dispatch(actions.announce({ message: "Document is up to date" }));
-    return await dispatch(actions.updateCloudDocument({ id: document.id, partial: { data: localDocument.data, updatedAt: localDocument.updatedAt } }));
+    return dispatch(actions.updateCloudDocument({ id: documentId, partial: { data, updatedAt: localDocument.updatedAt } }));
   };
 
-  const restoreRevision = async (id: string) => {
-    const localDocument = await getLocalDocument();
-    if (!localDocument) return dispatch(actions.announce({ message: "Couldn't find local document" }));
-    if (!cloudDocument) return await dispatch(actions.createCloudDocument(localDocument));
-    const isUpToDate = cloudDocument?.updatedAt === localDocument.updatedAt;
+  const restoreRevision = async (revisionId: string) => {
     if (!isUpToDate) {
       dispatch(actions.announce({ message: "Saving local changes" }));
-      await dispatch(actions.updateCloudDocument({ id: document.id, partial: { data: localDocument.data, updatedAt: localDocument.updatedAt } }));
+      await createRevision();
     }
-    const res = await dispatch(actions.getCloudRevision(id));
-    if (res.type === actions.getCloudRevision.fulfilled.type) {
-      const revision = res.payload as ReturnType<typeof actions.getCloudRevision.fulfilled>['payload'];
-      await dispatch(actions.updateCloudDocument({ id: document.id, partial: { head: id, updatedAt: revision.createdAt } }));
-      const editor = editorRef.current;
-      if (!editor) return;
-      editor.update(() => {
-        const state = editor.parseEditorState(revision.data);
-        editor.setEditorState(state);
-        editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined)
-        dispatch(actions.updateLocalDocument({ id: document.id, partial: { data: revision.data, updatedAt: revision.createdAt } }));
-      })
-    }
+    const revision = await getRevision(revisionId);
+    if (!revision) return dispatch(actions.announce({ message: "Couldn't find revision data" }));
+    const editor = editorRef.current;
+    if (!editor) return dispatch(actions.announce({ message: "Couldn't get editor state" }));
+    const state = editor.parseEditorState(revision.data);
+    const payload = { id: documentId, partial: { head: revisionId, updatedAt: revision.createdAt } };
+    editor.update(() => {
+      editor.setEditorState(state, { tag: JSON.stringify(payload) });
+      editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
+    });
+    dispatch(actions.updateCloudDocument(payload));
   }
 
-  const deleteRevision = (id: string) => { dispatch(actions.deleteCloudRevision(id)); }
+  const deleteRevision = (revisionId: string) => { dispatch(actions.deleteCloudRevision(revisionId)); }
 
   return (
     <>

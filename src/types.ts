@@ -16,6 +16,7 @@ export interface Announcement {
   timeout?: number;
 }
 export type DocumentVariant = "local" | "cloud";
+
 export interface AppState {
   user?: User;
   documents: UserDocument[];
@@ -36,26 +37,26 @@ export interface EditorDocument {
   head?: string;
 }
 
-export interface CloudDocumentRevision {
+export interface DocumentRevision {
   id: string;
   documentId: string;
   createdAt: string;
   author: User;
 }
 
-export interface DocumentRevision extends CloudDocumentRevision {
+export interface EditorDocumentRevision extends DocumentRevision {
   data: SerializedEditorState;
 }
 
-
 type UserDocumentBase = Omit<EditorDocument, "data"> & { variant: DocumentVariant; };
 export type LocalDocument = UserDocumentBase & { variant: "local" }
-export type CloudDocument = UserDocumentBase & { variant: "cloud", author: User; revisions: CloudDocumentRevision[] }
+export type CloudDocument = UserDocumentBase & { variant: "cloud", author: User; revisions: DocumentRevision[] }
 export type UserDocument = LocalDocument | CloudDocument;
 
 export const isLocalDocument = (document: UserDocument): document is LocalDocument => document.variant === "local";
 export const isCloudDocument = (document: UserDocument): document is CloudDocument => document.variant === "cloud";
 export type CloudDocumentResponse = Omit<CloudDocument, "variant">;
+
 export type UserRole = "user" | "superuser" | "admin";
 
 export interface User {
@@ -130,6 +131,11 @@ export interface CheckHandleResponse {
 }
 
 export interface GetRevisionResponse {
+  data?: EditorDocumentRevision;
+  error?: string;
+}
+
+export interface PostRevisionResponse {
   data?: DocumentRevision;
   error?: string;
 }

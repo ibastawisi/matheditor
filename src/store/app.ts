@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import NProgress from "nprogress";
 import documentDB from '@/indexeddb';
-import { AppState, Announcement, Alert, EditorDocument, LocalDocument, CloudDocument, User, PatchUserResponse, GetSessionResponse, DeleteRevisionResponse, GetRevisionResponse, isCloudDocument } from '../types';
+import { AppState, Announcement, Alert, EditorDocument, LocalDocument, CloudDocument, User, PatchUserResponse, GetSessionResponse, DeleteRevisionResponse, GetRevisionResponse, isCloudDocument, DocumentRevision, PostRevisionResponse, isLocalDocument, EditorDocumentRevision } from '../types';
 import { GetDocumentsResponse, PostDocumentsResponse, DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from '@/types';
 import { validate } from 'uuid';
 
@@ -91,6 +91,7 @@ export const getLocalDocument = createAsyncThunk('app/getLocalDocument', async (
 
 export const getCloudDocument = createAsyncThunk('app/getCloudDocument', async (id: string, thunkAPI) => {
   try {
+    if(NProgress.isStarted()) NProgress.done();
     NProgress.start();
     const response = await fetch(`/api/documents/${id}`);
     const { data, error } = await response.json() as GetDocumentResponse;
@@ -150,6 +151,7 @@ export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', a
 });
 
 export const updateCloudDocument = createAsyncThunk('app/updateCloudDocument', async (payloadCreator: { id: string, partial: Partial<EditorDocument> }, thunkAPI) => {
+  if (NProgress.isStarted()) NProgress.done();
   NProgress.start();
   const { id, partial } = payloadCreator;
   try {
@@ -285,21 +287,21 @@ export const appSlice = createSlice({
         const documents = action.payload;
         documents.forEach(document => {
           const index = state.documents.findIndex(doc => doc.id === document.id);
-          index === -1? state.documents.push(document): state.documents.splice(index, 0, document);
+          index === -1 ? state.documents.push(document) : state.documents.splice(index, 0, document);
         });
       })
       .addCase(loadCloudDocuments.fulfilled, (state, action) => {
         const documents = action.payload;
         documents.forEach(document => {
           const index = state.documents.findIndex(doc => isCloudDocument(doc) && doc.id === document.id);
-          index === -1? state.documents.push(document): Object.assign(state.documents[index], document);
+          index === -1 ? state.documents.push(document) : Object.assign(state.documents[index], document);
         });
       })
       .addCase(loadPublishedDocuments.fulfilled, (state, action) => {
         const documents = action.payload;
         documents.forEach(document => {
           const index = state.documents.findIndex(doc => isCloudDocument(doc) && doc.id === document.id);
-          index === -1? state.documents.push(document): Object.assign(state.documents[index], document);
+          index === -1 ? state.documents.push(document) : Object.assign(state.documents[index], document);
         });
       })
       .addCase(getCloudDocument.rejected, (state, action) => {

@@ -1,4 +1,6 @@
+import { SerializedEditorState } from "@/editor";
 import { Prisma, prisma } from "@/lib/prisma";
+import { EditorDocument } from "@/types";
 
 const findAllDocuments = async () => {
   return prisma.document.findMany({

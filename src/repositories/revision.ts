@@ -5,6 +5,7 @@ const findRevisionsByDocumentId = async (documentId: string) => {
     where: { documentId },
     select: {
       id: true,
+      documentId: true,
       createdAt: true,
       data: true,
       author: {
@@ -29,6 +30,7 @@ const findRevisionsByAuthorId = async (authorId: string) => {
     where: { authorId },
     select: {
       id: true,
+      documentId: true,
       createdAt: true,
       author: {
         select: {
@@ -52,6 +54,7 @@ const findRevisionById = async (id: string) => {
     where: { id },
     select: {
       id: true,
+      documentId: true,
       createdAt: true,
       data: true,
       author: {
