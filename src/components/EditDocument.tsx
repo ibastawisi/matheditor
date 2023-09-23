@@ -20,7 +20,7 @@ const EditDocument: React.FC = () => {
   function handleChange(editorState: EditorState, editor: LexicalEditor, tags: Set<string>) {
     if (!document) return;
     const data = editorState.toJSON();
-    const updatedDocument: EditorDocument = { ...document, data, updatedAt: new Date().toISOString() };
+    const updatedDocument: EditorDocument = { ...document, data, updatedAt: new Date().toISOString(), head: null };
     try {
       const payload = JSON.parse(tags.values().next().value);
       if (payload.id === document.id) { Object.assign(updatedDocument, payload.partial); }
@@ -38,7 +38,7 @@ const EditDocument: React.FC = () => {
         const cloudResponse = await dispatch(actions.getCloudDocument(id));
         if (cloudResponse.type === actions.getCloudDocument.fulfilled.type) {
           const cloudDocument = cloudResponse.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>['payload'];
-          const { author, published, baseId, revisions, head, ...localDocument } = cloudDocument;
+          const { author, revisions, ...localDocument } = cloudDocument;
           setDocument(localDocument);
           dispatch(actions.createLocalDocument(localDocument));
         } else if (cloudResponse.type === actions.getCloudDocument.rejected.type) {

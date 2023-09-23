@@ -27,14 +27,14 @@ export interface AppState {
 
 export interface EditorDocument {
   id: string;
-  handle?: string | null;
   name: string;
   data: SerializedEditorState;
   createdAt: string;
   updatedAt: string;
   published?: boolean;
-  baseId?: string;
-  head?: string;
+  handle?: string | null;
+  baseId?: string | null;
+  head?: string | null;
 }
 
 export interface DocumentRevision {

@@ -1,6 +1,4 @@
-import { SerializedEditorState } from "@/editor";
 import { Prisma, prisma } from "@/lib/prisma";
-import { EditorDocument } from "@/types";
 
 const findAllDocuments = async () => {
   return prisma.document.findMany({
@@ -74,6 +72,9 @@ const findDocumentsByAuthorId = async (authorId: string) => {
               role: true,
             }
           }
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
       },
       author: {
@@ -147,6 +148,9 @@ const findDocumentById = async (id: string) => {
               role: true,
             }
           }
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
       },
       author: {
@@ -205,6 +209,9 @@ const findUserDocument = async (id: string) => {
               role: true,
             }
           }
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
       },
       author: {

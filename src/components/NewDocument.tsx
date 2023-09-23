@@ -34,7 +34,7 @@ const NewDocument: React.FC = () => {
   }, []);
 
   const router = useRouter();
-  const navigate = (path: string) => router.push(path);
+  const navigate = (path: string) => router.push(path, { scroll: false });
 
   const getData = async (name: string) => {
     if (base) return base.data;

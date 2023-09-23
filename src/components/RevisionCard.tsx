@@ -1,18 +1,23 @@
 "use client"
 import * as React from 'react';
-import { DocumentRevision } from '@/types';
+import { DocumentRevision, isCloudDocument, isLocalDocument } from '@/types';
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Avatar, CardActions, Chip, IconButton } from '@mui/material';
-import { CloudDone, Delete } from '@mui/icons-material';
+import { CloudDone, CloudUpload, Delete, MobileFriendly } from '@mui/icons-material';
+import { useSelector } from '@/store';
 
 const RevisionCard: React.FC<{
   revision: DocumentRevision,
-  isHead: boolean,
   restoreRevision: () => void, deleteRevision: () => void,
   sx?: SxProps<Theme> | undefined
-}> = memo(({ revision, isHead, restoreRevision, deleteRevision, sx }) => {
-
+}> = memo(({ revision, restoreRevision, deleteRevision, sx }) => {
+  const localDocument = useSelector(state => state.documents.filter(isLocalDocument).find(d => d.id === revision.documentId));
+  const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(d => d.id === revision.documentId));
+  const isLocalHead = revision.id === localDocument?.head;
+  const isCloudHead = cloudDocument && revision.id === cloudDocument.head;
+  const showSave = isLocalHead && !isCloudHead && !revision.id;
+  const showDelete = !(isLocalHead || isCloudHead);
   return (
     <Card variant="outlined"
       sx={{
@@ -26,16 +31,18 @@ const RevisionCard: React.FC<{
       <CardActionArea sx={{ flexGrow: 1 }} onClick={restoreRevision}>
         <CardHeader sx={{ alignItems: "start", '& .MuiCardHeader-content': { overflow: "hidden", textOverflow: "ellipsis" } }}
           title={new Date(revision.createdAt).toLocaleString()}
-          subheader={revision.author.name}
-          avatar={<Avatar sx={{ bgcolor: 'primary.main' }} src={revision.author.image}></Avatar>}
+          subheader={revision.author?.name ?? "Local User"}
+          avatar={<Avatar sx={{ bgcolor: 'primary.main' }} src={revision.author?.image}></Avatar>}
         />
       </CardActionArea>
       <CardActions sx={{ "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
-        {isHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudDone />} label="Current" />}
-        {!isHead && <>
-          <IconButton aria-label="Delete Revision" size="small" disabled={isHead} onClick={deleteRevision}>
-            <Delete />
-          </IconButton>
+        {isLocalHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Current" />}
+        {isCloudHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudDone />} label="Cloud" />}
+        {showSave && <>
+          <IconButton aria-label="Save Revision" size="small" onClick={restoreRevision}><CloudUpload /></IconButton>
+        </>}
+        {showDelete && <>
+          <IconButton aria-label="Delete Revision" size="small" onClick={deleteRevision}><Delete /></IconButton>
         </>}
       </CardActions>
     </Card>
