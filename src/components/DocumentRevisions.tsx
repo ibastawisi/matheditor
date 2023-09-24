@@ -2,7 +2,7 @@ import { DocumentRevision, isCloudDocument, isLocalDocument } from '@/types';
 import RevisionCard from './RevisionCard';
 import { useDispatch, actions, useSelector } from '@/store';
 import { Avatar, Button, Drawer, Grid, IconButton, Typography } from '@mui/material';
-import { Close, Google, Login, Restore } from '@mui/icons-material';
+import { Close, Google, History, Login, Restore } from '@mui/icons-material';
 import { LexicalEditor } from '@/editor/types';
 import { CLEAR_HISTORY_COMMAND } from '@/editor';
 import { MutableRefObject, useState } from 'react';
@@ -14,6 +14,7 @@ export default function DocumentRevisions({ editorRef, documentId }: { editorRef
   const localDocument = useSelector(state => state.documents.filter(isLocalDocument).find(d => d.id === documentId));
   const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(d => d.id === documentId));
   const isUpToDate = localDocument?.updatedAt === cloudDocument?.updatedAt;
+  const hasLocalChanges = !cloudDocument?.revisions?.find(r => r.id === localDocument?.head);
   const dispatch = useDispatch();
 
   const [open, setOpen] = useState(false);
@@ -44,31 +45,41 @@ export default function DocumentRevisions({ editorRef, documentId }: { editorRef
   };
 
   const restoreRevision = async (revisionId: string) => {
-    if (!isUpToDate) {
+    const isLocalHead = revisionId === localDocument?.head;
+    const isCloudHead = cloudDocument && revisionId === cloudDocument.head;
+    if (isLocalHead && isCloudHead) return;
+    if (hasLocalChanges) {
       dispatch(actions.announce({ message: "Saving local changes to the cloud" }));
       await createRevision();
     }
     const revision = await getRevision(revisionId);
     if (!revision) return dispatch(actions.announce({ message: "Couldn't find revision data" }));
+    const payload = { id: documentId, partial: { head: revisionId, updatedAt: revision.createdAt } };
+    const response = await dispatch(actions.updateCloudDocument(payload));
+    if (response.type === actions.updateCloudDocument.rejected.type) return;
     const editor = editorRef.current;
     if (!editor) return dispatch(actions.announce({ message: "Couldn't get editor state" }));
     const state = editor.parseEditorState(revision.data);
-    const payload = { id: documentId, partial: { head: revisionId, updatedAt: revision.createdAt } };
     editor.update(() => {
       editor.setEditorState(state, { tag: JSON.stringify(payload) });
       editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
     });
-    dispatch(actions.updateCloudDocument(payload));
   }
 
-  const deleteRevision = (revisionId: string) => { dispatch(actions.deleteCloudRevision(revisionId)); }
+  const deleteRevision = (revisionId: string) => {
+    dispatch(actions.alert({
+      title: 'Delete revision',
+      content: 'Are you sure you want to permanently delete this revision?',
+      action: `dispatch(actions.deleteCloudRevision("${revisionId}"));`
+    }));
+  }
+
   const localRevision = {
     id: localDocument?.head,
     documentId: localDocument?.id,
     createdAt: localDocument?.updatedAt,
     author: user,
   } as DocumentRevision;
-  const showLocalRevision = !isUpToDate && !cloudDocument?.revisions?.find(r => r.id === localRevision.id);
 
   const login = () => signIn("google", undefined, { prompt: "select_account" });
 
@@ -80,9 +91,10 @@ export default function DocumentRevisions({ editorRef, documentId }: { editorRef
         onClose={onClose}
       >
         <Grid container spacing={1} sx={{ p: 1, width: 280 }}>
-          <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center' }}>
+            <History sx={{ mr: 1 }} />
             <Typography variant="h6">Revisions</Typography>
-            <IconButton onClick={onClose}><Close /></IconButton>
+            <IconButton onClick={onClose} sx={{ ml: "auto" }}><Close /></IconButton>
           </Grid>
           {!user ? <Grid item xs={12} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, my: 3, p: 1 }}>
             <Avatar sx={{ bgcolor: 'warning.main', width: 56, height: 56 }}><Login fontSize='large' /></Avatar>
@@ -92,7 +104,7 @@ export default function DocumentRevisions({ editorRef, documentId }: { editorRef
             </Button>
           </Grid>
             : <>
-              {showLocalRevision && <Grid item xs={12}>
+              {hasLocalChanges && <Grid item xs={12}>
                 <RevisionCard revision={localRevision} restoreRevision={createRevision} deleteRevision={() => { }} />
               </Grid>}
               {cloudDocument?.revisions?.map(revision => <Grid item xs={12} key={revision.id}>

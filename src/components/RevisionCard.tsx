@@ -16,7 +16,7 @@ const RevisionCard: React.FC<{
   const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(d => d.id === revision.documentId));
   const isLocalHead = revision.id === localDocument?.head;
   const isCloudHead = cloudDocument && revision.id === cloudDocument.head;
-  const showSave = isLocalHead && !isCloudHead && !revision.id;
+  const showSave = !cloudDocument?.revisions?.find(r => r.id === revision.id);
   const showDelete = !(isLocalHead || isCloudHead);
   return (
     <Card variant="outlined"

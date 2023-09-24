@@ -20,7 +20,7 @@ const EditDocument: React.FC = () => {
   function handleChange(editorState: EditorState, editor: LexicalEditor, tags: Set<string>) {
     if (!document) return;
     const data = editorState.toJSON();
-    const updatedDocument: EditorDocument = { ...document, data, updatedAt: new Date().toISOString(), head: null };
+    const updatedDocument: Partial<EditorDocument> = { data, updatedAt: new Date().toISOString(), head: null };
     try {
       const payload = JSON.parse(tags.values().next().value);
       if (payload.id === document.id) { Object.assign(updatedDocument, payload.partial); }

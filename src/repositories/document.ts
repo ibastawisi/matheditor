@@ -19,7 +19,7 @@ const findAllDocuments = async () => {
 }
 
 const findPublishedDocuments = async () => {
-  return prisma.document.findMany({
+  const documents = await prisma.document.findMany({
     where: { published: true },
     select: {
       id: true,
@@ -37,12 +37,40 @@ const findPublishedDocuments = async () => {
           email: true,
           role: true,
         }
+      },
+      baseId: true,
+      head: true,
+      revisions: {
+        select: {
+          id: true,
+          documentId: true,
+          createdAt: true,
+          author: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              image: true,
+              email: true,
+              role: true,
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
       }
     },
     orderBy: {
       updatedAt: 'desc'
     }
   });
+  documents.forEach((document) => {
+    const head = document.head;
+    if (!head) return;
+    document.revisions = document.revisions.filter((revision) => revision.id === head);
+  });
+  return documents;
 }
 
 const findDocumentsByAuthorId = async (authorId: string) => {

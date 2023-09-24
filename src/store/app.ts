@@ -309,7 +309,7 @@ export const appSlice = createSlice({
         const documents = action.payload;
         documents.forEach(document => {
           const index = state.documents.findIndex(doc => isCloudDocument(doc) && doc.id === document.id);
-          index === -1 ? state.documents.push(document) : Object.assign(state.documents[index], document);
+          index === -1 && state.documents.push(document)
         });
       })
       .addCase(getCloudDocument.rejected, (state, action) => {
