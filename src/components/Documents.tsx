@@ -4,7 +4,7 @@ import RouterLink from 'next/link'
 import { useDispatch, useSelector, actions, RootState } from '@/store';
 import DocumentCard from "./DocumentCard";
 import React, { memo, useEffect, useState } from "react";
-import { EditorDocument, UserDocument, isLocalDocument } from '@/types';
+import { EditorDocument, UserDocument } from '@/types';
 import { validate } from "uuid";
 import UserCard from "./UserCard";
 import SortControl from "./SortControl";
@@ -12,7 +12,7 @@ import { SortOption } from "../hooks/useSort";
 import documentDB from '@/indexeddb';
 import { createSelector } from '@reduxjs/toolkit';
 import { Box, Avatar, Button, Typography, Grid, Card, CardActionArea, CardHeader, Collapse, Pagination } from '@mui/material';
-import { PostAdd, UploadFile, Article, Help, Storage } from '@mui/icons-material';
+import { PostAdd, UploadFile, Help, Storage, Science } from '@mui/icons-material';
 
 const Documents: React.FC = () => {
   const user = useSelector(state => state.user);
@@ -146,7 +146,7 @@ const Documents: React.FC = () => {
         <Grid item xs={6}>
           <Card variant="outlined">
             <CardActionArea component={RouterLink} prefetch={false} scroll={false} href="/playground">
-              <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><Article /></Avatar>} />
+              <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><Science /></Avatar>} />
             </CardActionArea>
           </Card>
         </Grid>

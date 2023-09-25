@@ -8,14 +8,14 @@ import { SortOption } from "@/hooks/useSort";
 import SortControl from "./SortControl";
 import RouterLink from 'next/link';
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Grid, Pagination, Typography } from "@mui/material";
-import { ExpandMore } from "@mui/icons-material";
+import { ExpandMore, Pageview } from "@mui/icons-material";
 
 const Dashboard: React.FC = ({ }) => {
   const documents = useSelector(state => state.documents);
   const user = useSelector(state => state.user);
 
   return <Box>
-    <UserCard user={user} />
+    <UserCard user={user} sessionUser={user} />
     <Box sx={{ my: 2, display: "flex", flexDirection: "column", gap: 2 }}>
       <Button component={RouterLink} prefetch={false} scroll={false} href={user?.role === "admin" ? "/admin" : "/dashboard"} sx={{ mx: "auto" }}>
         {user?.role === "admin" ? "Admin Dashboard" : "Dashboard"}
@@ -48,6 +48,10 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string }> = me
       <Box sx={{ display: "flex", justifyContent: 'flex-end', alignItems: "center", gap: 1, my: 2 }}>
         <SortControl<UserDocument> data={documents} onSortChange={setSortedDocuments} sortOptions={documentSortOptions} initialSortDirection="desc" />
       </Box>
+    {!documents.length && <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>
+      <Pageview sx={{ width: 64, height: 64, fontSize: 64 }} />
+      <Typography variant="overline" component="p">No documents found</Typography>
+    </Box>}
       <DocumentsTree documents={sortedDocuments.slice((page - 1) * 12, page * 12)} />
       {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}
     </AccordionDetails>

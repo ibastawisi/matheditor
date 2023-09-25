@@ -1,4 +1,4 @@
-import { Add, Brush, Functions, HorizontalRule, Image, StickyNote2, TableChart } from "@mui/icons-material";
+import { Add, Brush, Functions, HorizontalRule, Image as ImageIcon, StickyNote2, TableChart } from "@mui/icons-material";
 import type { EditorState, LexicalNode } from "../editor/types";
 import { IconButton, SvgIcon, Typography } from "@mui/material";
 
@@ -146,7 +146,7 @@ const Checkpoint5 = [
         </IconButton> button in the toolbar
       </Typography>
       <Typography variant="subtitle2">
-        3. Select <Image sx={{ verticalAlign: "middle" }} /> Image from the menu
+        3. Select <ImageIcon sx={{ verticalAlign: "middle" }} /> Image from the menu
       </Typography>
     </>,
     check: (editorState?: EditorState) => {

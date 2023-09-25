@@ -1,3 +1,7 @@
+:root {
+  --ML__static-fonts: true
+}
+
 math-field {
   display: inline-block;
   white-space: initial;

@@ -5,6 +5,8 @@ import { findPublishedDocumentsByAuthorId } from "@/repositories/document";
 import { notFound } from "next/navigation";
 import User from "@/components/User";
 import { validate } from "uuid";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
@@ -61,8 +63,9 @@ export default async function Page({ params }: { params: { id: string } }) {
   }
   const user = await findUserById(params.id);
   if (!user) notFound();
+  const session = await getServerSession(authOptions);
   const documentsResponse = await findPublishedDocumentsByAuthorId(user.id);
   const documents = documentsResponse.map(document => ({ ...document, variant: "cloud" }));
 
-  return <User user={JSON.parse(JSON.stringify(user))} documents={JSON.parse(JSON.stringify(documents))} />
+  return <User user={JSON.parse(JSON.stringify(user))} sessionUser={session?.user} documents={JSON.parse(JSON.stringify(documents))} />
 }

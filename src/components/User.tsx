@@ -6,8 +6,9 @@ import DocumentCard from "./DocumentCard";
 import { SortOption } from "../hooks/useSort";
 import SortControl from "./SortControl";
 import { Box, Grid, Pagination, Typography } from "@mui/material";
+import { Pageview } from "@mui/icons-material";
 
-const User: React.FC<{ user?: User, documents?: UserDocument[] }> = ({ user, documents }) => {
+const User: React.FC<{ user?: User, sessionUser?: User, documents?: UserDocument[] }> = ({ user, sessionUser, documents }) => {
   const [sortedDocuments, setSortedDocuments] = useState(documents || []);
   const documentSortOptions: SortOption<UserDocument>[] = [
     { label: 'Updated', value: 'updatedAt' },
@@ -19,7 +20,7 @@ const User: React.FC<{ user?: User, documents?: UserDocument[] }> = ({ user, doc
   const handlePageChange = (_: any, value: number) => setPage(value);
 
   return <Box>
-    <UserCard user={user} />
+    <UserCard user={user} sessionUser={sessionUser} />
     {user && <Box sx={{ gap: 1, my: 2 }}>
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>
         <Typography variant="h6" component="h2" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Published Documents</Typography>
@@ -27,9 +28,10 @@ const User: React.FC<{ user?: User, documents?: UserDocument[] }> = ({ user, doc
       </Box>
       <PublishedDocumentsTree documents={sortedDocuments.slice((page - 1) * 12, page * 12)} />
       {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}
-      {!sortedDocuments.length && <Typography variant="overline" component="p" sx={{ my: 3, textAlign: "center" }}>
-        No documents found
-      </Typography>}
+      {!sortedDocuments.length && <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>
+        <Pageview sx={{ width: 64, height: 64, fontSize: 64 }} />
+        <Typography variant="overline" component="p">No documents found</Typography>
+      </Box>}
     </Box>
     }
   </Box>;

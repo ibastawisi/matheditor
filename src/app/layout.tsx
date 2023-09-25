@@ -1,8 +1,4 @@
 import './globals.css'
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
 import type { Metadata } from 'next';
 import LayoutProvider from "@/components/LayoutProvider";
 import ThemeProvider from '@/components/ThemeProvider';
@@ -34,7 +30,19 @@ export const metadata: Metadata = {
   icons: [
     { rel: "shortcut icon", url: "/favicon.ico" },
   ],
-  keywords: ["Math Editor", "Online Math Editor", "Matheditor", "Math", "Editor", "Latex", "Geogebra", "Excalidraw", "Markdown"]
+  keywords: ["Math Editor", "Online Math Editor", "Matheditor", "Math", "Editor", "Latex", "Geogebra", "Excalidraw", "Markdown"],
+  openGraph: {
+    title: "Math Editor",
+    description: "Math Editor is a free text editor, with support for LaTeX, Geogebra, Excalidraw and markdown shortcuts. Create, share and print math documents with ease.",
+    images: [
+      {
+        url: "/feature.png",
+        width: 1024,
+        height: 500,
+        alt: "Math Editor Feature Image",
+      },
+    ],
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -12,6 +12,7 @@ body {
   flex-direction: column;
   width: 100%;
   min-height: 100vh;
+  font-family: "Roboto", "Roboto_Fallback", "Helvetica", "Arial", sans-serif;  
 }
 
 header {
@@ -101,174 +102,272 @@ header {
 
 @font-face {
   font-family: Virgil;
-  src: url(/fonts/excalidraw/Virgil.woff2);
+  src: url(/fonts/Virgil.woff2);
 }
 
 @font-face {
   font-family: Cascadia;
-  src: url(/fonts/excalidraw/Cascadia.woff2);
+  src: url(/fonts/Cascadia.woff2);
+}
+
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(/fonts/83e4d81063b4b659-s.woff2) format("woff2");
+  unicode-range: U+0460-052f, U+1c80-1c88, U+20b4, U+2de0-2dff, U+a640-a69f, U+fe2e-fe2f
 }
 
 @font-face {
-  font-display: "swap";
-  font-family: KaTeX_AMS;
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(/fonts/bd976642b4f7fd99-s.woff2) format("woff2");
+  unicode-range: U+0301, U+0400-045f, U+0490-0491, U+04b0-04b1, U+2116
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(/fonts/de9eb3a9f0fa9e10-s.woff2) format("woff2");
+  unicode-range: U+1f??
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(/fonts/44c3f6d12248be7f-s.woff2) format("woff2");
+  unicode-range: U+0370-03ff
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(/fonts/71ba03c5176fbd9c-s.woff2) format("woff2");
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01a0-01a1, U+01af-01b0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1ea0-1ef9, U+20ab
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(/fonts/4a8324e71b197806-s.woff2) format("woff2");
+  unicode-range: U+0100-02af, U+0304, U+0308, U+0329, U+1e00-1e9f, U+1ef2-1eff, U+2020, U+20a0-20ab, U+20ad-20cf, U+2113, U+2c60-2c7f, U+a720-a7ff
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(/fonts/7d8c9b0ca4a64a5a-s.p.woff2) format("woff2");
+  unicode-range: U+00??, U+0131, U+0152-0153, U+02bb-02bc, U+02c6, U+02da, U+02dc, U+0304, U+0308, U+0329, U+2000-206f, U+2074, U+20ac, U+2122, U+2191, U+2193, U+2212, U+2215, U+feff, U+fffd
+}
+
+@font-face {
+  font-family: Roboto;
   font-style: normal;
   font-weight: 400;
-  src: url(/fonts/mathlive/KaTeX_AMS-Regular.woff2) format("woff2")
+  font-display: swap;
+  src: url(/fonts/7c53f7419436e04b-s.woff2) format("woff2");
+  unicode-range: U+0460-052f, U+1c80-1c88, U+20b4, U+2de0-2dff, U+a640-a69f, U+fe2e-fe2f
 }
 
 @font-face {
-  font-display: "swap";
-  font-family: KaTeX_Caligraphic;
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/1c57ca6f5208a29b-s.woff2) format("woff2");
+  unicode-range: U+0301, U+0400-045f, U+0490-0491, U+04b0-04b1, U+2116
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/cff529cd86cc0276-s.woff2) format("woff2");
+  unicode-range: U+1f??
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/7be645d133f3ee22-s.woff2) format("woff2");
+  unicode-range: U+0370-03ff
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/5647e4c23315a2d2-s.woff2) format("woff2");
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01a0-01a1, U+01af-01b0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1ea0-1ef9, U+20ab
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/3dbd163d3bb09d47-s.woff2) format("woff2");
+  unicode-range: U+0100-02af, U+0304, U+0308, U+0329, U+1e00-1e9f, U+1ef2-1eff, U+2020, U+20a0-20ab, U+20ad-20cf, U+2113, U+2c60-2c7f, U+a720-a7ff
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/934c4b7cb736f2a3-s.p.woff2) format("woff2");
+  unicode-range: U+00??, U+0131, U+0152-0153, U+02bb-02bc, U+02c6, U+02da, U+02dc, U+0304, U+0308, U+0329, U+2000-206f, U+2074, U+20ac, U+2122, U+2191, U+2193, U+2212, U+2215, U+feff, U+fffd
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/dfa8b99978df7bbc-s.woff2) format("woff2");
+  unicode-range: U+0460-052f, U+1c80-1c88, U+20b4, U+2de0-2dff, U+a640-a69f, U+fe2e-fe2f
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/42d52f46a26971a3-s.woff2) format("woff2");
+  unicode-range: U+0301, U+0400-045f, U+0490-0491, U+04b0-04b1, U+2116
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/a6d330d7873e7320-s.woff2) format("woff2");
+  unicode-range: U+1f??
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/a5b77b63ef20339c-s.woff2) format("woff2");
+  unicode-range: U+0370-03ff
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/d117eea74e01de14-s.woff2) format("woff2");
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01a0-01a1, U+01af-01b0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1ea0-1ef9, U+20ab
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/eb52b768f62eeeb4-s.woff2) format("woff2");
+  unicode-range: U+0100-02af, U+0304, U+0308, U+0329, U+1e00-1e9f, U+1ef2-1eff, U+2020, U+20a0-20ab, U+20ad-20cf, U+2113, U+2c60-2c7f, U+a720-a7ff
+}
+
+@font-face {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/627622453ef56b0d-s.p.woff2) format("woff2");
+  unicode-range: U+00??, U+0131, U+0152-0153, U+02bb-02bc, U+02c6, U+02da, U+02dc, U+0304, U+0308, U+0329, U+2000-206f, U+2074, U+20ac, U+2122, U+2191, U+2193, U+2212, U+2215, U+feff, U+fffd
+}
+
+@font-face {
+  font-family: Roboto;
   font-style: normal;
   font-weight: 700;
-  src: url(/fonts/mathlive/KaTeX_Caligraphic-Bold.woff2) format("woff2")
+  font-display: swap;
+  src: url(/fonts/e25729ca87cc7df9-s.woff2) format("woff2");
+  unicode-range: U+0460-052f, U+1c80-1c88, U+20b4, U+2de0-2dff, U+a640-a69f, U+fe2e-fe2f
 }
 
 @font-face {
-  font-display: "swap";
-  font-family: KaTeX_Caligraphic;
-  font-style: normal;
-  font-weight: 400;
-  src: url(/fonts/mathlive/KaTeX_Caligraphic-Regular.woff2) format("woff2")
-}
-
-@font-face {
-  font-display: "swap";
-  font-family: KaTeX_Fraktur;
+  font-family: Roboto;
   font-style: normal;
   font-weight: 700;
-  src: url(/fonts/mathlive/KaTeX_Fraktur-Bold.woff2) format("woff2")
+  font-display: swap;
+  src: url(/fonts/912a9cfe43c928d9-s.woff2) format("woff2");
+  unicode-range: U+0301, U+0400-045f, U+0490-0491, U+04b0-04b1, U+2116
 }
 
 @font-face {
-  font-display: "swap";
-  font-family: KaTeX_Fraktur;
-  font-style: normal;
-  font-weight: 400;
-  src: url(/fonts/mathlive/KaTeX_Fraktur-Regular.woff2) format("woff2")
-}
-
-@font-face {
-  font-display: "swap";
-  font-family: KaTeX_Main;
-  font-style: italic;
-  font-weight: 700;
-  src: url(/fonts/mathlive/KaTeX_Main-BoldItalic.woff2) format("woff2")
-}
-
-@font-face {
-  font-display: "swap";
-  font-family: KaTeX_Main;
+  font-family: Roboto;
   font-style: normal;
   font-weight: 700;
-  src: url(/fonts/mathlive/KaTeX_Main-Bold.woff2) format("woff2")
+  font-display: swap;
+  src: url(/fonts/baf12dd90520ae41-s.woff2) format("woff2");
+  unicode-range: U+1f??
 }
 
 @font-face {
-  font-display: "swap";
-  font-family: KaTeX_Main;
-  font-style: italic;
-  font-weight: 400;
-  src: url(/fonts/mathlive/KaTeX_Main-Italic.woff2) format("woff2")
-}
-
-@font-face {
-  font-display: "swap";
-  font-family: KaTeX_Main;
-  font-style: normal;
-  font-weight: 400;
-  src: url(/fonts/mathlive/KaTeX_Main-Regular.woff2) format("woff2")
-}
-
-@font-face {
-  font-display: "swap";
-  font-family: KaTeX_Math;
-  font-style: italic;
-  font-weight: 700;
-  src: url(/fonts/mathlive/KaTeX_Math-BoldItalic.woff2) format("woff2")
-}
-
-@font-face {
-  font-display: "swap";
-  font-family: KaTeX_Math;
-  font-style: italic;
-  font-weight: 400;
-  src: url(/fonts/mathlive/KaTeX_Math-Italic.woff2) format("woff2")
-}
-
-@font-face {
-  font-display: "swap";
-  font-family: "KaTeX_SansSerif";
+  font-family: Roboto;
   font-style: normal;
   font-weight: 700;
-  src: url(/fonts/mathlive/KaTeX_SansSerif-Bold.woff2) format("woff2")
+  font-display: swap;
+  src: url(/fonts/bbdb6f0234009aba-s.woff2) format("woff2");
+  unicode-range: U+0370-03ff
 }
 
 @font-face {
-  font-display: "swap";
-  font-family: "KaTeX_SansSerif";
-  font-style: italic;
-  font-weight: 400;
-  src: url(/fonts/mathlive/KaTeX_SansSerif-Italic.woff2) format("woff2")
-}
-
-@font-face {
-  font-display: "swap";
-  font-family: "KaTeX_SansSerif";
+  font-family: Roboto;
   font-style: normal;
-  font-weight: 400;
-  src: url(/fonts/mathlive/KaTeX_SansSerif-Regular.woff2) format("woff2")
+  font-weight: 700;
+  font-display: swap;
+  src: url(/fonts/f06116e890b3dadb-s.woff2) format("woff2");
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01a0-01a1, U+01af-01b0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1ea0-1ef9, U+20ab
 }
 
 @font-face {
-  font-display: "swap";
-  font-family: KaTeX_Script;
+  font-family: Roboto;
   font-style: normal;
-  font-weight: 400;
-  src: url(/fonts/mathlive/KaTeX_Script-Regular.woff2) format("woff2")
+  font-weight: 700;
+  font-display: swap;
+  src: url(/fonts/8fb72f69fba4e3d2-s.woff2) format("woff2");
+  unicode-range: U+0100-02af, U+0304, U+0308, U+0329, U+1e00-1e9f, U+1ef2-1eff, U+2020, U+20a0-20ab, U+20ad-20cf, U+2113, U+2c60-2c7f, U+a720-a7ff
 }
 
 @font-face {
-  font-display: "swap";
-  font-family: KaTeX_Size1;
+  font-family: Roboto;
   font-style: normal;
-  font-weight: 400;
-  src: url(/fonts/mathlive/KaTeX_Size1-Regular.woff2) format("woff2")
+  font-weight: 700;
+  font-display: swap;
+  src: url(/fonts/0e4fe491bf84089c-s.p.woff2) format("woff2");
+  unicode-range: U+00??, U+0131, U+0152-0153, U+02bb-02bc, U+02c6, U+02da, U+02dc, U+0304, U+0308, U+0329, U+2000-206f, U+2074, U+20ac, U+2122, U+2191, U+2193, U+2212, U+2215, U+feff, U+fffd
 }
 
 @font-face {
-  font-display: "swap";
-  font-family: KaTeX_Size2;
-  font-style: normal;
-  font-weight: 400;
-  src: url(/fonts/mathlive/KaTeX_Size2-Regular.woff2) format("woff2")
-}
-
-@font-face {
-  font-display: "swap";
-  font-family: KaTeX_Size3;
-  font-style: normal;
-  font-weight: 400;
-  src: url(/fonts/mathlive/KaTeX_Size3-Regular.woff2) format("woff2")
-}
-
-@font-face {
-  font-display: "swap";
-  font-family: KaTeX_Size4;
-  font-style: normal;
-  font-weight: 400;
-  src: url(/fonts/mathlive/KaTeX_Size4-Regular.woff2) format("woff2")
-}
-
-@font-face {
-  font-display: "swap";
-  font-family: KaTeX_Typewriter;
-  font-style: normal;
-  font-weight: 400;
-  src: url(/fonts/mathlive/KaTeX_Typewriter-Regular.woff2) format("woff2")
-}
-
-:root {
-  --ML__static-fonts: true
+  font-family: Roboto_Fallback;
+  src: local("Arial");
+  ascent-override: 92.67%;
+  descent-override: 24.39%;
+  line-gap-override: 0.00%;
+  size-adjust: 100.11%
 }

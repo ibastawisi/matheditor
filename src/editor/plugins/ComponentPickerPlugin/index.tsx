@@ -43,7 +43,7 @@ import { StickyNode } from '@/editor/nodes/StickyNode';
 import { PageBreakNode } from '@/editor/nodes/PageBreakNode';
 import { INSERT_PAGE_BREAK } from '../PageBreakPlugin';
 import { Paper, MenuList, MenuItem, ListItemIcon, ListItemText, Typography, SvgIcon } from '@mui/material';
-import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight, FormatAlignJustify, FormatListNumbered, FormatListBulleted, PlaylistAddCheck, FormatQuote, Code, Image, TableChart , HorizontalRule, Functions, Brush, StickyNote2, InsertPageBreak } from '@mui/icons-material';
+import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight, FormatAlignJustify, FormatListNumbered, FormatListBulleted, PlaylistAddCheck, FormatQuote, Code, Image as ImageIcon, TableChart , HorizontalRule, Functions, Brush, StickyNote2, InsertPageBreak } from '@mui/icons-material';
 
 const H1 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M200 776V376h60v170h180V376h60v400h-60V606H260v170h-60Zm500 0V436h-80v-60h140v400h-60Z" />
@@ -334,7 +334,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
     if (editor.hasNode(ImageNode)) {
       baseOptions.push(
         new ComponentPickerOption('Image', {
-          icon: <Image />,
+          icon: <ImageIcon />,
           keywords: ['image', 'photo', 'picture', 'img'],
           keyboardShortcut: '/img',
           onSelect: openImageDialog

@@ -7,8 +7,9 @@ import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 import type { MathfieldElement, MathfieldElementAttributes } from "mathlive";
-import './index.css';
 import { $isMathNode } from '.';
+import 'mathlive/fonts.css'
+import './index.css';
 
 type CustomElement<T> = Partial<T & DOMAttributes<T>>;
 
@@ -20,14 +21,10 @@ declare global {
   }
 }
 
-import('mathlive').then(({ MathfieldElement }) => {
-  MathfieldElement.soundsDirectory = null;
-  MathfieldElement.computeEngine = null;
-});
+window.MathfieldElement.soundsDirectory = null;
+window.MathfieldElement.computeEngine = null;
 
 export type MathComponentProps = { initialValue: string; nodeKey: NodeKey; mathfieldRef: React.RefObject<MathfieldElement>; };
-
-
 
 export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathComponentProps): JSX.Element {
   const [editor] = useLexicalComposerContext();

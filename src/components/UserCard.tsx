@@ -1,20 +1,21 @@
 "use client"
 import { User } from '@/types';
-import { useSelector, useDispatch, actions } from '@/store';
+import { useDispatch, actions, useSelector } from '@/store';
 import RouterLink from 'next/link'
 import { memo } from 'react';
-import { signIn, signOut} from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 import UserActionMenu from './UserActionMenu';
 import { Card, Box, CardActionArea, CardContent, Typography, Skeleton, CardActions, Button, IconButton, Avatar } from '@mui/material';
 import { Google, Share } from '@mui/icons-material';
 
-const UserCard: React.FC<{ user?: User }> = memo(({ user }) => {
+const UserCard: React.FC<{ user?: User, sessionUser?: User }> = memo(({ user, sessionUser }) => {
   const dispatch = useDispatch();
   const login = () => signIn("google", undefined, { prompt: "select_account" });
   const logout = () => signOut();
   const initialized = useSelector(state => state.initialized);
-  const sessionUser = useSelector(state => state.user);
-  const showActions = user?.id === sessionUser?.id;
+  const showLogout = user && sessionUser && user.id === sessionUser.id;
+  const showLogin = initialized && !user && !sessionUser;
+  const showActions = user && sessionUser && user.id === sessionUser.id;
 
   const handleShare = async () => {
     const shareData = {
@@ -44,15 +45,16 @@ const UserCard: React.FC<{ user?: User }> = memo(({ user }) => {
             </Typography>
           </CardContent>
         </CardActionArea>
-        {initialized &&
-          <CardActions sx={{ height: 48, "& button:nth-of-type(2)": { ml: "auto !important" } }}>
-            {showActions && sessionUser && <Button size='small' onClick={logout}>Logout</Button>}
-            {showActions && !sessionUser && <Button size='small' startIcon={<Google />} onClick={login}>
-              <Typography variant="button" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Login with Google</Typography>
-            </Button>}
-            {showActions && user && <UserActionMenu user={user} />}
+        <CardActions sx={{ height: 48 }}>
+          {showLogout && <Button size='small' onClick={logout}>Logout</Button>}
+          {showLogin && <Button size='small' startIcon={<Google />} onClick={login}>
+            <Typography variant="button" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Login with Google</Typography>
+          </Button>}
+          <Box sx={{ ml: 'auto' }}>
+            {showActions && <UserActionMenu user={user} />}
             {user && <IconButton size="small" aria-label="Share" onClick={handleShare}><Share /></IconButton>}
-          </CardActions>}
+          </Box>
+        </CardActions>
       </Box>
       <CardActionArea component={RouterLink} prefetch={false} href={href} sx={{ display: 'flex', width: 'auto' }}>
         {user ?

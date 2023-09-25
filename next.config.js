@@ -18,14 +18,6 @@ const withPWA = require("./next-pwa")({
 
 const config = {
   reactStrictMode: false,
-  webpack: (config, options) => {
-    config.module.rules.push({
-      test: /\.woff2?(\?v=\d+\.\d+\.\d+)?$/,
-      type: "asset/resource",
-      parser: { dataUrlCondition: { maxSize: 100000 } },
-    })
-    return config
-  },
   async rewrites() {
     return [
       {
