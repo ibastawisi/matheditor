@@ -84,10 +84,7 @@
   display: none;
 }
 
-.excalidraw.excalidraw-modal-container {
-  z-index: 1500 !important;
-}
-
+.excalidraw.excalidraw-modal-container,
 #typeahead-menu {
   z-index: 1500;
 }

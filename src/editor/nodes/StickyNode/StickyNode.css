@@ -15,7 +15,6 @@
   flex-direction: row-reverse;
   padding: 0.25rem;
   color: rgba(0, 0, 0, 0.87);
-  z-index: 1;
   pointer-events: none;
 }
 
@@ -24,6 +23,7 @@
   background: none;
   opacity: 0.5;
   pointer-events: all;
+  z-index: 1;
 }
 
 .sticky-tools button:hover {
@@ -35,18 +35,10 @@
   pointer-events: none;
 }
 
-.sticky-note-container.selected {
-  box-shadow: 0 0 0 2px rgb(95 183 255 / 75%);
-}
-
-.sticky-note-container.selected .drag-btn {
+.sticky-note-container .drag-btn {
   cursor: grab;
 }
 
-.sticky-note-container.selected .drag-btn:active {
+.sticky-note-container .drag-btn:active {
   cursor: grabbing;
-}
-
-.sticky-note-wrapper .draggable-block-menu {
-  display: none;
 }

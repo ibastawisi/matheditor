@@ -136,7 +136,7 @@ function FloatingToolbar({ editor, anchorElem }: { editor: LexicalEditor; anchor
   }, [editor, updateFloatingToolbar]);
 
   return (
-    <Paper ref={popupCharStylesEditorRef} sx={{ position: "absolute", top: 0, left: 0, willChange: "transform", displayPrint: "none", zIndex: 1500 }}>
+    <Paper ref={popupCharStylesEditorRef} sx={{ position: "absolute", top: 0, left: 0, zIndex: 1, willChange: "transform", displayPrint: "none" }}>
       <TextFormatToggles editor={editor} />
     </Paper>
   );

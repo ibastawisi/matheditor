@@ -23,7 +23,7 @@ function HideOnScroll({ children }: { children: React.ReactElement }) {
   );
 }
 
-function ScrollTop({ children }: { children: React.ReactElement }) {
+function ScrollTop() {
   const trigger = useScrollTrigger({
     disableHysteresis: true,
   });
@@ -40,14 +40,11 @@ function ScrollTop({ children }: { children: React.ReactElement }) {
 
   return (
     <Zoom in={trigger}>
-      <Box
-        onClick={handleClick}
-        role="presentation"
-        sx={{ position: 'fixed', bottom: 16, right: 16, zIndex: 1100, displayPrint: "none" }}
-      >
-        {children}
-      </Box>
-    </Zoom>
+      <Fab color="secondary" size="small" aria-label="scroll back to top" onClick={handleClick}
+        sx={{ position: 'fixed', bottom: 16, right: 16, zIndex: 2, displayPrint: "none" }}>
+        <KeyboardArrowUp />
+      </Fab>
+    </Zoom >
   );
 }
 
@@ -69,7 +66,7 @@ const TopAppBar: React.FC<{}> = () => {
   return (
     <>
       <HideOnScroll>
-        <AppBar sx={{ displayPrint: "none", zIndex: 1200 }}>
+        <AppBar sx={{ displayPrint: "none" }}>
           <Toolbar sx={{ minHeight: 64 }} id="app-toolbar">
             <Link component={RouterLink} prefetch={false} href="/">
               <Box sx={{ display: "flex" }}>
@@ -91,11 +88,7 @@ const TopAppBar: React.FC<{}> = () => {
         </AppBar>
       </HideOnScroll>
       <Toolbar id="back-to-top-anchor" sx={{ displayPrint: "none" }} />
-      <ScrollTop>
-        <Fab color="secondary" size="small" aria-label="scroll back to top">
-          <KeyboardArrowUp />
-        </Fab>
-      </ScrollTop>
+      <ScrollTop />
     </>
   );
 };

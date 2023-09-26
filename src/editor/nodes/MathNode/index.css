@@ -43,7 +43,6 @@ math-field.selection-active {
 .ML__keyboard {
   --keycap-height: 52px !important;
   --_keyboard-height: 295px !important;
-  --keyboard-zindex: 9999;
 }
 
 .MLK__plate, .MLK__layer {

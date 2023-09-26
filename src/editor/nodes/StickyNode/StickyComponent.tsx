@@ -5,6 +5,7 @@ import {
   SELECTION_CHANGE_COMMAND,
   COMMAND_PRIORITY_LOW,
   $getNodeByKey,
+  $setSelection,
 } from 'lexical';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
@@ -20,8 +21,7 @@ const NestedEditor = dynamic(() => import('@/editor/NestedEditor'), { ssr: false
 
 export default function StickyComponent({ nodeKey, color, stickyEditor }: { stickyEditor: LexicalEditor; color: 'pink' | 'yellow'; nodeKey: NodeKey; }): JSX.Element {
   const [editor] = useLexicalComposerContext();
-  const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
-  const [isDraggable, setDraggable] = useState(false);
+  const [isSelected, setSelected] = useLexicalNodeSelection(nodeKey);
 
   const stickyContainerRef = useRef<null | HTMLDivElement>(null);
 
@@ -30,19 +30,19 @@ export default function StickyComponent({ nodeKey, color, stickyEditor }: { stic
       editor.registerCommand(
         SELECTION_CHANGE_COMMAND,
         (_, activeEditor) => {
-          if (activeEditor === stickyEditor) {
-            clearSelection();
-            setSelected(true);
-          }
+          if (activeEditor !== stickyEditor) clearSelection();
           return true;
         },
         COMMAND_PRIORITY_LOW,
       ),
     );
   }, [
-    stickyEditor,
-    nodeKey,
+    isSelected
   ]);
+
+  const clearSelection = () => {
+    stickyEditor.update(() => { $setSelection(null); });
+  }
 
   const handleDelete = () => {
     editor.update(() => {
@@ -72,7 +72,7 @@ export default function StickyComponent({ nodeKey, color, stickyEditor }: { stic
   }
 
   return (
-    <div ref={stickyContainerRef} className={"sticky-note-container" + (isSelected ? " selected" : "")} draggable={isDraggable} {...{ theme: 'light' }}>
+    <div ref={stickyContainerRef} className="sticky-note-container" draggable={isSelected} {...{ theme: 'light' }}>
       <div className='sticky-tools'>
         <IconButton sx={{ displayPrint: 'none' }} onClick={handleDelete} aria-label="Delete sticky note" title="Delete" color='inherit' size='small'>
           <Delete fontSize='inherit' />
@@ -80,11 +80,10 @@ export default function StickyComponent({ nodeKey, color, stickyEditor }: { stic
         <IconButton sx={{ displayPrint: 'none' }} color='inherit' size='small' aria-label="Change sticky note color" title="Color" onClick={handleColorChange}>
           <FormatPaint fontSize='inherit' />
         </IconButton>
-        {isSelected && <IconButton className='drag-btn' sx={{ displayPrint: 'none', mr: "auto" }} color='inherit' size='small' aria-label="Drag sticky note" title="Drag"
-          onMouseDown={() => setDraggable(true)} onMouseUp={() => setDraggable(false)}>
+        <IconButton className='drag-btn' sx={{ displayPrint: 'none', mr: "auto" }} color='inherit' size='small' aria-label="Drag sticky note" title="Drag"
+          onMouseDown={() => setSelected(true)} onMouseUp={() => setSelected(false)}>
           <DragIndicator fontSize='inherit' />
         </IconButton>
-        }
       </div>
       <div className={`sticky-note ${color}`}>
         <NestedEditor initialEditor={stickyEditor} initialNodes={editorConfig.nodes} onChange={onChange} />
