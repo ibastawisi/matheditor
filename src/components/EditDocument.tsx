@@ -8,6 +8,7 @@ import { useDispatch, actions } from '@/store';
 import { usePathname } from "next/navigation";
 import { EditorState, LexicalEditor } from "@/editor";
 import DocumentRevisions from "./DocumentRevisions";
+import isEqual from "fast-deep-equal";
 
 const EditDocument: React.FC = () => {
   const [document, setDocument] = useState<EditorDocument>();
@@ -20,6 +21,7 @@ const EditDocument: React.FC = () => {
   function handleChange(editorState: EditorState, editor: LexicalEditor, tags: Set<string>) {
     if (!document) return;
     const data = editorState.toJSON();
+    if (isEqual(data, document.data)) return dispatch(actions.updateLocalDocument({ id: document.id, partial: document }));
     const updatedDocument: Partial<EditorDocument> = { data, updatedAt: new Date().toISOString(), head: null };
     try {
       const payload = JSON.parse(tags.values().next().value);
