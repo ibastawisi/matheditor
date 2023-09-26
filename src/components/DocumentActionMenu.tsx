@@ -34,7 +34,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
   const isOwner = isLocal || document.author.id === user?.id;
   const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(d => d.id === document.id));
   const isUploaded = isLocal && !!cloudDocument;
-  const isUpToDate = isUploaded && document.updatedAt === cloudDocument.updatedAt;
+  const isUpToDate = isUploaded && document.head === cloudDocument.head;
   const isPublished = isCloud ? document.published : isUploaded ? cloudDocument.published : false;
 
   const router = useRouter();
@@ -53,6 +53,9 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
     closeMenu();
     if (!user) return dispatch(actions.announce({ message: "Please login to use cloud storage" }));
     if (isUpToDate) return dispatch(actions.announce({ message: "Document is up to date" }));
+    const isHeadOutOfSync = document.head && cloudDocument && document.head !== cloudDocument.head;
+    const cloudHasLocalHead = cloudDocument && cloudDocument.revisions.find(r => r.id === document.head);
+    if (isHeadOutOfSync && cloudHasLocalHead) return dispatch(actions.updateCloudDocument({ id: document.id, partial: { head: document.head } }));
     const response = await dispatch(actions.getLocalDocument(document.id));
     if (response.type === actions.getLocalDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't find local document" }));
     const localDocument = response.payload as EditorDocument;

@@ -1,7 +1,7 @@
 import { DocumentRevision, isCloudDocument, isLocalDocument } from '@/types';
 import RevisionCard from './RevisionCard';
 import { useDispatch, actions, useSelector } from '@/store';
-import { Avatar, Button, Drawer, Grid, IconButton, Typography } from '@mui/material';
+import { Avatar, Badge, Button, Drawer, Grid, IconButton, Typography } from '@mui/material';
 import { Close, Google, History, Login, Restore } from '@mui/icons-material';
 import { LexicalEditor } from '@/editor/types';
 import { CLEAR_HISTORY_COMMAND } from '@/editor';
@@ -15,6 +15,8 @@ export default function DocumentRevisions({ editorRef, documentId }: { editorRef
   const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(d => d.id === documentId));
   const isUpToDate = localDocument?.updatedAt === cloudDocument?.updatedAt;
   const hasLocalChanges = !cloudDocument?.revisions?.find(r => r.id === localDocument?.head);
+  const isHeadOutOfSync = localDocument?.head && cloudDocument && localDocument.head !== cloudDocument.head;
+  const cloudHasLocalHead = cloudDocument && cloudDocument.revisions.find(r => r.id === localDocument?.head);
   const dispatch = useDispatch();
 
   const [open, setOpen] = useState(false);
@@ -44,22 +46,26 @@ export default function DocumentRevisions({ editorRef, documentId }: { editorRef
     return dispatch(actions.updateCloudDocument({ id: documentId, partial: { data, updatedAt: localDocument.updatedAt } }));
   };
 
-  const restoreRevision = async (revisionId: string) => {
-    const isLocalHead = revisionId === localDocument?.head;
-    const isCloudHead = cloudDocument && revisionId === cloudDocument.head;
+  const restoreRevision = async (revision: DocumentRevision) => {
+    const isLocalHead = revision.id === localDocument?.head;
+    const isCloudHead = cloudDocument && revision.id === cloudDocument.head;
     if (isLocalHead && isCloudHead) return;
+    if (isLocalHead && !hasLocalChanges) return dispatch(actions.updateCloudDocument({
+      id: revision.documentId,
+      partial: { head: revision.id, updatedAt: revision.createdAt }
+    }));
     if (hasLocalChanges) {
       dispatch(actions.announce({ message: "Saving local changes to the cloud" }));
       await createRevision();
     }
-    const revision = await getRevision(revisionId);
-    if (!revision) return dispatch(actions.announce({ message: "Couldn't find revision data" }));
-    const payload = { id: documentId, partial: { head: revisionId, updatedAt: revision.createdAt } };
+    const payload = { id: documentId, partial: { head: revision.id, updatedAt: revision.createdAt } };
     const response = await dispatch(actions.updateCloudDocument(payload));
     if (response.type === actions.updateCloudDocument.rejected.type) return;
     const editor = editorRef.current;
     if (!editor) return dispatch(actions.announce({ message: "Couldn't get editor state" }));
-    const state = editor.parseEditorState(revision.data);
+    const cloudRevision = await getRevision(revision.id);
+    if (!cloudRevision) return dispatch(actions.announce({ message: "Couldn't find cloud revision data" }));
+    const state = editor.parseEditorState(cloudRevision.data);
     editor.update(() => {
       editor.setEditorState(state, { tag: JSON.stringify(payload) });
       editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
@@ -109,13 +115,15 @@ export default function DocumentRevisions({ editorRef, documentId }: { editorRef
               </Grid>}
               {cloudDocument?.revisions?.map(revision => <Grid item xs={12} key={revision.id}>
                 <RevisionCard revision={revision}
-                  restoreRevision={() => restoreRevision(revision.id)} deleteRevision={() => deleteRevision(revision.id)} />
+                  restoreRevision={() => restoreRevision(revision)} deleteRevision={() => deleteRevision(revision.id)} />
               </Grid>)}
             </>
           }
         </Grid>
       </Drawer>
-      {createPortal(<IconButton aria-label="Revisions" color='inherit' onClick={onClose}><Restore /></IconButton>, window.document.querySelector('#app-toolbar')!)}
+      {createPortal(<IconButton aria-label="Revisions" color='inherit' onClick={onClose}>
+        {hasLocalChanges || isHeadOutOfSync ? <Badge color="secondary" variant="dot"><Restore /></Badge> : <Restore />}
+        </IconButton>, window.document.querySelector('#app-toolbar')!)}
     </>
   );
 }
