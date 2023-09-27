@@ -498,7 +498,7 @@
 }
 
 .LexicalTheme__textCode {
-  background-color: rgb(30, 30, 30);
+  background-color: rgba(230, 230, 230, 0.3);
 }
 
 .LexicalTheme__link {
@@ -530,10 +530,6 @@
 [theme=light] .LexicalTheme__quote {
   color: rgb(101, 103, 107);
   border-left-color: rgb(206, 208, 212);
-}
-
-[theme=light] .LexicalTheme__textCode {
-  background-color: rgb(240, 242, 245);
 }
 
 [theme=light] .LexicalTheme__link {
