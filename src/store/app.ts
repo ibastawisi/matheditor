@@ -26,8 +26,14 @@ export const loadSession = createAsyncThunk('app/loadSession', async (_, thunkAP
     const response = await fetch('/api/auth/session');
     const data = await response.json() as GetSessionResponse;
     if (!data) return thunkAPI.rejectWithValue('unauthenticated');
-    const payload = data.user;
-    return thunkAPI.fulfillWithValue(payload);
+    const user = {
+      id: data.user.id,
+      handle: data.user.handle,
+      name: data.user.name,
+      email: data.user.email,
+      image: data.user.image
+    }
+    return thunkAPI.fulfillWithValue(user);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
   }
@@ -54,8 +60,7 @@ export const loadCloudDocuments = createAsyncThunk('app/loadCloudDocuments', asy
     const { data, error } = await response.json() as GetDocumentsResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.fulfillWithValue([]);
-    const userDocuments: CloudDocument[] = data.map(document => ({ ...document, variant: "cloud" }));
-    return thunkAPI.fulfillWithValue(userDocuments);
+    return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
   } finally {
@@ -70,8 +75,7 @@ export const loadPublishedDocuments = createAsyncThunk('app/loadPublishedDocumen
     const { data, error } = await response.json() as GetDocumentsResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.fulfillWithValue([]);
-    const userDocuments: CloudDocument[] = data.map(document => ({ ...document, variant: "cloud" }));
-    return thunkAPI.fulfillWithValue(userDocuments);
+    return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
   } finally {
@@ -131,8 +135,7 @@ export const createCloudDocument = createAsyncThunk('app/createCloudDocument', a
     if (!data) return thunkAPI.rejectWithValue('failed to create document');
     const storedDocument = await documentDB.getByID(document.id);
     if (storedDocument) documentDB.patch(document.id, { head: data.head });
-    const payload: CloudDocument = { ...data, variant: "cloud" };
-    return thunkAPI.fulfillWithValue(payload);
+    return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
   } finally {
@@ -166,10 +169,7 @@ export const updateCloudDocument = createAsyncThunk('app/updateCloudDocument', a
     const { data, error } = await response.json() as PatchDocumentResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.rejectWithValue('failed to update document');
-    const storedDocument = await documentDB.getByID(id);
-    if (storedDocument) documentDB.patch(id, { head: data.head });
-    const payload: CloudDocument = { ...data, variant: "cloud" };
-    return thunkAPI.fulfillWithValue(payload);
+    return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
   } finally {
@@ -190,9 +190,7 @@ export const deleteLocalDocument = createAsyncThunk('app/deleteLocalDocument', a
 export const deleteCloudDocument = createAsyncThunk('app/deleteCloudDocument', async (id: string, thunkAPI) => {
   try {
     NProgress.start();
-    const response = await fetch(`/api/documents/${id}`, {
-      method: 'DELETE',
-    });
+    const response = await fetch(`/api/documents/${id}`, { method: 'DELETE', });
     const { data, error } = await response.json() as DeleteDocumentResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.rejectWithValue('failed to delete document');
@@ -224,9 +222,7 @@ export const getCloudRevision = createAsyncThunk('app/getCloudRevision', async (
 export const deleteCloudRevision = createAsyncThunk('app/deleteCloudRevision', async (id: string, thunkAPI) => {
   try {
     NProgress.start();
-    const response = await fetch(`/api/revisions/${id}`, {
-      method: 'DELETE',
-    });
+    const response = await fetch(`/api/revisions/${id}`, { method: 'DELETE', });
     const { data, error } = await response.json() as DeleteRevisionResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.rejectWithValue('failed to delete revision');
@@ -284,7 +280,7 @@ export const appSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(load.fulfilled, (state, action) => {
-        state.documents = state.documents.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+        state.documents = state.documents.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
         state.initialized = true;
       })
       .addCase(loadSession.fulfilled, (state, action) => {
@@ -340,7 +336,7 @@ export const appSlice = createSlice({
         const document = action.payload;
         state.documents = state.documents.filter(doc => !(doc.variant === "cloud" && doc.id === document.id));
         const index = state.documents.findIndex(doc => doc.variant === "local" && doc.id === document.id);
-        state.documents[index] = { ...state.documents[index], head: document.head, updatedAt: document.updatedAt }
+        // state.documents[index] = { ...state.documents[index], head: document.head, updatedAt: document.updatedAt }
         state.documents.splice(index + 1, 0, document);
       })
       .addCase(updateCloudDocument.rejected, (state, action) => {

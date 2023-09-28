@@ -29,8 +29,8 @@ export interface EditorDocument {
   id: string;
   name: string;
   data: SerializedEditorState;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
   published?: boolean;
   handle?: string | null;
   baseId?: string | null;
@@ -40,7 +40,7 @@ export interface EditorDocument {
 export interface DocumentRevision {
   id: string;
   documentId: string;
-  createdAt: string;
+  createdAt: string | Date;
   author: User;
 }
 
@@ -50,12 +50,11 @@ export interface EditorDocumentRevision extends DocumentRevision {
 
 type UserDocumentBase = Omit<EditorDocument, "data"> & { variant: DocumentVariant; };
 export type LocalDocument = UserDocumentBase & { variant: "local" }
-export type CloudDocument = UserDocumentBase & { variant: "cloud", author: User; revisions: DocumentRevision[] }
+export type CloudDocument = UserDocumentBase & { variant: "cloud", author: User; coauthors: User[], revisions: DocumentRevision[] }
 export type UserDocument = LocalDocument | CloudDocument;
 
 export const isLocalDocument = (document: UserDocument): document is LocalDocument => document.variant === "local";
 export const isCloudDocument = (document: UserDocument): document is CloudDocument => document.variant === "cloud";
-export type CloudDocumentResponse = Omit<CloudDocument, "variant">;
 
 export type UserRole = "user" | "superuser" | "admin";
 
@@ -64,11 +63,7 @@ export interface User {
   handle: string | null;
   name: string;
   email: string;
-  image: string;
-  role: UserRole;
-  createdAt: string;
-  updatedAt: string;
-  disabled: boolean;
+  image: string | null;
 }
 
 export type UserSessionStatus = "authenticated" | "unauthenticated" | "loading";
@@ -96,27 +91,27 @@ export interface DeleteUserResponse {
 }
 
 export interface GetDocumentsResponse {
-  data?: CloudDocumentResponse[];
+  data?: CloudDocument[];
   error?: string;
 }
 
 export interface PostDocumentsResponse {
-  data?: CloudDocumentResponse;
+  data?: CloudDocument | null;
   error?: string;
 }
 
 export interface GetPublishedDocumentsResponse {
-  data?: CloudDocumentResponse[];
+  data?: CloudDocument[];
   error?: string;
 }
 
 export interface GetDocumentResponse {
-  data?: EditorDocument & CloudDocumentResponse;
+  data?: EditorDocument;
   error?: string;
 }
 
 export interface PatchDocumentResponse {
-  data?: CloudDocumentResponse;
+  data?: CloudDocument | null;
   error?: string;
 }
 

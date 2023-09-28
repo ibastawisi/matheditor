@@ -8,19 +8,20 @@ datasource db {
 }
 
 model Document {
-  id        String     @id @default(uuid()) @db.Uuid
-  handle    String?    @unique
+  id        String              @id @default(uuid()) @db.Uuid
+  handle    String?             @unique
   name      String
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @default(now()) @map("updated_at")
-  authorId  String     @map("author_id") @db.Uuid
-  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  published Boolean    @default(false)
-  baseId    String?    @map("base_id") @db.Uuid
-  base      Document?  @relation("BaseForks", fields: [baseId], references: [id])
-  forks     Document[] @relation("BaseForks")
+  createdAt DateTime            @default(now()) @map("created_at")
+  updatedAt DateTime            @default(now()) @map("updated_at")
+  authorId  String              @map("author_id") @db.Uuid
+  published Boolean             @default(false)
+  baseId    String?             @map("base_id") @db.Uuid
+  base      Document?           @relation("BaseForks", fields: [baseId], references: [id])
+  forks     Document[]          @relation("BaseForks")
   revisions Revision[]
-  head      String?    @db.Uuid
+  head      String?             @db.Uuid
+  author    User                @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  coauthors DocumentCoauthers[]
 
   @@map("documents")
 }
@@ -38,22 +39,33 @@ model Revision {
 }
 
 model User {
-  id            String     @id @default(uuid()) @db.Uuid
-  handle        String?    @unique
+  id            String              @id @default(uuid()) @db.Uuid
+  handle        String?             @unique
   name          String
-  email         String     @unique
-  createdAt     DateTime   @default(now()) @map("created_at")
-  updatedAt     DateTime   @updatedAt @map("updated_at")
-  disabled      Boolean    @default(false)
+  email         String              @unique
+  createdAt     DateTime            @default(now()) @map("created_at")
+  updatedAt     DateTime            @updatedAt @map("updated_at")
+  disabled      Boolean             @default(false)
   emailVerified DateTime?
   image         String?
-  role          String     @default("user")
-  documents     Document[]
+  role          String              @default("user")
   accounts      Account[]
   sessions      Session[]
   revisions     Revision[]
+  documents     Document[]
+  coauthored    DocumentCoauthers[]
 
   @@map("users")
+}
+
+model DocumentCoauthers {
+  documentId String   @map("document_id") @db.Uuid
+  userEmail  String   @map("user_email")
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userEmail], references: [email], onDelete: Cascade)
+  created_at DateTime @default(now()) @map("created_at")
+
+  @@id([documentId, userEmail])
 }
 
 model Account {

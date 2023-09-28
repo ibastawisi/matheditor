@@ -1,4 +1,6 @@
 import { Prisma, prisma } from "@/lib/prisma";
+import { CloudDocument, EditorDocument } from "@/types";
+import { findUserCoauthoredDocuments } from "./user";
 
 const findAllDocuments = async () => {
   return prisma.document.findMany({
@@ -28,16 +30,6 @@ const findPublishedDocuments = async () => {
       createdAt: true,
       updatedAt: true,
       published: true,
-      author: {
-        select: {
-          id: true,
-          handle: true,
-          name: true,
-          image: true,
-          email: true,
-          role: true,
-        }
-      },
       baseId: true,
       head: true,
       revisions: {
@@ -52,12 +44,36 @@ const findPublishedDocuments = async () => {
               name: true,
               image: true,
               email: true,
-              role: true,
             }
           }
         },
         orderBy: {
           createdAt: 'desc'
+        }
+      },
+      author: {
+        select: {
+          id: true,
+          handle: true,
+          name: true,
+          image: true,
+          email: true,
+        }
+      },
+      coauthors: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              image: true,
+              email: true,
+            }
+          }
+        },
+        orderBy: {
+          created_at: 'asc'
         }
       }
     },
@@ -65,16 +81,21 @@ const findPublishedDocuments = async () => {
       updatedAt: 'desc'
     }
   });
-  documents.forEach((document) => {
-    const head = document.head;
-    if (!head) return;
-    document.revisions = document.revisions.filter((revision) => revision.id === head);
+
+  const cloudDocuments = documents.map((document) => {
+    const cloudDocument: CloudDocument = {
+      ...document,
+      variant: "cloud",
+      coauthors: document.coauthors.map((coauthor) => coauthor.user),
+      revisions: document.revisions.filter((revision) => revision.id === document.head)
+    };
+    return cloudDocument;
   });
-  return documents;
+  return cloudDocuments;
 }
 
 const findDocumentsByAuthorId = async (authorId: string) => {
-  return prisma.document.findMany({
+  const documents = await prisma.document.findMany({
     where: { authorId },
     select: {
       id: true,
@@ -97,7 +118,6 @@ const findDocumentsByAuthorId = async (authorId: string) => {
               name: true,
               image: true,
               email: true,
-              role: true,
             }
           }
         },
@@ -112,18 +132,46 @@ const findDocumentsByAuthorId = async (authorId: string) => {
           name: true,
           image: true,
           email: true,
-          role: true,
         }
-      }
+      },
+      coauthors: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              image: true,
+              email: true,
+            }
+          }
+        },
+        orderBy: {
+          created_at: 'asc'
+        }
+      },
     },
     orderBy: {
       updatedAt: 'desc'
     }
   });
+
+  const authoredDocuments = documents.map((document) => {
+    const cloudDocument: CloudDocument = {
+      ...document,
+      variant: "cloud",
+      coauthors: document.coauthors.map((coauthor) => coauthor.user),
+    };
+    return cloudDocument;
+  });
+  const coauthoredDocuments = await findUserCoauthoredDocuments(authorId);
+  return [...authoredDocuments, ...coauthoredDocuments].sort((a, b) => {
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+  });
 }
 
 const findPublishedDocumentsByAuthorId = async (authorId: string) => {
-  return prisma.document.findMany({
+  const documents = await prisma.document.findMany({
     where: { authorId, published: true },
     select: {
       id: true,
@@ -132,6 +180,27 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
       createdAt: true,
       updatedAt: true,
       published: true,
+      baseId: true,
+      head: true,
+      revisions: {
+        select: {
+          id: true,
+          documentId: true,
+          createdAt: true,
+          author: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              image: true,
+              email: true,
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      },
       author: {
         select: {
           id: true,
@@ -139,14 +208,41 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
           name: true,
           image: true,
           email: true,
-          role: true,
         }
-      }
+      },
+      coauthors: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              image: true,
+              email: true,
+            }
+          }
+        },
+        orderBy: {
+          created_at: 'asc'
+        }
+      },
     },
     orderBy: {
       updatedAt: 'desc'
     }
   });
+
+  const cloudDocuments = documents.map((document) => {
+    const cloudDocument: CloudDocument = {
+      ...document,
+      variant: "cloud",
+      coauthors: document.coauthors.map((coauthor) => coauthor.user),
+      revisions: document.revisions.filter((revision) => revision.id === document.head)
+    };
+    return cloudDocument;
+  });
+
+  return cloudDocuments;
 }
 
 const findDocumentById = async (id: string) => {
@@ -173,7 +269,6 @@ const findDocumentById = async (id: string) => {
               name: true,
               image: true,
               email: true,
-              role: true,
             }
           }
         },
@@ -188,16 +283,69 @@ const findDocumentById = async (id: string) => {
           name: true,
           image: true,
           email: true,
-          role: true,
         }
-      }
+      },
+      coauthors: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              image: true,
+              email: true,
+            }
+          }
+        },
+        orderBy: {
+          created_at: 'asc'
+        }
+      },
     },
   });
 
-  const head = document?.head;
-  if (!head) return document;
+  if (!document) return null;
+  const head = document.head;
+  if (!head) return null;
   const revision = await prisma.revision.findUnique({ where: { id: head }, select: { data: true } });
-  return { ...document, data: revision?.data };
+  if (!revision) return null;
+
+  const editorDocument: CloudDocument & EditorDocument = {
+    ...document,
+    variant: "cloud",
+    coauthors: document.coauthors.map((coauthor) => coauthor.user),
+    data: revision.data as unknown as EditorDocument['data'],
+  };
+
+  return editorDocument;
+}
+const findEditorDocumentById = async (id: string) => {
+  const document = await prisma.document.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      handle: true,
+      name: true,
+      createdAt: true,
+      updatedAt: true,
+      published: true,
+      baseId: true,
+      head: true,
+    },
+  });
+
+  if (!document) return null;
+  const head = document.head;
+  if (!head) return null;
+  const revision = await prisma.revision.findUnique({ where: { id: head }, select: { data: true } });
+  if (!revision) return null;
+
+  const editorDocument: EditorDocument = {
+    ...document,
+    data: revision.data as unknown as EditorDocument['data'],
+  };
+
+  return editorDocument;
 }
 
 const findDocumentAuthorId = async (id: string) => {
@@ -210,8 +358,22 @@ const findDocumentAuthorId = async (id: string) => {
   return document?.authorId;
 }
 
+const findDocumentCoauthorsEmails = async (id: string) => {
+  const document = await prisma.document.findUnique({
+    where: { id },
+    select: {
+      coauthors: {
+        select: {
+          userEmail: true,
+        }
+      }
+    }
+  });
+  return document?.coauthors.map((coauthor) => coauthor.userEmail) ?? [];
+}
+
 const findUserDocument = async (id: string) => {
-  return prisma.document.findUnique({
+  const document = await prisma.document.findUnique({
     where: { id },
     select: {
       id: true,
@@ -234,7 +396,6 @@ const findUserDocument = async (id: string) => {
               name: true,
               image: true,
               email: true,
-              role: true,
             }
           }
         },
@@ -249,18 +410,41 @@ const findUserDocument = async (id: string) => {
           name: true,
           image: true,
           email: true,
-          role: true,
         }
-      }
+      },
+      coauthors: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              image: true,
+              email: true,
+            }
+          }
+        },
+        orderBy: {
+          created_at: 'asc'
+        }
+      },
     }
   });
+
+  if (!document) return null;
+  const cloudDocument: CloudDocument = {
+    ...document,
+    variant: "cloud",
+    coauthors: document.coauthors.map((coauthor) => coauthor.user),
+  };
+  return cloudDocument;
 }
 
 const createDocument = async (data: Prisma.DocumentCreateInput) => {
   return prisma.document.create({ data });
 }
 
-const updateDocument = async (id: string, data: Prisma.DocumentUpdateInput) => {
+const updateDocument = async (id: string, data: Prisma.DocumentUncheckedUpdateInput) => {
   return prisma.document.update({
     where: { id },
     data
@@ -295,7 +479,9 @@ export {
   findPublishedDocumentsByAuthorId,
   findDocumentById,
   findDocumentAuthorId,
+  findDocumentCoauthorsEmails,
   findUserDocument,
+  findEditorDocumentById,
   createDocument,
   updateDocument,
   deleteDocument,

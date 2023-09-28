@@ -21,7 +21,7 @@ export async function GET() {
       return NextResponse.json(response, { status: 403 })
     }
     const documents = await findDocumentsByAuthorId(user.id);
-    response.data = documents as unknown as GetDocumentsResponse["data"];
+    response.data = documents;
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
@@ -67,7 +67,7 @@ export async function POST(request: Request) {
     document.head = revision.id;
     await updateDocument(document.id, { head: revision.id });
     const userDocument = await findUserDocument(body.id);
-    response.data = userDocument as unknown as PostDocumentsResponse["data"];
+    response.data = userDocument;
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);

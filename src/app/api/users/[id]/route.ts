@@ -29,7 +29,13 @@ export async function GET(request: Request, { params }: { params: { id: string }
       response.error = "User Not found";
       return NextResponse.json(response, { status: 404 })
     }
-    response.data = user as unknown as GetUserResponse["data"];
+    response.data = {
+      id: user.id,
+      handle: user.handle,
+      name: user.name,
+      email: user.email,
+      image: user.image
+    };
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
@@ -72,11 +78,19 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         return NextResponse.json(response, { status: 400 })
       }
     }
+
     const result = await updateUser(params.id, {
       handle: body.handle,
     });
 
-    response.data = result as unknown as PatchUserResponse["data"];
+    response.data = {
+      id: result.id,
+      handle: result.handle,
+      name: result.name,
+      email: result.email,
+      image: result.image
+    };
+
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);

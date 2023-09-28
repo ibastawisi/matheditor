@@ -1,56 +1,8 @@
 import { Prisma, prisma } from "@/lib/prisma";
-
-const findRevisionsByDocumentId = async (documentId: string) => {
-  return prisma.revision.findMany({
-    where: { documentId },
-    select: {
-      id: true,
-      documentId: true,
-      createdAt: true,
-      data: true,
-      author: {
-        select: {
-          id: true,
-          handle: true,
-          name: true,
-          image: true,
-          email: true,
-          role: true,
-        }
-      }
-    },
-    orderBy: {
-      createdAt: 'desc'
-    }
-  });
-}
-
-const findRevisionsByAuthorId = async (authorId: string) => {
-  return prisma.revision.findMany({
-    where: { authorId },
-    select: {
-      id: true,
-      documentId: true,
-      createdAt: true,
-      author: {
-        select: {
-          id: true,
-          handle: true,
-          name: true,
-          image: true,
-          email: true,
-          role: true,
-        }
-      }
-    },
-    orderBy: {
-      createdAt: 'desc'
-    }
-  });
-}
+import { EditorDocumentRevision } from "@/types";
 
 const findRevisionById = async (id: string) => {
-  return prisma.revision.findUnique({
+  const revision = await prisma.revision.findUnique({
     where: { id },
     select: {
       id: true,
@@ -64,11 +16,16 @@ const findRevisionById = async (id: string) => {
           name: true,
           image: true,
           email: true,
-          role: true,
         }
       }
     }
   });
+  if (!revision) return null;
+  const DocumentRevision: EditorDocumentRevision = {
+    ...revision,
+    data: revision.data as unknown as EditorDocumentRevision["data"],
+  };
+  return DocumentRevision;
 }
 
 const findRevisionAuthorId = async (id: string) => {
@@ -98,10 +55,7 @@ const deleteRevision = async (id: string) => {
   });
 }
 
-
 export {
-  findRevisionsByDocumentId,
-  findRevisionsByAuthorId,
   findRevisionById,
   findRevisionAuthorId,
   createRevision,

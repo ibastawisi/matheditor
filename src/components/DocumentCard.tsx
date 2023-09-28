@@ -13,23 +13,23 @@ import { Article, MobileFriendly, CloudDone, CloudSync, Cloud, Public, Share, Mo
 
 const DocumentCard: React.FC<{ document?: UserDocument, sx?: SxProps<Theme> | undefined }> = memo(({ document, sx }) => {
   const user = useSelector(state => state.user);
-  const isLocal = document && isLocalDocument(document);
-  const isCloud = document && isCloudDocument(document);
-  const isOwner = isLocal || document?.author.id === user?.id;
+  const initialized = useSelector(state => state.initialized);
+  const localDocument = useSelector(state => state.documents.filter(isLocalDocument).find(d => d.id === document?.id));
   const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(d => d.id === document?.id));
-  const isUploaded = isLocal && !!cloudDocument;
-  const isUpToDate = isUploaded && document.updatedAt === cloudDocument.updatedAt;
-  const isPublished = isCloud ? document.published : isUploaded ? cloudDocument.published : false;
+  const isLocal = !!localDocument;
+  const isCloud = !!cloudDocument;
+  const isUpToDate = document?.updatedAt === cloudDocument?.updatedAt;
+  const isPublished = cloudDocument?.published ?? document?.published;
+  const isAuthor = cloudDocument ? cloudDocument.author.id === user?.id : true;
+  const isCoauthor = cloudDocument ? cloudDocument.coauthors.some(u => u.id === user?.id) : false;
 
   const options: options =
-    isLocal ?
-      ['edit', 'download', 'embed', 'upload', 'fork', 'share', 'publish', 'delete']
-      : isOwner ? ['edit', 'download', 'embed', 'fork', 'share', 'publish', 'delete']
-        : ['fork', 'share', 'embed'];
+    isAuthor ? ['edit', 'download', 'embed', 'fork', 'share', 'publish', 'delete']
+      : ['fork', 'share', 'embed'];
 
   const handle = document?.handle || document?.id;
-  const href = isOwner ? `/edit/${handle}` : `/view/${handle}`;
-  const authorName = isCloud ? document.author.name : isUploaded ? cloudDocument.author.name : user ? user.name : 'Local User';
+  const href = (isAuthor || isCoauthor) ? `/edit/${handle}` : `/view/${handle}`;
+  const authorName = cloudDocument?.author.name ?? user?.name ?? 'Local User';
 
   return (
     <Card variant="outlined"
@@ -76,10 +76,10 @@ const DocumentCard: React.FC<{ document?: UserDocument, sx?: SxProps<Theme> | un
         {!document && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} label={<Skeleton variant="text" width={50} />} />}
         {!document && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} label={<Skeleton variant="text" width={70} />} />}
         {isLocal && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Local" />}
-        {isUploaded && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={isUpToDate ? <CloudDone /> : <CloudSync />} label={isUpToDate ? "Up to date" : "Out of Sync"} />}
-        {isCloud && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
+        {isLocal && isCloud && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={isUpToDate ? <CloudDone /> : <CloudSync />} label={isUpToDate ? "Up to date" : "Out of Sync"} />}
+        {!isLocal && isCloud && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
         {isPublished && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Public />} label="Published" />}
-        {document ? <DocumentActionMenu document={document} options={options} /> :
+        {initialized && document ? <DocumentActionMenu document={document} options={options} /> :
           <>
             <IconButton aria-label="Share Document" size="small" sx={{ ml: "auto" }} disabled><Share /></IconButton>
             <IconButton aria-label="Document Actions" size="small" disabled><MoreVert /></IconButton>

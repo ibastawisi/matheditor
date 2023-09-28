@@ -7,7 +7,7 @@ export async function GET() {
   const response: GetPublishedDocumentsResponse = {};
   try {
     const documents = await findPublishedDocuments();
-    response.data = documents as unknown as GetPublishedDocumentsResponse["data"];
+    response.data = documents;
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);

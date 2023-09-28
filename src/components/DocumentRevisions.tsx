@@ -14,9 +14,12 @@ export default function DocumentRevisions({ editorRef, documentId }: { editorRef
   const localDocument = useSelector(state => state.documents.filter(isLocalDocument).find(d => d.id === documentId));
   const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(d => d.id === documentId));
   const isUpToDate = localDocument?.updatedAt === cloudDocument?.updatedAt;
-  const hasLocalChanges = !cloudDocument?.revisions?.find(r => r.id === localDocument?.head);
+  const hasLocalChanges = !localDocument?.head ? !isUpToDate : !cloudDocument?.revisions?.find(r => r.id === localDocument.head);
   const isHeadOutOfSync = localDocument?.head && cloudDocument && localDocument.head !== cloudDocument.head;
   const cloudHasLocalHead = cloudDocument && cloudDocument.revisions.find(r => r.id === localDocument?.head);
+  const isAuthor = cloudDocument ? cloudDocument.author.id === user?.id : true;
+  const isCoauthor = cloudDocument ? cloudDocument.coauthors.some(u => u.id === user?.id) : false;
+
   const dispatch = useDispatch();
 
   const [open, setOpen] = useState(false);
@@ -43,14 +46,20 @@ export default function DocumentRevisions({ editorRef, documentId }: { editorRef
     const editorDocument = { ...localDocument, data, variant: undefined };
     if (!cloudDocument) return dispatch(actions.createCloudDocument(editorDocument));
     if (isUpToDate) return dispatch(actions.announce({ message: "Document is up to date" }));
-    return dispatch(actions.updateCloudDocument({ id: documentId, partial: { data, updatedAt: localDocument.updatedAt } }));
+    const response = await dispatch(actions.updateCloudDocument({ id: documentId, partial: { data, updatedAt: localDocument.updatedAt } }));
+    if (response.type === actions.updateCloudDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't update cloud document" }));
+    if (isCoauthor) {
+      const cloudRevision = (response.payload as ReturnType<typeof actions.updateCloudDocument.fulfilled>['payload']).revisions[0];
+      await dispatch(actions.updateLocalDocument({ id: documentId, partial: { head: cloudRevision.id } }));
+      return dispatch(actions.announce({ message: "Revision has been submitted for review" }));
+    }
   };
 
   const restoreRevision = async (revision: DocumentRevision) => {
     const isLocalHead = revision.id === localDocument?.head;
     const isCloudHead = cloudDocument && revision.id === cloudDocument.head;
     if (isLocalHead && isCloudHead) return;
-    if (isLocalHead && !hasLocalChanges) return dispatch(actions.updateCloudDocument({
+    if (isLocalHead && !hasLocalChanges && isAuthor) return dispatch(actions.updateCloudDocument({
       id: revision.documentId,
       partial: { head: revision.id, updatedAt: revision.createdAt }
     }));
@@ -59,8 +68,6 @@ export default function DocumentRevisions({ editorRef, documentId }: { editorRef
       await createRevision();
     }
     const payload = { id: documentId, partial: { head: revision.id, updatedAt: revision.createdAt } };
-    const response = await dispatch(actions.updateCloudDocument(payload));
-    if (response.type === actions.updateCloudDocument.rejected.type) return;
     const editor = editorRef.current;
     if (!editor) return dispatch(actions.announce({ message: "Couldn't get editor state" }));
     const cloudRevision = await getRevision(revision.id);
@@ -70,6 +77,7 @@ export default function DocumentRevisions({ editorRef, documentId }: { editorRef
       editor.setEditorState(state, { tag: JSON.stringify(payload) });
       editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
     });
+    if (isAuthor) return await dispatch(actions.updateCloudDocument(payload));
   }
 
   const deleteRevision = (revisionId: string) => {
@@ -123,7 +131,7 @@ export default function DocumentRevisions({ editorRef, documentId }: { editorRef
       </Drawer>
       {createPortal(<IconButton aria-label="Revisions" color='inherit' onClick={onClose}>
         {hasLocalChanges || isHeadOutOfSync ? <Badge color="secondary" variant="dot"><Restore /></Badge> : <Restore />}
-        </IconButton>, window.document.querySelector('#app-toolbar')!)}
+      </IconButton>, window.document.querySelector('#app-toolbar')!)}
     </>
   );
 }

@@ -1,10 +1,11 @@
 import { authOptions } from "@/lib/auth";
-import { deleteDocument, findDocumentAuthorId, findDocumentById, findDocumentIdByHandle, findUserDocument, updateDocument } from "@/repositories/document";
+import { deleteDocument, findDocumentAuthorId, findDocumentCoauthorsEmails, findDocumentIdByHandle, findEditorDocumentById, findUserDocument, updateDocument } from "@/repositories/document";
 import { DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server"
 import { createRevision } from "@/repositories/revision";
 import { validate } from "uuid";
+import { Prisma, prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -25,12 +26,30 @@ export async function GET(request: Request, { params }: { params: { id: string }
         return NextResponse.json(response, { status: 404 })
       }
     }
-    const document = await findDocumentById(params.id);
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      response.error = "Not authenticated, please login"
+      return NextResponse.json(response, { status: 401 })
+    }
+    const { user } = session;
+    if (user.disabled) {
+      response.error = "Account is disabled for violating terms of service";
+      return NextResponse.json(response, { status: 403 })
+    }
+    const document = await findEditorDocumentById(params.id);
     if (!document) {
       response.error = "Document not found";
       return NextResponse.json(response, { status: 404 })
     }
-    response.data = document as unknown as GetDocumentResponse["data"];
+    const authorId = await findDocumentAuthorId(params.id);
+    const coauthors = await findDocumentCoauthorsEmails(params.id);
+    const isAuthor = user.id === authorId;
+    const isCoauthor = coauthors.includes(user.email);
+    if (!isAuthor && !isCoauthor && !document.published) {
+      response.error = "You don't have permission to edit this document";
+      return NextResponse.json(response, { status: 403 })
+    }
+    response.data = document;
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
@@ -57,21 +76,68 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       return NextResponse.json(response, { status: 403 })
     }
     const authorId = await findDocumentAuthorId(params.id);
-    if (authorId && user.id !== authorId) {
+    const coauthors = await findDocumentCoauthorsEmails(params.id);
+    const isAuthor = user.id === authorId;
+    const isCoauthor = coauthors.includes(user.email);
+
+    if (!isAuthor && !isCoauthor) {
       response.error = "You don't have permission to edit this document";
       return NextResponse.json(response, { status: 403 })
     }
+
     const body = await request.json();
     if (!body) {
       response.error = "Bad input"
       return NextResponse.json(response, { status: 400 })
     }
+
     if (body.handle) {
+      if (!isAuthor) {
+        response.error = "You don't have permission to change the handle";
+        return NextResponse.json(response, { status: 403 })
+      }
       body.handle = body.handle.toLowerCase();
-      const error = await validateHandle(params.id, body.handle);
-      if (error) {
-        response.error = error;
+      const validationError = await validateHandle(params.id, body.handle);
+      if (validationError) {
+        response.error = validationError;
         return NextResponse.json(response, { status: 400 })
+      }
+    }
+
+    if (body.coauthors) {
+      if (!isAuthor) {
+        response.error = "You don't have permission to change the coauthors";
+        return NextResponse.json(response, { status: 403 })
+      }
+      const documentId = params.id;
+      const userEmails = body.coauthors as string[];
+      const coauthorsInput: Prisma.DocumentCoauthersUncheckedUpdateManyWithoutDocumentNestedInput = {
+        deleteMany: {
+          userEmail: { notIn: userEmails },
+        },
+        upsert: userEmails.map(userEmail => ({
+          where: { documentId_userEmail: { documentId, userEmail } },
+          update: {},
+          create: {
+            user: {
+              connectOrCreate: {
+                where: { email: userEmail },
+                create: {
+                  name: userEmail.split("@")[0],
+                  email: userEmail,
+                },
+              }
+            }
+          },
+        })),
+      };
+      body.coauthors = coauthorsInput;
+    }
+
+    if (body.head) {
+      if (!isAuthor) {
+        response.error = "You don't have permission to change the head";
+        return NextResponse.json(response, { status: 403 })
       }
     }
     if (body.data) {
@@ -81,13 +147,13 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         createdAt: new Date().toISOString(),
         data: body.data,
       })
-      body.head = revision.id;
       delete body.data;
+      if (isAuthor) body.head = revision.id;
     }
 
     await updateDocument(params.id, body);
     const userDocument = await findUserDocument(params.id);
-    response.data = userDocument as unknown as PatchDocumentResponse["data"];
+    response.data = userDocument;
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);

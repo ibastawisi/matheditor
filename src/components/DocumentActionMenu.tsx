@@ -1,7 +1,7 @@
 "use client"
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckHandleResponse, EditorDocument, UserDocument, isCloudDocument, isLocalDocument } from '@/types';
+import { CheckHandleResponse, EditorDocument, User, UserDocument, isCloudDocument, isLocalDocument } from '@/types';
 import { useDispatch, useSelector, actions } from '@/store';
 import { useCallback, useState } from 'react';
 import { useFormik } from 'formik';
@@ -10,6 +10,7 @@ import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { debounce } from '@mui/material/utils';
 import { IconButton, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, FormControl, RadioGroup, FormControlLabel, Radio, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import { Settings, Share, MoreVert, Download, FileCopy, CloudSync, CloudUpload, PublicOff, Public, DeleteForever } from '@mui/icons-material';
+import UsersAutocomplete from './UsersAutocomplete';
 
 export type options = ('edit' | 'download' | 'fork' | 'share' | 'publish' | 'upload' | 'delete' | 'embed')[];
 type DocumentActionMenuProps = {
@@ -31,11 +32,12 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
   const user = useSelector(state => state.user);
   const isLocal = isLocalDocument(document);
   const isCloud = isCloudDocument(document);
-  const isOwner = isLocal || document.author.id === user?.id;
   const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(d => d.id === document.id));
   const isUploaded = isLocal && !!cloudDocument;
   const isUpToDate = isUploaded && document.head === cloudDocument.head;
   const isPublished = isCloud ? document.published : isUploaded ? cloudDocument.published : false;
+  const isAuthor = cloudDocument ? cloudDocument.author.id === user?.id : true;
+  const isCoauthor = cloudDocument ? cloudDocument.coauthors.some(u => u.id === user?.id) : false;
 
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
@@ -230,10 +232,9 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
 
   const handleShare = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
     const result = await ensureUpToDate();
     if (!result) return;
-    const format = formData.get("format") as string;
+    const format = shareFormat;
     const handle = document.handle || document.id;
     const shareData = {
       title: document.name,
@@ -249,7 +250,19 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
   };
 
   useFixedBodyScroll(editDialogOpen || shareDialogOpen);
-  
+  const [shareFormat, setShareFormat] = useState("view");
+
+  const handleShareFormatChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const format = event.target.value;
+    setShareFormat(format);
+  }
+
+  const updateCoauthors = (users: (User | string)[]) => {
+    const coauthors = users.map(u => typeof u === "string" ? u : u.email);
+    const partial = { coauthors } as any;
+    dispatch(actions.updateCloudDocument({ id: document.id, partial }));
+  }
+
   return (
     <>
       {options.includes("edit") && <>
@@ -307,12 +320,16 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
             <DialogTitle>Share Document</DialogTitle>
             <DialogContent>
               <FormControl>
-                <RadioGroup row aria-label="share format" name="format" defaultValue="view">
+                <RadioGroup row aria-label="share format" name="format" value={shareFormat} onChange={handleShareFormatChange}>
                   <FormControlLabel value="view" control={<Radio />} label="View" />
                   <FormControlLabel value="embed" control={<Radio />} label="Embed" />
                   <FormControlLabel value="pdf" control={<Radio />} label="PDF" />
+                  {isAuthor && <FormControlLabel value="edit" control={<Radio />} label="Edit" />}
                 </RadioGroup>
               </FormControl>
+              {shareFormat === "edit" && <FormControl sx={{ mt: 2 }} fullWidth>
+                <UsersAutocomplete label='Coauthors' placeholder='Email' value={cloudDocument?.coauthors ?? []} onChange={updateCoauthors} />
+              </FormControl>}
             </DialogContent>
             <DialogActions>
               <Button onClick={closeShareDialog}>Cancel</Button>

@@ -6,20 +6,16 @@ import { UserDocument } from '@/types';
 import DocumentCard from "./DocumentCard";
 import { SortOption } from "@/hooks/useSort";
 import SortControl from "./SortControl";
-import RouterLink from 'next/link';
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Grid, Pagination, Typography } from "@mui/material";
 import { ExpandMore, Pageview } from "@mui/icons-material";
 
-const Dashboard: React.FC = ({ }) => {
+const Dashboard: React.FC = () => {
   const documents = useSelector(state => state.documents);
   const user = useSelector(state => state.user);
 
   return <Box>
     <UserCard user={user} sessionUser={user} />
     <Box sx={{ my: 2, display: "flex", flexDirection: "column", gap: 2 }}>
-      <Button component={RouterLink} prefetch={false} scroll={false} href={user?.role === "admin" ? "/admin" : "/dashboard"} sx={{ mx: "auto" }}>
-        {user?.role === "admin" ? "Admin Dashboard" : "Dashboard"}
-      </Button>
       <DocumentsGrid documents={documents.filter(d => d.variant === "local")} title="Local Documents" />
       <DocumentsGrid documents={documents.filter(d => d.variant === "cloud")} title="Cloud Documents" />
     </Box>

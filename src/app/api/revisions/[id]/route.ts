@@ -14,7 +14,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       response.error = "Revision not found";
       return NextResponse.json(response, { status: 404 })
     }
-    response.data = revision as unknown as GetRevisionResponse["data"];
+    response.data = revision;
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);

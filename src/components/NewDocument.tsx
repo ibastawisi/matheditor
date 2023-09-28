@@ -20,13 +20,13 @@ const NewDocument: React.FC = () => {
     const loadDocument = async (id: string) => {
       const localResponse = await dispatch(actions.getLocalDocument(id));
       if (localResponse.type === actions.getLocalDocument.fulfilled.type) {
-        const localDocument = localResponse.payload as ReturnType<typeof actions.getLocalDocument.fulfilled>["payload"];
-        setBase({ ...localDocument, variant: "local" });
+        const editorDocument = localResponse.payload as ReturnType<typeof actions.getLocalDocument.fulfilled>["payload"];
+        setBase({ ...editorDocument, variant: 'local' });
       } else {
         const cloudResponse = await dispatch(actions.getCloudDocument(id));
         if (cloudResponse.type === actions.getCloudDocument.fulfilled.type) {
-          const cloudDocument = cloudResponse.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>["payload"];
-          setBase({ ...cloudDocument, variant: "cloud" });
+          const editorDocument = cloudResponse.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>["payload"];
+          setBase({ ...editorDocument, variant: 'local' });
         }
       }
     }

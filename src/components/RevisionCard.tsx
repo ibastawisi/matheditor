@@ -12,11 +12,13 @@ const RevisionCard: React.FC<{
   restoreRevision: () => void, deleteRevision: () => void,
   sx?: SxProps<Theme> | undefined
 }> = memo(({ revision, restoreRevision, deleteRevision, sx }) => {
+  const user = useSelector(state => state.user);
   const localDocument = useSelector(state => state.documents.filter(isLocalDocument).find(d => d.id === revision.documentId));
   const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(d => d.id === revision.documentId));
   const isLocalHead = revision.id === localDocument?.head;
   const isCloudHead = cloudDocument && revision.id === cloudDocument.head;
   const showSave = !cloudDocument?.revisions?.find(r => r.id === revision.id);
+  const isAuthor = user?.id === revision.author.id;
   const showDelete = !(isLocalHead || isCloudHead);
   return (
     <Card variant="outlined"
@@ -31,8 +33,8 @@ const RevisionCard: React.FC<{
       <CardActionArea sx={{ flexGrow: 1 }} onClick={restoreRevision}>
         <CardHeader sx={{ alignItems: "start", '& .MuiCardHeader-content': { overflow: "hidden", textOverflow: "ellipsis" } }}
           title={new Date(revision.createdAt).toLocaleString()}
-          subheader={revision.author?.name ?? "Local User"}
-          avatar={<Avatar sx={{ bgcolor: 'primary.main' }} src={revision.author?.image}></Avatar>}
+          subheader={revision.author.name}
+          avatar={<Avatar sx={{ bgcolor: 'primary.main' }} src={revision.author.image || undefined}></Avatar>}
         />
       </CardActionArea>
       <CardActions sx={{ "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
@@ -42,7 +44,7 @@ const RevisionCard: React.FC<{
           <IconButton aria-label="Save Revision" size="small" onClick={restoreRevision}><CloudUpload /></IconButton>
         </>}
         {showDelete && <>
-          <IconButton aria-label="Delete Revision" size="small" onClick={deleteRevision}><Delete /></IconButton>
+          <IconButton aria-label="Delete Revision" size="small" onClick={deleteRevision} disabled={!isAuthor}><Delete /></IconButton>
         </>}
       </CardActions>
     </Card>

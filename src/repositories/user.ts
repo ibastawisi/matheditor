@@ -1,4 +1,5 @@
 import { Prisma, prisma } from "@/lib/prisma";
+import { CloudDocument } from "@/types";
 
 const findAllUsers = async () => {
   return prisma.user.findMany({
@@ -11,12 +12,6 @@ const findAllUsers = async () => {
 const findUserById = async (id: string) => {
   return prisma.user.findUnique({
     where: { id },
-  });
-}
-
-const findUserByHandle = async (handle: string) => {
-  return prisma.user.findUnique({
-    where: { handle: handle.toLowerCase() },
   });
 }
 
@@ -58,4 +53,86 @@ const checkHandleAvailability = async (handle: string) => {
   return !userId;
 }
 
-export { findAllUsers, findUserById, findUserByHandle, findUserByEmail, createUser, updateUser, deleteUser, findUserIdByHandle, checkHandleAvailability };
+const findUserCoauthoredDocuments = async (id: string) => {
+  const documents = await prisma.user.findUnique({
+    where: { id },
+    select: {
+      coauthored: {
+        select: {
+          document: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              createdAt: true,
+              updatedAt: true,
+              published: true,
+              baseId: true,
+              head: true,
+              revisions: {
+                select: {
+                  id: true,
+                  documentId: true,
+                  createdAt: true,
+                  author: {
+                    select: {
+                      id: true,
+                      handle: true,
+                      name: true,
+                      image: true,
+                      email: true,
+                    }
+                  }
+                },
+                orderBy: {
+                  createdAt: 'desc'
+                }
+              },
+              author: {
+                select: {
+                  id: true,
+                  handle: true,
+                  name: true,
+                  image: true,
+                  email: true,
+                }
+              },
+              coauthors: {
+                select: {
+                  user: {
+                    select: {
+                      id: true,
+                      handle: true,
+                      name: true,
+                      image: true,
+                      email: true,
+                    }
+                  }
+                },
+                orderBy: {
+                  created_at: 'asc'
+                }
+              },
+            },
+          },
+        },
+        orderBy: {
+          created_at: 'asc'
+        }
+      }
+    }
+  });
+  if (!documents) return [];
+  const cloudDocuments = documents.coauthored.map(({ document }) => {
+    const cloudDocument: CloudDocument = {
+      ...document,
+      variant: "cloud",
+      coauthors: document.coauthors.map((coauthor) => coauthor.user),
+    };
+    return cloudDocument;
+  });
+  return cloudDocuments;
+}
+
+
+export { findAllUsers, findUserById, findUserByEmail, createUser, updateUser, deleteUser, findUserIdByHandle, checkHandleAvailability, findUserCoauthoredDocuments };
