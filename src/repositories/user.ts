@@ -126,7 +126,6 @@ const findUserCoauthoredDocuments = async (id: string) => {
   const cloudDocuments = documents.coauthored.map(({ document }) => {
     const cloudDocument: CloudDocument = {
       ...document,
-      variant: "cloud",
       coauthors: document.coauthors.map((coauthor) => coauthor.user),
     };
     return cloudDocument;

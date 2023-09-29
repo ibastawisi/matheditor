@@ -111,7 +111,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       }
       const documentId = params.id;
       const userEmails = body.coauthors as string[];
-      const coauthorsInput: Prisma.DocumentCoauthersUncheckedUpdateManyWithoutDocumentNestedInput = {
+      const coauthorsInput = {
         deleteMany: {
           userEmail: { notIn: userEmails },
         },
@@ -144,7 +144,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       const revision = await createRevision({
         documentId: params.id,
         authorId: user.id,
-        createdAt: new Date().toISOString(),
+        createdAt: body.updatedAt,
         data: body.data,
       })
       delete body.data;

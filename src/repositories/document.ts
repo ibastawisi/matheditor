@@ -3,21 +3,75 @@ import { CloudDocument, EditorDocument } from "@/types";
 import { findUserCoauthoredDocuments } from "./user";
 
 const findAllDocuments = async () => {
-  return prisma.document.findMany({
+  const documents = await prisma.document.findMany({
+    where: { published: true },
     select: {
       id: true,
       handle: true,
       name: true,
       createdAt: true,
       updatedAt: true,
-      author: true,
       published: true,
       baseId: true,
+      head: true,
+      revisions: {
+        select: {
+          id: true,
+          documentId: true,
+          createdAt: true,
+          author: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              image: true,
+              email: true,
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      },
+      author: {
+        select: {
+          id: true,
+          handle: true,
+          name: true,
+          image: true,
+          email: true,
+        }
+      },
+      coauthors: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              image: true,
+              email: true,
+            }
+          }
+        },
+        orderBy: {
+          created_at: 'asc'
+        }
+      }
     },
     orderBy: {
       updatedAt: 'desc'
     }
   });
+
+  const cloudDocuments = documents.map((document) => {
+    const cloudDocument: CloudDocument = {
+      ...document,
+      coauthors: document.coauthors.map((coauthor) => coauthor.user),
+    };
+    return cloudDocument;
+  });
+  return cloudDocuments;  
 }
 
 const findPublishedDocuments = async () => {
@@ -85,8 +139,7 @@ const findPublishedDocuments = async () => {
   const cloudDocuments = documents.map((document) => {
     const cloudDocument: CloudDocument = {
       ...document,
-      variant: "cloud",
-      coauthors: document.coauthors.map((coauthor) => coauthor.user),
+        coauthors: document.coauthors.map((coauthor) => coauthor.user),
       revisions: document.revisions.filter((revision) => revision.id === document.head)
     };
     return cloudDocument;
@@ -159,8 +212,7 @@ const findDocumentsByAuthorId = async (authorId: string) => {
   const authoredDocuments = documents.map((document) => {
     const cloudDocument: CloudDocument = {
       ...document,
-      variant: "cloud",
-      coauthors: document.coauthors.map((coauthor) => coauthor.user),
+        coauthors: document.coauthors.map((coauthor) => coauthor.user),
     };
     return cloudDocument;
   });
@@ -235,8 +287,7 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
   const cloudDocuments = documents.map((document) => {
     const cloudDocument: CloudDocument = {
       ...document,
-      variant: "cloud",
-      coauthors: document.coauthors.map((coauthor) => coauthor.user),
+        coauthors: document.coauthors.map((coauthor) => coauthor.user),
       revisions: document.revisions.filter((revision) => revision.id === document.head)
     };
     return cloudDocument;
@@ -312,7 +363,6 @@ const findDocumentById = async (id: string) => {
 
   const editorDocument: CloudDocument & EditorDocument = {
     ...document,
-    variant: "cloud",
     coauthors: document.coauthors.map((coauthor) => coauthor.user),
     data: revision.data as unknown as EditorDocument['data'],
   };
@@ -434,7 +484,6 @@ const findUserDocument = async (id: string) => {
   if (!document) return null;
   const cloudDocument: CloudDocument = {
     ...document,
-    variant: "cloud",
     coauthors: document.coauthors.map((coauthor) => coauthor.user),
   };
   return cloudDocument;

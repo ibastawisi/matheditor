@@ -2,31 +2,32 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from "uuid";
 import * as React from 'react';
-import { EditorDocument, UserDocument } from '@/types';
+import { EditorDocument } from '@/types';
 import { SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "@/editor/types";
 import { useEffect, useState } from 'react';
-import { useDispatch, actions } from '@/store';
+import { useDispatch, actions, useSelector } from '@/store';
 import DocumentCard from './DocumentCard';
 import { Container, Box, Avatar, Typography, TextField, Button } from '@mui/material';
 import { Article, Add } from '@mui/icons-material';
 
 const NewDocument: React.FC = () => {
-  const [base, setBase] = useState<EditorDocument & UserDocument>();
+  const [base, setBase] = useState<EditorDocument>();
   const dispatch = useDispatch();
   const pathname = usePathname();
   const id = pathname.split('/')[2]?.toLowerCase();
+  const userDocument = useSelector(state => state.documents.find(d => d.id === base?.id));
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
       const localResponse = await dispatch(actions.getLocalDocument(id));
       if (localResponse.type === actions.getLocalDocument.fulfilled.type) {
         const editorDocument = localResponse.payload as ReturnType<typeof actions.getLocalDocument.fulfilled>["payload"];
-        setBase({ ...editorDocument, variant: 'local' });
+        setBase(editorDocument);
       } else {
         const cloudResponse = await dispatch(actions.getCloudDocument(id));
         if (cloudResponse.type === actions.getCloudDocument.fulfilled.type) {
           const editorDocument = cloudResponse.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>["payload"];
-          setBase({ ...editorDocument, variant: 'local' });
+          setBase(editorDocument);
         }
       }
     }
@@ -103,7 +104,7 @@ const NewDocument: React.FC = () => {
           <Button type="submit" disabled={!!(id && !base)} fullWidth variant="contained" startIcon={<Add />} sx={{ my: 2 }}>Create</Button>
         </Box>
         {id && <Typography variant="overline" sx={{ color: 'text.secondary', my: 2 }}>Based on</Typography>}
-        {id && <DocumentCard document={base} sx={{width: 320}} />}
+        {id && <DocumentCard userDocument={userDocument} sx={{ width: 320 }} />}
       </Box>
     </Container>
   );

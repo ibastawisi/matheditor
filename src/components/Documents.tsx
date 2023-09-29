@@ -7,12 +7,10 @@ import React, { memo, useEffect, useState } from "react";
 import { EditorDocument, UserDocument } from '@/types';
 import { validate } from "uuid";
 import UserCard from "./UserCard";
-import SortControl from "./SortControl";
-import { SortOption } from "../hooks/useSort";
 import documentDB from '@/indexeddb';
-import { createSelector } from '@reduxjs/toolkit';
 import { Box, Avatar, Button, Typography, Grid, Card, CardActionArea, CardHeader, Collapse, Pagination } from '@mui/material';
 import { PostAdd, UploadFile, Help, Storage, Science } from '@mui/icons-material';
+import DocumentSortControl from './DocumentSortControl';
 
 const Documents: React.FC = () => {
   const user = useSelector(state => state.user);
@@ -20,21 +18,8 @@ const Documents: React.FC = () => {
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
   const initialized = useSelector(state => state.initialized);
-  const selectDocuments = createSelector(
-    [(state: RootState) => state.documents], (documents) => {
-      return documents.reduce((acc, document) => {
-        if (!acc.find(d => d.id === document.id)) acc.push(document);
-        return acc;
-      }, [] as UserDocument[]);
-    });
-  const documents = useSelector(selectDocuments);
-
+  const documents = useSelector(state => state.documents);
   const [sortedDocuments, setSortedDocuments] = useState(documents);
-  const documentSortOptions: SortOption<UserDocument>[] = [
-    { label: 'Updated', value: 'updatedAt' },
-    { label: 'Created', value: 'createdAt' },
-    { label: 'Name', value: 'name' },
-  ];
 
   useEffect(() => {
     if ("launchQueue" in window && "LaunchParams" in window) {
@@ -88,7 +73,7 @@ const Documents: React.FC = () => {
   }
 
   function addDocument(document: EditorDocument, navigateTo?: boolean) {
-    if (documents.find(d => d.variant === "local" && d.id === document.id)) {
+    if (documents.find(d => d.id === document.id && d.local)) {
       dispatch(actions.alert({
         title: "Document already exists",
         content: `Do you want to overwrite ${document.name}?`,
@@ -130,7 +115,7 @@ const Documents: React.FC = () => {
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", gap: 1, mb: 1 }}>
         <Typography variant="h6" component="h2" sx={{ display: { xs: 'none', sm: 'block' } }}>Documents</Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
-          <SortControl<UserDocument> data={documents} onSortChange={setSortedDocuments} sortOptions={documentSortOptions} initialSortDirection="desc" />
+          <DocumentSortControl documents={documents} setDocuments={setSortedDocuments} />
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center" }}>
             <Button variant="outlined" startIcon={<UploadFile />} component="label">
               Import
@@ -172,7 +157,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], initialized: boolean 
   return <Grid container spacing={2}>
     {!initialized && documents.length === 0 && Array.from({ length: 3 }).map((_, i) => <Grid item key={i} xs={12} sm={6} md={4}><DocumentCard /></Grid>)}
     {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
-      <DocumentCard document={document} />
+      <DocumentCard userDocument={document} />
     </Grid>)}
     {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3, width: "100%" }} />}
   </Grid>

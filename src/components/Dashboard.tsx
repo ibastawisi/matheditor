@@ -4,10 +4,9 @@ import { useSelector } from '@/store';
 import UserCard from "./UserCard";
 import { UserDocument } from '@/types';
 import DocumentCard from "./DocumentCard";
-import { SortOption } from "@/hooks/useSort";
-import SortControl from "./SortControl";
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Grid, Pagination, Typography } from "@mui/material";
 import { ExpandMore, Pageview } from "@mui/icons-material";
+import DocumentSortControl from "./DocumentSortControl";
 
 const Dashboard: React.FC = () => {
   const documents = useSelector(state => state.documents);
@@ -16,8 +15,8 @@ const Dashboard: React.FC = () => {
   return <Box>
     <UserCard user={user} sessionUser={user} />
     <Box sx={{ my: 2, display: "flex", flexDirection: "column", gap: 2 }}>
-      <DocumentsGrid documents={documents.filter(d => d.variant === "local")} title="Local Documents" />
-      <DocumentsGrid documents={documents.filter(d => d.variant === "cloud")} title="Cloud Documents" />
+      <DocumentsGrid documents={documents.filter(d => d.local)} title="Local Documents" />
+      <DocumentsGrid documents={documents.filter(d => d.cloud && !d.local)} title="Cloud Documents" />
     </Box>
   </Box>;
 }
@@ -26,11 +25,6 @@ export default Dashboard;
 
 const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string }> = memo(({ documents, title }) => {
   const [sortedDocuments, setSortedDocuments] = useState(documents);
-  const documentSortOptions: SortOption<UserDocument>[] = [
-    { label: 'Updated', value: 'updatedAt' },
-    { label: 'Created', value: 'createdAt' },
-    { label: 'Name', value: 'name' },
-  ];
   const pages = Math.ceil(documents.length / 12);
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
@@ -42,12 +36,12 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string }> = me
     </AccordionSummary>
     <AccordionDetails>
       <Box sx={{ display: "flex", justifyContent: 'flex-end', alignItems: "center", gap: 1, my: 2 }}>
-        <SortControl<UserDocument> data={documents} onSortChange={setSortedDocuments} sortOptions={documentSortOptions} initialSortDirection="desc" />
+        <DocumentSortControl documents={documents} setDocuments={setSortedDocuments} />
       </Box>
-    {!documents.length && <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>
-      <Pageview sx={{ width: 64, height: 64, fontSize: 64 }} />
-      <Typography variant="overline" component="p">No documents found</Typography>
-    </Box>}
+      {!documents.length && <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>
+        <Pageview sx={{ width: 64, height: 64, fontSize: 64 }} />
+        <Typography variant="overline" component="p">No documents found</Typography>
+      </Box>}
       <DocumentsTree documents={sortedDocuments.slice((page - 1) * 12, page * 12)} />
       {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}
     </AccordionDetails>
@@ -57,7 +51,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], title: string }> = me
 const DocumentsTree: React.FC<{ documents: UserDocument[] }> = memo(({ documents }) => {
   return <Grid container spacing={2}>
     {documents.map(document => <Grid item xs={12} sm={6} md={4} key={document.id}>
-      <DocumentCard document={document} />
+      <DocumentCard userDocument={document} />
     </Grid>)}
   </Grid>
 });

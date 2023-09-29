@@ -1,6 +1,6 @@
 "use client"
 import * as React from 'react';
-import { DocumentRevision, isCloudDocument, isLocalDocument } from '@/types';
+import { DocumentRevision } from '@/types';
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Avatar, CardActions, Chip, IconButton } from '@mui/material';
@@ -13,13 +13,15 @@ const RevisionCard: React.FC<{
   sx?: SxProps<Theme> | undefined
 }> = memo(({ revision, restoreRevision, deleteRevision, sx }) => {
   const user = useSelector(state => state.user);
-  const localDocument = useSelector(state => state.documents.filter(isLocalDocument).find(d => d.id === revision.documentId));
-  const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(d => d.id === revision.documentId));
+  const userDocument = useSelector(state => state.documents.find(d => d.id === revision.documentId));
+  const localDocument = userDocument?.local;
+  const cloudDocument = userDocument?.cloud;
   const isLocalHead = revision.id === localDocument?.head;
   const isCloudHead = cloudDocument && revision.id === cloudDocument.head;
   const showSave = !cloudDocument?.revisions?.find(r => r.id === revision.id);
   const isAuthor = user?.id === revision.author.id;
   const showDelete = !(isLocalHead || isCloudHead);
+  
   return (
     <Card variant="outlined"
       sx={{

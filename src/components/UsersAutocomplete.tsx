@@ -4,7 +4,7 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import { User, isCloudDocument } from '@/types';
+import { User } from '@/types';
 import { useSelector } from '@/store';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -25,12 +25,13 @@ export default function UsersAutocomplete({
     onChange(newValue);
   };
   const user = useSelector(state => state.user);
-  const cloudDocuments = useSelector(state => state.documents.filter(isCloudDocument));
+  const cloudDocuments = useSelector(state => state.documents.filter(d => d.cloud));
 
   const users: User[] = cloudDocuments.reduce((users, document) => {
-    const author = document.author;
+    if (!document.cloud) return users;
+    const author = document.cloud.author;
     if (!users.some(u => u.id === author.id) && author.id !== user?.id) users.push(author);
-    const coauthors = document.coauthors;
+    const coauthors = document.cloud.coauthors;
     coauthors.forEach(coauthor => {
       if (!users.some(u => u.id === coauthor.id) && coauthor.id !== user?.id) users.push(coauthor);
     });

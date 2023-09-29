@@ -65,7 +65,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   if (!user) notFound();
   const session = await getServerSession(authOptions);
   const documentsResponse = await findPublishedDocumentsByAuthorId(user.id);
-  const documents = documentsResponse.map(document => ({ ...document, variant: "cloud" }));
+  const documents = documentsResponse.map(document => ({ id: document.id, cloud: document }));
 
-  return <User user={JSON.parse(JSON.stringify(user))} sessionUser={session?.user} documents={JSON.parse(JSON.stringify(documents))} />
+  return <User user={user} sessionUser={session?.user} documents={documents} />
 }

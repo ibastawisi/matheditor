@@ -1,24 +1,25 @@
 "use client"
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckHandleResponse, EditorDocument, User, UserDocument, isCloudDocument, isLocalDocument } from '@/types';
+import { CheckHandleResponse, EditorDocument, User, UserDocument } from '@/types';
 import { useDispatch, useSelector, actions } from '@/store';
 import { useCallback, useState } from 'react';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { debounce } from '@mui/material/utils';
-import { IconButton, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, FormControl, RadioGroup, FormControlLabel, Radio, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
-import { Settings, Share, MoreVert, Download, FileCopy, CloudSync, CloudUpload, PublicOff, Public, DeleteForever } from '@mui/icons-material';
+import { IconButton, Checkbox, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, FormControl, RadioGroup, FormControlLabel, Radio, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Settings, Share, MoreVert, Download, FileCopy, CloudSync, CloudUpload, DeleteForever } from '@mui/icons-material';
 import UsersAutocomplete from './UsersAutocomplete';
+import { validate } from 'uuid';
 
-export type options = ('edit' | 'download' | 'fork' | 'share' | 'publish' | 'upload' | 'delete' | 'embed')[];
+export type options = ('edit' | 'download' | 'fork' | 'share' | 'upload' | 'delete')[];
 type DocumentActionMenuProps = {
-  document: UserDocument;
+  userDocument: UserDocument;
   options: options;
 };
 
-function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX.Element {
+function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps): JSX.Element {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const openMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -30,14 +31,22 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
 
   const dispatch = useDispatch();
   const user = useSelector(state => state.user);
-  const isLocal = isLocalDocument(document);
-  const isCloud = isCloudDocument(document);
-  const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(d => d.id === document.id));
-  const isUploaded = isLocal && !!cloudDocument;
-  const isUpToDate = isUploaded && document.head === cloudDocument.head;
-  const isPublished = isCloud ? document.published : isUploaded ? cloudDocument.published : false;
-  const isAuthor = cloudDocument ? cloudDocument.author.id === user?.id : true;
-  const isCoauthor = cloudDocument ? cloudDocument.coauthors.some(u => u.id === user?.id) : false;
+  const localDocument = userDocument?.local;
+  const cloudDocument = userDocument?.cloud;
+  const isLocal = !!localDocument;
+  const isCloud = !!cloudDocument;
+  const isLocalOnly = isLocal && !isCloud;
+  const isCloudOnly = !isLocal && isCloud;
+  const isUploaded = isLocal && isCloud;
+  const isUpToDate = isUploaded && localDocument.updatedAt === cloudDocument.updatedAt;
+  const isPublished = isCloud && cloudDocument.published;
+  const isAuthor = isCloud ? cloudDocument.author.id === user?.id : true
+  const isCoauthor = isCloud ? cloudDocument.coauthors.some(u => u.id === user?.id) : false;
+  const id = userDocument.id;
+  const name = cloudDocument?.name ?? localDocument?.name ?? "Untitled Document";
+  const handle = cloudDocument?.handle ?? localDocument?.handle ?? null;
+  const isHeadOutOfSync = isUploaded && cloudDocument.head !== localDocument.head;
+  const cloudHasLocalHead = isUploaded && cloudDocument.revisions.find(r => r.id === localDocument.head);
 
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
@@ -45,37 +54,41 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
   const handleCreate = async () => {
     closeMenu();
     if (!user) return dispatch(actions.announce({ message: "Please login to use cloud storage" }));
-    const response = await dispatch(actions.getLocalDocument(document.id));
-    if (response.type === actions.getLocalDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't find local document" }));
-    const localDocument = response.payload as EditorDocument;
-    return await dispatch(actions.createCloudDocument(localDocument));
+    const localResponse = await dispatch(actions.getLocalDocument(id));
+    if (localResponse.type === actions.getLocalDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't find local document" }));
+    const localDocument = localResponse.payload as EditorDocument;
+    const cloudResponse = await dispatch(actions.createCloudDocument(localDocument));
+    if (cloudResponse.type === actions.createCloudDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't create cloud document" }));
+    const cloudDocument = cloudResponse.payload as ReturnType<typeof actions.createCloudDocument.fulfilled>["payload"];
+    return dispatch(actions.updateLocalDocument({ id, partial: { head: cloudDocument.head } }));
   };
 
   const handleUpdate = async () => {
     closeMenu();
     if (!user) return dispatch(actions.announce({ message: "Please login to use cloud storage" }));
     if (isUpToDate) return dispatch(actions.announce({ message: "Document is up to date" }));
-    const isHeadOutOfSync = document.head && cloudDocument && document.head !== cloudDocument.head;
-    const cloudHasLocalHead = cloudDocument && cloudDocument.revisions.find(r => r.id === document.head);
-    if (isHeadOutOfSync && cloudHasLocalHead) return dispatch(actions.updateCloudDocument({ id: document.id, partial: { head: document.head } }));
-    const response = await dispatch(actions.getLocalDocument(document.id));
-    if (response.type === actions.getLocalDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't find local document" }));
-    const localDocument = response.payload as EditorDocument;
-    return await dispatch(actions.updateCloudDocument({ id: document.id, partial: localDocument }));
+    if (isHeadOutOfSync && cloudHasLocalHead) return dispatch(actions.updateCloudDocument({ id, partial: { head: localDocument.head } }));
+    const localResponse = await dispatch(actions.getLocalDocument(id));
+    if (localResponse.type === actions.getLocalDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't find local document" }));
+    const editorDocument = localResponse.payload as ReturnType<typeof actions.getLocalDocument.fulfilled>["payload"];
+    const cloudResponse = await dispatch(actions.updateCloudDocument({ id, partial: editorDocument }));
+    if (cloudResponse.type === actions.updateCloudDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't update cloud document" }));
+    const cloudDocument = cloudResponse.payload as ReturnType<typeof actions.updateCloudDocument.fulfilled>["payload"];
+    return dispatch(actions.updateLocalDocument({ id, partial: { head: cloudDocument.head } }));
   };
 
   const ensureUpToDate = async () => {
-    if (isCloud) return true;
+    if (isCloudOnly) return true;
     if (!user) {
       dispatch(actions.announce({ message: "Please login to use cloud storage" }));
       return false;
     }
-    if (isLocal && !isUploaded) {
+    if (isLocalOnly) {
       dispatch(actions.announce({ message: "Saving document to the cloud" }));
       const result = await handleCreate();
       if (result.type === actions.createCloudDocument.rejected.type) return false;
     };
-    if (isLocal && !isUpToDate) {
+    if (isUploaded && !isUpToDate) {
       dispatch(actions.announce({ message: "Updating document in the cloud" }));
       const result = await handleUpdate();
       if (result.type === actions.updateCloudDocument.rejected.type) return false;
@@ -87,44 +100,39 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
     closeMenu();
     dispatch(actions.alert(
       {
-        title: `Delete ${document.variant} document`,
-        content: `Are you sure you want to delete ${document.name}?`,
+        title: `Delete ${isLocal ? "Local" : "Cloud"} Document`,
+        content: `Are you sure you want to delete ${name}?`,
         action: isLocal ?
-          `dispatch(actions.deleteLocalDocument("${document.id}"))` :
-          `dispatch(actions.deleteCloudDocument("${document.id}"))`
+          `dispatch(actions.deleteLocalDocument("${id}"))` :
+          `dispatch(actions.deleteCloudDocument("${id}"))`
       }
     ));
   };
 
-  const getPayload = async () => {
-    switch (document.variant) {
-      case "local":
-        {
-          const response = await dispatch(actions.getLocalDocument(document.id));
-          if (response.type === actions.getLocalDocument.fulfilled.type) {
-            return JSON.stringify(response.payload);
-          }
-          break;
-        }
-      default:
-        {
-          const response = await dispatch(actions.getCloudDocument(document.id));
-          if (response.type === actions.getCloudDocument.fulfilled.type) {
-            return JSON.stringify(response.payload);
-          }
-          break;
-        }
+  const getEditorDocument = async () => {
+    if (isLocal) {
+      const response = await dispatch(actions.getLocalDocument(id));
+      if (response.type === actions.getLocalDocument.fulfilled.type) {
+        const editorDocument = response.payload as ReturnType<typeof actions.getLocalDocument.fulfilled>["payload"];
+        return editorDocument;
+      }
+    } else {
+      const response = await dispatch(actions.getCloudDocument(id));
+      if (response.type === actions.getCloudDocument.fulfilled.type) {
+        const editorDocument = response.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>["payload"];
+        return editorDocument;
+      }
     }
   };
 
   const handleSave = async () => {
     closeMenu();
-    const payload = await getPayload();
-    if (!payload) return dispatch(actions.announce({ message: "Can't find document data" }));
-    const blob = new Blob([payload], { type: "text/json" });
+    const editorDocument = await getEditorDocument();
+    if (!editorDocument) return dispatch(actions.announce({ message: "Can't find document data" }));
+    const blob = new Blob([JSON.stringify(editorDocument)], { type: "text/json" });
     const link = window.document.createElement("a");
 
-    link.download = document.name + ".me";
+    link.download = editorDocument.name + ".me";
     link.href = window.URL.createObjectURL(blob);
     link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
 
@@ -142,7 +150,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
     closeMenu();
     const result = await ensureUpToDate();
     if (!result) return;
-    const response = await dispatch(actions.updateCloudDocument({ id: document.id, partial: { published: !isPublished } }));
+    const response = await dispatch(actions.updateCloudDocument({ id, partial: { published: !isPublished } }));
     if (response.type === actions.updateCloudDocument.fulfilled.type) {
       dispatch(actions.announce({ message: `Document ${isPublished ? "unpublished" : "published"} successfully` }));
     }
@@ -150,7 +158,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
 
   const handleFork = () => {
     closeMenu();
-    navigate(`/new/${document.handle || document.id}`);
+    navigate(`/new/${handle || id}`);
   };
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -167,14 +175,14 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
   const checkHandle = useCallback(debounce(async (resolve: (value: boolean) => void, value?: string) => {
     if (!value) return resolve(true);
     if (!navigator.onLine) return resolve(true);
-    if ((isCloud || isUploaded) && value === document?.handle) return resolve(true);
+    if ((isCloud || isUploaded) && value === handle) return resolve(true);
     try {
       const response = await fetch(`/api/documents/check?handle=${value}`);
       const { data, error } = await response.json() as CheckHandleResponse;
       if (error) return resolve(false);
       return resolve(!!data);
     } catch (err) { return resolve(false) }
-  }, 500), [document]);
+  }, 500), [userDocument]);
 
   const validationSchema = yup.object({
     name: yup
@@ -185,37 +193,38 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
       .min(3, 'Handle must be at least 3 characters')
       .strict().lowercase('Handle must be lowercase')
       .matches(/^[a-zA-Z0-9-]*$/, 'Handle must only contain letters, numbers, and dashes')
-      .test('is-online', 'Cannot change handle while offline', value => !value || value === document.handle || navigator.onLine)
-      .test('is-cloud', 'Document is not saved to the cloud', value => !value || value === document.handle || isCloud || isUploaded)
+      .test('is-uuid', 'Handle cannot be a UUID', value => !value || !validate(value))
+      .test('is-online', 'Cannot change handle while offline', value => !value || value === handle || navigator.onLine)
+      .test('is-cloud', 'Document is not saved to the cloud', value => !value || value === handle || isCloud || isUploaded)
       .test('is-unique', 'Handle is already taken', value => new Promise(resolve => checkHandle(resolve, value)))
   });
 
   const formik = useFormik({
     initialValues: {
-      name: document.name,
-      handle: document.handle || "",
+      name: name,
+      handle: handle,
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       closeEditDialog();
-      const partial: Partial<UserDocument> = {};
-      if (values.name !== document.name) {
+      const partial: Partial<EditorDocument> = {};
+      if (values.name !== name) {
         partial.name = values.name;
         partial.updatedAt = new Date().toISOString();
       }
-      if (values.handle !== document.handle) {
+      if (values.handle !== handle) {
         partial.handle = values.handle || null;
       }
       if (Object.keys(partial).length === 0) return;
       if (isLocal) {
         try {
-          dispatch(actions.updateLocalDocument({ id: document.id, partial }));
+          dispatch(actions.updateLocalDocument({ id, partial }));
         } catch (err) {
           dispatch(actions.announce({ message: "Something went wrong" }));
         }
       }
       if (isUploaded || isCloud) {
-        await dispatch(actions.updateCloudDocument({ id: document.id, partial }));
+        await dispatch(actions.updateCloudDocument({ id, partial }));
       }
     },
   });
@@ -235,10 +244,9 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
     const result = await ensureUpToDate();
     if (!result) return;
     const format = shareFormat;
-    const handle = document.handle || document.id;
     const shareData = {
-      title: document.name,
-      url: `${window.location.origin}/${format}/${handle}`,
+      title: name,
+      url: `${window.location.origin}/${format}/${handle || id}`,
     };
     try {
       closeShareDialog();
@@ -260,7 +268,7 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
   const updateCoauthors = (users: (User | string)[]) => {
     const coauthors = users.map(u => typeof u === "string" ? u : u.email);
     const partial = { coauthors } as any;
-    dispatch(actions.updateCloudDocument({ id: document.id, partial }));
+    dispatch(actions.updateCloudDocument({ id, partial }));
   }
 
   return (
@@ -296,8 +304,12 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 error={!!formik.errors.handle}
-                helperText={formik.errors.handle ?? `https://matheditor.me/view/${formik.values.handle || document.id}`}
+                helperText={formik.errors.handle ?? `https://matheditor.me/view/${formik.values.handle || id}`}
               />
+              {isAuthor && <FormControlLabel
+                control={<Checkbox checked={isPublished} onChange={togglePublished} />}
+                label="Published"
+              />}
             </DialogContent>
             <DialogActions>
               <Button onClick={closeEditDialog}>Cancel</Button>
@@ -340,8 +352,8 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
       </>
       }
       <IconButton
-        id={`${document.id}-action-button`}
-        aria-controls={open ? `${document.id}-action-menu` : undefined}
+        id={`${id}-action-button`}
+        aria-controls={open ? `${id}-action-menu` : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         aria-label='Document Actions'
@@ -351,8 +363,8 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
         <MoreVert />
       </IconButton>
       <Menu
-        id={`${document.id}-action-menu`}
-        aria-labelledby={`${document.id}-action-button`}
+        id={`${id}-action-menu`}
+        aria-labelledby={`${id}-action-button`}
         anchorEl={anchorEl}
         open={open}
         onClose={closeMenu}
@@ -389,14 +401,6 @@ function DocumentActionMenu({ document, options }: DocumentActionMenuProps): JSX
             <ListItemText>
               {isUploaded ? "Update Cloud" : "Save to Cloud"}
             </ListItemText>
-          </MenuItem>
-        }
-        {options.includes('publish') &&
-          <MenuItem onClick={togglePublished}>
-            <ListItemIcon>
-              {isPublished ? <PublicOff /> : <Public />}
-            </ListItemIcon>
-            <ListItemText>{isPublished ? "Unpublish" : "Publish"}</ListItemText>
           </MenuItem>
         }
         {options.includes('delete') &&

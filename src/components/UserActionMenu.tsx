@@ -10,6 +10,7 @@ import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { debounce } from '@mui/material/utils'
 import { IconButton, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button } from '@mui/material';
 import { Settings } from '@mui/icons-material';
+import { validate } from 'uuid';
 
 function UserActionMenu({ user }: { user: User }): JSX.Element {
   const dispatch = useDispatch();
@@ -44,6 +45,7 @@ function UserActionMenu({ user }: { user: User }): JSX.Element {
       .string()
       .min(3, 'Handle must be at least 3 characters')
       .strict().lowercase('Handle must be lowercase')
+      .test('is-uuid', 'Handle cannot be a UUID', value => !value || !validate(value))
       .matches(/^[a-zA-Z0-9-]*$/, 'Handle must only contain letters, numbers, and dashes')
       .test('is-online', 'Cannot change handle while offline', value => !value || value === user.handle || navigator.onLine)
       .test('is-unique', 'Handle is already taken', value => new Promise(resolve => checkHandle(resolve, value)))

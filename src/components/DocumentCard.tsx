@@ -1,7 +1,7 @@
 "use client"
 import * as React from 'react';
 import RouterLink from 'next/link'
-import { UserDocument, isCloudDocument, isLocalDocument } from '@/types';
+import { UserDocument } from '@/types';
 import { useSelector } from '@/store';
 import type { options } from './DocumentActionMenu';
 import { memo } from 'react';
@@ -11,23 +11,30 @@ import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardAct
 import { Article, MobileFriendly, CloudDone, CloudSync, Cloud, Public, Share, MoreVert } from '@mui/icons-material';
 
 
-const DocumentCard: React.FC<{ document?: UserDocument, sx?: SxProps<Theme> | undefined }> = memo(({ document, sx }) => {
+const DocumentCard: React.FC<{ userDocument?: UserDocument, sx?: SxProps<Theme> | undefined }> = memo(({ userDocument, sx }) => {
   const user = useSelector(state => state.user);
   const initialized = useSelector(state => state.initialized);
-  const localDocument = useSelector(state => state.documents.filter(isLocalDocument).find(d => d.id === document?.id));
-  const cloudDocument = useSelector(state => state.documents.filter(isCloudDocument).find(d => d.id === document?.id));
+  const localDocument = userDocument?.local;
+  const cloudDocument = userDocument?.cloud;
   const isLocal = !!localDocument;
   const isCloud = !!cloudDocument;
-  const isUpToDate = document?.updatedAt === cloudDocument?.updatedAt;
-  const isPublished = cloudDocument?.published ?? document?.published;
-  const isAuthor = cloudDocument ? cloudDocument.author.id === user?.id : true;
-  const isCoauthor = cloudDocument ? cloudDocument.coauthors.some(u => u.id === user?.id) : false;
+  const isLocalOnly = isLocal && !isCloud;
+  const isCloudOnly = !isLocal && isCloud;
+  const isUploaded = isLocal && isCloud;
+  const isUpToDate = isUploaded && localDocument.updatedAt === cloudDocument.updatedAt;
+  const isPublished = isCloud && cloudDocument.published;
+  const isAuthor = isCloud ? cloudDocument.author.id === user?.id : true
+  const isCoauthor = isCloud ? cloudDocument.coauthors.some(u => u.id === user?.id) : false;
 
   const options: options =
-    isAuthor ? ['edit', 'download', 'embed', 'fork', 'share', 'publish', 'delete']
-      : ['fork', 'share', 'embed'];
+    isAuthor ? ['edit', 'download', 'fork', 'share', 'upload', 'delete'] :
+      isLocal ?
+        ['download', 'fork', 'share', 'delete'] :
+        isCoauthor ? ['download', 'fork', 'share'] :
+          ['fork', 'share'];
 
-  const handle = document?.handle || document?.id;
+  const document = isCloudOnly ? cloudDocument : localDocument;
+  const handle = cloudDocument?.handle ?? localDocument?.handle ?? document?.id;
   const href = (isAuthor || isCoauthor) ? `/edit/${handle}` : `/view/${handle}`;
   const authorName = cloudDocument?.author.name ?? user?.name ?? 'Local User';
 
@@ -75,11 +82,11 @@ const DocumentCard: React.FC<{ document?: UserDocument, sx?: SxProps<Theme> | un
       <CardActions sx={{ "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
         {!document && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} label={<Skeleton variant="text" width={50} />} />}
         {!document && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} label={<Skeleton variant="text" width={70} />} />}
-        {isLocal && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Local" />}
-        {isLocal && isCloud && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={isUpToDate ? <CloudDone /> : <CloudSync />} label={isUpToDate ? "Up to date" : "Out of Sync"} />}
-        {!isLocal && isCloud && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
+        {isLocalOnly && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Local" />}
+        {isUploaded && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={isUpToDate ? <CloudDone /> : <CloudSync />} label={isUpToDate ? "Up to date" : "Out of Sync"} />}
+        {isCloudOnly && (isAuthor || isCoauthor) && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
         {isPublished && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Public />} label="Published" />}
-        {initialized && document ? <DocumentActionMenu document={document} options={options} /> :
+        {initialized && userDocument ? <DocumentActionMenu userDocument={userDocument} options={options} /> :
           <>
             <IconButton aria-label="Share Document" size="small" sx={{ ml: "auto" }} disabled><Share /></IconButton>
             <IconButton aria-label="Document Actions" size="small" disabled><MoreVert /></IconButton>

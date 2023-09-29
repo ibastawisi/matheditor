@@ -29,7 +29,7 @@ export default async function Page() {
     }
     const users = await findAllUsers();
     const documents = await findAllDocuments();
-    return <AdminDashboard users={JSON.parse(JSON.stringify(users))} documents={JSON.parse(JSON.stringify(documents))} />;
+    return <AdminDashboard users={users} documents={documents} />;
   } catch (error) {
     console.log(error);
     return <SplashScreen title="Something went wrong" />;

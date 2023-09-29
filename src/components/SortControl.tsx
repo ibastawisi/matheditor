@@ -1,7 +1,5 @@
 "use client"
 import { SortProps, useSort } from "../hooks/useSort";
-import { memo } from 'react';
-import isEqual from 'fast-deep-equal';
 import { alpha } from "@mui/material/styles";
 import { Box, ToggleButton, Select, MenuItem, ListItemText } from '@mui/material';
 import { ArrowUpward, ArrowDownward } from "@mui/icons-material";
@@ -56,5 +54,4 @@ function SortControl<T>(props: SortProps<T>) {
   );
 }
 
-const genericMemo: <T>(component: T, propsAreEqual: (prevProps: React.PropsWithChildren<T>, nextProps: React.PropsWithChildren<T>) => boolean) => T = memo;
-export default genericMemo(SortControl, isEqual);
+export default SortControl;

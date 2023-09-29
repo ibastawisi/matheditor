@@ -1,13 +1,13 @@
 import { OgMetadata } from "@/app/api/og/route";
-import { findDocumentById, findDocumentIdByHandle, findUserDocument } from "@/repositories/document";
+import { findDocumentIdByHandle, findUserDocument } from "@/repositories/document";
 import ViewDocument from "@/components/ViewDocument";
 import { generateHtml } from "@/editor/utils/generateHtml";
-import { EditorDocument } from "@/types";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { JSDOM } from "jsdom";
 import parse from 'html-react-parser';
 import { validate } from "uuid";
+import { findRevisionById } from "@/repositories/revision";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
@@ -62,7 +62,7 @@ export default async function Page({ params }: { params: { id: string } }) {
       notFound();
     }
   }
-  const document = await findDocumentById(params.id) as unknown as EditorDocument;
+  const document = await findUserDocument(params.id);
   if (!document) notFound();
   const dom = new JSDOM()
   global.window = dom.window as unknown as Window & typeof globalThis
@@ -71,8 +71,12 @@ export default async function Page({ params }: { params: { id: string } }) {
   global.Element = dom.window.Element
   global.navigator = dom.window.navigator
 
-  const html = await generateHtml(document.data);
+  if (!document.head) notFound();
+  const revision = await findRevisionById(document.head);
+  if (!revision) notFound();
+
+  const html = await generateHtml(revision.data);
   const children = parse(html);
 
-  return <ViewDocument params={{ handle: document.handle || document.id }}>{children}</ViewDocument>;
+  return <ViewDocument cloudDocument={document}>{children}</ViewDocument>;
 }

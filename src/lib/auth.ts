@@ -29,7 +29,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         const user = await findUserByEmail(session.user.email);
         if (!user) return session;
-        session.user = JSON.parse(JSON.stringify(user));
+        session.user = user;
       }
       return session
     }
