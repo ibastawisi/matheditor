@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import NProgress from "nprogress";
 import documentDB from '@/indexeddb';
-import { AppState, Announcement, Alert, EditorDocument, LocalDocument, User, PatchUserResponse, GetSessionResponse, DeleteRevisionResponse, GetRevisionResponse } from '../types';
+import { AppState, Announcement, Alert, EditorDocument, LocalDocument, User, PatchUserResponse, GetSessionResponse, DeleteRevisionResponse, GetRevisionResponse, ForkDocumentResponse } from '../types';
 import { GetDocumentsResponse, PostDocumentsResponse, DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from '@/types';
 import { validate } from 'uuid';
 
@@ -97,8 +97,23 @@ export const getLocalDocument = createAsyncThunk('app/getLocalDocument', async (
 export const getCloudDocument = createAsyncThunk('app/getCloudDocument', async (id: string, thunkAPI) => {
   try {
     NProgress.start();
-    const response = await fetch(`/api/documents/${id}`);
+    const response = await fetch(`/api/documents/edit/${id}`);
     const { data, error } = await response.json() as GetDocumentResponse;
+    if (error) return thunkAPI.rejectWithValue(error);
+    if (!data) return thunkAPI.rejectWithValue('document not found');
+    return thunkAPI.fulfillWithValue(data);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
+  } finally {
+    NProgress.done();
+  }
+});
+
+export const forkCloudDocument = createAsyncThunk('app/forkCloudDocument', async (id: string, thunkAPI) => {
+  try {
+    NProgress.start();
+    const response = await fetch(`/api/documents/new/${id}`);
+    const { data, error } = await response.json() as ForkDocumentResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.rejectWithValue('document not found');
     return thunkAPI.fulfillWithValue(data);
@@ -132,8 +147,6 @@ export const createCloudDocument = createAsyncThunk('app/createCloudDocument', a
     const { data, error } = await response.json() as PostDocumentsResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.rejectWithValue('failed to create document');
-    // const storedDocument = await documentDB.getByID(document.id);
-    // if (storedDocument) documentDB.patch(document.id, { head: data.head });
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
@@ -192,8 +205,6 @@ export const deleteCloudDocument = createAsyncThunk('app/deleteCloudDocument', a
     const { data, error } = await response.json() as DeleteDocumentResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.rejectWithValue('failed to delete document');
-    // const storedDocument = await documentDB.getByID(id);
-    // if (storedDocument) documentDB.patch(id, { head: null });
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
@@ -320,6 +331,10 @@ export const appSlice = createSlice({
         const message = action.payload as string;
         state.announcements.push({ message });
       })
+      .addCase(forkCloudDocument.rejected, (state, action) => {
+        const message = action.payload as string;
+        state.announcements.push({ message });
+      })
       .addCase(createLocalDocument.fulfilled, (state, action) => {
         const document = action.payload;
         const userDocument = state.documents.find(doc => doc.id === document.id);
@@ -331,10 +346,6 @@ export const appSlice = createSlice({
         const userDocument = state.documents.find(doc => doc.id === document.id);
         if (!userDocument) state.documents.push({ id: document.id, cloud: document });
         else userDocument.cloud = document;
-        // else {
-        //   userDocument.cloud = document;
-        //   userDocument.local?.head === document.head;
-        // }
       })
       .addCase(createCloudDocument.rejected, (state, action) => {
         const message = action.payload as string;

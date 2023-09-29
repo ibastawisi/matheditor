@@ -2,7 +2,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from "uuid";
 import * as React from 'react';
-import { EditorDocument } from '@/types';
+import { EditorDocument, UserDocument } from '@/types';
 import { SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "@/editor/types";
 import { useEffect, useState } from 'react';
 import { useDispatch, actions, useSelector } from '@/store';
@@ -11,23 +11,25 @@ import { Container, Box, Avatar, Typography, TextField, Button } from '@mui/mate
 import { Article, Add } from '@mui/icons-material';
 
 const NewDocument: React.FC = () => {
-  const [base, setBase] = useState<EditorDocument>();
+  const [base, setBase] = useState<UserDocument>();
+  const [data, setData] = useState<EditorDocument["data"]>();
   const dispatch = useDispatch();
   const pathname = usePathname();
   const id = pathname.split('/')[2]?.toLowerCase();
-  const userDocument = useSelector(state => state.documents.find(d => d.id === base?.id));
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
       const localResponse = await dispatch(actions.getLocalDocument(id));
       if (localResponse.type === actions.getLocalDocument.fulfilled.type) {
         const editorDocument = localResponse.payload as ReturnType<typeof actions.getLocalDocument.fulfilled>["payload"];
-        setBase(editorDocument);
+        setBase({ id: editorDocument.id, local: editorDocument });
+        setData(editorDocument.data);
       } else {
-        const cloudResponse = await dispatch(actions.getCloudDocument(id));
-        if (cloudResponse.type === actions.getCloudDocument.fulfilled.type) {
-          const editorDocument = cloudResponse.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>["payload"];
-          setBase(editorDocument);
+        const cloudResponse = await dispatch(actions.forkCloudDocument(id));
+        if (cloudResponse.type === actions.forkCloudDocument.fulfilled.type) {
+          const { data, ...userDocument } = cloudResponse.payload as ReturnType<typeof actions.forkCloudDocument.fulfilled>["payload"];
+          setBase(userDocument);
+          setData(data);
         }
       }
     }
@@ -38,7 +40,7 @@ const NewDocument: React.FC = () => {
   const navigate = (path: string) => router.push(path, { scroll: false });
 
   const getData = async (name: string) => {
-    if (base) return base.data;
+    if (data) return data;
     else {
       const headingText: SerializedTextNode = {
         detail: 0,
@@ -104,7 +106,7 @@ const NewDocument: React.FC = () => {
           <Button type="submit" disabled={!!(id && !base)} fullWidth variant="contained" startIcon={<Add />} sx={{ my: 2 }}>Create</Button>
         </Box>
         {id && <Typography variant="overline" sx={{ color: 'text.secondary', my: 2 }}>Based on</Typography>}
-        {id && <DocumentCard userDocument={userDocument} sx={{ width: 320 }} />}
+        {id && <DocumentCard userDocument={base} sx={{ width: 320 }} />}
       </Box>
     </Container>
   );

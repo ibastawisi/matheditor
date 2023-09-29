@@ -5,7 +5,6 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server"
 import { createRevision } from "@/repositories/revision";
 import { validate } from "uuid";
-import { Prisma, prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +44,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const coauthors = await findDocumentCoauthorsEmails(params.id);
     const isAuthor = user.id === authorId;
     const isCoauthor = coauthors.includes(user.email);
-    if (!isAuthor && !isCoauthor && !document.published) {
+    if (!isAuthor && !isCoauthor) {
       response.error = "You don't have permission to edit this document";
       return NextResponse.json(response, { status: 403 })
     }

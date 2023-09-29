@@ -15,6 +15,7 @@ import {
   updateUser,
   deleteCloudRevision,
   getCloudRevision,
+  forkCloudDocument,
 } from "./app";
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
@@ -34,6 +35,7 @@ export const actions = {
   createCloudDocument,
   updateCloudDocument,
   deleteCloudDocument,
+  forkCloudDocument,
 
   getCloudRevision,
   deleteCloudRevision,

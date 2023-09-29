@@ -112,6 +112,11 @@ export interface DeleteDocumentResponse {
   error?: string;
 }
 
+export interface ForkDocumentResponse {
+  data?: UserDocument & { data: SerializedEditorState };
+  error?: string;
+}
+
 export interface CheckHandleResponse {
   data?: boolean;
   error?: string;

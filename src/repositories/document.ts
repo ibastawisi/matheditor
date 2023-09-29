@@ -4,7 +4,6 @@ import { findUserCoauthoredDocuments } from "./user";
 
 const findAllDocuments = async () => {
   const documents = await prisma.document.findMany({
-    where: { published: true },
     select: {
       id: true,
       handle: true,
