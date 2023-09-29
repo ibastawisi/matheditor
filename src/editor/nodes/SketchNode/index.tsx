@@ -75,13 +75,15 @@ export class SketchNode extends ImageNode {
       showCaption,
       altText,
     });
-    if (caption) {
-      const nestedEditor = node.__caption;
-      const editorState = nestedEditor.parseEditorState(caption.editorState);
-      if (!editorState.isEmpty()) {
-        nestedEditor.setEditorState(editorState);
+    try {
+      if (caption) {
+        const nestedEditor = node.__caption;
+        const editorState = nestedEditor.parseEditorState(caption.editorState);
+        if (!editorState.isEmpty()) {
+          nestedEditor.setEditorState(editorState);
+        }
       }
-    }
+    } catch (e) { console.error(e); }
     return node;
   }
 

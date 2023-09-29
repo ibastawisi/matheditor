@@ -69,13 +69,15 @@ export class GraphNode extends ImageNode {
       showCaption,
       altText
     });
-    if (caption) {
-      const nestedEditor = node.__caption;
-      const editorState = nestedEditor.parseEditorState(caption.editorState);
-      if (!editorState.isEmpty()) {
-        nestedEditor.setEditorState(editorState);
+    try {
+      if (caption) {
+        const nestedEditor = node.__caption;
+        const editorState = nestedEditor.parseEditorState(caption.editorState);
+        if (!editorState.isEmpty()) {
+          nestedEditor.setEditorState(editorState);
+        }
       }
-    }
+    } catch (e) { console.error(e); }
     return node;
   }
 
@@ -110,7 +112,7 @@ export class GraphNode extends ImageNode {
       type: 'graph',
       version: 1,
     };
-    
+
   }
 
   update(payload: Partial<GraphPayload>): void {
@@ -125,15 +127,15 @@ export class GraphNode extends ImageNode {
 
   decorate(): JSX.Element {
     return (
-        <ImageComponent
-          src={this.__src}
-          altText={this.__altText}
-          width={this.__width}
-          height={this.__height}
-          nodeKey={this.getKey()}
-          showCaption={this.__showCaption}
-          caption={this.__caption}
-        />
+      <ImageComponent
+        src={this.__src}
+        altText={this.__altText}
+        width={this.__width}
+        height={this.__height}
+        nodeKey={this.getKey()}
+        showCaption={this.__showCaption}
+        caption={this.__caption}
+      />
     );
   }
 

@@ -97,7 +97,7 @@ export const getLocalDocument = createAsyncThunk('app/getLocalDocument', async (
 export const getCloudDocument = createAsyncThunk('app/getCloudDocument', async (id: string, thunkAPI) => {
   try {
     NProgress.start();
-    const response = await fetch(`/api/documents/edit/${id}`);
+    const response = await fetch(`/api/documents/${id}`);
     const { data, error } = await response.json() as GetDocumentResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.rejectWithValue('document not found');

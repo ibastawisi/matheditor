@@ -64,10 +64,12 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
     const { color, data, editor } = serializedNode;
     const node = $createStickyNode({ color });
     const nestedEditor = node.__editor;
-    const editorState = nestedEditor.parseEditorState(editor?.editorState ?? data);
-    if (!editorState.isEmpty()) {
-      nestedEditor.setEditorState(editorState);
-    }
+    try {
+      const editorState = nestedEditor.parseEditorState(editor?.editorState ?? data);
+      if (!editorState.isEmpty()) {
+        nestedEditor.setEditorState(editorState);
+      }
+    } catch (e) { console.error(e) }
     return node;
   }
 
