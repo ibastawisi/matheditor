@@ -105,6 +105,16 @@ export default function ImageComponent({
 
   const onEnter = useCallback(
     (event: KeyboardEvent) => {
+      if (activeEditorRef.current === caption) {
+        if (event.shiftKey) return false;
+        $setSelection(null);
+        editor.update(() => {
+          const node = $getNodeByKey(nodeKey);
+          if (!$isImageNode(node)) return;
+          node.selectNext();
+        });
+        return true;
+      }
       const latestSelection = $getSelection();
       if (
         isSelected &&
