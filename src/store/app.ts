@@ -1,12 +1,13 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import NProgress from "nprogress";
-import documentDB from '@/indexeddb';
-import { AppState, Announcement, Alert, EditorDocument, LocalDocument, User, PatchUserResponse, GetSessionResponse, DeleteRevisionResponse, GetRevisionResponse, ForkDocumentResponse } from '../types';
+import documentDB, { revisionDB } from '@/indexeddb';
+import { AppState, Announcement, Alert, EditorDocument, LocalDocument, User, PatchUserResponse, GetSessionResponse, DeleteRevisionResponse, GetRevisionResponse, ForkDocumentResponse, DocumentUpdateInput, EditorDocumentRevision, PostRevisionResponse } from '../types';
 import { GetDocumentsResponse, PostDocumentsResponse, DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from '@/types';
 import { validate } from 'uuid';
 
 const initialState: AppState = {
   documents: [],
+  revisions: [],
   announcements: [],
   alerts: [],
   initialized: false,
@@ -16,6 +17,7 @@ export const load = createAsyncThunk('app/load', async (_, thunkAPI) => {
   await Promise.allSettled([
     thunkAPI.dispatch(loadSession()),
     thunkAPI.dispatch(loadLocalDocuments()),
+    thunkAPI.dispatch(loadLocalRevisions()),
     thunkAPI.dispatch(loadCloudDocuments()),
     thunkAPI.dispatch(loadPublishedDocuments()),
   ]);
@@ -47,6 +49,20 @@ export const loadLocalDocuments = createAsyncThunk('app/loadLocalDocuments', asy
       return localDocument;
     });
     return thunkAPI.fulfillWithValue(localDocuments);
+  } catch (error: any) {
+    console.error(error);
+    return thunkAPI.rejectWithValue(error.message);
+  }
+});
+
+export const loadLocalRevisions = createAsyncThunk('app/loadLocalRevisions', async (_, thunkAPI) => {
+  try {
+    const revisions = await revisionDB.getAll();
+    const localRevisions = revisions.map(revision => {
+      const { data, ...localRevision } = revision;
+      return localRevision;
+    });
+    return thunkAPI.fulfillWithValue(localRevisions);
   } catch (error: any) {
     console.error(error);
     return thunkAPI.rejectWithValue(error.message);
@@ -94,6 +110,16 @@ export const getLocalDocument = createAsyncThunk('app/getLocalDocument', async (
   }
 });
 
+export const getLocalRevision = createAsyncThunk('app/getLocalRevision', async (id: string, thunkAPI) => {
+  try {
+    const revision = await revisionDB.getByID(id);
+    if (!revision) return thunkAPI.rejectWithValue('revision not found');
+    return thunkAPI.fulfillWithValue(revision);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
+  }
+});
+
 export const getCloudDocument = createAsyncThunk('app/getCloudDocument', async (id: string, thunkAPI) => {
   try {
     NProgress.start();
@@ -108,6 +134,22 @@ export const getCloudDocument = createAsyncThunk('app/getCloudDocument', async (
     NProgress.done();
   }
 });
+
+export const getCloudRevision = createAsyncThunk('app/getCloudRevision', async (id: string, thunkAPI) => {
+  try {
+    NProgress.start();
+    const response = await fetch(`/api/revisions/${id}`);
+    const { data, error } = await response.json() as GetRevisionResponse;
+    if (error) return thunkAPI.rejectWithValue(error);
+    if (!data) return thunkAPI.rejectWithValue('revision not found');
+    return thunkAPI.fulfillWithValue(data);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
+  } finally {
+    NProgress.done();
+  }
+});
+
 
 export const forkCloudDocument = createAsyncThunk('app/forkCloudDocument', async (id: string, thunkAPI) => {
   try {
@@ -136,6 +178,18 @@ export const createLocalDocument = createAsyncThunk('app/createLocalDocument', a
   }
 });
 
+export const createLocalRevision = createAsyncThunk('app/createLocalRevision', async (revision: EditorDocumentRevision, thunkAPI) => {
+  try {
+    const id = await revisionDB.add(revision);
+    if (!id) return thunkAPI.rejectWithValue('failed to create revision');
+    const { data, ...localRevision } = revision;
+    return thunkAPI.fulfillWithValue(localRevision);
+  } catch (error: any) {
+    console.error(error);
+    return thunkAPI.rejectWithValue(error.message);
+  }
+});
+
 export const createCloudDocument = createAsyncThunk('app/createCloudDocument', async (document: EditorDocument, thunkAPI) => {
   try {
     NProgress.start();
@@ -155,7 +209,26 @@ export const createCloudDocument = createAsyncThunk('app/createCloudDocument', a
   }
 });
 
-export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', async (payloadCreator: { id: string, partial: Partial<EditorDocument> }, thunkAPI) => {
+export const createCloudRevision = createAsyncThunk('app/createCloudRevision', async (revision: EditorDocumentRevision, thunkAPI) => {
+  try {
+    NProgress.start();
+    const response = await fetch('/api/revisions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(revision),
+    });
+    const { data, error } = await response.json() as PostRevisionResponse;
+    if (error) return thunkAPI.rejectWithValue(error);
+    if (!data) return thunkAPI.rejectWithValue('failed to create revision');
+    return thunkAPI.fulfillWithValue(data);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.message);
+  } finally {
+    NProgress.done();
+  }
+});
+
+export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', async (payloadCreator: { id: string, partial: DocumentUpdateInput }, thunkAPI) => {
   try {
     const { id, partial } = payloadCreator;
     const result = await documentDB.patch(id, partial);
@@ -168,7 +241,7 @@ export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', a
   }
 });
 
-export const updateCloudDocument = createAsyncThunk('app/updateCloudDocument', async (payloadCreator: { id: string, partial: Partial<EditorDocument> }, thunkAPI) => {
+export const updateCloudDocument = createAsyncThunk('app/updateCloudDocument', async (payloadCreator: { id: string, partial: DocumentUpdateInput }, thunkAPI) => {
   try {
     NProgress.start();
     const { id, partial } = payloadCreator;
@@ -191,6 +264,17 @@ export const updateCloudDocument = createAsyncThunk('app/updateCloudDocument', a
 export const deleteLocalDocument = createAsyncThunk('app/deleteLocalDocument', async (id: string, thunkAPI) => {
   try {
     await documentDB.deleteByID(id);
+    await revisionDB.deleteManyByKey("documentId", id);
+    return thunkAPI.fulfillWithValue(id);
+  } catch (error: any) {
+    console.error(error);
+    return thunkAPI.rejectWithValue(error.message);
+  }
+});
+
+export const deleteLocalRevision = createAsyncThunk('app/deleteLocalRevision', async (id: string, thunkAPI) => {
+  try {
+    await revisionDB.deleteByID(id);
     return thunkAPI.fulfillWithValue(id);
   } catch (error: any) {
     console.error(error);
@@ -205,21 +289,6 @@ export const deleteCloudDocument = createAsyncThunk('app/deleteCloudDocument', a
     const { data, error } = await response.json() as DeleteDocumentResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.rejectWithValue('failed to delete document');
-    return thunkAPI.fulfillWithValue(data);
-  } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.message);
-  } finally {
-    NProgress.done();
-  }
-});
-
-export const getCloudRevision = createAsyncThunk('app/getCloudRevision', async (id: string, thunkAPI) => {
-  try {
-    NProgress.start();
-    const response = await fetch(`/api/revisions/${id}`);
-    const { data, error } = await response.json() as GetRevisionResponse;
-    if (error) return thunkAPI.rejectWithValue(error);
-    if (!data) return thunkAPI.rejectWithValue('revision not found');
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(error.message);
@@ -311,6 +380,10 @@ export const appSlice = createSlice({
           else userDocument.local = document;
         });
       })
+      .addCase(loadLocalRevisions.fulfilled, (state, action) => {
+        const revisions = action.payload;
+        state.revisions = revisions;
+      })
       .addCase(loadCloudDocuments.fulfilled, (state, action) => {
         const documents = action.payload;
         documents.forEach(document => {
@@ -331,6 +404,10 @@ export const appSlice = createSlice({
         const message = action.payload as string;
         state.announcements.push({ message });
       })
+      .addCase(getCloudRevision.rejected, (state, action) => {
+        const message = action.payload as string;
+        state.announcements.push({ message });
+      })
       .addCase(forkCloudDocument.rejected, (state, action) => {
         const message = action.payload as string;
         state.announcements.push({ message });
@@ -338,29 +415,43 @@ export const appSlice = createSlice({
       .addCase(createLocalDocument.fulfilled, (state, action) => {
         const document = action.payload;
         const userDocument = state.documents.find(doc => doc.id === document.id);
-        if (!userDocument) state.documents.push({ id: document.id, local: document });
+        if (!userDocument) state.documents.unshift({ id: document.id, local: document });
         else userDocument.local = document;
+      })
+      .addCase(createLocalRevision.fulfilled, (state, action) => {
+        const revision = action.payload;
+        state.revisions.unshift(revision);
       })
       .addCase(createCloudDocument.fulfilled, (state, action) => {
         const document = action.payload;
         const userDocument = state.documents.find(doc => doc.id === document.id);
-        if (!userDocument) state.documents.push({ id: document.id, cloud: document });
+        if (!userDocument) state.documents.unshift({ id: document.id, cloud: document });
         else userDocument.cloud = document;
       })
       .addCase(createCloudDocument.rejected, (state, action) => {
         const message = action.payload as string;
         state.announcements.push({ message });
       })
+      .addCase(createCloudRevision.fulfilled, (state, action) => {
+        const revision = action.payload;
+        const document = state.documents.find(doc => doc.id === revision.documentId);
+        if (!document?.cloud) return;
+        document.cloud.revisions.unshift(revision);
+      })
+      .addCase(createCloudRevision.rejected, (state, action) => {
+        const message = action.payload as string;
+        state.announcements.push({ message });
+      })
       .addCase(updateLocalDocument.fulfilled, (state, action) => {
         const document = action.payload;
         const userDocument = state.documents.find(doc => doc.id === document.id);
-        if (!userDocument) state.documents.push({ id: document.id, local: document });
+        if (!userDocument) state.documents.unshift({ id: document.id, local: document });
         else userDocument.local = document;
       })
       .addCase(updateCloudDocument.fulfilled, (state, action) => {
         const document = action.payload;
         const userDocument = state.documents.find(doc => doc.id === document.id);
-        if (!userDocument) state.documents.push({ id: document.id, cloud: document });
+        if (!userDocument) state.documents.unshift({ id: document.id, cloud: document });
         else userDocument.cloud = document;
       })
       .addCase(updateCloudDocument.rejected, (state, action) => {
@@ -374,6 +465,12 @@ export const appSlice = createSlice({
         if (!userDocument.cloud) state.documents.splice(state.documents.indexOf(userDocument), 1);
         else delete userDocument.local;
       })
+      .addCase(deleteLocalRevision.fulfilled, (state, action) => {
+        const id = action.payload;
+        const revision = state.revisions.find(revision => revision.id === id);
+        if (!revision) return;
+        state.revisions.splice(state.revisions.indexOf(revision), 1);
+      })
       .addCase(deleteCloudDocument.fulfilled, (state, action) => {
         const id = action.payload;
         const userDocument = state.documents.find(doc => doc.id === id);
@@ -383,10 +480,6 @@ export const appSlice = createSlice({
         else delete userDocument.cloud;
       })
       .addCase(deleteCloudDocument.rejected, (state, action) => {
-        const message = action.payload as string;
-        state.announcements.push({ message });
-      })
-      .addCase(getCloudRevision.rejected, (state, action) => {
         const message = action.payload as string;
         state.announcements.push({ message });
       })

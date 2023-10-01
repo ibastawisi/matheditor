@@ -1,10 +1,10 @@
 import { authOptions } from "@/lib/auth";
 import { deleteDocument, findDocumentAuthorId, findDocumentCoauthorsEmails, findDocumentIdByHandle, findEditorDocumentById, findUserDocument, updateDocument } from "@/repositories/document";
-import { DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from "@/types";
+import { DeleteDocumentResponse, DocumentUpdateInput, GetDocumentResponse, PatchDocumentResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server"
-import { createRevision } from "@/repositories/revision";
 import { validate } from "uuid";
+import { Prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -75,28 +75,28 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       return NextResponse.json(response, { status: 403 })
     }
     const authorId = await findDocumentAuthorId(params.id);
-    const coauthors = await findDocumentCoauthorsEmails(params.id);
-    const isAuthor = user.id === authorId;
-    const isCoauthor = coauthors.includes(user.email);
-
-    if (!isAuthor && !isCoauthor) {
+    if (user.id !== authorId) {
       response.error = "You don't have permission to edit this document";
       return NextResponse.json(response, { status: 403 })
     }
 
-    const body = await request.json();
+    const body: DocumentUpdateInput = await request.json();
     if (!body) {
       response.error = "Bad input"
       return NextResponse.json(response, { status: 400 })
     }
 
+    const input: Prisma.DocumentUncheckedUpdateInput = {
+      name: body.name,
+      head: body.head,
+      handle: body.handle,
+      updatedAt: body.updatedAt,
+      published: body.published,
+    };
+
     if (body.handle) {
-      if (!isAuthor) {
-        response.error = "You don't have permission to change the handle";
-        return NextResponse.json(response, { status: 403 })
-      }
-      body.handle = body.handle.toLowerCase();
-      const validationError = await validateHandle(params.id, body.handle);
+      input.handle = body.handle.toLowerCase();
+      const validationError = await validateHandle(params.id, input.handle);
       if (validationError) {
         response.error = validationError;
         return NextResponse.json(response, { status: 400 })
@@ -104,13 +104,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     }
 
     if (body.coauthors) {
-      if (!isAuthor) {
-        response.error = "You don't have permission to change the coauthors";
-        return NextResponse.json(response, { status: 403 })
-      }
       const documentId = params.id;
       const userEmails = body.coauthors as string[];
-      const coauthorsInput = {
+      input.coauthors = {
         deleteMany: {
           userEmail: { notIn: userEmails },
         },
@@ -130,27 +126,23 @@ export async function PATCH(request: Request, { params }: { params: { id: string
           },
         })),
       };
-      body.coauthors = coauthorsInput;
     }
 
-    if (body.head) {
-      if (!isAuthor) {
-        response.error = "You don't have permission to change the head";
-        return NextResponse.json(response, { status: 403 })
+    if (body.data) {
+      input.revisions = {
+        connectOrCreate: {
+          where: { id: body.head },
+          create: {
+            id: body.head,
+            authorId: user.id,
+            createdAt: body.updatedAt,
+            data: body.data as unknown as Prisma.InputJsonObject,
+          }
+        }
       }
     }
-    if (body.data) {
-      const revision = await createRevision({
-        documentId: params.id,
-        authorId: user.id,
-        createdAt: body.updatedAt,
-        data: body.data,
-      })
-      delete body.data;
-      if (isAuthor) body.head = revision.id;
-    }
 
-    await updateDocument(params.id, body);
+    await updateDocument(params.id, input);
     const userDocument = await findUserDocument(params.id);
     response.data = userDocument;
     return NextResponse.json(response, { status: 200 })
@@ -180,7 +172,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     }
     const authorId = await findDocumentAuthorId(params.id);
     if (user.id !== authorId) {
-      response.error = "You don't have permission to edit this document";
+      response.error = "You don't have permission to delete this document";
       return NextResponse.json(response, { status: 403 })
     }
     await deleteDocument(params.id);

@@ -488,7 +488,7 @@ const findUserDocument = async (id: string) => {
   return cloudDocument;
 }
 
-const createDocument = async (data: Prisma.DocumentCreateInput) => {
+const createDocument = async (data: Prisma.DocumentUncheckedCreateInput) => {
   return prisma.document.create({ data });
 }
 

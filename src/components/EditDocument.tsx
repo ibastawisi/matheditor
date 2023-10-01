@@ -7,7 +7,8 @@ import { EditorDocument } from '@/types';
 import { useDispatch, actions } from '@/store';
 import { usePathname } from "next/navigation";
 import { EditorState, LexicalEditor } from "@/editor";
-import DocumentRevisions from "./DocumentRevisions";
+import DocumentInfo from "./DocumentInfo";
+import { v4 as uuidv4 } from 'uuid';
 
 const EditDocument: React.FC = () => {
   const [document, setDocument] = useState<EditorDocument>();
@@ -20,7 +21,7 @@ const EditDocument: React.FC = () => {
   function handleChange(editorState: EditorState, editor: LexicalEditor, tags: Set<string>) {
     if (!document) return;
     const data = editorState.toJSON();
-    const updatedDocument: Partial<EditorDocument> = { data, updatedAt: new Date().toISOString(), head: null };
+    const updatedDocument: Partial<EditorDocument> = { data, updatedAt: new Date().toISOString(), head: uuidv4() };
     try {
       const payload = JSON.parse(tags.values().next().value);
       if (payload.id === document.id) { Object.assign(updatedDocument, payload.partial); }
@@ -40,6 +41,8 @@ const EditDocument: React.FC = () => {
           const editorDocument = cloudResponse.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>['payload'];
           setDocument(editorDocument);
           dispatch(actions.createLocalDocument(editorDocument));
+          const editorDocumentRevision = { id: editorDocument.head, documentId: editorDocument.id, createdAt: editorDocument.updatedAt, data: editorDocument.data };
+          dispatch(actions.createLocalRevision(editorDocumentRevision));
         } else if (cloudResponse.type === actions.getCloudDocument.rejected.type) {
           setError(cloudResponse.payload as string);
         }
@@ -54,7 +57,7 @@ const EditDocument: React.FC = () => {
   return <>
     <Helmet title={`${document.name} | Math Editor`} />
     <Editor document={document} editorRef={editorRef} onChange={handleChange} />
-    <DocumentRevisions documentId={document.id} editorRef={editorRef} />
+    <DocumentInfo documentId={document.id} editorRef={editorRef} />
   </>;
 }
 

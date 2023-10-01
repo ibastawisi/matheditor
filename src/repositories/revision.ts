@@ -9,15 +9,6 @@ const findRevisionById = async (id: string) => {
       documentId: true,
       createdAt: true,
       data: true,
-      author: {
-        select: {
-          id: true,
-          handle: true,
-          name: true,
-          image: true,
-          email: true,
-        }
-      }
     }
   });
   if (!revision) return null;
@@ -25,7 +16,7 @@ const findRevisionById = async (id: string) => {
     ...revision,
     data: revision.data as unknown as EditorDocumentRevision["data"],
   };
-  return DocumentRevision;
+  return DocumentRevision as EditorDocumentRevision;
 }
 
 const findRevisionAuthorId = async (id: string) => {

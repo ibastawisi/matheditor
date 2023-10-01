@@ -18,6 +18,7 @@ export interface Announcement {
 export interface AppState {
   user?: User;
   documents: UserDocument[];
+  revisions: LocalDocumentRevision[];
   announcements: Announcement[];
   alerts: Alert[];
   initialized: boolean;
@@ -26,29 +27,30 @@ export interface AppState {
 export interface EditorDocument {
   id: string;
   name: string;
+  head: string;
   data: SerializedEditorState;
   createdAt: string | Date;
   updatedAt: string | Date;
   published?: boolean;
   handle?: string | null;
   baseId?: string | null;
-  head?: string | null;
-}
-
-export interface DocumentRevision {
-  id: string;
-  documentId: string;
-  createdAt: string | Date;
-  author: User;
-}
-
-export interface EditorDocumentRevision extends DocumentRevision {
-  data: SerializedEditorState;
 }
 
 export type LocalDocument = Omit<EditorDocument, "data">;
-export type CloudDocument = LocalDocument & { author: User; coauthors: User[], revisions: DocumentRevision[] }
+export type CloudDocument = LocalDocument & { author: User; coauthors: User[], revisions: CloudDocumentRevision[] }
 export type UserDocument = { id: string; local?: LocalDocument; cloud?: CloudDocument; };
+export type DocumentUpdateInput = Partial<EditorDocument> & { coauthors?: string[]; };
+
+export interface EditorDocumentRevision {
+  id: string;
+  documentId: string;
+  data: SerializedEditorState;
+  createdAt: string | Date;
+}
+
+export type LocalDocumentRevision = Omit<EditorDocumentRevision, "data">;
+export type CloudDocumentRevision = LocalDocumentRevision & { author: User; };
+export type UserDocumentRevision = LocalDocumentRevision | CloudDocumentRevision;
 
 export interface User {
   id: string;
@@ -57,8 +59,6 @@ export interface User {
   email: string;
   image: string | null;
 }
-
-export type UserSessionStatus = "authenticated" | "unauthenticated" | "loading";
 
 export type GetSessionResponse = Session | null;
 
@@ -128,7 +128,7 @@ export interface GetRevisionResponse {
 }
 
 export interface PostRevisionResponse {
-  data?: DocumentRevision;
+  data?: CloudDocumentRevision;
   error?: string;
 }
 

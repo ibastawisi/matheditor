@@ -87,7 +87,7 @@ const NewDocument: React.FC = () => {
     const data = await getData(name);
     const createdAt = new Date().toISOString();
     if (!data) return;
-    const newDocument: EditorDocument = { id: uuidv4(), name, data, createdAt, updatedAt: createdAt };
+    const newDocument: EditorDocument = { id: uuidv4(), name, head: uuidv4(), data, createdAt, updatedAt: createdAt };
     if (base) newDocument.baseId = base.id;
     const response = await dispatch(actions.createLocalDocument(newDocument))
     if (response.type === actions.createLocalDocument.fulfilled.type) {

@@ -1,9 +1,9 @@
 import { authOptions } from "@/lib/auth";
 import { createDocument, findDocumentAuthorId, findDocumentsByAuthorId, findUserDocument, updateDocument } from "@/repositories/document";
-import { GetDocumentsResponse, PostDocumentsResponse } from "@/types";
+import { EditorDocument, GetDocumentsResponse, PostDocumentsResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { createRevision } from "@/repositories/revision";
+import { Prisma } from "@/lib/prisma"
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       response.error = "Account is disabled for violating terms of service";
       return NextResponse.json(response, { status: 403 })
     }
-    const body = await request.json();
+    const body = await request.json() as EditorDocument;
     if (!body) {
       response.error = "Bad input"
       return NextResponse.json(response, { status: 400 })
@@ -56,16 +56,26 @@ export async function POST(request: Request) {
       return NextResponse.json(response, { status: 403 })
     }
 
-    const { data, ...input } = body;
-    const document = await createDocument({ ...input, authorId: user.id });
-    const revision = await createRevision({
-      documentId: document.id,
+    const input: Prisma.DocumentUncheckedCreateInput = {
+      id: body.id,
       authorId: user.id,
-      createdAt: new Date().toISOString(),
-      data
-    });
-    document.head = revision.id;
-    await updateDocument(document.id, { head: revision.id });
+      name: body.name,
+      baseId: body.baseId,
+      createdAt: body.createdAt,
+      updatedAt: body.updatedAt,
+      handle: body.handle,
+      head: body.head,
+      revisions: {
+        create: {
+          id: body.head || undefined,
+          data: body.data as unknown as Prisma.JsonObject,
+          authorId: user.id,
+          createdAt: body.updatedAt,
+        }
+      }
+    };
+
+    await createDocument(input);
     const userDocument = await findUserDocument(body.id);
     response.data = userDocument;
     return NextResponse.json(response, { status: 200 })

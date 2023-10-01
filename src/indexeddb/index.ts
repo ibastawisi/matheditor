@@ -2,7 +2,7 @@
 import { IDB_KEY } from "./constants";
 import { getActions, getConnection } from "./idb";
 import { IndexedDBConfig } from "./interfaces";
-import { EditorDocument } from '@/types';
+import { EditorDocument, EditorDocumentRevision } from '@/types';
 
 async function setupIndexedDB(config: IndexedDBConfig) {
   return new Promise<void>(async (resolve, reject) => {
@@ -24,7 +24,7 @@ export function getStore<T>(storeName: string) {
 
 const idbConfig = {
   databaseName: "matheditor",
-  version: 1,
+  version: 2,
   stores: [
     {
       name: "documents",
@@ -40,11 +40,20 @@ const idbConfig = {
         { name: "published", keyPath: "published"}
       ],
     },
+    {
+      name: "revisions",
+      id: { keyPath: "id" },
+      indices: [
+        { name: "documentId", keyPath: "documentId" },
+        { name: "createdAt", keyPath: "createdAt" },
+      ],
+    }
   ],
 };
 
 setupIndexedDB(idbConfig).catch(console.error);
 export const documentDB = getStore<EditorDocument>("documents");
+export const revisionDB = getStore<EditorDocumentRevision>("revisions");
 
 export default documentDB;
 

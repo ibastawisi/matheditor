@@ -1,27 +1,116 @@
 "use client"
 import * as React from 'react';
-import { DocumentRevision } from '@/types';
+import { UserDocumentRevision } from '@/types';
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Avatar, CardActions, Chip, IconButton } from '@mui/material';
-import { CloudDone, CloudUpload, Delete, MobileFriendly } from '@mui/icons-material';
-import { useSelector } from '@/store';
+import { CloudDone, CloudUpload, Delete, MobileFriendly, Visibility } from '@mui/icons-material';
+import { actions, useDispatch, useSelector } from '@/store';
+import { CLEAR_HISTORY_COMMAND, type LexicalEditor } from '@/editor';
 
 const RevisionCard: React.FC<{
-  revision: DocumentRevision,
-  restoreRevision: () => void, deleteRevision: () => void,
+  revision: UserDocumentRevision,
+  editorRef: React.MutableRefObject<LexicalEditor | null>,
   sx?: SxProps<Theme> | undefined
-}> = memo(({ revision, restoreRevision, deleteRevision, sx }) => {
+}> = memo(({ revision, editorRef, sx }) => {
+  const dispatch = useDispatch();
   const user = useSelector(state => state.user);
   const userDocument = useSelector(state => state.documents.find(d => d.id === revision.documentId));
   const localDocument = userDocument?.local;
   const cloudDocument = userDocument?.cloud;
-  const isLocalHead = revision.id === localDocument?.head;
-  const isCloudHead = cloudDocument && revision.id === cloudDocument.head;
-  const showSave = !cloudDocument?.revisions?.find(r => r.id === revision.id);
-  const isAuthor = user?.id === revision.author.id;
+  const isLocalDocument = !!localDocument;
+  const isCloudDocument = !!cloudDocument;
+
+  const localRevisions = useSelector(state => state.revisions.filter(r => r.documentId === revision.documentId));
+  const cloudRevisions = cloudDocument?.revisions ?? [];
+  const localRevision = localRevisions.find(r => r.id === revision.id);
+  const isLocalRevision = !!localRevision;
+  const cloudRevision = cloudRevisions.find(r => r.id === revision.id);
+  const isCloudRevision = !!cloudRevision;
+  const isLocalHead = isLocalDocument && localDocument.head === revision.id;
+  const isCloudHead = isCloudDocument && isCloudRevision && cloudDocument.head === revision.id;
+
+  const isHeadLocalRevision = localRevisions.some(r => r.id === localDocument?.head);
+  const isHeadCloudRevision = cloudRevisions.some(r => r.id === localDocument?.head);
+  const unsavedChanges = !isHeadLocalRevision && !isHeadCloudRevision;
+
+  const isDocumentAuthor = isCloudDocument ? user?.id === cloudDocument.author.id : true;
+  const isRevisionAuthor = isCloudRevision ? user?.id === cloudRevision.author.id : true;
   const showDelete = !(isLocalHead || isCloudHead);
-  
+  const showUpdate = isDocumentAuthor && isCloudRevision && !isCloudHead;
+
+  const getEditorDocumentRevision = async () => {
+    const localResponse = await dispatch(actions.getLocalRevision(revision.id));
+    if (localResponse.type === actions.getLocalRevision.fulfilled.type) {
+      const editorDocumentRevision = localResponse.payload as ReturnType<typeof actions.getLocalRevision.fulfilled>['payload'];
+      return editorDocumentRevision;
+    } else {
+      const cloudResponse = await dispatch(actions.getCloudRevision(revision.id));
+      if (cloudResponse.type === actions.getCloudRevision.fulfilled.type) {
+        const editorDocumentRevision = cloudResponse.payload as ReturnType<typeof actions.getCloudRevision.fulfilled>['payload'];
+        dispatch(actions.createLocalRevision(editorDocumentRevision));
+        return editorDocumentRevision;
+      }
+    }
+  }
+
+  const getLocalEditorData = () => editorRef.current?.getEditorState().toJSON();
+
+  const createLocalRevision = async () => {
+    if (!localDocument) return;
+    const data = getLocalEditorData();
+    if (!data) return;
+    const payload = {
+      id: localDocument.head,
+      documentId: localDocument.id,
+      createdAt: localDocument.updatedAt,
+      data,
+    }
+    const response = await dispatch(actions.createLocalRevision(payload));
+    if (response.type === actions.createLocalRevision.rejected.type) return;
+    return response.payload as ReturnType<typeof actions.createLocalRevision.fulfilled>['payload'];
+  }
+
+  const createRevision = async () => {
+    if (unsavedChanges) await createLocalRevision();
+    const editorDocumentRevision = await getEditorDocumentRevision();
+    if (!editorDocumentRevision) return dispatch(actions.announce({ message: "Couldn't find revision" }));
+    if (isLocalDocument && !isCloudDocument) {
+      const editorDocument = { ...localDocument, data: editorDocumentRevision.data };
+      return dispatch(actions.createCloudDocument(editorDocument));
+    }
+    const response = await dispatch(actions.createCloudRevision(editorDocumentRevision));
+    if (response.type === actions.createCloudRevision.rejected.type) return dispatch(actions.announce({ message: "Couldn't create cloud revision" }));
+    return response.payload as ReturnType<typeof actions.createCloudRevision.fulfilled>['payload'];
+  }
+
+  const viewRevision = async () => {
+    if (unsavedChanges) await createLocalRevision();
+    const editorDocumentRevision = await getEditorDocumentRevision();
+    if (!editorDocumentRevision) return dispatch(actions.announce({ message: "Couldn't find revision" }));
+    const editor = editorRef.current;
+    if (!editor) return dispatch(actions.announce({ message: "Couldn't get editor state" }));
+    const state = editor.parseEditorState(editorDocumentRevision.data);
+    const payload = { id: editorDocumentRevision.documentId, partial: { head: editorDocumentRevision.id, updatedAt: editorDocumentRevision.createdAt } };
+    editor.update(() => {
+      editor.setEditorState(state, { tag: JSON.stringify(payload) });
+      editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
+    });
+  }
+
+  const updateCloudHead = async () => {
+    const payload = { id: revision.documentId, partial: { head: revision.id, updatedAt: revision.createdAt } };
+    await dispatch(actions.updateCloudDocument(payload));
+  }
+
+  const deleteRevision = () => {
+    const variant = isLocalRevision ? 'Local' : 'Cloud';
+    const title = `Delete ${variant} Revision?`;
+    const content = `Are you sure you want to delete this ${variant} revision?`;
+    const action = `dispatch(actions.delete${variant}Revision("${revision.id}"));`;
+    dispatch(actions.alert({ title, content, action }));
+  }
+
   return (
     <Card variant="outlined"
       sx={{
@@ -32,22 +121,24 @@ const RevisionCard: React.FC<{
         maxWidth: "100%",
         ...sx
       }}>
-      <CardActionArea sx={{ flexGrow: 1 }} onClick={restoreRevision}>
+      <CardActionArea sx={{ flexGrow: 1 }} onClick={viewRevision}>
         <CardHeader sx={{ alignItems: "start", '& .MuiCardHeader-content': { overflow: "hidden", textOverflow: "ellipsis" } }}
           title={new Date(revision.createdAt).toLocaleString()}
-          subheader={revision.author.name}
-          avatar={<Avatar sx={{ bgcolor: 'primary.main' }} src={revision.author.image || undefined}></Avatar>}
+          subheader={(cloudRevision?.author ?? user)?.name ?? "Local User"}
+          avatar={<Avatar sx={{ bgcolor: 'primary.main' }} src={(cloudRevision?.author ?? user)?.image ?? undefined}></Avatar>}
         />
       </CardActionArea>
       <CardActions sx={{ "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
         {isLocalHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Current" />}
         {isCloudHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudDone />} label="Cloud" />}
-        {showSave && <>
-          <IconButton aria-label="Save Revision" size="small" onClick={restoreRevision}><CloudUpload /></IconButton>
+        {!isCloudRevision && <> <Chip variant='outlined' clickable
+          sx={{ width: 0, flex: 1, maxWidth: "fit-content" }}
+          icon={<CloudUpload />}
+          label="Save to cloud"
+          onClick={createRevision} />
         </>}
-        {showDelete && <>
-          <IconButton aria-label="Delete Revision" size="small" onClick={deleteRevision} disabled={!isAuthor}><Delete /></IconButton>
-        </>}
+        {showUpdate && <Chip variant='outlined' clickable sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudDone />} label="Set Cloud Head" onClick={updateCloudHead} />}
+        {showDelete && <IconButton aria-label="Delete Revision" size="small" onClick={deleteRevision} disabled={!isRevisionAuthor}><Delete /></IconButton>}
       </CardActions>
     </Card>
   );

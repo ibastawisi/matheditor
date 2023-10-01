@@ -11,6 +11,7 @@ model Document {
   id        String              @id @default(uuid()) @db.Uuid
   handle    String?             @unique
   name      String
+  head      String              @db.Uuid
   createdAt DateTime            @default(now()) @map("created_at")
   updatedAt DateTime            @default(now()) @map("updated_at")
   authorId  String              @map("author_id") @db.Uuid
@@ -19,7 +20,6 @@ model Document {
   base      Document?           @relation("BaseForks", fields: [baseId], references: [id])
   forks     Document[]          @relation("BaseForks")
   revisions Revision[]
-  head      String?             @db.Uuid
   author    User                @relation(fields: [authorId], references: [id], onDelete: Cascade)
   coauthors DocumentCoauthers[]
 

@@ -208,6 +208,29 @@ export function getActions<T>(currentStore: string) {
           .catch(reject);
       });
     },
+    deleteManyByKey(keyPath: string, value: string | number) {
+      return new Promise<any>((resolve, reject) => {
+        getConnection()
+          .then(db => {
+            validateBeforeTransaction(db, currentStore, reject);
+            let tx = createTransaction(db, "readwrite", currentStore, resolve, reject);
+            let objectStore = tx.objectStore(currentStore);
+            let index = objectStore.index(keyPath);
+            let request = index.openCursor(value);
+            request.onsuccess = (e: any) => {
+              let cursor = e.target.result;
+              if (cursor) {
+                cursor.delete();
+                cursor.continue();
+              } else {
+                (tx as any)?.commit?.();
+                resolve(e);
+              }
+            };
+          })
+          .catch(reject);
+      });
+    },
     deleteAll() {
       return new Promise<any>((resolve, reject) => {
         getConnection()

@@ -13,9 +13,13 @@ import {
   loadCloudDocuments,
   updateLocalDocument,
   updateUser,
-  deleteCloudRevision,
-  getCloudRevision,
   forkCloudDocument,
+  getLocalRevision,
+  getCloudRevision,
+  createLocalRevision,
+  createCloudRevision,
+  deleteLocalRevision,
+  deleteCloudRevision,
 } from "./app";
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
@@ -37,7 +41,11 @@ export const actions = {
   deleteCloudDocument,
   forkCloudDocument,
 
+  getLocalRevision,
   getCloudRevision,
+  createLocalRevision,
+  createCloudRevision,
+  deleteLocalRevision,
   deleteCloudRevision,
 
   updateUser,

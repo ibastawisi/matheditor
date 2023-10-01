@@ -33,11 +33,11 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
   const user = useSelector(state => state.user);
   const localDocument = userDocument?.local;
   const cloudDocument = userDocument?.cloud;
-  const isLocal = !!localDocument;
+  const isLocalDocument = !!localDocument;
   const isCloud = !!cloudDocument;
-  const isLocalOnly = isLocal && !isCloud;
-  const isCloudOnly = !isLocal && isCloud;
-  const isUploaded = isLocal && isCloud;
+  const isLocalOnly = isLocalDocument && !isCloud;
+  const isCloudOnly = !isLocalDocument && isCloud;
+  const isUploaded = isLocalDocument && isCloud;
   const isUpToDate = isUploaded && localDocument.updatedAt === cloudDocument.updatedAt;
   const isPublished = isCloud && cloudDocument.published;
   const isAuthor = isCloud ? cloudDocument.author.id === user?.id : true
@@ -45,8 +45,11 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
   const id = userDocument.id;
   const name = cloudDocument?.name ?? localDocument?.name ?? "Untitled Document";
   const handle = cloudDocument?.handle ?? localDocument?.handle ?? null;
-  const isHeadOutOfSync = isUploaded && cloudDocument.head !== localDocument.head;
-  const cloudHasLocalHead = isUploaded && cloudDocument.revisions.find(r => r.id === localDocument.head);
+  const localRevisions = useSelector(state => state.revisions.filter(r => r.documentId === userDocument.id));
+  const cloudRevisions = cloudDocument?.revisions ?? [];
+  const isHeadLocalRevision = localRevisions.some(r => r.id === localDocument?.head);
+  const isHeadCloudRevision = cloudRevisions.some(r => r.id === localDocument?.head);
+  const isHeadOutOfSync = isUploaded && localDocument.head !== cloudDocument.head;
 
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
@@ -56,25 +59,27 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
     if (!user) return dispatch(actions.announce({ message: "Please login to use cloud storage" }));
     const localResponse = await dispatch(actions.getLocalDocument(id));
     if (localResponse.type === actions.getLocalDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't find local document" }));
-    const localDocument = localResponse.payload as EditorDocument;
-    const cloudResponse = await dispatch(actions.createCloudDocument(localDocument));
-    if (cloudResponse.type === actions.createCloudDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't create cloud document" }));
-    const cloudDocument = cloudResponse.payload as ReturnType<typeof actions.createCloudDocument.fulfilled>["payload"];
-    return dispatch(actions.updateLocalDocument({ id, partial: { head: cloudDocument.head } }));
+    const editorDocument = localResponse.payload as EditorDocument;
+    if (!isHeadLocalRevision){
+      const editorDocumentRevision = { id: editorDocument.head, documentId: editorDocument.id, createdAt: editorDocument.updatedAt, data: editorDocument.data };
+      await dispatch(actions.createLocalRevision(editorDocumentRevision));
+    }
+    return dispatch(actions.createCloudDocument(editorDocument));
   };
 
   const handleUpdate = async () => {
     closeMenu();
     if (!user) return dispatch(actions.announce({ message: "Please login to use cloud storage" }));
     if (isUpToDate) return dispatch(actions.announce({ message: "Document is up to date" }));
-    if (isHeadOutOfSync && cloudHasLocalHead) return dispatch(actions.updateCloudDocument({ id, partial: { head: localDocument.head } }));
+    if (isHeadCloudRevision && isHeadOutOfSync) return dispatch(actions.updateCloudDocument({ id, partial: { head: localDocument.head, updatedAt: localDocument.updatedAt } }));
     const localResponse = await dispatch(actions.getLocalDocument(id));
     if (localResponse.type === actions.getLocalDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't find local document" }));
     const editorDocument = localResponse.payload as ReturnType<typeof actions.getLocalDocument.fulfilled>["payload"];
-    const cloudResponse = await dispatch(actions.updateCloudDocument({ id, partial: editorDocument }));
-    if (cloudResponse.type === actions.updateCloudDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't update cloud document" }));
-    const cloudDocument = cloudResponse.payload as ReturnType<typeof actions.updateCloudDocument.fulfilled>["payload"];
-    return dispatch(actions.updateLocalDocument({ id, partial: { head: cloudDocument.head } }));
+    if (!isHeadLocalRevision) {
+      const editorDocumentRevision = { id: editorDocument.head, documentId: editorDocument.id, createdAt: editorDocument.updatedAt, data: editorDocument.data };
+      await dispatch(actions.createLocalRevision(editorDocumentRevision));
+    }
+    return dispatch(actions.updateCloudDocument({ id, partial: editorDocument }));
   };
 
   const ensureUpToDate = async () => {
@@ -100,9 +105,9 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
     closeMenu();
     dispatch(actions.alert(
       {
-        title: `Delete ${isLocal ? "Local" : "Cloud"} Document`,
+        title: `Delete ${isLocalDocument ? "Local" : "Cloud"} Document`,
         content: `Are you sure you want to delete ${name}?`,
-        action: isLocal ?
+        action: isLocalDocument ?
           `dispatch(actions.deleteLocalDocument("${id}"))` :
           `dispatch(actions.deleteCloudDocument("${id}"))`
       }
@@ -110,7 +115,7 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
   };
 
   const getEditorDocument = async () => {
-    if (isLocal) {
+    if (isLocalDocument) {
       const response = await dispatch(actions.getLocalDocument(id));
       if (response.type === actions.getLocalDocument.fulfilled.type) {
         const editorDocument = response.payload as ReturnType<typeof actions.getLocalDocument.fulfilled>["payload"];
@@ -216,7 +221,7 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
         partial.handle = values.handle || null;
       }
       if (Object.keys(partial).length === 0) return;
-      if (isLocal) {
+      if (isLocalDocument) {
         try {
           dispatch(actions.updateLocalDocument({ id, partial }));
         } catch (err) {
@@ -393,7 +398,7 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
         </MenuItem>
         }
         {options.includes('upload') &&
-          isLocal && !isUpToDate &&
+          isLocalDocument && !isUpToDate &&
           <MenuItem onClick={isUploaded ? handleUpdate : handleCreate}>
             <ListItemIcon>
               {isUploaded ? <CloudSync /> : <CloudUpload />}
