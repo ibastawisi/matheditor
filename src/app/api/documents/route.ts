@@ -1,5 +1,5 @@
 import { authOptions } from "@/lib/auth";
-import { createDocument, findDocumentAuthorId, findDocumentsByAuthorId, findUserDocument, updateDocument } from "@/repositories/document";
+import { createDocument, findDocumentAuthorId, findDocumentsByAuthorId, findPublishedDocuments, findUserDocument, updateDocument } from "@/repositories/document";
 import { EditorDocument, GetDocumentsResponse, PostDocumentsResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
@@ -12,7 +12,8 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
-      response.data = [];
+      const publishedDocuments = await findPublishedDocuments();
+      response.data = publishedDocuments;
       return NextResponse.json(response, { status: 200 })
     }
     const { user } = session;

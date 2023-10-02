@@ -4,10 +4,11 @@ import { UserDocumentRevision } from '@/types';
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Avatar, CardActions, Chip, IconButton } from '@mui/material';
-import { CloudDone, CloudUpload, Delete, MobileFriendly, Save } from '@mui/icons-material';
+import { Article, Cloud, CloudDone, CloudSync, CloudUpload, Delete, MobileFriendly, Save, SecurityUpdateGood } from '@mui/icons-material';
 import { actions, useDispatch, useSelector } from '@/store';
 import { CLEAR_HISTORY_COMMAND, type LexicalEditor } from '@/editor';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
+import NProgress from 'nprogress';
 
 const RevisionCard: React.FC<{
   revision: UserDocumentRevision,
@@ -31,16 +32,16 @@ const RevisionCard: React.FC<{
   const isCloudRevision = !!cloudRevision;
   const isLocalHead = isLocalDocument && localDocument.head === revision.id;
   const isCloudHead = isCloudDocument && isCloudRevision && cloudDocument.head === revision.id;
-
+  const isSaved = isLocalRevision || isCloudRevision;
   const isHeadLocalRevision = localRevisions.some(r => r.id === localDocument?.head);
   const isHeadCloudRevision = cloudRevisions.some(r => r.id === localDocument?.head);
   const unsavedChanges = !isHeadLocalRevision && !isHeadCloudRevision;
 
   const isDocumentAuthor = isCloudDocument ? user?.id === cloudDocument.author.id : true;
   const isRevisionAuthor = isCloudRevision ? user?.id === cloudRevision.author.id : true;
-  const showCreate = !isLocalRevision && !isCloudRevision;
-  const showDelete = !(isLocalHead || isCloudHead);
+  const showCreate = !isSaved && (isOnline ? !isCloudRevision : !isLocalRevision)
   const showUpdate = isOnline && isDocumentAuthor && isCloudRevision && !isCloudHead;
+  const showDelete = isRevisionAuthor && !isLocalHead && !isCloudHead;
 
   const getEditorDocumentRevision = async () => {
     const localResponse = await dispatch(actions.getLocalRevision(revision.id));
@@ -76,7 +77,7 @@ const RevisionCard: React.FC<{
 
   const createRevision = async () => {
     if (unsavedChanges) await createLocalRevision();
-    if (!user) return;
+    if (!user || !isOnline) return;
     const editorDocumentRevision = await getEditorDocumentRevision();
     if (!editorDocumentRevision) return;
     if (isLocalDocument && !isCloudDocument) {
@@ -89,20 +90,23 @@ const RevisionCard: React.FC<{
   }
 
   const viewRevision = async () => {
+    NProgress.start();
     if (unsavedChanges) await createLocalRevision();
     const editorDocumentRevision = await getEditorDocumentRevision();
-    if (!editorDocumentRevision) return;
+    if (!editorDocumentRevision) return NProgress.done();
     const editor = editorRef.current;
-    if (!editor) return;
+    if (!editor) return NProgress.done();
     const state = editor.parseEditorState(editorDocumentRevision.data);
     const payload = { id: editorDocumentRevision.documentId, partial: { head: editorDocumentRevision.id, updatedAt: editorDocumentRevision.createdAt } };
     editor.update(() => {
       editor.setEditorState(state, { tag: JSON.stringify(payload) });
       editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
+      NProgress.done();
     });
   }
 
   const updateCloudHead = async () => {
+    if (!isLocalHead) viewRevision();
     const payload = { id: revision.documentId, partial: { head: revision.id, updatedAt: revision.createdAt } };
     await dispatch(actions.updateCloudDocument(payload));
   }
@@ -133,16 +137,18 @@ const RevisionCard: React.FC<{
         />
       </CardActionArea>
       <CardActions sx={{ "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
-        {isLocalHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Current" />}
-        {isCloudHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudDone />} label="Cloud" />}
+        {isLocalHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Article />} label="Active" />}
+        {isLocalRevision && !isLocalHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<SecurityUpdateGood />} label="Local" />}
+        {isCloudHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudDone />} label="Head" />}
+        {isCloudRevision && !isCloudHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
         {showCreate && <Chip variant='outlined' clickable
           sx={{ width: 0, flex: 1, maxWidth: "fit-content" }}
           icon={isOnline ? <CloudUpload /> : <Save />}
           label={isOnline ? "Save to Cloud" : "Save on Device"}
           onClick={createRevision} />
         }
-        {showUpdate && <Chip variant='outlined' clickable sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudDone />} label="Set Cloud Head" onClick={updateCloudHead} />}
-        {showDelete && <IconButton aria-label="Delete Revision" size="small" onClick={deleteRevision} disabled={!isRevisionAuthor}><Delete /></IconButton>}
+        {showUpdate && <IconButton aria-label="Update Cloud Head" size="small" onClick={updateCloudHead}><CloudSync /></IconButton>}
+        {showDelete && <IconButton aria-label="Delete Revision" size="small" onClick={deleteRevision}><Delete /></IconButton>}
       </CardActions>
     </Card>
   );
