@@ -37,4 +37,22 @@ module.exports = [
       ]
     },
   },
+  {
+    urlPattern: ({ url: { pathname }, sameOrigin }) => {
+      if (!sameOrigin) return false;
+      if (pathname === "/api/auth/session") return true;
+      if (pathname === "/api/documents") return true;
+      return false;
+    },
+    handler: "NetworkFirst",
+    method: "GET",
+    options: {
+      cacheName: "apis",
+      expiration: {
+        maxEntries: 16,
+        maxAgeSeconds: 24 * 60 * 60 * 30,
+      },
+      networkTimeoutSeconds: 10,
+    },
+  },
 ];

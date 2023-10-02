@@ -70,7 +70,7 @@ const findAllDocuments = async () => {
     };
     return cloudDocument;
   });
-  return cloudDocuments;  
+  return cloudDocuments;
 }
 
 const findPublishedDocuments = async () => {
@@ -138,7 +138,7 @@ const findPublishedDocuments = async () => {
   const cloudDocuments = documents.map((document) => {
     const cloudDocument: CloudDocument = {
       ...document,
-        coauthors: document.coauthors.map((coauthor) => coauthor.user),
+      coauthors: document.coauthors.map((coauthor) => coauthor.user),
       revisions: document.revisions.filter((revision) => revision.id === document.head)
     };
     return cloudDocument;
@@ -211,14 +211,18 @@ const findDocumentsByAuthorId = async (authorId: string) => {
   const authoredDocuments = documents.map((document) => {
     const cloudDocument: CloudDocument = {
       ...document,
-        coauthors: document.coauthors.map((coauthor) => coauthor.user),
+      coauthors: document.coauthors.map((coauthor) => coauthor.user),
     };
     return cloudDocument;
   });
   const coauthoredDocuments = await findUserCoauthoredDocuments(authorId);
-  return [...authoredDocuments, ...coauthoredDocuments].sort((a, b) => {
-    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-  });
+  const publishedDocuments = await findPublishedDocuments();
+  return [...authoredDocuments, ...coauthoredDocuments, ...publishedDocuments]
+    .filter((document, index, self) => self.findIndex((d) => d.id === document.id) === index)
+    .sort((a, b) => {
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+
 }
 
 const findPublishedDocumentsByAuthorId = async (authorId: string) => {
@@ -286,7 +290,7 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
   const cloudDocuments = documents.map((document) => {
     const cloudDocument: CloudDocument = {
       ...document,
-        coauthors: document.coauthors.map((coauthor) => coauthor.user),
+      coauthors: document.coauthors.map((coauthor) => coauthor.user),
       revisions: document.revisions.filter((revision) => revision.id === document.head)
     };
     return cloudDocument;

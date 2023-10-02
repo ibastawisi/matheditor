@@ -19,7 +19,6 @@ export const load = createAsyncThunk('app/load', async (_, thunkAPI) => {
     thunkAPI.dispatch(loadLocalDocuments()),
     thunkAPI.dispatch(loadLocalRevisions()),
     thunkAPI.dispatch(loadCloudDocuments()),
-    thunkAPI.dispatch(loadPublishedDocuments()),
   ]);
 });
 
@@ -73,21 +72,6 @@ export const loadCloudDocuments = createAsyncThunk('app/loadCloudDocuments', asy
   try {
     NProgress.start();
     const response = await fetch('/api/documents');
-    const { data, error } = await response.json() as GetDocumentsResponse;
-    if (error) return thunkAPI.rejectWithValue(error);
-    if (!data) return thunkAPI.fulfillWithValue([]);
-    return thunkAPI.fulfillWithValue(data);
-  } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.message);
-  } finally {
-    NProgress.done();
-  }
-});
-
-export const loadPublishedDocuments = createAsyncThunk('app/loadPublishedDocuments', async (_, thunkAPI) => {
-  try {
-    NProgress.start();
-    const response = await fetch('/api/documents/published');
     const { data, error } = await response.json() as GetDocumentsResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.fulfillWithValue([]);
@@ -390,14 +374,6 @@ export const appSlice = createSlice({
           const userDocument = state.documents.find(doc => doc.id === document.id);
           if (!userDocument) state.documents.push({ id: document.id, cloud: document });
           else userDocument.cloud = document;
-        });
-      })
-      .addCase(loadPublishedDocuments.fulfilled, (state, action) => {
-        const documents = action.payload;
-        documents.forEach(document => {
-          const userDocument = state.documents.find(doc => doc.id === document.id);
-          if (!userDocument) state.documents.push({ id: document.id, cloud: document });
-          else if (!userDocument.cloud) userDocument.cloud = document;
         });
       })
       .addCase(getCloudDocument.rejected, (state, action) => {

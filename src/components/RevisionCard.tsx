@@ -7,6 +7,7 @@ import { Card, CardActionArea, CardHeader, Avatar, CardActions, Chip, IconButton
 import { CloudDone, CloudUpload, Delete, MobileFriendly, Save } from '@mui/icons-material';
 import { actions, useDispatch, useSelector } from '@/store';
 import { CLEAR_HISTORY_COMMAND, type LexicalEditor } from '@/editor';
+import useOnlineStatus from '@/hooks/useOnlineStatus';
 
 const RevisionCard: React.FC<{
   revision: UserDocumentRevision,
@@ -15,6 +16,7 @@ const RevisionCard: React.FC<{
 }> = memo(({ revision, editorRef, sx }) => {
   const dispatch = useDispatch();
   const user = useSelector(state => state.user);
+  const isOnline = useOnlineStatus();
   const userDocument = useSelector(state => state.documents.find(d => d.id === revision.documentId));
   const localDocument = userDocument?.local;
   const cloudDocument = userDocument?.cloud;
@@ -36,9 +38,9 @@ const RevisionCard: React.FC<{
 
   const isDocumentAuthor = isCloudDocument ? user?.id === cloudDocument.author.id : true;
   const isRevisionAuthor = isCloudRevision ? user?.id === cloudRevision.author.id : true;
-  const showCreate = user ? !isCloudRevision : !isLocalRevision;
+  const showCreate = !isLocalRevision && !isCloudRevision;
   const showDelete = !(isLocalHead || isCloudHead);
-  const showUpdate = user && isDocumentAuthor && isCloudRevision && !isCloudHead;
+  const showUpdate = isOnline && isDocumentAuthor && isCloudRevision && !isCloudHead;
 
   const getEditorDocumentRevision = async () => {
     const localResponse = await dispatch(actions.getLocalRevision(revision.id));
@@ -135,8 +137,8 @@ const RevisionCard: React.FC<{
         {isCloudHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudDone />} label="Cloud" />}
         {showCreate && <Chip variant='outlined' clickable
           sx={{ width: 0, flex: 1, maxWidth: "fit-content" }}
-          icon={user ? <CloudUpload /> : <Save />}
-          label={user ? "Save to Cloud" : "Save on Device"}
+          icon={isOnline ? <CloudUpload /> : <Save />}
+          label={isOnline ? "Save to Cloud" : "Save on Device"}
           onClick={createRevision} />
         }
         {showUpdate && <Chip variant='outlined' clickable sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudDone />} label="Set Cloud Head" onClick={updateCloudHead} />}
