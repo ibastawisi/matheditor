@@ -4,7 +4,7 @@ import { UserDocumentRevision } from '@/types';
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Avatar, CardActions, Chip, IconButton } from '@mui/material';
-import { CloudDone, CloudUpload, Delete, MobileFriendly, Visibility } from '@mui/icons-material';
+import { CloudDone, CloudUpload, Delete, MobileFriendly, Save } from '@mui/icons-material';
 import { actions, useDispatch, useSelector } from '@/store';
 import { CLEAR_HISTORY_COMMAND, type LexicalEditor } from '@/editor';
 
@@ -36,8 +36,9 @@ const RevisionCard: React.FC<{
 
   const isDocumentAuthor = isCloudDocument ? user?.id === cloudDocument.author.id : true;
   const isRevisionAuthor = isCloudRevision ? user?.id === cloudRevision.author.id : true;
+  const showCreate = user ? !isCloudRevision : !isLocalRevision;
   const showDelete = !(isLocalHead || isCloudHead);
-  const showUpdate = isDocumentAuthor && isCloudRevision && !isCloudHead;
+  const showUpdate = user && isDocumentAuthor && isCloudRevision && !isCloudHead;
 
   const getEditorDocumentRevision = async () => {
     const localResponse = await dispatch(actions.getLocalRevision(revision.id));
@@ -73,23 +74,24 @@ const RevisionCard: React.FC<{
 
   const createRevision = async () => {
     if (unsavedChanges) await createLocalRevision();
+    if (!user) return;
     const editorDocumentRevision = await getEditorDocumentRevision();
-    if (!editorDocumentRevision) return dispatch(actions.announce({ message: "Couldn't find revision" }));
+    if (!editorDocumentRevision) return;
     if (isLocalDocument && !isCloudDocument) {
       const editorDocument = { ...localDocument, data: editorDocumentRevision.data };
       return dispatch(actions.createCloudDocument(editorDocument));
     }
     const response = await dispatch(actions.createCloudRevision(editorDocumentRevision));
-    if (response.type === actions.createCloudRevision.rejected.type) return dispatch(actions.announce({ message: "Couldn't create cloud revision" }));
+    if (response.type === actions.createCloudRevision.rejected.type) return;
     return response.payload as ReturnType<typeof actions.createCloudRevision.fulfilled>['payload'];
   }
 
   const viewRevision = async () => {
     if (unsavedChanges) await createLocalRevision();
     const editorDocumentRevision = await getEditorDocumentRevision();
-    if (!editorDocumentRevision) return dispatch(actions.announce({ message: "Couldn't find revision" }));
+    if (!editorDocumentRevision) return;
     const editor = editorRef.current;
-    if (!editor) return dispatch(actions.announce({ message: "Couldn't get editor state" }));
+    if (!editor) return;
     const state = editor.parseEditorState(editorDocumentRevision.data);
     const payload = { id: editorDocumentRevision.documentId, partial: { head: editorDocumentRevision.id, updatedAt: editorDocumentRevision.createdAt } };
     editor.update(() => {
@@ -131,12 +133,12 @@ const RevisionCard: React.FC<{
       <CardActions sx={{ "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
         {isLocalHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Current" />}
         {isCloudHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudDone />} label="Cloud" />}
-        {!isCloudRevision && <> <Chip variant='outlined' clickable
+        {showCreate && <Chip variant='outlined' clickable
           sx={{ width: 0, flex: 1, maxWidth: "fit-content" }}
-          icon={<CloudUpload />}
-          label="Save to cloud"
+          icon={user ? <CloudUpload /> : <Save />}
+          label={user ? "Save to Cloud" : "Save on Device"}
           onClick={createRevision} />
-        </>}
+        }
         {showUpdate && <Chip variant='outlined' clickable sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudDone />} label="Set Cloud Head" onClick={updateCloudHead} />}
         {showDelete && <IconButton aria-label="Delete Revision" size="small" onClick={deleteRevision} disabled={!isRevisionAuthor}><Delete /></IconButton>}
       </CardActions>
