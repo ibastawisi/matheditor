@@ -101,10 +101,6 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
         const value = mathfield.getValue();
         const node = $getNodeByKey(nodeKey);
         if (!$isMathNode(node)) return;
-        if (value.trim().length === 0) {
-          node.selectPrevious();
-          return node.remove();
-        }
         value !== initialValue && node.setValue(value);
       });
     }, false);
