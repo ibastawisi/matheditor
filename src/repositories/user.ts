@@ -110,14 +110,14 @@ const findUserCoauthoredDocuments = async (id: string) => {
                   }
                 },
                 orderBy: {
-                  created_at: 'asc'
+                  createdAt: 'asc'
                 }
               },
             },
           },
         },
         orderBy: {
-          created_at: 'asc'
+          createdAt: 'asc'
         }
       }
     }

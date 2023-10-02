@@ -54,7 +54,7 @@ const findAllDocuments = async () => {
           }
         },
         orderBy: {
-          created_at: 'asc'
+          createdAt: 'asc'
         }
       }
     },
@@ -126,7 +126,7 @@ const findPublishedDocuments = async () => {
           }
         },
         orderBy: {
-          created_at: 'asc'
+          createdAt: 'asc'
         }
       }
     },
@@ -199,7 +199,7 @@ const findDocumentsByAuthorId = async (authorId: string) => {
           }
         },
         orderBy: {
-          created_at: 'asc'
+          createdAt: 'asc'
         }
       },
     },
@@ -278,7 +278,7 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
           }
         },
         orderBy: {
-          created_at: 'asc'
+          createdAt: 'asc'
         }
       },
     },
@@ -352,7 +352,7 @@ const findDocumentById = async (id: string) => {
           }
         },
         orderBy: {
-          created_at: 'asc'
+          createdAt: 'asc'
         }
       },
     },
@@ -478,7 +478,7 @@ const findUserDocument = async (id: string) => {
           }
         },
         orderBy: {
-          created_at: 'asc'
+          createdAt: 'asc'
         }
       },
     }
