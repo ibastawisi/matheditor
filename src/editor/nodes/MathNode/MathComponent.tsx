@@ -1,6 +1,6 @@
 "use client"
 import { DOMAttributes } from "react";
-import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, GridSelection, NodeKey, NodeSelection, RangeSelection } from 'lexical';
+import { $createRangeSelection, $createTextNode, $getSelection, $isNodeSelection, $isParagraphNode, $isRangeSelection, $setSelection, GridSelection, NodeKey, NodeSelection, ParagraphNode, RangeSelection } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey } from 'lexical';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
@@ -97,11 +97,37 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
     }
 
     mathfield.addEventListener("input", e => {
+      const event = e as InputEvent;
+      const value = mathfield.getValue();
       editor.update(() => {
-        const value = mathfield.getValue();
+        if (value === initialValue) return;
         const node = $getNodeByKey(nodeKey);
         if (!$isMathNode(node)) return;
-        value !== initialValue && node.setValue(value);
+        node.setValue(value);
+      });
+      if (event.inputType === "insertLineBreak") {
+        event.stopPropagation();
+        if (value.trim().length === 0) return;
+        editor.update(() => {
+          const node = $getNodeByKey(nodeKey);
+          if (!$isMathNode(node)) return;
+          mathfield.blur();
+          node.selectNext(0, 0);
+        });
+      }
+    }, false);
+
+    mathfield.addEventListener("change", e => {
+      editor.update(() => {
+        const value = mathfield.getValue();
+        if (value.trim().length) return;
+        const node = $getNodeByKey(nodeKey);
+        if (!$isMathNode(node)) return;
+        node.remove(true);
+        const parentRootElement = editor.getRootElement();
+        if (parentRootElement !== null) {
+          parentRootElement.focus();
+        }
       });
     }, false);
 
