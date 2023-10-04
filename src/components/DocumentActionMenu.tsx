@@ -8,7 +8,7 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { debounce } from '@mui/material/utils';
-import { IconButton, Checkbox, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, FormControl, RadioGroup, FormControlLabel, Radio, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
+import { IconButton, Checkbox, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, FormControl, RadioGroup, FormControlLabel, Radio, Menu, MenuItem, ListItemIcon, ListItemText, FormHelperText, Typography } from '@mui/material';
 import { Settings, Share, MoreVert, Download, FileCopy, CloudSync, CloudUpload, DeleteForever } from '@mui/icons-material';
 import UsersAutocomplete from './UsersAutocomplete';
 import { validate } from 'uuid';
@@ -60,7 +60,7 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
     const localResponse = await dispatch(actions.getLocalDocument(id));
     if (localResponse.type === actions.getLocalDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't find local document" }));
     const editorDocument = localResponse.payload as EditorDocument;
-    if (!isHeadLocalRevision){
+    if (!isHeadLocalRevision) {
       const editorDocumentRevision = { id: editorDocument.head, documentId: editorDocument.id, createdAt: editorDocument.updatedAt, data: editorDocument.data };
       await dispatch(actions.createLocalRevision(editorDocumentRevision));
     }
@@ -315,6 +315,9 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
                 control={<Checkbox checked={isPublished} onChange={togglePublished} />}
                 label="Published"
               />}
+              <FormHelperText>
+                Published documents are showcased on the homepage, can be forked by anyone, and can be found by search engines.
+              </FormHelperText>
             </DialogContent>
             <DialogActions>
               <Button onClick={closeEditDialog}>Cancel</Button>
@@ -344,9 +347,32 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
                   {isAuthor && <FormControlLabel value="edit" control={<Radio />} label="Edit" />}
                 </RadioGroup>
               </FormControl>
-              {shareFormat === "edit" && <FormControl sx={{ mt: 2 }} fullWidth>
-                <UsersAutocomplete label='Coauthors' placeholder='Email' value={cloudDocument?.coauthors ?? []} onChange={updateCoauthors} />
-              </FormControl>}
+              <Typography component="h3" sx={{ mt: 2 }}>Access Permissions</Typography>
+              {shareFormat === "edit" &&
+                <>
+                  <FormControl sx={{ mt: 2 }} fullWidth>
+                    <UsersAutocomplete label='Coauthors' placeholder='Email' value={cloudDocument?.coauthors ?? []} onChange={updateCoauthors} />
+                  </FormControl>
+                  <FormHelperText>only author and coauthors can edit this document</FormHelperText>
+                </>}
+              {shareFormat === "view" &&
+                <>
+                  <FormControlLabel control={<Checkbox checked={true} disabled={true} />} label="Anyone with the link" />
+                  <FormHelperText>only author and coauthors can fork non-published documents</FormHelperText>
+                </>
+              }
+              {shareFormat === "embed" &&
+                <>
+                  <FormControlLabel control={<Checkbox checked={true} disabled={true} />} label="Anyone with the link" />
+                  <FormHelperText>embed links does not contain app shell and can be embedded as {'<iframe>'} in other websites</FormHelperText>
+                </>
+              }
+              {shareFormat === "pdf" &&
+                <>
+                  <FormControlLabel control={<Checkbox checked={true} disabled={true} />} label="Anyone with the link" />
+                  <FormHelperText>PDF links are generated on the server and can be shared anywhere</FormHelperText>
+                </>
+              }
             </DialogContent>
             <DialogActions>
               <Button onClick={closeShareDialog}>Cancel</Button>
