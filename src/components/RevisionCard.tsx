@@ -133,14 +133,12 @@ const RevisionCard: React.FC<{
         <CardHeader sx={{ alignItems: "start", '& .MuiCardHeader-content': { overflow: "hidden", textOverflow: "ellipsis" } }}
           title={new Date(revision.createdAt).toLocaleString()}
           subheader={(cloudRevision?.author ?? user)?.name ?? "Local User"}
-          avatar={<Avatar sx={{ bgcolor: 'primary.main' }} src={(cloudRevision?.author ?? user)?.image ?? undefined}></Avatar>}
+          avatar={<Avatar sx={{ bgcolor: 'primary.main' }} src={(cloudRevision?.author ?? user)?.image ?? undefined} alt={(cloudRevision?.author ?? user)?.name}></Avatar>}
         />
       </CardActionArea>
       <CardActions sx={{ "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
-        {isLocalHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Article />} label="Active" />}
-        {isLocalRevision && !isLocalHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<SecurityUpdateGood />} label="Local" />}
-        {isCloudHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudDone />} label="Head" />}
-        {isCloudRevision && !isCloudHead && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
+        {isLocalRevision && <Chip color={isLocalHead ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<SecurityUpdateGood />} label="Local" />}
+        {isCloudRevision && <Chip color={isCloudHead ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
         {showCreate && <Chip variant='outlined' clickable
           sx={{ width: 0, flex: 1, maxWidth: "fit-content" }}
           icon={isOnline ? <CloudUpload /> : <Save />}
