@@ -1,27 +1,32 @@
 'use client';
 
-import { useEffect } from 'react';
+import { memo, useEffect } from 'react';
 
 import NProgress from 'nprogress';
 
 type PushStateInput = [data: unknown, unused: string, url?: string | URL | null | undefined];
 
-export default function ProgressBar() {
+export default memo(function ProgressBar() {
   useEffect(() => {
     NProgress.configure({ showSpinner: false });
 
     const handleAnchorClick = (event: MouseEvent) => {
-      if (event.ctrlKey || event.metaKey) return;
-      const target = event.currentTarget as HTMLAnchorElement;
-      if (target.target === '_blank') return;
-      if (target.href !== window.location.href) {
-        NProgress.start();
-      }
+      if (event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) return;
+      const targetElement = event.currentTarget as HTMLAnchorElement;
+      if (window.location.origin !== targetElement.origin) return;
+      if (window.location.href === targetElement.href) return;
+      if (targetElement.target) return;
+      const editorRoot = document.querySelector('.editor-input');
+      if (editorRoot && editorRoot.contains(targetElement)) return;
+      NProgress.start();
     };
 
     const handleMutation: MutationCallback = () => {
       const anchorElements: NodeListOf<HTMLAnchorElement> = document.querySelectorAll('a[href]');
-
       anchorElements.forEach(anchor => anchor.addEventListener('click', handleAnchorClick));
     };
 
@@ -38,4 +43,4 @@ export default function ProgressBar() {
   });
 
   return null;
-}
+});
