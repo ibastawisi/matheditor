@@ -15,6 +15,7 @@ import { useEffect } from 'react';
 import { $wrapNodeInElement } from '@lexical/utils';
 
 import { $createMathNode, MathNode } from '../../nodes/MathNode';
+import { IS_MOBILE } from '@/editor/shared/environment';
 
 type CommandPayload = {
   value: string;
@@ -55,6 +56,24 @@ export default function MathPlugin(): JSX.Element | null {
       removeTransform();
     };
   }, [editor]);
+
+  useEffect(() => {
+    const navigation = (window as any).navigation;
+    if (!navigation || !IS_MOBILE) return;
+
+    const preventBackNavigation = (event: any) => {
+      if (event.navigationType === 'push') return;
+      const mathVirtualKeyboard = window.mathVirtualKeyboard;
+      if (!mathVirtualKeyboard?.visible) return;
+      event.preventDefault();
+      mathVirtualKeyboard.hide();
+    };
+
+    navigation.addEventListener('navigate', preventBackNavigation);
+    return () => {
+      navigation.removeEventListener('navigate', preventBackNavigation);
+    };
+  }, []);
 
   return null;
 }
