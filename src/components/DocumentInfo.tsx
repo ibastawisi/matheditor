@@ -55,7 +55,6 @@ export default function DocumentInfo({ editorRef, documentId }: { editorRef: Mut
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: "start", justifyContent: "start", gap: 1, my: 3 }}>
             {localDocument && <>
               <Typography component="h2" variant="h6">{localDocument.name}</Typography>
-              <Typography variant="subtitle2" color="text.secondary" gutterBottom>Last Updated: {new Date(localDocument.updatedAt).toLocaleDateString()}</Typography>
             </>}
             {cloudDocument && <>
               <Typography variant="subtitle2">Author <Chip clickable component={RouterLink} prefetch={false}

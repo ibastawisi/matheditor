@@ -4,20 +4,21 @@ import { useDispatch, useSelector, actions } from '@/store';
 import React from 'react';
 import { Snackbar, Button, IconButton } from '@mui/material';
 import { Close } from '@mui/icons-material';
+import { signIn } from 'next-auth/react';
 
 function Announcer() {
   const announcement = useSelector(state => state.announcements[0]);
   const dispatch = useDispatch();
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
+  const login = () => signIn("google", undefined, { prompt: "select_account" });
 
   const handleClose = () => dispatch(actions.clearAnnouncement());
   const handleConfirm = () => {
     const serializedAction = announcement?.action?.onClick;
     if (serializedAction) {
-      // eslint-disable-next-line no-new-func
-      const action = new Function("dispatch", "actions", "navigate", serializedAction);
-      action.bind(null, dispatch, actions, navigate)();
+      const action = new Function("dispatch", "actions", "navigate", "login", serializedAction);
+      action.bind(null, dispatch, actions, navigate, login)();
     }
     dispatch(actions.clearAnnouncement());
   }

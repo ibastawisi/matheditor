@@ -4,7 +4,7 @@ import { UserDocumentRevision } from '@/types';
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Avatar, CardActions, Chip, IconButton } from '@mui/material';
-import { Article, Cloud, CloudDone, CloudSync, CloudUpload, Delete, MobileFriendly, Save, SecurityUpdateGood } from '@mui/icons-material';
+import { Cloud, CloudSync, CloudUpload, Delete, MobileFriendly, Save } from '@mui/icons-material';
 import { actions, useDispatch, useSelector } from '@/store';
 import { CLEAR_HISTORY_COMMAND, type LexicalEditor } from '@/editor';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
@@ -39,7 +39,7 @@ const RevisionCard: React.FC<{
 
   const isDocumentAuthor = isCloudDocument ? user?.id === cloudDocument.author.id : true;
   const isRevisionAuthor = isCloudRevision ? user?.id === cloudRevision.author.id : true;
-  const showCreate = !isSaved && (isOnline ? !isCloudRevision : !isLocalRevision)
+  const showCreate = !isCloudRevision;
   const showUpdate = isOnline && isDocumentAuthor && isCloudRevision && !isCloudHead;
   const showDelete = isRevisionAuthor && !isLocalHead && !isCloudHead;
 
@@ -77,9 +77,19 @@ const RevisionCard: React.FC<{
 
   const createRevision = async () => {
     if (unsavedChanges) await createLocalRevision();
-    if (!user || !isOnline) return;
+    if (!isOnline) {
+      dispatch(actions.announce({ message: "Please connect to the internet to use cloud storage", action: { label: "Reload", onClick: "window.location.reload()" } }));
+      return;
+    }
+    if (!user) {
+      dispatch(actions.announce({ message: "Please login to use cloud storage", action: { label: "Login", onClick: "login()" } }));
+      return;
+    }
     const editorDocumentRevision = await getEditorDocumentRevision();
-    if (!editorDocumentRevision) return;
+    if (!editorDocumentRevision) {
+      dispatch(actions.announce({ message: `Could not find revision data.` }));
+      return;
+    }
     if (isLocalDocument && !isCloudDocument) {
       const editorDocument = { ...localDocument, data: editorDocumentRevision.data };
       return dispatch(actions.createCloudDocument(editorDocument));
@@ -137,12 +147,12 @@ const RevisionCard: React.FC<{
         />
       </CardActionArea>
       <CardActions sx={{ "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
-        {isLocalRevision && <Chip color={isLocalHead ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<SecurityUpdateGood />} label="Local" />}
+        {(isLocalRevision || isLocalHead) && <Chip color={isLocalHead ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Local" />}
         {isCloudRevision && <Chip color={isCloudHead ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
         {showCreate && <Chip variant='outlined' clickable
           sx={{ width: 0, flex: 1, maxWidth: "fit-content" }}
-          icon={isOnline ? <CloudUpload /> : <Save />}
-          label={isOnline ? "Save to Cloud" : "Save on Device"}
+          icon={<CloudUpload />}
+          label="Save to Cloud"
           onClick={createRevision} />
         }
         {showUpdate && <IconButton aria-label="Update Cloud Head" size="small" onClick={updateCloudHead}><CloudSync /></IconButton>}

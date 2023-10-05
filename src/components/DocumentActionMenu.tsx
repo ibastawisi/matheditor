@@ -56,7 +56,7 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
 
   const handleCreate = async () => {
     closeMenu();
-    if (!user) return dispatch(actions.announce({ message: "Please login to use cloud storage" }));
+    if (!user) return dispatch(actions.announce({ message: "Please login to use cloud storage", action: { label: "Login", onClick: "login()" } }));
     const localResponse = await dispatch(actions.getLocalDocument(id));
     if (localResponse.type === actions.getLocalDocument.rejected.type) return dispatch(actions.announce({ message: "Couldn't find local document" }));
     const editorDocument = localResponse.payload as EditorDocument;
@@ -69,7 +69,7 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
 
   const handleUpdate = async () => {
     closeMenu();
-    if (!user) return dispatch(actions.announce({ message: "Please login to use cloud storage" }));
+    if (!user) return dispatch(actions.announce({ message: "Please login to use cloud storage", action: { label: "Login", onClick: "login()" } }));
     if (isUpToDate) return dispatch(actions.announce({ message: "Document is up to date" }));
     if (isHeadCloudRevision && isHeadOutOfSync) return dispatch(actions.updateCloudDocument({ id, partial: { head: localDocument.head, updatedAt: localDocument.updatedAt } }));
     const localResponse = await dispatch(actions.getLocalDocument(id));
@@ -85,7 +85,7 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
   const ensureUpToDate = async () => {
     if (isCloudOnly) return true;
     if (!user) {
-      dispatch(actions.announce({ message: "Please login to use cloud storage" }));
+      dispatch(actions.announce({ message: "Please login to use cloud storage", action: { label: "Login", onClick: "login()" } }));
       return false;
     }
     if (isLocalOnly) {
