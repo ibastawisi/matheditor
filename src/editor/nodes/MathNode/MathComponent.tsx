@@ -82,7 +82,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
         mathfield.executeCommand(isBefore ? 'moveToMathfieldStart' : 'moveToMathfieldEnd');
       });
     }
-  }, [ref, isSelected, selection]);
+  }, [isSelected]);
 
   useEffect(() => {
     const mathfield = ref.current;
@@ -177,11 +177,12 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
   }, []);
 
   const focus = useCallback((mathfield: MathfieldElement) => {
-    setTimeout(() => {
-      mathfield.focus();
-      window.mathVirtualKeyboard.show({ animate: true });
-      setTimeout(() => mathfield.hasFocus() && mathfield.executeCommand("scrollIntoView"), 300);
-    });
+    mathfield.focus();
+    const mathVirtualKeyboard = window.mathVirtualKeyboard;
+    mathVirtualKeyboard.show({ animate: true });
+    const container = mathVirtualKeyboard.container;
+    if (!container) return;
+    container.addEventListener('transitionend', () => mathfield.executeCommand("scrollIntoView"), { once: true });
   }, []);
 
   return <math-field ref={ref} />;
