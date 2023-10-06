@@ -43,6 +43,7 @@ model User {
   updatedAt     DateTime            @updatedAt
   disabled      Boolean             @default(false)
   emailVerified DateTime?
+  lastLogin     DateTime?
   image         String?
   role          String              @default("user")
   accounts      Account[]

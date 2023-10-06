@@ -1,4 +1,4 @@
-import { User, prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import type { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import GoogleProvider, { GoogleProfile } from "next-auth/providers/google";
@@ -15,13 +15,17 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   callbacks: {
     async signIn({ user, account, profile }) {
-      const existingUser = await findUserByEmail(user.email!);
-      if (!existingUser) return true;
-      if (existingUser.emailVerified) return true;
-      await updateUser(existingUser.id, {
-        name: user.name!,
-        image: user.image,
-        emailVerified: new Date(),
+      if ((user as any)?.emailVerified) return true;
+      const unverifiedUser = await findUserByEmail(user.email!);
+      if (!unverifiedUser) return true;
+      if (unverifiedUser.emailVerified) return true;
+      const googleProfile = profile as GoogleProfile;
+      const now = new Date();
+      await updateUser(unverifiedUser.id, {
+        name: googleProfile.name,
+        image: googleProfile.picture,
+        emailVerified: now,
+        updatedAt: now,
       });
       return true;
     },
@@ -29,7 +33,11 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         const user = await findUserByEmail(session.user.email);
         if (!user) return session;
-        session.user = user;
+        session.user = await updateUser(user.id, {
+          emailVerified: user.emailVerified || user.createdAt,
+          updatedAt: user.updatedAt,
+          lastLogin: new Date(),
+        });
       }
       return session
     }
