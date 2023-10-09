@@ -253,9 +253,14 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
     if (!result) return;
     const url = new URL(window.location.origin);
     url.pathname = `/${shareFormat}/${handle || id}`;
-    const searchParams = new URLSearchParams();
-    formdata.forEach((value, key) => searchParams.append(key, value as string));
-    url.search = searchParams.toString();
+    if (shareFormat === "pdf") {
+      const scale = formdata.get("scale") as string;
+      const landscape = formdata.get("landscape") as string;
+      const format = formdata.get("format") as string;
+      scale !== "1" && url.searchParams.append("scale", scale);
+      landscape !== "false" && url.searchParams.append("landscape", landscape);
+      format !== "a4" && url.searchParams.append("format", format);
+    }
     const shareData = { title: name, url: url.toString() };
     try {
       closeShareDialog();
