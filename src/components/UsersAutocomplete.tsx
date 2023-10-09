@@ -6,6 +6,7 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { User } from '@/types';
 import { useSelector } from '@/store';
+import { Chip } from '@mui/material';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -25,7 +26,8 @@ export default function UsersAutocomplete({
     onChange(newValue);
   };
   const user = useSelector(state => state.user);
-  const cloudDocuments = useSelector(state => state.documents.filter(d => d.cloud));
+  const documents = useSelector(state => state.documents);
+  const cloudDocuments = documents.filter(d => d.cloud);
 
   const users: User[] = cloudDocuments.reduce((users, document) => {
     if (!document.cloud) return users;
@@ -54,8 +56,9 @@ export default function UsersAutocomplete({
         }
         return option.email;
       }}
-      renderOption={(props, option, { selected }) => (
-        <li {...props}>
+      renderOption={(props, option, { selected }) => {
+        const { key, ...rest } = props as any;
+        return <li key={key} {...rest}>
           <Checkbox
             icon={icon}
             checkedIcon={checkedIcon}
@@ -64,7 +67,12 @@ export default function UsersAutocomplete({
           />
           {option.name}
         </li>
-      )}
+      }}
+      renderTags={(tagValue, getTagProps) => {
+        return tagValue.map((option, index) => (
+          <Chip {...getTagProps({ index })} key={option.email} label={option.email} />
+        ))
+      }}
       renderInput={(params) => (
         <TextField {...params} label={label} placeholder={placeholder} />
       )}

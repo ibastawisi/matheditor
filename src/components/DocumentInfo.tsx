@@ -16,10 +16,11 @@ export default function DocumentInfo({ editorRef, documentId }: { editorRef: Mut
   const isCloudDocument = !!cloudDocument;
   const isUploaded = isLocalDocument && isCloudDocument;
   const isUpToDate = isUploaded && localDocument.updatedAt === cloudDocument.updatedAt;
-  const localRevisions = useSelector(state => state.revisions.filter(r => r.documentId === documentId));
-  const cloudRevisions = cloudDocument?.revisions ?? [];
-  const isHeadLocalRevision = localRevisions.some(r => r.id === localDocument?.head);
-  const isHeadCloudRevision = cloudRevisions.some(r => r.id === localDocument?.head);
+  const localRevisions = useSelector(state => state.revisions);
+  const localDocumentRevisions = localRevisions.filter(r => r.documentId === documentId);
+  const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
+  const isHeadLocalRevision = localDocumentRevisions.some(r => r.id === localDocument?.head);
+  const isHeadCloudRevision = cloudDocumentRevisions.some(r => r.id === localDocument?.head);
   const unsavedChanges = !isHeadLocalRevision && !isHeadCloudRevision;
   const isHeadOutOfSync = isUploaded && localDocument.head !== cloudDocument.head;
 
@@ -27,8 +28,8 @@ export default function DocumentInfo({ editorRef, documentId }: { editorRef: Mut
   const onOpen = () => { setOpen(true); };
   const onClose = () => { setOpen(false); };
 
-  const revisions: UserDocumentRevision[] = [...cloudRevisions];
-  localRevisions.forEach(revision => { if (!revisions.find(r => r.id === revision.id)) revisions.push(revision); });
+  const revisions: UserDocumentRevision[] = [...cloudDocumentRevisions];
+  localDocumentRevisions.forEach(revision => { if (!revisions.find(r => r.id === revision.id)) revisions.push(revision); });
   const sortedRevisions = [...revisions].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   const unsavedRevision = {
     id: localDocument?.head,

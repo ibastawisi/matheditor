@@ -1,17 +1,18 @@
 "use client"
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckHandleResponse, EditorDocument, User, UserDocument } from '@/types';
+import { CheckHandleResponse, CloudDocument, EditorDocument, User, UserDocument } from '@/types';
 import { useDispatch, useSelector, actions } from '@/store';
 import { useCallback, useState } from 'react';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { debounce } from '@mui/material/utils';
-import { IconButton, Checkbox, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, FormControl, RadioGroup, FormControlLabel, Radio, Menu, MenuItem, ListItemIcon, ListItemText, FormHelperText, Typography } from '@mui/material';
+import { IconButton, Checkbox, Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button, FormControl, RadioGroup, FormControlLabel, Radio, Menu, MenuItem, ListItemIcon, ListItemText, FormHelperText, Typography, Tabs, Box, Tab, Slider, FormLabel, useMediaQuery } from '@mui/material';
 import { Settings, Share, MoreVert, Download, FileCopy, CloudSync, CloudUpload, DeleteForever } from '@mui/icons-material';
 import UsersAutocomplete from './UsersAutocomplete';
 import { validate } from 'uuid';
+import { useTheme } from '@mui/material/styles';
 
 export type options = ('edit' | 'download' | 'fork' | 'share' | 'upload' | 'delete')[];
 type DocumentActionMenuProps = {
@@ -45,10 +46,11 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
   const id = userDocument.id;
   const name = cloudDocument?.name ?? localDocument?.name ?? "Untitled Document";
   const handle = cloudDocument?.handle ?? localDocument?.handle ?? null;
-  const localRevisions = useSelector(state => state.revisions.filter(r => r.documentId === userDocument.id));
-  const cloudRevisions = cloudDocument?.revisions ?? [];
-  const isHeadLocalRevision = localRevisions.some(r => r.id === localDocument?.head);
-  const isHeadCloudRevision = cloudRevisions.some(r => r.id === localDocument?.head);
+  const localRevisions = useSelector(state => state.revisions);
+  const localDocumentRevisions = localRevisions.filter(r => r.documentId === userDocument.id);
+  const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
+  const isHeadLocalRevision = localDocumentRevisions.some(r => r.id === localDocument?.head);
+  const isHeadCloudRevision = cloudDocumentRevisions.some(r => r.id === localDocument?.head);
   const isHeadOutOfSync = isUploaded && localDocument.head !== cloudDocument.head;
 
   const router = useRouter();
@@ -246,13 +248,15 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
 
   const handleShare = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const formdata = new FormData(event.currentTarget);
     const result = await ensureUpToDate();
     if (!result) return;
-    const format = shareFormat;
-    const shareData = {
-      title: name,
-      url: `${window.location.origin}/${format}/${handle || id}`,
-    };
+    const url = new URL(window.location.origin);
+    url.pathname = `/${shareFormat}/${handle || id}`;
+    const searchParams = new URLSearchParams();
+    formdata.forEach((value, key) => searchParams.append(key, value as string));
+    url.search = searchParams.toString();
+    const shareData = { title: name, url: url.toString() };
     try {
       closeShareDialog();
       await navigator.share(shareData);
@@ -264,17 +268,9 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
 
   useFixedBodyScroll(editDialogOpen || shareDialogOpen);
   const [shareFormat, setShareFormat] = useState("view");
-
-  const handleShareFormatChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const format = event.target.value;
-    setShareFormat(format);
-  }
-
-  const updateCoauthors = (users: (User | string)[]) => {
-    const coauthors = users.map(u => typeof u === "string" ? u : u.email);
-    const partial = { coauthors } as any;
-    dispatch(actions.updateCloudDocument({ id, partial }));
-  }
+  const shareFormats = isAuthor ? ['view', 'embed', 'pdf', 'edit'] : ['view', 'embed', 'pdf'];
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
   return (
     <>
@@ -286,7 +282,7 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
         >
           <Settings />
         </IconButton>
-        <Dialog open={editDialogOpen} onClose={closeEditDialog} fullWidth maxWidth="xs">
+        <Dialog open={editDialogOpen} onClose={closeEditDialog} fullWidth maxWidth="xs" fullScreen={fullScreen}>
           <form onSubmit={formik.handleSubmit} noValidate autoComplete="off" spellCheck="false">
             <DialogTitle>Edit Document</DialogTitle>
             <DialogContent sx={{ "& .MuiFormHelperText-root": { overflow: "hidden", textOverflow: "ellipsis" } }}>
@@ -335,44 +331,11 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
         >
           <Share />
         </IconButton>
-        <Dialog open={shareDialogOpen} onClose={closeShareDialog} fullWidth maxWidth="xs">
+        <Dialog open={shareDialogOpen} onClose={closeShareDialog} fullWidth maxWidth="xs" fullScreen={fullScreen}>
           <form onSubmit={handleShare}>
             <DialogTitle>Share Document</DialogTitle>
             <DialogContent>
-              <FormControl>
-                <RadioGroup row aria-label="share format" name="format" value={shareFormat} onChange={handleShareFormatChange}>
-                  <FormControlLabel value="view" control={<Radio />} label="View" />
-                  <FormControlLabel value="embed" control={<Radio />} label="Embed" />
-                  <FormControlLabel value="pdf" control={<Radio />} label="PDF" />
-                  {isAuthor && <FormControlLabel value="edit" control={<Radio />} label="Edit" />}
-                </RadioGroup>
-              </FormControl>
-              <Typography component="h3" sx={{ mt: 2 }}>Access Permissions</Typography>
-              {shareFormat === "edit" &&
-                <>
-                  <FormControl sx={{ mt: 2 }} fullWidth>
-                    <UsersAutocomplete label='Coauthors' placeholder='Email' value={cloudDocument?.coauthors ?? []} onChange={updateCoauthors} />
-                  </FormControl>
-                  <FormHelperText>only author and coauthors can edit this document</FormHelperText>
-                </>}
-              {shareFormat === "view" &&
-                <>
-                  <FormControlLabel control={<Checkbox checked={true} disabled={true} />} label="Anyone with the link" />
-                  <FormHelperText>only author and coauthors can fork non-published documents</FormHelperText>
-                </>
-              }
-              {shareFormat === "embed" &&
-                <>
-                  <FormControlLabel control={<Checkbox checked={true} disabled={true} />} label="Anyone with the link" />
-                  <FormHelperText>embed links does not contain app shell and can be embedded as {'<iframe>'} in other websites</FormHelperText>
-                </>
-              }
-              {shareFormat === "pdf" &&
-                <>
-                  <FormControlLabel control={<Checkbox checked={true} disabled={true} />} label="Anyone with the link" />
-                  <FormHelperText>PDF links are generated on the server and can be shared anywhere</FormHelperText>
-                </>
-              }
+              <ShareTabs format={shareFormat} setFormat={setShareFormat} formats={shareFormats} cloudDocument={cloudDocument} />
             </DialogContent>
             <DialogActions>
               <Button onClick={closeShareDialog}>Cancel</Button>
@@ -448,3 +411,93 @@ function DocumentActionMenu({ userDocument, options }: DocumentActionMenuProps):
 }
 
 export default DocumentActionMenu;
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  active: boolean;
+}
+
+function TabPanel({ active, children }: TabPanelProps) {
+  return active && <Box sx={{ p: 2 }}>{children}</Box>;
+}
+
+export function ShareTabs({ format, setFormat, formats, cloudDocument }: { format: string, setFormat: (value: string) => void, formats: string[], cloudDocument?: CloudDocument }) {
+  const dispatch = useDispatch();
+
+  const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+    setFormat(newValue);
+  };
+
+  const updateCoauthors = (users: (User | string)[]) => {
+    if (!cloudDocument) return dispatch(actions.announce({ message: "Please save document to the cloud first" }));
+    const coauthors = users.map(u => typeof u === "string" ? u : u.email);
+    dispatch(actions.updateCloudDocument({ id: cloudDocument.id, partial: { coauthors } }));
+  }
+
+  return (
+    <Box>
+      <Tabs
+        variant="scrollable"
+        allowScrollButtonsMobile
+        value={format}
+        onChange={handleChange}
+        aria-label="Share tabs"
+      >
+        {formats.map(format => <Tab key={format} label={format} value={format} />)}
+      </Tabs>
+      {formats.includes("view") && <TabPanel active={format === "view"}>
+        <FormControl fullWidth>
+          <FormLabel>Permissions</FormLabel>
+          <FormControlLabel control={<Checkbox checked={true} disabled={true} />} label="Anyone with the link" />
+          <FormHelperText>only author and coauthors can fork non-published documents</FormHelperText>
+        </FormControl>
+      </TabPanel>}
+      {formats.includes("embed") && <TabPanel active={format === "embed"}>
+        <FormControl fullWidth>
+          <FormLabel>Permissions</FormLabel>
+          <FormControlLabel control={<Checkbox checked={true} disabled={true} />} label="Anyone with the link" />
+        </FormControl>
+      </TabPanel>}
+      {formats.includes("pdf") && <TabPanel active={format === "pdf"}>
+        <FormControl fullWidth>
+          <FormLabel>Permissions</FormLabel>
+          <FormControlLabel control={<Checkbox checked={true} disabled={true} />} label="Anyone with the link" />
+        </FormControl>
+        <FormControl fullWidth>
+          <FormLabel>Scale</FormLabel>
+          <Slider
+            name='scale'
+            aria-label="scale"
+            defaultValue={1}
+            valueLabelDisplay="auto"
+            step={0.1}
+            marks
+            min={0.1}
+            max={2}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <FormLabel>Orientation</FormLabel>
+          <RadioGroup row aria-label="orientation" name="landscape" defaultValue="false">
+            <FormControlLabel value="false" control={<Radio />} label="Portrait" />
+            <FormControlLabel value="true" control={<Radio />} label="Landscape" />
+          </RadioGroup>
+        </FormControl>
+        <FormControl fullWidth>
+          <FormLabel>Size</FormLabel>
+          <RadioGroup row aria-label="size" name="format" defaultValue="a4">
+            <FormControlLabel value="letter" control={<Radio />} label="Letter" />
+            <FormControlLabel value="a4" control={<Radio />} label="A4" />
+          </RadioGroup>
+        </FormControl>
+      </TabPanel>}
+      {formats.includes("edit") && <TabPanel active={format === "edit"}>
+        <FormControl fullWidth>
+          <FormLabel sx={{ mb: 2 }}>Permissions</FormLabel>
+          <UsersAutocomplete label='Coauthors' placeholder='Email' value={cloudDocument?.coauthors ?? []} onChange={updateCoauthors} />
+          <FormHelperText>only author and coauthors can edit this document</FormHelperText>
+        </FormControl>
+      </TabPanel>}
+    </Box>
+  );
+}

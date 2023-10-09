@@ -24,17 +24,18 @@ const RevisionCard: React.FC<{
   const isLocalDocument = !!localDocument;
   const isCloudDocument = !!cloudDocument;
 
-  const localRevisions = useSelector(state => state.revisions.filter(r => r.documentId === revision.documentId));
-  const cloudRevisions = cloudDocument?.revisions ?? [];
-  const localRevision = localRevisions.find(r => r.id === revision.id);
+  const localRevisions = useSelector(state => state.revisions);
+  const localDocumentRevisions = localRevisions.filter(r => r.documentId === revision.documentId);
+  const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
+  const localRevision = localDocumentRevisions.find(r => r.id === revision.id);
   const isLocalRevision = !!localRevision;
-  const cloudRevision = cloudRevisions.find(r => r.id === revision.id);
+  const cloudRevision = cloudDocumentRevisions.find(r => r.id === revision.id);
   const isCloudRevision = !!cloudRevision;
   const isLocalHead = isLocalDocument && localDocument.head === revision.id;
   const isCloudHead = isCloudDocument && isCloudRevision && cloudDocument.head === revision.id;
   const isSaved = isLocalRevision || isCloudRevision;
-  const isHeadLocalRevision = localRevisions.some(r => r.id === localDocument?.head);
-  const isHeadCloudRevision = cloudRevisions.some(r => r.id === localDocument?.head);
+  const isHeadLocalRevision = localDocumentRevisions.some(r => r.id === localDocument?.head);
+  const isHeadCloudRevision = cloudDocumentRevisions.some(r => r.id === localDocument?.head);
   const unsavedChanges = !isHeadLocalRevision && !isHeadCloudRevision;
 
   const isDocumentAuthor = isCloudDocument ? user?.id === cloudDocument.author.id : true;
