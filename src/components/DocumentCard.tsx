@@ -3,13 +3,13 @@ import * as React from 'react';
 import RouterLink from 'next/link'
 import { UserDocument } from '@/types';
 import { useSelector } from '@/store';
-import type { options } from './DocumentActionMenu';
 import { memo } from 'react';
-import DocumentActionMenu from './DocumentActionMenu';
+import DocumentActionMenu from './DocumentActions/ActionMenu';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, IconButton } from '@mui/material';
 import { Article, MobileFriendly, CloudDone, CloudSync, Cloud, Public, Share, MoreVert } from '@mui/icons-material';
-
+import EditDocument from './DocumentActions/Edit';
+import ShareDocument from './DocumentActions/Share';
 
 const DocumentCard: React.FC<{ userDocument?: UserDocument, sx?: SxProps<Theme> | undefined }> = memo(({ userDocument, sx }) => {
   const user = useSelector(state => state.user);
@@ -25,13 +25,6 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, sx?: SxProps<Theme> 
   const isPublished = isCloud && cloudDocument.published;
   const isAuthor = isCloud ? cloudDocument.author.id === user?.id : true
   const isCoauthor = isCloud ? cloudDocument.coauthors.some(u => u.id === user?.id) : false;
-
-  const options: options =
-    isAuthor ? ['edit', 'download', 'fork', 'share', 'upload', 'delete'] :
-      isLocal ?
-        ['download', 'fork', 'share', 'delete'] :
-        isCoauthor ? ['download', 'fork', 'share'] :
-          ['fork', 'share'];
 
   const document = isCloudOnly ? cloudDocument : localDocument;
   const handle = cloudDocument?.handle ?? localDocument?.handle ?? document?.id;
@@ -86,7 +79,11 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, sx?: SxProps<Theme> 
         {isUploaded && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={isUpToDate ? <CloudDone /> : <CloudSync />} label={isUpToDate ? "Up to date" : "Out of Sync"} />}
         {isCloudOnly && (isAuthor || isCoauthor) && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
         {isPublished && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Public />} label="Published" />}
-        {initialized && userDocument ? <DocumentActionMenu userDocument={userDocument} options={options} /> :
+        {initialized && userDocument ? <>
+          {isAuthor && <EditDocument userDocument={userDocument} />}
+          <ShareDocument userDocument={userDocument} />
+          <DocumentActionMenu userDocument={userDocument} />
+        </> :
           <>
             <IconButton aria-label="Share Document" size="small" sx={{ ml: "auto" }} disabled><Share /></IconButton>
             <IconButton aria-label="Document Actions" size="small" disabled><MoreVert /></IconButton>

@@ -57,15 +57,17 @@ const ViewDocument: React.FC<React.PropsWithChildren & { cloudDocument: CloudDoc
           </Typography>
           {cloudDocument.coauthors.length > 0 && <>
             <Typography component="h3" variant="subtitle2">Coauthors</Typography>
-            {cloudDocument.coauthors.map(coauthor => (
-              <Chip clickable component={RouterLink} prefetch={false}
-                href={`/user/${coauthor.handle || coauthor.id}`}
-                key={coauthor.id}
-                avatar={<Avatar alt={coauthor.name} src={coauthor.image || undefined} />}
-                label={coauthor.name}
-                variant="outlined"
-              />
-            ))}
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              {cloudDocument.coauthors.map(coauthor => (
+                <Chip clickable component={RouterLink} prefetch={false}
+                  href={`/user/${coauthor.handle || coauthor.id}`}
+                  key={coauthor.id}
+                  avatar={<Avatar alt={coauthor.name} src={coauthor.image || undefined} />}
+                  label={coauthor.name}
+                  variant="outlined"
+                />
+              ))}
+            </Box>
           </>}
         </Box>
       </Box>
