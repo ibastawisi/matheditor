@@ -41,7 +41,7 @@ function ScrollTop() {
   return (
     <Zoom in={trigger}>
       <Fab color="secondary" size="small" aria-label="scroll back to top" onClick={handleClick}
-        sx={{ position: 'fixed', bottom: 16, right: 16, zIndex: 1400, displayPrint: "none" }}>
+        sx={{ position: 'fixed', bottom: 16, right: 16, displayPrint: "none" }}>
         <KeyboardArrowUp />
       </Fab>
     </Zoom >
