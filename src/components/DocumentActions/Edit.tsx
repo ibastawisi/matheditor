@@ -2,13 +2,14 @@
 import { useDispatch, actions, useSelector } from "@/store";
 import { UserDocument, EditorDocument, CheckHandleResponse } from "@/types";
 import { Settings } from "@mui/icons-material";
-import { IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControlLabel, Checkbox, FormHelperText, useMediaQuery, ListItemIcon, ListItemText, MenuItem, TextField, debounce } from "@mui/material";
+import { IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControlLabel, Checkbox, FormHelperText, useMediaQuery, ListItemIcon, ListItemText, MenuItem, TextField } from "@mui/material";
 import { useCallback, useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import useFixedBodyScroll from "@/hooks/useFixedBodyScroll";
 import { useFormik } from "formik";
 import * as yup from 'yup';
 import { validate } from "uuid";
+import { debounce } from '@mui/material/utils';
 
 const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
   const dispatch = useDispatch();

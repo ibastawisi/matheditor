@@ -67,7 +67,6 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
       const selection = mathfield.selection;
       const range = selection.ranges[0];
       mathfield.applyStyle(style, range);
-      mathfield.executeCommand("commit");
     }
   }, [applyStyleMath, node]);
 
