@@ -20,10 +20,12 @@ import ImageTools from './Tools/ImageTools';
 import { $isSketchNode } from '../../nodes/SketchNode';
 import { $isGraphNode } from '../../nodes/GraphNode';
 import { $patchStyle } from '../../nodes/utils';
-import { ImageDialog, GraphDialog, SketchDialog, TableDialog } from './Dialogs';
+import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog } from './Dialogs';
 import { $isStickyNode } from '../../nodes/StickyNode';
 import { SelectChangeEvent, useScrollTrigger, AppBar, Toolbar, Box, IconButton, Select, MenuItem } from '@mui/material';
 import { Redo, Undo } from '@mui/icons-material';
+import { $isIFrameNode } from '@/editor/nodes/IFrameNode';
+import IFrameTools from './Tools/IFrameTools';
 
 type EditorDialogs = {
   image: {
@@ -38,6 +40,9 @@ type EditorDialogs = {
   table: {
     open: boolean;
   };
+  iframe : {
+    open: boolean;
+  }
 };
 
 export type SetDialogsPayload = Readonly<Partial<EditorDialogs>>;
@@ -136,6 +141,9 @@ function ToolbarPlugin() {
     table: {
       open: false,
     },
+    iframe : {
+      open: false,
+    }
   });
 
   const updateToolbar = useCallback(() => {
@@ -322,7 +330,8 @@ function ToolbarPlugin() {
 
   const showMathTools = $isMathNode(selectedNode);
   const showImageTools = $isImageNode(selectedNode);
-  const showTextTools = (!showMathTools && !showImageTools) || $isStickyNode(selectedNode);
+  const showIFrameTools = $isIFrameNode(selectedNode);
+  const showTextTools = (!showMathTools && !showImageTools && !showIFrameTools) || $isStickyNode(selectedNode);
   return (
     <>
       <AppBar className='toolbar-appbar' elevation={trigger ? 4 : 0} position={trigger ? 'fixed' : 'static'}>
@@ -340,6 +349,7 @@ function ToolbarPlugin() {
           <Box sx={{ display: "flex", gap: 0.5 }}>
             {showMathTools && <MathTools editor={activeEditor} node={selectedNode} />}
             {showImageTools && <ImageTools editor={activeEditor} node={selectedNode} />}
+            {showIFrameTools && <IFrameTools editor={activeEditor} node={selectedNode} />}
             {showTextTools && <>
               {blockType in blockTypeToBlockName && <BlockFormatSelect blockType={blockType} editor={activeEditor} />}
               {blockType === 'code' ? (
@@ -371,6 +381,7 @@ function ToolbarPlugin() {
       <GraphDialog editor={activeEditor} node={$isGraphNode(selectedNode) ? selectedNode : null} open={dialogs.graph.open} />
       <SketchDialog editor={activeEditor} node={$isSketchNode(selectedNode) ? selectedNode : null} open={dialogs.sketch.open} />
       <TableDialog editor={activeEditor} open={dialogs.table.open} />
+      <IFrameDialog editor={activeEditor} node={$isIFrameNode(selectedNode) ? selectedNode : null} open={dialogs.iframe.open} />
     </>
   );
 }

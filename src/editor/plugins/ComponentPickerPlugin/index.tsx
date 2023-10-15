@@ -43,7 +43,8 @@ import { StickyNode } from '@/editor/nodes/StickyNode';
 import { PageBreakNode } from '@/editor/nodes/PageBreakNode';
 import { INSERT_PAGE_BREAK } from '../PageBreakPlugin';
 import { Paper, MenuList, MenuItem, ListItemIcon, ListItemText, Typography, SvgIcon } from '@mui/material';
-import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight, FormatAlignJustify, FormatListNumbered, FormatListBulleted, PlaylistAddCheck, FormatQuote, Code, Image as ImageIcon, TableChart , HorizontalRule, Functions, Brush, StickyNote2, InsertPageBreak } from '@mui/icons-material';
+import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight, FormatAlignJustify, FormatListNumbered, FormatListBulleted, PlaylistAddCheck, FormatQuote, Code, Image as ImageIcon, TableChart , HorizontalRule, Functions, Brush, StickyNote2, InsertPageBreak, Web } from '@mui/icons-material';
+import { IFrameNode } from '@/editor/nodes/IFrameNode';
 
 const H1 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M200 776V376h60v170h180V376h60v400h-60V606H260v170h-60Zm500 0V436h-80v-60h140v400h-60Z" />
@@ -146,6 +147,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
   const openTableDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ table: { open: true } }));
   const openGraphDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ graph: { open: true } }));
   const openSketchDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ sketch: { open: true } }));
+  const openIFrameDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ iframe: { open: true } }));
 
   const checkForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
     minLength: 0,
@@ -395,6 +397,17 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           keyboardShortcut: '/page',
           onSelect: () =>
             editor.dispatchCommand(INSERT_PAGE_BREAK, undefined),
+        }),
+      );
+    }
+
+    if (editor.hasNode(IFrameNode)) {
+      baseOptions.push(
+        new ComponentPickerOption('IFrame', {
+          icon: <Web />,
+          keywords: ['iframe', 'embed'],
+          keyboardShortcut: '/iframe',
+          onSelect: openIFrameDialog,
         }),
       );
     }

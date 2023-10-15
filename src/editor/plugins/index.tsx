@@ -36,6 +36,8 @@ import { StickyNode } from "../nodes/StickyNode";
 import { TableNode } from "../nodes/TableNode";
 import { PageBreakNode } from "../nodes/PageBreakNode";
 import PageBreakPlugin from "./PageBreakPlugin";
+import { IFrameNode } from "../nodes/IFrameNode";
+import IFramePlugin from "./IFramePlugin";
 
 export const EditorPlugins: React.FC<{
   contentEditable: React.ReactElement;
@@ -74,6 +76,7 @@ export const EditorPlugins: React.FC<{
       <CodeHighlightPlugin />
       <AutoLinkPlugin />
       {editor.hasNode(PageBreakNode) && <PageBreakPlugin />}
+      {editor.hasNode(IFrameNode) && <IFramePlugin />}
     </>
   );
 };

@@ -349,6 +349,10 @@
   user-select: none;
 }
 
+.LexicalTheme__embedBlock iframe {
+  max-width: 100%;
+}
+
 .LexicalTheme__embedBlockFocus {
   outline: 2px solid rgb(60, 132, 244);
 }

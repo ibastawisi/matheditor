@@ -11,6 +11,7 @@ import { GraphNode } from './nodes/GraphNode';
 import { StickyNode } from './nodes/StickyNode';
 import theme from "./theme";
 import { PageBreakNode } from "./nodes/PageBreakNode";
+import { IFrameNode } from "./nodes/IFrameNode";
 
 export const editorConfig = {
   namespace: "matheditor",
@@ -40,5 +41,6 @@ export const editorConfig = {
     GraphNode,
     StickyNode,
     PageBreakNode,
+    IFrameNode,
   ]
 };
