@@ -7,8 +7,8 @@
  */
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $insertNodeToNearestRoot } from '@lexical/utils';
-import { COMMAND_PRIORITY_EDITOR, createCommand, LexicalCommand } from 'lexical';
+import { $wrapNodeInElement } from '@lexical/utils';
+import { $createParagraphNode, $insertNodes, $isRootOrShadowRoot, COMMAND_PRIORITY_EDITOR, createCommand, LexicalCommand } from 'lexical';
 import { useEffect } from 'react';
 
 import { $createIFrameNode, IFrameNode, IFramePayload } from '../../nodes/IFrameNode';
@@ -29,8 +29,10 @@ export default function IFramePlugin(): JSX.Element | null {
       INSERT_IFRAME_COMMAND,
       (payload) => {
         const iFrameNode = $createIFrameNode(payload);
-        $insertNodeToNearestRoot(iFrameNode);
-
+        $insertNodes([iFrameNode]);
+        if ($isRootOrShadowRoot(iFrameNode.getParentOrThrow())) {
+          $wrapNodeInElement(iFrameNode, $createParagraphNode).selectEnd();
+        }
         return true;
       },
       COMMAND_PRIORITY_EDITOR,

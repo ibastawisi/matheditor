@@ -349,7 +349,7 @@
   user-select: none;
 }
 
-.LexicalTheme__embedBlock iframe {
+iframe {
   max-width: 100%;
 }
 

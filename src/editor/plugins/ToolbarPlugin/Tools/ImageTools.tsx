@@ -9,6 +9,7 @@ import { SET_DIALOGS_COMMAND } from "..";
 import { SxProps, Theme } from '@mui/material/styles';
 import { ToggleButtonGroup, ToggleButton, SvgIcon } from "@mui/material";
 import { Edit, ClosedCaptionDisabled, ClosedCaption, ViewHeadline, Delete } from "@mui/icons-material";
+import { $isIFrameNode, IFrameNode } from "@/editor/nodes/IFrameNode";
 
 const FormatImageRight = () => <SvgIcon viewBox='0 -960 960 960'>
   <path xmlns="http://www.w3.org/2000/svg" d="M450-285v-390h390v390H450Zm60-60h270v-270H510v270ZM120-120v-60h720v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h720v60H120Z" />
@@ -19,11 +20,12 @@ const FormatImageLeft = () => <SvgIcon viewBox='0 -960 960 960'>
 </SvgIcon>;
 
 
-export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor, node: ImageNode | GraphNode | SketchNode, sx?: SxProps<Theme> | undefined }): JSX.Element {
+export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor, node: ImageNode | GraphNode | SketchNode | IFrameNode, sx?: SxProps<Theme> | undefined }): JSX.Element {
   const openImageDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ image: { open: true } }));
   const openGraphDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ graph: { open: true } }));
   const openSketchDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ sketch: { open: true } }));
-  const openDialog = $isGraphNode(node) ? openGraphDialog : $isSketchNode(node) ? openSketchDialog : openImageDialog;
+  const openIFrameDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ iframe: { open: true } }));
+  const openDialog = $isGraphNode(node) ? openGraphDialog : $isSketchNode(node) ? openSketchDialog : $isIFrameNode(node)? openIFrameDialog : openImageDialog;
 
   const [style, setStyle] = useState(currentNodeStyle());
 

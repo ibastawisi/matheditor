@@ -88,7 +88,7 @@ export class SketchNode extends ImageNode {
   }
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
-    const { element } = super.exportDOM(editor);
+    const element = super.createDOM(editor._config);
     if (element && isHTMLElement(element)) {
       element.innerHTML = decodeURIComponent(this.__src.split(',')[1]);
       const svg = element.firstElementChild!;

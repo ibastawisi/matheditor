@@ -348,8 +348,7 @@ function ToolbarPlugin() {
           </Box>
           <Box sx={{ display: "flex", gap: 0.5 }}>
             {showMathTools && <MathTools editor={activeEditor} node={selectedNode} />}
-            {showImageTools && <ImageTools editor={activeEditor} node={selectedNode} />}
-            {showIFrameTools && <IFrameTools editor={activeEditor} node={selectedNode} />}
+            {(showImageTools || showIFrameTools) && <ImageTools editor={activeEditor} node={selectedNode} />}
             {showTextTools && <>
               {blockType in blockTypeToBlockName && <BlockFormatSelect blockType={blockType} editor={activeEditor} />}
               {blockType === 'code' ? (

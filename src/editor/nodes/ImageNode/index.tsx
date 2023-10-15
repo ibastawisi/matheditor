@@ -112,186 +112,186 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return node;
   }
 
-exportDOM(editor: LexicalEditor): DOMExportOutput {
-  const { element } = super.exportDOM(editor);
-  if (!element) return { element };
-  const img = document.createElement('img');
-  img.setAttribute('src', this.__src);
-  img.setAttribute('alt', this.__altText);
-  if (this.__width) img.setAttribute('width', this.__width.toString());
-  if (this.__height) img.setAttribute('height', this.__height.toString());
-  element.appendChild(img);
-  if (!this.__showCaption) return { element };
-  const caption = document.createElement('figcaption');
-  this.__caption.getEditorState().read(() => {
-    caption.innerHTML = $generateHtmlFromNodes(this.__caption);
-  });
-  element.appendChild(caption);
-  return { element };
-}
+  exportDOM(editor: LexicalEditor): DOMExportOutput {
+    const { element } = super.exportDOM(editor);
+    if (!element) return { element };
+    const img = document.createElement('img');
+    img.setAttribute('src', this.__src);
+    img.setAttribute('alt', this.__altText);
+    if (this.__width) img.setAttribute('width', this.__width.toString());
+    if (this.__height) img.setAttribute('height', this.__height.toString());
+    element.appendChild(img);
+    if (!this.__showCaption) return { element };
+    const caption = document.createElement('figcaption');
+    this.__caption.getEditorState().read(() => {
+      caption.innerHTML = $generateHtmlFromNodes(this.__caption);
+    });
+    element.appendChild(caption);
+    return { element };
+  }
 
   static importDOM(): DOMConversionMap | null {
-  return {
-    img: (node: Node) => ({
-      conversion: convertImageElement,
-      priority: 0,
-    }),
-  };
-}
-
-constructor(
-  src: string,
-  altText: string,
-  width: number,
-  height: number,
-  style ?: string,
-  showCaption ?: boolean,
-  caption ?: LexicalEditor,
-  key ?: NodeKey,
-) {
-  super(key);
-  this.__src = src;
-  this.__altText = altText;
-  this.__width = width;
-  this.__height = height;
-  this.__style = style;
-  this.__showCaption = showCaption || false;
-  if (caption) this.__caption = caption
-  else {
-    const editor = createEditor(editorConfig);
-    editor.update(() => {
-      const root = $getRoot();
-      const paragraph = $createParagraphNode().setFormat('center');
-      paragraph.append($createTextNode(altText));
-      root.append(paragraph);
-    });
-    this.__caption = editor;
+    return {
+      img: (node: Node) => ({
+        conversion: convertImageElement,
+        priority: 0,
+      }),
+    };
   }
-}
 
-exportJSON(): SerializedImageNode {
-  return {
-    altText: this.getAltText(),
-    height: this.__height,
-    src: this.getSrc(),
-    style: this.__style,
-    type: 'image',
-    version: 1,
-    width: this.__width,
-    showCaption: this.__showCaption,
-    caption: this.__caption.toJSON(),
-  };
-}
-
-getWidth(): number {
-  return this.__width;
-}
-
-getHeight(): number {
-  return this.__height;
-}
-
-setWidthAndHeight(
-  width: number,
-  height: number,
-): void {
-  const writable = this.getWritable();
-  writable.__width = width;
-  writable.__height = height;
-}
-
-setSrc(
-  src: string,
-): void {
-  const writable = this.getWritable();
-  writable.__src = src;
-}
-
-getStyle(): string | undefined {
-  const self = this.getLatest();
-  return self.__style;
-}
-
-setStyle(style: string): this {
-  const self = this.getWritable();
-  self.__style = style;
-  return self;
-}
-
-getShowCaption(): boolean {
-  return this.__showCaption;
-}
-
-setShowCaption(showCaption: boolean): void {
-  const writable = this.getWritable();
-  writable.__showCaption = showCaption;
-}
-
-getCaption(): LexicalEditor {
-  return this.__caption;
-}
-
-setCaption(caption: LexicalEditor): void {
-  const writable = this.getWritable();
-  writable.__caption = caption;
-}
-
-update(payload: Partial<ImagePayload>): void {
-  const writable = this.getWritable();
-  writable.__src = payload.src ?? writable.__src;
-  writable.__altText = payload.altText ?? writable.__altText;
-  writable.__width = payload.width ?? writable.__width;
-  writable.__height = payload.height ?? writable.__height;
-  writable.__style = payload.style ?? writable.__style;
-  writable.__showCaption = payload.showCaption ?? writable.__showCaption;
-  writable.__caption = payload.caption ?? writable.__caption;
-}
-
-
-select() {
-  const nodeSelection = $createNodeSelection();
-  nodeSelection.add(this.getKey());
-  $setSelection(nodeSelection);
-}
-
-createDOM(config: EditorConfig): HTMLElement {
-  const figure = document.createElement('figure');
-  const theme = config.theme;
-  const className = theme.image;
-  if (className !== undefined) {
-    figure.className = className;
+  constructor(
+    src: string,
+    altText: string,
+    width: number,
+    height: number,
+    style?: string,
+    showCaption?: boolean,
+    caption?: LexicalEditor,
+    key?: NodeKey,
+  ) {
+    super(key);
+    this.__src = src;
+    this.__altText = altText;
+    this.__width = width;
+    this.__height = height;
+    this.__style = style;
+    this.__showCaption = showCaption || false;
+    if (caption) this.__caption = caption
+    else {
+      const editor = createEditor(editorConfig);
+      editor.update(() => {
+        const root = $getRoot();
+        const paragraph = $createParagraphNode().setFormat('center');
+        paragraph.append($createTextNode(altText));
+        root.append(paragraph);
+      });
+      this.__caption = editor;
+    }
   }
-  if (this.__style) {
-    figure.style.cssText = this.__style;
+
+  exportJSON(): SerializedImageNode {
+    return {
+      altText: this.getAltText(),
+      height: this.__height,
+      src: this.getSrc(),
+      style: this.__style,
+      type: 'image',
+      version: 1,
+      width: this.__width,
+      showCaption: this.__showCaption,
+      caption: this.__caption.toJSON(),
+    };
   }
-  return figure;
-}
 
-updateDOM(prevNode: ImageNode): boolean {
-  return prevNode.__src !== this.__src || prevNode.__style !== this.__style;
-}
+  getWidth(): number {
+    return this.__width;
+  }
 
-getSrc(): string {
-  return this.__src;
-}
+  getHeight(): number {
+    return this.__height;
+  }
 
-getAltText() {
-  return this.__altText;
-}
+  setWidthAndHeight(
+    width: number,
+    height: number,
+  ): void {
+    const writable = this.getWritable();
+    writable.__width = width;
+    writable.__height = height;
+  }
 
-decorate(): JSX.Element {
-  return (
-    <ImageComponent
-      src={this.__src}
-      altText={this.__altText}
-      width={this.__width}
-      height={this.__height}
-      nodeKey={this.getKey()}
-      showCaption={this.__showCaption}
-      caption={this.__caption}
-    />
-  );
-}
+  setSrc(
+    src: string,
+  ): void {
+    const writable = this.getWritable();
+    writable.__src = src;
+  }
+
+  getStyle(): string | undefined {
+    const self = this.getLatest();
+    return self.__style;
+  }
+
+  setStyle(style: string): this {
+    const self = this.getWritable();
+    self.__style = style;
+    return self;
+  }
+
+  getShowCaption(): boolean {
+    return this.__showCaption;
+  }
+
+  setShowCaption(showCaption: boolean): void {
+    const writable = this.getWritable();
+    writable.__showCaption = showCaption;
+  }
+
+  getCaption(): LexicalEditor {
+    return this.__caption;
+  }
+
+  setCaption(caption: LexicalEditor): void {
+    const writable = this.getWritable();
+    writable.__caption = caption;
+  }
+
+  update(payload: Partial<ImagePayload>): void {
+    const writable = this.getWritable();
+    writable.__src = payload.src ?? writable.__src;
+    writable.__altText = payload.altText ?? writable.__altText;
+    writable.__width = payload.width ?? writable.__width;
+    writable.__height = payload.height ?? writable.__height;
+    writable.__style = payload.style ?? writable.__style;
+    writable.__showCaption = payload.showCaption ?? writable.__showCaption;
+    writable.__caption = payload.caption ?? writable.__caption;
+  }
+
+
+  select() {
+    const nodeSelection = $createNodeSelection();
+    nodeSelection.add(this.getKey());
+    $setSelection(nodeSelection);
+  }
+
+  createDOM(config: EditorConfig): HTMLElement {
+    const figure = document.createElement('figure');
+    const theme = config.theme;
+    const className = theme.image;
+    if (className !== undefined) {
+      figure.className = className;
+    }
+    if (this.__style) {
+      figure.style.cssText = this.__style;
+    }
+    return figure;
+  }
+
+  updateDOM(prevNode: ImageNode): boolean {
+    return prevNode.__src !== this.__src || prevNode.__style !== this.__style;
+  }
+
+  getSrc(): string {
+    return this.__src;
+  }
+
+  getAltText() {
+    return this.__altText;
+  }
+
+  decorate(): JSX.Element {
+    return (
+      <ImageComponent
+        src={this.__src}
+        altText={this.__altText}
+        width={this.__width}
+        height={this.__height}
+        nodeKey={this.getKey()}
+        showCaption={this.__showCaption}
+        caption={this.__caption}
+      />
+    );
+  }
 }
 
 export function $createImageNode({

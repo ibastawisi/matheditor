@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover",
   manifest: "/manifest.json",
   icons: [
-    { rel: "shortcut icon", url: "/favicon.ico" },
+    { rel: "shortcut icon", url: "/logo.svg" },
   ],
   keywords: ["Math Editor", "Online Math Editor", "Matheditor", "Math", "Editor", "Latex", "Geogebra", "Excalidraw", "Markdown"],
   openGraph: {

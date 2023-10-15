@@ -1,6 +1,12 @@
 "use client"
-import { BlockWithAlignableContents } from '@lexical/react/LexicalBlockWithAlignableContents';
-import { ElementFormatType, NodeKey } from 'lexical';
+import { Typography } from '@mui/material';
+import { $getNodeByKey, ElementFormatType, LexicalEditor, NodeKey } from 'lexical';
+import { Suspense } from 'react';
+import { editorConfig } from '../ImageNode/config';
+import dynamic from 'next/dynamic';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $isImageNode } from '../ImageNode';
+const NestedEditor = dynamic(() => import('@/editor/NestedEditor'), { ssr: false });
 
 export type IFrameComponentProps = Readonly<{
   className: Readonly<{
@@ -9,28 +15,59 @@ export type IFrameComponentProps = Readonly<{
   }>;
   format: ElementFormatType | null;
   nodeKey: NodeKey;
-  url: string;
+  src: string;
   width: string;
   height: string;
 }>;
 
 
 export function IFrameComponent({
-  className, format, nodeKey, url, width, height,
-}: IFrameComponentProps) {
+  src,
+  altText,
+  nodeKey,
+  width,
+  height,
+  showCaption,
+  caption,
+}: {
+  altText: string;
+  height: number;
+  nodeKey: NodeKey;
+  src: string;
+  width: number;
+  showCaption: boolean;
+  caption: LexicalEditor;
+}): JSX.Element {
+  const [editor] = useLexicalComposerContext();
+  const onChange = () => {
+    editor.update(() => {
+      const node = $getNodeByKey(nodeKey);
+      if ($isImageNode(node)) {
+        node.setCaption(caption);
+      }
+    });
+  }
+
   return (
-    <BlockWithAlignableContents
-      className={className}
-      format={format}
-      nodeKey={nodeKey}>
+    <>
       <iframe
         width={width}
         height={height}
-        src={url}
+        src={src}
         frameBorder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen={true}
-        title="IFrame" />
-    </BlockWithAlignableContents>
+        title={altText}
+      />
+      {showCaption && (
+        <figcaption>
+          <Suspense fallback={null}>
+            <NestedEditor initialEditor={caption} initialNodes={editorConfig.nodes} onChange={onChange}
+              placeholder={<Typography color="text.secondary" className="nested-placeholder">Write a caption</Typography>}
+            />
+          </Suspense>
+        </figcaption>
+      )}
+    </>
   );
 }

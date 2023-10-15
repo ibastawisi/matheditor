@@ -18,93 +18,119 @@ import type {
   Spread,
 } from 'lexical';
 
-import {
-  DecoratorBlockNode,
-  SerializedDecoratorBlockNode,
-} from '@lexical/react/LexicalDecoratorBlockNode';
 import * as React from 'react';
 import { IFrameComponent } from './IFrameComponent';
+import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
+import { $generateHtmlFromNodes } from '@/editor/utils/html';
 
-export interface IFramePayload {
-  url: string;
-  width: string;
-  height: string;
-};
-
-export type SerializedIFrameNode = Spread<
-  {
-    url: string;
-    width: string;
-    height: string;
-  },
-  SerializedDecoratorBlockNode
->;
-
-function convertIFrameElement(
-  domNode: HTMLElement,
-): null | DOMConversionOutput {
-  const url = domNode.getAttribute('data-lexical-iFrame');
-  if (url) {
-    const width = domNode.getAttribute('width') || '560px';
-    const height = domNode.getAttribute('height') || '315px';
-    const node = $createIFrameNode({ url, width, height });
+function convertIFrameElement(domNode: HTMLElement,): null | DOMConversionOutput {
+  const src = domNode.getAttribute('data-lexical-iFrame');
+  if (src) {
+    const width = +(domNode.getAttribute('width') || '560');
+    const height = +(domNode.getAttribute('height') || '315');
+    const style = domNode.style.cssText;
+    const altText = domNode.title;
+    const node = $createIFrameNode({ src, width, height, style, altText });
     return { node };
   }
   return null;
 }
 
-export class IFrameNode extends DecoratorBlockNode {
-  __url: string;
-  __width: string = '560';
-  __height: string = '315';
+export type IFramePayload = ImagePayload;
+export type SerializedIFrameNode = Spread<
+  {
+    type: 'iframe';
+    version: 1;
+  },
+  SerializedImageNode
+>;
+
+export class IFrameNode extends ImageNode {
 
   static getType(): string {
-    return 'iFrame';
+    return 'iframe';
   }
 
   static clone(node: IFrameNode): IFrameNode {
-    return new IFrameNode(node.__url,
-      node.__width, node.__height,
-      node.__format, node.__key);
+    return new IFrameNode(
+      node.__src,
+      node.__altText,
+      node.__width,
+      node.__height,
+      node.__style,
+      node.__showCaption,
+      node.__caption,
+      node.__key,
+    );
+
   }
 
   static importJSON(serializedNode: SerializedIFrameNode): IFrameNode {
-    const node = $createIFrameNode(serializedNode);
-    node.setFormat(serializedNode.format);
+    const { width, height, src, style, showCaption, caption, altText } =
+      serializedNode;
+    const node = $createIFrameNode({
+      src,
+      width,
+      height,
+      style,
+      showCaption,
+      altText
+    });
+    try {
+      if (caption) {
+        const nestedEditor = node.__caption;
+        const editorState = nestedEditor.parseEditorState(caption.editorState);
+        if (!editorState.isEmpty()) {
+          nestedEditor.setEditorState(editorState);
+        }
+      }
+    } catch (e) { console.error(e); }
     return node;
   }
 
   exportJSON(): SerializedIFrameNode {
     return {
       ...super.exportJSON(),
-      type: 'iFrame',
+      type: 'iframe',
       version: 1,
-      url: this.__url,
-      width: this.__width,
-      height: this.__height,
     };
   }
 
-  constructor(url: string, width: string, height: string, format?: ElementFormatType, key?: NodeKey) {
-    super(format, key);
-    this.__url = url;
-    this.__width = width;
-    this.__height = height;
+  constructor(
+    src: string,
+    altText: string,
+    width: number,
+    height: number,
+    style?: string,
+    showCaption?: boolean,
+    caption?: LexicalEditor,
+    key?: NodeKey,
+  ) {
+    super(src, altText, width, height, style, showCaption, caption, key);
   }
 
-  exportDOM(): DOMExportOutput {
-    const element = document.createElement('iframe');
-    element.setAttribute('data-lexical-iFrame', this.__url);
-    element.setAttribute('width', this.__width);
-    element.setAttribute('height', this.__height);
-    element.setAttribute('src', this.__url);
-    element.setAttribute('frameborder', '0');
-    element.setAttribute(
+  exportDOM(editor: LexicalEditor): DOMExportOutput {
+    const element = super.createDOM(editor._config);
+    if (!element) return { element };
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('data-lexical-iFrame', this.__src);
+    if (this.__width) iframe.setAttribute('width', this.__width.toString());
+    if (this.__height) iframe.setAttribute('height', this.__height.toString());
+    iframe.setAttribute('src', this.__src);
+    iframe.setAttribute('frameborder', '0');
+    iframe.setAttribute(
       'allow',
       'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
     );
-    element.setAttribute('allowfullscreen', 'true');
-    element.setAttribute('title', 'IFrame');
+    iframe.setAttribute('allowfullscreen', 'true');
+    iframe.setAttribute('title', this.__altText);
+    element.appendChild(iframe);
+    if (!this.__showCaption) return { element };
+    const caption = document.createElement('figcaption');
+    this.__caption.getEditorState().read(() => {
+      caption.innerHTML = $generateHtmlFromNodes(this.__caption);
+    });
+    element.appendChild(caption);
     return { element };
   }
 
@@ -122,34 +148,6 @@ export class IFrameNode extends DecoratorBlockNode {
     };
   }
 
-  updateDOM(): false {
-    return false;
-  }
-
-  getUrl(): string {
-    return this.__url;
-  }
-
-  setUrl(url: string): void {
-    this.__url = url;
-  }
-
-  getWidth(): string {
-    return this.__width;
-  }
-
-  setWidth(width: string): void {
-    this.__width = width;
-  }
-
-  getHeight(): string {
-    return this.__height;
-  }
-
-  setHeight(height: string): void {
-    this.__height = height;
-  }
-
   getTextContent(
     _includeInert?: boolean | undefined,
     _includeDirectionless?: false | undefined,
@@ -157,35 +155,24 @@ export class IFrameNode extends DecoratorBlockNode {
     return this.__url;
   }
 
-  update(payload: Partial<IFramePayload>): void {
-    const writable = this.getWritable();
-    if (payload.url) writable.__url = payload.url;
-    if (payload.width) writable.__width = payload.width;
-    if (payload.height) writable.__height = payload.height;
-  }
-
-  decorate(_editor: LexicalEditor, config: EditorConfig): JSX.Element {
-    const embedBlockTheme = config.theme.embedBlock || {};
-    const className = {
-      base: embedBlockTheme.base || '',
-      focus: embedBlockTheme.focus || '',
-    };
+  decorate(): JSX.Element {
     return (
       <IFrameComponent
-        className={className}
-        format={this.__format}
-        nodeKey={this.getKey()}
-        url={this.__url}
+        src={this.__src}
+        altText={this.__altText}
         width={this.__width}
         height={this.__height}
+        nodeKey={this.getKey()}
+        showCaption={this.__showCaption}
+        caption={this.__caption}
       />
     );
   }
 }
 
 export function $createIFrameNode(payload: IFramePayload): IFrameNode {
-  const { url, width, height } = payload;
-  return new IFrameNode(url, width, height);
+  const { src, altText = "iframe", width, height, style, showCaption, caption, key } = payload;
+  return new IFrameNode(src, altText, width, height, style, showCaption, caption, key);
 }
 
 export function $isIFrameNode(

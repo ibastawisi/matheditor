@@ -5,25 +5,26 @@ import { SET_DIALOGS_COMMAND } from '..';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, IconButton, Switch, TextField, useMediaQuery } from '@mui/material';
-import { Remove, Add } from '@mui/icons-material';
 import { INSERT_IFRAME_COMMAND } from '../../IFramePlugin';
 import { IFrameNode } from '@/editor/nodes/IFrameNode';
 
 function IFrameDialog({ editor, node, open }: { editor: LexicalEditor, node: IFrameNode | null; open: boolean }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const [formData, setFormData] = useState({ url: '', width: '560', height: '315' });
+  const [formData, setFormData] = useState({ src: '', altText: '', width: 560, height: 315, showCaption: true });
   useEffect(() => {
     if (node) {
-      setFormData({ url: node.getUrl(), width: node.getWidth(), height: node.getHeight() });
+      setFormData({ src: node.getSrc(), altText: node.getAltText(), width: node.getWidth(), height: node.getHeight(), showCaption: node.getShowCaption() });
     } else {
-      setFormData({ url: '', width: '560', height: '315' });
+      setFormData({ src: '', altText: '', width: 560, height: 315, showCaption: true });
     }
   }, [node]);
 
   const updateFormData = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    setFormData({ ...formData, [name]: value });
+    if (name === 'showCaption') {
+      setFormData({ ...formData, [name]: event.target.checked });
+    } else setFormData({ ...formData, [name]: value });
   }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
@@ -36,7 +37,6 @@ function IFrameDialog({ editor, node, open }: { editor: LexicalEditor, node: IFr
 
   const closeDialog = () => {
     editor.dispatchCommand(SET_DIALOGS_COMMAND, { iframe: { open: false } })
-    setFormData({ url: '', width: '560', height: '315' });
   }
 
   const restoreSelection = () => {
@@ -65,22 +65,18 @@ function IFrameDialog({ editor, node, open }: { editor: LexicalEditor, node: IFr
     </DialogTitle>
     <DialogContent>
       <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-        <FormControl sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', my: 2 }}>
-          <TextField type="string" size="small" sx={{ mx: 1 }} value={formData.url} onChange={updateFormData} label="URL" name="url" autoComplete="url" autoFocus />
-        </FormControl>
-        <FormControl sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', my: 2 }}>
-          <TextField type="string" size="small" sx={{ mx: 1 }} value={formData.width} onChange={updateFormData} label="Width" name="width" autoComplete="width" autoFocus />
-        </FormControl>
-        <FormControl sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', my: 2 }}>
-          <TextField type="string" size="small" sx={{ mx: 1 }} value={formData.height} onChange={updateFormData} label="Height" name="height" autoComplete="height" autoFocus />
-        </FormControl>
+        <TextField margin='normal' size="small" fullWidth value={formData.src} onChange={updateFormData} label="Embed URL" name="src" autoComplete="src" autoFocus />
+        <TextField margin="normal" size="small" fullWidth value={formData.altText} onChange={updateFormData} label="Alt Text" name="altText" autoComplete="altText" />
+        <TextField margin="normal" size="small" fullWidth value={formData.width} onChange={updateFormData} label="Width" name="width" autoComplete="width" />
+        <TextField margin="normal" size="small" fullWidth value={formData.height} onChange={updateFormData} label="Height" name="height" autoComplete="height" />
+        <FormControlLabel control={<Switch checked={formData.showCaption} onChange={updateFormData} />} label="Show Caption" name="showCaption" />
       </Box>
     </DialogContent>
     <DialogActions>
       <Button autoFocus onClick={handleClose}>
         Cancel
       </Button>
-      <Button onClick={handleSubmit} disabled={!formData.url}>
+      <Button onClick={handleSubmit} disabled={!formData.src}>
         Confirm
       </Button>
     </DialogActions>
