@@ -63,7 +63,7 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
         sx={{
           color: 'text.primary',
           borderColor: 'divider',
-          // '&:hover': { borderColor: 'text.primary' },
+          height: 40,
           '& .MuiButton-startIcon': { mr: { xs: 0, sm: 0.5 } }
         }}
       >

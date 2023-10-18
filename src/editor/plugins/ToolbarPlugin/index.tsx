@@ -341,7 +341,7 @@ function ToolbarPlugin() {
   return (
     <>
       <AppBar className='toolbar-appbar' elevation={trigger ? 4 : 0} position={trigger ? 'fixed' : 'static'}>
-        <Toolbar className="toolbar" sx={{ displayPrint: 'none', px: `${(trigger ? 1 : 0)}!important`, justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 0.5, minHeight: 64 }}>
+        <Toolbar className="toolbar" sx={{ displayPrint: 'none', px: `${(trigger ? 1 : 0)}!important`, justifyContent: "space-between", alignItems: "center", gap: 0.5, minHeight: 64 }}>
           <Box sx={{ display: "flex" }}>
             <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
               onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}>
@@ -352,7 +352,7 @@ function ToolbarPlugin() {
               <Redo />
             </IconButton>
           </Box>
-          <Box sx={{ display: "flex", gap: 0.5 }}>
+          <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap", }}>
             {showMathTools && <MathTools editor={activeEditor} node={selectedNode} />}
             {(showImageTools) && <ImageTools editor={activeEditor} node={selectedNode} />}
             {showTextTools && <>
