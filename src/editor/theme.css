@@ -150,6 +150,8 @@
   overflow-y: scroll;
   table-layout: fixed;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .LexicalTheme__tableSelection *::selection {
@@ -168,6 +170,10 @@
   outline: none;
   height: inherit;
   overflow: hidden;
+}
+
+.LexicalTheme__tableCell span {
+  white-space: nowrap !important;
 }
 
 .LexicalTheme__tableCellHeader {
@@ -362,6 +368,7 @@ iframe {
   display: inline-flex;
   flex-direction: column;
   position: relative;
+  z-index: 1;
   margin: 0;
 }
 

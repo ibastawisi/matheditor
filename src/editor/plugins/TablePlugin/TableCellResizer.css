@@ -9,4 +9,5 @@
 
 .TableCellResizer__resizer {
   position: absolute;
+  z-index: 1;
 }

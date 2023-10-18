@@ -60,23 +60,23 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
           onClick={openDialog}>
           <Edit />
         </ToggleButton>
-        <ToggleButton value="caption" key="caption"
+        <ToggleButton value="caption" key="caption" selected={node.getShowCaption()}
           onClick={toggleShowCaption}>
-          {node.getShowCaption() ? <ClosedCaptionDisabled /> : <ClosedCaption />}
+          {node.getShowCaption() ? <ClosedCaption /> : <ClosedCaptionDisabled />}
         </ToggleButton>
-        <ToggleButton value="float-left" key="float-left"
+        <ToggleButton value="float-left" key="float-left" selected={style?.float === "left"}
           onClick={() => {
             updateStyle({ "float": "left", "margin": "0 1em 0 0", "max-width": "50%" });
           }}>
           <FormatImageLeft />
         </ToggleButton>
-        <ToggleButton value="float-none" key="float-none"
+        <ToggleButton value="float-none" key="float-none" selected={!style || style?.float === "none"}
           onClick={() => {
             updateStyle({ "float": "none", "margin": "0", "max-width": "100%" });
           }}>
           <ViewHeadline />
         </ToggleButton>,
-        <ToggleButton value="float-right" key="float-right"
+        <ToggleButton value="float-right" key="float-right" selected={style?.float === "right"}
           onClick={() => {
             updateStyle({ "float": "right", "margin": "0 0 0 1em", "max-width": "50%" });
           }}>

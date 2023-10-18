@@ -6,7 +6,8 @@
  *
  */
 
-import { $isTableNode, type TableNode } from './LexicalTableNode';
+import type { TableCellNode } from './LexicalTableCellNode';
+import type { TableNode } from './LexicalTableNode';
 import type { Cell, Cells, Grid } from './LexicalTableSelection';
 import type {
   GridSelection,
@@ -18,7 +19,6 @@ import type {
   TextFormatType,
 } from 'lexical';
 
-import { $isTableCellNode, TableCellNode } from './LexicalTableCellNode';
 import { $findMatchingParent } from '@lexical/utils';
 import {
   $createParagraphNode,
@@ -49,6 +49,8 @@ import {
 } from 'lexical';
 import invariant from '../../shared/invariant';
 
+import { $isTableCellNode } from './LexicalTableCellNode';
+import { $isTableNode } from './LexicalTableNode';
 import { TableSelection } from './LexicalTableSelection';
 import { getStyleObjectFromCSS } from '../utils';
 

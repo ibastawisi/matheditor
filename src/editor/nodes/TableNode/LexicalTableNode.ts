@@ -17,6 +17,7 @@ import type {
   LexicalNode,
   NodeKey,
   SerializedElementNode,
+  Spread,
 } from 'lexical';
 
 import { addClassNamesToElement } from '@lexical/utils';
@@ -31,19 +32,27 @@ import { $isTableCellNode } from './LexicalTableCellNode';
 import { $isTableRowNode, TableRowNode } from './LexicalTableRowNode';
 import { getTableGrid } from './LexicalTableSelectionHelpers';
 
-export type SerializedTableNode = SerializedElementNode;
+export type SerializedTableNode = Spread<
+  {
+    style?: string;
+  },
+  SerializedElementNode
+>;
 
 /** @noInheritDoc */
 export class TableNode extends DEPRECATED_GridNode {
   /** @internal */
   __grid?: Grid;
+  __style?: string
 
   static getType(): string {
     return 'table';
   }
 
   static clone(node: TableNode): TableNode {
-    return new TableNode(node.__key);
+    const tableNode = new TableNode(node.__key);
+    tableNode.__style = node.__style;
+    return tableNode;
   }
 
   static importDOM(): DOMConversionMap | null {
@@ -56,16 +65,19 @@ export class TableNode extends DEPRECATED_GridNode {
   }
 
   static importJSON(_serializedNode: SerializedTableNode): TableNode {
-    return $createTableNode();
+    const tableNode = $createTableNode();
+    tableNode.__style = _serializedNode.style;
+    return tableNode;
   }
 
   constructor(key?: NodeKey) {
     super(key);
   }
 
-  exportJSON(): SerializedElementNode {
+  exportJSON(): SerializedTableNode {
     return {
       ...super.exportJSON(),
+      style: this.__style,
       type: 'table',
       version: 1,
     };
@@ -76,22 +88,40 @@ export class TableNode extends DEPRECATED_GridNode {
 
     addClassNamesToElement(tableElement, config.theme.table);
 
+    if (this.__style) {
+      tableElement.style.cssText = this.__style;
+    }
+
     return tableElement;
   }
 
-  updateDOM(): boolean {
-    return false;
+  updateDOM(prevNode: TableNode): boolean {
+    return (
+      this.__style !== prevNode.__style
+    );
   }
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
+    const { element } = super.exportDOM(editor);
+
+    if (element) {
+      const element_ = element as HTMLTableCellElement;
+      const style = this.getStyle();
+      if (style) {
+        element_.style.cssText += style;
+      }
+    }
+
     return {
-      ...super.exportDOM(editor),
+      element,
       after: (tableElement) => {
-        if (tableElement && isHTMLElement(tableElement)) {
+        if (tableElement) {
           const newElement = tableElement.cloneNode() as ParentNode;
           const colGroup = document.createElement('colgroup');
           const tBody = document.createElement('tbody');
-          tBody.append(...tableElement.children);
+          if (isHTMLElement(tableElement)) {
+            tBody.append(...tableElement.children);
+          }
           const firstRow = this.getFirstChildOrThrow<TableRowNode>();
 
           if (!$isTableRowNode(firstRow)) {
@@ -126,6 +156,17 @@ export class TableNode extends DEPRECATED_GridNode {
     return true;
   }
 
+  getStyle(): string | undefined {
+    const self = this.getLatest();
+    return self.__style;
+  }
+
+  setStyle(style: string): this {
+    const self = this.getWritable();
+    self.__style = style;
+    return self;
+  }
+
   getCordsFromCellNode(
     tableCellNode: TableCellNode,
     grid: Grid,
@@ -141,7 +182,7 @@ export class TableNode extends DEPRECATED_GridNode {
 
       const x = row.findIndex((cell) => {
         if (!cell) return;
-        const {elem} = cell;
+        const { elem } = cell;
         const cellNode = $getNearestNodeFromDOMNode(elem);
         return cellNode === tableCellNode;
       });

@@ -13,8 +13,6 @@ import type {
   TableSelection,
 } from '../../nodes/TableNode';
 import type {
-  ElementNode,
-  LexicalNode,
   NodeKey,
 } from 'lexical';
 
@@ -37,16 +35,6 @@ import {
 } from 'lexical';
 import { useEffect } from 'react';
 import invariant from '../../shared/invariant';
-
-// TODO extract to utils
-function $insertFirst(parent: ElementNode, node: LexicalNode): void {
-  const firstChild = parent.getFirstChild();
-  if (firstChild !== null) {
-    firstChild.insertBefore(node);
-  } else {
-    parent.append(node);
-  }
-}
 
 export function TablePlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();

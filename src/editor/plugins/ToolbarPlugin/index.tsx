@@ -25,7 +25,9 @@ import { $isStickyNode } from '../../nodes/StickyNode';
 import { SelectChangeEvent, useScrollTrigger, AppBar, Toolbar, Box, IconButton, Select, MenuItem } from '@mui/material';
 import { Redo, Undo } from '@mui/icons-material';
 import { $isIFrameNode } from '@/editor/nodes/IFrameNode';
-import IFrameTools from './Tools/IFrameTools';
+import { $findMatchingParent } from '@lexical/utils';
+import { $isTableNode, TableNode } from '@/editor/nodes/TableNode';
+import TableTools from './Tools/TableTools';
 
 type EditorDialogs = {
   image: {
@@ -40,7 +42,7 @@ type EditorDialogs = {
   table: {
     open: boolean;
   };
-  iframe : {
+  iframe: {
     open: boolean;
   }
 };
@@ -128,6 +130,7 @@ function ToolbarPlugin() {
   const [canRedo, setCanRedo] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState<string>('');
   const [selectedNode, setSelectedNode] = useState<LexicalNode | null>(null);
+  const [selectedTable, setSelectedTable] = useState<TableNode | null>(null);
   const [dialogs, setDialogs] = useState<EditorDialogs>({
     image: {
       open: false,
@@ -141,7 +144,7 @@ function ToolbarPlugin() {
     table: {
       open: false,
     },
-    iframe : {
+    iframe: {
       open: false,
     }
   });
@@ -157,6 +160,9 @@ function ToolbarPlugin() {
       setSelectedNode(null);
     }
     if ($isRangeSelection(selection)) {
+      const node = getSelectedNode(selection);
+      const tableNode = $findMatchingParent(node, $isTableNode) as TableNode | null;
+      setSelectedTable(tableNode);
       const anchorNode = selection.anchor.getNode();
       const element =
         anchorNode.getKey() === 'root'
@@ -330,12 +336,12 @@ function ToolbarPlugin() {
 
   const showMathTools = $isMathNode(selectedNode);
   const showImageTools = $isImageNode(selectedNode);
-  const showIFrameTools = $isIFrameNode(selectedNode);
-  const showTextTools = (!showMathTools && !showImageTools && !showIFrameTools) || $isStickyNode(selectedNode);
+  const showTableTools = !!selectedTable;
+  const showTextTools = (!showMathTools && !showImageTools) || $isStickyNode(selectedNode);
   return (
     <>
       <AppBar className='toolbar-appbar' elevation={trigger ? 4 : 0} position={trigger ? 'fixed' : 'static'}>
-        <Toolbar className="toolbar" sx={{ displayPrint: 'none', px: `${(trigger ? 1 : 0)}!important`, justifyContent: "space-between", alignItems: "center", gap: 0.5, minHeight: 64 }}>
+        <Toolbar className="toolbar" sx={{ displayPrint: 'none', px: `${(trigger ? 1 : 0)}!important`, justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 0.5, minHeight: 64 }}>
           <Box sx={{ display: "flex" }}>
             <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
               onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}>
@@ -348,7 +354,7 @@ function ToolbarPlugin() {
           </Box>
           <Box sx={{ display: "flex", gap: 0.5 }}>
             {showMathTools && <MathTools editor={activeEditor} node={selectedNode} />}
-            {(showImageTools || showIFrameTools) && <ImageTools editor={activeEditor} node={selectedNode} />}
+            {(showImageTools) && <ImageTools editor={activeEditor} node={selectedNode} />}
             {showTextTools && <>
               {blockType in blockTypeToBlockName && <BlockFormatSelect blockType={blockType} editor={activeEditor} />}
               {blockType === 'code' ? (
@@ -363,6 +369,7 @@ function ToolbarPlugin() {
                   <Select size='small' sx={{ width: 68 }} onChange={onFontSizeSelect} value={fontSize}>
                     {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
                   </Select>
+                  {showTableTools && <TableTools editor={activeEditor} node={selectedTable} />}
                   <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
                 </>
               )}

@@ -658,7 +658,7 @@ function TableCellActionMenuContainer({
   }, [prevTableCellDOM, tableCellNode]);
 
   return (
-    <Box sx={{ position: 'absolute', displayPrint: 'none' }} ref={menuButtonRef}>
+    <Box sx={{ position: 'absolute', displayPrint: 'none', zIndex: 1 }} ref={menuButtonRef}>
       {tableCellNode != null && (
         <>
           <IconButton size="small" ref={menuRootRef}

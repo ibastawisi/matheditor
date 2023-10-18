@@ -69,8 +69,6 @@ header {
 }
 
 .editor-container {
-  display: flex !important;
-  flex-direction: column;
   flex: 1;
   margin: 1rem auto;
   position: relative;
