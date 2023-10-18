@@ -51,8 +51,8 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ske
     const serialized = new XMLSerializer().serializeToString(element);
     const src = "data:image/svg+xml," + encodeURIComponent(serialized);
     const dimensions = await getImageDimensions(src);
-
-    insertSketch({ src, showCaption: true, ...dimensions });
+    const showCaption = node?.getShowCaption() ?? true;
+    insertSketch({ src, showCaption, ...dimensions });
     closeDialog();
     setTimeout(() => { editor.focus() }, 0);
   };

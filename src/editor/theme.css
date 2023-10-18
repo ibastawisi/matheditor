@@ -375,7 +375,6 @@ iframe {
 .LexicalTheme__image>img,
 .LexicalTheme__image>svg {
   max-width: 100%;
-  height: auto;
   background-color: white;
 }
 

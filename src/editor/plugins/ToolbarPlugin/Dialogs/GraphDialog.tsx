@@ -46,7 +46,8 @@ function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: Grap
     const value = app.getBase64();
     restoreSelection();
     const dimensions = await getImageDimensions(src);
-    insertGraph({ src, value, showCaption: true, ...dimensions });
+    const showCaption = node?.getShowCaption() ?? true;
+    insertGraph({ src, value, showCaption, ...dimensions });
     closeDialog();
     setTimeout(() => { editor.focus() }, 0);
   };

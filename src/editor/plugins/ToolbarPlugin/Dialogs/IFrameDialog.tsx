@@ -11,12 +11,12 @@ import { IFrameNode } from '@/editor/nodes/IFrameNode';
 function IFrameDialog({ editor, node, open }: { editor: LexicalEditor, node: IFrameNode | null; open: boolean }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const [formData, setFormData] = useState({ src: '', altText: '', width: 560, height: 315, showCaption: true });
+  const [formData, setFormData] = useState({ src: '', altText: 'iframe', width: 560, height: 315, showCaption: true });
   useEffect(() => {
     if (node) {
       setFormData({ src: node.getSrc(), altText: node.getAltText(), width: node.getWidth(), height: node.getHeight(), showCaption: node.getShowCaption() });
     } else {
-      setFormData({ src: '', altText: '', width: 560, height: 315, showCaption: true });
+      setFormData({ src: '', altText: 'iframe', width: 560, height: 315, showCaption: true });
     }
   }, [node]);
 

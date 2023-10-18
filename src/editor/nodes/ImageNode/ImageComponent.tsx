@@ -44,6 +44,7 @@ import { $isImageNode } from '.';
 import { editorConfig } from './config';
 import dynamic from 'next/dynamic';
 import { Typography } from '@mui/material';
+import { $isIFrameNode } from '../IFrameNode';
 const NestedEditor = dynamic(() => import('@/editor/NestedEditor'), { ssr: false });
 
 function LazyImage({
@@ -84,6 +85,7 @@ export default function ImageComponent({
   height,
   showCaption,
   caption,
+  element = 'img',
 }: {
   altText: string;
   height: number;
@@ -92,6 +94,7 @@ export default function ImageComponent({
   width: number;
   showCaption: boolean;
   caption: LexicalEditor;
+  element?: "img" | "iframe";
 }): JSX.Element {
   const imageRef = useRef<null | HTMLImageElement>(null);
   const [isSelected, setSelected, clearSelection] =
@@ -304,7 +307,6 @@ export default function ImageComponent({
 
   const draggable = isSelected && $isNodeSelection(selection) && !isResizing;
   const isFocused = $isNodeSelection(selection) && (isSelected || isResizing);
-
   return (
     <>
       <ImageResizer
@@ -314,15 +316,29 @@ export default function ImageComponent({
         onResizeEnd={onResizeEnd}
         showResizers={isFocused}
       >
-        <LazyImage
-          className={isFocused ? `focused ${$isNodeSelection(selection) ? 'draggable' : ''}` : null}
-          src={src}
-          altText={altText}
-          imageRef={imageRef}
-          width={width}
-          height={height}
-          draggable={draggable}
-        />
+        {element === 'iframe' ? (
+          <iframe
+            ref={imageRef as unknown as React.Ref<HTMLIFrameElement>}
+            className={isFocused ? 'focused' : ''}
+            width={width}
+            height={height}
+            src={src}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen={true}
+            title={altText}
+          />
+        ) : (
+          <LazyImage
+            className={isFocused ? `focused ${$isNodeSelection(selection) ? 'draggable' : ''}` : null}
+            src={src}
+            altText={altText}
+            imageRef={imageRef}
+            width={width}
+            height={height}
+            draggable={draggable}
+          />
+        )}
       </ImageResizer>
       {showCaption && (
         <figcaption>

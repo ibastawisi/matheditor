@@ -10,8 +10,6 @@ import type {
   DOMConversionMap,
   DOMConversionOutput,
   DOMExportOutput,
-  EditorConfig,
-  ElementFormatType,
   LexicalEditor,
   LexicalNode,
   NodeKey,
@@ -19,9 +17,9 @@ import type {
 } from 'lexical';
 
 import * as React from 'react';
-import { IFrameComponent } from './IFrameComponent';
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
 import { $generateHtmlFromNodes } from '@/editor/utils/html';
+import ImageComponent from '../ImageNode/ImageComponent';
 
 function convertIFrameElement(domNode: HTMLElement,): null | DOMConversionOutput {
   const src = domNode.getAttribute('data-lexical-iFrame');
@@ -157,7 +155,7 @@ export class IFrameNode extends ImageNode {
 
   decorate(): JSX.Element {
     return (
-      <IFrameComponent
+      <ImageComponent
         src={this.__src}
         altText={this.__altText}
         width={this.__width}
@@ -165,6 +163,7 @@ export class IFrameNode extends ImageNode {
         nodeKey={this.getKey()}
         showCaption={this.__showCaption}
         caption={this.__caption}
+        element='iframe'
       />
     );
   }
