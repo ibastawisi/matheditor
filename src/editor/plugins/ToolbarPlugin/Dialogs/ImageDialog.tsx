@@ -18,22 +18,27 @@ function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: Imag
   const [formData, setFormData] = useState<InsertImagePayload>({ src: '', altText: '', width: 0, height: 0, showCaption: true });
 
   useEffect(() => {
+    if (!open) return;
     if (node) {
       setFormData({ src: node.getSrc(), altText: node.getAltText(), width: node.getWidth(), height: node.getHeight(), showCaption: node.getShowCaption() });
     } else {
       setFormData({ src: '', altText: '', width: 0, height: 0, showCaption: true });
     }
-  }, [node]);
+  }, [node, open]);
 
   const updateFormData = async (event: any) => {
     const { name, value } = event.target;
     if (name === 'src') {
-      const dimensions = await getImageDimensions(value);
-      setFormData({ ...formData, ...dimensions, [name]: value });
+      try {
+        const dimensions = await getImageDimensions(value);
+        setFormData({ ...formData, ...dimensions, [name]: value });
+      } catch (e) {
+        setFormData({ ...formData, [name]: value });
+      }
     } else if (name === 'showCaption') {
       setFormData({ ...formData, [name]: event.target.checked });
     } else {
-    setFormData({ ...formData, [name]: value });
+      setFormData({ ...formData, [name]: value });
     }
   };
 
@@ -41,8 +46,12 @@ function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: Imag
     const reader = new FileReader();
     reader.onload = async function () {
       if (typeof reader.result === 'string') {
-        const dimensions = await getImageDimensions(reader.result);
-        setFormData({ src: reader.result, altText: files![0].name.replace(/\.[^/.]+$/, ""), ...dimensions, showCaption: true });
+        try {
+          const dimensions = await getImageDimensions(reader.result);
+          setFormData({ src: reader.result, altText: files![0].name.replace(/\.[^/.]+$/, ""), ...dimensions, showCaption: true });
+        } catch (e) {
+          setFormData({ ...formData, src: reader.result, altText: files![0].name.replace(/\.[^/.]+$/, ""), showCaption: true });
+        }
       }
     };
     if (files !== null) {

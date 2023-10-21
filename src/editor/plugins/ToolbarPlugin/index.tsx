@@ -28,6 +28,8 @@ import { $isIFrameNode } from '@/editor/nodes/IFrameNode';
 import { $findMatchingParent } from '@lexical/utils';
 import { $isTableNode, TableNode } from '@/editor/nodes/TableNode';
 import TableTools from './Tools/TableTools';
+import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
+import LinkDialog from './Dialogs/LinkDialog';
 
 type EditorDialogs = {
   image: {
@@ -43,6 +45,9 @@ type EditorDialogs = {
     open: boolean;
   };
   iframe: {
+    open: boolean;
+  },
+  link: {
     open: boolean;
   }
 };
@@ -146,6 +151,9 @@ function ToolbarPlugin() {
     },
     iframe: {
       open: false,
+    },
+    link: {
+      open: false,
     }
   });
 
@@ -161,6 +169,10 @@ function ToolbarPlugin() {
     }
     if ($isRangeSelection(selection)) {
       const node = getSelectedNode(selection);
+      if ($isLinkNode(node)) setSelectedNode(node);
+      const parent = node.getParent();
+      if ($isLinkNode(parent)) setSelectedNode(parent);
+
       const tableNode = $findMatchingParent(node, $isTableNode) as TableNode | null;
       setSelectedTable(tableNode);
       const anchorNode = selection.anchor.getNode();
@@ -388,6 +400,7 @@ function ToolbarPlugin() {
       <SketchDialog editor={activeEditor} node={$isSketchNode(selectedNode) ? selectedNode : null} open={dialogs.sketch.open} />
       <TableDialog editor={activeEditor} open={dialogs.table.open} />
       <IFrameDialog editor={activeEditor} node={$isIFrameNode(selectedNode) ? selectedNode : null} open={dialogs.iframe.open} />
+      <LinkDialog editor={activeEditor} node={$isLinkNode(selectedNode) ? selectedNode : null} open={dialogs.link.open} />
     </>
   );
 }

@@ -17,6 +17,7 @@
 }
 
 .LexicalTheme__image img {
+  min-width: 100px;
   max-width: 100%;
   background-color: white;
   scroll-margin-top: 88px;

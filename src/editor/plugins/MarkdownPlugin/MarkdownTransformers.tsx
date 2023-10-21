@@ -418,11 +418,10 @@ export default function createMarkdownTransformers(editor: LexicalEditor): Array
     ...TEXT_MATCH_TRANSFORMERS,
     CODE,
   ];
-
-  if (editor.hasNode(TableNode)) TRANSFORMERS.push(TABLE);
-  if (editor.hasNode(ImageNode)) TRANSFORMERS.push(IMAGE);
-  if (editor.hasNode(GraphNode)) TRANSFORMERS.push(GRAPH);
-  if (editor.hasNode(SketchNode)) TRANSFORMERS.push(SKETCH);
-  if (editor.hasNode(StickyNode)) TRANSFORMERS.push(STICKY);
+  if (editor.hasNode(TableNode)) TRANSFORMERS.unshift(TABLE);
+  if (editor.hasNode(ImageNode)) TRANSFORMERS.unshift(IMAGE);
+  if (editor.hasNode(GraphNode)) TRANSFORMERS.unshift(GRAPH);
+  if (editor.hasNode(SketchNode)) TRANSFORMERS.unshift(SKETCH);
+  if (editor.hasNode(StickyNode)) TRANSFORMERS.unshift(STICKY);
   return TRANSFORMERS;
 } 

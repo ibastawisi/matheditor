@@ -13,12 +13,13 @@ function IFrameDialog({ editor, node, open }: { editor: LexicalEditor, node: IFr
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [formData, setFormData] = useState({ src: '', altText: 'iframe', width: 560, height: 315, showCaption: true });
   useEffect(() => {
+    if (!open) return;
     if (node) {
       setFormData({ src: node.getSrc(), altText: node.getAltText(), width: node.getWidth(), height: node.getHeight(), showCaption: node.getShowCaption() });
     } else {
       setFormData({ src: '', altText: 'iframe', width: 560, height: 315, showCaption: true });
     }
-  }, [node]);
+  }, [node, open]);
 
   const updateFormData = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
