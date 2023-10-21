@@ -90,7 +90,8 @@ export class SketchNode extends ImageNode {
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const element = super.createDOM(editor._config);
     if (element && isHTMLElement(element)) {
-      element.innerHTML = decodeURIComponent(this.__src.split(',')[1]);
+      const html = decodeURIComponent(this.__src.split(',')[1]);
+      element.innerHTML = html.replace(/<!-- payload-start -->\s*(.+?)\s*<!-- payload-end -->/, "");
       const svg = element.firstElementChild!;
       const style = svg.querySelector('style');
       if (style) style.innerHTML = "@font-face { font-family: 'Virgil'; src: url('/fonts/virgil.woff2') format('woff2');} @font-face { font-family: 'Cascadia'; src: url('/fonts/cascadia.woff2') format('woff2'); }";
