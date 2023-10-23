@@ -495,6 +495,7 @@ iframe {
 
 .LexicalTheme__math>.ML__mathlive {
   user-select: auto;
+  padding: 2px 0px 2px 1px;
 }
 
 .LexicalTheme__paragraph:has(> .LexicalTheme__math):hover {
