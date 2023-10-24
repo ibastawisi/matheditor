@@ -37,9 +37,10 @@ const backgroundPalete = [
   "#ffffff",
 ];
 
-export default function ColorPicker({ onColorChange, toggle = "togglebutton" }
+export default function ColorPicker({ onColorChange, onClose, toggle = "togglebutton" }
   : {
     onColorChange: (key: string, value: string) => void,
+    onClose?: () => void,
     toggle?: "togglebutton" | "menuitem"
   }): JSX.Element {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -50,6 +51,7 @@ export default function ColorPicker({ onColorChange, toggle = "togglebutton" }
   };
   const handleClose = () => {
     setAnchorEl(null);
+    onClose?.();
   };
   const onChange = (key: string, value: string) => {
     onColorChange(key, value);
@@ -66,7 +68,7 @@ export default function ColorPicker({ onColorChange, toggle = "togglebutton" }
       {toggle === "togglebutton" && <ToggleButton size='small' value="color" onClick={handleClick} className="MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal">
         <FormatColorFill />
       </ToggleButton>}
-      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose} disableRestoreFocus
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         transformOrigin={{ vertical: 'top', horizontal: 'center' }}
         sx={{ 'ul': { pt: 0, display: 'flex', flexWrap: 'wrap', width: 280 } }}

@@ -74,9 +74,19 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
   const openEditDialog = useCallback(() => {
     setOpen(true);
   }, []);
-  const handleClose = useCallback(() => {
+  const handleClose = () => {
     setOpen(false);
-  }, []);
+    restoreSelection();
+  };
+  const restoreSelection = () => {
+    const mathfield = node.getMathfield();
+    if (!mathfield) return;
+    setTimeout(() => {
+      mathfield.focus();
+      const mathVirtualKeyboard = window.mathVirtualKeyboard;
+      mathVirtualKeyboard.show({ animate: true });
+    }, 0);
+  }
 
   const mathfieldRef = useRef<MathfieldElement>(null);
   const [formData, setFormData] = useState({ value: node.getValue() });
@@ -93,9 +103,10 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
   const handleEdit = useCallback((e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const { value } = formData;
-    editor.update(() => {
-      node.setValue(value);
-    });
+    const mathfield = node.getMathfield();
+    if (!mathfield) return;
+    mathfield.setValue(value);
+    mathfield.executeCommand('commit');
     handleClose();
   }, [editor, formData, handleClose, node]);
 
@@ -136,7 +147,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
         </form>
       </Dialog>
 
-      <ColorPicker onColorChange={onColorChange} />
+      <ColorPicker onColorChange={onColorChange} onClose={handleClose} />
       <ToggleButton value="delete"
         onClick={() => {
           editor.update(() => {
