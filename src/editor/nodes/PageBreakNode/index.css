@@ -1,5 +1,3 @@
-/* @import url('assets/styles/variables.css'); */
-
 [type='page-break'] {
   position: relative;
   display: block;
@@ -13,6 +11,7 @@
   border-bottom: 1px dashed var(--editor-color-secondary, #eeeeee);
   background-color: var(--editor-color-secondary, #eeeeee);
   z-index: 1;
+  white-space: nowrap;
 }
 
 [type='page-break']::after {
