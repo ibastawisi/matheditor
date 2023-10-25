@@ -1,5 +1,5 @@
 import { authOptions } from "@/lib/auth";
-import { deleteDocument, findDocumentAuthorId, findDocumentCoauthorsEmails, findDocumentIdByHandle, findEditorDocumentById, findUserDocument, updateDocument } from "@/repositories/document";
+import { deleteDocument, findDocumentAuthorId, findDocumentCoauthorsEmails, findDocumentId, findEditorDocumentById, findUserDocument, updateDocument } from "@/repositories/document";
 import { DeleteDocumentResponse, DocumentUpdateInput, GetDocumentResponse, PatchDocumentResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server"
@@ -11,20 +11,6 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const response: GetDocumentResponse = {};
   try {
-    const isValidId = validate(params.id);
-    if (!isValidId) {
-      try {
-        const id = await findDocumentIdByHandle(params.id);
-        if (id) params.id = id;
-        else {
-          response.error = "Document not found";
-          return NextResponse.json(response, { status: 404 })
-        }
-      } catch (error) {
-        response.error = "Document not found";
-        return NextResponse.json(response, { status: 404 })
-      }
-    }
     const session = await getServerSession(authOptions);
     if (!session) {
       response.error = "Not authenticated, please login"
@@ -35,13 +21,18 @@ export async function GET(request: Request, { params }: { params: { id: string }
       response.error = "Account is disabled for violating terms of service";
       return NextResponse.json(response, { status: 403 })
     }
-    const document = await findEditorDocumentById(params.id);
+    const documentId = await findDocumentId(params.id);
+    if (!documentId) {
+      response.error = "Document not found";
+      return NextResponse.json(response, { status: 404 })
+    }
+    const document = await findEditorDocumentById(documentId);
     if (!document) {
       response.error = "Document not found";
       return NextResponse.json(response, { status: 404 })
     }
-    const authorId = await findDocumentAuthorId(params.id);
-    const coauthors = await findDocumentCoauthorsEmails(params.id);
+    const authorId = await findDocumentAuthorId(documentId);
+    const coauthors = await findDocumentCoauthorsEmails(documentId);
     const isAuthor = user.id === authorId;
     const isCoauthor = coauthors.includes(user.email);
     if (!isAuthor && !isCoauthor) {
@@ -192,8 +183,8 @@ const validateHandle = async (id: string, handle: string) => {
   if (!/^[a-zA-Z0-9-]+$/.test(handle)) {
     return "Handle must only contain letters, numbers, and dashes";
   }
-  const handleId = await findDocumentIdByHandle(handle);
-  if (handleId && handleId !== id) {
+  const documentId = await findDocumentId(handle);
+  if (documentId && documentId !== id) {
     return "Handle is already taken";
   }
   return null;

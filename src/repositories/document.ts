@@ -1,6 +1,7 @@
 import { Prisma, prisma } from "@/lib/prisma";
 import { CloudDocument, EditorDocument } from "@/types";
 import { findUserCoauthoredDocuments } from "./user";
+import { validate } from "uuid";
 
 const findAllDocuments = async () => {
   const documents = await prisma.document.findMany({
@@ -411,6 +412,16 @@ const findDocumentAuthorId = async (id: string) => {
   return document?.authorId;
 }
 
+const findDocumentHeadId = async (id: string) => {
+  const document = await prisma.document.findUnique({
+    where: { id },
+    select: {
+      head: true,
+    }
+  });
+  return document?.head;
+}
+
 const findDocumentCoauthorsEmails = async (id: string) => {
   const document = await prisma.document.findUnique({
     where: { id },
@@ -524,6 +535,13 @@ const checkHandleAvailability = async (handle: string) => {
   return !documentId;
 }
 
+const findDocumentId = async (handle: string) => {
+  const isValidId = validate(handle);
+  if (isValidId) return handle;
+  const id = await findDocumentIdByHandle(handle);
+  return id;
+}
+
 export {
   findAllDocuments,
   findPublishedDocuments,
@@ -531,12 +549,14 @@ export {
   findPublishedDocumentsByAuthorId,
   findDocumentById,
   findDocumentAuthorId,
+  findDocumentHeadId,
   findDocumentCoauthorsEmails,
   findUserDocument,
   findEditorDocumentById,
   createDocument,
   updateDocument,
   deleteDocument,
-  findDocumentIdByHandle,
+  
+  findDocumentId,
   checkHandleAvailability
 };

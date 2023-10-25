@@ -1,10 +1,9 @@
 "use client"
+import "mathlive/static.css"
+import '@/editor/theme.css';
 import RouterLink from 'next/link'
 import { Transition } from 'react-transition-group';
 import { useScrollTrigger, Fab, IconButton, Typography, Avatar, Chip, Box, SwipeableDrawer } from '@mui/material';
-
-import "mathlive/static.css"
-import '@/editor/theme.css';
 import { Article, Close, Edit, FileCopy, Info, Print } from '@mui/icons-material';
 import { CloudDocument } from '@/types';
 import { useSelector } from '@/store';

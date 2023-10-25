@@ -1,32 +1,21 @@
 import { OgMetadata } from "@/app/api/og/route";
-import { findDocumentIdByHandle, findUserDocument } from "@/repositories/document";
+import { findDocumentId, findUserDocument } from "@/repositories/document";
 import ViewDocument from "@/components/ViewDocument";
 import { generateHtml } from "@/editor/utils/generateHtml";
+import parse from 'html-react-parser';
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { JSDOM } from "jsdom";
-import parse from 'html-react-parser';
-import { validate } from "uuid";
 import { findRevisionById } from "@/repositories/revision";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
-  const isValidId = validate(params.id);
-  if (!isValidId) {
-    try {
-      const id = await findDocumentIdByHandle(params.id);
-      if (id) params.id = id;
-      else {
-        metadata.subtitle = 'Document Not Found';
-        return metadata;
-      }
-    } catch (error) {
-      metadata.subtitle = 'Document Not Found';
-      return metadata;
-    }
+  const documentId = await findDocumentId(params.id);
+  if (!documentId) {
+    metadata.subtitle = 'Document Not Found';
+    return metadata;
   }
   try {
-    const document = await findUserDocument(params.id);
+    const document = await findUserDocument(documentId);
     if (document) {
       metadata.title = `${document.name} | Math Editor`;
       metadata.subtitle = new Date(document.createdAt).toDateString()
@@ -52,29 +41,12 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function Page({ params }: { params: { id: string } }) {
-  const isValidId = validate(params.id);
-  if (!isValidId) {
-    try {
-      const id = await findDocumentIdByHandle(params.id);
-      if (id) params.id = id;
-      else notFound();
-    } catch (error) {
-      notFound();
-    }
-  }
-  const document = await findUserDocument(params.id);
+  const documentId = await findDocumentId(params.id);
+  if (!documentId) notFound();
+  const document = await findUserDocument(documentId);
   if (!document) notFound();
-  const dom = new JSDOM()
-  global.window = dom.window as unknown as Window & typeof globalThis
-  global.document = dom.window.document
-  global.DocumentFragment = dom.window.DocumentFragment
-  global.Element = dom.window.Element
-  global.navigator = dom.window.navigator
-
-  if (!document.head) notFound();
   const revision = await findRevisionById(document.head);
   if (!revision) notFound();
-
   const html = await generateHtml(revision.data);
   const children = parse(html);
 

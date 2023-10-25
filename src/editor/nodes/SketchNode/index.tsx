@@ -94,7 +94,7 @@ export class SketchNode extends ImageNode {
       element.innerHTML = html.replace(/<!-- payload-start -->\s*(.+?)\s*<!-- payload-end -->/, "");
       const svg = element.firstElementChild!;
       const style = svg.querySelector('style');
-      if (style) style.innerHTML = "@font-face { font-family: 'Virgil'; src: url('/fonts/virgil.woff2') format('woff2');} @font-face { font-family: 'Cascadia'; src: url('/fonts/cascadia.woff2') format('woff2'); }";
+      if (style) style.innerHTML = "@font-face { font-family: 'Virgil'; src: url('/fonts/Virgil.woff2') format('woff2');} @font-face { font-family: 'Cascadia'; src: url('/fonts/cascadia.woff2') format('woff2'); }";
       if (this.__width) svg.setAttribute('width', this.__width.toString());
       if (this.__height) svg.setAttribute('height', this.__height.toString());
       if (!this.__showCaption) return { element };
