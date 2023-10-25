@@ -1,6 +1,6 @@
 import { findDocumentId } from "@/repositories/document";
 import { generateHtml } from "@/editor/utils/generateHtml";
-import parse from 'html-react-parser';
+import htmr from 'htmr';
 import EmbedDocument from "@/components/EmbedDocument";
 import { notFound } from 'next/navigation'
 import { findDocumentHeadRevision } from "@/repositories/revision";
@@ -11,7 +11,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   const revision = await findDocumentHeadRevision(documentId);
   if (!revision) notFound();
   const html = await generateHtml(revision.data);
-  const children = parse(html);
+  const children = htmr(html);
 
   return <EmbedDocument>{children}</EmbedDocument>
 }

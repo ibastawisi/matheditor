@@ -2,7 +2,7 @@ import { OgMetadata } from "@/app/api/og/route";
 import { findDocumentId, findUserDocument } from "@/repositories/document";
 import ViewDocument from "@/components/ViewDocument";
 import { generateHtml } from "@/editor/utils/generateHtml";
-import parse from 'html-react-parser';
+import htmr from 'htmr';
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { findRevisionById } from "@/repositories/revision";
@@ -48,7 +48,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   const revision = await findRevisionById(document.head);
   if (!revision) notFound();
   const html = await generateHtml(revision.data);
-  const children = parse(html);
+  const children = htmr(html);
 
   return <ViewDocument cloudDocument={document}>{children}</ViewDocument>;
 }
