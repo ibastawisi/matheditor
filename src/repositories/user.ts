@@ -1,5 +1,6 @@
 import { Prisma, prisma } from "@/lib/prisma";
 import { CloudDocument } from "@/types";
+import { validate } from "uuid";
 
 const findAllUsers = async () => {
   return prisma.user.findMany({
@@ -9,9 +10,9 @@ const findAllUsers = async () => {
   });
 }
 
-const findUserById = async (id: string) => {
+const findUser = async (handle: string) => {
   return prisma.user.findUnique({
-    where: { id },
+    where: validate(handle) ? { id: handle } : { handle: handle.toLowerCase() },
   });
 }
 
@@ -36,21 +37,6 @@ const deleteUser = async (id: string) => {
   return prisma.user.delete({
     where: { id }
   });
-}
-
-const findUserIdByHandle = async (handle: string) => {
-  const user = await prisma.user.findUnique({
-    where: { handle: handle.toLowerCase() },
-    select: {
-      id: true,
-    }
-  });
-  return user?.id;
-}
-
-const checkHandleAvailability = async (handle: string) => {
-  const userId = await findUserIdByHandle(handle.toLowerCase());
-  return !userId;
 }
 
 const findUserCoauthoredDocuments = async (id: string) => {
@@ -134,4 +120,4 @@ const findUserCoauthoredDocuments = async (id: string) => {
 }
 
 
-export { findAllUsers, findUserById, findUserByEmail, createUser, updateUser, deleteUser, findUserIdByHandle, checkHandleAvailability, findUserCoauthoredDocuments };
+export { findAllUsers, findUser, findUserByEmail, createUser, updateUser, deleteUser, findUserCoauthoredDocuments };

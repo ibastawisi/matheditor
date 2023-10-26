@@ -1,5 +1,5 @@
 import { authOptions } from "@/lib/auth";
-import { createDocument, findDocumentAuthorId, findDocumentsByAuthorId, findPublishedDocuments, findUserDocument, updateDocument } from "@/repositories/document";
+import { createDocument, findDocumentsByAuthorId, findPublishedDocuments, findUserDocument } from "@/repositories/document";
 import { EditorDocument, GetDocumentsResponse, PostDocumentsResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
@@ -51,8 +51,8 @@ export async function POST(request: Request) {
       return NextResponse.json(response, { status: 400 })
     }
 
-    const authorId = await findDocumentAuthorId(body.id);
-    if (authorId && user.id !== authorId) {
+    const userDocument = await findUserDocument(body.id);
+    if (userDocument) {
       response.error = "You don't have permission to edit this document";
       return NextResponse.json(response, { status: 403 })
     }
@@ -76,9 +76,7 @@ export async function POST(request: Request) {
       }
     };
 
-    await createDocument(input);
-    const userDocument = await findUserDocument(body.id);
-    response.data = userDocument;
+    response.data = await createDocument(input);
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);

@@ -1,4 +1,4 @@
-import { checkHandleAvailability } from "@/repositories/document";
+import { findUserDocument } from "@/repositories/document";
 import { CheckHandleResponse } from "@/types";
 import { NextResponse } from "next/server";
 
@@ -11,8 +11,8 @@ export async function GET(request: Request) {
     return NextResponse.json(response, { status: 400 })
   }
   try {
-    const isAvailable = await checkHandleAvailability(handle);
-    response.data = isAvailable;
+    const userDocument = await findUserDocument(handle);
+    response.data = !userDocument;
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);

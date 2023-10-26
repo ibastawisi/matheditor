@@ -1,22 +1,16 @@
 import { authOptions } from "@/lib/auth";
-import { findDocumentId, findUserDocument } from "@/repositories/document";
+import { findUserDocument } from "@/repositories/document";
 import { ForkDocumentResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server"
 import { findRevisionById } from "@/repositories/revision";
-import { validate } from "uuid";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const response: ForkDocumentResponse = {};
   try {
-    const documentId = await findDocumentId(params.id);
-    if (!documentId) {
-      response.error = "Document not found";
-      return NextResponse.json(response, { status: 404 })
-    }
-    const cloudDocument = await findUserDocument(documentId);
+    const cloudDocument = await findUserDocument(params.id);
     if (!cloudDocument) {
       response.error = "Document not found";
       return NextResponse.json(response, { status: 404 })

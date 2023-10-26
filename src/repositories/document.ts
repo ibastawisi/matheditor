@@ -2,6 +2,7 @@ import { Prisma, prisma } from "@/lib/prisma";
 import { CloudDocument, EditorDocument } from "@/types";
 import { findUserCoauthoredDocuments } from "./user";
 import { validate } from "uuid";
+import { findRevisionById } from "./revision";
 
 const findAllDocuments = async () => {
   const documents = await prisma.document.findMany({
@@ -300,82 +301,9 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
   return cloudDocuments;
 }
 
-const findDocumentById = async (id: string) => {
+const findEditorDocument = async (handle: string) => {
   const document = await prisma.document.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      handle: true,
-      name: true,
-      createdAt: true,
-      updatedAt: true,
-      published: true,
-      baseId: true,
-      head: true,
-      revisions: {
-        select: {
-          id: true,
-          documentId: true,
-          createdAt: true,
-          author: {
-            select: {
-              id: true,
-              handle: true,
-              name: true,
-              image: true,
-              email: true,
-            }
-          }
-        },
-        orderBy: {
-          createdAt: 'desc'
-        }
-      },
-      author: {
-        select: {
-          id: true,
-          handle: true,
-          name: true,
-          image: true,
-          email: true,
-        }
-      },
-      coauthors: {
-        select: {
-          user: {
-            select: {
-              id: true,
-              handle: true,
-              name: true,
-              image: true,
-              email: true,
-            }
-          }
-        },
-        orderBy: {
-          createdAt: 'asc'
-        }
-      },
-    },
-  });
-
-  if (!document) return null;
-  const head = document.head;
-  if (!head) return null;
-  const revision = await prisma.revision.findUnique({ where: { id: head }, select: { data: true } });
-  if (!revision) return null;
-
-  const editorDocument: CloudDocument & EditorDocument = {
-    ...document,
-    coauthors: document.coauthors.map((coauthor) => coauthor.user),
-    data: revision.data as unknown as EditorDocument['data'],
-  };
-
-  return editorDocument;
-}
-const findEditorDocumentById = async (id: string) => {
-  const document = await prisma.document.findUnique({
-    where: { id },
+    where: validate(handle) ? { id: handle } : { handle: handle.toLowerCase() },
     select: {
       id: true,
       handle: true,
@@ -389,9 +317,7 @@ const findEditorDocumentById = async (id: string) => {
   });
 
   if (!document) return null;
-  const head = document.head;
-  if (!head) return null;
-  const revision = await prisma.revision.findUnique({ where: { id: head }, select: { data: true } });
+  const revision = await findRevisionById(document.head);
   if (!revision) return null;
 
   const editorDocument: EditorDocument = {
@@ -402,43 +328,10 @@ const findEditorDocumentById = async (id: string) => {
   return editorDocument;
 }
 
-const findDocumentAuthorId = async (id: string) => {
-  const document = await prisma.document.findUnique({
-    where: { id },
-    select: {
-      authorId: true,
-    }
-  });
-  return document?.authorId;
-}
 
-const findDocumentHeadId = async (id: string) => {
+const findUserDocument = async (handle: string) => {
   const document = await prisma.document.findUnique({
-    where: { id },
-    select: {
-      head: true,
-    }
-  });
-  return document?.head;
-}
-
-const findDocumentCoauthorsEmails = async (id: string) => {
-  const document = await prisma.document.findUnique({
-    where: { id },
-    select: {
-      coauthors: {
-        select: {
-          userEmail: true,
-        }
-      }
-    }
-  });
-  return document?.coauthors.map((coauthor) => coauthor.userEmail) ?? [];
-}
-
-const findUserDocument = async (id: string) => {
-  const document = await prisma.document.findUnique({
-    where: { id },
+    where: validate(handle) ? { id: handle } : { handle: handle.toLowerCase() },
     select: {
       id: true,
       handle: true,
@@ -504,42 +397,23 @@ const findUserDocument = async (id: string) => {
 }
 
 const createDocument = async (data: Prisma.DocumentUncheckedCreateInput) => {
-  return prisma.document.create({ data });
+  if (!data.id) return null;
+  await prisma.document.create({ data });
+  return findUserDocument(data.id);
 }
 
-const updateDocument = async (id: string, data: Prisma.DocumentUncheckedUpdateInput) => {
-  return prisma.document.update({
-    where: { id },
+const updateDocument = async (handle: string, data: Prisma.DocumentUncheckedUpdateInput) => {
+  await prisma.document.update({
+    where: validate(handle) ? { id: handle } : { handle: handle.toLowerCase() },
     data
   });
+  return findUserDocument(handle);
 }
 
-const deleteDocument = async (id: string) => {
+const deleteDocument = async (handle: string) => {
   return prisma.document.delete({
-    where: { id },
+    where: validate(handle) ? { id: handle } : { handle: handle.toLowerCase() },
   });
-}
-
-const findDocumentIdByHandle = async (handle: string) => {
-  const document = await prisma.document.findUnique({
-    where: { handle: handle.toLowerCase() },
-    select: {
-      id: true,
-    }
-  });
-  return document?.id;
-}
-
-const checkHandleAvailability = async (handle: string) => {
-  const documentId = await findDocumentIdByHandle(handle.toLowerCase());
-  return !documentId;
-}
-
-const findDocumentId = async (handle: string) => {
-  const isValidId = validate(handle);
-  if (isValidId) return handle;
-  const id = await findDocumentIdByHandle(handle);
-  return id;
 }
 
 export {
@@ -547,16 +421,9 @@ export {
   findPublishedDocuments,
   findDocumentsByAuthorId,
   findPublishedDocumentsByAuthorId,
-  findDocumentById,
-  findDocumentAuthorId,
-  findDocumentHeadId,
-  findDocumentCoauthorsEmails,
   findUserDocument,
-  findEditorDocumentById,
+  findEditorDocument,
   createDocument,
   updateDocument,
   deleteDocument,
-  
-  findDocumentId,
-  checkHandleAvailability
 };

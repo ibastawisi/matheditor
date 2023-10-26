@@ -1,31 +1,16 @@
 import { OgMetadata } from "@/app/api/og/route";
-import { findUserById, findUserIdByHandle } from "@/repositories/user";
 import type { Metadata } from "next";
 import { findPublishedDocumentsByAuthorId } from "@/repositories/document";
 import { notFound } from "next/navigation";
 import User from "@/components/User";
-import { validate } from "uuid";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { findUser } from "@/repositories/user";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
   try {
-    const isValidId = validate(params.id);
-    if (!isValidId) {
-      try {
-        const id = await findUserIdByHandle(params.id);
-        if (id) params.id = id;
-        else {
-          metadata.subtitle = 'User Not Found';
-          return metadata;
-        }
-      } catch (error) {
-        metadata.subtitle = 'User Not Found';
-        return metadata;
-      }
-    }
-    const user = await findUserById(params.id);
+    const user = await findUser(params.id);
     if (user) {
       metadata.title = `${user.name} | Math Editor`;
       metadata.subtitle = new Date(user.createdAt).toDateString()
@@ -51,17 +36,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function Page({ params }: { params: { id: string } }) {
-  const isValidId = validate(params.id);
-  if (!isValidId) {
-    try {
-      const id = await findUserIdByHandle(params.id);
-      if (id) params.id = id;
-      else notFound();
-    } catch (error) {
-      notFound();
-    }
-  }
-  const user = await findUserById(params.id);
+  const user = await findUser(params.id);
   if (!user) notFound();
   const session = await getServerSession(authOptions);
   const documentsResponse = await findPublishedDocumentsByAuthorId(user.id);

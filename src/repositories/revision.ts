@@ -1,6 +1,6 @@
 import { Prisma, prisma } from "@/lib/prisma";
 import { EditorDocumentRevision } from "@/types";
-import { findDocumentHeadId } from "./document";
+import { findUserDocument } from "./document";
 
 const findRevisionById = async (id: string) => {
   const revision = await prisma.revision.findUnique({
@@ -30,11 +30,10 @@ const findRevisionAuthorId = async (id: string) => {
   return revision?.authorId;
 }
 
-const findDocumentHeadRevision = async (documentId: string) => {
-  const headId = await findDocumentHeadId(documentId);
-  if (!headId) return null;
-  const revision = await findRevisionById(headId);
-  return revision;
+const findDocumentHeadRevision = async (handle: string) => {
+  const userDocument = await findUserDocument(handle);
+  if (!userDocument) return null;
+  return findRevisionById(userDocument.head);
 }
 
 const createRevision = async (data: Prisma.RevisionUncheckedCreateInput) => {

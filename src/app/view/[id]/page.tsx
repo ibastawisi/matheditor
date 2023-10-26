@@ -1,5 +1,5 @@
 import { OgMetadata } from "@/app/api/og/route";
-import { findDocumentId, findUserDocument } from "@/repositories/document";
+import { findUserDocument } from "@/repositories/document";
 import ViewDocument from "@/components/ViewDocument";
 import { generateHtml } from "@/editor/utils/generateHtml";
 import htmr from 'htmr';
@@ -9,13 +9,8 @@ import { findRevisionById } from "@/repositories/revision";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
-  const documentId = await findDocumentId(params.id);
-  if (!documentId) {
-    metadata.subtitle = 'Document Not Found';
-    return metadata;
-  }
   try {
-    const document = await findUserDocument(documentId);
+    const document = await findUserDocument(params.id);
     if (document) {
       metadata.title = `${document.name} | Math Editor`;
       metadata.subtitle = new Date(document.createdAt).toDateString()
@@ -41,14 +36,10 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function Page({ params }: { params: { id: string } }) {
-  const documentId = await findDocumentId(params.id);
-  if (!documentId) notFound();
-  const document = await findUserDocument(documentId);
+  const document = await findUserDocument(params.id);
   if (!document) notFound();
   const revision = await findRevisionById(document.head);
   if (!revision) notFound();
   const html = await generateHtml(revision.data);
-  const children = htmr(html);
-
-  return <ViewDocument cloudDocument={document}>{children}</ViewDocument>;
+  return <ViewDocument cloudDocument={document}>{htmr(html)}</ViewDocument>;
 }

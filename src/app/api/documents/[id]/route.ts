@@ -1,5 +1,5 @@
 import { authOptions } from "@/lib/auth";
-import { deleteDocument, findDocumentAuthorId, findDocumentCoauthorsEmails, findDocumentId, findEditorDocumentById, findUserDocument, updateDocument } from "@/repositories/document";
+import { deleteDocument, findEditorDocument, findUserDocument, updateDocument } from "@/repositories/document";
 import { DeleteDocumentResponse, DocumentUpdateInput, GetDocumentResponse, PatchDocumentResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server"
@@ -21,25 +21,23 @@ export async function GET(request: Request, { params }: { params: { id: string }
       response.error = "Account is disabled for violating terms of service";
       return NextResponse.json(response, { status: 403 })
     }
-    const documentId = await findDocumentId(params.id);
-    if (!documentId) {
+    const userDocument = await findUserDocument(params.id);
+    if (!userDocument) {
       response.error = "Document not found";
       return NextResponse.json(response, { status: 404 })
     }
-    const document = await findEditorDocumentById(documentId);
-    if (!document) {
-      response.error = "Document not found";
-      return NextResponse.json(response, { status: 404 })
-    }
-    const authorId = await findDocumentAuthorId(documentId);
-    const coauthors = await findDocumentCoauthorsEmails(documentId);
-    const isAuthor = user.id === authorId;
-    const isCoauthor = coauthors.includes(user.email);
+    const isAuthor = user.id === userDocument.author.id;
+    const isCoauthor = userDocument.coauthors.some(coauthor => coauthor.id === user.id);
     if (!isAuthor && !isCoauthor) {
       response.error = "You don't have permission to edit this document";
       return NextResponse.json(response, { status: 403 })
     }
-    response.data = document;
+    const editorDocument = await findEditorDocument(params.id);
+    if (!editorDocument) {
+      response.error = "Document not found";
+      return NextResponse.json(response, { status: 404 })
+    }
+    response.data = editorDocument;
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
@@ -65,8 +63,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       response.error = "Account is disabled for violating terms of service";
       return NextResponse.json(response, { status: 403 })
     }
-    const authorId = await findDocumentAuthorId(params.id);
-    if (user.id !== authorId) {
+    const userDocument = await findUserDocument(params.id);
+    if (!userDocument) {
+      response.error = "Document not found";
+      return NextResponse.json(response, { status: 404 })
+    }
+    if (user.id !== userDocument.author.id) {
       response.error = "You don't have permission to edit this document";
       return NextResponse.json(response, { status: 403 })
     }
@@ -85,9 +87,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       published: body.published,
     };
 
-    if (body.handle) {
+    if (body.handle && body.handle !== userDocument.handle) {
       input.handle = body.handle.toLowerCase();
-      const validationError = await validateHandle(params.id, input.handle);
+      const validationError = await validateHandle(params.id);
       if (validationError) {
         response.error = validationError;
         return NextResponse.json(response, { status: 400 })
@@ -133,9 +135,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       }
     }
 
-    await updateDocument(params.id, input);
-    const userDocument = await findUserDocument(params.id);
-    response.data = userDocument;
+    
+    response.data = await updateDocument(params.id, input);
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
@@ -161,8 +162,12 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       response.error = "Account is disabled for violating terms of service";
       return NextResponse.json(response, { status: 403 })
     }
-    const authorId = await findDocumentAuthorId(params.id);
-    if (user.id !== authorId) {
+    const userDocument = await findUserDocument(params.id);
+    if (!userDocument) {
+      response.error = "Document not found";
+      return NextResponse.json(response, { status: 404 })
+    }
+    if (user.id !== userDocument.author.id) {
       response.error = "You don't have permission to delete this document";
       return NextResponse.json(response, { status: 403 })
     }
@@ -176,15 +181,15 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   }
 }
 
-const validateHandle = async (id: string, handle: string) => {
+const validateHandle = async (handle: string) => {
   if (handle.length < 3) {
     return "Handle must be at least 3 characters long";
   }
   if (!/^[a-zA-Z0-9-]+$/.test(handle)) {
     return "Handle must only contain letters, numbers, and dashes";
   }
-  const documentId = await findDocumentId(handle);
-  if (documentId && documentId !== id) {
+  const userDocument = await findUserDocument(handle);
+  if (userDocument) {
     return "Handle is already taken";
   }
   return null;
