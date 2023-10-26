@@ -2,14 +2,6 @@ import { Prisma, prisma } from "@/lib/prisma";
 import { CloudDocument } from "@/types";
 import { validate } from "uuid";
 
-const findAllUsers = async () => {
-  return prisma.user.findMany({
-    orderBy: {
-      updatedAt: 'desc'
-    }
-  });
-}
-
 const findUser = async (handle: string) => {
   return prisma.user.findUnique({
     where: validate(handle) ? { id: handle } : { handle: handle.toLowerCase() },
@@ -39,85 +31,5 @@ const deleteUser = async (id: string) => {
   });
 }
 
-const findUserCoauthoredDocuments = async (id: string) => {
-  const documents = await prisma.user.findUnique({
-    where: { id },
-    select: {
-      coauthored: {
-        select: {
-          document: {
-            select: {
-              id: true,
-              handle: true,
-              name: true,
-              createdAt: true,
-              updatedAt: true,
-              published: true,
-              baseId: true,
-              head: true,
-              revisions: {
-                select: {
-                  id: true,
-                  documentId: true,
-                  createdAt: true,
-                  author: {
-                    select: {
-                      id: true,
-                      handle: true,
-                      name: true,
-                      image: true,
-                      email: true,
-                    }
-                  }
-                },
-                orderBy: {
-                  createdAt: 'desc'
-                }
-              },
-              author: {
-                select: {
-                  id: true,
-                  handle: true,
-                  name: true,
-                  image: true,
-                  email: true,
-                }
-              },
-              coauthors: {
-                select: {
-                  user: {
-                    select: {
-                      id: true,
-                      handle: true,
-                      name: true,
-                      image: true,
-                      email: true,
-                    }
-                  }
-                },
-                orderBy: {
-                  createdAt: 'asc'
-                }
-              },
-            },
-          },
-        },
-        orderBy: {
-          createdAt: 'asc'
-        }
-      }
-    }
-  });
-  if (!documents) return [];
-  const cloudDocuments = documents.coauthored.map(({ document }) => {
-    const cloudDocument: CloudDocument = {
-      ...document,
-      coauthors: document.coauthors.map((coauthor) => coauthor.user),
-    };
-    return cloudDocument;
-  });
-  return cloudDocuments;
-}
 
-
-export { findAllUsers, findUser, findUserByEmail, createUser, updateUser, deleteUser, findUserCoauthoredDocuments };
+export { findUser, findUserByEmail, createUser, updateUser, deleteUser };
