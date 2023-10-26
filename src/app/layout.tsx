@@ -1,20 +1,11 @@
 import './globals.css'
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import LayoutProvider from "@/components/LayoutProvider";
 import ThemeProvider from '@/components/ThemeProvider';
 
 export const metadata: Metadata = {
   title: 'Math Editor',
   description: 'Math Editor is a free text editor, with support for LaTeX, Geogebra, Excalidraw and markdown shortcuts. Create, share and print math documents with ease.',
-  colorScheme: 'dark light',
-  themeColor: [{
-    media: "(prefers-color-scheme: light)",
-    color: "#1976d2"
-  },
-  {
-    media: "(prefers-color-scheme: dark)",
-    color: "#121212"
-  }],
   applicationName: "Math Editor",
   appleWebApp: {
     capable: true,
@@ -24,8 +15,6 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
-  viewport:
-    "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover",
   manifest: "/manifest.json",
   icons: [
     { rel: "shortcut icon", url: "/logo.svg" },
@@ -44,6 +33,23 @@ export const metadata: Metadata = {
       },
     ],
   },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: 'cover',
+  colorScheme: 'dark light',
+  themeColor: [{
+    media: "(prefers-color-scheme: light)",
+    color: "#1976d2"
+  },
+  {
+    media: "(prefers-color-scheme: dark)",
+    color: "#121212"
+  }],
+
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
