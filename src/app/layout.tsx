@@ -31,6 +31,7 @@ export const metadata: Metadata = {
     { rel: "shortcut icon", url: "/logo.svg" },
   ],
   keywords: ["Math Editor", "Online Math Editor", "Matheditor", "Math", "Editor", "Latex", "Geogebra", "Excalidraw", "Markdown"],
+  metadataBase: new URL(process.env.VERCEL_URL ? 'https://matheditor.me' : `http://localhost:${process.env.PORT || 3000}`),
   openGraph: {
     title: "Math Editor",
     description: "Math Editor is a free text editor, with support for LaTeX, Geogebra, Excalidraw and markdown shortcuts. Create, share and print math documents with ease.",
