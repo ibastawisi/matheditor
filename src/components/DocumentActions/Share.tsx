@@ -76,9 +76,9 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
       <ListItemText>Share</ListItemText>
     </MenuItem> : <IconButton aria-label="Share Document" onClick={openShareDialog} size="small"><Share /></IconButton>}
     <Dialog open={shareDialogOpen} onClose={closeShareDialog} fullWidth maxWidth="xs" fullScreen={fullScreen}>
-      <DialogTitle>Share Document</DialogTitle>
-      <DialogContent>
-        <Box component="form" onSubmit={handleShare}>
+      <Box component="form" onSubmit={handleShare}>
+        <DialogTitle>Share Document</DialogTitle>
+        <DialogContent>
           <Tabs
             variant="scrollable"
             allowScrollButtonsMobile
@@ -141,12 +141,12 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
               <FormHelperText>only author and coauthors can edit this document</FormHelperText>
             </FormControl>
           </Box>}
-        </Box>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={closeShareDialog}>Cancel</Button>
-        <Button type='submit'>Share</Button>
-      </DialogActions>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeShareDialog}>Cancel</Button>
+          <Button type='submit'>Share</Button>
+        </DialogActions>
+      </Box>
     </Dialog>
   </>
 }
