@@ -22,6 +22,11 @@
   ],
   "icons": [
     {
+      "src": "favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
       "src": "pwa-64x64.png",
       "sizes": "64x64",
       "type": "image/png"
@@ -53,6 +58,11 @@
         ]
       },
       "icons": [
+        {
+          "src": "favicon.ico",
+          "sizes": "32x32",
+          "type": "image/x-icon"
+        },
         {
           "src": "pwa-64x64.png",
           "sizes": "64x64",

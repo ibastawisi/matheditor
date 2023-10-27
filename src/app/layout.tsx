@@ -16,9 +16,7 @@ export const metadata: Metadata = {
     telephone: false,
   },
   manifest: "/manifest.json",
-  icons: [
-    { rel: "shortcut icon", url: "/logo.svg" },
-  ],
+  icons: "/favicon.ico",
   keywords: ["Math Editor", "Online Math Editor", "Matheditor", "Math", "Editor", "Latex", "Geogebra", "Excalidraw", "Markdown"],
   metadataBase: new URL(process.env.VERCEL_URL ? 'https://matheditor.me' : `http://localhost:${process.env.PORT || 3000}`),
   openGraph: {
