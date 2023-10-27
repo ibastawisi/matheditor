@@ -6,6 +6,8 @@ import htmr from 'htmr';
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { findRevisionById } from "@/repositories/revision";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
@@ -41,5 +43,6 @@ export default async function Page({ params }: { params: { id: string } }) {
   const revision = await findRevisionById(document.head);
   if (!revision) notFound();
   const html = await generateHtml(revision.data);
-  return <ViewDocument cloudDocument={document}>{htmr(html)}</ViewDocument>;
+  const session = await getServerSession(authOptions);
+  return <ViewDocument cloudDocument={document} user={session?.user}>{htmr(html)}</ViewDocument>;
 }

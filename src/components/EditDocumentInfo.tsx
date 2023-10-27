@@ -12,7 +12,7 @@ import DownloadDocument from './DocumentActions/Download';
 import ForkDocument from './DocumentActions/Fork';
 import EditDocument from './DocumentActions/Edit';
 
-export default function DocumentInfo({ editorRef, documentId }: { editorRef: MutableRefObject<LexicalEditor | null>, documentId: string }) {
+export default function EditDocumentInfo({ editorRef, documentId }: { editorRef: MutableRefObject<LexicalEditor | null>, documentId: string }) {
   const user = useSelector(state => state.user);
   const userDocument = useSelector(state => state.documents.find(d => d.id === documentId));
   const localDocument = userDocument?.local;

@@ -31,10 +31,10 @@ const User: React.FC<{ user?: User, sessionUser?: User, documents: UserDocument[
   </Box>;
 }
 
-const PublishedDocumentsTree: React.FC<{ documents: UserDocument[] }> = memo(({ documents }) => {
+const PublishedDocumentsTree: React.FC<{ documents: UserDocument[], user?: User }> = memo(({ documents, user }) => {
   return <Grid container spacing={2}>
     {documents.map(document => <Grid item xs={12} sm={6} md={4} key={document.id}>
-      <DocumentCard userDocument={document} />
+      <DocumentCard userDocument={document} user={user} />
     </Grid>)}
   </Grid>
 });

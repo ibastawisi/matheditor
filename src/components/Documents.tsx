@@ -1,10 +1,10 @@
 "use client"
 import { useRouter } from 'next/navigation';
 import RouterLink from 'next/link'
-import { useDispatch, useSelector, actions, RootState } from '@/store';
+import { useDispatch, useSelector, actions } from '@/store';
 import DocumentCard from "./DocumentCard";
 import React, { memo, useEffect, useState } from "react";
-import { EditorDocument, UserDocument } from '@/types';
+import { EditorDocument, User, UserDocument } from '@/types';
 import { validate } from "uuid";
 import UserCard from "./UserCard";
 import documentDB from '@/indexeddb';
@@ -144,12 +144,12 @@ const Documents: React.FC = () => {
         </Grid>
       </Grid>
       <Collapse timeout={1000} in={!(user && initialized)} unmountOnExit><Box sx={{ mb: 2 }}><UserCard user={user} /></Box></Collapse>
-      <DocumentsGrid documents={sortedDocuments} initialized={initialized} />
+      <DocumentsGrid documents={sortedDocuments} initialized={initialized} user={user} />
     </>
   )
 }
 
-const DocumentsGrid: React.FC<{ documents: UserDocument[], initialized: boolean }> = memo(({ documents, initialized }) => {
+const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initialized: boolean }> = memo(({ documents, user, initialized }) => {
   const pages = Math.ceil(documents.length / 12);
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
@@ -157,7 +157,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], initialized: boolean 
   return <Grid container spacing={2}>
     {!initialized && documents.length === 0 && Array.from({ length: 3 }).map((_, i) => <Grid item key={i} xs={12} sm={6} md={4}><DocumentCard /></Grid>)}
     {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
-      <DocumentCard userDocument={document} />
+      <DocumentCard userDocument={document} user={user} />
     </Grid>)}
     {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3, width: "100%" }} />}
   </Grid>

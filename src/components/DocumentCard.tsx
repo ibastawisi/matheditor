@@ -1,19 +1,17 @@
 "use client"
 import * as React from 'react';
 import RouterLink from 'next/link'
-import { UserDocument } from '@/types';
+import { User, UserDocument } from '@/types';
 import { useSelector } from '@/store';
 import { memo } from 'react';
-import DocumentActionMenu from './DocumentActions/ActionMenu';
 import { SxProps, Theme } from '@mui/material/styles';
-import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, IconButton } from '@mui/material';
-import { Article, MobileFriendly, CloudDone, CloudSync, Cloud, Public, Share, MoreVert } from '@mui/icons-material';
-import EditDocument from './DocumentActions/Edit';
-import ShareDocument from './DocumentActions/Share';
+import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip } from '@mui/material';
+import { Article, MobileFriendly, CloudDone, CloudSync, Cloud, Public } from '@mui/icons-material';
 
-const DocumentCard: React.FC<{ userDocument?: UserDocument, sx?: SxProps<Theme> | undefined }> = memo(({ userDocument, sx }) => {
-  const user = useSelector(state => state.user);
-  const initialized = useSelector(state => state.initialized);
+import dynamic from "next/dynamic";
+const DocumentActionMenu = dynamic(() => import('@/components/DocumentActions/ActionMenu'), { ssr: false });
+
+const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: SxProps<Theme> | undefined }> = memo(({ userDocument, user, sx }) => {
   const localDocument = userDocument?.local;
   const cloudDocument = userDocument?.cloud;
   const isLocal = !!localDocument;
@@ -79,16 +77,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, sx?: SxProps<Theme> 
         {isUploaded && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={isUpToDate ? <CloudDone /> : <CloudSync />} label={isUpToDate ? "Up to date" : "Out of Sync"} />}
         {isCloudOnly && (isAuthor || isCoauthor) && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
         {isPublished && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Public />} label="Published" />}
-        {initialized && userDocument ? <>
-          {isAuthor && <EditDocument userDocument={userDocument} />}
-          <ShareDocument userDocument={userDocument} />
-          <DocumentActionMenu userDocument={userDocument} />
-        </> :
-          <>
-            <IconButton aria-label="Share Document" size="small" sx={{ ml: "auto" }} disabled><Share /></IconButton>
-            <IconButton aria-label="Document Actions" size="small" disabled><MoreVert /></IconButton>
-          </>
-        }
+        {userDocument && <DocumentActionMenu userDocument={userDocument} user={user} />}
       </CardActions>
     </Card>
   );

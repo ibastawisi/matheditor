@@ -5,7 +5,7 @@ import * as React from 'react';
 import { EditorDocument, UserDocument } from '@/types';
 import { SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "@/editor/types";
 import { useEffect, useState } from 'react';
-import { useDispatch, actions, useSelector } from '@/store';
+import { useDispatch, actions } from '@/store';
 import DocumentCard from './DocumentCard';
 import { Container, Box, Avatar, Typography, TextField, Button } from '@mui/material';
 import { Article, Add } from '@mui/icons-material';

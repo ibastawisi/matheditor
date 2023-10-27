@@ -6,10 +6,11 @@ import DownloadDocument from './Download';
 import ForkDocument from './Fork';
 import DeleteDocument from './Delete';
 import UploadDocument from './Upload';
-import { UserDocument } from '@/types';
-import { useSelector } from '@/store';
+import { User, UserDocument } from '@/types';
+import ShareDocument from './Share';
+import EditDocument from './Edit';
 
-function DocumentActionMenu({ userDocument }: { userDocument: UserDocument }) {
+function DocumentActionMenu({ userDocument, user }: { userDocument: UserDocument, user?: User }) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const openMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -19,7 +20,6 @@ function DocumentActionMenu({ userDocument }: { userDocument: UserDocument }) {
     setAnchorEl(null);
   };
 
-  const user = useSelector(state => state.user);
   const localDocument = userDocument?.local;
   const cloudDocument = userDocument?.cloud;
   const isLocal = !!localDocument;
@@ -37,6 +37,8 @@ function DocumentActionMenu({ userDocument }: { userDocument: UserDocument }) {
 
   return (
     <>
+      {isAuthor && <EditDocument userDocument={userDocument} />}
+      <ShareDocument userDocument={userDocument} />
       <IconButton
         id={`${id}-action-button`}
         aria-controls={open ? `${id}-action-menu` : undefined}
