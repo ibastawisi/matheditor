@@ -43,7 +43,7 @@ export default function ThemeRegistry({ children }: { children: React.ReactNode 
         key={cache.key}
         data-emotion={`${cache.key} ${names.join(' ')}`}
         dangerouslySetInnerHTML={{
-          __html: styles,
+          __html: `@layer emotion {${styles}}`,
         }}
       />
     );
