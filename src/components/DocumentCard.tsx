@@ -2,8 +2,7 @@
 import * as React from 'react';
 import RouterLink from 'next/link'
 import { User, UserDocument } from '@/types';
-import { useSelector } from '@/store';
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip } from '@mui/material';
 import { Article, MobileFriendly, CloudDone, CloudSync, Cloud, Public } from '@mui/icons-material';
@@ -29,6 +28,9 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
   const href = (isAuthor || isCoauthor) ? `/edit/${handle}` : `/view/${handle}`;
   const authorName = cloudDocument?.author.name ?? user?.name ?? 'Local User';
 
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+
   return (
     <Card variant="outlined"
       sx={{
@@ -53,7 +55,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
               <Typography variant="overline"
                 sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
                 color="text.secondary"
-              >{document ? <>
+              >{document && isMounted ? <>
                 Created: {new Date(document.createdAt).toLocaleString()}
               </> : <Skeleton variant="text" width={150} />}
               </Typography>
@@ -61,7 +63,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
                 sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
                 color="text.secondary"
               >
-                {document ? <>
+                {document && isMounted ? <>
                   Updated: {new Date(document.updatedAt).toLocaleString()}
                 </> : <Skeleton variant="text" width={160} />}
               </Typography>
