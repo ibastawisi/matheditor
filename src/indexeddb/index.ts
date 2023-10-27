@@ -51,7 +51,7 @@ const idbConfig = {
   ],
 };
 
-setupIndexedDB(idbConfig).catch(console.error);
+if (typeof window !== "undefined") setupIndexedDB(idbConfig).catch(console.error);
 export const documentDB = getStore<EditorDocument>("documents");
 export const revisionDB = getStore<EditorDocumentRevision>("revisions");
 

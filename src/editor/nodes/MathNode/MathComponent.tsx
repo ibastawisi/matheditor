@@ -1,6 +1,6 @@
 "use client"
 import { DOMAttributes } from "react";
-import { $createRangeSelection, $createTextNode, $getSelection, $isNodeSelection, $isParagraphNode, $isRangeSelection, $setSelection, GridSelection, NodeKey, NodeSelection, ParagraphNode, RangeSelection } from 'lexical';
+import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, GridSelection, NodeKey, NodeSelection, RangeSelection } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey } from 'lexical';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
@@ -8,7 +8,6 @@ import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import { mergeRegister } from '@lexical/utils';
 import type { MathfieldElement, MathfieldElementAttributes } from "mathlive";
 import { $isMathNode } from '.';
-import 'mathlive/fonts.css'
 import './index.css';
 
 type CustomElement<T> = Partial<T & DOMAttributes<T>>;
