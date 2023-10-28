@@ -39,7 +39,6 @@ export interface EditorDocument {
 export type LocalDocument = Omit<EditorDocument, "data">;
 export type CloudDocument = LocalDocument & { author: User; coauthors: User[], revisions: CloudDocumentRevision[] }
 export type UserDocument = { id: string; local?: LocalDocument; cloud?: CloudDocument; };
-export type DocumentUpdateInput = Partial<EditorDocument> & { coauthors?: string[]; };
 
 export interface EditorDocumentRevision {
   id: string;
@@ -72,6 +71,7 @@ export interface GetUserResponse {
   error?: string;
 }
 
+export type UserUpdateInput = Partial<User>;
 export interface PatchUserResponse {
   data?: User;
   error?: string;
@@ -101,6 +101,8 @@ export interface GetDocumentResponse {
   data?: EditorDocument;
   error?: string;
 }
+
+export type DocumentUpdateInput = Partial<EditorDocument> & { coauthors?: string[]; };
 
 export interface PatchDocumentResponse {
   data?: CloudDocument | null;

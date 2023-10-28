@@ -1,9 +1,10 @@
 import { authOptions } from "@/lib/auth";
 import { findUser, updateUser, deleteUser } from "@/repositories/user";
-import { DeleteUserResponse, GetUserResponse, PatchUserResponse } from "@/types";
+import { DeleteUserResponse, GetUserResponse, PatchUserResponse, UserUpdateInput } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { validate } from "uuid";
+import { Prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -51,23 +52,23 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       response.error = "Unauthorized";
       return NextResponse.json(response, { status: 403 })
     }
-    const body = await request.json();
+    const body: UserUpdateInput = await request.json();
     if (!body) {
       response.error = "Bad input";
       return NextResponse.json(response, { status: 400 })
     }
+
+    const input: Prisma.UserUncheckedUpdateInput = {};
     if (body.handle && body.handle !== user.handle) {
-      body.handle = body.handle.toLowerCase();
-      const errors = await validateHandle(body.handle);
-      if (errors) {
-        response.error = errors;
+      input.handle = body.handle.toLowerCase();
+      const validationError = await validateHandle(input.handle);
+      if (validationError) {
+        response.error = validationError;
         return NextResponse.json(response, { status: 400 })
       }
     }
 
-    const result = await updateUser(params.id, {
-      handle: body.handle,
-    });
+    const result = await updateUser(params.id, input);
 
     response.data = {
       id: result.id,

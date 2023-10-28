@@ -89,7 +89,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
     if (body.handle && body.handle !== userDocument.handle) {
       input.handle = body.handle.toLowerCase();
-      const validationError = await validateHandle(params.id);
+      const validationError = await validateHandle(input.handle);
       if (validationError) {
         response.error = validationError;
         return NextResponse.json(response, { status: 400 })
