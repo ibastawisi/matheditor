@@ -4,7 +4,7 @@ import { LexicalEditor } from 'lexical';
 import { HorizontalRuleNode, INSERT_HORIZONTAL_RULE_COMMAND } from '@/editor/nodes/HorizontalRuleNode';
 import { INSERT_MATH_COMMAND } from '../../MathPlugin';
 import { INSERT_STICKY_COMMAND } from '../../StickyPlugin';
-import { SET_DIALOGS_COMMAND } from '..';
+import { SET_DIALOGS_COMMAND } from '../Dialogs/commands';
 import { MathNode } from '@/editor/nodes/MathNode';
 import { GraphNode } from '@/editor/nodes/GraphNode';
 import { SketchNode } from '@/editor/nodes/SketchNode';

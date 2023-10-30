@@ -1,10 +1,10 @@
 "use client"
-import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, ElementNode, LexicalCommand, LexicalNode, NodeKey, RangeSelection, TextNode, createCommand } from 'lexical';
+import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, LexicalNode, NodeKey } from 'lexical';
 import { $isCodeNode, CODE_LANGUAGE_MAP, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from '../../nodes/CodeNode';
 import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
-import { $getSelectionStyleValueForProperty, $isAtNodeEnd, $isParentElementRTL, $patchStyleText, } from '@lexical/selection';
+import { $getSelectionStyleValueForProperty, $isParentElementRTL, $patchStyleText, } from '@lexical/selection';
 import { $getNearestNodeOfType, mergeRegister, } from '@lexical/utils';
 import { CAN_REDO_COMMAND, CAN_UNDO_COMMAND, REDO_COMMAND, SELECTION_CHANGE_COMMAND, UNDO_COMMAND, COMMAND_PRIORITY_CRITICAL, } from 'lexical';
 import { useCallback, useEffect, useState } from 'react';
@@ -20,7 +20,7 @@ import ImageTools from './Tools/ImageTools';
 import { $isSketchNode } from '../../nodes/SketchNode';
 import { $isGraphNode } from '../../nodes/GraphNode';
 import { $patchStyle } from '../../nodes/utils';
-import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog } from './Dialogs';
+import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog, LinkDialog } from './Dialogs';
 import { $isStickyNode } from '../../nodes/StickyNode';
 import { SelectChangeEvent, useScrollTrigger, AppBar, Toolbar, Box, IconButton, Select, MenuItem } from '@mui/material';
 import { Redo, Undo } from '@mui/icons-material';
@@ -28,35 +28,12 @@ import { $isIFrameNode } from '@/editor/nodes/IFrameNode';
 import { $findMatchingParent } from '@lexical/utils';
 import { $isTableNode, TableNode } from '@/editor/nodes/TableNode';
 import TableTools from './Tools/TableTools';
-import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
-import LinkDialog from './Dialogs/LinkDialog';
+import { $isLinkNode } from '@lexical/link';
+import { EditorDialogs, SetDialogsPayload, SET_DIALOGS_COMMAND } from './Dialogs/commands';
+import { getSelectedNode } from '@/editor/utils/getSelectedNode';
 
-type EditorDialogs = {
-  image: {
-    open: boolean;
-  };
-  graph: {
-    open: boolean;
-  };
-  sketch: {
-    open: boolean;
-  };
-  table: {
-    open: boolean;
-  };
-  iframe: {
-    open: boolean;
-  },
-  link: {
-    open: boolean;
-  }
-};
 
-export type SetDialogsPayload = Readonly<Partial<EditorDialogs>>;
-
-export const SET_DIALOGS_COMMAND: LexicalCommand<SetDialogsPayload> = createCommand();
-
-export const blockTypeToBlockName = {
+const blockTypeToBlockName = {
   bullet: 'Bulleted List',
   check: 'Check List',
   code: 'Code Block',
@@ -84,44 +61,6 @@ function getCodeLanguageOptions(): [string, string][] {
 
 const CODE_LANGUAGE_OPTIONS = getCodeLanguageOptions();
 
-export function getSelectedNode(selection: RangeSelection): TextNode | ElementNode {
-  const anchor = selection.anchor;
-  const focus = selection.focus;
-  const anchorNode = selection.anchor.getNode();
-  const focusNode = selection.focus.getNode();
-  if (anchorNode === focusNode) {
-    return anchorNode;
-  }
-  const isBackward = selection.isBackward();
-  if (isBackward) {
-    return $isAtNodeEnd(focus) ? anchorNode : focusNode;
-  } else {
-    return $isAtNodeEnd(anchor) ? focusNode : anchorNode;
-  }
-}
-
-export function positionEditorElement(
-  editor: HTMLElement,
-  rect: ClientRect | null,
-  rootElement: HTMLElement,
-): void {
-  if (rect === null) {
-    editor.style.opacity = '0';
-    editor.style.top = '-1000px';
-    editor.style.left = '-1000px';
-  } else {
-    editor.style.opacity = '1';
-    editor.style.top = `${rect.top + rect.height + window.pageYOffset + 10}px`;
-    const left = rect.left - editor.offsetWidth / 2 + rect.width / 2;
-    const rootElementRect = rootElement.getBoundingClientRect();
-    if (rootElementRect.left > left) {
-      editor.style.left = `${rect.left + window.pageXOffset}px`;
-    } else if (left + editor.offsetWidth > rootElementRect.right) {
-      editor.style.left = `${rect.right + window.pageXOffset - editor.offsetWidth
-        }px`;
-    }
-  }
-}
 
 function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();

@@ -5,7 +5,7 @@ import { $isSketchNode, SketchNode } from "../../../nodes/SketchNode";
 import { $isGraphNode, GraphNode } from "../../../nodes/GraphNode";
 import { $patchStyle, getStyleObjectFromCSS } from '../../../nodes/utils';
 import { useState } from "react";
-import { SET_DIALOGS_COMMAND } from "..";
+import { SET_DIALOGS_COMMAND } from '../Dialogs/commands';
 import { SxProps, Theme } from '@mui/material/styles';
 import { ToggleButtonGroup, ToggleButton, SvgIcon } from "@mui/material";
 import { Edit, ClosedCaptionDisabled, ClosedCaption, ViewHeadline, Delete } from "@mui/icons-material";
@@ -25,7 +25,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
   const openGraphDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ graph: { open: true } }));
   const openSketchDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ sketch: { open: true } }));
   const openIFrameDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ iframe: { open: true } }));
-  const openDialog = $isGraphNode(node) ? openGraphDialog : $isSketchNode(node) ? openSketchDialog : $isIFrameNode(node)? openIFrameDialog : openImageDialog;
+  const openDialog = $isGraphNode(node) ? openGraphDialog : $isSketchNode(node) ? openSketchDialog : $isIFrameNode(node) ? openIFrameDialog : openImageDialog;
 
   const [style, setStyle] = useState(currentNodeStyle());
 

@@ -4,7 +4,7 @@ import { INSERT_GRAPH_COMMAND, InsertGraphPayload } from '../../GraphPlugin';
 import { GraphNode } from '../../../nodes/GraphNode';
 import { memo, useEffect, useId, useRef, useState } from 'react';
 import { $getSelection } from 'lexical';
-import { SET_DIALOGS_COMMAND } from '..';
+import { SET_DIALOGS_COMMAND } from './commands';
 import Script from 'next/script';
 import { getImageDimensions } from '@/editor/nodes/utils';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';

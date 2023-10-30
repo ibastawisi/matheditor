@@ -1,5 +1,3 @@
-/** @type {import('next').NextConfig} */
-
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 })
@@ -16,6 +14,7 @@ const withPWA = require("./next-pwa")({
 });
 
 
+/** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: false,
   async rewrites() {

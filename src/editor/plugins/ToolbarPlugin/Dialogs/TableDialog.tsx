@@ -2,7 +2,7 @@
 import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
 import { INSERT_TABLE_COMMAND } from '../../../nodes/TableNode';
 import React, { memo, useState } from 'react';
-import { SET_DIALOGS_COMMAND } from '..';
+import { SET_DIALOGS_COMMAND } from './commands';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, IconButton, Switch, TextField, useMediaQuery } from '@mui/material';

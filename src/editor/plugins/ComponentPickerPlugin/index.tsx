@@ -35,7 +35,7 @@ import * as ReactDOM from 'react-dom';
 import { INSERT_MATH_COMMAND } from '../MathPlugin';
 import { INSERT_STICKY_COMMAND } from '../StickyPlugin';
 
-import { SET_DIALOGS_COMMAND } from '../ToolbarPlugin';
+import { SET_DIALOGS_COMMAND } from '../ToolbarPlugin/Dialogs/commands';
 import { ImageNode } from '@/editor/nodes/ImageNode';
 import { GraphNode } from '@/editor/nodes/GraphNode';
 import { SketchNode } from '@/editor/nodes/SketchNode';
@@ -43,7 +43,7 @@ import { StickyNode } from '@/editor/nodes/StickyNode';
 import { PageBreakNode } from '@/editor/nodes/PageBreakNode';
 import { INSERT_PAGE_BREAK } from '../PageBreakPlugin';
 import { Paper, MenuList, MenuItem, ListItemIcon, ListItemText, Typography, SvgIcon } from '@mui/material';
-import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight, FormatAlignJustify, FormatListNumbered, FormatListBulleted, PlaylistAddCheck, FormatQuote, Code, Image as ImageIcon, TableChart , HorizontalRule, Functions, Brush, StickyNote2, InsertPageBreak, Web } from '@mui/icons-material';
+import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight, FormatAlignJustify, FormatListNumbered, FormatListBulleted, PlaylistAddCheck, FormatQuote, Code, Image as ImageIcon, TableChart, HorizontalRule, Functions, Brush, StickyNote2, InsertPageBreak, Web } from '@mui/icons-material';
 import { IFrameNode } from '@/editor/nodes/IFrameNode';
 
 const H1 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>

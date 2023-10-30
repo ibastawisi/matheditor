@@ -6,7 +6,6 @@ import { $createHeadingNode, $createQuoteNode, HeadingTagType, } from '@lexical/
 import { $setBlocksType } from '@lexical/selection';
 import { $createParagraphNode, $getSelection, $isRangeSelection } from 'lexical';
 
-import { blockTypeToBlockName } from '../index';
 import { Select, MenuItem, ListItemIcon, ListItemText, SvgIcon } from '@mui/material';
 import { ViewHeadline, FormatListBulleted, FormatListNumbered, PlaylistAddCheck, FormatQuote, Code } from '@mui/icons-material';
 
@@ -22,6 +21,19 @@ const H3 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
 const H4 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M120 776V376h60v170h180V376h60v400h-60V606H180v170h-60Zm620 0V646H540V376h60v210h140V376h60v210h80v60h-80v130h-60Z" />
 </SvgIcon>;
+
+const blockTypeToBlockName = {
+  bullet: 'Bulleted List',
+  check: 'Check List',
+  code: 'Code Block',
+  quote: 'Quote',
+  h1: 'Heading 1',
+  h2: 'Heading 2',
+  h3: 'Heading 3',
+  h4: 'Heading 4',
+  number: 'Numbered List',
+  paragraph: 'Normal',
+};
 
 export function BlockFormatSelect({ editor, blockType }: {
   blockType: keyof typeof blockTypeToBlockName;
