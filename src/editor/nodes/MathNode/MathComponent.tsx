@@ -6,7 +6,8 @@ import { $getNodeByKey } from 'lexical';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
-import type { MathfieldElement, MathfieldElementAttributes } from "mathlive";
+import { MathfieldElement, MathfieldElementAttributes } from "mathlive";
+import { convertLatexToMarkup } from "mathlive";
 import { $isMathNode } from '.';
 import './index.css';
 
@@ -24,6 +25,7 @@ window.MathfieldElement.soundsDirectory = null;
 window.MathfieldElement.computeEngine = null;
 
 export type MathComponentProps = { initialValue: string; nodeKey: NodeKey; mathfieldRef: React.RefObject<MathfieldElement>; };
+export { MathfieldElement, convertLatexToMarkup };
 
 export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathComponentProps): JSX.Element {
   const [editor] = useLexicalComposerContext();

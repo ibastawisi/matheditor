@@ -1,4 +1,3 @@
-"use client"
 import "mathlive/static.css"
 import '@/editor/theme.css';
 import { CloudDocument, User } from '@/types';

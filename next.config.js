@@ -29,6 +29,13 @@ const config = {
       },
     ]
   },
+  /** @param { import('webpack').Configuration } config */
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push('@excalidraw/excalidraw')
+    }
+    return config
+  },
 };
 
 module.exports = withPWA(withBundleAnalyzer(config));

@@ -1,7 +1,8 @@
+"use client"
 import { CloudDocument, User } from '@/types';
 import { Avatar, Box, Chip, Fab, IconButton, SwipeableDrawer, Typography, useScrollTrigger } from '@mui/material';
 import { Article, Close, Edit, FileCopy, Info, Print } from '@mui/icons-material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import RouterLink from "next/link";
 import ShareDocument from './DocumentActions/Share';
