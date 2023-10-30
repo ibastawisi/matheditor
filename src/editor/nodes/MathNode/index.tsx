@@ -1,7 +1,9 @@
 import { $createNodeSelection, $setSelection, DOMExportOutput, EditorConfig, LexicalEditor, LexicalNode, NodeKey, SerializedLexicalNode, Spread, isHTMLElement, } from 'lexical';
 import { DecoratorNode, } from 'lexical';
 import { createRef } from 'react';
-import MathComponent, { MathfieldElement, convertLatexToMarkup } from './MathComponent';
+import type { MathfieldElement } from 'mathlive';
+import { convertLatexToMarkup } from 'mathlive';
+import MathComponent from './MathComponent';
 
 export type SerializedMathNode = Spread<{ type: 'math'; value: string; style: string }, SerializedLexicalNode>;
 

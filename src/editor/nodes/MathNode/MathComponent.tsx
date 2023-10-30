@@ -7,8 +7,6 @@ import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 import type { MathfieldElement, MathfieldElementAttributes } from "mathlive";
-import { convertLatexToMarkup } from "mathlive";
-import { $isMathNode } from '.';
 import './index.css';
 
 type CustomElement<T> = Partial<T & DOMAttributes<T>>;
@@ -25,7 +23,6 @@ window.MathfieldElement.soundsDirectory = null;
 window.MathfieldElement.computeEngine = null;
 
 export type MathComponentProps = { initialValue: string; nodeKey: NodeKey; mathfieldRef: React.RefObject<MathfieldElement>; };
-export { MathfieldElement, convertLatexToMarkup };
 
 export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathComponentProps): JSX.Element {
   const [editor] = useLexicalComposerContext();
@@ -71,7 +68,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
       if (!$isNodeSelection(selection)) return;
       editor.getEditorState().read(() => {
         const mathNode = $getNodeByKey(nodeKey);
-        if (!$isMathNode(mathNode)) return;
+        if (!mathNode) return;
         const anchor = lastRangeSelection?.anchor;
         if (!anchor) return;
         const anchorNode = anchor.getNode();
@@ -103,7 +100,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
       editor.update(() => {
         if (value === initialValue) return;
         const node = $getNodeByKey(nodeKey);
-        if (!$isMathNode(node)) return;
+        if (!node) return;
         node.setValue(value);
       });
       if (event.inputType === "insertLineBreak") {
@@ -111,7 +108,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
         if (value.trim().length === 0) return;
         editor.update(() => {
           const node = $getNodeByKey(nodeKey);
-          if (!$isMathNode(node)) return;
+          if (!node) return;
           mathfield.blur();
           node.selectNext(0, 0);
         });
@@ -123,7 +120,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
         const value = mathfield.getValue();
         if (value.trim().length) return;
         const node = $getNodeByKey(nodeKey);
-        if (!$isMathNode(node)) return;
+        if (!node) return;
         node.remove(true);
         const parentRootElement = editor.getRootElement();
         if (parentRootElement !== null) {
@@ -170,7 +167,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
         $setSelection(rangeSelection);
         if (mathfield.value.trim().length === 0) {
           const node = $getNodeByKey(nodeKey);
-          $isMathNode(node) && node.remove();
+          node && node.remove();
         }
       });
     });
