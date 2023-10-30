@@ -27,7 +27,6 @@ import ClickableLinkPlugin from './LinkPlugin/ClickableLinkPlugin';
 import ComponentPickerMenuPlugin from './ComponentPickerPlugin';
 import TabFocusPlugin from './TabFocusPlugin';
 import DragDropPaste from './DragDropPastePlugin';
-import EmojiPickerPlugin from './EmojiPickerPlugin';
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ImageNode } from "../nodes/ImageNode";
 import { SketchNode } from "../nodes/SketchNode";
@@ -66,7 +65,6 @@ export const EditorPlugins: React.FC<{
       {editor.hasNode(TableNode) && <TableCellActionMenuPlugin /> }
       {editor.hasNode(TableNode) && <TableCellResizer /> }
       <ComponentPickerMenuPlugin />
-      <EmojiPickerPlugin />
       <MathPlugin />
       {editor.hasNode(ImageNode) && <ImagePlugin />}
       {editor.hasNode(SketchNode) && <SketchPlugin />}

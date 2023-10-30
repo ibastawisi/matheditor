@@ -260,35 +260,6 @@ const Checkpoint6 = [
     }
   },
   {
-    name: "Insert a smile '😄' Emoji after this line",
-    steps: <>
-      <Typography variant="subtitle2" gutterBottom>
-        1. Click the empty line below then type
-      </Typography>
-      <Typography variant="subtitle2" gutterBottom>
-        {':smile'}
-      </Typography>
-      <Typography variant="subtitle2" gutterBottom>
-        2. Pick the emoji from the List
-      </Typography>
-    </>,
-    check: (editorState?: EditorState) => {
-      let result = false;
-      if (!editorState) return result;
-      editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 11) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target && target.getTextContent() === '😄') result = true;
-          }
-        });
-      });
-      return result;
-    }
-  },
-  {
     name: "Insert a Math field after this line",
     steps: <>
       <Typography variant="subtitle2" gutterBottom>
@@ -303,7 +274,7 @@ const Checkpoint6 = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if (node.__value === 12) {
+          if (node.__value === 11) {
             const paragraphNode = node.getParent()?.getNextSibling();
             if (!paragraphNode) return result;
             const target = paragraphNode.getFirstChild();
@@ -329,7 +300,7 @@ const Checkpoint6 = [
       if (!editorState) return result;
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
-          if (node.__value === 13) {
+          if (node.__value === 12) {
             const paragraphNode = node.getParent()?.getNextSibling();
             if (!paragraphNode) return result;
             const target = paragraphNode.getFirstChild();

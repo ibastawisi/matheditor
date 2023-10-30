@@ -47,7 +47,6 @@ import {
 } from '../../nodes/TableNode';
 import { $createMathNode, $isMathNode, MathNode } from '../../nodes/MathNode';
 import { $createImageNode, $isImageNode, ImageNode } from '../../nodes/ImageNode';
-import emojiList from '../../plugins/EmojiPickerPlugin/emoji-list';
 import { $createGraphNode, $isGraphNode, GraphNode } from '../../nodes/GraphNode';
 import { $createSketchNode, $isSketchNode, SketchNode } from '../../nodes/SketchNode';
 import { $createStickyNode, $isStickyNode, StickyNode } from '../../nodes/StickyNode';
@@ -167,21 +166,6 @@ const svgtoBase64 = (dataURI: string) => {
   const base64 = btoa(unescape(data));
   return `data:image/svg+xml;base64,${base64}`;
 }
-
-export const EMOJI: TextMatchTransformer = {
-  dependencies: [],
-  export: () => null,
-  importRegExp: /:([a-z0-9_]+):/,
-  regExp: /:([a-z0-9_]+):/,
-  replace: (textNode, [, name]) => {
-    const emoji = emojiList.find((e) => e.aliases.includes(name))?.emoji;
-    if (emoji) {
-      textNode.replace($createTextNode(emoji));
-    }
-  },
-  trigger: ':',
-  type: 'text-match',
-};
 
 export const MATH: TextMatchTransformer = {
   dependencies: [MathNode],

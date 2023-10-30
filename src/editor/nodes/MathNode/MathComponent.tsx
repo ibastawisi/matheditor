@@ -6,7 +6,7 @@ import { $getNodeByKey } from 'lexical';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
-import { MathfieldElement, MathfieldElementAttributes } from "mathlive";
+import type { MathfieldElement, MathfieldElementAttributes } from "mathlive";
 import { convertLatexToMarkup } from "mathlive";
 import { $isMathNode } from '.';
 import './index.css';
