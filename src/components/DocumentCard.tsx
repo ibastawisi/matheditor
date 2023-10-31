@@ -2,7 +2,7 @@
 import * as React from 'react';
 import RouterLink from 'next/link'
 import { User, UserDocument } from '@/types';
-import { memo, useEffect, useState } from 'react';
+import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip } from '@mui/material';
 import { Article, MobileFriendly, CloudDone, CloudSync, Cloud, Public } from '@mui/icons-material';
@@ -28,51 +28,34 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
   const href = (isAuthor || isCoauthor) ? `/edit/${handle}` : `/view/${handle}`;
   const authorName = cloudDocument?.author.name ?? user?.name ?? 'Local User';
 
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => setIsMounted(true), []);
 
   return (
-    <Card variant="outlined"
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        height: "100%",
-        maxWidth: "100%",
-        ...sx
-      }}>
+    <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%", maxWidth: "100%", ...sx }}>
       <CardActionArea component={RouterLink} prefetch={false} scroll={false} href={document ? href : "/"} sx={{ flexGrow: 1 }}>
         <CardHeader sx={{ alignItems: "start", '& .MuiCardHeader-content': { overflow: "hidden", textOverflow: "ellipsis" } }}
           title={document ? document.name : <Skeleton variant="text" width={190} />}
           subheader={
             <>
-              <Typography component="span" variant="subtitle2"
+              <Typography component="span" variant="subtitle2" color="text.secondary"
                 sx={{ display: "block", lineHeight: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
-                color="text.secondary"
               >
                 {document ? authorName : <Skeleton variant="text" width={100} />}
               </Typography>
-              <Typography variant="overline"
-                sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
-                color="text.secondary"
-              >{document && isMounted ? <>
-                Created: {new Date(document.createdAt).toLocaleString()}
-              </> : <Skeleton variant="text" width={150} />}
+              <Typography variant="overline" color="text.secondary"
+                sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {document ? <>Created: {new Date(document.createdAt).toLocaleString()}</> : <Skeleton variant="text" width={150} />}
               </Typography>
-              <Typography variant="overline"
+              <Typography variant="overline" color="text.secondary"
                 sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
-                color="text.secondary"
               >
-                {document && isMounted ? <>
-                  Updated: {new Date(document.updatedAt).toLocaleString()}
-                </> : <Skeleton variant="text" width={160} />}
+                {document ? <>Updated: {new Date(document.updatedAt).toLocaleString()}</> : <Skeleton variant="text" width={160}></Skeleton>}
               </Typography>
             </>
           }
           avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><Article /></Avatar>}
         />
       </CardActionArea>
-      <CardActions sx={{ "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
+      <CardActions sx={{ height: 50, "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
         {!document && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} label={<Skeleton variant="text" width={50} />} />}
         {!document && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} label={<Skeleton variant="text" width={70} />} />}
         {isLocalOnly && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Local" />}

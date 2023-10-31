@@ -6,9 +6,14 @@ import TreeViewPlugin from "./plugins/TreeViewPlugin";
 import ToolbarPlugin from "./plugins/ToolbarPlugin";
 import { editorConfig } from "./config";
 import { EditorPlugins } from "./plugins";
-import "./styles.css";
 import { MutableRefObject } from "react";
 import { EditorRefPlugin } from '@lexical/react/LexicalEditorRefPlugin';
+import "mathlive";
+import "mathlive/fonts.css";
+import "./styles.css";
+
+window.MathfieldElement.soundsDirectory = null;
+window.MathfieldElement.computeEngine = null;
 
 export const Editor: React.FC<{
   initialConfig: Partial<InitialConfigType>;

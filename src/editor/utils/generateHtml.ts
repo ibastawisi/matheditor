@@ -2,13 +2,14 @@ import type { SerializedEditorState } from "lexical";
 import { createHeadlessEditor } from "@lexical/headless";
 import { editorConfig } from "../config";
 import { $generateHtmlFromNodes } from "./html";
-import { Window as DomWindow } from "happy-dom";
+import { Window as HapppyWindow } from "happy-dom";
+import { convertLatexToMarkup } from "mathlive";
 
 const editor = createHeadlessEditor(editorConfig);
 
 export const generateHtml = (data: SerializedEditorState) => new Promise<string>((resolve, reject) => {
   if (typeof window === "undefined") {
-    const window = new DomWindow();
+    const window = new HapppyWindow();
     global.window = window as unknown as Window & typeof globalThis;
     global.document = window.document as unknown as Document;
     global.DocumentFragment = window.DocumentFragment
@@ -24,8 +25,9 @@ export const generateHtml = (data: SerializedEditorState) => new Promise<string>
       const figureRegex = /<p\b[^>]*>(?:(?!<\/p>).)*<figure\b[^>]*>(?:(?!<\/figure>).)*<\/figure>(?:(?!<\/p>).)*<\/p>/gs;
       const stickies = html.match(stickyRegex) || [];
       const figures = html.match(figureRegex) || [];
-      const matches = [...stickies, ...figures];
-      matches.forEach((match) => html = html.replace(match, match.replace(/^<p/, '<div').replace(/<\/p>$/, '</div>')));
+      [...stickies, ...figures].forEach((match) => html = html.replace(match, match.replace(/^<p/, '<div').replace(/<\/p>$/, '</div>')));
+      const mathRegex = /<math-field>(?:(?!<\/math-field>).)*<\/math-field>/g;
+      html = html.replaceAll(mathRegex, match => convertLatexToMarkup(match.slice(12, -13)));
       resolve(html);
     });
   } catch (error) {

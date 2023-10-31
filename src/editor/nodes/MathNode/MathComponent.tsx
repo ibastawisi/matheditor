@@ -19,9 +19,6 @@ declare global {
   }
 }
 
-window.MathfieldElement.soundsDirectory = null;
-window.MathfieldElement.computeEngine = null;
-
 export type MathComponentProps = { initialValue: string; nodeKey: NodeKey; mathfieldRef: React.RefObject<MathfieldElement>; };
 
 export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathComponentProps): JSX.Element {

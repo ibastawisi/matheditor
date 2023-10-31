@@ -2,7 +2,6 @@ import { $createNodeSelection, $setSelection, DOMExportOutput, EditorConfig, Lex
 import { DecoratorNode, } from 'lexical';
 import { createRef } from 'react';
 import type { MathfieldElement } from 'mathlive';
-import { convertLatexToMarkup } from 'mathlive';
 import MathComponent from './MathComponent';
 
 export type SerializedMathNode = Spread<{ type: 'math'; value: string; style: string }, SerializedLexicalNode>;
@@ -46,7 +45,7 @@ export class MathNode extends DecoratorNode<JSX.Element> {
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const { element } = super.exportDOM(editor);
     if (element && isHTMLElement(element)) {
-      element.innerHTML = convertLatexToMarkup(this.__value);
+      element.innerHTML = `<math-field>${this.getValue()}</math-field>`
     }
     return { element };
   }
