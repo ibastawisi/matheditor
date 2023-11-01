@@ -25,6 +25,7 @@ import {
   $isElementNode,
   $isLineBreakNode,
   DEPRECATED_GridCellNode,
+  isHTMLElement,
 } from 'lexical';
 
 import { PIXEL_VALUE_REG_EXP } from './constants';
@@ -140,20 +141,19 @@ export class TableCellNode extends DEPRECATED_GridCellNode {
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const { element } = super.exportDOM(editor);
 
-    if (element) {
-      const element_ = element as HTMLTableCellElement;
+    if (element && isHTMLElement(element)) {
       if (this.__colSpan > 1) {
-        element_.colSpan = this.__colSpan;
+        element.setAttribute('colspan', this.__colSpan.toString());
       }
       if (this.__rowSpan > 1) {
-        element_.rowSpan = this.__rowSpan;
+        element.setAttribute('rowspan', this.__rowSpan.toString());
       }
       if (this.__width) {
-        element_.style.width = `${this.getWidth()}px`;
+        element.style.width = `${this.getWidth()}px`;
       }
       const style = this.getStyle();
       if (style !== '') {
-        element_.style.cssText += style;
+        element.style.cssText += style;
       }
     }
 
