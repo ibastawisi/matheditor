@@ -11,6 +11,7 @@ const initialState: AppState = {
   announcements: [],
   alerts: [],
   initialized: false,
+  drawer: false,
 };
 
 export const load = createAsyncThunk('app/load', async (_, thunkAPI) => {
@@ -337,6 +338,9 @@ export const appSlice = createSlice({
     },
     clearAlert: (state) => {
       state.alerts.shift();
+    },
+    toggleDrawer: (state) => {
+      state.drawer = !state.drawer;
     },
   },
   extraReducers: (builder) => {

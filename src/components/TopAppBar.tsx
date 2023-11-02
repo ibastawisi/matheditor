@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { useDispatch, actions, useSelector } from '@/store';
 import { useTheme } from '@mui/material/styles';
 import { useScrollTrigger, Slide, Zoom, Box, AppBar, Toolbar, Typography, IconButton, Avatar, Fab, Link } from '@mui/material';
-import { Brightness7, Brightness4, Print, KeyboardArrowUp } from '@mui/icons-material';
+import { Brightness7, Brightness4, Print, KeyboardArrowUp, Info } from '@mui/icons-material';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname();
@@ -54,10 +54,12 @@ const TopAppBar: React.FC<{}> = () => {
   const theme = useTheme();
   const pathname = usePathname();
   const showPrintButton = !!['/edit', '/view', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
+  const showDrawerButton = !!['/edit', '/view'].find(path => pathname.startsWith(path));
   const initialized = useSelector(state => state.initialized);
   const user = useSelector(state => state.user);
 
   const handlePrint = () => { window.print(); }
+  const toggleDrawer = () => { dispatch(actions.toggleDrawer()); }
 
   useEffect(() => {
     if (!initialized) dispatch(actions.load());
@@ -84,6 +86,7 @@ const TopAppBar: React.FC<{}> = () => {
             {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={handlePrint}>
               <Print />
             </IconButton>}
+            {showDrawerButton && <IconButton aria-label="Document Info" color='inherit' onClick={toggleDrawer}><Info /></IconButton>}
           </Toolbar>
         </AppBar>
       </HideOnScroll>

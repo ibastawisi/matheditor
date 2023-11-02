@@ -1,6 +1,6 @@
 "use client"
 import type { SerializedEditorState } from 'lexical';
-import { Session } from 'next-auth';
+import type { Session } from 'next-auth';
 
 export interface Alert {
   title: string;
@@ -22,6 +22,7 @@ export interface AppState {
   announcements: Announcement[];
   alerts: Alert[];
   initialized: boolean;
+  drawer: boolean;
 }
 
 export interface EditorDocument {
