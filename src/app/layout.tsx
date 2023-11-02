@@ -2,6 +2,8 @@ import './globals.css'
 import type { Metadata, Viewport } from 'next';
 import LayoutProvider from "@/components/LayoutProvider";
 import ThemeProvider from '@/components/ThemeProvider';
+import Script from "next/script";
+const GA_MEASUREMENT_ID = process.env.MEASUREMENT_ID;
 
 export const metadata: Metadata = {
   title: 'Math Editor',
@@ -53,6 +55,23 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      {process.env.NODE_ENV === 'production' &&
+        <head>
+          {process.env.MEASUREMENT_ID &&
+            <>
+              <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} strategy="afterInteractive" />
+              <Script id="google-analytics" strategy="afterInteractive">
+                {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){window.dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_MEASUREMENT_ID}');
+              `}
+              </Script>
+            </>
+          }
+        </head>
+      }
       <body>
         <ThemeProvider>
           <LayoutProvider>
