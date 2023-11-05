@@ -1,8 +1,10 @@
 import './globals.css'
 import type { Metadata, Viewport } from 'next';
-import LayoutProvider from "@/components/LayoutProvider";
+import CacheProvider from '@/components/EmotionCacheProvider';
 import ThemeProvider from '@/components/ThemeProvider';
+import LayoutProvider from "@/components/LayoutProvider";
 import Script from "next/script";
+
 const GA_MEASUREMENT_ID = process.env.MEASUREMENT_ID;
 
 export const metadata: Metadata = {
@@ -73,11 +75,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </head>
       }
       <body>
-        <ThemeProvider>
-          <LayoutProvider>
-            {children}
-          </LayoutProvider>
-        </ThemeProvider>
+        <CacheProvider>
+          <ThemeProvider>
+            <LayoutProvider>
+              {children}
+            </LayoutProvider>
+          </ThemeProvider>
+        </CacheProvider>
       </body>
     </html>
   )
