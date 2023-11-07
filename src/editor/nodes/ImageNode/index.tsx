@@ -120,6 +120,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     img.setAttribute('alt', this.__altText);
     if (this.__width) img.setAttribute('width', this.__width.toString());
     if (this.__height) img.setAttribute('height', this.__height.toString());
+    if (this.__width && this.__height) img.setAttribute('style', `aspect-ratio: ${this.__width}/${this.__height};`);
     element.appendChild(img);
     if (!this.__showCaption) return { element };
     const caption = document.createElement('figcaption');

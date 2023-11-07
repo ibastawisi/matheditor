@@ -72,6 +72,7 @@ function LazyImage({
       ref={imageRef}
       width={width || undefined}
       height={height || undefined}
+      style={{ aspectRatio: width / height }}
       draggable={draggable}
     />
   );

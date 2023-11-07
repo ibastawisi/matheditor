@@ -19,6 +19,7 @@
 .LexicalTheme__image img {
   min-width: 100px;
   max-width: 100%;
+  height: auto;
   background-color: white;
   scroll-margin-top: 88px;
   scroll-margin-bottom: 24px;
