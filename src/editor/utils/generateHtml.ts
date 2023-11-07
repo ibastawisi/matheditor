@@ -9,12 +9,8 @@ const editor = createHeadlessEditor(editorConfig);
 
 export const generateHtml = (data: SerializedEditorState) => new Promise<string>((resolve, reject) => {
   if (typeof window === "undefined") {
-    const window = new HapppyWindow();
-    global.window = window as unknown as Window & typeof globalThis;
-    global.document = window.document as unknown as Document;
-    global.DocumentFragment = window.DocumentFragment
-    global.Element = window.Element as unknown as typeof Element;
-    global.navigator = window.navigator as unknown as Navigator;
+    const { window, document, DocumentFragment, Element, navigator } = new HapppyWindow();
+    Object.assign(global, { window, document, DocumentFragment, Element, navigator });
   }
   try {
     const editorState = editor.parseEditorState(data);
