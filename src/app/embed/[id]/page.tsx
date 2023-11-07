@@ -1,12 +1,13 @@
-import { generateHtml } from "@/editor/utils/generateHtml";
 import htmr from 'htmr';
 import EmbedDocument from "@/components/EmbedDocument";
 import { notFound } from 'next/navigation'
-import { findDocumentHeadRevision } from "@/repositories/revision";
+import { findUserDocument } from '@/repositories/document';
 
 export default async function Page({ params }: { params: { id: string } }) {
-  const revision = await findDocumentHeadRevision(params.id);
-  if (!revision) notFound();
-  const html = await generateHtml(revision.data);
+  const document = await findUserDocument(params.id);
+  if (!document) notFound();
+  const response = await fetch(`${process.env.PUBLIC_URL}/api/embed/${document.head}`);
+  if (!response.ok) notFound();
+  const html = await response.text();
   return <EmbedDocument>{htmr(html)}</EmbedDocument>
 }

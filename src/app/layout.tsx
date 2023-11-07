@@ -75,13 +75,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </head>
       }
       <body>
-        <CacheProvider>
-          <ThemeProvider>
-            <LayoutProvider>
-              {children}
-            </LayoutProvider>
-          </ThemeProvider>
-        </CacheProvider>
+        <ThemeProvider>
+          <LayoutProvider>
+            {children}
+          </LayoutProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

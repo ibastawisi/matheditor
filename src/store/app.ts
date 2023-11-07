@@ -339,8 +339,9 @@ export const appSlice = createSlice({
     clearAlert: (state) => {
       state.alerts.shift();
     },
-    toggleDrawer: (state) => {
-      state.drawer = !state.drawer;
+    toggleDrawer: (state, action: PayloadAction<boolean | undefined>) => {
+      if (action.payload !== undefined) state.drawer = action.payload;
+      else state.drawer = !state.drawer;
     },
   },
   extraReducers: (builder) => {

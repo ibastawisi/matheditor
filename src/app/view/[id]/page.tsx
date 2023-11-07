@@ -1,11 +1,9 @@
 import { OgMetadata } from "@/app/api/og/route";
 import { findUserDocument } from "@/repositories/document";
 import ViewDocument from "@/components/ViewDocument";
-import { generateHtml } from "@/editor/utils/generateHtml";
 import htmr from 'htmr';
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { findRevisionById } from "@/repositories/revision";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -40,9 +38,9 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 export default async function Page({ params }: { params: { id: string } }) {
   const document = await findUserDocument(params.id);
   if (!document) notFound();
-  const revision = await findRevisionById(document.head);
-  if (!revision) notFound();
-  const html = await generateHtml(revision.data);
+  const response = await fetch(`${process.env.PUBLIC_URL}/api/embed/${document.head}`);
+  if (!response.ok) notFound();
+  const html = await response.text();
   const session = await getServerSession(authOptions);
   return <ViewDocument cloudDocument={document} user={session?.user}>{htmr(html)}</ViewDocument>;
 }

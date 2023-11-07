@@ -2,12 +2,17 @@
 import { Box, IconButton, SwipeableDrawer, Typography } from '@mui/material';
 import { Article, Close } from '@mui/icons-material';
 import { actions, useDispatch, useSelector } from '@/store';
+import { useEffect } from 'react';
 
 const AppDrawer: React.FC<React.PropsWithChildren<{ title: string }>> = ({ title, children }) => {
   const open = useSelector(state => state.drawer);
   const dispatch = useDispatch();
   const toggleDrawer = () => { dispatch(actions.toggleDrawer()); }
 
+  useEffect(() => {
+    return () => { dispatch(actions.toggleDrawer(false)); }
+  }, []);
+  
   return (
     <>
       <SwipeableDrawer
