@@ -22,7 +22,7 @@ export const generateHtml = (data: SerializedEditorState) => new Promise<string>
       const stickies = html.match(stickyRegex) || [];
       const figures = html.match(figureRegex) || [];
       [...stickies, ...figures].forEach((match) => html = html.replace(match, match.replace(/^<p/, '<div').replace(/<\/p>$/, '</div>')));
-      const mathRegex = /<math-field>(?:(?!<\/math-field>).)*<\/math-field>/g;
+      const mathRegex = /<math-field>(?:(?!<\/math-field>).)*<\/math-field>/gs;
       html = html.replaceAll(mathRegex, match => convertLatexToMarkup(match.slice(12, -13)));
       resolve(html);
     });

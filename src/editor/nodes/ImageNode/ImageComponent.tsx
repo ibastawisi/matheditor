@@ -36,7 +36,7 @@ import {
   KEY_DELETE_COMMAND,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
-import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import ImageResizer from './ImageResizer';
 import { $isImageNode } from '.';
@@ -44,7 +44,7 @@ import { $isImageNode } from '.';
 import { editorConfig } from './config';
 import dynamic from 'next/dynamic';
 import { Typography } from '@mui/material';
-import { $isIFrameNode } from '../IFrameNode';
+
 const NestedEditor = dynamic(() => import('@/editor/NestedEditor'), { ssr: false });
 
 function LazyImage({
@@ -72,7 +72,7 @@ function LazyImage({
       ref={imageRef}
       width={width || undefined}
       height={height || undefined}
-      style={{ aspectRatio: width / height }}
+      style={{ aspectRatio: (width / height) || undefined }}
       draggable={draggable}
     />
   );
