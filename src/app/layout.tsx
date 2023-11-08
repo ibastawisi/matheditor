@@ -1,11 +1,8 @@
 import './globals.css'
 import type { Metadata, Viewport } from 'next';
-import CacheProvider from '@/components/EmotionCacheProvider';
 import ThemeProvider from '@/components/ThemeProvider';
 import LayoutProvider from "@/components/LayoutProvider";
 import Script from "next/script";
-
-const GA_MEASUREMENT_ID = process.env.MEASUREMENT_ID;
 
 export const metadata: Metadata = {
   title: 'Math Editor',
@@ -61,16 +58,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <head>
           {process.env.MEASUREMENT_ID &&
             <>
-              <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} strategy="afterInteractive" />
+              <Script src={`https://www.googletagmanager.com/gtag/js?id=${process.env.MEASUREMENT_ID}`} strategy="afterInteractive" />
               <Script id="google-analytics" strategy="afterInteractive">
                 {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){window.dataLayer.push(arguments);}
                 gtag('js', new Date());
-                gtag('config', '${GA_MEASUREMENT_ID}');
+                gtag('config', '${process.env.MEASUREMENT_ID}');
               `}
               </Script>
             </>
+          }
+          {process.env.PUBLISHER_ID &&
+            <Script src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-${process.env.PUBLISHER_ID}`} strategy="afterInteractive" />
           }
         </head>
       }
