@@ -66,6 +66,11 @@ header {
   #nprogress {
     display: none !important;
   }
+
+  ins,
+  ins * {
+    display: none !important;
+  }
 }
 
 .editor-container {
