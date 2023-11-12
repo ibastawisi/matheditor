@@ -70,7 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </>
           }
           {process.env.PUBLISHER_ID &&
-            <Script src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-${process.env.PUBLISHER_ID}`} strategy="afterInteractive" />
+            <Script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-${process.env.PUBLISHER_ID}`} strategy="afterInteractive" />
           }
         </head>
       }
