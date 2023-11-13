@@ -103,6 +103,10 @@ header {
   height: 100%;
 }
 
+.google-revocation-link-placeholder {
+  display: none;
+}
+
 @font-face {
   font-family: Virgil;
   src: url(/fonts/Virgil.woff2);
