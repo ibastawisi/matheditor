@@ -52,6 +52,10 @@ header {
   transform: rotate(3deg) translate(0px, -4px);
 }
 
+.adsbygoogle {
+  overflow: hidden;
+}
+
 @media print {
   * {
     -webkit-print-color-adjust: exact;
@@ -67,6 +71,7 @@ header {
     display: none !important;
   }
 
+  .adsbygoogle,
   ins,
   ins * {
     display: none !important;

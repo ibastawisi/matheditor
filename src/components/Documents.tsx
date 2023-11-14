@@ -11,6 +11,8 @@ import documentDB from '@/indexeddb';
 import { Box, Avatar, Button, Typography, Grid, Card, CardActionArea, CardHeader, Collapse, Pagination } from '@mui/material';
 import { PostAdd, UploadFile, Help, Storage, Science } from '@mui/icons-material';
 import DocumentSortControl from './DocumentSortControl';
+import CardAd from './CardAd';
+import useOnlineStatus from '@/hooks/useOnlineStatus';
 
 const Documents: React.FC = () => {
   const user = useSelector(state => state.user);
@@ -150,12 +152,21 @@ const Documents: React.FC = () => {
 }
 
 const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initialized: boolean }> = memo(({ documents, user, initialized }) => {
-  const pages = Math.ceil(documents.length / 12);
+  const showSkeletons = !initialized && !documents.length;
+  const hasLocalDocuments = documents.some(document => document.local);
+  const isProduction = process.env.NODE_ENV === "production";
+  const isOnline = useOnlineStatus();
+  const showAds = isProduction && isOnline && hasLocalDocuments;
+  const pageSize = showAds ? 11 : 12;
+  const pages = Math.ceil(documents.length / pageSize);
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
-  const pageDocuments = documents.slice((page - 1) * 12, page * 12);
+  const pageDocuments = documents.slice((page - 1) * pageSize, page * pageSize);
+
+
   return <Grid container spacing={2}>
-    {!initialized && documents.length === 0 && Array.from({ length: 3 }).map((_, i) => <Grid item key={i} xs={12} sm={6} md={4}><DocumentCard /></Grid>)}
+    {showSkeletons && Array.from({ length: 6 }).map((_, i) => <Grid item key={i} xs={12} sm={6} md={4}><DocumentCard /></Grid>)}
+    {showAds && <Grid item key={page} xs={12} sm={6} md={4}><CardAd /></Grid>}
     {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
       <DocumentCard userDocument={document} user={user} />
     </Grid>)}

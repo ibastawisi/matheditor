@@ -9,6 +9,7 @@ import { useDispatch, actions } from '@/store';
 import DocumentCard from './DocumentCard';
 import { Container, Box, Avatar, Typography, TextField, Button } from '@mui/material';
 import { Article, Add } from '@mui/icons-material';
+import ArticleAd from './ArticleAd';
 
 const NewDocument: React.FC = () => {
   const [base, setBase] = useState<UserDocument>();
@@ -98,7 +99,7 @@ const NewDocument: React.FC = () => {
 
   return (
     <Container maxWidth="xs">
-      <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <Box sx={{ my: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}><Article /></Avatar>
         <Typography component="h1" variant="h5">{id ? "Fork a document" : "Create a new document"}</Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
@@ -108,6 +109,7 @@ const NewDocument: React.FC = () => {
         {id && <Typography variant="overline" sx={{ color: 'text.secondary', my: 2 }}>Based on</Typography>}
         {id && <DocumentCard userDocument={base} sx={{ width: 320 }} />}
       </Box>
+      <ArticleAd />
     </Container>
   );
 }
