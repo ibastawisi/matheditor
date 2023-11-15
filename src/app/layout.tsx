@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import ThemeProvider from '@/components/ThemeProvider';
 import LayoutProvider from "@/components/LayoutProvider";
 import Script from "next/script";
+import { Analytics } from '@vercel/analytics/react';
 
 export const metadata: Metadata = {
   title: 'Math Editor',
@@ -80,6 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
           </LayoutProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   )
