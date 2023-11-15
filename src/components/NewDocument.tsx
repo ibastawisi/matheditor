@@ -9,7 +9,7 @@ import { useDispatch, actions } from '@/store';
 import DocumentCard from './DocumentCard';
 import { Container, Box, Avatar, Typography, TextField, Button } from '@mui/material';
 import { Article, Add } from '@mui/icons-material';
-import ArticleAd from './ArticleAd';
+import ArticleAd from './Ads/ArticleAd';
 
 const NewDocument: React.FC = () => {
   const [base, setBase] = useState<UserDocument>();

@@ -7,7 +7,7 @@ import DocumentCard from "./DocumentCard";
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Grid, Pagination, Typography } from "@mui/material";
 import { ExpandMore, Pageview } from "@mui/icons-material";
 import DocumentSortControl from "./DocumentSortControl";
-import ArticleAd from "./ArticleAd";
+import ArticleAd from "./Ads/ArticleAd";
 
 const Dashboard: React.FC = () => {
   const documents = useSelector(state => state.documents);
