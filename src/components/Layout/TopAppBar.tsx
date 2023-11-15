@@ -2,7 +2,7 @@
 import { usePathname } from 'next/navigation';
 import RouterLink from 'next/link'
 import { useContext, useEffect } from 'react';
-import { ColorModeContext } from '@/components/ThemeProvider';
+import { ColorModeContext } from '@/components/Layout/ThemeProvider';
 import logo from "@public/logo.svg";
 import Image from 'next/image';
 import { useDispatch, actions, useSelector } from '@/store';

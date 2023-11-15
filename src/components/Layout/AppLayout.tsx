@@ -1,11 +1,11 @@
 "use client";
 import StoreProvider from "@/store/StoreProvider";
-import TopAppBar from '@/components/TopAppBar';
-import AlertDialog from "@/components/Alert";
-import Announcer from "@/components/Announcer";
-import PwaUpdater from "@/components/PwaUpdater";
-import Footer from "@/components/Footer";
-import ProgressBar from "@/components/ProgressBar";
+import TopAppBar from './TopAppBar';
+import AlertDialog from "./Alert";
+import Announcer from "./Announcer";
+import PwaUpdater from "./PwaUpdater";
+import Footer from "./Footer";
+import ProgressBar from "./ProgressBar";
 import { Container } from "@mui/material";
 
 const AppLayout = ({ children }: { children: React.ReactNode; }) => {

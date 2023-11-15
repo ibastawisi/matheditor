@@ -1,5 +1,5 @@
 "use client"
-import packageJson from '../../package.json';
+import packageJson from '../../../package.json';
 import { Box, Typography, Link } from '@mui/material';
 import RouterLink from "next/link";
 
