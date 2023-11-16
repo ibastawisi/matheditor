@@ -9,7 +9,6 @@ import { useDispatch, actions } from '@/store';
 import DocumentCard from './DocumentCard';
 import { Container, Box, Avatar, Typography, TextField, Button } from '@mui/material';
 import { Article, Add } from '@mui/icons-material';
-import ArticleAd from './Ads/ArticleAd';
 
 const NewDocument: React.FC = () => {
   const [base, setBase] = useState<UserDocument>();
@@ -109,7 +108,6 @@ const NewDocument: React.FC = () => {
         {id && <Typography variant="overline" sx={{ color: 'text.secondary', my: 2 }}>Based on</Typography>}
         {id && <DocumentCard userDocument={base} sx={{ width: 320 }} />}
       </Box>
-      <ArticleAd />
     </Container>
   );
 }

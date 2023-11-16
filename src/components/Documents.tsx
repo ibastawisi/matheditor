@@ -11,9 +11,6 @@ import documentDB from '@/indexeddb';
 import { Box, Avatar, Button, Typography, Grid, Card, CardActionArea, CardHeader, Collapse, Pagination } from '@mui/material';
 import { PostAdd, UploadFile, Help, Storage, Science } from '@mui/icons-material';
 import DocumentSortControl from './DocumentSortControl';
-import CardAd from './Ads/CardAd';
-import useOnlineStatus from '@/hooks/useOnlineStatus';
-import DisplayAd from './Ads/DisplayAd';
 
 const Documents: React.FC = () => {
   const user = useSelector(state => state.user);
@@ -154,10 +151,6 @@ const Documents: React.FC = () => {
 
 const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initialized: boolean }> = memo(({ documents, user, initialized }) => {
   const showSkeletons = !initialized && !documents.length;
-  const hasLocalDocuments = documents.some(document => document.local);
-  const isProduction = process.env.NODE_ENV === "production";
-  const isOnline = useOnlineStatus();
-  const showAds = isProduction && isOnline && hasLocalDocuments;
   const pageSize = 12;
   const pages = Math.ceil(documents.length / pageSize);
   const [page, setPage] = useState(1);
@@ -170,7 +163,6 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initiali
     {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
       <DocumentCard userDocument={document} user={user} />
     </Grid>)}
-    {showAds && <Grid item key={page} xs={12}><DisplayAd /></Grid>}
     {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3, width: "100%" }} />}
   </Grid>
 });
