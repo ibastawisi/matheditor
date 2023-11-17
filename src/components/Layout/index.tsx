@@ -14,7 +14,7 @@ const EmbedLayout = lazy(() => import('./EmbedLayout'));
 const LayoutProvider = ({ children }: { children: React.ReactNode; }) => {
   const pathname = usePathname();
   const isEmbed = pathname.startsWith("/embed");
-  const isVercel = !!process.env.VERCEL_URL;
+  const isVercel = !!process.env.NEXT_PUBLIC_VERCEL_URL;
 
   return <html lang="en">
     <body>
