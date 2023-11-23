@@ -1,12 +1,11 @@
 'use client';
 
+import NProgress from 'nprogress';
+import { usePathname } from 'next/navigation';
 import { memo, useEffect } from 'react';
 
-import NProgress from 'nprogress';
-
-type PushStateInput = [data: unknown, unused: string, url?: string | URL | null | undefined];
-
 export default memo(function ProgressBar() {
+  const pathname = usePathname();
   useEffect(() => {
     NProgress.configure({ showSpinner: false });
 
@@ -34,13 +33,9 @@ export default memo(function ProgressBar() {
 
     mutationObserver.observe(document, { childList: true, subtree: true });
 
-    window.history.pushState = new Proxy(window.history.pushState, {
-      apply: (target, thisArg, argArray: PushStateInput) => {
-        NProgress.done();
-        return target.apply(thisArg, argArray);
-      },
-    });
-  });
+  }, []);
+
+  useEffect(() => { NProgress.done() }, [pathname]);
 
   return null;
 });
