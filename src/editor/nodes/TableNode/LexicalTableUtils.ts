@@ -291,13 +291,13 @@ export function $insertTableColumn(
 ): TableNode {
   const tableRows = tableNode.getChildren();
 
+  const tableCellsToBeInserted = [];
   for (let r = 0; r < tableRows.length; r++) {
     const currentTableRowNode = tableRows[r];
 
     if ($isTableRowNode(currentTableRowNode)) {
       for (let c = 0; c < columnCount; c++) {
         const tableRowChildren = currentTableRowNode.getChildren();
-
         if (targetIndex >= tableRowChildren.length || targetIndex < 0) {
           throw new Error('Table column target index out of range');
         }
@@ -323,15 +323,20 @@ export function $insertTableColumn(
         const newTableCell = $createTableCellNode(headerState);
 
         newTableCell.append($createParagraphNode());
-
-        if (shouldInsertAfter) {
-          targetCell.insertAfter(newTableCell);
-        } else {
-          targetCell.insertBefore(newTableCell);
-        }
+        tableCellsToBeInserted.push({
+          newTableCell,
+          targetCell,
+        });
       }
     }
   }
+  tableCellsToBeInserted.forEach(({ newTableCell, targetCell }) => {
+    if (shouldInsertAfter) {
+      targetCell.insertAfter(newTableCell);
+    } else {
+      targetCell.insertBefore(newTableCell);
+    }
+  });
 
   return tableNode;
 }
@@ -586,8 +591,11 @@ export function $deleteTableColumn__EXPERIMENTAL(): void {
 
 function $moveSelectionToCell(cell: DEPRECATED_GridCellNode): void {
   const firstDescendant = cell.getFirstDescendant();
-  invariant(firstDescendant !== null, 'Unexpected empty cell');
-  firstDescendant.getParentOrThrow().selectStart();
+  if (firstDescendant == null) {
+    cell.selectStart();
+  } else {
+    firstDescendant.getParentOrThrow().selectStart();
+  }
 }
 
 function $insertFirst(parent: ElementNode, node: LexicalNode): void {

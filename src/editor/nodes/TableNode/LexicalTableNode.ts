@@ -20,12 +20,11 @@ import type {
   Spread,
 } from 'lexical';
 
-import { addClassNamesToElement } from '@lexical/utils';
+import { addClassNamesToElement, isHTMLElement } from '@lexical/utils';
 import {
   $applyNodeReplacement,
   $getNearestNodeFromDOMNode,
   DEPRECATED_GridNode,
-  isHTMLElement,
 } from 'lexical';
 
 import { $isTableCellNode } from './LexicalTableCellNode';

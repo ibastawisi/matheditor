@@ -493,6 +493,8 @@ iframe {
 .LexicalTheme__math {
   display: inline-flex;
   max-width: 100%;
+  position: relative;
+  z-index: 2;
 }
 
 .LexicalTheme__math>.ML__mathlive {

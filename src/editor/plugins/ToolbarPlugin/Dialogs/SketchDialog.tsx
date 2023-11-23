@@ -1,7 +1,7 @@
 "use client"
 import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
 import { INSERT_SKETCH_COMMAND, InsertSketchPayload } from '../../SketchPlugin';
-import { Suspense, lazy, useEffect, useState, memo } from 'react';
+import { Suspense, lazy, useEffect, useState, memo, useCallback } from 'react';
 import LogicGates from "./SketchLibraries/Logic-Gates.json";
 import CircuitComponents from "./SketchLibraries/circuit-components.json";
 import { SketchNode } from '../../../nodes/SketchNode';
@@ -17,8 +17,18 @@ const Excalidraw = lazy(() => import('@excalidraw/excalidraw').then((module) => 
 
 export type ExcalidrawElementFragment = { isDeleted?: boolean; };
 
+export const useCallbackRefState = () => {
+  const [refValue, setRefValue] =
+    useState<ExcalidrawImperativeAPI | null>(null);
+  const refCallback = useCallback(
+    (value: ExcalidrawImperativeAPI | null) => setRefValue(value),
+    [],
+  );
+  return [refValue, refCallback] as const;
+};
+
 function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: SketchNode | null; open: boolean; }) {
-  const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI | null>(null);
+  const [excalidrawAPI, excalidrawAPIRefCallback] = useCallbackRefState();
   const theme = useTheme();
 
   useEffect(() => {
@@ -105,7 +115,7 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ske
       {open &&
         <Suspense fallback={<CircularProgress size={36} disableShrink />}>
           <Excalidraw
-            ref={(api: ExcalidrawImperativeAPI) => setExcalidrawAPI(api)}
+            excalidrawAPI={excalidrawAPIRefCallback}
             initialData={{ libraryItems }}
             theme={theme.palette.mode}
           />

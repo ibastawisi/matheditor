@@ -14,6 +14,7 @@ import type {
 } from 'lexical';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import useLexicalEditable from '@lexical/react/useLexicalEditable';
 import {
   $deleteTableColumn__EXPERIMENTAL,
   $deleteTableRow__EXPERIMENTAL,
@@ -163,7 +164,6 @@ function currentCellStyle(
     return null;
   });
 }
-
 
 type TableCellActionMenuProps = Readonly<{
   anchorElRef: { current: null | HTMLElement };
@@ -382,6 +382,13 @@ function TableActionMenu({
         $getTableColumnIndexFromTableCellNode(tableCellNode);
 
       const tableRows = tableNode.getChildren();
+      const maxRowsLength = Math.max(
+        ...tableRows.map((row) => row.getChildren().length),
+      );
+
+      if (tableColumnIndex >= maxRowsLength || tableColumnIndex < 0) {
+        throw new Error('Expected table cell to be inside of table row.');
+      }
 
       for (let r = 0; r < tableRows.length; r++) {
         const tableRow = tableRows[r];
@@ -391,9 +398,9 @@ function TableActionMenu({
         }
 
         const tableCells = tableRow.getChildren();
-
-        if (tableColumnIndex >= tableCells.length || tableColumnIndex < 0) {
-          throw new Error('Expected table cell to be inside of table row.');
+        if (tableColumnIndex >= tableCells.length) {
+          // if cell is outside of bounds for the current row (for example various merge cell cases) we shouldn't highlight it
+          continue;
         }
 
         const tableCell = tableCells[tableColumnIndex];
@@ -430,12 +437,17 @@ function TableActionMenu({
           if ($isTableCellNode(cell)) {
             $patchCellStyle([cell], styles);
           }
+
+          if (DEPRECATED_$isGridSelection(selection)) {
+            const nodes = selection.getNodes();
+            const cells = nodes.filter($isTableCellNode);
+            $patchCellStyle(cells, styles);
+          }
         }
       });
     },
     [editor],
   );
-
 
   let mergeCellButton: null | JSX.Element = null;
   if (canMergeCells) {
@@ -687,10 +699,13 @@ export default function TableActionMenuPlugin({
 }: {
   anchorElem?: HTMLElement;
 }): null | ReactPortal {
+  const isEditable = useLexicalEditable();
   return createPortal(
-    <TableCellActionMenuContainer
-      anchorElem={anchorElem}
-    />,
+    isEditable ? (
+      <TableCellActionMenuContainer
+        anchorElem={anchorElem}
+      />
+    ) : null,
     anchorElem,
   );
 }
