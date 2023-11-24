@@ -1,19 +1,20 @@
 "use client"
 import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
 import { INSERT_SKETCH_COMMAND, InsertSketchPayload } from '../../SketchPlugin';
-import { Suspense, lazy, useEffect, useState, memo, useCallback } from 'react';
+import { Suspense, useEffect, useState, memo, useCallback } from 'react';
 import LogicGates from "./SketchLibraries/Logic-Gates.json";
 import CircuitComponents from "./SketchLibraries/circuit-components.json";
 import { SketchNode } from '../../../nodes/SketchNode';
-import { ExcalidrawImperativeAPI, LibraryItems_anyVersion } from '@excalidraw/excalidraw/types/types';
-import { ImportedLibraryData } from '@excalidraw/excalidraw/types/data/types';
+import type { ExcalidrawImperativeAPI, LibraryItems_anyVersion, ExcalidrawProps } from '@excalidraw/excalidraw/types/types';
+import type { ImportedLibraryData } from '@excalidraw/excalidraw/types/data/types';
 import { SET_DIALOGS_COMMAND } from './commands';
 import { getImageDimensions } from '@/editor/nodes/utils';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent } from '@mui/material';
+import dynamic from 'next/dynamic';
 
-const Excalidraw = lazy(() => import('@excalidraw/excalidraw').then((module) => ({ default: module.Excalidraw })));
+const Excalidraw = dynamic<ExcalidrawProps>(() => import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => ({ default: module.Excalidraw })), { ssr: false });
 
 export type ExcalidrawElementFragment = { isDeleted?: boolean; };
 
@@ -47,7 +48,7 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ske
   const handleSubmit = async () => {
     const elements = excalidrawAPI?.getSceneElements();
     const files = excalidrawAPI?.getFiles();
-    const exportToSvg = await import('@excalidraw/excalidraw').then((module) => module.exportToSvg).catch((e) => console.error(e));
+    const exportToSvg = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.exportToSvg).catch((e) => console.error(e));
     if (!elements || !files || !exportToSvg) return;
     const element: SVGElement = await exportToSvg({
       appState: {
@@ -89,8 +90,8 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ske
     if (!src) return;
     const blob = await (await fetch(src)).blob();
     try {
-      const loadSceneOrLibraryFromBlob = await import('@excalidraw/excalidraw').then((module) => module.loadSceneOrLibraryFromBlob);
-      const MIME_TYPES = await import('@excalidraw/excalidraw').then((module) => module.MIME_TYPES);
+      const loadSceneOrLibraryFromBlob = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.loadSceneOrLibraryFromBlob);
+      const MIME_TYPES = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.MIME_TYPES);
       const contents = await loadSceneOrLibraryFromBlob(blob, null, elements ?? null);
       if (contents.type === MIME_TYPES.excalidraw) {
         excalidrawAPI?.addFiles(Object.values(contents.data.files));

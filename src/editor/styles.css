@@ -91,5 +91,10 @@
 
 .excalidraw.excalidraw-modal-container,
 #typeahead-menu {
-  z-index: 1500;
+  z-index: 1500 !important;
+}
+
+body:has(.excalidraw.excalidraw-modal-container) {
+  position: initial !important;
+  overflow: hidden !important;
 }

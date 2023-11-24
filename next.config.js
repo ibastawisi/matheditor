@@ -32,7 +32,7 @@ const config = {
   /** @param { import('webpack').Configuration } config */
   webpack: (config, { isServer }) => {
     if (isServer) {
-      config.externals.push('@excalidraw/excalidraw', 'canvas');
+      config.externals.push('canvas');
     }
     return config
   },
