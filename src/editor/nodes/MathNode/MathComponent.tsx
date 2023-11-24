@@ -85,6 +85,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
 
     mathfield.smartMode = true;
     mathfield.mathModeSpace = "\\,";
+    mathfield.menuItems = [];
 
     // focus newly created mathfield
     if (isSelected && !mathfield.hasFocus()) {

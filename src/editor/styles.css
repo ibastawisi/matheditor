@@ -32,6 +32,14 @@
   pointer-events: none;
 }
 
+.editor-toolbar {
+  background-color: #fff;
+}
+
+[theme="dark"] .editor-toolbar {
+  background-color: #121212;
+}
+
 .tree-view-output {
   margin-top: 1rem;
   font-size: 12px;
