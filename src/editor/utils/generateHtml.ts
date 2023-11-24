@@ -2,14 +2,17 @@ import type { SerializedEditorState } from "lexical";
 import { createHeadlessEditor } from "@lexical/headless";
 import { editorConfig } from "../config";
 import { $generateHtmlFromNodes } from "./html";
-import { Window as HapppyWindow } from "happy-dom";
+import { parseHTML } from "linkedom";
 
 const editor = createHeadlessEditor(editorConfig);
 
 export const generateHtml = (data: SerializedEditorState) => new Promise<string>((resolve, reject) => {
   if (typeof window === "undefined") {
-    const { window, document, DocumentFragment, Element, navigator } = new HapppyWindow();
-    Object.assign(global, { window, document, DocumentFragment, Element, navigator });
+    const dom = parseHTML("<!DOCTYPE html><html><head></head><body></body></html>");
+    global = dom;
+    global.document = dom.document;
+    global.DocumentFragment = dom.DocumentFragment;
+    global.Element = dom.Element;
   }
   try {
     const editorState = editor.parseEditorState(data);
