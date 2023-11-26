@@ -12,6 +12,7 @@ import { StickyNode } from './nodes/StickyNode';
 import theme from "./theme";
 import { PageBreakNode } from "./nodes/PageBreakNode";
 import { IFrameNode } from "./nodes/IFrameNode";
+import { LayoutContainerNode, LayoutItemNode } from "./nodes/LayoutNode";
 
 export const editorConfig = {
   namespace: "matheditor",
@@ -42,5 +43,7 @@ export const editorConfig = {
     StickyNode,
     PageBreakNode,
     IFrameNode,
+    LayoutContainerNode,
+    LayoutItemNode,
   ]
 };

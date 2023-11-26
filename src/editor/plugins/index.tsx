@@ -37,6 +37,8 @@ import { PageBreakNode } from "../nodes/PageBreakNode";
 import PageBreakPlugin from "./PageBreakPlugin";
 import { IFrameNode } from "../nodes/IFrameNode";
 import IFramePlugin from "./IFramePlugin";
+import { LayoutPlugin } from "./LayoutPlugin";
+import { LayoutContainerNode } from "../nodes/LayoutNode";
 
 export const EditorPlugins: React.FC<{
   contentEditable: React.ReactElement;
@@ -75,6 +77,7 @@ export const EditorPlugins: React.FC<{
       <AutoLinkPlugin />
       {editor.hasNode(PageBreakNode) && <PageBreakPlugin />}
       {editor.hasNode(IFrameNode) && <IFramePlugin />}
+      {editor.hasNode(LayoutContainerNode) && <LayoutPlugin />}
     </>
   );
 };

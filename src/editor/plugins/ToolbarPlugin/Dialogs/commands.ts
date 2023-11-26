@@ -19,7 +19,10 @@ export interface EditorDialogs {
   },
   link: {
     open: boolean;
-  }
+  },
+  layout: {
+    open: boolean;
+  },
 };
 
 export type SetDialogsPayload = Readonly<Partial<EditorDialogs>>;

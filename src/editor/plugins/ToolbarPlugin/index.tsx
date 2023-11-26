@@ -20,7 +20,7 @@ import ImageTools from './Tools/ImageTools';
 import { $isSketchNode } from '../../nodes/SketchNode';
 import { $isGraphNode } from '../../nodes/GraphNode';
 import { $patchStyle } from '../../nodes/utils';
-import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog, LinkDialog } from './Dialogs';
+import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog, LinkDialog, LayoutDialog } from './Dialogs';
 import { $isStickyNode } from '../../nodes/StickyNode';
 import { SelectChangeEvent, useScrollTrigger, AppBar, Toolbar, Box, IconButton, Select, MenuItem } from '@mui/material';
 import { Redo, Undo } from '@mui/icons-material';
@@ -93,7 +93,10 @@ function ToolbarPlugin() {
     },
     link: {
       open: false,
-    }
+    },
+    layout: {
+      open: false,
+    },
   });
 
   const updateToolbar = useCallback(() => {
@@ -340,6 +343,7 @@ function ToolbarPlugin() {
       <TableDialog editor={activeEditor} open={dialogs.table.open} />
       <IFrameDialog editor={activeEditor} node={$isIFrameNode(selectedNode) ? selectedNode : null} open={dialogs.iframe.open} />
       <LinkDialog editor={activeEditor} node={$isLinkNode(selectedNode) ? selectedNode : null} open={dialogs.link.open} />
+      <LayoutDialog editor={activeEditor} open={dialogs.layout.open} />
     </>
   );
 }

@@ -5,5 +5,14 @@ import ImageDialog from "./ImageDialog";
 import TableDialog from "./TableDialog";
 import IFrameDialog from "./IFrameDialog";
 import LinkDialog from "./LinkDialog";
+import LayoutDialog from "./LayoutDialog";
 
-export { GraphDialog, SketchDialog, ImageDialog, TableDialog, IFrameDialog, LinkDialog };
+export {
+  GraphDialog,
+  SketchDialog,
+  ImageDialog,
+  TableDialog,
+  IFrameDialog,
+  LinkDialog,
+  LayoutDialog
+};
