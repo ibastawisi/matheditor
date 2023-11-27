@@ -547,17 +547,16 @@ iframe {
 .LexicalTheme__layoutContaner {
   display: grid;
   gap: 0.25rem;
-  margin: 0.25rem 0;
+  margin-bottom: 0.5rem;
 }
 
-.LexicalTheme__layoutItem {
-  border: 1px dashed #ddd;
-  padding: 0.25rem;
+.editor-input .LexicalTheme__layoutItem {
+  border-bottom: 1px dashed #ddd;
 }
 
 @media print {
   .LexicalTheme__layoutItem {
-    border-color: transparent;
+    border-color: transparent !important;
   }
 }
 
