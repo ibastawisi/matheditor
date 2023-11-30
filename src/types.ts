@@ -125,6 +125,11 @@ export interface CheckHandleResponse {
   error?: string;
 }
 
+export interface GetDocumentHeadResponse {
+  data?: string;
+  error?: string;
+}
+
 export interface GetRevisionResponse {
   data?: EditorDocumentRevision;
   error?: string;

@@ -1,18 +1,16 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from 'next/cache';
 
 export const runtime = 'edge';
 
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url.replace(process.env.PUBLIC_URL!, process.env.PDF_WORKER_URL!));
-    const searchParams = new URLSearchParams(url.search);
-    const revalidiate = searchParams.get('revalidate');
-    if (revalidiate) {
-      searchParams.delete('revalidate');
-      url.search = searchParams.toString();
-      revalidatePath(url.toString());
-    }
+    const handle = url.pathname.split("/").pop();
+    const res = await fetch(`${process.env.PUBLIC_URL}/api/documents/${handle}/head`);
+    const { data } = await res.json();
+    if (!data) return NextResponse.json({ error: "Document not found" }, { status: 404 });
+    const revision = url.searchParams.get('v');
+    if (!revision) url.searchParams.set('v', data);
     const response = await fetch(url.toString(), { cache: 'force-cache' });
     return response;
   } catch (error) {
