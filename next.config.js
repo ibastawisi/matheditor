@@ -27,6 +27,10 @@ const config = {
         source: '/edit/:path*',
         destination: '/edit',
       },
+      {
+        source: '/pdf/:path*',
+        destination: '/api/pdf/:path*',
+      }
     ]
   },
   /** @param { import('webpack').Configuration } config */

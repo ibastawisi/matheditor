@@ -2,8 +2,6 @@ import { generateHtml } from "@/editor/utils/generateHtml";
 import { findRevisionById } from "@/repositories/revision";
 import { NextResponse } from "next/server"
 
-export const dynamic = "force-dynamic";
-
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const revision = await findRevisionById(params.id);
