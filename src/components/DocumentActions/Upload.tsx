@@ -2,9 +2,10 @@
 import { useDispatch, actions, useSelector } from "@/store";
 import { EditorDocument, UserDocument } from "@/types";
 import { CloudSync, CloudUpload } from "@mui/icons-material";
-import { IconButton, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
+import { Button, IconButton, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
+import { SxProps, Theme } from '@mui/material/styles';
 
-const UploadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
+const UploadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'button' | 'iconbutton', closeMenu?: () => void, sx?: SxProps<Theme> | undefined }> = ({ userDocument, variant = 'iconbutton', closeMenu, sx }) => {
   const dispatch = useDispatch();
   const user = useSelector(state => state.user);
   const localDocument = userDocument?.local;
@@ -50,7 +51,7 @@ const UploadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem
   };
 
   if (variant === 'menuitem') return (
-    <MenuItem onClick={isUploaded ? handleUpdate : handleCreate}>
+    <MenuItem onClick={isUploaded ? handleUpdate : handleCreate} sx={sx}>
       <ListItemIcon>
         {isUploaded ? <CloudSync /> : <CloudUpload />}
       </ListItemIcon>
@@ -59,7 +60,8 @@ const UploadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem
       </ListItemText>
     </MenuItem>
   );
-  return <IconButton aria-label="Upload Document" onClick={isUploaded ? handleUpdate : handleCreate} size="small">{isUploaded ? <CloudSync /> : <CloudUpload />}</IconButton>
+  if (variant === 'button') return <Button onClick={isUploaded ? handleUpdate : handleCreate} startIcon={isUploaded ? <CloudSync /> : <CloudUpload />} sx={sx}>{isUploaded ? "Update Cloud" : "Save to Cloud"}</Button>;
+  return <IconButton aria-label="Upload Document" onClick={isUploaded ? handleUpdate : handleCreate} size="small" sx={sx}>{isUploaded ? <CloudSync /> : <CloudUpload />}</IconButton>
 }
 
 export default UploadDocument;

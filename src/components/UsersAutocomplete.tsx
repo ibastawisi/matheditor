@@ -44,6 +44,7 @@ export default function UsersAutocomplete({
     <Autocomplete
       freeSolo
       multiple
+      size='small'
       id="users-autocomplete"
       options={users}
       disableCloseOnSelect
