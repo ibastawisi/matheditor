@@ -172,8 +172,14 @@
   overflow: hidden;
 }
 
-.LexicalTheme__tableCell span {
-  white-space: nowrap !important;
+@media screen and (max-width: 768px) {
+  .LexicalTheme__tableCell {
+    width: auto !important;
+  }
+
+  .LexicalTheme__tableCell span {
+    white-space: nowrap !important;
+  }
 }
 
 .LexicalTheme__tableCellHeader {

@@ -22,7 +22,7 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
 
   const formats = isAuthor ? ['view', 'embed', 'pdf', 'edit'] : ['view', 'embed', 'pdf'];
   const [format, setFormat] = useState("view");
-  const [revision, setRevision] = useState(cloudDocument?.head ?? localDocument?.head ?? null);
+  const [revision, setRevision] = useState(cloudDocument?.head ?? null);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
