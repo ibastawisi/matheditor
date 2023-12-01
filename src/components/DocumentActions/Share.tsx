@@ -29,6 +29,8 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
 
   const openShareDialog = () => {
     if (closeMenu) closeMenu();
+    setFormat("view");
+    setRevision(cloudDocument?.head ?? null);
     setShareDialogOpen(true);
   };
 

@@ -116,6 +116,9 @@ export class TableCellNode extends DEPRECATED_GridCellNode {
       this.getTag(),
     ) as HTMLTableCellElement;
 
+    if (this.__style) {
+      element.style.cssText = this.__style;
+    }
     if (this.__width) {
       element.style.width = `${this.__width}px`;
     }
@@ -124,9 +127,6 @@ export class TableCellNode extends DEPRECATED_GridCellNode {
     }
     if (this.__rowSpan > 1) {
       element.rowSpan = this.__rowSpan;
-    }
-    if (this.__style) {
-      element.style.cssText += this.__style;
     }
 
     addClassNamesToElement(
@@ -148,12 +148,11 @@ export class TableCellNode extends DEPRECATED_GridCellNode {
       if (this.__rowSpan > 1) {
         element.setAttribute('rowspan', this.__rowSpan.toString());
       }
+      if (this.__style) {
+        element.style.cssText = this.__style;
+      }
       if (this.__width) {
         element.style.width = `${this.getWidth()}px`;
-      }
-      const style = this.getStyle();
-      if (style !== '') {
-        element.style.cssText += style;
       }
     }
 

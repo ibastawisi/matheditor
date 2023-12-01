@@ -105,9 +105,8 @@ export class TableNode extends DEPRECATED_GridNode {
 
     if (element) {
       const element_ = element as HTMLTableCellElement;
-      const style = this.getStyle();
-      if (style) {
-        element_.style.cssText += style;
+      if (this.__style) {
+        element_.style.cssText = this.__style;
       }
     }
 
