@@ -8,7 +8,6 @@ math-field {
   color: inherit;
   width: 100%;
   padding: 0;
-  user-select: none;
   --selection-color: #nope;
 }
 
@@ -20,6 +19,10 @@ math-field::part(menu-toggle) {
 [theme=dark] math-field {
   --contains-highlight-background-color: rgba(255, 255, 255, 0.1);
   --selection-background-color: rgb(95 183 255 / 50%);
+}
+
+math-field:not(:focus-within) {
+  --selection-background-color: transparent;
 }
 
 math-field.selection-active {
