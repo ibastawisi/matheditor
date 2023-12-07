@@ -55,11 +55,11 @@ math-field.selection-active {
   margin: auto 0 !important;
 }
 
-.MLK__rows>.row div {
+.MLK__rows>.MLK__row .MLK__keycap {
   height: var(--keycap-height) !important;
 }
 
-.MLK__plate .MLK__layer:nth-of-type(3) .MLK__rows .row:first-child {
+.MLK__plate .MLK__layer:nth-of-type(3) .MLK__rows .MLK__row:first-child {
   display: none !important;
 }
 

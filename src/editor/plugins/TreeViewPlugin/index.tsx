@@ -8,6 +8,7 @@
  */
 
 import type {
+  BaseSelection,
   EditorState,
   ElementNode,
   GridSelection,
@@ -25,6 +26,7 @@ import {
   $getRoot,
   $getSelection,
   $isElementNode,
+  $isNodeSelection,
   $isRangeSelection,
   $isTextNode,
   COMMAND_PRIORITY_HIGH,
@@ -351,7 +353,8 @@ function printRangeSelection(selection: RangeSelection): string {
   return res;
 }
 
-function printNodeSelection(selection: NodeSelection): string {
+function printNodeSelection(selection: BaseSelection): string {
+  if (!$isNodeSelection(selection)) return '';
   return `: node\n  └ [${selection.getNodes().map(n => `${n.__key}: ${n.__type}`).join(', ')}]`;
 }
 
@@ -625,7 +628,7 @@ function printSelectedCharsLine({
   isSelected: boolean;
   node: LexicalNode;
   nodeKeyDisplay: string;
-  selection: GridSelection | NodeSelection | RangeSelection | null;
+  selection: BaseSelection | null;
   typeDisplay: string;
 }) {
   // No selection or node is not selected.

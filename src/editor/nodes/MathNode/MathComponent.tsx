@@ -1,6 +1,6 @@
 "use client"
 import { DOMAttributes } from "react";
-import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, GridSelection, NodeKey, NodeSelection, RangeSelection } from 'lexical';
+import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, BaseSelection, NodeKey, RangeSelection } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey } from 'lexical';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
@@ -23,7 +23,7 @@ export type MathComponentProps = { initialValue: string; nodeKey: NodeKey; mathf
 
 export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathComponentProps): JSX.Element {
   const [editor] = useLexicalComposerContext();
-  const [selection, setSelection] = useState<RangeSelection | NodeSelection | GridSelection | null>(null);
+  const [selection, setSelection] = useState<BaseSelection | null>(null);
   const [lastRangeSelection, setLastRangeSelection] = useState<RangeSelection | null>(null);
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
 
@@ -85,7 +85,6 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
 
     mathfield.smartMode = true;
     mathfield.mathModeSpace = "\\,";
-    mathfield.menuItems = [];
 
     // focus newly created mathfield
     if (isSelected && !mathfield.hasFocus()) {

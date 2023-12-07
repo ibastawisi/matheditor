@@ -11,13 +11,11 @@
 import {
   $isRangeSelection,
   $setSelection,
-  GridSelection,
+  BaseSelection,
   KEY_ENTER_COMMAND,
   KEY_ESCAPE_COMMAND,
   LexicalEditor,
   NodeKey,
-  NodeSelection,
-  RangeSelection,
 } from 'lexical';
 
 import './index.css';
@@ -102,9 +100,7 @@ export default function ImageComponent({
     useLexicalNodeSelection(nodeKey);
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [editor] = useLexicalComposerContext();
-  const [selection, setSelection] = useState<
-    RangeSelection | NodeSelection | GridSelection | null
-  >(null);
+  const [selection, setSelection] = useState<BaseSelection | null>(null);
   const activeEditorRef = useRef<LexicalEditor | null>(null);
 
   const onEnter = useCallback(

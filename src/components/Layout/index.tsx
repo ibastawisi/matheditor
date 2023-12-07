@@ -6,6 +6,7 @@ import '@fontsource/roboto/700.css';
 import { usePathname } from 'next/navigation';
 import ThemeProvider from './ThemeProvider';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { lazy } from 'react';
 
 const AppLayout = lazy(() => import('./AppLayout'));
@@ -24,7 +25,10 @@ const LayoutProvider = ({ children }: { children: React.ReactNode; }) => {
           <AppLayout>{children}</AppLayout>
         }
       </ThemeProvider>
-      {isVercel && <Analytics />}
+      {isVercel && <>
+        <SpeedInsights />
+        <Analytics />
+      </>}
     </body>
   </html>
 };
