@@ -503,7 +503,7 @@ iframe {
   z-index: 2;
 }
 
-.LexicalTheme__math>.ML__mathlive {
+.LexicalTheme__math>.ML__latex {
   user-select: auto;
   padding: 2px 0px 2px 1px;
 }
