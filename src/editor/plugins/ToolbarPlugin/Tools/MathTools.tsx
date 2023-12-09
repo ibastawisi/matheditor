@@ -8,7 +8,7 @@ import type { MathfieldElement } from "mathlive";
 import useFixedBodyScroll from "@/hooks/useFixedBodyScroll";
 import { SxProps, Theme } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Select, SelectChangeEvent, SvgIcon, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
-import { Delete, Edit } from "@mui/icons-material";
+import { Delete, Edit, Menu } from "@mui/icons-material";
 
 const WolframIcon = () => <SvgIcon viewBox='0 0 20 20' fontSize='small'>
   <path d="M15.33 10l2.17-2.47-3.19-.71.33-3.29-3 1.33L10 2 8.35 4.86l-3-1.33.32 3.29-3.17.71L4.67 10 2.5 12.47l3.19.71-.33 3.29 3-1.33L10 18l1.65-2.86 3 1.33-.32-3.29 3.19-.71zm-2.83 1.5h-5v-1h5zm0-2h-5v-1h5z" fill="#f96932"></path>
@@ -156,6 +156,15 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
           });
         }}>
         <Delete />
+      </ToggleButton>
+      <ToggleButton value="menu"
+        onClick={(e) => {
+          const mathfield = node.getMathfield();
+          const x = e.currentTarget.getBoundingClientRect().left;
+          const y = e.currentTarget.getBoundingClientRect().top + 40;
+          if (mathfield) mathfield.showMenu({ location: { x, y }, modifiers: { alt: false, control: false, shift: false, meta: false } });
+        }}>
+        <Menu />
       </ToggleButton>
     </ToggleButtonGroup>
     <Select size='small' onChange={onFontSizeSelect} value={fontSize}>

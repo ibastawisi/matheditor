@@ -7,7 +7,7 @@ import { $isHeadingNode } from '@lexical/rich-text';
 import { $getSelectionStyleValueForProperty, $isParentElementRTL, $patchStyleText, } from '@lexical/selection';
 import { $getNearestNodeOfType, mergeRegister, } from '@lexical/utils';
 import { CAN_REDO_COMMAND, CAN_UNDO_COMMAND, REDO_COMMAND, SELECTION_CHANGE_COMMAND, UNDO_COMMAND, COMMAND_PRIORITY_CRITICAL, } from 'lexical';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { BlockFormatSelect } from './Menus/BlockFormatSelect';
 import InsertToolMenu from './Menus/InsertToolMenu';
 import TextFormatToggles from './Tools/TextFormatToggles';
@@ -31,7 +31,7 @@ import TableTools from './Tools/TableTools';
 import { $isLinkNode } from '@lexical/link';
 import { EditorDialogs, SetDialogsPayload, SET_DIALOGS_COMMAND } from './Dialogs/commands';
 import { getSelectedNode } from '@/editor/utils/getSelectedNode';
-
+import { useMeasure } from '@/hooks/useMeasure';
 
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -292,10 +292,19 @@ function ToolbarPlugin() {
   const showImageTools = $isImageNode(selectedNode);
   const showTableTools = !!selectedTable;
   const showTextTools = (!showMathTools && !showImageTools) || $isStickyNode(selectedNode);
+
+  const [toolbarRef, toolbarDimensions] = useMeasure();
+  const [toolboxRef, toolboxDimensions] = useMeasure();
+  const toolboxOverflow = toolbarDimensions.width && toolboxDimensions.width ? toolboxDimensions.width + 168 > toolbarDimensions.width : false;
+
   return (
     <>
       <AppBar elevation={trigger ? 4 : 0} position={trigger ? 'fixed' : 'static'}>
-        <Toolbar className="editor-toolbar" sx={{ displayPrint: 'none', px: `${(trigger ? 1 : 0)}!important`, justifyContent: "space-between", alignItems: "center", gap: 0.5, minHeight: 64 }}>
+        <Toolbar className="editor-toolbar" ref={toolbarRef} sx={{
+          displayPrint: 'none', px: `${(trigger ? 1 : 0)}!important`, justifyContent: "space-between", alignItems: "center",
+          flexWrap: toolboxOverflow ? 'wrap' : 'nowrap',
+          gap: 0.5, py: 1,
+        }}>
           <Box sx={{ display: "flex" }}>
             <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
               onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}>
@@ -306,7 +315,7 @@ function ToolbarPlugin() {
               <Redo />
             </IconButton>
           </Box>
-          <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap", }}>
+          <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', order: +toolboxOverflow }} ref={toolboxRef}>
             {showMathTools && <MathTools editor={activeEditor} node={selectedNode} />}
             {(showImageTools) && <ImageTools editor={activeEditor} node={selectedNode} />}
             {showTextTools && <>
