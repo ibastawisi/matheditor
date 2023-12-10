@@ -301,9 +301,9 @@ function ToolbarPlugin() {
     <>
       <AppBar elevation={trigger ? 4 : 0} position={trigger ? 'fixed' : 'static'}>
         <Toolbar className="editor-toolbar" ref={toolbarRef} sx={{
-          displayPrint: 'none', px: `${(trigger ? 1 : 0)}!important`, justifyContent: "space-between", alignItems: "center",
-          flexWrap: toolboxOverflow ? 'wrap' : 'nowrap',
-          gap: 0.5, py: 1,
+          displayPrint: 'none', px: `${(trigger ? 1 : 0)}!important`,
+          display: "grid", gridTemplateColumns: "repeat(3,auto)", gridAutoFlow: "dense",
+          justifyContent: "space-between", alignItems: "center", gap: 0.5, py: 1,
         }}>
           <Box sx={{ display: "flex" }}>
             <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
@@ -315,7 +315,7 @@ function ToolbarPlugin() {
               <Redo />
             </IconButton>
           </Box>
-          <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', order: +toolboxOverflow }} ref={toolboxRef}>
+          <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', gridColumn: toolboxOverflow ? "1/-1" : "auto" }} ref={toolboxRef}>
             {showMathTools && <MathTools editor={activeEditor} node={selectedNode} />}
             {(showImageTools) && <ImageTools editor={activeEditor} node={selectedNode} />}
             {showTextTools && <>
@@ -339,7 +339,7 @@ function ToolbarPlugin() {
             </>
             }
           </Box>
-          <Box sx={{ display: "flex" }}>
+          <Box sx={{ display: "flex", gridColumn: "3/-1" }}>
             <InsertToolMenu editor={activeEditor} />
             <AlignTextMenu editor={activeEditor} isRTL={isRTL} />
           </Box>
