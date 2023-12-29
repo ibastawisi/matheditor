@@ -101,29 +101,8 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
         node.setValue(value);
       });
       if (event.inputType === "insertLineBreak") {
-        event.stopPropagation();
-        if (value.trim().length === 0) return;
-        editor.update(() => {
-          const node = $getNodeByKey(nodeKey);
-          if (!node) return;
-          mathfield.blur();
-          node.selectNext(0, 0);
-        });
+        mathfield.executeCommand("addRowAfter");
       }
-    }, false);
-
-    mathfield.addEventListener("change", e => {
-      editor.update(() => {
-        const value = mathfield.getValue();
-        if (value.trim().length) return;
-        const node = $getNodeByKey(nodeKey);
-        if (!node) return;
-        node.remove(true);
-        const parentRootElement = editor.getRootElement();
-        if (parentRootElement !== null) {
-          parentRootElement.focus();
-        }
-      });
     }, false);
 
     mathfield.addEventListener("click", event => {
