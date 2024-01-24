@@ -1,4 +1,3 @@
-"use client"
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -24,14 +23,17 @@ import {
   $getTableRowIndexFromTableCellNode,
   $insertTableColumn__EXPERIMENTAL,
   $insertTableRow__EXPERIMENTAL,
+  $isGridSelection,
   $isTableCellNode,
   $isTableRowNode,
   $patchCellStyle,
   $unmergeCell,
   getTableSelectionFromTableElement,
+  GridSelection,
   HTMLTableElementWithWithTableSelectionState,
   TableCellHeaderStates,
   TableCellNode,
+  TableRowNode,
 } from '../../nodes/TableNode';
 import {
   $createParagraphNode,
@@ -43,9 +45,8 @@ import {
   $isTextNode,
   DEPRECATED_$getNodeTriplet,
   DEPRECATED_$isGridCellNode,
-  DEPRECATED_$isGridSelection,
-  GridSelection,
 } from 'lexical';
+import * as React from 'react';
 import { ReactPortal, useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import invariant from '../../shared/invariant';
@@ -112,9 +113,8 @@ function $canUnmerge(): boolean {
   const selection = $getSelection();
   if (
     ($isRangeSelection(selection) && !selection.isCollapsed()) ||
-    (DEPRECATED_$isGridSelection(selection) &&
-      !selection.anchor.is(selection.focus)) ||
-    (!$isRangeSelection(selection) && !DEPRECATED_$isGridSelection(selection))
+    ($isGridSelection(selection) && !selection.anchor.is(selection.focus)) ||
+    (!$isRangeSelection(selection) && !$isGridSelection(selection))
   ) {
     return false;
   }
@@ -151,7 +151,7 @@ function currentCellStyle(
     const selection = $getSelection();
     if (
       $isRangeSelection(selection) ||
-      DEPRECATED_$isGridSelection(selection)
+      $isGridSelection(selection)
     ) {
       const [cell] = DEPRECATED_$getNodeTriplet(selection.anchor);
       if ($isTableCellNode(cell)) {
@@ -206,7 +206,7 @@ function TableActionMenu({
     editor.getEditorState().read(() => {
       const selection = $getSelection();
       // Merge cells
-      if (DEPRECATED_$isGridSelection(selection)) {
+      if ($isGridSelection(selection)) {
         const currentSelectionCounts = computeSelectionCount(selection);
         updateSelectionCounts(computeSelectionCount(selection));
         setCanMergeCells(
@@ -253,7 +253,7 @@ function TableActionMenu({
   const mergeTableCellsAtSelection = () => {
     editor.update(() => {
       const selection = $getSelection();
-      if (DEPRECATED_$isGridSelection(selection)) {
+      if ($isGridSelection(selection)) {
         const { columns, rows } = computeSelectionCount(selection);
         const nodes = selection.getNodes();
         let firstCell: null | DEPRECATED_GridCellNode = null;
@@ -381,7 +381,7 @@ function TableActionMenu({
       const tableColumnIndex =
         $getTableColumnIndexFromTableCellNode(tableCellNode);
 
-      const tableRows = tableNode.getChildren();
+      const tableRows = tableNode.getChildren<TableRowNode>();
       const maxRowsLength = Math.max(
         ...tableRows.map((row) => row.getChildren().length),
       );
@@ -429,16 +429,13 @@ function TableActionMenu({
     (styles: Record<string, string>) => {
       editor.update(() => {
         const selection = $getSelection();
-        if (
-          $isRangeSelection(selection) ||
-          DEPRECATED_$isGridSelection(selection)
-        ) {
+        if ($isRangeSelection(selection) || $isGridSelection(selection)) {
           const [cell] = DEPRECATED_$getNodeTriplet(selection.anchor);
           if ($isTableCellNode(cell)) {
             $patchCellStyle([cell], styles);
           }
 
-          if (DEPRECATED_$isGridSelection(selection)) {
+          if ($isGridSelection(selection)) {
             const nodes = selection.getNodes();
             const cells = nodes.filter($isTableCellNode);
             $patchCellStyle(cells, styles);
@@ -648,13 +645,15 @@ function TableCellActionMenuContainer({
         const menuRect = menuButtonDOM.getBoundingClientRect();
         const anchorRect = anchorElem.getBoundingClientRect();
 
+        const top = tableCellRect.top - anchorRect.top + 8;
+        const left =
+          tableCellRect.right - menuRect.width - 4 - anchorRect.left;
+
         menuButtonDOM.style.opacity = '1';
-
-        menuButtonDOM.style.left = `${tableCellRect.right - menuRect.width - anchorRect.left}px`;
-
-        menuButtonDOM.style.top = `${tableCellRect.top - anchorRect.top + 4}px`;
+        menuButtonDOM.style.transform = `translate(${left}px, ${top}px)`;
       } else {
         menuButtonDOM.style.opacity = '0';
+        menuButtonDOM.style.transform = 'translate(-10000px, -10000px)';
       }
     }
   }, [menuButtonRef, tableCellNode, editor, anchorElem]);

@@ -1,5 +1,5 @@
 import { ViewHeadline, FormatListBulleted, FormatQuote, Code } from "@mui/icons-material";
-import type { EditorState } from "../editor/types";
+import type { EditorState, ListItemNode } from "../editor/types";
 import { ListItemIcon, ListItemText, MenuItem, Select, SvgIcon, Typography } from "@mui/material";
 
 const H3 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small' sx={{ verticalAlign: "middle" }}>
@@ -37,12 +37,10 @@ const Checkpoint3 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 1) {
-            const target = node.getParent()?.getNextSibling();
-            if (target?.__tag == "h3") result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 1)?.[1] as ListItemNode;
+        if (!node) return result;
+        const target = node.getParent()?.getNextSibling();
+        if (target?.__tag == "h3") result = true;
       });
       return result;
     }
@@ -77,12 +75,10 @@ const Checkpoint3 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 2) {
-            const target = node.getParent()?.getNextSibling();
-            if (target?.__tag == "ul") result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 2)?.[1] as ListItemNode;
+        if (!node) return result;
+        const target = node.getParent()?.getNextSibling();
+        if (target?.__tag == "ul") result = true;
       });
       return result;
     }
@@ -117,12 +113,10 @@ const Checkpoint3 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 3) {
-            const target = node.getParent()?.getNextSibling();
-            if (target?.__type == "quote") result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 3)?.[1] as ListItemNode;
+        if (!node) return result;
+        const target = node.getParent()?.getNextSibling();
+        if (target?.__type == "quote") result = true;
       });
       return result;
     }
@@ -157,12 +151,10 @@ const Checkpoint3 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 4) {
-            const target = node.getParent()?.getNextSibling();
-            if (target?.__type == "code") result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 4)?.[1] as ListItemNode;
+        if (!node) return result;
+        const target = node.getParent()?.getNextSibling();
+        if (target?.__type == "code") result = true;
       });
       return result;
     }

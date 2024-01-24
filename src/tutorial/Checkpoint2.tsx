@@ -1,5 +1,5 @@
 import { Typography, Select, MenuItem } from "@mui/material";
-import type { EditorState } from "../editor/types";
+import type { EditorState, ListItemNode } from "../editor/types";
 
 const Checkpoint2 = [
   {
@@ -23,14 +23,12 @@ const Checkpoint2 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 1) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target && target.getStyle().includes("font-size: 20px")) result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 1)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target && target.getStyle().includes("font-size: 20px")) result = true;
       });
       return result;
     }
@@ -56,14 +54,12 @@ const Checkpoint2 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 2) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target && target.getStyle().includes("font-family: KaTeX_Main")) result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 2)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target && target.getStyle().includes("font-family: KaTeX_Main")) result = true;
       });
       return result;
     }
@@ -89,14 +85,12 @@ const Checkpoint2 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 3) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target && target.getStyle().includes("font-family: Virgil")) result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 3)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target && target.getStyle().includes("font-family: Virgil")) result = true;
       });
       return result;
     }

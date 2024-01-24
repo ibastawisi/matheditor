@@ -38,10 +38,11 @@ export function getCSSFromStyleObject(styles: Record<string, string>): string {
 }
 
 export function $getNodeStyleValueForProperty(
-  node: LexicalNode,
+  node: LexicalNode & { getStyle?(): string },
   styleProperty: string,
   defaultValue: string,
 ): string {
+  if (node.getStyle === undefined) return defaultValue;
   const css = node.getStyle();
   const styleObject = getStyleObjectFromCSS(css);
 
@@ -52,17 +53,18 @@ export function $getNodeStyleValueForProperty(
   return defaultValue;
 }
 
-export function $addNodeStyle(node: LexicalNode): void {
+export function $addNodeStyle(node: LexicalNode & { getStyle?(): string }): void {
+  if (node.getStyle === undefined) return;
   const CSSText = node.getStyle();
   const styles = getStyleObjectFromRawCSS(CSSText);
   CSS_TO_STYLES.set(CSSText, styles);
 }
 
 export function $patchNodeStyle(
-  target: LexicalNode,
+  target: LexicalNode & { getStyle?(): string; setStyle?(css: string): void },
   patch: Record<string, string | null>,
 ): void {
-  if (!('getStyle' in target)) return;
+  if (target.getStyle === undefined || target.setStyle === undefined) return;
   const prevStyles = getStyleObjectFromCSS(target.getStyle() || '');
   const newStyles = Object.entries(patch).reduce<Record<string, string>>(
     (styles, [key, value]) => {

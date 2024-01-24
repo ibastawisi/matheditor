@@ -1,5 +1,5 @@
 import { FormatBold, FormatItalic, FormatUnderlined, Code, FormatStrikethrough, Subscript, Superscript, FormatColorFill } from "@mui/icons-material";
-import type { EditorState } from "../editor/types";
+import { ListItemNode, type EditorState, TextNode } from "../editor/types";
 import { Typography, ToggleButton } from "@mui/material";
 
 const Checkpoint1 = [
@@ -21,14 +21,12 @@ const Checkpoint1 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 1) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target && target.hasFormat("bold")) result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 1)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target && target.hasFormat("bold")) result = true;
       });
       return result;
     }
@@ -51,14 +49,12 @@ const Checkpoint1 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 2) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target && target.hasFormat("italic")) result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 2)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target && target.hasFormat("italic")) result = true;
       });
       return result;
     }
@@ -81,14 +77,12 @@ const Checkpoint1 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 3) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target && target.hasFormat("underline")) result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 3)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target && target.hasFormat("underline")) result = true;
       });
       return result;
     }
@@ -111,14 +105,12 @@ const Checkpoint1 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 4) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target && target.hasFormat("code")) result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 4)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target && target.hasFormat("code")) result = true;
       });
       return result;
     }
@@ -141,14 +133,12 @@ const Checkpoint1 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 5) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target && target.hasFormat("strikethrough")) result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 5)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target && target.hasFormat("strikethrough")) result = true;
       });
       return result;
     }
@@ -173,7 +163,7 @@ const Checkpoint1 = [
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
           if (node.getTextContent() === "subscript") {
-            if (node.hasFormat("subscript" as any)) result = true;
+            if ((node as TextNode).hasFormat("subscript")) result = true;
           }
         });
       });
@@ -200,7 +190,7 @@ const Checkpoint1 = [
       editorState.read(() => {
         editorState._nodeMap.forEach((node) => {
           if (node.getTextContent() === "superscript") {
-            if (node.hasFormat("superscript" as any)) result = true;
+            if ((node as TextNode).hasFormat("superscript")) result = true;
           }
         });
       });
@@ -228,14 +218,12 @@ const Checkpoint1 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 8) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target && target.getStyle().includes("color")) result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 8)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target && target.getStyle().includes("color")) result = true;
       });
       return result;
     }
@@ -261,14 +249,12 @@ const Checkpoint1 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 9) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target && target.getStyle().includes("background-color")) result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 9)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target && target.getStyle().includes("background-color")) result = true;
       });
       return result;
     }

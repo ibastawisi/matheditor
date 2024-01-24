@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
-import type { EditorState } from "../editor/types";
+import type { EditorState, ListItemNode } from "../editor/types";
 
 const Checkpoint7 = [
   {
@@ -22,14 +22,12 @@ const Checkpoint7 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 1) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target?.__type === "graph") result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 1)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target?.__type === "graph") result = true;
       });
       return result;
     }
@@ -54,14 +52,12 @@ const Checkpoint7 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 2) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target?.__type === "sketch") result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 2)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target?.__type === "sketch") result = true;
       });
       return result;
     }
@@ -83,14 +79,12 @@ const Checkpoint7 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 3) {
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 3)?.[1] as ListItemNode;
+        if (!node) return result;
             const paragraphNode = node.getParent()?.getNextSibling();
             if (!paragraphNode) return result;
             const target = paragraphNode.getNextSibling();
             if (target?.__type === "table" && target.__size === 4) result = true;
-          }
-        });
       });
       return result;
     }

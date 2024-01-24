@@ -15,15 +15,16 @@ import {
   $getTableColumnIndexFromTableCellNode,
   $getTableNodeFromLexicalNodeOrThrow,
   $getTableRowIndexFromTableCellNode,
+  $isGridSelection,
   $isTableCellNode,
   $isTableRowNode,
   getCellFromTarget,
+  TableCellNode,
 } from '../../nodes/TableNode';
 import {
   $getNearestNodeFromDOMNode,
   $getSelection,
   COMMAND_PRIORITY_HIGH,
-  DEPRECATED_$isGridSelection,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
 import * as React from 'react';
@@ -67,7 +68,7 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
       SELECTION_CHANGE_COMMAND,
       (payload) => {
         const selection = $getSelection();
-        const isGridSelection = DEPRECATED_$isGridSelection(selection);
+        const isGridSelection = $isGridSelection(selection);
 
         if (isSelectingGrid !== isGridSelection) {
           updateIsSelectingGrid(isGridSelection);
@@ -205,11 +206,11 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
             throw new Error('Expected table row');
           }
 
-          const rowCells = tableRow.getChildren();
+          const rowCells = tableRow.getChildren<TableCellNode>();
           const rowCellsSpan = rowCells.map((cell) => cell.getColSpan());
 
           const aggregatedRowSpans = rowCellsSpan.reduce(
-            (rowSpans, cellSpan) => {
+            (rowSpans: number[], cellSpan) => {
               const previousCell = rowSpans[rowSpans.length - 1] ?? 0;
               rowSpans.push(previousCell + cellSpan);
               return rowSpans;
@@ -315,14 +316,7 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
 
         document.addEventListener('mouseup', mouseUpHandler(direction));
       },
-    [
-      activeCell,
-      draggingDirection,
-      resetState,
-      updateColumnWidth,
-      updateRowHeight,
-      mouseUpHandler,
-    ],
+    [activeCell, mouseUpHandler],
   );
 
   const getResizers = useCallback(() => {

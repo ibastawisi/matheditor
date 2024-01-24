@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
-import type { EditorState } from "../editor/types";
+import type { EditorState, ListItemNode } from "../editor/types";
 
 const Checkpoint6 = [
   {
@@ -16,12 +16,10 @@ const Checkpoint6 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 1) {
-            const target = node.getParent()?.getNextSibling();
-            if (target?.__tag == "h2") result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 1)?.[1] as ListItemNode;
+        if (!node) return result;
+        const target = node.getParent()?.getNextSibling();
+        if (target?.__tag == "h2") result = true;
       });
       return result;
     }
@@ -41,14 +39,12 @@ const Checkpoint6 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 2) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target && target.hasFormat("bold")) result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 2)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target && target.hasFormat("bold")) result = true;
       });
       return result;
     }
@@ -67,14 +63,12 @@ const Checkpoint6 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 3) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target && target.hasFormat("italic")) result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 3)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target && target.hasFormat("italic")) result = true;
       });
       return result;
     }
@@ -93,12 +87,10 @@ const Checkpoint6 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 4) {
-            const target = node.getParent()?.getNextSibling();
-            if (target?.__type == "quote") result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 4)?.[1] as ListItemNode;
+        if (!node) return result;
+        const target = node.getParent()?.getNextSibling();
+        if (target?.__type == "quote") result = true;
       });
       return result;
     }
@@ -117,12 +109,10 @@ const Checkpoint6 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 5) {
-            const target = node.getParent()?.getNextSibling();
-            if (target?.__tag == "ul") result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 5)?.[1] as ListItemNode;
+        if (!node) return result;
+        const target = node.getParent()?.getNextSibling();
+        if (target?.__tag == "ul") result = true;
       });
       return result;
     }
@@ -141,14 +131,12 @@ const Checkpoint6 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 6) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target && target.hasFormat("code")) result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 6)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target && target.hasFormat("code")) result = true;
       });
       return result;
     }
@@ -170,12 +158,10 @@ const Checkpoint6 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 7) {
-            const target = node.getParent()?.getNextSibling();
-            if (target?.__type == "code") result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 7)?.[1] as ListItemNode;
+        if (!node) return result;
+        const target = node.getParent()?.getNextSibling();
+        if (target?.__type == "code") result = true;
       });
       return result;
     }
@@ -197,12 +183,10 @@ const Checkpoint6 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 8) {
-            const target = node.getParent()?.getNextSibling();
-            if (target?.__type === "horizontalrule") result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 8)?.[1] as ListItemNode;
+        if (!node) return result;
+        const target = node.getParent()?.getNextSibling();
+        if (target?.__type === "horizontalrule") result = true;
       });
       return result;
     }
@@ -221,14 +205,12 @@ const Checkpoint6 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 9) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target?.__type === "link") result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 9)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target?.__type === "link") result = true;
       });
       return result;
     }
@@ -247,14 +229,12 @@ const Checkpoint6 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 10) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target?.__type === "image") result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 10)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target?.__type === "image") result = true;
       });
       return result;
     }
@@ -273,14 +253,12 @@ const Checkpoint6 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 11) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target?.__type === "math") result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 11)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target?.__type === "math") result = true;
       });
       return result;
     }
@@ -299,14 +277,12 @@ const Checkpoint6 = [
       let result = false;
       if (!editorState) return result;
       editorState.read(() => {
-        editorState._nodeMap.forEach((node) => {
-          if (node.__value === 12) {
-            const paragraphNode = node.getParent()?.getNextSibling();
-            if (!paragraphNode) return result;
-            const target = paragraphNode.getFirstChild();
-            if (target?.__type === "math" && target.__value === "y=x^2") result = true;
-          }
-        });
+        const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 12)?.[1] as ListItemNode;
+        if (!node) return result;
+        const paragraphNode = node.getParent()?.getNextSibling();
+        if (!paragraphNode) return result;
+        const target = paragraphNode.getFirstChild();
+        if (target?.__type === "math" && target.__value === "y=x^2") result = true;
       });
       return result;
     }

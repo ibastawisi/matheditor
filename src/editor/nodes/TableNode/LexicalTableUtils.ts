@@ -19,13 +19,12 @@ import {
   DEPRECATED_$computeGridMap,
   DEPRECATED_$getNodeTriplet,
   DEPRECATED_$isGridRowNode,
-  DEPRECATED_$isGridSelection,
   DEPRECATED_GridCellNode,
   LexicalNode,
 } from 'lexical';
 import invariant from '../../shared/invariant';
 
-import { InsertTableCommandPayloadHeaders } from '.';
+import { $isGridSelection, InsertTableCommandPayloadHeaders } from '.';
 import {
   $createTableCellNode,
   $isTableCellNode,
@@ -232,7 +231,7 @@ export function $insertTableRow(
 export function $insertTableRow__EXPERIMENTAL(insertAfter = true): void {
   const selection = $getSelection();
   invariant(
-    $isRangeSelection(selection) || DEPRECATED_$isGridSelection(selection),
+    $isRangeSelection(selection) || $isGridSelection(selection),
     'Expected a RangeSelection or GridSelection',
   );
   const focus = selection.focus.getNode();
@@ -251,7 +250,11 @@ export function $insertTableRow__EXPERIMENTAL(insertAfter = true): void {
     for (let i = 0; i < columnCount; i++) {
       const { cell, startRow } = focusEndRowMap[i];
       if (startRow + cell.__rowSpan - 1 <= focusEndRow) {
-        newRow.append($createTableCellNode(TableCellHeaderStates.NO_STATUS));
+        newRow.append(
+          $createTableCellNode(TableCellHeaderStates.NO_STATUS).append(
+            $createParagraphNode(),
+          ),
+        );
       } else {
         cell.setRowSpan(cell.__rowSpan + 1);
       }
@@ -268,7 +271,11 @@ export function $insertTableRow__EXPERIMENTAL(insertAfter = true): void {
     for (let i = 0; i < columnCount; i++) {
       const { cell, startRow } = focusStartRowMap[i];
       if (startRow === focusStartRow) {
-        newRow.append($createTableCellNode(TableCellHeaderStates.NO_STATUS));
+        newRow.append(
+          $createTableCellNode(TableCellHeaderStates.NO_STATUS).append(
+            $createParagraphNode(),
+          ),
+        );
       } else {
         cell.setRowSpan(cell.__rowSpan + 1);
       }
@@ -344,7 +351,7 @@ export function $insertTableColumn(
 export function $insertTableColumn__EXPERIMENTAL(insertAfter = true): void {
   const selection = $getSelection();
   invariant(
-    $isRangeSelection(selection) || DEPRECATED_$isGridSelection(selection),
+    $isRangeSelection(selection) || $isGridSelection(selection),
     'Expected a RangeSelection or GridSelection',
   );
   const anchor = selection.anchor.getNode();
@@ -449,7 +456,7 @@ export function $deleteTableColumn(
 export function $deleteTableRow__EXPERIMENTAL(): void {
   const selection = $getSelection();
   invariant(
-    $isRangeSelection(selection) || DEPRECATED_$isGridSelection(selection),
+    $isRangeSelection(selection) || $isGridSelection(selection),
     'Expected a RangeSelection or GridSelection',
   );
   const anchor = selection.anchor.getNode();
@@ -525,7 +532,7 @@ export function $deleteTableRow__EXPERIMENTAL(): void {
 export function $deleteTableColumn__EXPERIMENTAL(): void {
   const selection = $getSelection();
   invariant(
-    $isRangeSelection(selection) || DEPRECATED_$isGridSelection(selection),
+    $isRangeSelection(selection) || $isGridSelection(selection),
     'Expected a RangeSelection or GridSelection',
   );
   const anchor = selection.anchor.getNode();
@@ -610,7 +617,7 @@ function $insertFirst(parent: ElementNode, node: LexicalNode): void {
 export function $unmergeCell(): void {
   const selection = $getSelection();
   invariant(
-    $isRangeSelection(selection) || DEPRECATED_$isGridSelection(selection),
+    $isRangeSelection(selection) || $isGridSelection(selection),
     'Expected a RangeSelection or GridSelection',
   );
   const anchor = selection.anchor.getNode();

@@ -1,5 +1,5 @@
 "use client"
-import { DEPRECATED_$isGridSelection, LexicalEditor } from 'lexical';
+import type { LexicalEditor } from 'lexical';
 import { $createCodeNode } from '../../../nodes/CodeNode';
 import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, REMOVE_LIST_COMMAND } from '@lexical/list';
 import { $createHeadingNode, $createQuoteNode, HeadingTagType, } from '@lexical/rich-text';
@@ -8,6 +8,7 @@ import { $createParagraphNode, $getSelection, $isRangeSelection } from 'lexical'
 
 import { Select, MenuItem, ListItemIcon, ListItemText, SvgIcon } from '@mui/material';
 import { ViewHeadline, FormatListBulleted, FormatListNumbered, PlaylistAddCheck, FormatQuote, Code } from '@mui/icons-material';
+import { $isGridSelection } from '@/editor/nodes/TableNode';
 
 const H1 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M200 776V376h60v170h180V376h60v400h-60V606H260v170h-60Zm500 0V436h-80v-60h140v400h-60Z" />
@@ -44,9 +45,9 @@ export function BlockFormatSelect({ editor, blockType }: {
       const selection = $getSelection();
       if (
         $isRangeSelection(selection) ||
-        DEPRECATED_$isGridSelection(selection)
+        $isGridSelection(selection)
       ) {
-        $setBlocksType(selection, () => $createParagraphNode());
+        $setBlocksType(selection as any, () => $createParagraphNode());
       }
     });
   };
@@ -57,9 +58,9 @@ export function BlockFormatSelect({ editor, blockType }: {
         const selection = $getSelection();
         if (
           $isRangeSelection(selection) ||
-          DEPRECATED_$isGridSelection(selection)
+          $isGridSelection(selection)
         ) {
-          $setBlocksType(selection, () => $createHeadingNode(headingSize));
+          $setBlocksType(selection as any, () => $createHeadingNode(headingSize));
         }
       });
     }
@@ -95,9 +96,9 @@ export function BlockFormatSelect({ editor, blockType }: {
         const selection = $getSelection();
         if (
           $isRangeSelection(selection) ||
-          DEPRECATED_$isGridSelection(selection)
+          $isGridSelection(selection)
         ) {
-          $setBlocksType(selection, () => $createQuoteNode());
+          $setBlocksType(selection as any, () => $createQuoteNode());
         }
       });
     }
@@ -110,10 +111,10 @@ export function BlockFormatSelect({ editor, blockType }: {
 
         if (
           $isRangeSelection(selection) ||
-          DEPRECATED_$isGridSelection(selection)
+          $isGridSelection(selection)
         ) {
           if (selection.isCollapsed()) {
-            $setBlocksType(selection, () => $createCodeNode());
+            $setBlocksType(selection as any, () => $createCodeNode());
           } else {
             const textContent = selection.getTextContent();
             const codeNode = $createCodeNode();

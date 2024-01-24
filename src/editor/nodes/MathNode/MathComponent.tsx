@@ -8,6 +8,7 @@ import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection'
 import { mergeRegister } from '@lexical/utils';
 import type { MathfieldElement, MathfieldElementAttributes } from "mathlive";
 import './index.css';
+import { $isMathNode } from ".";
 
 type CustomElement<T> = Partial<T & DOMAttributes<T>>;
 
@@ -97,7 +98,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
       editor.update(() => {
         if (value === initialValue) return;
         const node = $getNodeByKey(nodeKey);
-        if (!node) return;
+        if (!$isMathNode(node)) return;
         node.setValue(value);
       });
       if (event.inputType === "insertLineBreak") {

@@ -8,21 +8,20 @@
  */
 
 import type {
+  BaseSelection,
   DOMChildConversion,
   DOMConversion,
   DOMConversionFn,
-  GridSelection,
   LexicalEditor,
   LexicalNode,
-  NodeSelection,
-  RangeSelection,
 } from 'lexical';
 
 import {
   $cloneWithProperties,
   $sliceSelectedTextNodeContent,
 } from '@lexical/selection';
-import { $getRoot, $isElementNode, $isTextNode, isHTMLElement } from 'lexical';
+import { isHTMLElement } from '@lexical/utils';
+import { $getRoot, $isElementNode, $isTextNode } from 'lexical';
 
 /**
  * How you parse your html string to get a document is left up to you. In the browser you can use the native
@@ -50,7 +49,7 @@ export function $generateNodesFromDOM(
 
 export function $generateHtmlFromNodes(
   editor: LexicalEditor,
-  selection?: RangeSelection | NodeSelection | GridSelection | null,
+  selection?: BaseSelection | null,
 ): string {
   const container = document.createElement('div');
   const root = $getRoot();
@@ -68,10 +67,10 @@ function $appendNodesToHTML(
   editor: LexicalEditor,
   currentNode: LexicalNode,
   parentElement: HTMLElement | DocumentFragment,
-  selection: RangeSelection | NodeSelection | GridSelection | null = null,
+  selection: BaseSelection | null = null,
 ): boolean {
   let shouldInclude =
-    selection != null ? currentNode.isSelected(selection) : true;
+    selection !== null ? currentNode.isSelected(selection) : true;
   const shouldExclude =
     $isElementNode(currentNode) && currentNode.excludeFromCopy('html');
   let target = currentNode;
@@ -79,15 +78,25 @@ function $appendNodesToHTML(
   if (selection !== null) {
     let clone = $cloneWithProperties<LexicalNode>(currentNode);
     clone =
-      $isTextNode(clone) && selection != null
+      $isTextNode(clone) && selection !== null
         ? $sliceSelectedTextNodeContent(selection, clone)
         : clone;
     target = clone;
   }
   const children = $isElementNode(target) ? target.getChildren() : [];
-  const { element, after } = target.exportDOM(editor);
+  const registeredNode = editor._nodes.get(target.getType());
+  let exportOutput;
 
-  if (!(element && isHTMLElement(element))) {
+  // Use HTMLConfig overrides, if available.
+  if (registeredNode && registeredNode.exportDOM !== undefined) {
+    exportOutput = registeredNode.exportDOM(editor, target);
+  } else {
+    exportOutput = target.exportDOM(editor);
+  }
+
+  const { element, after } = exportOutput;
+
+  if (!element) {
     return false;
   }
 
@@ -113,7 +122,9 @@ function $appendNodesToHTML(
   }
 
   if (shouldInclude && !shouldExclude) {
-    element.append(fragment);
+    if (isHTMLElement(element)) {
+      element.append(fragment);
+    }
     parentElement.append(element);
 
     if (after) {
@@ -144,7 +155,7 @@ function getConversionFunction(
       if (
         domConversion !== null &&
         (currentConversion === null ||
-          currentConversion.priority < domConversion.priority)
+          (currentConversion.priority || 0) < (domConversion.priority || 0))
       ) {
         currentConversion = domConversion;
       }
@@ -242,4 +253,3 @@ function $createNodesFromDOM(
 
   return lexicalNodes;
 }
-

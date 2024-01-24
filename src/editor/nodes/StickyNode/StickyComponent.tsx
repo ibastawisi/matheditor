@@ -17,6 +17,8 @@ import { editorConfig } from './config';
 import dynamic from 'next/dynamic';
 import { IconButton } from '@mui/material';
 import { Delete, FormatPaint, DragIndicator } from '@mui/icons-material';
+import { $isStickyNode } from '.';
+
 const NestedEditor = dynamic(() => import('@/editor/NestedEditor'), { ssr: false });
 
 export default function StickyComponent({ nodeKey, color, stickyEditor }: { stickyEditor: LexicalEditor; color: 'pink' | 'yellow'; nodeKey: NodeKey; }): JSX.Element {
@@ -56,18 +58,16 @@ export default function StickyComponent({ nodeKey, color, stickyEditor }: { stic
   const handleColorChange = () => {
     editor.update(() => {
       const node = $getNodeByKey(nodeKey);
-      if (node) {
-        node.toggleColor();
-      }
+      if (!$isStickyNode(node)) return;
+      node.toggleColor();
     });
   };
 
   const onChange = () => {
     editor.update(() => {
       const node = $getNodeByKey(nodeKey);
-      if (node) {
-        node.setEditor(stickyEditor);
-      }
+      if (!$isStickyNode(node)) return;
+      node.setEditor(stickyEditor);
     });
   }
 

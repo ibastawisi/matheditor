@@ -150,7 +150,7 @@ export class IFrameNode extends ImageNode {
     _includeInert?: boolean | undefined,
     _includeDirectionless?: false | undefined,
   ): string {
-    return this.__url;
+    return this.__src;
   }
 
   decorate(): JSX.Element {
