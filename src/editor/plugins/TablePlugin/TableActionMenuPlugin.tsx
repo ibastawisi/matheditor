@@ -6,34 +6,31 @@
  *
  */
 
-import type {
-  DEPRECATED_GridCellNode,
-  ElementNode,
-  LexicalEditor,
-} from 'lexical';
+import type { ElementNode, LexicalEditor } from 'lexical';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import useLexicalEditable from '@lexical/react/useLexicalEditable';
 import {
   $deleteTableColumn__EXPERIMENTAL,
   $deleteTableRow__EXPERIMENTAL,
+  $getNodeTriplet,
   $getTableCellNodeFromLexicalNode,
   $getTableColumnIndexFromTableCellNode,
   $getTableNodeFromLexicalNodeOrThrow,
   $getTableRowIndexFromTableCellNode,
   $insertTableColumn__EXPERIMENTAL,
   $insertTableRow__EXPERIMENTAL,
-  $isGridSelection,
   $isTableCellNode,
   $isTableRowNode,
+  $isTableSelection,
   $patchCellStyle,
   $unmergeCell,
-  getTableSelectionFromTableElement,
-  GridSelection,
+  getTableObserverFromTableElement,
   HTMLTableElementWithWithTableSelectionState,
   TableCellHeaderStates,
   TableCellNode,
   TableRowNode,
+  TableSelection,
 } from '../../nodes/TableNode';
 import {
   $createParagraphNode,
@@ -43,8 +40,6 @@ import {
   $isParagraphNode,
   $isRangeSelection,
   $isTextNode,
-  DEPRECATED_$getNodeTriplet,
-  DEPRECATED_$isGridCellNode,
 } from 'lexical';
 import * as React from 'react';
 import { ReactPortal, useCallback, useEffect, useRef, useState } from 'react';
@@ -56,7 +51,7 @@ import { getStyleObjectFromCSS } from '../../nodes/utils';
 import { MenuItem, ListItemText, Menu, Divider, Box, IconButton } from '@mui/material';
 import { DragIndicator } from '@mui/icons-material';
 
-function computeSelectionCount(selection: GridSelection): {
+function computeSelectionCount(selection: TableSelection): {
   columns: number;
   rows: number;
 } {
@@ -69,7 +64,7 @@ function computeSelectionCount(selection: GridSelection): {
 
 // This is important when merging cells as there is no good way to re-merge weird shapes (a result
 // of selecting merged cells and non-merged)
-function isGridSelectionRectangular(selection: GridSelection): boolean {
+function isTableSelectionRectangular(selection: TableSelection): boolean {
   const nodes = selection.getNodes();
   const currentRows: Array<number> = [];
   let currentRow = null;
@@ -113,16 +108,16 @@ function $canUnmerge(): boolean {
   const selection = $getSelection();
   if (
     ($isRangeSelection(selection) && !selection.isCollapsed()) ||
-    ($isGridSelection(selection) && !selection.anchor.is(selection.focus)) ||
-    (!$isRangeSelection(selection) && !$isGridSelection(selection))
+    ($isTableSelection(selection) && !selection.anchor.is(selection.focus)) ||
+    (!$isRangeSelection(selection) && !$isTableSelection(selection))
   ) {
     return false;
   }
-  const [cell] = DEPRECATED_$getNodeTriplet(selection.anchor);
+  const [cell] = $getNodeTriplet(selection.anchor);
   return cell.__colSpan > 1 || cell.__rowSpan > 1;
 }
 
-function $cellContainsEmptyParagraph(cell: DEPRECATED_GridCellNode): boolean {
+function $cellContainsEmptyParagraph(cell: TableCellNode): boolean {
   if (cell.getChildrenSize() !== 1) {
     return false;
   }
@@ -149,11 +144,8 @@ function currentCellStyle(
 ): Record<string, string> | null {
   return editor.getEditorState().read(() => {
     const selection = $getSelection();
-    if (
-      $isRangeSelection(selection) ||
-      $isGridSelection(selection)
-    ) {
-      const [cell] = DEPRECATED_$getNodeTriplet(selection.anchor);
+    if ($isRangeSelection(selection) || $isTableSelection(selection)) {
+      const [cell] = $getNodeTriplet(selection.anchor);
       if ($isTableCellNode(cell)) {
         const css = cell.getStyle();
         if (!css) return null;
@@ -206,11 +198,11 @@ function TableActionMenu({
     editor.getEditorState().read(() => {
       const selection = $getSelection();
       // Merge cells
-      if ($isGridSelection(selection)) {
+      if ($isTableSelection(selection)) {
         const currentSelectionCounts = computeSelectionCount(selection);
         updateSelectionCounts(computeSelectionCount(selection));
         setCanMergeCells(
-          isGridSelectionRectangular(selection) &&
+          isTableSelectionRectangular(selection) &&
           (currentSelectionCounts.columns > 1 ||
             currentSelectionCounts.rows > 1),
         );
@@ -236,7 +228,7 @@ function TableActionMenu({
           throw new Error('Expected to find tableElement in DOM');
         }
 
-        const tableSelection = getTableSelectionFromTableElement(tableElement);
+        const tableSelection = getTableObserverFromTableElement(tableElement);
         if (tableSelection !== null) {
           tableSelection.clearHighlight();
         }
@@ -253,13 +245,13 @@ function TableActionMenu({
   const mergeTableCellsAtSelection = () => {
     editor.update(() => {
       const selection = $getSelection();
-      if ($isGridSelection(selection)) {
+      if ($isTableSelection(selection)) {
         const { columns, rows } = computeSelectionCount(selection);
         const nodes = selection.getNodes();
-        let firstCell: null | DEPRECATED_GridCellNode = null;
+        let firstCell: null | TableCellNode = null;
         for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i];
-          if (DEPRECATED_$isGridCellNode(node)) {
+          if ($isTableCellNode(node)) {
             if (firstCell === null) {
               node.setColSpan(columns).setRowSpan(rows);
               firstCell = node;
@@ -271,7 +263,7 @@ function TableActionMenu({
               ) {
                 firstChild.remove();
               }
-            } else if (DEPRECATED_$isGridCellNode(firstCell)) {
+            } else if ($isTableCellNode(firstCell)) {
               const isEmpty = $cellContainsEmptyParagraph(node);
               if (!isEmpty) {
                 firstCell.append(...node.getChildren());
@@ -429,13 +421,13 @@ function TableActionMenu({
     (styles: Record<string, string>) => {
       editor.update(() => {
         const selection = $getSelection();
-        if ($isRangeSelection(selection) || $isGridSelection(selection)) {
-          const [cell] = DEPRECATED_$getNodeTriplet(selection.anchor);
+        if ($isRangeSelection(selection) || $isTableSelection(selection)) {
+          const [cell] = $getNodeTriplet(selection.anchor);
           if ($isTableCellNode(cell)) {
             $patchCellStyle([cell], styles);
           }
 
-          if ($isGridSelection(selection)) {
+          if ($isTableSelection(selection)) {
             const nodes = selection.getNodes();
             const cells = nodes.filter($isTableCellNode);
             $patchCellStyle(cells, styles);
@@ -606,7 +598,7 @@ function TableCellActionMenuContainer({
         selection.anchor.getNode(),
       );
 
-      if (tableCellNodeFromSelection == null) {
+      if (tableCellNodeFromSelection == null || !$isTableCellNode(tableCellNodeFromSelection)) {
         setTableMenuCellNode(null);
         return;
       }
@@ -645,9 +637,9 @@ function TableCellActionMenuContainer({
         const menuRect = menuButtonDOM.getBoundingClientRect();
         const anchorRect = anchorElem.getBoundingClientRect();
 
-        const top = tableCellRect.top - anchorRect.top + 8;
+        const top = tableCellRect.top - anchorRect.top + 6;
         const left =
-          tableCellRect.right - menuRect.width - 4 - anchorRect.left;
+          tableCellRect.right - menuRect.width - 2 - anchorRect.left;
 
         menuButtonDOM.style.opacity = '1';
         menuButtonDOM.style.transform = `translate(${left}px, ${top}px)`;

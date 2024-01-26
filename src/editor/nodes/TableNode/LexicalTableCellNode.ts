@@ -14,7 +14,7 @@ import type {
   LexicalEditor,
   LexicalNode,
   NodeKey,
-  SerializedGridCellNode,
+  SerializedElementNode,
   Spread,
 } from 'lexical';
 
@@ -24,7 +24,7 @@ import {
   $createParagraphNode,
   $isElementNode,
   $isLineBreakNode,
-  DEPRECATED_GridCellNode,
+  ElementNode,
   isHTMLElement,
 } from 'lexical';
 
@@ -42,15 +42,21 @@ export type TableCellHeaderState =
 
 export type SerializedTableCellNode = Spread<
   {
+    colSpan?: number;
+    rowSpan?: number;
     headerState: TableCellHeaderState;
     width?: number;
     style?: string;
   },
-  SerializedGridCellNode
+  SerializedElementNode
 >;
 
 /** @noInheritDoc */
-export class TableCellNode extends DEPRECATED_GridCellNode {
+export class TableCellNode extends ElementNode {
+  /** @internal */
+  __colSpan: number;
+  /** @internal */
+  __rowSpan: number;
   /** @internal */
   __headerState: TableCellHeaderState;
   /** @internal */
@@ -106,7 +112,9 @@ export class TableCellNode extends DEPRECATED_GridCellNode {
     width?: number,
     key?: NodeKey,
   ) {
-    super(colSpan, key);
+    super(key);
+    this.__colSpan = colSpan;
+    this.__rowSpan = 1;
     this.__headerState = headerState;
     this.__width = width;
   }
@@ -116,9 +124,6 @@ export class TableCellNode extends DEPRECATED_GridCellNode {
       this.getTag(),
     ) as HTMLTableCellElement;
 
-    if (this.__style) {
-      element.style.cssText = this.__style;
-    }
     if (this.__width) {
       element.style.width = `${this.__width}px`;
     }
@@ -127,6 +132,9 @@ export class TableCellNode extends DEPRECATED_GridCellNode {
     }
     if (this.__rowSpan > 1) {
       element.rowSpan = this.__rowSpan;
+    }
+    if (this.__style) {
+      element.style.cssText = this.__style;
     }
 
     addClassNamesToElement(
@@ -164,11 +172,31 @@ export class TableCellNode extends DEPRECATED_GridCellNode {
   exportJSON(): SerializedTableCellNode {
     return {
       ...super.exportJSON(),
-      headerState: this.__headerState,
       style: this.getStyle(),
+      colSpan: this.__colSpan,
+      headerState: this.__headerState,
+      rowSpan: this.__rowSpan,
       type: 'tablecell',
       width: this.getWidth(),
     };
+  }
+
+  getColSpan(): number {
+    return this.__colSpan;
+  }
+
+  setColSpan(colSpan: number): this {
+    this.getWritable().__colSpan = colSpan;
+    return this;
+  }
+
+  getRowSpan(): number {
+    return this.__rowSpan;
+  }
+
+  setRowSpan(rowSpan: number): this {
+    this.getWritable().__rowSpan = rowSpan;
+    return this;
   }
 
   getTag(): string {
@@ -196,14 +224,11 @@ export class TableCellNode extends DEPRECATED_GridCellNode {
   }
 
   getStyle(): string | undefined {
-    const self = this.getLatest();
-    return self.__style;
+    return this.getLatest().__style;
   }
 
-  setStyle(style: string): this {
-    const self = this.getWritable();
-    self.__style = style;
-    return self;
+  setStyle(newStyle: string): void {
+    this.getWritable().__style = newStyle;
   }
 
   toggleHeaderStyle(headerStateToToggle: TableCellHeaderState): TableCellNode {

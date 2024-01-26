@@ -37,7 +37,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { $isMathNode } from "../../nodes/MathNode";
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { AppBar, Box, Typography, Toolbar, Button, Slider } from '@mui/material';
-import { $isGridSelection, GridSelection } from '@/editor/nodes/TableNode';
+import { $isTableSelection, TableSelection } from '@/editor/nodes/TableNode';
 
 const NON_SINGLE_WIDTH_CHARS_REPLACEMENT: Readonly<Record<string, string>> =
   Object.freeze({
@@ -357,8 +357,8 @@ function printNodeSelection(selection: BaseSelection): string {
   return `: node\n  └ [${selection.getNodes().map(n => `${n.__key}: ${n.__type}`).join(', ')}]`;
 }
 
-function printGridSelection(selection: GridSelection): string {
-  return `: grid\n  └ { grid: ${selection.gridKey}, anchorCell: ${selection.anchor.key}, focusCell: ${selection.focus.key} }`;
+function printTableSelection(selection: TableSelection): string {
+  return `: table\n  └ { table: ${selection.tableKey}, anchorCell: ${selection.anchor.key}, focusCell: ${selection.focus.key} }`;
 }
 
 function generateContent(
@@ -411,8 +411,8 @@ function generateContent(
       ? ': null'
       : $isRangeSelection(selection)
         ? printRangeSelection(selection)
-        : $isGridSelection(selection)
-          ? printGridSelection(selection)
+        : $isTableSelection(selection)
+          ? printTableSelection(selection)
           : printNodeSelection(selection);
   });
 
@@ -709,7 +709,7 @@ function prettifyHTML(node: Element, level: number) {
 
 function $getSelectionStartEnd(
   node: LexicalNode,
-  selection: RangeSelection | GridSelection,
+  selection: RangeSelection | TableSelection,
 ): [number, number] {
   const anchor = selection.anchor;
   const focus = selection.focus;
