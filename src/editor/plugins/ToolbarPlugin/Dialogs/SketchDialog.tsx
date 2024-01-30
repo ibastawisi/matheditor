@@ -113,6 +113,7 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
         }
       } else {
         convertImagetoSketch(src);
+        excalidrawAPI?.setActiveTool({ type: "freedraw" });
       }
     } catch (error) {
       console.error(error);
@@ -121,49 +122,63 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
 
   async function convertImagetoSketch(src: string) {
     const now = Date.now();
-    const mimeType = src.split(',')[0].split(':')[1].split(';')[0];
-    const dimensions = await getImageDimensions(src);
-    const imageElement: ExcalidrawImageElement = {
-      type: "image",
-      id: `image-${now}`,
-      status: "saved",
-      fileId: now.toString() as FileId,
-      version: 2,
-      versionNonce: now,
-      x: 200,
-      y: 200,
-      width: dimensions.width,
-      height: dimensions.height,
-      scale: [1, 1],
-      isDeleted: false,
-      fillStyle: "hachure",
-      strokeWidth: 1,
-      strokeStyle: "solid",
-      roughness: 1,
-      opacity: 100,
-      groupIds: [],
-      strokeColor: "#000000",
-      backgroundColor: "transparent",
-      seed: now,
-      roundness: null,
-      angle: 0,
-      frameId: null,
-      boundElements: null,
-      updated: now,
-      locked: false,
-      link: null,
-    };
+    const dimensions = { width: node?.getWidth() ?? 0, height: node?.getHeight() ?? 0}
+    if (!dimensions.width || !dimensions.height) {
+      const size = await getImageDimensions(src);
+      dimensions.width = size.width;
+      dimensions.height = size.height;
+    }
+    fetch(src).then((res) => res.blob()).then((blob) => {
+      const mimeType = blob.type;
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        if (typeof base64data === "string") {
+          const imageElement: ExcalidrawImageElement = {
+            type: "image",
+            id: `image-${now}`,
+            status: "saved",
+            fileId: now.toString() as FileId,
+            version: 2,
+            versionNonce: now,
+            x: 200,
+            y: 200,
+            width: dimensions.width,
+            height: dimensions.height,
+            scale: [1, 1],
+            isDeleted: false,
+            fillStyle: "hachure",
+            strokeWidth: 1,
+            strokeStyle: "solid",
+            roughness: 1,
+            opacity: 100,
+            groupIds: [],
+            strokeColor: "#000000",
+            backgroundColor: "transparent",
+            seed: now,
+            roundness: null,
+            angle: 0,
+            frameId: null,
+            boundElements: null,
+            updated: now,
+            locked: false,
+            link: null,
+          };
 
-    excalidrawAPI?.addFiles([
-      {
-        id: now.toString() as FileId,
-        mimeType: mimeType as any,
-        dataURL: src as DataURL,
-        created: now,
-        lastRetrieved: now,
-      },
-    ]);
-    excalidrawAPI?.updateScene({ elements: [imageElement], appState: { theme: theme.palette.mode } });
+          excalidrawAPI?.addFiles([
+            {
+              id: now.toString() as FileId,
+              mimeType: mimeType as any,
+              dataURL: base64data as DataURL,
+              created: now,
+              lastRetrieved: now,
+            },
+          ]);
+          excalidrawAPI?.updateScene({ elements: [imageElement], appState: { theme: theme.palette.mode } });
+        }
+      };
+      reader.readAsDataURL(blob);
+    });
   }
 
   const libraryItems = [...LogicGates.library, ...CircuitComponents.libraryItems] as any as LibraryItems_anyVersion;
