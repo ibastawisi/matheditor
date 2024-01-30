@@ -4,8 +4,8 @@ import { INSERT_SKETCH_COMMAND, InsertSketchPayload } from '../../SketchPlugin';
 import { Suspense, useEffect, useState, memo, useCallback } from 'react';
 import LogicGates from "./SketchLibraries/Logic-Gates.json";
 import CircuitComponents from "./SketchLibraries/circuit-components.json";
-import { SketchNode } from '../../../nodes/SketchNode';
-import type { ExcalidrawImperativeAPI, LibraryItems_anyVersion, ExcalidrawProps } from '@excalidraw/excalidraw/types/types';
+import { $isSketchNode } from '../../../nodes/SketchNode';
+import type { ExcalidrawImperativeAPI, LibraryItems_anyVersion, ExcalidrawProps, DataURL } from '@excalidraw/excalidraw/types/types';
 import type { ImportedLibraryData } from '@excalidraw/excalidraw/types/data/types';
 import { SET_DIALOGS_COMMAND } from './commands';
 import { getImageDimensions } from '@/editor/nodes/utils';
@@ -13,6 +13,8 @@ import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent } from '@mui/material';
 import dynamic from 'next/dynamic';
+import { ImageNode } from '@/editor/nodes/ImageNode';
+import type { ExcalidrawImageElement, FileId } from '@excalidraw/excalidraw/types/element/types';
 
 const Excalidraw = dynamic<ExcalidrawProps>(() => import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => ({ default: module.Excalidraw })), { ssr: false });
 
@@ -28,7 +30,7 @@ export const useCallbackRefState = () => {
   return [refValue, refCallback] as const;
 };
 
-function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: SketchNode | null; open: boolean; }) {
+function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: ImageNode | null; open: boolean; }) {
   const [excalidrawAPI, excalidrawAPIRefCallback] = useCallbackRefState();
   const theme = useTheme();
 
@@ -41,7 +43,9 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ske
   }, [excalidrawAPI, open]);
 
   const insertSketch = (payload: InsertSketchPayload) => {
-    if (!node) editor.dispatchCommand(INSERT_SKETCH_COMMAND, payload,);
+    if (!$isSketchNode(node)) {
+      editor.dispatchCommand(INSERT_SKETCH_COMMAND, payload,);
+    }
     else editor.update(() => node.update(payload));
   };
 
@@ -63,7 +67,8 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ske
     const src = "data:image/svg+xml," + encodeURIComponent(serialized);
     const dimensions = await getImageDimensions(src);
     const showCaption = node?.getShowCaption() ?? true;
-    insertSketch({ src, showCaption, ...dimensions });
+    const altText = node?.getAltText();
+    insertSketch({ src, showCaption, ...dimensions, altText });
     closeDialog();
     setTimeout(() => { editor.focus() }, 0);
   };
@@ -86,26 +91,80 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ske
 
   const loadSceneOrLibrary = async () => {
     const src = node?.getSrc();
-    const elements = node?.getValue();
     if (!src) return;
     const blob = await (await fetch(src)).blob();
     try {
       const loadSceneOrLibraryFromBlob = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.loadSceneOrLibraryFromBlob);
       const MIME_TYPES = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.MIME_TYPES);
-      const contents = await loadSceneOrLibraryFromBlob(blob, null, elements ?? null);
-      if (contents.type === MIME_TYPES.excalidraw) {
-        excalidrawAPI?.addFiles(Object.values(contents.data.files));
-        excalidrawAPI?.updateScene({ ...contents.data as any, appState: { theme: theme.palette.mode } });
-      } else if (contents.type === MIME_TYPES.excalidrawlib) {
-        excalidrawAPI?.updateLibrary({
-          libraryItems: (contents.data as ImportedLibraryData).libraryItems!,
-          openLibraryMenu: true,
-        });
+      if ($isSketchNode(node)) {
+        const elements = node.getValue();
+        if (elements) excalidrawAPI?.updateScene({ elements, appState: { theme: theme.palette.mode } })
+        else {
+          const contents = await loadSceneOrLibraryFromBlob(blob, null, elements ?? null);
+          if (contents.type === MIME_TYPES.excalidraw) {
+            excalidrawAPI?.addFiles(Object.values(contents.data.files));
+            excalidrawAPI?.updateScene({ ...contents.data as any, appState: { theme: theme.palette.mode } });
+          } else if (contents.type === MIME_TYPES.excalidrawlib) {
+            excalidrawAPI?.updateLibrary({
+              libraryItems: (contents.data as ImportedLibraryData).libraryItems!,
+              openLibraryMenu: true,
+            });
+          }
+        }
+      } else {
+        convertImagetoSketch(src);
       }
     } catch (error) {
-      excalidrawAPI?.updateScene({ elements, appState: { theme: theme.palette.mode } })
+      console.error(error);
     }
   };
+
+  async function convertImagetoSketch(src: string) {
+    const now = Date.now();
+    const mimeType = src.split(',')[0].split(':')[1].split(';')[0];
+    const dimensions = await getImageDimensions(src);
+    const imageElement: ExcalidrawImageElement = {
+      type: "image",
+      id: `image-${now}`,
+      status: "saved",
+      fileId: now.toString() as FileId,
+      version: 2,
+      versionNonce: now,
+      x: 200,
+      y: 200,
+      width: dimensions.width,
+      height: dimensions.height,
+      scale: [1, 1],
+      isDeleted: false,
+      fillStyle: "hachure",
+      strokeWidth: 1,
+      strokeStyle: "solid",
+      roughness: 1,
+      opacity: 100,
+      groupIds: [],
+      strokeColor: "#000000",
+      backgroundColor: "transparent",
+      seed: now,
+      roundness: null,
+      angle: 0,
+      frameId: null,
+      boundElements: null,
+      updated: now,
+      locked: false,
+      link: null,
+    };
+
+    excalidrawAPI?.addFiles([
+      {
+        id: now.toString() as FileId,
+        mimeType: mimeType as any,
+        dataURL: src as DataURL,
+        created: now,
+        lastRetrieved: now,
+      },
+    ]);
+    excalidrawAPI?.updateScene({ elements: [imageElement], appState: { theme: theme.palette.mode } });
+  }
 
   const libraryItems = [...LogicGates.library, ...CircuitComponents.libraryItems] as any as LibraryItems_anyVersion;
 
