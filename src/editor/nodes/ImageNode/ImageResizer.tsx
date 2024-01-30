@@ -235,7 +235,7 @@ export default function ImageResizer({
       controlWrapper.classList.remove('image-control-wrapper--resizing');
 
       setEndCursor();
-      image.style.height = 'auto';
+      if (image.tagName === 'IMG') image.style.height = 'auto';
       onResizeEnd(width, height);
 
       document.removeEventListener('pointermove', handlePointerMove);

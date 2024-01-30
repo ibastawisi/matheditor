@@ -138,6 +138,10 @@ export class CodeHighlightNode extends TextNode {
     return self.__highlightType;
   }
 
+  canHaveFormat(): boolean {
+    return false;
+  }
+
   createDOM(config: EditorConfig): HTMLElement {
     const element = super.createDOM(config);
     const className = getHighlightThemeClass(

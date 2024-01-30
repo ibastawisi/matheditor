@@ -9,9 +9,7 @@
 import type {
   DOMConversionMap,
   DOMConversionOutput,
-  DOMExportOutput,
   EditorConfig,
-  LexicalEditor,
   LexicalNode,
   NodeKey,
   ParagraphNode,
@@ -36,6 +34,7 @@ import 'prismjs/components/prism-swift';
 import 'prismjs/components/prism-typescript';
 import 'prismjs/components/prism-java';
 import 'prismjs/components/prism-cpp';
+import 'prismjs/components/prism-csharp';
 
 import { addClassNamesToElement, isHTMLElement } from '@lexical/utils';
 import {
