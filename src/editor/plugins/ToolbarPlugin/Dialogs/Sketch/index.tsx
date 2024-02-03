@@ -9,7 +9,7 @@ import { SET_DIALOGS_COMMAND } from '../commands';
 import { getImageDimensions } from '@/editor/nodes/utils';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
-import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent } from '@mui/material';
+import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, debounce } from '@mui/material';
 import dynamic from 'next/dynamic';
 import { ImageNode } from '@/editor/nodes/ImageNode';
 import type { ExcalidrawElement, ExcalidrawImageElement, FileId } from '@excalidraw/excalidraw/types/element/types';
@@ -37,7 +37,7 @@ export const useCallbackRefState = () => {
 
 function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: ImageNode | null; open: boolean; }) {
   const [excalidrawAPI, excalidrawAPIRefCallback] = useCallbackRefState();
-  const [initialSceneVersion, setInitialSceneVersion] = useState(0);
+  const [lastSceneVersion, setLastSceneVersion] = useState(0);
   const theme = useTheme();
 
   useEffect(() => {
@@ -126,13 +126,13 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
       if ($isSketchNode(node)) {
         const elements = node.getValue();
         if (elements) {
-          setInitialSceneVersion(getSceneVersion(elements));
+          setLastSceneVersion(getSceneVersion(elements));
           excalidrawAPI?.updateScene({ elements, appState: { theme: theme.palette.mode } })
         } else {
           const contents = await loadSceneOrLibraryFromBlob(blob, null, elements ?? null);
           if (contents.type === MIME_TYPES.excalidraw) {
             excalidrawAPI?.addFiles(Object.values(contents.data.files));
-            setInitialSceneVersion(getSceneVersion(contents.data.elements));
+            setLastSceneVersion(getSceneVersion(contents.data.elements));
             excalidrawAPI?.updateScene({ ...contents.data as any, appState: { theme: theme.palette.mode } });
           } else if (contents.type === MIME_TYPES.excalidrawlib) {
             excalidrawAPI?.updateLibrary({
@@ -205,7 +205,7 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
               lastRetrieved: now,
             },
           ]);
-          setInitialSceneVersion(getSceneVersion([imageElement]));
+          setLastSceneVersion(getSceneVersion([imageElement]));
           excalidrawAPI?.updateScene({ elements: [imageElement], appState: { theme: theme.palette.mode } });
         }
       };
@@ -222,15 +222,16 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
     localStorage.setItem("excalidraw-library", serializedItems);
   };
 
-  const saveToLocalStorage = async (elements: readonly ExcalidrawElement[], appState: AppState, files: BinaryFiles) => {
+  const saveToLocalStorage = debounce(async (elements: readonly ExcalidrawElement[], appState: AppState, files: BinaryFiles) => {
     if (elements.length === 0) return;
     const scene = { elements, files };
     const getSceneVersion = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.getSceneVersion);
     const sceneVersion = getSceneVersion(elements);
-    if (sceneVersion === initialSceneVersion) return;
+    if (lastSceneVersion && sceneVersion === lastSceneVersion) return;
+    setLastSceneVersion(sceneVersion);
     const serialized = JSON.stringify(scene);
     localStorage.setItem("excalidraw", serialized);
-  };
+  }, 300);
 
   const clearLocalStorage = () => {
     localStorage.removeItem("excalidraw");
