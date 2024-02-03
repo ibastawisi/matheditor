@@ -45,12 +45,12 @@ const UserCard: React.FC<{ user?: User, sessionUser?: User }> = memo(({ user, se
             </Typography>
           </CardContent>
         </CardActionArea>
-        <CardActions sx={{ height: 48 }}>
+        <CardActions sx={{ height: 50 }}>
           {showLogout && <Button size='small' onClick={logout}>Logout</Button>}
           {showLogin && <Button size='small' startIcon={<Google />} onClick={login}>
             <Typography variant="button" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Login with Google</Typography>
           </Button>}
-          <Box sx={{ ml: 'auto' }}>
+          <Box sx={{ ml: 'auto !important' }}>
             {showActions && <UserActionMenu user={user} />}
             {user && <IconButton size="small" aria-label="Share" onClick={handleShare}><Share /></IconButton>}
           </Box>

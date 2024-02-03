@@ -68,7 +68,8 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
     const dimensions = await getImageDimensions(src);
     const showCaption = node?.getShowCaption() ?? true;
     const altText = node?.getAltText();
-    insertSketch({ src, showCaption, ...dimensions, altText });
+    const caption = node?.getCaption();
+    insertSketch({ src, showCaption, ...dimensions, altText, caption });
     closeDialog();
     setTimeout(() => { editor.focus() }, 0);
   };
