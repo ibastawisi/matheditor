@@ -3,7 +3,7 @@ import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
 import { INSERT_SKETCH_COMMAND, InsertSketchPayload } from '../../../SketchPlugin';
 import { Suspense, useEffect, useState, memo, useCallback } from 'react';
 import { $isSketchNode } from '../../../../nodes/SketchNode';
-import type { ExcalidrawImperativeAPI, LibraryItems_anyVersion, ExcalidrawProps, DataURL, LibraryItems } from '@excalidraw/excalidraw/types/types';
+import type { ExcalidrawImperativeAPI, LibraryItems_anyVersion, ExcalidrawProps, DataURL, LibraryItems, BinaryFiles, AppState, BinaryFileData } from '@excalidraw/excalidraw/types/types';
 import type { ImportedLibraryData } from '@excalidraw/excalidraw/types/data/types';
 import { SET_DIALOGS_COMMAND } from '../commands';
 import { getImageDimensions } from '@/editor/nodes/utils';
@@ -12,7 +12,8 @@ import { useTheme } from '@mui/material/styles';
 import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent } from '@mui/material';
 import dynamic from 'next/dynamic';
 import { ImageNode } from '@/editor/nodes/ImageNode';
-import type { ExcalidrawImageElement, FileId } from '@excalidraw/excalidraw/types/element/types';
+import type { ExcalidrawElement, ExcalidrawImageElement, FileId } from '@excalidraw/excalidraw/types/element/types';
+import isEqual from 'fast-deep-equal';
 
 const Excalidraw = dynamic<ExcalidrawProps>(() => import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => ({ default: module.Excalidraw })), { ssr: false });
 const AddLibraries = dynamic(() => import('./AddLibraries'), { ssr: false });
@@ -81,6 +82,7 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
 
   const closeDialog = () => {
     editor.dispatchCommand(SET_DIALOGS_COMMAND, { sketch: { open: false } })
+    clearLocalStorage();
   }
 
   const restoreSelection = () => {
@@ -91,11 +93,27 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
   }
 
   const handleClose = () => {
-    closeDialog();
-    restoreSelection();
+    const unsavedScene = localStorage.getItem("excalidraw");
+    if (unsavedScene && confirm("discard unsaved changes?")) {
+      clearLocalStorage();
+      closeDialog();
+      restoreSelection();
+    }
   }
 
   const loadSceneOrLibrary = async () => {
+    const unsavedScene = localStorage.getItem("excalidraw");
+    if (unsavedScene && confirm("restore unsaved scene from last session?")) {
+      const scene = JSON.parse(unsavedScene);
+      const files = Object.values(scene.files) as BinaryFileData[];
+      if (files.length) excalidrawAPI?.addFiles(files);
+      const { getNonDeletedElements, isLinearElement } = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js')
+        .then((module) => ({ getNonDeletedElements: module.getNonDeletedElements, isLinearElement: module.isLinearElement }));
+      const elements = getNonDeletedElements(scene.elements).map((element: ExcalidrawElement) =>
+        isLinearElement(element) ? { ...element, lastCommittedPoint: null } : element,
+      );
+      return excalidrawAPI?.updateScene({ elements, appState: { theme: theme.palette.mode } });
+    }
     const src = node?.getSrc();
     if (!src) return;
     const blob = await (await fetch(src)).blob();
@@ -196,6 +214,17 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
     localStorage.setItem("excalidraw-library", serializedItems);
   };
 
+  const saveToLocalStorage = (elements: readonly ExcalidrawElement[], appState: AppState, files: BinaryFiles) => {
+    const scene = { elements, files };
+    if (elements.length === 0) return;
+    if (isEqual(elements, JSON.parse(localStorage.getItem("excalidraw") ?? "[]"))) return;
+    localStorage.setItem("excalidraw", JSON.stringify(scene));
+  };
+
+  const clearLocalStorage = () => {
+    localStorage.removeItem("excalidraw");
+  };
+
   useFixedBodyScroll(open);
 
   return <Dialog open={open} fullScreen={true} onClose={handleClose} disableEscapeKeyDown>
@@ -207,6 +236,7 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
           excalidrawAPI={excalidrawAPIRefCallback}
           theme={theme.palette.mode}
           onLibraryChange={onLibraryChange}
+          onChange={saveToLocalStorage}
         />}
         {excalidrawAPI && <AddLibraries excalidrawAPI={excalidrawAPI} />}
       </Suspense>
