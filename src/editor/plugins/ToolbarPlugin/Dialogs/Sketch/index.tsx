@@ -13,7 +13,6 @@ import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent } f
 import dynamic from 'next/dynamic';
 import { ImageNode } from '@/editor/nodes/ImageNode';
 import type { ExcalidrawElement, ExcalidrawImageElement, FileId } from '@excalidraw/excalidraw/types/element/types';
-import isEqual from 'fast-deep-equal';
 
 const Excalidraw = dynamic<ExcalidrawProps>(() => import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => ({ default: module.Excalidraw })), { ssr: false });
 const AddLibraries = dynamic(() => import('./AddLibraries'), { ssr: false });
@@ -38,6 +37,7 @@ export const useCallbackRefState = () => {
 
 function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: ImageNode | null; open: boolean; }) {
   const [excalidrawAPI, excalidrawAPIRefCallback] = useCallbackRefState();
+  const [initialSceneVersion, setInitialSceneVersion] = useState(0);
   const theme = useTheme();
 
   useEffect(() => {
@@ -45,7 +45,6 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
     if (open) {
       loadSceneOrLibrary();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [excalidrawAPI, open]);
 
   const insertSketch = (payload: InsertSketchPayload) => {
@@ -98,6 +97,9 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
       clearLocalStorage();
       closeDialog();
       restoreSelection();
+    } else {
+      closeDialog();
+      restoreSelection();
     }
   }
 
@@ -120,13 +122,17 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
     try {
       const loadSceneOrLibraryFromBlob = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.loadSceneOrLibraryFromBlob);
       const MIME_TYPES = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.MIME_TYPES);
+      const getSceneVersion = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.getSceneVersion);
       if ($isSketchNode(node)) {
         const elements = node.getValue();
-        if (elements) excalidrawAPI?.updateScene({ elements, appState: { theme: theme.palette.mode } })
-        else {
+        if (elements) {
+          setInitialSceneVersion(getSceneVersion(elements));
+          excalidrawAPI?.updateScene({ elements, appState: { theme: theme.palette.mode } })
+        } else {
           const contents = await loadSceneOrLibraryFromBlob(blob, null, elements ?? null);
           if (contents.type === MIME_TYPES.excalidraw) {
             excalidrawAPI?.addFiles(Object.values(contents.data.files));
+            setInitialSceneVersion(getSceneVersion(contents.data.elements));
             excalidrawAPI?.updateScene({ ...contents.data as any, appState: { theme: theme.palette.mode } });
           } else if (contents.type === MIME_TYPES.excalidrawlib) {
             excalidrawAPI?.updateLibrary({
@@ -152,6 +158,7 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
       dimensions.width = size.width;
       dimensions.height = size.height;
     }
+    const getSceneVersion = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.getSceneVersion);
     fetch(src).then((res) => res.blob()).then((blob) => {
       const mimeType = blob.type;
       const reader = new FileReader();
@@ -198,6 +205,7 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
               lastRetrieved: now,
             },
           ]);
+          setInitialSceneVersion(getSceneVersion([imageElement]));
           excalidrawAPI?.updateScene({ elements: [imageElement], appState: { theme: theme.palette.mode } });
         }
       };
@@ -214,11 +222,14 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
     localStorage.setItem("excalidraw-library", serializedItems);
   };
 
-  const saveToLocalStorage = (elements: readonly ExcalidrawElement[], appState: AppState, files: BinaryFiles) => {
-    const scene = { elements, files };
+  const saveToLocalStorage = async (elements: readonly ExcalidrawElement[], appState: AppState, files: BinaryFiles) => {
     if (elements.length === 0) return;
-    if (isEqual(elements, JSON.parse(localStorage.getItem("excalidraw") ?? "[]"))) return;
-    localStorage.setItem("excalidraw", JSON.stringify(scene));
+    const scene = { elements, files };
+    const getSceneVersion = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.getSceneVersion);
+    const sceneVersion = getSceneVersion(elements);
+    if (sceneVersion === initialSceneVersion) return;
+    const serialized = JSON.stringify(scene);
+    localStorage.setItem("excalidraw", serialized);
   };
 
   const clearLocalStorage = () => {
