@@ -106,12 +106,17 @@ header {
 
 @font-face {
   font-family: Virgil;
-  src: url(/fonts/Virgil.woff2);
+  src: url(/excalidraw-assets/Virgil.woff2);
 }
 
 @font-face {
   font-family: Cascadia;
-  src: url(/fonts/Cascadia.woff2);
+  src: url(/excalidraw-assets/Cascadia.woff2);
+}
+
+@font-face {
+  font-family: Assistant;
+  src: url(/excalidraw-assets/Assistant-Regular.woff2);
 }
 
 @font-face {

@@ -1,24 +1,29 @@
 "use client"
 import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
-import { INSERT_SKETCH_COMMAND, InsertSketchPayload } from '../../SketchPlugin';
+import { INSERT_SKETCH_COMMAND, InsertSketchPayload } from '../../../SketchPlugin';
 import { Suspense, useEffect, useState, memo, useCallback } from 'react';
-import LogicGates from "./SketchLibraries/Logic-Gates.json";
-import CircuitComponents from "./SketchLibraries/circuit-components.json";
-import { $isSketchNode } from '../../../nodes/SketchNode';
-import type { ExcalidrawImperativeAPI, LibraryItems_anyVersion, ExcalidrawProps, DataURL } from '@excalidraw/excalidraw/types/types';
+import { $isSketchNode } from '../../../../nodes/SketchNode';
+import type { ExcalidrawImperativeAPI, LibraryItems_anyVersion, ExcalidrawProps, DataURL, LibraryItems } from '@excalidraw/excalidraw/types/types';
 import type { ImportedLibraryData } from '@excalidraw/excalidraw/types/data/types';
-import { SET_DIALOGS_COMMAND } from './commands';
+import { SET_DIALOGS_COMMAND } from '../commands';
 import { getImageDimensions } from '@/editor/nodes/utils';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
-import { Button, CircularProgress, Dialog, DialogActions, DialogContent } from '@mui/material';
+import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent } from '@mui/material';
 import dynamic from 'next/dynamic';
 import { ImageNode } from '@/editor/nodes/ImageNode';
 import type { ExcalidrawImageElement, FileId } from '@excalidraw/excalidraw/types/element/types';
 
 const Excalidraw = dynamic<ExcalidrawProps>(() => import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => ({ default: module.Excalidraw })), { ssr: false });
+const AddLibraries = dynamic(() => import('./AddLibraries'), { ssr: false });
 
 export type ExcalidrawElementFragment = { isDeleted?: boolean; };
+declare global {
+  interface Window {
+    EXCALIDRAW_ASSET_PATH: string;
+  }
+}
+window.EXCALIDRAW_ASSET_PATH = "/";
 
 export const useCallbackRefState = () => {
   const [refValue, setRefValue] =
@@ -123,7 +128,7 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
 
   async function convertImagetoSketch(src: string) {
     const now = Date.now();
-    const dimensions = { width: node?.getWidth() ?? 0, height: node?.getHeight() ?? 0}
+    const dimensions = { width: node?.getWidth() ?? 0, height: node?.getHeight() ?? 0 }
     if (!dimensions.width || !dimensions.height) {
       const size = await getImageDimensions(src);
       dimensions.width = size.width;
@@ -182,20 +187,29 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
     });
   }
 
-  const libraryItems = [...LogicGates.library, ...CircuitComponents.libraryItems] as any as LibraryItems_anyVersion;
+  const onLibraryChange = async (items: LibraryItems) => {
+    if (!items.length) {
+      localStorage.removeItem("excalidraw-library");
+      return;
+    }
+    const serializedItems = JSON.stringify(items);
+    localStorage.setItem("excalidraw-library", serializedItems);
+  };
 
   useFixedBodyScroll(open);
 
   return <Dialog open={open} fullScreen={true} onClose={handleClose} disableEscapeKeyDown>
     <DialogContent sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 0, overflow: "hidden" }}>
-      {open &&
-        <Suspense fallback={<CircularProgress size={36} disableShrink />}>
-          <Excalidraw
-            excalidrawAPI={excalidrawAPIRefCallback}
-            initialData={{ libraryItems }}
-            theme={theme.palette.mode}
-          />
-        </Suspense>}
+      <Suspense fallback={
+        <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>
+      }>
+        {open && <Excalidraw
+          excalidrawAPI={excalidrawAPIRefCallback}
+          theme={theme.palette.mode}
+          onLibraryChange={onLibraryChange}
+        />}
+        {excalidrawAPI && <AddLibraries excalidrawAPI={excalidrawAPI} />}
+      </Suspense>
     </DialogContent>
     <DialogActions>
       <Button autoFocus onClick={handleClose}>

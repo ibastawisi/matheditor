@@ -5,8 +5,8 @@ import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/elem
 import ImageComponent from '../ImageNode/ImageComponent';
 
 export const encodeFonts = Promise.all([
-  fetch("/fonts/Virgil.woff2").then(res => res.arrayBuffer()).then(buffer => arrayBufferToBase64Font(buffer)),
-  fetch("/fonts/Cascadia.woff2").then(res => res.arrayBuffer()).then(async buffer => arrayBufferToBase64Font(buffer)),
+  fetch("/excalidraw-assets/Virgil.woff2").then(res => res.arrayBuffer()).then(buffer => arrayBufferToBase64Font(buffer)),
+  fetch("/excalidraw-assets/Cascadia.woff2").then(res => res.arrayBuffer()).then(async buffer => arrayBufferToBase64Font(buffer)),
 ]);
 
 const arrayBufferToBase64Font = (buffer: ArrayBuffer) => {
