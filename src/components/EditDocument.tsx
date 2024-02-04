@@ -36,7 +36,22 @@ const EditDocument: React.FC = () => {
       const localResponse = await dispatch(actions.getLocalDocument(id));
       if (localResponse.type === actions.getLocalDocument.fulfilled.type) {
         const editorDocument = localResponse.payload as EditorDocument;
-        setDocument(editorDocument);
+        if (editorDocument.collab) {
+          const cloudResponse = await dispatch(actions.getCloudDocument(id));
+          if (cloudResponse.type === actions.getCloudDocument.fulfilled.type) {
+            const cloudDocument = cloudResponse.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>['payload'];
+            if (cloudDocument.updatedAt > editorDocument.updatedAt) {
+              const localRevisionResponse = await dispatch(actions.getLocalRevision(editorDocument.head));
+              const isHeadLocalRevision = localRevisionResponse.type === actions.getLocalRevision.fulfilled.type;
+              if (!isHeadLocalRevision) {
+                const editorDocumentRevision = { id: editorDocument.head, documentId: editorDocument.id, createdAt: editorDocument.updatedAt, data: editorDocument.data };
+                await dispatch(actions.createLocalRevision(editorDocumentRevision));
+              }
+              await dispatch(actions.updateLocalDocument({ id: editorDocument.id, partial: cloudDocument }));
+              setDocument(cloudDocument);
+            } else setDocument(editorDocument);
+          } else setDocument(editorDocument);
+        } else setDocument(editorDocument);
       } else {
         const cloudResponse = await dispatch(actions.getCloudDocument(id));
         if (cloudResponse.type === actions.getCloudDocument.fulfilled.type) {

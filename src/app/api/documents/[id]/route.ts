@@ -28,7 +28,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
     }
     const isAuthor = user.id === userDocument.author.id;
     const isCoauthor = userDocument.coauthors.some(coauthor => coauthor.id === user.id);
-    if (!isAuthor && !isCoauthor) {
+    const isCollab = userDocument.collab;
+    if (!isAuthor && !isCoauthor && !isCollab) {
       response.error = "You don't have permission to edit this document";
       return NextResponse.json(response, { status: 403 })
     }

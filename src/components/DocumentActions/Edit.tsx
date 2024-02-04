@@ -1,8 +1,8 @@
 "use client"
 import { useDispatch, actions, useSelector } from "@/store";
 import { UserDocument, EditorDocument, CheckHandleResponse, DocumentUpdateInput } from "@/types";
-import { Settings } from "@mui/icons-material";
-import { IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControlLabel, Checkbox, FormHelperText, useMediaQuery, ListItemIcon, ListItemText, MenuItem, TextField } from "@mui/material";
+import { CloudOff, Settings } from "@mui/icons-material";
+import { IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControlLabel, Checkbox, FormHelperText, useMediaQuery, ListItemIcon, ListItemText, MenuItem, TextField, Box, Typography } from "@mui/material";
 import { useCallback, useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import useFixedBodyScroll from "@/hooks/useFixedBodyScroll";
@@ -10,6 +10,7 @@ import { useFormik } from "formik";
 import * as yup from 'yup';
 import { validate } from "uuid";
 import { debounce } from '@mui/material/utils';
+import UploadDocument from "./Upload";
 
 const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
   const dispatch = useDispatch();
@@ -33,14 +34,17 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
     const response = await dispatch(actions.updateCloudDocument(payload));
     if (response.type === actions.updateCloudDocument.fulfilled.type) {
       dispatch(actions.announce({ message: `Document ${isPublished ? "unpublished" : "published"} successfully` }));
+      dispatch(actions.updateLocalDocument({ id, partial: payload.partial }))
     }
   };
 
   const toggleCollab = async () => {
     if (!isCloud) return dispatch(actions.announce({ message: "Please save document to the cloud first" }));
-    const response = await dispatch(actions.updateCloudDocument({ id, partial: { collab: !isCollab } }));
+    const payload = { id, partial: { collab: !isCollab } };
+    const response = await dispatch(actions.updateCloudDocument(payload));
     if (response.type === actions.updateCloudDocument.fulfilled.type) {
       dispatch(actions.announce({ message: `Document collaboration mode is ${isCollab ? "on" : "off"}` }));
+      dispatch(actions.updateLocalDocument({ id, partial: { collab: !isCollab } }))
     }
   };
 
@@ -136,10 +140,16 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
             error={!!formik.errors.name}
             helperText={formik.errors.name}
           />
+          {!cloudDocument && <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 2, gap: 2 }}>
+            <CloudOff sx={{ width: 64, height: 64, fontSize: 64 }} />
+            <Typography variant="overline" align="center" component="p">Please save document to the cloud first to unlock the following options</Typography>
+            <UploadDocument userDocument={userDocument} variant="button" />
+          </Box>}
           <TextField margin="normal" size="small" fullWidth
             id="handle"
             label="Document Handle"
             name="handle"
+            disabled={!isCloud}
             value={formik.values.handle}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -147,14 +157,14 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
             helperText={formik.errors.handle ?? `https://matheditor.me/view/${formik.values.handle || id}`}
           />
           {isAuthor && <FormControlLabel
-            control={<Checkbox checked={isPublished} onChange={togglePublished} />}
+            control={<Checkbox checked={isPublished} disabled={!isCloud} onChange={togglePublished} />}
             label="Published"
           />}
           <FormHelperText>
             Published documents are showcased on the homepage, can be forked by anyone, and can be found by search engines.
           </FormHelperText>
           {isAuthor && <FormControlLabel
-            control={<Checkbox checked={isCollab} disabled={!isPublished} onChange={toggleCollab} />}
+            control={<Checkbox checked={isCollab} disabled={!isCloud || !isPublished} onChange={toggleCollab} />}
             label="Collab"
           />}
           <FormHelperText>
