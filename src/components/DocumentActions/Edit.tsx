@@ -43,7 +43,7 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
     const payload = { id, partial: { collab: !isCollab } };
     const response = await dispatch(actions.updateCloudDocument(payload));
     if (response.type === actions.updateCloudDocument.fulfilled.type) {
-      dispatch(actions.announce({ message: `Document collaboration mode is ${isCollab ? "on" : "off"}` }));
+      dispatch(actions.announce({ message: `Document collaboration mode is ${isCollab ? "off" : "on"}` }));
       dispatch(actions.updateLocalDocument({ id, partial: { collab: !isCollab } }))
     }
   };

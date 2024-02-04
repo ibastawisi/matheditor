@@ -12,26 +12,28 @@ export async function GET(request: Request, { params }: { params: { id: string }
   const response: GetDocumentResponse = {};
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
-      response.error = "Not authenticated, please login"
-      return NextResponse.json(response, { status: 401 })
-    }
-    const { user } = session;
-    if (user.disabled) {
-      response.error = "Account is disabled for violating terms of service";
-      return NextResponse.json(response, { status: 403 })
-    }
     const userDocument = await findUserDocument(params.id);
     if (!userDocument) {
       response.error = "Document not found";
       return NextResponse.json(response, { status: 404 })
     }
-    const isAuthor = user.id === userDocument.author.id;
-    const isCoauthor = userDocument.coauthors.some(coauthor => coauthor.id === user.id);
     const isCollab = userDocument.collab;
-    if (!isAuthor && !isCoauthor && !isCollab) {
-      response.error = "You don't have permission to edit this document";
-      return NextResponse.json(response, { status: 403 })
+    if (!session && !isCollab) {
+      response.error = "Not authenticated, please login"
+      return NextResponse.json(response, { status: 401 })
+    }
+    if (session) {
+      const { user } = session;
+      if (user.disabled) {
+        response.error = "Account is disabled for violating terms of service";
+        return NextResponse.json(response, { status: 403 })
+      }
+      const isAuthor = user.id === userDocument.author.id;
+      const isCoauthor = userDocument.coauthors.some(coauthor => coauthor.id === user.id);
+      if (!isAuthor && !isCoauthor && !isCollab) {
+        response.error = "You don't have permission to edit this document";
+        return NextResponse.json(response, { status: 403 })
+      }
     }
     const editorDocument = await findEditorDocument(params.id);
     if (!editorDocument) {
@@ -137,7 +139,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       }
     }
 
-    
+
     response.data = await updateDocument(params.id, input);
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
