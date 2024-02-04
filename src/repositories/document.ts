@@ -70,7 +70,6 @@ const findPublishedDocuments = async () => {
     const cloudDocument: CloudDocument = {
       ...document,
       coauthors: document.coauthors.map((coauthor) => coauthor.user),
-      revisions: document.revisions.filter((revision) => revision.id === document.head)
     };
     return cloudDocument;
   });
@@ -224,7 +223,6 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
     const cloudDocument: CloudDocument = {
       ...document,
       coauthors: document.coauthors.map((coauthor) => coauthor.user),
-      revisions: document.revisions.filter((revision) => revision.id === document.head)
     };
     return cloudDocument;
   });

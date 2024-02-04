@@ -54,7 +54,6 @@ const EditDocument: React.FC = () => {
         } else setDocument(editorDocument);
       } else {
         const cloudResponse = await dispatch(actions.getCloudDocument(id));
-        debugger
         if (cloudResponse.type === actions.getCloudDocument.fulfilled.type) {
           const editorDocument = cloudResponse.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>['payload'];
           setDocument(editorDocument);

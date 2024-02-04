@@ -555,8 +555,8 @@ iframe {
   margin-bottom: 0.5rem;
 }
 
-.editor-input .LexicalTheme__layoutItem {
-  border-bottom: 1px dashed #ddd;
+.LexicalTheme__layoutItem:not(:last-child) {
+  margin-inline-end: 0.5rem;
 }
 
 @media print {

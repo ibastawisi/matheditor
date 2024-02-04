@@ -1,5 +1,5 @@
-import { LocalDocumentRevision, UserDocumentRevision } from '@/types';
-import RevisionCard from './RevisionCard';
+import { LocalDocumentRevision, User, UserDocumentRevision } from '@/types';
+import RevisionCard from './EditRevisionCard';
 import { useSelector } from '@/store';
 import { Avatar, Box, Chip, Grid, IconButton, Typography } from '@mui/material';
 import { History, Print } from '@mui/icons-material';
@@ -29,6 +29,14 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
   const isCloud = !!cloudDocument;
   const isAuthor = isCloud ? cloudDocument.author.id === user?.id : true
   const isCoauthor = isCloud ? cloudDocument.coauthors.some(u => u.id === user?.id) : false;
+  const isPublished = isCloud && cloudDocument.published;
+  const isCollab = isPublished && cloudDocument.collab;
+  const collaborators = isCollab ? cloudDocument.revisions.reduce((acc, rev) => {
+    if (rev.author.id !== cloudDocument.author.id &&
+      cloudDocument.coauthors.some(u => u.id === rev.author.id) &&
+      !acc.find(u => u.id === rev.author.id)) acc.push(rev.author);
+    return acc;
+  }, [] as User[]) : [];
 
   const revisions: UserDocumentRevision[] = [...cloudDocumentRevisions];
   localDocumentRevisions.forEach(revision => { if (!revisions.find(r => r.id === revision.id)) revisions.push(revision); });
@@ -70,6 +78,20 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
                     key={coauthor.id}
                     avatar={<Avatar alt={coauthor.name} src={coauthor.image || undefined} />}
                     label={coauthor.name}
+                    variant="outlined"
+                  />
+                ))}
+              </Box>
+            </>}
+            {collaborators.length > 0 && <>
+              <Typography component="h3" variant="subtitle2">Collaborators</Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {collaborators.map(user => (
+                  <Chip clickable component={RouterLink} prefetch={false}
+                    href={`/user/${user.handle || user.id}`}
+                    key={user.id}
+                    avatar={<Avatar alt={user.name} src={user.image || undefined} />}
+                    label={user.name}
                     variant="outlined"
                   />
                 ))}

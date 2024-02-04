@@ -7,7 +7,7 @@ import logo from "@public/logo.svg";
 import Image from 'next/image';
 import { useDispatch, actions, useSelector } from '@/store';
 import { useTheme } from '@mui/material/styles';
-import { useScrollTrigger, Slide, Zoom, Box, AppBar, Toolbar, Typography, IconButton, Avatar, Fab, Link } from '@mui/material';
+import { useScrollTrigger, Slide, Zoom, Box, AppBar, Toolbar, Typography, IconButton, Avatar, Fab, Link, Badge } from '@mui/material';
 import { Brightness7, Brightness4, Print, KeyboardArrowUp, Info } from '@mui/icons-material';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
@@ -53,10 +53,17 @@ const TopAppBar: React.FC<{}> = () => {
   const dispatch = useDispatch();
   const theme = useTheme();
   const pathname = usePathname();
+  const isEdit = pathname.startsWith('/edit');
   const showPrintButton = !!['/edit', '/view', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
   const showDrawerButton = !!['/edit', '/view'].find(path => pathname.startsWith(path));
   const initialized = useSelector(state => state.initialized);
   const user = useSelector(state => state.user);
+  const documentId = showDrawerButton && pathname.split('/')[2]?.toLowerCase();
+  const userDocument = useSelector(state => state.documents.find(d => d.id === documentId || d.cloud?.handle === documentId));
+  const localDocument = userDocument?.local;
+  const cloudDocument = userDocument?.cloud;
+  const showInfoBadge = isEdit ? localDocument && cloudDocument && localDocument.head !== cloudDocument.head
+    : cloudDocument && cloudDocument.revisions.length > 1;
 
   const handlePrint = () => { window.print(); }
   const toggleDrawer = () => { dispatch(actions.toggleDrawer()); }
@@ -86,7 +93,9 @@ const TopAppBar: React.FC<{}> = () => {
             {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={handlePrint}>
               <Print />
             </IconButton>}
-            {showDrawerButton && <IconButton aria-label="Document Info" color='inherit' onClick={toggleDrawer}><Info /></IconButton>}
+            {showDrawerButton && <IconButton id="document-info" aria-label="Document Info" color='inherit' onClick={toggleDrawer}>
+              {showInfoBadge ? <Badge color="secondary" variant="dot"><Info /></Badge> : <Info />}
+            </IconButton>}
           </Toolbar>
         </AppBar>
       </HideOnScroll>

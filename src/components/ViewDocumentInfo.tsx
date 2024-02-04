@@ -1,13 +1,14 @@
 "use client"
 import { CloudDocument, User } from '@/types';
-import { Avatar, Box, Chip, Fab, IconButton, Typography, useScrollTrigger } from '@mui/material';
-import { Edit, FileCopy, Print } from '@mui/icons-material';
+import { Avatar, Box, Chip, Fab, Grid, IconButton, Typography, useScrollTrigger } from '@mui/material';
+import { Edit, FileCopy, Print, History } from '@mui/icons-material';
 import RouterLink from "next/link";
 import ShareDocument from './DocumentActions/Share';
 import DownloadDocument from './DocumentActions/Download';
 import ForkDocument from './DocumentActions/Fork';
 import { Transition } from 'react-transition-group';
 import AppDrawer from './AppDrawer';
+import ViewRevisionCard from './ViewRevisionCard';
 
 export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocument: CloudDocument, user?: User }) {
   const slideTrigger = useScrollTrigger({
@@ -20,6 +21,14 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
   const isCoauthor = cloudDocument.coauthors.some(u => u.id === user?.id);
   const showFork = cloudDocument.published || isAuthor || isCoauthor;
   const userDocument = { id: cloudDocument.id, cloud: cloudDocument };
+  const isPublished = cloudDocument.published;
+  const isCollab = isPublished && cloudDocument.collab;
+  const collaborators = isCollab ? cloudDocument.revisions.reduce((acc, rev) => {
+    if (rev.author.id !== cloudDocument.author.id &&
+      cloudDocument.coauthors.some(u => u.id === rev.author.id) &&
+      !acc.find(u => u.id === rev.author.id)) acc.push(rev.author);
+    return acc;
+  }, [] as User[]) : [];
 
   return (
     <>
@@ -48,6 +57,20 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
               ))}
             </Box>
           </>}
+          {collaborators.length > 0 && <>
+            <Typography component="h3" variant="subtitle2">Collaborators</Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              {collaborators.map(user => (
+                <Chip clickable component={RouterLink} prefetch={false}
+                  href={`/user/${user.handle || user.id}`}
+                  key={user.id}
+                  avatar={<Avatar alt={user.name} src={user.image || undefined} />}
+                  label={user.name}
+                  variant="outlined"
+                />
+              ))}
+            </Box>
+          </>}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2, alignSelf: "flex-end" }}>
             <IconButton aria-label="Print" color="inherit" onClick={() => { window.print(); }}><Print /></IconButton>
             <ShareDocument userDocument={userDocument} />
@@ -56,6 +79,13 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
             {(isAuthor || isCoauthor) && <IconButton component={RouterLink} prefetch={false} href={`/edit/${handle}`} aria-label="Edit"><Edit /></IconButton>}
           </Box>
         </Box>
+        <Grid container spacing={1}>
+          <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center' }}>
+            <History sx={{ mr: 1 }} />
+            <Typography variant="h6">Revisions</Typography>
+          </Grid>
+          {cloudDocument.revisions.map(revision => <Grid item xs={12} key={revision.id}><ViewRevisionCard cloudDocument={cloudDocument} revision={revision} /></Grid>)}
+        </Grid>
       </AppDrawer>
       {showFork && <Transition in={slideTrigger} timeout={225}>
         <Fab variant="extended" size='medium' component={RouterLink} prefetch={false} href={`/new/${handle}`}
