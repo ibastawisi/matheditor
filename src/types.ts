@@ -33,6 +33,7 @@ export interface EditorDocument {
   createdAt: string | Date;
   updatedAt: string | Date;
   published?: boolean;
+  collab?: boolean;
   handle?: string | null;
   baseId?: string | null;
 }

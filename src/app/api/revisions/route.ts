@@ -34,8 +34,9 @@ export async function POST(request: Request) {
     }
     const isAuthor = user.id === cloudDocument.author.id;
     const isCoauthor = cloudDocument.coauthors.some(coauthor => coauthor.id === user.id);
+    const isCollab = cloudDocument.collab;
 
-    if (!isAuthor && !isCoauthor) {
+    if (!isAuthor && !isCoauthor && !isCollab) {
       response.error = "You don't have permission to review this document";
       return NextResponse.json(response, { status: 403 })
     }

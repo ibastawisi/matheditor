@@ -85,6 +85,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       handle: body.handle,
       updatedAt: body.updatedAt,
       published: body.published,
+      collab: body.collab,
     };
 
     if (body.handle && body.handle !== userDocument.handle) {
