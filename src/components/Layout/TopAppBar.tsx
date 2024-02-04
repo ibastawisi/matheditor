@@ -53,20 +53,12 @@ const TopAppBar: React.FC<{}> = () => {
   const dispatch = useDispatch();
   const theme = useTheme();
   const pathname = usePathname();
-  const isEdit = pathname.startsWith('/edit');
   const showPrintButton = !!['/edit', '/view', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
   const showDrawerButton = !!['/edit', '/view'].find(path => pathname.startsWith(path));
   const initialized = useSelector(state => state.initialized);
   const user = useSelector(state => state.user);
-  const documentId = showDrawerButton && pathname.split('/')[2]?.toLowerCase();
-  const userDocument = useSelector(state => state.documents.find(d => d.id === documentId || d.cloud?.handle === documentId));
-  const localDocument = userDocument?.local;
-  const cloudDocument = userDocument?.cloud;
-  const showInfoBadge = isEdit ? localDocument && cloudDocument && localDocument.head !== cloudDocument.head
-    : cloudDocument && cloudDocument.revisions.length > 1;
 
   const handlePrint = () => { window.print(); }
-  const toggleDrawer = () => { dispatch(actions.toggleDrawer()); }
 
   useEffect(() => {
     if (!initialized) dispatch(actions.load());
@@ -93,9 +85,7 @@ const TopAppBar: React.FC<{}> = () => {
             {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={handlePrint}>
               <Print />
             </IconButton>}
-            {showDrawerButton && <IconButton id="document-info" aria-label="Document Info" color='inherit' onClick={toggleDrawer}>
-              {showInfoBadge ? <Badge color="secondary" variant="dot"><Info /></Badge> : <Info />}
-            </IconButton>}
+            {showDrawerButton && <DrawerButton />}
           </Toolbar>
         </AppBar>
       </HideOnScroll>
@@ -106,3 +96,23 @@ const TopAppBar: React.FC<{}> = () => {
 };
 
 export default TopAppBar;
+
+const DrawerButton = ()=>{
+  const dispatch = useDispatch();
+  const pathname = usePathname();
+  const isEdit = pathname.startsWith('/edit');
+  const showDrawerButton = !!['/edit', '/view'].find(path => pathname.startsWith(path));
+  const documentId = showDrawerButton && pathname.split('/')[2]?.toLowerCase();
+  const userDocument = useSelector(state => state.documents.find(d => d.id === documentId || d.cloud?.handle === documentId));
+  const localDocument = userDocument?.local;
+  const cloudDocument = userDocument?.cloud;
+  const showInfoBadge = isEdit ? localDocument && cloudDocument && localDocument.head !== cloudDocument.head
+    : cloudDocument && cloudDocument.revisions.length > 1;
+
+  const toggleDrawer = () => { dispatch(actions.toggleDrawer()); }
+
+  
+  return <IconButton id="document-info" aria-label="Document Info" color='inherit' onClick={toggleDrawer}>
+    {showInfoBadge ? <Badge color="secondary" variant="dot"><Info /></Badge> : <Info />}
+  </IconButton>
+}

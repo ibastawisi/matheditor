@@ -1,11 +1,12 @@
 'use client';
 
 import NProgress from 'nprogress';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { memo, useEffect } from 'react';
 
 export default memo(function ProgressBar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   useEffect(() => {
     NProgress.configure({ showSpinner: false });
 
@@ -35,7 +36,9 @@ export default memo(function ProgressBar() {
 
   }, []);
 
-  useEffect(() => { NProgress.done() }, [pathname]);
+  useEffect(() => {
+    NProgress.done()
+  }, [pathname, searchParams]);
 
   return null;
 });

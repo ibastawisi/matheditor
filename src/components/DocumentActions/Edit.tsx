@@ -168,7 +168,7 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
             label="Collab"
           />}
           <FormHelperText>
-            Published Collab documents are open for anyone to edit. Unpublished Collab documents are only editable by authors.
+            Published Collab documents are open for anyone to edit.
           </FormHelperText>
         </DialogContent>
         <DialogActions>

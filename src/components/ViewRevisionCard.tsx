@@ -35,8 +35,8 @@ const ViewRevisionCard: React.FC<{
         />
       </CardActionArea>
       <CardActions sx={{ "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
-      {(currentRevisionId.startsWith(revision.id)) && <Chip color="primary" sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Current" />}
-        {(cloudDocument.head === revision.id) && <Chip color="primary" sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
+        <Chip color={cloudDocument.head === revision.id ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />
+        {(currentRevisionId.startsWith(revision.id)) && <Chip color="primary" sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Current" />}
       </CardActions>
     </Card>
   );

@@ -7,12 +7,15 @@ import PwaUpdater from "./PwaUpdater";
 import Footer from "./Footer";
 import ProgressBar from "./ProgressBar";
 import { Container } from "@mui/material";
+import { Suspense } from "react";
 
 const AppLayout = ({ children }: { children: React.ReactNode; }) => {
   return (
     <StoreProvider>
       <TopAppBar />
-      <ProgressBar />
+      <Suspense>
+        <ProgressBar />
+      </Suspense>
       <Container className='editor-container'>
         {children}
       </Container>
