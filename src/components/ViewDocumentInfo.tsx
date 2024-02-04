@@ -25,7 +25,7 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
   const isCollab = isPublished && cloudDocument.collab;
   const collaborators = isCollab ? cloudDocument.revisions.reduce((acc, rev) => {
     if (rev.author.id !== cloudDocument.author.id &&
-      cloudDocument.coauthors.some(u => u.id === rev.author.id) &&
+      !cloudDocument.coauthors.some(u => u.id === rev.author.id) &&
       !acc.find(u => u.id === rev.author.id)) acc.push(rev.author);
     return acc;
   }, [] as User[]) : [];
