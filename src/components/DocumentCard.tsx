@@ -31,21 +31,9 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
   const authorName = cloudDocument?.author.name ?? user?.name ?? 'Local User';
 
   const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
-  const isHeadCloudRevision = cloudDocumentRevisions.some(r => r.id === localDocument?.head);
-
-  const revisions: UserDocumentRevision[] = [...cloudDocumentRevisions];
-  if (isLocal && !isHeadCloudRevision) {
-    const unsavedRevision = {
-      id: localDocument.head,
-      documentId: localDocument.id,
-      createdAt: localDocument.updatedAt,
-    } as LocalDocumentRevision;
-    revisions.unshift(unsavedRevision);
-  }
-  const sortedRevisions = [...revisions].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-  const revisionsBadgeContent = sortedRevisions.findIndex(r => r.id === cloudDocument?.head);
-  const showRevisionsBadge = revisionsBadgeContent > 0;
+  const collabDocumentRevisions = cloudDocumentRevisions.filter(r => r.author.id !== user?.id);
+  const showRevisionsBadge = collabDocumentRevisions.length > 0;
+  const revisionsBadgeContent = cloudDocumentRevisions.findIndex(r => r.id === cloudDocument?.head);
 
   return (
     <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%", maxWidth: "100%", ...sx }}>

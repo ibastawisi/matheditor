@@ -101,35 +101,33 @@ export default TopAppBar;
 const DrawerButton = () => {
   const dispatch = useDispatch();
   const pathname = usePathname();
+  const user = useSelector(state => state.user);
   const isEdit = pathname.startsWith('/edit');
   const showDrawerButton = !!['/edit', '/view'].find(path => pathname.startsWith(path));
   const documentId = showDrawerButton && pathname.split('/')[2]?.toLowerCase();
-  const userDocument = useSelector(state => state.documents.find(d => d.id === documentId || d.cloud?.handle === documentId));
+  const userDocument = useSelector(state => state.documents.find(d => d.id === documentId || (d.cloud || d.local)?.handle === documentId));
   const localDocument = userDocument?.local;
   const cloudDocument = userDocument?.cloud;
   const localRevisions = useSelector(state => state.revisions);
-  const localDocumentRevisions = localRevisions.filter(r => r.documentId === documentId);
+  const localDocumentRevisions = localRevisions.filter(r => r.documentId === userDocument?.id);
   const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
-  const isHeadCloudRevision = cloudDocumentRevisions.some(r => r.id === localDocument?.head);
 
   const revisions: UserDocumentRevision[] = [...cloudDocumentRevisions];
   if (isEdit) localDocumentRevisions.forEach(revision => { if (!revisions.find(r => r.id === revision.id)) revisions.push(revision); });
-  if (isEdit && localDocument && !isHeadCloudRevision) {
-  const unsavedRevision = {
-    id: localDocument.head,
-    documentId: localDocument.id,
-    createdAt: localDocument.updatedAt,
-  } as LocalDocumentRevision;
+  if (isEdit && localDocument && !revisions.find(r => r.id === localDocument.head)) {
+    const unsavedRevision = {
+      id: localDocument.head,
+      documentId: localDocument.id,
+      createdAt: localDocument.updatedAt,
+    } as LocalDocumentRevision;
     revisions.unshift(unsavedRevision);
   }
-  const sortedRevisions = [...revisions].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-  const revisionsBadgeContent = sortedRevisions.findIndex(r => r.id === cloudDocument?.head);
-  const showRevisionsBadge = revisionsBadgeContent > 0;
   
+  const revisionsBadgeContent = isEdit ? revisions.length : cloudDocumentRevisions.length;
+  const showRevisionsBadge = revisionsBadgeContent > 0;
+
   const toggleDrawer = () => { dispatch(actions.toggleDrawer()); }
 
-  
   return <IconButton id="document-info" aria-label="Document Info" color='inherit' onClick={toggleDrawer}>
     {showRevisionsBadge ? <Badge badgeContent={revisionsBadgeContent} color="secondary"><Info /></Badge> : <Info />}
   </IconButton>
