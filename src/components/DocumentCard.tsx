@@ -31,7 +31,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
   const authorName = cloudDocument?.author.name ?? user?.name ?? 'Local User';
 
   const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
-  const collabDocumentRevisions = cloudDocumentRevisions.filter(r => r.author.id !== user?.id);
+  const collabDocumentRevisions = cloudDocumentRevisions.filter(r => r.author.id !== cloudDocument?.author.id);
   const showRevisionsBadge = collabDocumentRevisions.length > 0;
   const revisionsBadgeContent = cloudDocumentRevisions.findIndex(r => r.id === cloudDocument?.head);
 
