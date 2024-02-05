@@ -9,6 +9,7 @@ import { useDispatch, actions, useSelector } from '@/store';
 import { useTheme } from '@mui/material/styles';
 import { useScrollTrigger, Slide, Zoom, Box, AppBar, Toolbar, Typography, IconButton, Avatar, Fab, Link, Badge } from '@mui/material';
 import { Brightness7, Brightness4, Print, KeyboardArrowUp, Info } from '@mui/icons-material';
+import { UserDocumentRevision, LocalDocumentRevision } from '@/types';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname();
@@ -97,7 +98,7 @@ const TopAppBar: React.FC<{}> = () => {
 
 export default TopAppBar;
 
-const DrawerButton = ()=>{
+const DrawerButton = () => {
   const dispatch = useDispatch();
   const pathname = usePathname();
   const isEdit = pathname.startsWith('/edit');
@@ -106,13 +107,30 @@ const DrawerButton = ()=>{
   const userDocument = useSelector(state => state.documents.find(d => d.id === documentId || d.cloud?.handle === documentId));
   const localDocument = userDocument?.local;
   const cloudDocument = userDocument?.cloud;
-  const showInfoBadge = isEdit ? localDocument && cloudDocument && localDocument.head !== cloudDocument.head
-    : cloudDocument && cloudDocument.revisions.length > 1;
+  const localRevisions = useSelector(state => state.revisions);
+  const localDocumentRevisions = localRevisions.filter(r => r.documentId === documentId);
+  const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
+  const isHeadCloudRevision = cloudDocumentRevisions.some(r => r.id === localDocument?.head);
 
+  const revisions: UserDocumentRevision[] = [...cloudDocumentRevisions];
+  if (isEdit) localDocumentRevisions.forEach(revision => { if (!revisions.find(r => r.id === revision.id)) revisions.push(revision); });
+  if (isEdit && localDocument && !isHeadCloudRevision) {
+  const unsavedRevision = {
+    id: localDocument.head,
+    documentId: localDocument.id,
+    createdAt: localDocument.updatedAt,
+  } as LocalDocumentRevision;
+    revisions.unshift(unsavedRevision);
+  }
+  const sortedRevisions = [...revisions].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const revisionsBadgeContent = sortedRevisions.findIndex(r => r.id === cloudDocument?.head);
+  const showRevisionsBadge = revisionsBadgeContent > 0;
+  
   const toggleDrawer = () => { dispatch(actions.toggleDrawer()); }
 
   
   return <IconButton id="document-info" aria-label="Document Info" color='inherit' onClick={toggleDrawer}>
-    {showInfoBadge ? <Badge color="secondary" variant="dot"><Info /></Badge> : <Info />}
+    {showRevisionsBadge ? <Badge badgeContent={revisionsBadgeContent} color="secondary"><Info /></Badge> : <Info />}
   </IconButton>
 }

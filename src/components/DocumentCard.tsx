@@ -1,13 +1,14 @@
 "use client"
 import * as React from 'react';
 import RouterLink from 'next/link'
-import { User, UserDocument } from '@/types';
+import { LocalDocumentRevision, User, UserDocument, UserDocumentRevision } from '@/types';
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
-import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip } from '@mui/material';
+import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, Badge } from '@mui/material';
 import { Article, MobileFriendly, CloudDone, CloudSync, Cloud, Public, Workspaces } from '@mui/icons-material';
 
 import dynamic from "next/dynamic";
+import { useSelector } from 'react-redux';
 const DocumentActionMenu = dynamic(() => import('@/components/DocumentActions/ActionMenu'), { ssr: false });
 
 const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: SxProps<Theme> | undefined }> = memo(({ userDocument, user, sx }) => {
@@ -29,6 +30,22 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
   const href = (isAuthor || isCoauthor || isCollab) ? `/edit/${handle}` : `/view/${handle}`;
   const authorName = cloudDocument?.author.name ?? user?.name ?? 'Local User';
 
+  const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
+  const isHeadCloudRevision = cloudDocumentRevisions.some(r => r.id === localDocument?.head);
+
+  const revisions: UserDocumentRevision[] = [...cloudDocumentRevisions];
+  if (isLocal && !isHeadCloudRevision) {
+    const unsavedRevision = {
+      id: localDocument.head,
+      documentId: localDocument.id,
+      createdAt: localDocument.updatedAt,
+    } as LocalDocumentRevision;
+    revisions.unshift(unsavedRevision);
+  }
+  const sortedRevisions = [...revisions].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const revisionsBadgeContent = sortedRevisions.findIndex(r => r.id === cloudDocument?.head);
+  const showRevisionsBadge = revisionsBadgeContent > 0;
 
   return (
     <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%", maxWidth: "100%", ...sx }}>
@@ -53,7 +70,12 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
               </Typography>
             </>
           }
-          avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><Article /></Avatar>}
+          avatar={showRevisionsBadge ?
+            <Badge badgeContent={revisionsBadgeContent} color="secondary">
+              <Avatar sx={{ bgcolor: 'primary.main' }}><Article /></Avatar>
+            </Badge> :
+            <Avatar sx={{ bgcolor: 'primary.main' }}><Article /></Avatar>
+          }
         />
       </CardActionArea>
       <CardActions sx={{ height: 50, "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
@@ -66,7 +88,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
         {isCollab && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Workspaces />} label="Collab" />}
         {userDocument && <DocumentActionMenu userDocument={userDocument} user={user} />}
       </CardActions>
-    </Card>
+    </Card >
   );
 });
 
