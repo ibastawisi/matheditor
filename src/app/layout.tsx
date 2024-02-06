@@ -1,6 +1,10 @@
-import './globals.css'
 import type { Metadata, Viewport } from 'next';
-import LayoutProvider from "@/components/Layout";
+import ThemeProvider from '@/components/Layout/ThemeProvider';
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Math Editor',
@@ -51,6 +55,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <LayoutProvider>{children}</LayoutProvider>
+    <html lang="en">
+      <body>
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
   )
 }
