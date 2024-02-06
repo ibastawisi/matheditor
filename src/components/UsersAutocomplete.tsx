@@ -4,7 +4,7 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import { User } from '@/types';
+import { CloudDocument, User } from '@/types';
 import { useSelector } from '@/store';
 import { Chip } from '@mui/material';
 
@@ -16,26 +16,37 @@ export default function UsersAutocomplete({
   placeholder,
   value,
   onChange,
+  disabled,
 }: {
   label?: string;
   placeholder?: string;
   value: User[];
   onChange: (users: (User | string)[]) => void;
+  disabled?: boolean;
 }) {
   const handleChange = (event: React.SyntheticEvent, newValue: (User | string)[]) => {
     onChange(newValue);
   };
   const user = useSelector(state => state.user);
   const documents = useSelector(state => state.documents);
-  const cloudDocuments = documents.filter(d => d.cloud);
+  const cloudDocuments = documents.filter(d => d.cloud).map(d => d.cloud) as CloudDocument[];
 
   const users: User[] = cloudDocuments.reduce((users, document) => {
-    if (!document.cloud) return users;
-    const author = document.cloud.author;
+    const author = document.author;
     if (!users.some(u => u.id === author.id) && author.id !== user?.id) users.push(author);
-    const coauthors = document.cloud.coauthors;
+    const coauthors = document.coauthors;
     coauthors.forEach(coauthor => {
       if (!users.some(u => u.id === coauthor.id) && coauthor.id !== user?.id) users.push(coauthor);
+    });
+    const revisions = document.revisions;
+    const collaborators = revisions.reduce((acc, rev) => {
+      if (rev.author.id !== author.id &&
+        !coauthors.some(u => u.id === rev.author.id) &&
+        !acc.find(u => u.id === rev.author.id)) acc.push(rev.author);
+      return acc;
+    }, [] as User[]);
+    collaborators.forEach(collaborator => {
+      if (!users.some(u => u.id === collaborator.id) && collaborator.id !== user?.id) users.push(collaborator);
     });
     return users;
   }, [] as User[]);
@@ -80,6 +91,7 @@ export default function UsersAutocomplete({
 
       value={value}
       onChange={handleChange}
+      disabled={disabled}
     />
   );
 }

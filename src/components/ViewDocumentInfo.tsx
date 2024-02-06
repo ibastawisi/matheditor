@@ -30,6 +30,8 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
     return acc;
   }, [] as User[]) : [];
 
+  const isEditable = isAuthor || isCoauthor || isCollab;
+
   return (
     <>
       <AppDrawer title="Document Info">
@@ -76,7 +78,7 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
             <ShareDocument userDocument={userDocument} />
             {showFork && <ForkDocument userDocument={userDocument} />}
             {(isAuthor || isCoauthor) && <DownloadDocument userDocument={userDocument} />}
-            {(isAuthor || isCoauthor) && <IconButton component={RouterLink} prefetch={false} href={`/edit/${handle}`} aria-label="Edit"><Edit /></IconButton>}
+            {(isEditable) && <IconButton component={RouterLink} prefetch={false} href={`/edit/${handle}`} aria-label="Edit"><Edit /></IconButton>}
           </Box>
         </Box>
         <Grid container spacing={1}>
@@ -88,9 +90,9 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
         </Grid>
       </AppDrawer>
       {showFork && <Transition in={slideTrigger} timeout={225}>
-        <Fab variant="extended" size='medium' component={RouterLink} prefetch={false} href={`/new/${handle}`}
+        <Fab variant="extended" size='medium' component={RouterLink} prefetch={false} href={isEditable ? `/edit/${handle}` : `/fork/${handle}`}
           sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 16, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>
-          <FileCopy sx={{ mr: 1 }} />Fork
+          {isEditable ? <Edit sx={{ mr: 1 }} /> : <FileCopy sx={{ mr: 1 }} />}{isEditable ? 'Edit' : 'Fork'}
         </Fab>
       </Transition>}
     </>

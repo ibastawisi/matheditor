@@ -1,10 +1,10 @@
 "use client"
 import { useDispatch, actions, useSelector } from "@/store";
 import { User, UserDocument } from "@/types";
-import { CloudOff, Share } from "@mui/icons-material";
-import { IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Tabs, Tab, FormControl, FormLabel, FormControlLabel, Checkbox, FormHelperText, Slider, RadioGroup, Radio, useMediaQuery, ListItemIcon, ListItemText, MenuItem, Select, Typography } from "@mui/material";
+import { CloudOff, ContentCopy, Share } from "@mui/icons-material";
+import { IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Tabs, Tab, FormControl, FormLabel, FormControlLabel, Checkbox, FormHelperText, Slider, RadioGroup, Radio, useMediaQuery, ListItemIcon, ListItemText, MenuItem, Select, Typography, Switch } from "@mui/material";
 import UsersAutocomplete from "../UsersAutocomplete";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import useFixedBodyScroll from "@/hooks/useFixedBodyScroll";
 import UploadDocument from "./Upload";
@@ -17,21 +17,24 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
   const cloudDocument = userDocument?.cloud;
   const isCloud = !!cloudDocument;
   const isAuthor = isCloud ? cloudDocument.author.id === user?.id : true
+  const isCollab = isCloud && cloudDocument.collab;
   const id = userDocument.id;
   const name = cloudDocument?.name ?? localDocument?.name ?? "Untitled Document";
   const handle = cloudDocument?.handle ?? localDocument?.handle ?? null;
 
-  const formats = isAuthor ? ['view', 'embed', 'pdf', 'edit'] : ['view', 'embed', 'pdf'];
+  const formats = ['view', 'embed', 'pdf'];
+  if (isAuthor || isCollab) formats.push('edit');
   const [format, setFormat] = useState("view");
   const [revision, setRevision] = useState(cloudDocument?.head ?? null);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const shareFormRef = useRef<HTMLFormElement>(null);
   const searchParams = useSearchParams();
 
   const openShareDialog = () => {
     if (closeMenu) closeMenu();
-    setFormat("view");
+    setFormat(cloudDocument?.collab ? "edit" : "view");
     const v = searchParams.get("v");
     setRevision(v || (cloudDocument?.head ?? null));
     setShareDialogOpen(true);
@@ -41,13 +44,10 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
     setShareDialogOpen(false);
   };
 
-  const handleShare = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formdata = new FormData(event.currentTarget);
-    if (!isCloud) return dispatch(actions.announce({ message: "Please save document to the cloud first" }));
+  function getShareUrl(formdata: FormData) {
     const url = new URL(window.location.origin);
     url.pathname = `/${format}/${handle || id}`;
-    if (revision && revision !== cloudDocument.head) url.searchParams.append("v", revision);
+    if (revision && revision !== cloudDocument?.head) url.searchParams.append("v", revision);
     if (format === "pdf") {
       const scale = formdata.get("scale") as string;
       const landscape = formdata.get("landscape") as string;
@@ -56,18 +56,48 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
       landscape !== "false" && url.searchParams.append("landscape", landscape);
       format !== "a4" && url.searchParams.append("format", format);
     }
+    return url;
+  }
+
+  const copyLink = async () => {
+    const shareForm = shareFormRef.current;
+    if (!shareForm) return;
+    const url = getShareUrl(new FormData(shareForm));
+    try {
+      await navigator.clipboard.writeText(url.toString());
+      dispatch(actions.announce({ message: "Link copied to clipboard" }));
+    } catch (err) {
+      dispatch(actions.announce({ message: "Failed to copy link to clipboard" }));
+    }
+  };
+
+  const handleShare = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formdata = new FormData(event.currentTarget);
+    if (!isCloud) return dispatch(actions.announce({ message: "Please save document to the cloud first" }));
+    const url = getShareUrl(formdata);
     const shareData = { title: name, url: url.toString() };
     try {
       closeShareDialog();
       await navigator.share(shareData);
     } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      dispatch(actions.announce({ message: "Link copied to clipboard" }));
+      dispatch(actions.announce({ message: "Failed to open share dialog, copying link to clipboard" }));
+      await copyLink();
     }
   };
 
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setFormat(newValue);
+  };
+
+  const toggleCollab = async () => {
+    if (!isCloud) return dispatch(actions.announce({ message: "Please save document to the cloud first" }));
+    const payload = { id, partial: { collab: !isCollab } };
+    const response = await dispatch(actions.updateCloudDocument(payload));
+    if (response.type === actions.updateCloudDocument.fulfilled.type) {
+      dispatch(actions.announce({ message: `Document collaboration mode is ${isCollab ? "off" : "on"}` }));
+      dispatch(actions.updateLocalDocument({ id, partial: { collab: !isCollab } }))
+    }
   };
 
   const updateCoauthors = (users: (User | string)[]) => {
@@ -84,7 +114,7 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
       <ListItemText>Share</ListItemText>
     </MenuItem> : <IconButton aria-label="Share Document" onClick={openShareDialog} size="small"><Share /></IconButton>}
     <Dialog open={shareDialogOpen} onClose={closeShareDialog} fullWidth maxWidth="xs" fullScreen={fullScreen}>
-      <Box component="form" onSubmit={handleShare}>
+      <Box component="form" onSubmit={handleShare} ref={shareFormRef}>
         <DialogTitle>Share Document</DialogTitle>
         <DialogContent>
           <Tabs
@@ -168,10 +198,19 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
             </Box>}
             {formats.includes("edit") && format === "edit" && <Box sx={{ p: 2 }}>
               <FormControl fullWidth sx={{ gap: 1, mb: 2 }}>
-                <FormLabel>Permissions</FormLabel>
-                <UsersAutocomplete label='Coauthors' placeholder='Email' value={cloudDocument?.coauthors ?? []} onChange={updateCoauthors} />
-                <FormHelperText>only author and coauthors can edit this document</FormHelperText>
+                <FormLabel sx={{ mb: 0.5 }}>Permissions</FormLabel>
+                {isAuthor && <UsersAutocomplete label='Coauthors' placeholder='Email' value={cloudDocument?.coauthors ?? []} onChange={updateCoauthors} />}
+                <FormControlLabel
+                  control={<Switch checked={isCollab} disabled={!isAuthor} onChange={toggleCollab} />}
+                  label={isCollab ? "Anyone with the link" : "Only author and coauthors"}
+                />
               </FormControl>
+            </Box>}
+            {isCloud && <Box sx={{ p: 2 }}>
+              <Button
+                startIcon={<ContentCopy />}
+                variant="outlined"
+                onClick={copyLink} fullWidth>Copy Link</Button>
             </Box>}
           </>}
         </DialogContent>
@@ -185,3 +224,4 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
 }
 
 export default ShareDocument;
+

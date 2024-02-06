@@ -21,7 +21,7 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
   const isCloud = !!cloudDocument;
   const isUploaded = isLocal && isCloud;
   const isPublished = isCloud && cloudDocument.published;
-  const isCollab = isPublished && cloudDocument.collab;
+  const isCollab = isCloud && cloudDocument.collab;
   const isAuthor = isCloud ? cloudDocument.author.id === user?.id : true
   const id = userDocument.id;
   const name = cloudDocument?.name ?? localDocument?.name ?? "Untitled Document";
@@ -30,7 +30,6 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
   const togglePublished = async () => {
     if (!isCloud) return dispatch(actions.announce({ message: "Please save document to the cloud first" }));
     const payload: { id: string, partial: DocumentUpdateInput } = { id, partial: { published: !isPublished } };
-    if (!payload.partial.published) payload.partial.collab = false;
     const response = await dispatch(actions.updateCloudDocument(payload));
     if (response.type === actions.updateCloudDocument.fulfilled.type) {
       dispatch(actions.announce({ message: `Document ${isPublished ? "unpublished" : "published"} successfully` }));
@@ -164,11 +163,11 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
             Published documents are showcased on the homepage, can be forked by anyone, and can be found by search engines.
           </FormHelperText>
           {isAuthor && <FormControlLabel
-            control={<Checkbox checked={isCollab} disabled={!isCloud || !isPublished} onChange={toggleCollab} />}
+            control={<Checkbox checked={isCollab} disabled={!isCloud} onChange={toggleCollab} />}
             label="Collab"
           />}
           <FormHelperText>
-            Published Collab documents are open for anyone to edit.
+            Collab documents are open for anyone to edit.
           </FormHelperText>
         </DialogContent>
         <DialogActions>
