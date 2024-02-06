@@ -2,12 +2,13 @@
 import { useDispatch, actions, useSelector } from "@/store";
 import { User, UserDocument } from "@/types";
 import { CloudOff, Share } from "@mui/icons-material";
-import { IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Tabs, Tab, FormControl, FormLabel, FormControlLabel, Checkbox, FormHelperText, Slider, RadioGroup, Radio, useMediaQuery, ListItemIcon, ListItemText, MenuItem, InputLabel, Select, Typography } from "@mui/material";
+import { IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Tabs, Tab, FormControl, FormLabel, FormControlLabel, Checkbox, FormHelperText, Slider, RadioGroup, Radio, useMediaQuery, ListItemIcon, ListItemText, MenuItem, Select, Typography } from "@mui/material";
 import UsersAutocomplete from "../UsersAutocomplete";
 import { useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import useFixedBodyScroll from "@/hooks/useFixedBodyScroll";
 import UploadDocument from "./Upload";
+import { useSearchParams } from "next/navigation";
 
 const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
   const dispatch = useDispatch();
@@ -26,11 +27,13 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const searchParams = useSearchParams();
 
   const openShareDialog = () => {
     if (closeMenu) closeMenu();
     setFormat("view");
-    setRevision(cloudDocument?.head ?? null);
+    const v = searchParams.get("v");
+    setRevision(v || (cloudDocument?.head ?? null));
     setShareDialogOpen(true);
   };
 
