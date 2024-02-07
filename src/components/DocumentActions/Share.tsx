@@ -109,7 +109,7 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
       <ListItemText>Share</ListItemText>
     </MenuItem> : <IconButton aria-label="Share Document" onClick={openShareDialog} size="small"><Share /></IconButton>}
     <Dialog open={shareDialogOpen} onClose={closeShareDialog} fullWidth maxWidth="xs" fullScreen={fullScreen}>
-      <Box component="form" onSubmit={handleShare} ref={shareFormRef}>
+      <Box component="form" onSubmit={handleShare} ref={shareFormRef} sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
         <DialogTitle>Share Document</DialogTitle>
         <DialogContent>
           <Tabs

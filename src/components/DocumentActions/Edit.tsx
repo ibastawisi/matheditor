@@ -125,7 +125,7 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
       <ListItemText>Edit</ListItemText>
     </MenuItem> : <IconButton aria-label="Edit Document" onClick={openEditDialog} size="small"><Settings /></IconButton>}
     <Dialog open={editDialogOpen} onClose={closeEditDialog} fullWidth maxWidth="xs" fullScreen={fullScreen}>
-      <form onSubmit={formik.handleSubmit} noValidate autoComplete="off" spellCheck="false">
+      <Box component="form" onSubmit={formik.handleSubmit} noValidate autoComplete="off" spellCheck="false" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
         <DialogTitle>Edit Document</DialogTitle>
         <DialogContent sx={{ "& .MuiFormHelperText-root": { overflow: "hidden", textOverflow: "ellipsis" } }}>
           <TextField margin="normal" size="small" fullWidth
@@ -174,7 +174,7 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
           <Button onClick={closeEditDialog}>Cancel</Button>
           <Button type='submit'>Save</Button>
         </DialogActions>
-      </form>
+      </Box>
     </Dialog>
   </>
 }
