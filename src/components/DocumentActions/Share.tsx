@@ -1,6 +1,6 @@
 "use client"
 import { useDispatch, actions, useSelector } from "@/store";
-import { User, UserDocument } from "@/types";
+import { DocumentUpdateInput, User, UserDocument } from "@/types";
 import { CloudOff, ContentCopy, Share } from "@mui/icons-material";
 import { IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Tabs, Tab, FormControl, FormLabel, FormControlLabel, Checkbox, FormHelperText, Slider, RadioGroup, Radio, useMediaQuery, ListItemIcon, ListItemText, MenuItem, Select, Typography, Switch } from "@mui/material";
 import UsersAutocomplete from "../UsersAutocomplete";
@@ -18,6 +18,8 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
   const isCloud = !!cloudDocument;
   const isAuthor = isCloud ? cloudDocument.author.id === user?.id : true
   const isCollab = isCloud && cloudDocument.collab;
+  const isPrivate = isCloud && cloudDocument.private;
+  const isPublished = isCloud && cloudDocument.published;
   const id = userDocument.id;
   const name = cloudDocument?.name ?? localDocument?.name ?? "Untitled Document";
   const handle = cloudDocument?.handle ?? localDocument?.handle ?? null;
@@ -85,13 +87,23 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
     setFormat(newValue);
   };
 
+  const togglePrivate = async () => {
+    if (!isCloud) return dispatch(actions.announce({ message: "Please save document to the cloud first" }));
+    const payload: { id: string, partial: DocumentUpdateInput } = { id, partial: { private: !isPrivate } };
+    if (isPublished) payload.partial.published = false;
+    if (isCollab) payload.partial.collab = false;
+    const response = await dispatch(actions.updateCloudDocument(payload));
+    if (response.type === actions.updateCloudDocument.fulfilled.type) {
+      dispatch(actions.announce({ message: `Document is now ${payload.partial.private ? "private" : "shared by link"}` }));
+    }
+  }
+
   const toggleCollab = async () => {
     if (!isCloud) return dispatch(actions.announce({ message: "Please save document to the cloud first" }));
     const payload = { id, partial: { collab: !isCollab } };
     const response = await dispatch(actions.updateCloudDocument(payload));
     if (response.type === actions.updateCloudDocument.fulfilled.type) {
-      dispatch(actions.announce({ message: `Document collaboration mode is ${isCollab ? "off" : "on"}` }));
-      dispatch(actions.updateLocalDocument({ id, partial: { collab: !isCollab } }))
+      dispatch(actions.announce({ message: `Document collaboration mode is ${payload.partial.collab ? "enabled" : "disabled"}` }));
     }
   };
 
@@ -134,36 +146,46 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
                   {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString()}</MenuItem>)}
                 </Select>
               </FormControl>
-              <FormControl fullWidth>
+              <FormControl fullWidth disabled={!isAuthor}>
                 <FormLabel>Permissions</FormLabel>
-                <FormControlLabel control={<Checkbox checked={true} disabled={true} />} label="Anyone with the link" />
-                <FormHelperText>only author and coauthors can fork non-published documents</FormHelperText>
+                <FormControlLabel
+                  control={<Switch checked={!isPrivate} onChange={togglePrivate} />}
+                  label={!isPrivate ? "Anyone with the link" : "Only author and coauthors"}
+                />
               </FormControl>
             </Box>}
             {formats.includes("embed") && format === "embed" && <Box sx={{ p: 2 }}>
-              <FormControl fullWidth sx={{ gap: 1, mb: 2 }}>
+              <FormControl fullWidth sx={{ gap: 1, mb: 2 }} disabled={isPrivate}>
                 <FormLabel>Revision</FormLabel>
                 <Select size="small" value={revision} onChange={e => setRevision(e.target.value)}>
                   {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString()}</MenuItem>)}
                 </Select>
               </FormControl>
-              <FormControl fullWidth>
+              <FormControl fullWidth disabled={!isAuthor}>
                 <FormLabel>Permissions</FormLabel>
-                <FormControlLabel control={<Checkbox checked={true} disabled={true} />} label="Anyone with the link" />
+                <FormControlLabel
+                  control={<Switch checked={!isPrivate} onChange={togglePrivate} />}
+                  label={!isPrivate ? "Anyone with the link" : "Only author and coauthors"}
+                />
+                {isPrivate && <FormHelperText>Private documents can not be embedded</FormHelperText>}
               </FormControl>
             </Box>}
             {formats.includes("pdf") && format === "pdf" && <Box sx={{ p: 2 }}>
-              <FormControl fullWidth sx={{ gap: 1, mb: 2 }}>
+              <FormControl fullWidth sx={{ gap: 1, mb: 2 }} disabled={isPrivate}>
                 <FormLabel>Revision</FormLabel>
                 <Select size="small" value={revision} onChange={e => setRevision(e.target.value)}>
                   {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString()}</MenuItem>)}
                 </Select>
               </FormControl>
-              <FormControl fullWidth>
+              <FormControl fullWidth disabled={!isAuthor}>
                 <FormLabel>Permissions</FormLabel>
-                <FormControlLabel control={<Checkbox checked={true} disabled={true} />} label="Anyone with the link" />
+                <FormControlLabel
+                  control={<Switch checked={!isPrivate} onChange={togglePrivate} />}
+                  label={!isPrivate ? "Anyone with the link" : "Only author and coauthors"}
+                />
+                {isPrivate && <FormHelperText>Private documents can not be shared as PDF</FormHelperText>}
               </FormControl>
-              <FormControl fullWidth>
+              <FormControl fullWidth disabled={isPrivate}>
                 <FormLabel>Scale</FormLabel>
                 <Slider
                   name='scale'
@@ -174,16 +196,17 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
                   marks
                   min={0.1}
                   max={2}
+                  disabled={isPrivate}
                 />
               </FormControl>
-              <FormControl fullWidth>
+              <FormControl fullWidth disabled={isPrivate}>
                 <FormLabel>Orientation</FormLabel>
                 <RadioGroup row aria-label="orientation" name="landscape" defaultValue="false">
                   <FormControlLabel value="false" control={<Radio />} label="Portrait" />
                   <FormControlLabel value="true" control={<Radio />} label="Landscape" />
                 </RadioGroup>
               </FormControl>
-              <FormControl fullWidth>
+              <FormControl fullWidth disabled={isPrivate}>
                 <FormLabel>Size</FormLabel>
                 <RadioGroup row aria-label="size" name="format" defaultValue="a4">
                   <FormControlLabel value="letter" control={<Radio />} label="Letter" />
@@ -192,11 +215,11 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
               </FormControl>
             </Box>}
             {formats.includes("edit") && format === "edit" && <Box sx={{ p: 2 }}>
-              <FormControl fullWidth sx={{ gap: 1, mb: 2 }}>
+              <FormControl fullWidth sx={{ gap: 1, mb: 2 }} disabled={!isAuthor}>
                 <FormLabel sx={{ mb: 0.5 }}>Permissions</FormLabel>
-                {isAuthor && <UsersAutocomplete label='Coauthors' placeholder='Email' value={cloudDocument?.coauthors ?? []} onChange={updateCoauthors} />}
+                <UsersAutocomplete label='Coauthors' placeholder='Email' value={cloudDocument?.coauthors ?? []} onChange={updateCoauthors} disabled={!isAuthor} />
                 <FormControlLabel
-                  control={<Switch checked={isCollab} disabled={!isAuthor} onChange={toggleCollab} />}
+                  control={<Switch checked={isCollab} onChange={toggleCollab} />}
                   label={isCollab ? "Anyone with the link" : "Only author and coauthors"}
                 />
               </FormControl>
@@ -205,13 +228,14 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
               <Button
                 startIcon={<ContentCopy />}
                 variant="outlined"
+                disabled={!cloudDocument || (isPrivate && format === "embed") || (isPrivate && format === "pdf")}
                 onClick={copyLink} fullWidth>Copy Link</Button>
             </Box>}
           </>}
         </DialogContent>
         <DialogActions>
           <Button onClick={closeShareDialog}>Cancel</Button>
-          <Button type='submit'>Share</Button>
+          <Button type='submit' disabled={!cloudDocument || (isPrivate && format === "embed") || (isPrivate && format === "pdf")}>Share</Button>
         </DialogActions>
       </Box>
     </Dialog>

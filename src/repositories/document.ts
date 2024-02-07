@@ -14,6 +14,7 @@ const findPublishedDocuments = async () => {
       updatedAt: true,
       published: true,
       collab: true,
+      private: true,
       baseId: true,
       head: true,
       revisions: {
@@ -87,6 +88,7 @@ const findDocumentsByAuthorId = async (authorId: string) => {
       updatedAt: true,
       published: true,
       collab: true,
+      private: true,
       baseId: true,
       head: true,
       revisions: {
@@ -167,6 +169,7 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
       updatedAt: true,
       published: true,
       collab: true,
+      private: true,
       baseId: true,
       head: true,
       revisions: {
@@ -245,6 +248,7 @@ const findDocumentsByCoauthorId = async (authorId: string) => {
               updatedAt: true,
               published: true,
               collab: true,
+              private: true,
               baseId: true,
               head: true,
               revisions: {
@@ -322,6 +326,7 @@ const findEditorDocument = async (handle: string) => {
       updatedAt: true,
       published: true,
       collab: true,
+      private: true,
       baseId: true,
       head: true,
     },
@@ -351,6 +356,7 @@ const findUserDocument = async (handle: string) => {
       updatedAt: true,
       published: true,
       collab: true,
+      private: true,
       baseId: true,
       head: true,
       revisions: {

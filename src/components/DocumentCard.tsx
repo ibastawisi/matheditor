@@ -5,7 +5,7 @@ import { LocalDocumentRevision, User, UserDocument, UserDocumentRevision } from 
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, Badge } from '@mui/material';
-import { Article, MobileFriendly, CloudDone, CloudSync, Cloud, Public, Workspaces } from '@mui/icons-material';
+import { Article, MobileFriendly, CloudDone, CloudSync, Cloud, Public, Workspaces, Security } from '@mui/icons-material';
 
 import dynamic from "next/dynamic";
 import { useSelector } from 'react-redux';
@@ -22,6 +22,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
   const isUpToDate = isUploaded && localDocument.updatedAt === cloudDocument.updatedAt;
   const isPublished = isCloud && cloudDocument.published;
   const isCollab = isPublished && cloudDocument.collab;
+  const isPrivate = isCloud && cloudDocument.private;
   const isAuthor = isCloud ? cloudDocument.author.id === user?.id : true
   const isCoauthor = isCloud ? cloudDocument.coauthors.some(u => u.id === user?.id) : false;
 
@@ -74,6 +75,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
         {isCloudOnly && !isCollab && (isAuthor || isCoauthor) && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
         {isPublished && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Public />} label="Published" />}
         {isCollab && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Workspaces />} label="Collab" />}
+        {isPrivate && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Security />} label="Private" />}
         {userDocument && <DocumentActionMenu userDocument={userDocument} user={user} />}
       </CardActions>
     </Card >

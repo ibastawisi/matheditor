@@ -1,6 +1,6 @@
 "use client"
 import { useDispatch, actions, useSelector } from "@/store";
-import { UserDocument, EditorDocument, CheckHandleResponse, DocumentUpdateInput } from "@/types";
+import { UserDocument, EditorDocument, CheckHandleResponse, DocumentUpdateInput, User } from "@/types";
 import { CloudOff, Settings } from "@mui/icons-material";
 import { IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControlLabel, Checkbox, FormHelperText, useMediaQuery, ListItemIcon, ListItemText, MenuItem, TextField, Box, Typography } from "@mui/material";
 import { useCallback, useState } from "react";
@@ -11,6 +11,7 @@ import * as yup from 'yup';
 import { validate } from "uuid";
 import { debounce } from '@mui/material/utils';
 import UploadDocument from "./Upload";
+import UsersAutocomplete from "../UsersAutocomplete";
 
 const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
   const dispatch = useDispatch();
@@ -22,18 +23,29 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
   const isUploaded = isLocal && isCloud;
   const isPublished = isCloud && cloudDocument.published;
   const isCollab = isCloud && cloudDocument.collab;
+  const isPrivate = isCloud && cloudDocument.private;
   const isAuthor = isCloud ? cloudDocument.author.id === user?.id : true
   const id = userDocument.id;
   const name = cloudDocument?.name ?? localDocument?.name ?? "Untitled Document";
   const handle = cloudDocument?.handle ?? localDocument?.handle ?? null;
+
+  const togglePrivate = async () => {
+    if (!isCloud) return dispatch(actions.announce({ message: "Please save document to the cloud first" }));
+    const payload: { id: string, partial: DocumentUpdateInput } = { id, partial: { private: !isPrivate } };
+    if (isPublished) payload.partial.published = false;
+    if (isCollab) payload.partial.collab = false;
+    const response = await dispatch(actions.updateCloudDocument(payload));
+    if (response.type === actions.updateCloudDocument.fulfilled.type) {
+      dispatch(actions.announce({ message: `Document is now ${payload.partial.private ? "private" : "shared by link"}` }));
+    }
+  }
 
   const togglePublished = async () => {
     if (!isCloud) return dispatch(actions.announce({ message: "Please save document to the cloud first" }));
     const payload: { id: string, partial: DocumentUpdateInput } = { id, partial: { published: !isPublished } };
     const response = await dispatch(actions.updateCloudDocument(payload));
     if (response.type === actions.updateCloudDocument.fulfilled.type) {
-      dispatch(actions.announce({ message: `Document ${isPublished ? "unpublished" : "published"} successfully` }));
-      dispatch(actions.updateLocalDocument({ id, partial: payload.partial }))
+      dispatch(actions.announce({ message: `Document ${payload.partial.published ? "published" : "unpublished"}` }));
     }
   };
 
@@ -42,10 +54,15 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
     const payload = { id, partial: { collab: !isCollab } };
     const response = await dispatch(actions.updateCloudDocument(payload));
     if (response.type === actions.updateCloudDocument.fulfilled.type) {
-      dispatch(actions.announce({ message: `Document collaboration mode is ${isCollab ? "off" : "on"}` }));
-      dispatch(actions.updateLocalDocument({ id, partial: { collab: !isCollab } }))
+      dispatch(actions.announce({ message: `Document collaboration mode is ${payload.partial.collab ? "enabled" : "disabled"}` }));
     }
   };
+
+  const updateCoauthors = (users: (User | string)[]) => {
+    if (!cloudDocument) return dispatch(actions.announce({ message: "Please save document to the cloud first" }));
+    const coauthors = users.map(u => typeof u === "string" ? u : u.email);
+    dispatch(actions.updateCloudDocument({ id: cloudDocument.id, partial: { coauthors } }));
+  }
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
@@ -155,15 +172,23 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
             error={!!formik.errors.handle}
             helperText={formik.errors.handle ?? `https://matheditor.me/view/${formik.values.handle || id}`}
           />
+          {isAuthor && <UsersAutocomplete label='Coauthors' placeholder='Email' value={cloudDocument?.coauthors ?? []} onChange={updateCoauthors} />}
           {isAuthor && <FormControlLabel
-            control={<Checkbox checked={isPublished} disabled={!isCloud} onChange={togglePublished} />}
+            control={<Checkbox checked={isPrivate} disabled={!isCloud} onChange={togglePrivate} />}
+            label="Private"
+          />}
+          <FormHelperText>
+            Private documents are only accessible to authors and coauthors.
+          </FormHelperText>
+          {isAuthor && <FormControlLabel
+            control={<Checkbox checked={isPublished} disabled={!isCloud || isPrivate} onChange={togglePublished} />}
             label="Published"
           />}
           <FormHelperText>
             Published documents are showcased on the homepage, can be forked by anyone, and can be found by search engines.
           </FormHelperText>
           {isAuthor && <FormControlLabel
-            control={<Checkbox checked={isCollab} disabled={!isCloud} onChange={toggleCollab} />}
+            control={<Checkbox checked={isCollab} disabled={!isCloud || isPrivate} onChange={toggleCollab} />}
             label="Collab"
           />}
           <FormHelperText>

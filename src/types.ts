@@ -34,6 +34,7 @@ export interface EditorDocument {
   updatedAt: string | Date;
   published?: boolean;
   collab?: boolean;
+  private?: boolean;
   handle?: string | null;
   baseId?: string | null;
 }

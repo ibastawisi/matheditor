@@ -17,6 +17,7 @@ model Document {
   authorId  String              @db.Uuid
   published Boolean             @default(false)
   collab    Boolean             @default(false)
+  private   Boolean             @default(false)
   baseId    String?             @db.Uuid
   base      Document?           @relation("BaseForks", fields: [baseId], references: [id])
   forks     Document[]          @relation("BaseForks")

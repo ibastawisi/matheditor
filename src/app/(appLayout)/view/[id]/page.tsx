@@ -38,6 +38,17 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 export default async function Page({ params, searchParams }: { params: { id: string }, searchParams: { [key: string]: string | string[] | undefined } }) {
   const document = await findUserDocument(params.id);
   if (!document) notFound();
+  if (document.private) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return notFound();
+    }
+    const isAuthor = session.user.id === document.author.id;
+    const isCoauthor = document.coauthors.some(coauthor => coauthor.id === session.user.id);
+    if (!isAuthor && !isCoauthor) {
+      return notFound();
+    }
+  }
   const revision = searchParams["v"] ?? document.head
   const response = await fetch(`${process.env.PUBLIC_URL}/api/embed/${revision}`);
   if (!response.ok) throw new Error('Failed to generate HTML');
