@@ -90,7 +90,7 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
         </Grid>
       </AppDrawer>
       {showFork && <Transition in={slideTrigger} timeout={225}>
-        <Fab variant="extended" size='medium' component={RouterLink} prefetch={false} href={isEditable ? `/edit/${handle}` : `/fork/${handle}`}
+        <Fab variant="extended" size='medium' component={RouterLink} prefetch={false} href={isEditable ? `/edit/${handle}` : `/new/${handle}`}
           sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 16, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>
           {isEditable ? <Edit sx={{ mr: 1 }} /> : <FileCopy sx={{ mr: 1 }} />}{isEditable ? 'Edit' : 'Fork'}
         </Fab>

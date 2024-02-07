@@ -77,13 +77,8 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
     if (!isCloud) return dispatch(actions.announce({ message: "Please save document to the cloud first" }));
     const url = getShareUrl(formdata);
     const shareData = { title: name, url: url.toString() };
-    try {
-      closeShareDialog();
-      await navigator.share(shareData);
-    } catch (err) {
-      dispatch(actions.announce({ message: "Failed to open share dialog, copying link to clipboard" }));
-      await copyLink();
-    }
+    closeShareDialog();
+    await navigator.share(shareData);
   };
 
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
