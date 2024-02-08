@@ -1,11 +1,47 @@
+import type { OgMetadata } from "@/app/api/og/route";
 import htmr from 'htmr';
 import EmbedDocument from "@/components/EmbedDocument";
 import { notFound } from 'next/navigation'
 import { findUserDocument } from '@/repositories/document';
 import SplashScreen from '@/components/SplashScreen';
+import { cache } from 'react';
+import type { Metadata } from "next";
+
+const getCachedUserDocument = cache(async (id: string) => await findUserDocument(id));
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  if (!params.id) return {
+    title: "Embed Document | Math Editor",
+    description: "Embed a document on Math Editor",
+  };
+  const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
+  const document = await getCachedUserDocument(params.id);
+  if (document) {
+    if (document?.private) {
+      metadata.title = 'Private Document | Math Editor';
+    } else {
+      metadata.title = `${document.name} | Math Editor`;
+      metadata.subtitle = new Date(document.createdAt).toDateString()
+      metadata.description = `${document.name} | Math Editor`;
+      metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
+    }
+  } else {
+    metadata.subtitle = 'Document not found';
+  }
+  const { title, subtitle, description } = metadata;
+  const image = `/api/og?metadata=${encodeURIComponent(JSON.stringify(metadata))}`;
+
+  return {
+    title: `${title}`,
+    description: description ?? subtitle,
+    openGraph: {
+      images: [image],
+    },
+  }
+}
 
 export default async function Page({ params, searchParams }: { params: { id: string }, searchParams: { [key: string]: string | string[] | undefined } }) {
-  const document = await findUserDocument(params.id);
+  const document = await getCachedUserDocument(params.id);
   if (!document) notFound();
   if (document.private) return <SplashScreen title="This document is private" />;
   const revision = searchParams["v"] ?? document.head

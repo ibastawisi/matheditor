@@ -20,14 +20,6 @@ const config = {
   async rewrites() {
     return [
       {
-        source: '/new/:path*',
-        destination: '/new',
-      },
-      {
-        source: '/edit/:path*',
-        destination: '/edit',
-      },
-      {
         source: '/pdf/:path*',
         destination: '/api/pdf/:path*',
       }

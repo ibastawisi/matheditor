@@ -20,7 +20,6 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     metadata.user = { name: user.name, image: user.image!, email: user.email };
   } else {
     metadata.subtitle = 'User not found';
-    return metadata;
   }
 
   const { title, subtitle, description } = metadata;
