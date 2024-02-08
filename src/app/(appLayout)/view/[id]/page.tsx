@@ -6,6 +6,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import SplashScreen from "@/components/SplashScreen";
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
@@ -17,12 +18,16 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     if (document.private) {
       const session = await getServerSession(authOptions);
       if (!session?.user) {
-        throw new Error('This document is private, if you have access, please sign in to view it');
+        metadata.title = 'Private Document | Math Editor';
+        metadata.subtitle = 'if you have access, please sign in to view it';
+        return metadata;
       }
       const isAuthor = session.user.id === document.author.id;
       const isCoauthor = document.coauthors.some(coauthor => coauthor.id === session.user.id);
       if (!isAuthor && !isCoauthor) {
-        throw new Error('You are not authorized to view this document');
+        metadata.title = 'Private Document | Math Editor';
+        metadata.subtitle = 'You are not authorized to view this document';
+        return metadata;
       }
     }
     metadata.title = `${document.name} | Math Editor`;
@@ -51,12 +56,12 @@ export default async function Page({ params, searchParams }: { params: { id: str
   if (document.private) {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      throw new Error('This document is private, if you have access, please sign in to view it');
+      return <SplashScreen title="This document is private" subtitle="if you have access, please sign in to view it" />
     }
     const isAuthor = session.user.id === document.author.id;
     const isCoauthor = document.coauthors.some(coauthor => coauthor.id === session.user.id);
     if (!isAuthor && !isCoauthor) {
-      throw new Error('You are not authorized to view this document');
+      return <SplashScreen title="This document is private" subtitle="You are not authorized to view this document" />
     }
   }
   const revision = searchParams["v"] ?? document.head
