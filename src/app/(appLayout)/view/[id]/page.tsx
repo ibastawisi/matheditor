@@ -7,36 +7,36 @@ import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import SplashScreen from "@/components/SplashScreen";
+import { cache } from "react";
+
+const getCachedUserDocument = cache(async (id: string) => await findUserDocument(id));
+const getCachedSession = cache(async () => await getServerSession(authOptions));
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
-  try {
-    const document = await findUserDocument(params.id);
-    if (!document) {
-      return notFound();
-    }
-    if (document.private) {
-      const session = await getServerSession(authOptions);
-      if (!session?.user) {
-        metadata.title = 'Private Document | Math Editor';
-        metadata.subtitle = 'if you have access, please sign in to view it';
-        return metadata;
-      }
-      const isAuthor = session.user.id === document.author.id;
-      const isCoauthor = document.coauthors.some(coauthor => coauthor.id === session.user.id);
-      if (!isAuthor && !isCoauthor) {
-        metadata.title = 'Private Document | Math Editor';
-        metadata.subtitle = 'You are not authorized to view this document';
-        return metadata;
-      }
-    }
-    metadata.title = `${document.name} | Math Editor`;
-    metadata.subtitle = new Date(document.createdAt).toDateString()
-    metadata.description = `${document.name} | Math Editor`;
-    metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
-  } catch (error) {
-    metadata.subtitle = 'Internal Server Error';
+  const document = await getCachedUserDocument(params.id);
+  if (!document) {
+    return notFound();
   }
+  if (document.private) {
+    const session = await getCachedSession();
+    if (!session?.user) {
+      metadata.title = 'Private Document | Math Editor';
+      metadata.subtitle = 'if you have access, please sign in to view it';
+      return metadata;
+    }
+    const isAuthor = session.user.id === document.author.id;
+    const isCoauthor = document.coauthors.some(coauthor => coauthor.id === session.user.id);
+    if (!isAuthor && !isCoauthor) {
+      metadata.title = 'Private Document | Math Editor';
+      metadata.subtitle = 'You are not authorized to view this document';
+      return metadata;
+    }
+  }
+  metadata.title = `${document.name} | Math Editor`;
+  metadata.subtitle = new Date(document.createdAt).toDateString()
+  metadata.description = `${document.name} | Math Editor`;
+  metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
 
   const { title, subtitle, description } = metadata;
   const image = `/api/og?metadata=${encodeURIComponent(JSON.stringify(metadata))}`;
@@ -51,10 +51,10 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function Page({ params, searchParams }: { params: { id: string }, searchParams: { [key: string]: string | string[] | undefined } }) {
-  const document = await findUserDocument(params.id);
+  const document = await getCachedUserDocument(params.id);
   if (!document) notFound();
   if (document.private) {
-    const session = await getServerSession(authOptions);
+    const session = await getCachedSession();
     if (!session?.user) {
       return <SplashScreen title="This document is private" subtitle="if you have access, please sign in to view it" />
     }

@@ -6,21 +6,21 @@ import User from "@/components/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { findUser } from "@/repositories/user";
+import { cache } from "react";
+
+const getCachedUser = cache(async (id: string) => await findUser(id));
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
-  try {
-    const user = await findUser(params.id);
-    if (user) {
-      metadata.title = `${user.name} | Math Editor`;
-      metadata.subtitle = new Date(user.createdAt).toDateString()
-      metadata.description = `${user.name} | Math Editor`;
-      metadata.user = { name: user.name, image: user.image!, email: user.email };
-    } else {
-      return notFound();
-    }
-  } catch (error) {
-    throw new Error('Internal Server Error');
+  const user = await getCachedUser(params.id);
+  if (user) {
+    metadata.title = `${user.name} | Math Editor`;
+    metadata.subtitle = new Date(user.createdAt).toDateString()
+    metadata.description = `${user.name} | Math Editor`;
+    metadata.user = { name: user.name, image: user.image!, email: user.email };
+  } else {
+    metadata.subtitle = 'User not found';
+    return metadata;
   }
 
   const { title, subtitle, description } = metadata;
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function Page({ params }: { params: { id: string } }) {
-  const user = await findUser(params.id);
+  const user = await getCachedUser(params.id);
   if (!user) notFound();
   const session = await getServerSession(authOptions);
   const documentsResponse = await findPublishedDocumentsByAuthorId(user.id);
