@@ -1,5 +1,5 @@
 import { Prisma, prisma } from "@/lib/prisma";
-import { EditorDocumentRevision } from "@/types";
+import { CloudDocumentRevision, EditorDocumentRevision } from "@/types";
 import { findUserDocument } from "./document";
 
 const findRevisionById = async (id: string) => {
@@ -18,6 +18,20 @@ const findRevisionById = async (id: string) => {
     data: revision.data as unknown as EditorDocumentRevision["data"],
   };
   return DocumentRevision as EditorDocumentRevision;
+}
+
+const findCloudDocumentRevisions = async (id: string) => {
+  const revisions = await prisma.revision.findMany({
+    where: { documentId: id },
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      documentId: true,
+      createdAt: true,
+      author: true,
+    }
+  });
+  return revisions as CloudDocumentRevision[];
 }
 
 const findRevisionAuthorId = async (id: string) => {
@@ -56,6 +70,7 @@ const deleteRevision = async (id: string) => {
 export {
   findRevisionById,
   findRevisionAuthorId,
+  findCloudDocumentRevisions,
   findDocumentHeadRevision,
   createRevision,
   updateRevision,

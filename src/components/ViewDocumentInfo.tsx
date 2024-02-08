@@ -81,13 +81,13 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
             {(isEditable) && <IconButton component={RouterLink} prefetch={false} href={`/edit/${handle}`} aria-label="Edit"><Edit /></IconButton>}
           </Box>
         </Box>
-        <Grid container spacing={1}>
+        {isEditable && <Grid container spacing={1}>
           <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center' }}>
             <History sx={{ mr: 1 }} />
             <Typography variant="h6">Revisions</Typography>
           </Grid>
           {cloudDocument.revisions.map(revision => <Grid item xs={12} key={revision.id}><ViewRevisionCard cloudDocument={cloudDocument} revision={revision} /></Grid>)}
-        </Grid>
+        </Grid>}
       </AppDrawer>
       {showFork && <Transition in={slideTrigger} timeout={225}>
         <Fab variant="extended" size='medium' component={RouterLink} prefetch={false} href={isEditable ? `/edit/${handle}` : `/new/${handle}`}

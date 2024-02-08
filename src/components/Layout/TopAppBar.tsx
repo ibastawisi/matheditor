@@ -124,7 +124,7 @@ const DrawerButton = () => {
   }
   
   const revisionsBadgeContent = isEdit ? revisions.length : cloudDocumentRevisions.length;
-  const showRevisionsBadge = revisionsBadgeContent > 0;
+  const showRevisionsBadge = revisionsBadgeContent > (isEdit ? 0 : 1);
 
   const toggleDrawer = () => { dispatch(actions.toggleDrawer()); }
 
