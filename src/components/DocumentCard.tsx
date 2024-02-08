@@ -33,8 +33,10 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
 
   const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
   const collabDocumentRevisions = cloudDocumentRevisions.filter(r => r.author.id !== cloudDocument?.author.id);
-  const showRevisionsBadge = collabDocumentRevisions.length > 0;
-  const revisionsBadgeContent = cloudDocumentRevisions.findIndex(r => r.id === cloudDocument?.head);
+  const showRevisionsNumber = isAuthor && collabDocumentRevisions.length > 0;
+  const showRevisionsDot = !isAuthor && isUploaded && localDocument.head !== cloudDocument.head;
+  const showRevisionsBadge = showRevisionsNumber || showRevisionsDot;
+  const revisionsBadgeContent = showRevisionsNumber ? cloudDocumentRevisions.findIndex(r => r.id === cloudDocument?.head) : 1;
 
   return (
     <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%", maxWidth: "100%", ...sx }}>
@@ -60,7 +62,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
             </>
           }
           avatar={showRevisionsBadge ?
-            <Badge badgeContent={revisionsBadgeContent} color="secondary">
+            <Badge badgeContent={revisionsBadgeContent} color="secondary" variant={showRevisionsDot ? "dot" : "standard"}>
               <Avatar sx={{ bgcolor: 'primary.main' }}><Article /></Avatar>
             </Badge> :
             <Avatar sx={{ bgcolor: 'primary.main' }}><Article /></Avatar>
