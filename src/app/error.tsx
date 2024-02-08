@@ -1,19 +1,8 @@
 "use client"
-import { useEffect } from 'react'
 import SplashScreen from '@/components/SplashScreen'
 
-export default function Error({
-  error,
-  reset,
-}: {
-  error: Error
-  reset: () => void
-}) {
-  useEffect(() => {
-    console.error(error)
-  }, [error])
-
+export default function Error({ error }: { error: Error, reset: () => void }) {
   return (
-    <SplashScreen title="Something went wrong" />
+    <SplashScreen title="Something went wrong" subtitle={error.message} />
   )
 }

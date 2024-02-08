@@ -17,10 +17,10 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       metadata.description = `${user.name} | Math Editor`;
       metadata.user = { name: user.name, image: user.image!, email: user.email };
     } else {
-      metadata.subtitle = 'User Not Found';
+      return notFound();
     }
   } catch (error) {
-    metadata.subtitle = 'Internal Server Error';
+    throw new Error('Internal Server Error');
   }
 
   const { title, subtitle, description } = metadata;

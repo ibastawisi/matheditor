@@ -11,14 +11,24 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
   try {
     const document = await findUserDocument(params.id);
-    if (document) {
-      metadata.title = `${document.name} | Math Editor`;
-      metadata.subtitle = new Date(document.createdAt).toDateString()
-      metadata.description = `${document.name} | Math Editor`;
-      metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
-    } else {
-      metadata.subtitle = 'Document Not Found';
+    if (!document) {
+      return notFound();
     }
+    if (document.private) {
+      const session = await getServerSession(authOptions);
+      if (!session?.user) {
+        throw new Error('This document is private, if you have access, please sign in to view it');
+      }
+      const isAuthor = session.user.id === document.author.id;
+      const isCoauthor = document.coauthors.some(coauthor => coauthor.id === session.user.id);
+      if (!isAuthor && !isCoauthor) {
+        throw new Error('You are not authorized to view this document');
+      }
+    }
+    metadata.title = `${document.name} | Math Editor`;
+    metadata.subtitle = new Date(document.createdAt).toDateString()
+    metadata.description = `${document.name} | Math Editor`;
+    metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
   } catch (error) {
     metadata.subtitle = 'Internal Server Error';
   }
@@ -41,12 +51,12 @@ export default async function Page({ params, searchParams }: { params: { id: str
   if (document.private) {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return notFound();
+      throw new Error('This document is private, if you have access, please sign in to view it');
     }
     const isAuthor = session.user.id === document.author.id;
     const isCoauthor = document.coauthors.some(coauthor => coauthor.id === session.user.id);
     if (!isAuthor && !isCoauthor) {
-      return notFound();
+      throw new Error('You are not authorized to view this document');
     }
   }
   const revision = searchParams["v"] ?? document.head

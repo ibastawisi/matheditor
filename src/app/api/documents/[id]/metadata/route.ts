@@ -1,9 +1,9 @@
 import { findUserDocument } from "@/repositories/document";
-import { GetDocumentHeadResponse } from "@/types";
+import { GetCloudDocumentResponse } from "@/types";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
-  const response: GetDocumentHeadResponse = {};
+  const response: GetCloudDocumentResponse = {};
   const url = new URL(request.url);
   const handle = url.pathname.split("/")[3];
   if (!handle) {
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
       response.error = "Document not found";
       return NextResponse.json(response, { status: 404 })
     }
-    response.data = userDocument.head;
+    response.data = userDocument;
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);

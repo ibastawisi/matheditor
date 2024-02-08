@@ -127,8 +127,8 @@ export interface CheckHandleResponse {
   error?: string;
 }
 
-export interface GetDocumentHeadResponse {
-  data?: string;
+export interface GetCloudDocumentResponse {
+  data?: CloudDocument;
   error?: string;
 }
 
