@@ -13,18 +13,12 @@ export const generateHtml = (data: SerializedEditorState) => new Promise<string>
     global.document = dom.document;
     global.DocumentFragment = dom.DocumentFragment;
     global.Element = dom.Element;
-    Object.assign(global, {
-      window: dom.window,
-      navigator: { ...dom.navigator, language: "en-US" },
-      MathfieldElement: { isFunction: () => false },
-    });
   }
   try {
     const editorState = editor.parseEditorState(data);
     editor.setEditorState(editorState);
     editorState.read(() => {
       let html = $generateHtmlFromNodes(editor);
-      Object.assign(global, { window: undefined });
       const stickyRegex = /<p\b[^>]*>(?:(?!<\/p>).)*<div\b[^>]*class="sticky-note-wrapper"[^>]*>(?:(?!<\/div>).)*<\/div>(?:(?!<\/p>).)*<\/p>/gs;
       const figureRegex = /<p\b[^>]*>(?:(?!<\/p>).)*<figure\b[^>]*>(?:(?!<\/figure>).)*<\/figure>(?:(?!<\/p>).)*<\/p>/gs;
       const stickies = html.match(stickyRegex) || [];
