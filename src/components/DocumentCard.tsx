@@ -1,14 +1,13 @@
 "use client"
 import * as React from 'react';
 import RouterLink from 'next/link'
-import { LocalDocumentRevision, User, UserDocument, UserDocumentRevision } from '@/types';
+import { User, UserDocument } from '@/types';
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, Badge } from '@mui/material';
-import { Article, MobileFriendly, CloudDone, CloudSync, Cloud, Public, Workspaces, Security } from '@mui/icons-material';
+import { Article, MobileFriendly, Cloud, Public, Workspaces, Security } from '@mui/icons-material';
 
 import dynamic from "next/dynamic";
-import { useSelector } from 'react-redux';
 const DocumentActionMenu = dynamic(() => import('@/components/DocumentActions/ActionMenu'), { ssr: false });
 
 const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: SxProps<Theme> | undefined }> = memo(({ userDocument, user, sx }) => {
@@ -74,8 +73,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
         {!document && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} label={<Skeleton variant="text" width={50} />} />}
         {!document && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} label={<Skeleton variant="text" width={70} />} />}
         {isLocalOnly && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Local" />}
-        {isUploaded && !isCollab && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={isUpToDate ? <CloudDone /> : <CloudSync />} label={isUpToDate ? "Up to date" : "Out of Sync"} />}
-        {isCloudOnly && !isCollab && (isAuthor || isCoauthor) && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
+        {isCloud && !isPublished && (isAuthor || isCoauthor) && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
         {isPublished && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Public />} label="Published" />}
         {isCollab && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Workspaces />} label="Collab" />}
         {isPrivate && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Security />} label="Private" />}
