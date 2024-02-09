@@ -347,7 +347,7 @@ const findEditorDocument = async (handle: string) => {
 }
 
 
-const findUserDocument = async (handle: string) => {
+const findUserDocument = async (handle: string, includeRevisions?: boolean) => {
   const document = await prisma.document.findUnique({
     where: validate(handle) ? { id: handle } : { handle: handle.toLowerCase() },
     select: {
@@ -412,7 +412,7 @@ const findUserDocument = async (handle: string) => {
   const cloudDocument: CloudDocument = {
     ...document,
     coauthors: document.coauthors.map((coauthor) => coauthor.user),
-    revisions: document.collab ? document.revisions : document.revisions.filter((revision) => revision.id === document.head)
+    revisions: (includeRevisions || document.collab) ? document.revisions : document.revisions.filter((revision) => revision.id === document.head)
   };
   return cloudDocument;
 }
@@ -428,7 +428,7 @@ const updateDocument = async (handle: string, data: Prisma.DocumentUncheckedUpda
     where: validate(handle) ? { id: handle } : { handle: handle.toLowerCase() },
     data
   });
-  return findUserDocument(handle);
+  return findUserDocument(handle, true);
 }
 
 const deleteDocument = async (handle: string) => {

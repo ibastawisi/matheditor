@@ -18,7 +18,6 @@ export interface Announcement {
 export interface AppState {
   user?: User;
   documents: UserDocument[];
-  revisions: LocalDocumentRevision[];
   announcements: Announcement[];
   alerts: Alert[];
   initialized: boolean;
@@ -39,8 +38,8 @@ export interface EditorDocument {
   baseId?: string | null;
 }
 
-export type LocalDocument = Omit<EditorDocument, "data">;
-export type CloudDocument = LocalDocument & { author: User; coauthors: User[], revisions: CloudDocumentRevision[] }
+export type LocalDocument = Omit<EditorDocument, "data"> & { revisions: LocalDocumentRevision[] };
+export type CloudDocument = Omit<EditorDocument, "data"> & { author: User; coauthors: User[], revisions: CloudDocumentRevision[] }
 export type UserDocument = { id: string; local?: LocalDocument; cloud?: CloudDocument; };
 
 export interface EditorDocumentRevision {

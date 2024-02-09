@@ -23,9 +23,7 @@ const RevisionCard: React.FC<{
   const cloudDocument = userDocument?.cloud;
   const isLocalDocument = !!localDocument;
   const isCloudDocument = !!cloudDocument;
-
-  const localRevisions = useSelector(state => state.revisions);
-  const localDocumentRevisions = localRevisions.filter(r => r.documentId === revision.documentId);
+  const localDocumentRevisions = localDocument?.revisions ?? [];
   const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
   const localRevision = localDocumentRevisions.find(r => r.id === revision.id);
   const isLocalRevision = !!localRevision;
@@ -143,7 +141,7 @@ const RevisionCard: React.FC<{
     const variant = isLocalRevision ? 'Local' : 'Cloud';
     const title = `Delete ${variant} Revision?`;
     const content = `Are you sure you want to delete this ${variant} revision?`;
-    const action = `dispatch(actions.delete${variant}Revision("${revision.id}"));`;
+    const action = `dispatch(actions.delete${variant}Revision({ id: "${revision.id}", documentId: "${revision.documentId}"))`;
     dispatch(actions.alert({ title, content, action }));
   }
 

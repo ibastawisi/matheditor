@@ -22,8 +22,10 @@ const NewDocument: React.FC = () => {
       const localResponse = await dispatch(actions.getLocalDocument(id));
       if (localResponse.type === actions.getLocalDocument.fulfilled.type) {
         const editorDocument = localResponse.payload as ReturnType<typeof actions.getLocalDocument.fulfilled>["payload"];
-        setBase({ id: editorDocument.id, local: editorDocument });
-        setData(editorDocument.data);
+        const { data, ...rest } = editorDocument;
+        const localDocument = { ...rest, revisions: [] };
+        setBase({ id: editorDocument.id, local: localDocument });
+        setData(data);
       } else {
         const cloudResponse = await dispatch(actions.forkCloudDocument(id));
         if (cloudResponse.type === actions.forkCloudDocument.fulfilled.type) {

@@ -7,7 +7,6 @@ import { validate } from 'uuid';
 
 const initialState: AppState = {
   documents: [],
-  revisions: [],
   announcements: [],
   alerts: [],
   initialized: false,
@@ -18,7 +17,6 @@ export const load = createAsyncThunk('app/load', async (_, thunkAPI) => {
   await Promise.allSettled([
     thunkAPI.dispatch(loadSession()),
     thunkAPI.dispatch(loadLocalDocuments()),
-    thunkAPI.dispatch(loadLocalRevisions()),
     thunkAPI.dispatch(loadCloudDocuments()),
   ]);
 });
@@ -44,25 +42,20 @@ export const loadSession = createAsyncThunk('app/loadSession', async (_, thunkAP
 export const loadLocalDocuments = createAsyncThunk('app/loadLocalDocuments', async (_, thunkAPI) => {
   try {
     const documents = await documentDB.getAll();
+    const revisions = await revisionDB.getAll();
+    const localRevisions = revisions.map(revision => {
+      const { data, ...rest } = revision;
+      return rest;
+    });
     const localDocuments: LocalDocument[] = documents.map(document => {
-      const { data, ...localDocument } = document;
+      const { data, ...rest } = document;
+      const localDocument: LocalDocument = {
+        ...rest,
+        revisions: localRevisions.filter(revision => revision.documentId === document.id)
+      };
       return localDocument;
     });
     return thunkAPI.fulfillWithValue(localDocuments);
-  } catch (error: any) {
-    console.error(error);
-    return thunkAPI.rejectWithValue(error.message);
-  }
-});
-
-export const loadLocalRevisions = createAsyncThunk('app/loadLocalRevisions', async (_, thunkAPI) => {
-  try {
-    const revisions = await revisionDB.getAll();
-    const localRevisions = revisions.map(revision => {
-      const { data, ...localRevision } = revision;
-      return localRevision;
-    });
-    return thunkAPI.fulfillWithValue(localRevisions);
   } catch (error: any) {
     console.error(error);
     return thunkAPI.rejectWithValue(error.message);
@@ -155,8 +148,9 @@ export const createLocalDocument = createAsyncThunk('app/createLocalDocument', a
   try {
     const id = await documentDB.add(document);
     if (!id) return thunkAPI.rejectWithValue('failed to create document');
-    const { data, ...localDocument } = document;
-    return thunkAPI.fulfillWithValue(localDocument as LocalDocument);
+    const { data, ...rest } = document;
+    const localDocument: LocalDocument = { ...rest, revisions: [] };
+    return thunkAPI.fulfillWithValue(localDocument);
   } catch (error: any) {
     console.error(error);
     return thunkAPI.rejectWithValue(error.message);
@@ -218,8 +212,7 @@ export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', a
     const { id, partial } = payloadCreator;
     const result = await documentDB.patch(id, partial);
     if (!result) return thunkAPI.rejectWithValue('failed to update document')
-    const { data, ...localDocument } = await documentDB.getByID(id);
-    return thunkAPI.fulfillWithValue(localDocument as LocalDocument);
+    return thunkAPI.fulfillWithValue(payloadCreator);
   } catch (error: any) {
     console.error(error);
     return thunkAPI.rejectWithValue(error.message);
@@ -257,10 +250,10 @@ export const deleteLocalDocument = createAsyncThunk('app/deleteLocalDocument', a
   }
 });
 
-export const deleteLocalRevision = createAsyncThunk('app/deleteLocalRevision', async (id: string, thunkAPI) => {
+export const deleteLocalRevision = createAsyncThunk('app/deleteLocalRevision', async (payloadCreator: { id: string, documentId: string }, thunkAPI) => {
   try {
-    await revisionDB.deleteByID(id);
-    return thunkAPI.fulfillWithValue(id);
+    await revisionDB.deleteByID(payloadCreator.id);
+    return thunkAPI.fulfillWithValue(payloadCreator);
   } catch (error: any) {
     console.error(error);
     return thunkAPI.rejectWithValue(error.message);
@@ -282,10 +275,10 @@ export const deleteCloudDocument = createAsyncThunk('app/deleteCloudDocument', a
   }
 });
 
-export const deleteCloudRevision = createAsyncThunk('app/deleteCloudRevision', async (id: string, thunkAPI) => {
+export const deleteCloudRevision = createAsyncThunk('app/deleteCloudRevision', async (payloadCreator: { id: string, documentId: string }, thunkAPI) => {
   try {
     NProgress.start();
-    const response = await fetch(`/api/revisions/${id}`, { method: 'DELETE', });
+    const response = await fetch(`/api/revisions/${payloadCreator.id}`, { method: 'DELETE', });
     const { data, error } = await response.json() as DeleteRevisionResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.rejectWithValue('failed to delete revision');
@@ -369,10 +362,6 @@ export const appSlice = createSlice({
           else userDocument.local = document;
         });
       })
-      .addCase(loadLocalRevisions.fulfilled, (state, action) => {
-        const revisions = action.payload;
-        state.revisions = revisions;
-      })
       .addCase(loadCloudDocuments.fulfilled, (state, action) => {
         const documents = action.payload;
         documents.forEach(document => {
@@ -401,7 +390,11 @@ export const appSlice = createSlice({
       })
       .addCase(createLocalRevision.fulfilled, (state, action) => {
         const revision = action.payload;
-        state.revisions.unshift(revision);
+        const userDocument = state.documents.find(doc => doc.id === revision.documentId);
+        if (!userDocument) return;
+        const localDocument = userDocument.local;
+        if (!localDocument) return;
+        localDocument.revisions.unshift(revision);
       })
       .addCase(createCloudDocument.fulfilled, (state, action) => {
         const document = action.payload;
@@ -424,10 +417,12 @@ export const appSlice = createSlice({
         state.announcements.push({ message });
       })
       .addCase(updateLocalDocument.fulfilled, (state, action) => {
-        const document = action.payload;
-        const userDocument = state.documents.find(doc => doc.id === document.id);
-        if (!userDocument) state.documents.unshift({ id: document.id, local: document });
-        else userDocument.local = document;
+        const { id, partial } = action.payload;
+        const userDocument = state.documents.find(doc => doc.id === id);
+        if (!userDocument) return;
+        const localDocument = userDocument.local;
+        if (!localDocument) return;
+        Object.assign(localDocument, partial);
       })
       .addCase(updateCloudDocument.fulfilled, (state, action) => {
         const document = action.payload;
@@ -447,10 +442,12 @@ export const appSlice = createSlice({
         else delete userDocument.local;
       })
       .addCase(deleteLocalRevision.fulfilled, (state, action) => {
-        const id = action.payload;
-        const revision = state.revisions.find(revision => revision.id === id);
-        if (!revision) return;
-        state.revisions.splice(state.revisions.indexOf(revision), 1);
+        const { id, documentId } = action.payload;
+        const userDocument = state.documents.find(doc => doc.id === documentId);
+        if (!userDocument) return;
+        const localDocument = userDocument.local;
+        if (!localDocument) return;
+        localDocument.revisions = localDocument.revisions.filter(revision => revision.id !== id);
       })
       .addCase(deleteCloudDocument.fulfilled, (state, action) => {
         const id = action.payload;

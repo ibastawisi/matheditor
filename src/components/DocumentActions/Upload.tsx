@@ -15,8 +15,7 @@ const UploadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem
   const isUploaded = isLocal && isCloud;
   const isUpToDate = isUploaded && localDocument.updatedAt === cloudDocument.updatedAt;
   const id = userDocument.id;
-  const localRevisions = useSelector(state => state.revisions);
-  const localDocumentRevisions = localRevisions.filter(r => r.documentId === userDocument.id);
+  const localDocumentRevisions = localDocument?.revisions ?? [];
   const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
   const isHeadLocalRevision = localDocumentRevisions.some(r => r.id === localDocument?.head);
   const isHeadCloudRevision = cloudDocumentRevisions.some(r => r.id === localDocument?.head);

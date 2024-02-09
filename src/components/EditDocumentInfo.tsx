@@ -20,8 +20,7 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
   const isLocalDocument = !!localDocument;
   const isCloudDocument = !!cloudDocument;
   const isUploaded = isLocalDocument && isCloudDocument;
-  const localRevisions = useSelector(state => state.revisions);
-  const localDocumentRevisions = localRevisions.filter(r => r.documentId === documentId);
+  const localDocumentRevisions = localDocument?.revisions ?? [];
   const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
   const isHeadLocalRevision = localDocumentRevisions.some(r => r.id === localDocument?.head);
   const isHeadCloudRevision = cloudDocumentRevisions.some(r => r.id === localDocument?.head);

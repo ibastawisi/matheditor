@@ -101,15 +101,13 @@ export default TopAppBar;
 const DrawerButton = () => {
   const dispatch = useDispatch();
   const pathname = usePathname();
-  const user = useSelector(state => state.user);
   const isEdit = pathname.startsWith('/edit');
   const showDrawerButton = !!['/edit', '/view'].find(path => pathname.startsWith(path));
   const documentId = showDrawerButton && pathname.split('/')[2]?.toLowerCase();
   const userDocument = useSelector(state => state.documents.find(d => d.id === documentId || (d.cloud || d.local)?.handle === documentId));
   const localDocument = userDocument?.local;
   const cloudDocument = userDocument?.cloud;
-  const localRevisions = useSelector(state => state.revisions);
-  const localDocumentRevisions = localRevisions.filter(r => r.documentId === userDocument?.id);
+  const localDocumentRevisions = localDocument?.revisions ?? [];
   const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
 
   const revisions: UserDocumentRevision[] = [...cloudDocumentRevisions];

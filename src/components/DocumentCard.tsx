@@ -5,7 +5,7 @@ import { User, UserDocument } from '@/types';
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, Badge } from '@mui/material';
-import { Article, MobileFriendly, Cloud, Public, Workspaces, Security } from '@mui/icons-material';
+import { Article, MobileFriendly, Cloud, Public, Workspaces, Security, CloudDone, CloudSync } from '@mui/icons-material';
 
 import dynamic from "next/dynamic";
 const DocumentActionMenu = dynamic(() => import('@/components/DocumentActions/ActionMenu'), { ssr: false });
@@ -30,6 +30,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
   const href = (isAuthor || isCoauthor || isCollab) ? `/edit/${handle}` : `/view/${handle}`;
   const authorName = cloudDocument?.author.name ?? user?.name ?? 'Local User';
 
+  const localDocumentRevisions = localDocument?.revisions ?? [];
   const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
   const collabDocumentRevisions = cloudDocumentRevisions.filter(r => r.author.id !== cloudDocument?.author.id);
   const cloudHeadIndex = cloudDocumentRevisions.findIndex(r => r.id === cloudDocument?.head);
@@ -73,7 +74,8 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
         {!document && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} label={<Skeleton variant="text" width={50} />} />}
         {!document && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} label={<Skeleton variant="text" width={70} />} />}
         {isLocalOnly && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Local" />}
-        {isCloud && !isPublished && (isAuthor || isCoauthor) && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
+        {isUploaded && !isCollab && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={isUpToDate ? <CloudDone /> : <CloudSync />} label={isUpToDate ? "Synced" : "Out of Sync"} />}
+        {isCloudOnly && !isCollab && (isAuthor || isCoauthor) && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
         {isPublished && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Public />} label="Published" />}
         {isCollab && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Workspaces />} label="Collab" />}
         {isPrivate && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Security />} label="Private" />}
