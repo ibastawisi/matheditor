@@ -7,20 +7,20 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const handle = url.pathname.split("/")[3];
   if (!handle) {
-    response.error = "Bad input";
+    response.error = { title: "Bad Request", subtitle: "No document handle provided"}
     return NextResponse.json(response, { status: 400 })
   }
   try {
     const userDocument = await findUserDocument(handle);
     if (!userDocument) {
-      response.error = "Document not found";
+      response.error = { title: "Not Found", subtitle: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
     response.data = userDocument;
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
-    response.error = "Something went wrong";
+    response.error = { title: "something went wrong", subtitle: "Please try again later" }
     return NextResponse.json(response, { status: 500 })
   }
 }

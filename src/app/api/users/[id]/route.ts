@@ -13,7 +13,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
   try {
     const user = await findUser(params.id);
     if (!user) {
-      response.error = "User Not found";
+      response.error = { title: "Not Found", subtitle: "User not found" }
       return NextResponse.json(response, { status: 404 })
     }
     response.data = {
@@ -26,7 +26,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
-    response.error = "Something went wrong";
+    response.error = { title: "Something went wrong", subtitle: "Please try again later" }
     return NextResponse.json(response, { status: 500 })
   }
 }
@@ -35,26 +35,26 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   const response: PatchUserResponse = {};
   try {
     if (!validate(params.id)) {
-      response.error = "Invalid id";
+      response.error = { title: "Bad Request", subtitle: "Invalid user id" }
       return NextResponse.json(response, { status: 400 })
     }
     const session = await getServerSession(authOptions);
     if (!session) {
-      response.error = "Not authenticated";
+      response.error = { title: "Unauthenticated", subtitle: "Please sign in to update your profile" }
       return NextResponse.json(response, { status: 401 })
     }
     const { user } = session;
     if (user.disabled) {
-      response.error = "Account is disabled for violating terms of service";
+      response.error = { title: "Account Disabled", subtitle: "Account is disabled for violating terms of service" }
       return NextResponse.json(response, { status: 403 })
     }
     if (user.id !== params.id) {
-      response.error = "Unauthorized";
+      response.error = { title: "Unauthorized", subtitle: "You are not authorized to update this profile" }
       return NextResponse.json(response, { status: 403 })
     }
     const body: UserUpdateInput = await request.json();
     if (!body) {
-      response.error = "Bad input";
+      response.error = { title: "Bad Request", subtitle: "No update provided" }
       return NextResponse.json(response, { status: 400 })
     }
 
@@ -81,7 +81,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
-    response.error = "Something went wrong";
+    response.error = { title: "Something went wrong", subtitle: "Please try again later" }
     return NextResponse.json(response, { status: 500 })
   }
 }
@@ -90,21 +90,21 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   const response: DeleteUserResponse = {};
   try {
     if (!validate(params.id)) {
-      response.error = "Invalid id";
+      response.error = { title: "Bad Request", subtitle: "Invalid user id" }
       return NextResponse.json(response, { status: 400 })
     }
     const session = await getServerSession(authOptions);
     if (!session) {
-      response.error = "Not authenticated, please login";
+      response.error = { title: "Unauthenticated", subtitle: "Please sign in to delete this user" }
       return NextResponse.json(response, { status: 401 })
     }
     const { user } = session;
     if (user.disabled) {
-      response.error = "Account is disabled for violating terms of service";
+      response.error = { title: "Account Disabled", subtitle: "Account is disabled for violating terms of service" }
       return NextResponse.json(response, { status: 403 })
     }
     if (user.role !== "admin") {
-      response.error = "Not authorized";
+      response.error = { title: "Unauthorized", subtitle: "You are not authorized to delete this user" }
       return NextResponse.json(response, { status: 403 })
     }
     await deleteUser(params.id);
@@ -112,21 +112,21 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
-    response.error = "Something went wrong";
+    response.error = { title: "Something went wrong", subtitle: "Please try again later" }
     return NextResponse.json(response, { status: 500 })
   }
 }
 
 const validateHandle = async (handle: string) => {
   if (handle.length < 3) {
-    return "Handle must be at least 3 characters long";
+    return { title: "Handle too short", subtitle: "Handle must be at least 3 characters" }
   }
   if (!/^[a-zA-Z0-9-]+$/.test(handle)) {
-    return "Handle must only contain letters, numbers, and dashes";
+    return { title: "Invalid Handle", subtitle: "Handle must only contain letters, numbers, and hyphens" }
   }
   const user = await findUser(handle);
   if (user) {
-    return "Handle is already taken";
+    return { title: "Handle already taken", subtitle: "Please choose a different handle" }
   }
   return null;
 }

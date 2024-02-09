@@ -14,37 +14,37 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const session = await getServerSession(authOptions);
     const userDocument = await findUserDocument(params.id);
     if (!userDocument) {
-      response.error = "Document not found";
+      response.error = { title: "Not Found", subtitle: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
     const isCollab = userDocument.collab;
     if (!session && !isCollab) {
-      response.error = "Not authenticated, please login"
+      response.error = { title: "This document is private", subtitle: "Please sign in to Edit it" }
       return NextResponse.json(response, { status: 401 })
     }
     if (session) {
       const { user } = session;
       if (user.disabled) {
-        response.error = "Account is disabled for violating terms of service";
+        response.error = { title: "Account Disabled", subtitle: "Account is disabled for violating terms of service" }
         return NextResponse.json(response, { status: 403 })
       }
       const isAuthor = user.id === userDocument.author.id;
       const isCoauthor = userDocument.coauthors.some(coauthor => coauthor.id === user.id);
       if (!isAuthor && !isCoauthor && !isCollab) {
-        response.error = "You don't have permission to edit this document";
+        response.error = { title: "This document is private", subtitle: "You are not authorized to Edit this document" }
         return NextResponse.json(response, { status: 403 })
       }
     }
     const editorDocument = await findEditorDocument(params.id);
     if (!editorDocument) {
-      response.error = "Document not found";
+      response.error = { title: "Not Found", subtitle: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
     response.data = editorDocument;
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
-    response.error = "Something went wrong";
+    response.error = { title: "Something went wrong", subtitle: "Please try again later" }
     return NextResponse.json(response, { status: 500 })
   }
 }
@@ -53,32 +53,32 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   const response: PatchDocumentResponse = {};
   try {
     if (!validate(params.id)) {
-      response.error = "Invalid id";
+      response.error = { title: "Bad Request", subtitle: "Invalid id" }
       return NextResponse.json(response, { status: 400 })
     }
     const session = await getServerSession(authOptions);
     if (!session) {
-      response.error = "Not authenticated, please login"
+      response.error = { title: "This document is private", subtitle: "Please sign in to Edit it" }
       return NextResponse.json(response, { status: 401 })
     }
     const { user } = session;
     if (user.disabled) {
-      response.error = "Account is disabled for violating terms of service";
+      response.error = { title: "Account Disabled", subtitle: "Account is disabled for violating terms of service"}
       return NextResponse.json(response, { status: 403 })
     }
     const userDocument = await findUserDocument(params.id);
     if (!userDocument) {
-      response.error = "Document not found";
+      response.error = { title: "Not Found", subtitle: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
     if (user.id !== userDocument.author.id) {
-      response.error = "You don't have permission to edit this document";
+      response.error = { title: "This document is private", subtitle: "You are not authorized to Edit this document" }
       return NextResponse.json(response, { status: 403 })
     }
 
     const body: DocumentUpdateInput = await request.json();
     if (!body) {
-      response.error = "Bad input"
+      response.error = { title: "Bad Request", subtitle: "Invalid request body" }
       return NextResponse.json(response, { status: 400 })
     }
 
@@ -145,7 +145,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
-    response.error = "Something went wrong";
+    response.error = { title: "Something went wrong", subtitle: "Please try again later" }
     return NextResponse.json(response, { status: 500 })
   }
 }
@@ -154,26 +154,26 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   const response: DeleteDocumentResponse = {};
   try {
     if (!validate(params.id)) {
-      response.error = "Invalid id";
+      response.error = { title: "Bad Request", subtitle: "Invalid id"}
       return NextResponse.json(response, { status: 400 })
     }
     const session = await getServerSession(authOptions);
     if (!session) {
-      response.error = "Not authenticated, please login"
+      response.error = { title: "This document is private", subtitle: "Please sign in to delete it" }
       return NextResponse.json(response, { status: 401 })
     }
     const { user } = session;
     if (user.disabled) {
-      response.error = "Account is disabled for violating terms of service";
+      response.error = { title: "Account Disabled", subtitle: "Account is disabled for violating terms of service" }
       return NextResponse.json(response, { status: 403 })
     }
     const userDocument = await findUserDocument(params.id);
     if (!userDocument) {
-      response.error = "Document not found";
+      response.error = { title: "Not Found", subtitle: "Document not found"}
       return NextResponse.json(response, { status: 404 })
     }
     if (user.id !== userDocument.author.id) {
-      response.error = "You don't have permission to delete this document";
+      response.error = { title: "This document is private", subtitle: "You are not authorized to delete this document" }
       return NextResponse.json(response, { status: 403 })
     }
     await deleteDocument(params.id);
@@ -181,21 +181,21 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
-    response.error = "Something went wrong";
+    response.error = { title: "Something went wrong", subtitle: "Please try again later" }
     return NextResponse.json(response, { status: 500 })
   }
 }
 
 const validateHandle = async (handle: string) => {
   if (handle.length < 3) {
-    return "Handle must be at least 3 characters long";
+    return { title: "Handle is too short", subtitle: "Handle must be at least 3 characters long" };
   }
   if (!/^[a-zA-Z0-9-]+$/.test(handle)) {
-    return "Handle must only contain letters, numbers, and dashes";
+    return { title: "Invalid Handle", subtitle: "Handle must only contain letters, numbers, and hyphens" };
   }
   const userDocument = await findUserDocument(handle);
   if (userDocument) {
-    return "Handle is already taken";
+    return { title: "Handle already in use", subtitle: "Please choose a different handle" };
   }
   return null;
 }

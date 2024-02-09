@@ -29,7 +29,7 @@ const DownloadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuit
   const handleSave = async () => {
     if (closeMenu) closeMenu();
     const editorDocument = await getEditorDocument();
-    if (!editorDocument) return dispatch(actions.announce({ message: "Can't find document data" }));
+    if (!editorDocument) return dispatch(actions.announce({ message: { title: "Document Not Found" } }));
     const blob = new Blob([JSON.stringify(editorDocument)], { type: "text/json" });
     const link = window.document.createElement("a");
 

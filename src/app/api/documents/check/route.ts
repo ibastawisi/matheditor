@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const handle = searchParams.get('handle');
   if (!handle) {
-    response.error = "Bad input";
+    response.error = { title: "Bad Request", subtitle: "No document handle provided"}
     return NextResponse.json(response, { status: 400 })
   }
   try {
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
-    response.error = "Something went wrong";
+    response.error = { title: "something went wrong", subtitle: "Please try again later" }
     return NextResponse.json(response, { status: 500 })
   }
 }

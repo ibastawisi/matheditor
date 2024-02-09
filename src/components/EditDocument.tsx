@@ -14,7 +14,7 @@ const EditDocumentInfo = dynamic(() => import('@/components/EditDocumentInfo'), 
 
 const EditDocument: React.FC = () => {
   const [document, setDocument] = useState<EditorDocument>();
-  const [error, setError] = useState<string>();
+  const [error, setError] = useState<{ title: string, subtitle?: string }>();
   const dispatch = useDispatch();
   const pathname = usePathname();
   const id = pathname.split('/')[2]?.toLowerCase();
@@ -46,14 +46,14 @@ const EditDocument: React.FC = () => {
           const editorDocumentRevision = { id: editorDocument.head, documentId: editorDocument.id, createdAt: editorDocument.updatedAt, data: editorDocument.data };
           dispatch(actions.createLocalRevision(editorDocumentRevision));
         } else if (cloudResponse.type === actions.getCloudDocument.rejected.type) {
-          setError(cloudResponse.payload as string);
+          setError(cloudResponse.payload as { title: string, subtitle?: string });
         }
       }
     }
-    id ? loadDocument(id) : setError("No document id provided");
+    id ? loadDocument(id) : setError({ title: "Document Not Found", subtitle: "No document id provided" });
   }, []);
 
-  if (error) return <SplashScreen title={error} />;
+  if (error) return <SplashScreen title={error.title} subtitle={error.subtitle} />;
   if (!document) return <SplashScreen title="Loading Document" />;
 
   return <>

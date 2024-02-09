@@ -42,7 +42,7 @@ const PwaUpdater = () => {
         ]
         wb.messageSW({ type: "CACHE_URLS", payload: { urlsToCache } }).then(() => {
           dispatch(actions.announce({
-            message: event.isUpdate ? "Update was installed." : "App is ready for offline use.",
+            message: event.isUpdate ? { title: "App Updated", subtitle: "Please refresh to see the latest version" } : { title: "App Ready", subtitle: "Content is cached for offline use" },
             timeout: 6000,
             action: {
               label: "Refresh",

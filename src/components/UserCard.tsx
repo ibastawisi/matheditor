@@ -26,7 +26,7 @@ const UserCard: React.FC<{ user?: User, sessionUser?: User }> = memo(({ user, se
       await navigator.share(shareData)
     } catch (err) {
       navigator.clipboard.writeText(shareData.url);
-      dispatch(actions.announce({ message: "Link copied to clipboard" }));
+      dispatch(actions.announce({ message: { title: "Link copied to clipboard" } }));
     }
   };
 

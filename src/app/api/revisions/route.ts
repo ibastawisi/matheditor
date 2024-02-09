@@ -13,23 +13,23 @@ export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
-      response.error = "Not authenticated, please login"
+      response.error = { title: "Unauthorized", subtitle: "Please sign in to save your revision to the cloud"}
       return NextResponse.json(response, { status: 401 })
     }
     const { user } = session;
     if (user.disabled) {
-      response.error = "Account is disabled for violating terms of service";
+      response.error = { title: "Account Disabled", subtitle: "Account is disabled for violating terms of service"}
       return NextResponse.json(response, { status: 403 })
     }
     const body = await request.json() as EditorDocumentRevision;
     if (!body) {
-      response.error = "Bad input"
+      response.error = { title: "Bad Request", subtitle: "No revision provided" }
       return NextResponse.json(response, { status: 400 })
     }
 
     const cloudDocument = await findUserDocument(body.documentId);
     if (!cloudDocument) {
-      response.error = "Document not found";
+      response.error = { title: "Not Found", subtitle: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
     const isAuthor = user.id === cloudDocument.author.id;
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     const isCollab = cloudDocument.collab;
 
     if (!isAuthor && !isCoauthor && !isCollab) {
-      response.error = "You don't have permission to review this document";
+      response.error = { title: "This document is private", subtitle: "You are not authorized to Edit this document" }
       return NextResponse.json(response, { status: 403 })
     }
 
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
-    response.error = "Something went wrong";
+    response.error = { title: "Something went wrong", subtitle: "Please try again later" }
     return NextResponse.json(response, { status: 500 })
   }
 }

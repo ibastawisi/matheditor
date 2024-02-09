@@ -100,6 +100,22 @@ header {
   height: 100%;
 }
 
+.splash-screen-content .MuiTypography-overline {
+  font-weight: 400;
+  font-size: 0.75rem;
+  line-height: 2.66;
+  letter-spacing: 0.08333em;
+  text-transform: uppercase;
+}
+
+.splash-screen-content .MuiTypography-subtitle2 {
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.57;
+  letter-spacing: 0.00714em;
+  min-height: 22px;
+}
+
 .google-revocation-link-placeholder {
   display: none;
 }

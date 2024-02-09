@@ -30,36 +30,51 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
   const handle = cloudDocument?.handle ?? localDocument?.handle ?? null;
 
   const togglePrivate = async () => {
-    if (!isCloud) return dispatch(actions.announce({ message: "Please save document to the cloud first" }));
+    if (!isCloud) return dispatch(actions.announce({ message: { title: "Document is not saved to the cloud", subtitle: "Please save document to the cloud first" } }));
     const payload: { id: string, partial: DocumentUpdateInput } = { id, partial: { private: !isPrivate } };
     if (isPublished) payload.partial.published = false;
     if (isCollab) payload.partial.collab = false;
     const response = await dispatch(actions.updateCloudDocument(payload));
     if (response.type === actions.updateCloudDocument.fulfilled.type) {
-      dispatch(actions.announce({ message: `Document is now ${payload.partial.private ? "private" : "shared by link"}` }));
+      dispatch(actions.announce({
+        message: {
+          title: "Document Privacy Updated",
+          subtitle: `Document is now ${payload.partial.private ? "private" : "shared by link"}`
+        }
+      }));
     }
-  }
+  };
 
   const togglePublished = async () => {
-    if (!isCloud) return dispatch(actions.announce({ message: "Please save document to the cloud first" }));
+    if (!isCloud) return dispatch(actions.announce({ message: { title: "Document is not saved to the cloud", subtitle: "Please save document to the cloud first" } }));
     const payload: { id: string, partial: DocumentUpdateInput } = { id, partial: { published: !isPublished } };
     const response = await dispatch(actions.updateCloudDocument(payload));
     if (response.type === actions.updateCloudDocument.fulfilled.type) {
-      dispatch(actions.announce({ message: `Document ${payload.partial.published ? "published" : "unpublished"}` }));
+      dispatch(actions.announce({
+        message: {
+          title: "Document Published Status Updated",
+          subtitle: `Document is now ${payload.partial.published ? "published" : "unpublished"}`
+        }
+      }));
     }
   };
 
   const toggleCollab = async () => {
-    if (!isCloud) return dispatch(actions.announce({ message: "Please save document to the cloud first" }));
+    if (!isCloud) return dispatch(actions.announce({ message: { title: "Document is not saved to the cloud", subtitle: "Please save document to the cloud first" } }));
     const payload = { id, partial: { collab: !isCollab } };
     const response = await dispatch(actions.updateCloudDocument(payload));
     if (response.type === actions.updateCloudDocument.fulfilled.type) {
-      dispatch(actions.announce({ message: `Document collaboration mode is ${payload.partial.collab ? "enabled" : "disabled"}` }));
+      dispatch(actions.announce({ 
+        message: {
+          title: "Document Collaboration Status Updated",
+          subtitle: `Document is now ${payload.partial.collab ? "open for collaboration" : "closed for collaboration"}`
+        }
+      }));
     }
   };
 
   const updateCoauthors = (users: (User | string)[]) => {
-    if (!cloudDocument) return dispatch(actions.announce({ message: "Please save document to the cloud first" }));
+    if (!cloudDocument) return dispatch(actions.announce({ message: { title: "Document is not saved to the cloud", subtitle: "Please save document to the cloud first" } }));
     const coauthors = users.map(u => typeof u === "string" ? u : u.email);
     dispatch(actions.updateCloudDocument({ id: cloudDocument.id, partial: { coauthors } }));
   }
@@ -123,7 +138,12 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
         try {
           dispatch(actions.updateLocalDocument({ id, partial }));
         } catch (err) {
-          dispatch(actions.announce({ message: "Something went wrong" }));
+          dispatch(actions.announce({ 
+            message: {
+              title: "Error Updating Document",
+              subtitle: "An error occurred while updating local document"
+            }
+          }));
         }
       }
       if (isUploaded || isCloud) {

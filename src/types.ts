@@ -8,7 +8,7 @@ export interface Alert {
   action?: string;
 }
 export interface Announcement {
-  message: string;
+  message?: { title: string; subtitle?: string; }
   action?: {
     label: string;
     onClick: string;
@@ -66,84 +66,84 @@ export type GetSessionResponse = Session | null;
 
 export interface GetUsersResponse {
   data?: User[];
-  error?: string;
+  error?: { title: string, subtitle?: string }
 }
 
 export interface GetUserResponse {
   data?: User;
-  error?: string;
+  error?: { title: string, subtitle?: string }
 }
 
 export type UserUpdateInput = Partial<User>;
 export interface PatchUserResponse {
   data?: User;
-  error?: string;
+  error?: { title: string, subtitle?: string }
 }
 
 export interface DeleteUserResponse {
   data?: string;
-  error?: string;
+  error?: { title: string, subtitle?: string }
 }
 
 export interface GetDocumentsResponse {
   data?: CloudDocument[];
-  error?: string;
+  error?: { title: string, subtitle?: string }
 }
 
 export interface PostDocumentsResponse {
   data?: CloudDocument | null;
-  error?: string;
+  error?: { title: string, subtitle?: string }
 }
 
 export interface GetPublishedDocumentsResponse {
   data?: CloudDocument[];
-  error?: string;
+  error?: { title: string, subtitle?: string }
 }
 
 export interface GetDocumentResponse {
   data?: EditorDocument;
-  error?: string;
+  error?: { title: string, subtitle?: string }
 }
 
 export type DocumentUpdateInput = Partial<EditorDocument> & { coauthors?: string[]; };
 
 export interface PatchDocumentResponse {
   data?: CloudDocument | null;
-  error?: string;
+  error?: { title: string, subtitle?: string }
 }
 
 export interface DeleteDocumentResponse {
   data?: string;
-  error?: string;
+  error?: { title: string, subtitle?: string }
 }
 
 export interface ForkDocumentResponse {
   data?: UserDocument & { data: SerializedEditorState };
-  error?: string;
+  error?: { title: string, subtitle?: string }
 }
 
 export interface CheckHandleResponse {
   data?: boolean;
-  error?: string;
+  error?: { title: string, subtitle?: string }
 }
 
 export interface GetCloudDocumentResponse {
   data?: CloudDocument;
-  error?: string;
+  error?: { title: string, subtitle?: string }
 }
 
 export interface GetRevisionResponse {
   data?: EditorDocumentRevision;
-  error?: string;
+  error?: { title: string, subtitle?: string }
 }
 
 export interface PostRevisionResponse {
   data?: CloudDocumentRevision;
-  error?: string;
+  error?: { title: string, subtitle?: string }
 }
 
 export interface DeleteRevisionResponse {
   data?: { id: string; documentId: string; };
-  error?: string;
+  error?: { title: string, subtitle?: string }
 }
 

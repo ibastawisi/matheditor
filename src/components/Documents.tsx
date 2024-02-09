@@ -67,7 +67,7 @@ const Documents: React.FC = () => {
         });
       }
     } catch (error) {
-      dispatch(actions.announce({ message: "Invalid document data" }));
+      dispatch(actions.announce({ message: { title: "Invalid file", subtitle: "Please select a valid .me file" } }));
     }
     return document;
   }

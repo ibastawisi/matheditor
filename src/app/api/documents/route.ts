@@ -18,7 +18,7 @@ export async function GET() {
     }
     const { user } = session;
     if (user.disabled) {
-      response.error = "Account is disabled for violating terms of service";
+      response.error = { title: "Account Disabled", subtitle: "Account is disabled for violating terms of service" }
       return NextResponse.json(response, { status: 403 })
     }
     const documents = await findDocumentsByAuthorId(user.id);
@@ -26,7 +26,7 @@ export async function GET() {
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
-    response.error = "something went wrong";
+    response.error = { title: "Something went wrong", subtitle: "Please try again later" }
     return NextResponse.json(response, { status: 500 })
   }
 
@@ -37,23 +37,23 @@ export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
-      response.error = "Not authenticated, please login"
+      response.error = { title: "Unauthorized", subtitle: "Please sign in to save your document to the cloud" }
       return NextResponse.json(response, { status: 401 })
     }
     const { user } = session;
     if (user.disabled) {
-      response.error = "Account is disabled for violating terms of service";
+      response.error = { title: "Account Disabled", subtitle: "Account is disabled for violating terms of service"}
       return NextResponse.json(response, { status: 403 })
     }
     const body = await request.json() as EditorDocument;
     if (!body) {
-      response.error = "Bad input"
+      response.error = { title: "Bad Request", subtitle: "No document provided" }
       return NextResponse.json(response, { status: 400 })
     }
 
     const userDocument = await findUserDocument(body.id);
     if (userDocument) {
-      response.error = "You don't have permission to edit this document";
+      response.error = { title: "Unauthorized", subtitle: "A document with this id already exists" }
       return NextResponse.json(response, { status: 403 })
     }
 
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
-    response.error = "Something went wrong";
+    response.error = { title: "Something went wrong", subtitle: "Please try again later" }
     return NextResponse.json(response, { status: 500 })
   }
 }

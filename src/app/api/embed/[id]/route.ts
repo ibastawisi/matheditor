@@ -6,7 +6,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
   try {
     const revision = await findRevisionById(params.id);
     if (!revision) {
-      return NextResponse.json({ error: "Document not found" }, { status: 404 })
+      return NextResponse.json({ error: { title: "Not Found", subtitle: "Document not found" } }, { status: 404 })
     }
     const html = await generateHtml(revision.data);
     return new Response(html, {
@@ -16,7 +16,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     });
   } catch (error) {
     console.log(error);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
+    return NextResponse.json({ error: { title: "Something went wrong", subtitle: "Please try again later" } }, { status: 500 })
   }
 }
 

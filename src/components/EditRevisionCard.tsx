@@ -79,16 +79,33 @@ const RevisionCard: React.FC<{
   const createRevision = async () => {
     if (unsavedChanges) await createLocalRevision();
     if (!isOnline) {
-      dispatch(actions.announce({ message: "Please connect to the internet to use cloud storage", action: { label: "Reload", onClick: "window.location.reload()" } }));
+      dispatch(actions.announce({
+        message: {
+          title: "You are offline",
+          subtitle: "Please connect to the internet to save to cloud storage"
+        },
+        action: { label: "Reload", onClick: "window.location.reload()" }
+      }));
       return;
     }
     if (!user) {
-      dispatch(actions.announce({ message: "Please login to use cloud storage", action: { label: "Login", onClick: "login()" } }));
+      dispatch(actions.announce({
+        message: {
+          title: "You are not signed in",
+          subtitle: "Please sign in to save your revision to the cloud"
+        },
+        action: { label: "Login", onClick: "login()" }
+      }));
       return;
     }
     const editorDocumentRevision = await getEditorDocumentRevision();
     if (!editorDocumentRevision) {
-      dispatch(actions.announce({ message: `Could not find revision data.` }));
+      dispatch(actions.announce({
+        message: {
+          title: "Revision Not Found",
+          subtitle: "Please try again later"
+        }
+      }));
       return;
     }
     if (isLocalDocument && !isCloudDocument) {

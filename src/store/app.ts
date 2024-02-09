@@ -382,15 +382,15 @@ export const appSlice = createSlice({
         });
       })
       .addCase(getCloudDocument.rejected, (state, action) => {
-        const message = action.payload as string;
+        const message = action.payload as { title: string, subtitle: string };
         state.announcements.push({ message });
       })
       .addCase(getCloudRevision.rejected, (state, action) => {
-        const message = action.payload as string;
+        const message = action.payload as { title: string, subtitle: string };
         state.announcements.push({ message });
       })
       .addCase(forkCloudDocument.rejected, (state, action) => {
-        const message = action.payload as string;
+        const message = action.payload as { title: string, subtitle: string };
         state.announcements.push({ message });
       })
       .addCase(createLocalDocument.fulfilled, (state, action) => {
@@ -410,7 +410,7 @@ export const appSlice = createSlice({
         else userDocument.cloud = document;
       })
       .addCase(createCloudDocument.rejected, (state, action) => {
-        const message = action.payload as string;
+        const message = action.payload as { title: string, subtitle: string };
         state.announcements.push({ message });
       })
       .addCase(createCloudRevision.fulfilled, (state, action) => {
@@ -420,7 +420,7 @@ export const appSlice = createSlice({
         document.cloud.revisions.unshift(revision);
       })
       .addCase(createCloudRevision.rejected, (state, action) => {
-        const message = action.payload as string;
+        const message = action.payload as { title: string, subtitle: string };
         state.announcements.push({ message });
       })
       .addCase(updateLocalDocument.fulfilled, (state, action) => {
@@ -436,7 +436,7 @@ export const appSlice = createSlice({
         else userDocument.cloud = document;
       })
       .addCase(updateCloudDocument.rejected, (state, action) => {
-        const message = action.payload as string;
+        const message = action.payload as { title: string, subtitle: string };
         state.announcements.push({ message });
       })
       .addCase(deleteLocalDocument.fulfilled, (state, action) => {
@@ -461,7 +461,7 @@ export const appSlice = createSlice({
         else delete userDocument.cloud;
       })
       .addCase(deleteCloudDocument.rejected, (state, action) => {
-        const message = action.payload as string;
+        const message = action.payload as { title: string, subtitle: string };
         state.announcements.push({ message });
       })
       .addCase(deleteCloudRevision.fulfilled, (state, action) => {
@@ -471,7 +471,7 @@ export const appSlice = createSlice({
         document.cloud.revisions = document.cloud.revisions.filter(revision => revision.id !== id);
       })
       .addCase(deleteCloudRevision.rejected, (state, action) => {
-        const message = action.payload as string;
+        const message = action.payload as { title: string, subtitle: string };
         state.announcements.push({ message });
       })
       .addCase(updateUser.fulfilled, (state, action) => {
@@ -479,7 +479,7 @@ export const appSlice = createSlice({
         state.user = user;
       })
       .addCase(updateUser.rejected, (state, action) => {
-        const message = action.payload as string;
+        const message = action.payload as { title: string, subtitle: string };
         state.announcements.push({ message });
       })
   }

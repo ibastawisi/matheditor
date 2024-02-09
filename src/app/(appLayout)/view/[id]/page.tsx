@@ -58,7 +58,7 @@ export default async function Page({ params, searchParams }: { params: { id: str
       document.revisions = cloudRevisions;
     }
   } else {
-    if (document.private) return <SplashScreen title="This document is private" subtitle="if you have access, please sign in to view it" />
+    if (document.private) return <SplashScreen title="This document is private" subtitle="Please sign in to view it" />
   }
   const revision = searchParams["v"] ?? document.head
   const response = await fetch(`${process.env.PUBLIC_URL}/api/embed/${revision}`);

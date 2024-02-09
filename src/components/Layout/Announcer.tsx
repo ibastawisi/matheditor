@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector, actions } from '@/store';
 import React from 'react';
-import { Snackbar, Button, IconButton } from '@mui/material';
+import { Snackbar, Button, IconButton, Typography } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { signIn } from 'next-auth/react';
 
@@ -24,21 +24,27 @@ function Announcer() {
   }
 
   if (!announcement) return null;
+  if (!announcement.message) return null;
+
+  const message = <>
+    <Typography variant='subtitle2'>{announcement.message.title}</Typography>
+    {announcement.message.subtitle ? announcement.message.subtitle : null}
+  </>;
 
   return <Snackbar
     open
-    autoHideDuration={announcement.timeout ?? 3000}
+    autoHideDuration={announcement.timeout ?? 5000}
     onClose={handleClose}
-    message={announcement.message}
+    message={message}
     action={announcement.action ?
-      <React.Fragment>
+      <>
         <Button color="secondary" size="small" onClick={handleConfirm}>
           {announcement.action.label}
         </Button>
         <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>
           <Close fontSize="small" />
         </IconButton>
-      </React.Fragment>
+      </>
       : null}
   />
 }
