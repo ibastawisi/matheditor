@@ -33,10 +33,11 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
 
   const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
   const collabDocumentRevisions = cloudDocumentRevisions.filter(r => r.author.id !== cloudDocument?.author.id);
-  const showRevisionsNumber = isAuthor && collabDocumentRevisions.length > 0;
-  const showRevisionsDot = !isAuthor && isUploaded && localDocument.head !== cloudDocument.head;
+  const cloudHeadIndex = cloudDocumentRevisions.findIndex(r => r.id === cloudDocument?.head);
+  const showRevisionsNumber = isAuthor && collabDocumentRevisions.length > 0 && cloudHeadIndex > 0;
+  const showRevisionsDot = isUploaded && !isUpToDate && !showRevisionsNumber;
   const showRevisionsBadge = showRevisionsNumber || showRevisionsDot;
-  const revisionsBadgeContent = showRevisionsNumber ? cloudDocumentRevisions.findIndex(r => r.id === cloudDocument?.head) : 1;
+  const revisionsBadgeContent = showRevisionsNumber ? cloudHeadIndex : 1;
 
   return (
     <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%", maxWidth: "100%", ...sx }}>
