@@ -105,8 +105,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     const { value } = formData;
     const mathfield = node.getMathfield();
     if (!mathfield) return;
-    mathfield.setValue(value);
-    mathfield.executeCommand('commit');
+    mathfield.setValue(value, { selectionMode: 'after' });
     handleClose();
   }, [editor, formData, handleClose, node]);
 
