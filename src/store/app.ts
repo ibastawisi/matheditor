@@ -35,7 +35,8 @@ export const loadSession = createAsyncThunk('app/loadSession', async (_, thunkAP
     }
     return thunkAPI.fulfillWithValue(user);
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.message);
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   }
 });
 
@@ -58,7 +59,7 @@ export const loadLocalDocuments = createAsyncThunk('app/loadLocalDocuments', asy
     return thunkAPI.fulfillWithValue(localDocuments);
   } catch (error: any) {
     console.error(error);
-    return thunkAPI.rejectWithValue(error.message);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   }
 });
 
@@ -71,7 +72,8 @@ export const loadCloudDocuments = createAsyncThunk('app/loadCloudDocuments', asy
     if (!data) return thunkAPI.fulfillWithValue([]);
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.message);
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   } finally {
     NProgress.done();
   }
@@ -84,7 +86,8 @@ export const getLocalDocument = createAsyncThunk('app/getLocalDocument', async (
     if (!document) return thunkAPI.rejectWithValue('document not found');
     return thunkAPI.fulfillWithValue(document);
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.message);
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   }
 });
 
@@ -94,7 +97,8 @@ export const getLocalRevision = createAsyncThunk('app/getLocalRevision', async (
     if (!revision) return thunkAPI.rejectWithValue('revision not found');
     return thunkAPI.fulfillWithValue(revision);
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.message);
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   }
 });
 
@@ -107,7 +111,8 @@ export const getCloudDocument = createAsyncThunk('app/getCloudDocument', async (
     if (!data) return thunkAPI.rejectWithValue('document not found');
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.message);
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   } finally {
     NProgress.done();
   }
@@ -122,7 +127,8 @@ export const getCloudRevision = createAsyncThunk('app/getCloudRevision', async (
     if (!data) return thunkAPI.rejectWithValue('revision not found');
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.message);
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   } finally {
     NProgress.done();
   }
@@ -138,7 +144,8 @@ export const forkCloudDocument = createAsyncThunk('app/forkCloudDocument', async
     if (!data) return thunkAPI.rejectWithValue('document not found');
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.message);
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   } finally {
     NProgress.done();
   }
@@ -153,7 +160,7 @@ export const createLocalDocument = createAsyncThunk('app/createLocalDocument', a
     return thunkAPI.fulfillWithValue(localDocument);
   } catch (error: any) {
     console.error(error);
-    return thunkAPI.rejectWithValue(error.message);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   }
 });
 
@@ -165,7 +172,7 @@ export const createLocalRevision = createAsyncThunk('app/createLocalRevision', a
     return thunkAPI.fulfillWithValue(localRevision);
   } catch (error: any) {
     console.error(error);
-    return thunkAPI.rejectWithValue(error.message);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   }
 });
 
@@ -182,7 +189,8 @@ export const createCloudDocument = createAsyncThunk('app/createCloudDocument', a
     if (!data) return thunkAPI.rejectWithValue('failed to create document');
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.message);
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   } finally {
     NProgress.done();
   }
@@ -201,7 +209,8 @@ export const createCloudRevision = createAsyncThunk('app/createCloudRevision', a
     if (!data) return thunkAPI.rejectWithValue('failed to create revision');
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.message);
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   } finally {
     NProgress.done();
   }
@@ -215,7 +224,7 @@ export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', a
     return thunkAPI.fulfillWithValue(payloadCreator);
   } catch (error: any) {
     console.error(error);
-    return thunkAPI.rejectWithValue(error.message);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   }
 });
 
@@ -233,7 +242,8 @@ export const updateCloudDocument = createAsyncThunk('app/updateCloudDocument', a
     if (!data) return thunkAPI.rejectWithValue('failed to update document');
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.message);
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   } finally {
     NProgress.done();
   }
@@ -246,7 +256,7 @@ export const deleteLocalDocument = createAsyncThunk('app/deleteLocalDocument', a
     return thunkAPI.fulfillWithValue(id);
   } catch (error: any) {
     console.error(error);
-    return thunkAPI.rejectWithValue(error.message);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   }
 });
 
@@ -256,7 +266,7 @@ export const deleteLocalRevision = createAsyncThunk('app/deleteLocalRevision', a
     return thunkAPI.fulfillWithValue(payloadCreator);
   } catch (error: any) {
     console.error(error);
-    return thunkAPI.rejectWithValue(error.message);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   }
 });
 
@@ -269,7 +279,8 @@ export const deleteCloudDocument = createAsyncThunk('app/deleteCloudDocument', a
     if (!data) return thunkAPI.rejectWithValue('failed to delete document');
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.message);
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   } finally {
     NProgress.done();
   }
@@ -284,7 +295,8 @@ export const deleteCloudRevision = createAsyncThunk('app/deleteCloudRevision', a
     if (!data) return thunkAPI.rejectWithValue('failed to delete revision');
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.message);
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   } finally {
     NProgress.done();
   }
@@ -305,7 +317,8 @@ export const updateUser = createAsyncThunk('app/updateUser', async (payloadCreat
     const payload: User = data;
     return thunkAPI.fulfillWithValue(payload);
   } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.message);
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   } finally {
     NProgress.done();
   }

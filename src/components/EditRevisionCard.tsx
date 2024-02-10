@@ -141,7 +141,7 @@ const RevisionCard: React.FC<{
     const variant = isLocalRevision ? 'Local' : 'Cloud';
     const title = `Delete ${variant} Revision?`;
     const content = `Are you sure you want to delete this ${variant} revision?`;
-    const action = `dispatch(actions.delete${variant}Revision({ id: "${revision.id}", documentId: "${revision.documentId}"))`;
+    const action = `dispatch(actions.delete${variant}Revision({ id: "${revision.id}", documentId: "${revision.documentId}" }))`;
     dispatch(actions.alert({ title, content, action }));
   }
 
