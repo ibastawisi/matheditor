@@ -8,11 +8,13 @@ import Footer from "./Footer";
 import ProgressBar from "./ProgressBar";
 import { Container } from "@mui/material";
 import { Suspense } from "react";
-import { Analytics } from '@vercel/analytics/react';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
+const IS_VERCEL = !!process.env.NEXT_PUBLIC_VERCEL_URL;
+const MEASUREMENT_ID = process.env.MEASUREMENT_ID;
+
 const AppLayout = ({ children }: { children: React.ReactNode; }) => {
-  const isVercel = !!process.env.NEXT_PUBLIC_VERCEL_URL;
   return (
     <>
       <StoreProvider>
@@ -28,10 +30,8 @@ const AppLayout = ({ children }: { children: React.ReactNode; }) => {
         <Announcer />
         <PwaUpdater />
       </StoreProvider>
-      {isVercel && <>
-        <SpeedInsights />
-        <Analytics />
-      </>}
+      {IS_VERCEL && <SpeedInsights />}
+      {MEASUREMENT_ID && <GoogleAnalytics gaId={MEASUREMENT_ID} />}
     </>
   );
 };
