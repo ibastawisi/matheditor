@@ -21,7 +21,7 @@ const PwaUpdater = () => {
       const wb = window.workbox;
       wb.addEventListener("waiting", () => {
         wb.messageSkipWaiting();
-       });
+      });
       wb.addEventListener("controlling", (event) => {
         const origin = location.origin;
         const urlsToCache = [
@@ -42,7 +42,11 @@ const PwaUpdater = () => {
         ]
         wb.messageSW({ type: "CACHE_URLS", payload: { urlsToCache } }).then(() => {
           dispatch(actions.announce({
-            message: event.isUpdate ? { title: "App Updated", subtitle: "Please refresh to see the latest version" } : { title: "App Ready", subtitle: "Content is cached for offline use" },
+            message:
+            {
+              title: event.isUpdate ? "Update Complete" : "App Installed",
+              subtitle: "Please refresh to use the latest version"
+            },
             timeout: 6000,
             action: {
               label: "Refresh",
@@ -52,7 +56,18 @@ const PwaUpdater = () => {
         });
       });
 
-      wb.register();
+      wb.register().then((registration) => {
+        if (!registration) return;
+        registration.onupdatefound = () => {
+          dispatch(actions.announce({
+            message: {
+              title: "Downloading Update",
+              subtitle: "App is being updated in the background"
+            },
+            timeout: 3000
+          }));
+        }
+      });
     }
   }, []);
 
