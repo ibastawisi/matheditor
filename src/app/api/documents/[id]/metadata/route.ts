@@ -11,9 +11,7 @@ export async function GET(request: Request) {
     return NextResponse.json(response, { status: 400 })
   }
   try {
-    const { searchParams } = new URL(request.url);
-    const revisionId = searchParams.get("v");
-    const userDocument = await findUserDocument(handle, revisionId);
+    const userDocument = await findUserDocument(handle);
     if (!userDocument) {
       response.error = { title: "Not Found", subtitle: "Document not found" }
       return NextResponse.json(response, { status: 404 })
