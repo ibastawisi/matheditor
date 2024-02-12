@@ -1,6 +1,11 @@
 import type { Metadata, Viewport } from 'next';
 import ThemeProvider from '@/components/Layout/ThemeProvider';
+import { GoogleAnalytics } from '@next/third-parties/google';
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import './globals.css';
+
+const IS_VERCEL = !!process.env.NEXT_PUBLIC_VERCEL_URL;
+const MEASUREMENT_ID = process.env.MEASUREMENT_ID;
 
 export const metadata: Metadata = {
   title: 'Math Editor',
@@ -53,9 +58,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
+        {IS_VERCEL && <SpeedInsights />}
+        {MEASUREMENT_ID && <GoogleAnalytics gaId={MEASUREMENT_ID} />}
       </body>
     </html>
   )
