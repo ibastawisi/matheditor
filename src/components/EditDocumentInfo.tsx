@@ -53,6 +53,8 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: "start", justifyContent: "start", gap: 1, my: 3 }}>
           {localDocument && <>
             <Typography component="h2" variant="h6">{localDocument.name}</Typography>
+            <Typography variant="subtitle2" color="text.secondary">Created: {new Date(localDocument.createdAt).toLocaleString()}</Typography>
+            <Typography variant="subtitle2" color="text.secondary" gutterBottom>Updated: {new Date(localDocument.updatedAt).toLocaleString()}</Typography>
             {!cloudDocument && <Typography variant="subtitle2">Author <Chip
               avatar={<Avatar />}
               label="Local User"

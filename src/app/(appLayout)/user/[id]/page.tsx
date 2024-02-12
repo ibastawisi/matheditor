@@ -15,8 +15,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const user = await getCachedUser(params.id);
   if (user) {
     metadata.title = `${user.name} | Math Editor`;
-    metadata.subtitle = new Date(user.createdAt).toDateString()
-    metadata.description = `${user.name} | Math Editor`;
+    metadata.subtitle = `Member since: ${new Date(user.createdAt).toDateString()}`
     metadata.user = { name: user.name, image: user.image!, email: user.email };
   } else {
     metadata.subtitle = 'User not found';

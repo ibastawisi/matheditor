@@ -13,6 +13,7 @@ import {
   loadCloudDocuments,
   updateLocalDocument,
   updateUser,
+  forkLocalDocument,
   forkCloudDocument,
   getLocalRevision,
   getCloudRevision,
@@ -34,6 +35,7 @@ export const actions = {
   createLocalDocument,
   updateLocalDocument,
   deleteLocalDocument,
+  forkLocalDocument,
 
   getCloudDocument,
   createCloudDocument,

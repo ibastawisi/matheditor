@@ -10,7 +10,9 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const response: ForkDocumentResponse = {};
   try {
-    const cloudDocument = await findUserDocument(params.id);
+    const { searchParams } = new URL(request.url);
+    const revisionId = searchParams.get("v");
+    const cloudDocument = await findUserDocument(params.id, revisionId);
     if (!cloudDocument) {
       response.error = { title: "Not Found", subtitle: "Document not found"}
       return NextResponse.json(response, { status: 404 })
@@ -26,9 +28,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
       response.error = { title: "Not Found", subtitle: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
-    const revision = await findRevisionById(cloudDocument.head);
+    const revision = await findRevisionById(revisionId ?? cloudDocument.head);
     if (!revision) {
-      response.error = { title: "Not Found", subtitle: "Document not found" }
+      response.error = { title: "Not Found", subtitle: "Revision not found" }
       return NextResponse.json(response, { status: 404 })
     }
     response.data = { id: cloudDocument.id, cloud: cloudDocument, data: revision.data };

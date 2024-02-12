@@ -23,13 +23,13 @@ const UploadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem
 
   const handleCreate = async () => {
     if (closeMenu) closeMenu();
-    if (!user) return       dispatch(actions.announce({
-        message: {
-          title: "You are not signed in",
-          subtitle: "Please sign in to save your revision to the cloud"
-        },
-        action: { label: "Login", onClick: "login()" }
-      }));
+    if (!user) return dispatch(actions.announce({
+      message: {
+        title: "You are not signed in",
+        subtitle: "Please sign in to save your revision to the cloud"
+      },
+      action: { label: "Login", onClick: "login()" }
+    }));
     const localResponse = await dispatch(actions.getLocalDocument(id));
     if (localResponse.type === actions.getLocalDocument.rejected.type) return dispatch(actions.announce({ message: { title: "Document Not Found" } }));
     const editorDocument = localResponse.payload as EditorDocument;
@@ -42,13 +42,13 @@ const UploadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem
 
   const handleUpdate = async () => {
     if (closeMenu) closeMenu();
-    if (!user) return       dispatch(actions.announce({
-        message: {
-          title: "You are not signed in",
-          subtitle: "Please sign in to save your revision to the cloud"
-        },
-        action: { label: "Login", onClick: "login()" }
-      }));
+    if (!user) return dispatch(actions.announce({
+      message: {
+        title: "You are not signed in",
+        subtitle: "Please sign in to save your revision to the cloud"
+      },
+      action: { label: "Login", onClick: "login()" }
+    }));
     if (isUpToDate) return dispatch(actions.announce({ message: { title: "Document is already Up to Date" } }));
     if (isHeadCloudRevision && isHeadOutOfSync) return dispatch(actions.updateCloudDocument({ id, partial: { head: localDocument.head, updatedAt: localDocument.updatedAt } }));
     const localResponse = await dispatch(actions.getLocalDocument(id));

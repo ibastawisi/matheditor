@@ -13,8 +13,7 @@ export async function generateMetadata({ params }: { params: { id?: string[] } }
   if (document) {
     if (document.collab) {
       metadata.title = `${document.name} | Math Editor`;
-      metadata.subtitle = new Date(document.createdAt).toDateString()
-      metadata.description = `${document.name} | Math Editor`;
+      metadata.subtitle = `Last updated: ${new Date(document.updatedAt).toLocaleString()}`;
       metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
     } else {
       metadata.title = 'Private Document | Math Editor';

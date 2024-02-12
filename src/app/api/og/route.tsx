@@ -25,8 +25,8 @@ export async function GET(request: Request) {
           <div style={{ display: "flex" }} tw="flex flex-col justify-between w-full h-full p-20">
             <div style={{ display: "flex" }} tw="flex justify-between w-full">
               <div style={{ display: "flex" }} tw="flex flex-col w-200">
-                <div style={{ display: "flex" }} tw="text-[32px]">{subtitle}</div>
                 <h1 tw="text-[64px]">{title}</h1>
+                <p tw="text-[32px]">{subtitle}</p>
                 <p tw="text-lg mt-0">{description}</p>
               </div>
               <img

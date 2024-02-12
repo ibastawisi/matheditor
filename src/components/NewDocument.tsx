@@ -1,5 +1,5 @@
 "use client"
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { v4 as uuidv4 } from "uuid";
 import * as React from 'react';
 import { EditorDocument, UserDocument } from '@/types';
@@ -16,18 +16,20 @@ const NewDocument: React.FC = () => {
   const dispatch = useDispatch();
   const pathname = usePathname();
   const id = pathname.split('/')[2]?.toLowerCase();
+  const searchParams = useSearchParams();
+  const revisionId = searchParams.get('v');
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
-      const localResponse = await dispatch(actions.getLocalDocument(id));
-      if (localResponse.type === actions.getLocalDocument.fulfilled.type) {
-        const editorDocument = localResponse.payload as ReturnType<typeof actions.getLocalDocument.fulfilled>["payload"];
+      const localResponse = await dispatch(actions.forkLocalDocument({ id, revisionId }));
+      if (localResponse.type === actions.forkLocalDocument.fulfilled.type) {
+        const editorDocument = localResponse.payload as ReturnType<typeof actions.forkLocalDocument.fulfilled>["payload"];
         const { data, ...rest } = editorDocument;
         const localDocument = { ...rest, revisions: [] };
         setBase({ id: editorDocument.id, local: localDocument });
         setData(data);
       } else {
-        const cloudResponse = await dispatch(actions.forkCloudDocument(id));
+        const cloudResponse = await dispatch(actions.forkCloudDocument({ id, revisionId }));
         if (cloudResponse.type === actions.forkCloudDocument.fulfilled.type) {
           const { data, ...userDocument } = cloudResponse.payload as ReturnType<typeof actions.forkCloudDocument.fulfilled>["payload"];
           setBase(userDocument);

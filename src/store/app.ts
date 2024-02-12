@@ -25,7 +25,8 @@ export const loadSession = createAsyncThunk('app/loadSession', async (_, thunkAP
   try {
     const response = await fetch('/api/auth/session');
     const data = await response.json() as GetSessionResponse;
-    if (!data) return thunkAPI.rejectWithValue('unauthenticated');
+    if (!data) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "session not found" });
+    if (!data.user) return thunkAPI.fulfillWithValue(undefined);
     const user = {
       id: data.user.id,
       handle: data.user.handle,
@@ -83,7 +84,7 @@ export const getLocalDocument = createAsyncThunk('app/getLocalDocument', async (
   try {
     const isValidId = validate(id);
     const document = isValidId ? await documentDB.getByID(id) : await documentDB.getOneByKey("handle", id);
-    if (!document) return thunkAPI.rejectWithValue('document not found');
+    if (!document) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "document not found" });
     return thunkAPI.fulfillWithValue(document);
   } catch (error: any) {
     console.error(error);
@@ -94,7 +95,7 @@ export const getLocalDocument = createAsyncThunk('app/getLocalDocument', async (
 export const getLocalRevision = createAsyncThunk('app/getLocalRevision', async (id: string, thunkAPI) => {
   try {
     const revision = await revisionDB.getByID(id);
-    if (!revision) return thunkAPI.rejectWithValue('revision not found');
+    if (!revision) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "revision not found" });
     return thunkAPI.fulfillWithValue(revision);
   } catch (error: any) {
     console.error(error);
@@ -108,7 +109,7 @@ export const getCloudDocument = createAsyncThunk('app/getCloudDocument', async (
     const response = await fetch(`/api/documents/${id}`);
     const { data, error } = await response.json() as GetDocumentResponse;
     if (error) return thunkAPI.rejectWithValue(error);
-    if (!data) return thunkAPI.rejectWithValue('document not found');
+    if (!data) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "document not found" });
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     console.error(error);
@@ -124,7 +125,7 @@ export const getCloudRevision = createAsyncThunk('app/getCloudRevision', async (
     const response = await fetch(`/api/revisions/${id}`);
     const { data, error } = await response.json() as GetRevisionResponse;
     if (error) return thunkAPI.rejectWithValue(error);
-    if (!data) return thunkAPI.rejectWithValue('revision not found');
+    if (!data) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "revision not found" });
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     console.error(error);
@@ -135,13 +136,34 @@ export const getCloudRevision = createAsyncThunk('app/getCloudRevision', async (
 });
 
 
-export const forkCloudDocument = createAsyncThunk('app/forkCloudDocument', async (id: string, thunkAPI) => {
+export const forkLocalDocument = createAsyncThunk('app/forkLocalDocument', async (payloadCreator: { id: string, revisionId?: string | null }, thunkAPI) => {
   try {
+    const { id, revisionId } = payloadCreator;
+    const isValidId = validate(id);
+    const document = isValidId ? await documentDB.getByID(id) : await documentDB.getOneByKey("handle", id);
+    if (!document) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "document not found" });
+    if (revisionId) {
+      const revision = await revisionDB.getByID(revisionId);
+      if (!revision) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "revision not found" });
+      document.head = revision.id;
+      document.updatedAt = revision.createdAt;
+      document.data = revision.data;
+    }
+    return thunkAPI.fulfillWithValue(document);
+  } catch (error: any) {
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
+  }
+});
+
+export const forkCloudDocument = createAsyncThunk('app/forkCloudDocument', async (payloadCreator: { id: string, revisionId?: string | null }, thunkAPI) => {
+  try {
+    const { id, revisionId } = payloadCreator;
     NProgress.start();
-    const response = await fetch(`/api/documents/new/${id}`);
+    const response = await fetch(`/api/documents/new/${id}${revisionId ? `?v=${revisionId}` : ''}`);
     const { data, error } = await response.json() as ForkDocumentResponse;
     if (error) return thunkAPI.rejectWithValue(error);
-    if (!data) return thunkAPI.rejectWithValue('document not found');
+    if (!data) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "document not found" });
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     console.error(error);
@@ -154,7 +176,7 @@ export const forkCloudDocument = createAsyncThunk('app/forkCloudDocument', async
 export const createLocalDocument = createAsyncThunk('app/createLocalDocument', async (document: EditorDocument, thunkAPI) => {
   try {
     const id = await documentDB.add(document);
-    if (!id) return thunkAPI.rejectWithValue('failed to create document');
+    if (!id) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to create document" });
     const { data, ...rest } = document;
     const localDocument: LocalDocument = { ...rest, revisions: [] };
     return thunkAPI.fulfillWithValue(localDocument);
@@ -167,7 +189,7 @@ export const createLocalDocument = createAsyncThunk('app/createLocalDocument', a
 export const createLocalRevision = createAsyncThunk('app/createLocalRevision', async (revision: EditorDocumentRevision, thunkAPI) => {
   try {
     const id = await revisionDB.add(revision);
-    if (!id) return thunkAPI.rejectWithValue('failed to create revision');
+    if (!id) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to create revision" });
     const { data, ...localRevision } = revision;
     return thunkAPI.fulfillWithValue(localRevision);
   } catch (error: any) {
@@ -186,7 +208,7 @@ export const createCloudDocument = createAsyncThunk('app/createCloudDocument', a
     });
     const { data, error } = await response.json() as PostDocumentsResponse;
     if (error) return thunkAPI.rejectWithValue(error);
-    if (!data) return thunkAPI.rejectWithValue('failed to create document');
+    if (!data) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to create document" });
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     console.error(error);
@@ -206,7 +228,7 @@ export const createCloudRevision = createAsyncThunk('app/createCloudRevision', a
     });
     const { data, error } = await response.json() as PostRevisionResponse;
     if (error) return thunkAPI.rejectWithValue(error);
-    if (!data) return thunkAPI.rejectWithValue('failed to create revision');
+    if (!data) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to create revision" });
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     console.error(error);
@@ -220,7 +242,7 @@ export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', a
   try {
     const { id, partial } = payloadCreator;
     const result = await documentDB.patch(id, partial);
-    if (!result) return thunkAPI.rejectWithValue('failed to update document')
+    if (!result) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to update document" });
     return thunkAPI.fulfillWithValue(payloadCreator);
   } catch (error: any) {
     console.error(error);
@@ -239,7 +261,7 @@ export const updateCloudDocument = createAsyncThunk('app/updateCloudDocument', a
     });
     const { data, error } = await response.json() as PatchDocumentResponse;
     if (error) return thunkAPI.rejectWithValue(error);
-    if (!data) return thunkAPI.rejectWithValue('failed to update document');
+    if (!data) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to update document" });
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     console.error(error);
@@ -276,7 +298,7 @@ export const deleteCloudDocument = createAsyncThunk('app/deleteCloudDocument', a
     const response = await fetch(`/api/documents/${id}`, { method: 'DELETE', });
     const { data, error } = await response.json() as DeleteDocumentResponse;
     if (error) return thunkAPI.rejectWithValue(error);
-    if (!data) return thunkAPI.rejectWithValue('failed to delete document');
+    if (!data) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to delete document" });
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     console.error(error);
@@ -292,7 +314,7 @@ export const deleteCloudRevision = createAsyncThunk('app/deleteCloudRevision', a
     const response = await fetch(`/api/revisions/${payloadCreator.id}`, { method: 'DELETE', });
     const { data, error } = await response.json() as DeleteRevisionResponse;
     if (error) return thunkAPI.rejectWithValue(error);
-    if (!data) return thunkAPI.rejectWithValue('failed to delete revision');
+    if (!data) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to delete revision" });
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     console.error(error);
@@ -313,7 +335,7 @@ export const updateUser = createAsyncThunk('app/updateUser', async (payloadCreat
     });
     const { data, error } = await response.json() as PatchUserResponse;
     if (error) return thunkAPI.rejectWithValue(error);
-    if (!data) return thunkAPI.rejectWithValue('failed to update user');
+    if (!data) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to update user" });
     const payload: User = data;
     return thunkAPI.fulfillWithValue(payload);
   } catch (error: any) {
