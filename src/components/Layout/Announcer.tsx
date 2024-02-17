@@ -7,7 +7,7 @@ import { Close } from '@mui/icons-material';
 import { signIn } from 'next-auth/react';
 
 function Announcer() {
-  const announcement = useSelector(state => state.announcements[0]);
+  const announcement = useSelector(state => state.ui.announcements[0]);
   const dispatch = useDispatch();
   const router = useRouter();
   const navigate = (path: string) => router.push(path);

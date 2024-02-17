@@ -56,7 +56,7 @@ const TopAppBar: React.FC<{}> = () => {
   const pathname = usePathname();
   const showPrintButton = !!['/edit', '/view', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
   const showDrawerButton = !!['/edit', '/view'].find(path => pathname.startsWith(path));
-  const initialized = useSelector(state => state.initialized);
+  const initialized = useSelector(state => state.ui.initialized);
   const user = useSelector(state => state.user);
 
   const handlePrint = () => { window.print(); }

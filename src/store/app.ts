@@ -7,10 +7,18 @@ import { validate } from 'uuid';
 
 const initialState: AppState = {
   documents: [],
-  announcements: [],
-  alerts: [],
-  initialized: false,
-  drawer: false,
+  ui: {
+    announcements: [],
+    alerts: [],
+    initialized: false,
+    drawer: false,
+    page: 1,
+    filter: 0,
+    sort: {
+      key: "updatedAt",
+      direction: "desc"
+    }
+  }
 };
 
 export const load = createAsyncThunk('app/load', async (_, thunkAPI) => {
@@ -356,21 +364,30 @@ export const appSlice = createSlice({
       state.user = action.payload;
     },
     announce: (state, action: PayloadAction<Announcement>) => {
-      state.announcements.push(action.payload);
+      state.ui.announcements.push(action.payload);
     },
     clearAnnouncement: (state) => {
-      state.announcements.shift();
+      state.ui.announcements.shift();
     },
     alert: (state, action: PayloadAction<Alert>) => {
-      state.alerts.push(action.payload);
+      state.ui.alerts.push(action.payload);
     },
     clearAlert: (state) => {
-      state.alerts.shift();
+      state.ui.alerts.shift();
     },
     toggleDrawer: (state, action: PayloadAction<boolean | undefined>) => {
-      if (action.payload !== undefined) state.drawer = action.payload;
-      else state.drawer = !state.drawer;
+      if (action.payload !== undefined) state.ui.drawer = action.payload;
+      else state.ui.drawer = !state.ui.drawer;
     },
+    setPage: (state, action: PayloadAction<number>) => {
+      state.ui.page = action.payload;
+    },
+    setFilter: (state, action: PayloadAction<number>) => {
+      state.ui.filter = action.payload;
+    },
+    setSort: (state, action: PayloadAction<Partial<{ key: string, direction: "asc" | "desc" }>>) => {
+      state.ui.sort = { ...state.ui.sort, ...action.payload };
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -383,7 +400,7 @@ export const appSlice = createSlice({
           if (!second) return -1;
           return new Date(second).getTime() - new Date(first).getTime();
         });
-        state.initialized = true;
+        state.ui.initialized = true;
       })
       .addCase(loadSession.fulfilled, (state, action) => {
         const user = action.payload;
@@ -407,15 +424,15 @@ export const appSlice = createSlice({
       })
       .addCase(getCloudDocument.rejected, (state, action) => {
         const message = action.payload as { title: string, subtitle: string };
-        state.announcements.push({ message });
+        state.ui.announcements.push({ message });
       })
       .addCase(getCloudRevision.rejected, (state, action) => {
         const message = action.payload as { title: string, subtitle: string };
-        state.announcements.push({ message });
+        state.ui.announcements.push({ message });
       })
       .addCase(forkCloudDocument.rejected, (state, action) => {
         const message = action.payload as { title: string, subtitle: string };
-        state.announcements.push({ message });
+        state.ui.announcements.push({ message });
       })
       .addCase(createLocalDocument.fulfilled, (state, action) => {
         const document = action.payload;
@@ -439,7 +456,7 @@ export const appSlice = createSlice({
       })
       .addCase(createCloudDocument.rejected, (state, action) => {
         const message = action.payload as { title: string, subtitle: string };
-        state.announcements.push({ message });
+        state.ui.announcements.push({ message });
       })
       .addCase(createCloudRevision.fulfilled, (state, action) => {
         const revision = action.payload;
@@ -449,7 +466,7 @@ export const appSlice = createSlice({
       })
       .addCase(createCloudRevision.rejected, (state, action) => {
         const message = action.payload as { title: string, subtitle: string };
-        state.announcements.push({ message });
+        state.ui.announcements.push({ message });
       })
       .addCase(updateLocalDocument.fulfilled, (state, action) => {
         const { id, partial } = action.payload;
@@ -467,7 +484,7 @@ export const appSlice = createSlice({
       })
       .addCase(updateCloudDocument.rejected, (state, action) => {
         const message = action.payload as { title: string, subtitle: string };
-        state.announcements.push({ message });
+        state.ui.announcements.push({ message });
       })
       .addCase(deleteLocalDocument.fulfilled, (state, action) => {
         const id = action.payload;
@@ -494,7 +511,7 @@ export const appSlice = createSlice({
       })
       .addCase(deleteCloudDocument.rejected, (state, action) => {
         const message = action.payload as { title: string, subtitle: string };
-        state.announcements.push({ message });
+        state.ui.announcements.push({ message });
       })
       .addCase(deleteCloudRevision.fulfilled, (state, action) => {
         const { id, documentId } = action.payload;
@@ -504,7 +521,7 @@ export const appSlice = createSlice({
       })
       .addCase(deleteCloudRevision.rejected, (state, action) => {
         const message = action.payload as { title: string, subtitle: string };
-        state.announcements.push({ message });
+        state.ui.announcements.push({ message });
       })
       .addCase(updateUser.fulfilled, (state, action) => {
         const user = action.payload;
@@ -512,7 +529,7 @@ export const appSlice = createSlice({
       })
       .addCase(updateUser.rejected, (state, action) => {
         const message = action.payload as { title: string, subtitle: string };
-        state.announcements.push({ message });
+        state.ui.announcements.push({ message });
       })
   }
 });

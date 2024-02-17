@@ -1,15 +1,18 @@
 import { User, UserDocument } from "@/types";
-import { Dispatch, FC, SetStateAction, memo, use, useEffect, useState } from "react";
+import { Dispatch, FC, SetStateAction, memo, useEffect } from "react";
 import isEqual from 'fast-deep-equal';
-import { Chip, Tab, Tabs } from "@mui/material";
+import { Tab, Tabs } from "@mui/material";
 import { AccountCircle, Cloud, CloudDone, CloudSync, DoneAll, GroupWork, MobileFriendly, PeopleOutline, Public, Security, SupervisedUserCircle, Workspaces } from "@mui/icons-material";
+import { SxProps, Theme } from '@mui/material/styles';
 
 const DocumentFilterControl: FC<{
   documents: UserDocument[],
   setDocuments: Dispatch<SetStateAction<UserDocument[]>>,
+  value: number,
+  setValue: (value: number) => void,
+  sx?: SxProps<Theme> | undefined
   user?: User,
-}> = memo(({ documents, setDocuments, user }) => {
-  const [value, setValue] = useState(0);
+}> = memo(({ documents, setDocuments, user, value, setValue, sx }) => {
   const options = [
     { key: 0, label: 'Local', icon: <MobileFriendly /> },
     { key: 1, label: 'Cloud', icon: <Cloud /> },
@@ -77,8 +80,6 @@ const DocumentFilterControl: FC<{
       sx={{
         height: 40,
         minHeight: 40,
-        mb: 1,
-        flex: { xs: "100%", sm: 1 },
         '& .MuiTabs-flexContainer': {
           height: "100%",
           gap: 1,
@@ -90,21 +91,32 @@ const DocumentFilterControl: FC<{
         '& .MuiTab-root': {
           height: 32,
           minHeight: 32,
+          minWidth: "unset",
           px: 1,
           borderRadius: 4,
+          '&.Mui-selected': {
+            color: value === 0 ? "primary.contrastText" : "text.secondary",
+          },
         },
-        '& .MuiTab-root.Mui-selected': {
-          color: value === 0 ? "primary.contrastText" : "text.secondary",
-          backgroundColor: value === 0 ? "primary.main" : "action.selected",
-        },
+        ...sx
       }}
     >
       <Tab
         key="all"
         iconPosition="start"
         icon={<DoneAll />}
-        label="All"
+        label={<span className="MuiTab-label">All</span>}
         onClick={handleReset}
+        sx={{
+          color: value === 0 ? "primary.contrastText" : "text.secondary",
+          backgroundColor: value === 0 ? "primary.main" : "action.selected",
+          '& .MuiTab-label': {
+            display: { xs: value === 0 ? "block" : "none", sm: "block" }
+          },
+          '& .MuiTab-iconWrapper': {
+            marginRight: { xs: value === 0 ? 1 : 0, sm: 1 }
+          }
+        }}
       />
       {
         options.map((option) => (
@@ -112,13 +124,18 @@ const DocumentFilterControl: FC<{
             key={option.key}
             iconPosition="start"
             icon={option.icon}
-            label={option.label}
+            label={<span className="MuiTab-label">{option.label}</span>}
             onClick={() => handleFilterChange(option.key)}
             sx={{
               color: value & (1 << option.key) ? "primary.contrastText" : "text.secondary",
-              backgroundColor: value & (1 << option.key) ? "primary.main" : "action.selected"
+              backgroundColor: value & (1 << option.key) ? "primary.main" : "action.selected",
+              '& .MuiTab-label': {
+                display: { xs: value & (1 << option.key) ? "block" : "none", sm: "block" }
+              },
+              '& .MuiTab-iconWrapper': {
+                marginRight: { xs: value & (1 << option.key) ? 1 : 0, sm: 1 }
+              }
             }}
-
           />
         ))
       }

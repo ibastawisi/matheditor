@@ -5,7 +5,7 @@ import { actions, useDispatch, useSelector } from '@/store';
 import { useEffect } from 'react';
 
 const AppDrawer: React.FC<React.PropsWithChildren<{ title: string }>> = ({ title, children }) => {
-  const open = useSelector(state => state.drawer);
+  const open = useSelector(state => state.ui.drawer);
   const dispatch = useDispatch();
   const toggleDrawer = () => { dispatch(actions.toggleDrawer()); }
 

@@ -6,7 +6,7 @@ import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, B
 import { signIn } from 'next-auth/react';
 
 export default function AlertDialog() {
-  const alert = useSelector(state => state.alerts[0]);
+  const alert = useSelector(state => state.ui.alerts[0]);
   const dispatch = useDispatch();
   const router = useRouter();
   const navigate = (path: string) => router.push(path);

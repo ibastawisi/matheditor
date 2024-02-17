@@ -18,10 +18,15 @@ export interface Announcement {
 export interface AppState {
   user?: User;
   documents: UserDocument[];
-  announcements: Announcement[];
-  alerts: Alert[];
-  initialized: boolean;
-  drawer: boolean;
+  ui: {
+    announcements: Announcement[];
+    alerts: Alert[];
+    initialized: boolean;
+    drawer: boolean;
+    page: number;
+    filter: number;
+    sort: { key: string, direction: "asc" | "desc" };
+  }
 }
 
 export interface EditorDocument {

@@ -18,7 +18,7 @@ const Documents: React.FC = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
-  const initialized = useSelector(state => state.initialized);
+  const initialized = useSelector(state => state.ui.initialized);
   const documents = useSelector(state => state.documents);
   const [filteredDocuments, setFilteredDocuments] = useState(documents);
 
@@ -107,6 +107,11 @@ const Documents: React.FC = () => {
     link.remove()
   };
 
+  const sort = useSelector(state => state.ui.sort);
+  const setSort = (payload: Partial<{ key: string, direction: "asc" | "desc" }>) => dispatch(actions.setSort(payload));
+  const filter = useSelector(state => state.ui.filter);
+  const setFilter = (value: number) => dispatch(actions.setFilter(value));
+
   return (
     <>
       <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5 }}>
@@ -116,7 +121,7 @@ const Documents: React.FC = () => {
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", gap: 1, mb: 1 }}>
         <Typography variant="h6" component="h2" sx={{ display: { xs: 'none', sm: 'block' } }}>Documents</Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
-          <DocumentSortControl documents={filteredDocuments} setDocuments={setFilteredDocuments} />
+          <DocumentSortControl documents={filteredDocuments} setDocuments={setFilteredDocuments} value={sort} setValue={setSort} />
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center" }}>
             <Button variant="outlined" startIcon={<UploadFile />} component="label">
               Import
@@ -127,8 +132,8 @@ const Documents: React.FC = () => {
             </Button>
           </Box>
         </Box>
+        <DocumentFilterControl documents={documents} setDocuments={setFilteredDocuments} user={user} value={filter} setValue={setFilter} />
       </Box>
-      <DocumentFilterControl documents={documents} setDocuments={setFilteredDocuments} user={user} />
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid item xs={6}>
           <Card variant="outlined">
@@ -152,13 +157,14 @@ const Documents: React.FC = () => {
 }
 
 const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initialized: boolean }> = memo(({ documents, user, initialized }) => {
+  const dispatch = useDispatch();
   const showSkeletons = !initialized && !documents.length;
   const pageSize = 12;
   const pages = Math.ceil(documents.length / pageSize);
-  const [page, setPage] = useState(1);
-  const handlePageChange = (_: any, value: number) => setPage(value);
+  const savedPage = useSelector(state => state.ui.page);
+  const page = Math.min(savedPage, pages);
+  const handlePageChange = (_: any, value: number) => dispatch(actions.setPage(value));
   const pageDocuments = documents.slice((page - 1) * pageSize, page * pageSize);
-
 
   return <Grid container spacing={2}>
     {showSkeletons && Array.from({ length: 6 }).map((_, i) => <Grid item key={i} xs={12} sm={6} md={4}><DocumentCard /></Grid>)}

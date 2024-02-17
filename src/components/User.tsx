@@ -8,6 +8,7 @@ import { Pageview } from "@mui/icons-material";
 import DocumentSortControl from "./DocumentSortControl";
 
 const User: React.FC<{ user?: User, sessionUser?: User, documents: UserDocument[] }> = ({ user, sessionUser, documents }) => {
+  const [sort, setSort] = useState<{ key: string, direction: "asc" | "desc" }>({ key: 'updatedAt', direction: 'desc' });
   const [sortedDocuments, setSortedDocuments] = useState(documents || []);
   const pages = Math.ceil((documents?.length ?? 0) / 12);
   const [page, setPage] = useState(1);
@@ -18,7 +19,7 @@ const User: React.FC<{ user?: User, sessionUser?: User, documents: UserDocument[
     {user && <Box sx={{ gap: 1, my: 2 }}>
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>
         <Typography variant="h6" component="h2" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Published Documents</Typography>
-        <DocumentSortControl documents={documents} setDocuments={setSortedDocuments} />
+        <DocumentSortControl documents={documents} setDocuments={setSortedDocuments} value={sort} setValue={setSort} />
       </Box>
       <PublishedDocumentsTree documents={sortedDocuments.slice((page - 1) * 12, page * 12)} />
       {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}

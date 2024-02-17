@@ -12,7 +12,7 @@ const UserCard: React.FC<{ user?: User, sessionUser?: User }> = memo(({ user, se
   const dispatch = useDispatch();
   const login = () => signIn("google", undefined, { prompt: "select_account" });
   const logout = () => signOut();
-  const initialized = useSelector(state => state.initialized);
+  const initialized = useSelector(state => state.ui.initialized);
   const showLogout = user && sessionUser && user.id === sessionUser.id;
   const showLogin = initialized && !user && !sessionUser;
   const showActions = user && sessionUser && user.id === sessionUser.id;
