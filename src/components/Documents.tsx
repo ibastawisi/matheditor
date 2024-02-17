@@ -11,6 +11,7 @@ import documentDB from '@/indexeddb';
 import { Box, Avatar, Button, Typography, Grid, Card, CardActionArea, CardHeader, Collapse, Pagination } from '@mui/material';
 import { PostAdd, UploadFile, Help, Storage, Science } from '@mui/icons-material';
 import DocumentSortControl from './DocumentSortControl';
+import DocumentFilterControl from './DocumentFilterControl';
 
 const Documents: React.FC = () => {
   const user = useSelector(state => state.user);
@@ -19,7 +20,7 @@ const Documents: React.FC = () => {
   const navigate = (path: string) => router.push(path);
   const initialized = useSelector(state => state.initialized);
   const documents = useSelector(state => state.documents);
-  const [sortedDocuments, setSortedDocuments] = useState(documents);
+  const [filteredDocuments, setFilteredDocuments] = useState(documents);
 
   useEffect(() => {
     if ("launchQueue" in window && "LaunchParams" in window) {
@@ -115,7 +116,7 @@ const Documents: React.FC = () => {
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", gap: 1, mb: 1 }}>
         <Typography variant="h6" component="h2" sx={{ display: { xs: 'none', sm: 'block' } }}>Documents</Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
-          <DocumentSortControl documents={documents} setDocuments={setSortedDocuments} />
+          <DocumentSortControl documents={filteredDocuments} setDocuments={setFilteredDocuments} />
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center" }}>
             <Button variant="outlined" startIcon={<UploadFile />} component="label">
               Import
@@ -127,6 +128,7 @@ const Documents: React.FC = () => {
           </Box>
         </Box>
       </Box>
+      <DocumentFilterControl documents={documents} setDocuments={setFilteredDocuments} user={user} />
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid item xs={6}>
           <Card variant="outlined">
@@ -144,7 +146,7 @@ const Documents: React.FC = () => {
         </Grid>
       </Grid>
       <Collapse timeout={1000} in={!(user && initialized)} unmountOnExit><Box sx={{ mb: 2 }}><UserCard user={user} /></Box></Collapse>
-      <DocumentsGrid documents={sortedDocuments} initialized={initialized} user={user} />
+      <DocumentsGrid documents={filteredDocuments} initialized={initialized} user={user} />
     </>
   )
 }
