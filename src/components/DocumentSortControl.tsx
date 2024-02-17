@@ -1,6 +1,4 @@
-import { LocalDocument, UserDocument } from "@/types";
-import { memo, useEffect } from "react";
-import isEqual from 'fast-deep-equal';
+import { UserDocument } from "@/types";
 import { ArrowUpward, ArrowDownward } from "@mui/icons-material";
 import { Box, ToggleButton, alpha, Select, MenuItem, ListItemText, SelectChangeEvent } from "@mui/material";
 
@@ -13,32 +11,26 @@ function compareObjectsByKey(key: string, ascending = true) {
   };
 }
 
+export const sortDocuments = (documents: UserDocument[], sort: { key: string, direction: "asc" | "desc" }) => {
+  const { key, direction } = sort;
+  const data = documents.map(d => (d.local ?? d.cloud)!);
+  const sortedData = [...data].sort(compareObjectsByKey(key, direction === 'asc'));
+  const sortedDocuments = sortedData.map(localDocument => documents.find(d => d.id === localDocument.id)!);
+  return sortedDocuments;
+};
+
+
 const DocumentSortControl: React.FC<{
-  documents: UserDocument[],
-  setDocuments: React.Dispatch<React.SetStateAction<UserDocument[]>>
   value: { key: string, direction: "asc" | "desc" },
   setValue: (value: { key: string, direction: "asc" | "desc" }) => void,
-}> = memo(({ documents, setDocuments, value, setValue }) => {
+}> = ({ value, setValue }) => {
   const { key: sortKey, direction: sortDirection } = value;
-  const data = documents.map(d => (d.local ?? d.cloud)!);
-  const setSortedData = (sortedData: LocalDocument[]) => {
-    const sortedUserDocuments = sortedData.map(localDocument => documents.find(d => d.id === localDocument.id)!);
-    setDocuments(sortedUserDocuments);
-  }
 
   const sortOptions = [
     { label: 'Updated', value: 'updatedAt' },
     { label: 'Created', value: 'createdAt' },
     { label: 'Name', value: 'name' },
   ];
-
-  useEffect(() => {
-    const sortedData = [...data];
-    if (sortedData) {
-      sortedData.sort(compareObjectsByKey(sortKey, sortDirection === 'asc'));
-      setSortedData(sortedData);
-    }
-  }, [sortDirection, sortKey]);
 
   const handleSortKeyChange = (event: SelectChangeEvent) => {
     const newSortKey = event.target.value;
@@ -93,6 +85,6 @@ const DocumentSortControl: React.FC<{
       </Select>
     </Box>
   );
-}, isEqual);
+};
 
 export default DocumentSortControl;

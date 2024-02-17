@@ -1,18 +1,46 @@
 import { User, UserDocument } from "@/types";
-import { Dispatch, FC, SetStateAction, memo, useEffect } from "react";
-import isEqual from 'fast-deep-equal';
+import { FC, useState } from "react";
 import { Tab, Tabs } from "@mui/material";
 import { AccountCircle, Cloud, CloudDone, CloudSync, DoneAll, GroupWork, MobileFriendly, PeopleOutline, Public, Security, SupervisedUserCircle, Workspaces } from "@mui/icons-material";
 import { SxProps, Theme } from '@mui/material/styles';
 
+export const filterDocuments = (documents: UserDocument[], user: User | undefined, value: number) => {
+  if (value === 0) return documents;
+  const filteredDocuments = documents.filter(d => {
+    const localDocument = d.local;
+    const cloudDocument = d.cloud;
+    const isLocalOnly = localDocument && !cloudDocument;
+    const isCloudOnly = cloudDocument && !localDocument && !cloudDocument.published && !cloudDocument.collab && !cloudDocument.private;
+    const isSynced = localDocument && cloudDocument && localDocument.head === cloudDocument.head;
+    const isOutofSync = localDocument && cloudDocument && localDocument.head !== cloudDocument.head;
+    const isAuthor = cloudDocument?.author.id === user?.id;
+    const isCoauthor = cloudDocument?.coauthors.some(coauthor => coauthor.id === user?.id);
+    const isCollaborator = cloudDocument?.revisions.some(revision => revision.author.id === user?.id);
+    const isOthers = !isLocalOnly && !isAuthor && !isCoauthor && !isCollaborator;
+    const showLocal = !!(value & (1 << 0)) && !!localDocument;
+    const showCloud = !!(value & (1 << 1)) && !!isCloudOnly;
+    const showPublished = !!(value & (1 << 2)) && !!cloudDocument?.published;
+    const showCollab = !!(value & (1 << 3)) && !!cloudDocument?.collab;
+    const showPrivate = !!(value & (1 << 4)) && !!cloudDocument?.private;
+    const showSynced = !!(value & (1 << 5)) && !!isSynced;
+    const showOutOfSync = !!(value & (1 << 6)) && !!isOutofSync;
+    const showAuthor = !!(value & (1 << 7)) && !!isAuthor;
+    const showCoauthor = !!(value & (1 << 8)) && !!isCoauthor;
+    const showCollaborator = !!(value & (1 << 9)) && !!isCollaborator && !isAuthor && !isCoauthor;
+    const showOthers = !!(value & (1 << 10)) && !!isOthers;
+
+    const shouldShow = showLocal || showCloud || showPublished || showCollab || showPrivate || showSynced || showOutOfSync || showAuthor || showCoauthor || showCollaborator || showOthers;
+    return shouldShow;
+  });
+  return filteredDocuments;
+}
+
 const DocumentFilterControl: FC<{
-  documents: UserDocument[],
-  setDocuments: Dispatch<SetStateAction<UserDocument[]>>,
   value: number,
   setValue: (value: number) => void,
   sx?: SxProps<Theme> | undefined
-  user?: User,
-}> = memo(({ documents, setDocuments, user, value, setValue, sx }) => {
+}> = ({ value, setValue, sx }) => {
+  const [tabsValue, setTabsValue] = useState(value === 0 ? 0 : Math.floor(Math.log2(value) + 1));
   const options = [
     { key: 0, label: 'Local', icon: <MobileFriendly /> },
     { key: 1, label: 'Cloud', icon: <Cloud /> },
@@ -27,59 +55,31 @@ const DocumentFilterControl: FC<{
     { key: 10, label: 'Others', icon: <PeopleOutline /> },
   ];
 
-  useEffect(() => {
-    filterDocuments(value);
-  }, [documents]);
-
   const handleFilterChange = (optionKey: number) => {
-    const newValue = value ^ (1 << optionKey); // Toggle the bit at the specified optionKey
+    const newValue = value ^ (1 << optionKey);
     setValue(newValue);
-    filterDocuments(newValue);
+    const tabsValue = newValue === 0 ? 0 : Math.floor(Math.log2(newValue) + 1);
+    setTabsValue(tabsValue);
   };
-
-  function filterDocuments(value: number) {
-    if (value === 0) return setDocuments(documents);
-    const filteredDocuments = documents.filter(d => {
-      const localDocument = d.local;
-      const cloudDocument = d.cloud;
-      const isSynced = localDocument && cloudDocument && localDocument.head === cloudDocument.head;
-      const isOutofSync = localDocument && cloudDocument && localDocument.head !== cloudDocument.head;
-      const isAuthor = cloudDocument?.author.id === user?.id;
-      const isCoauthor = cloudDocument?.coauthors.some(coauthor => coauthor.id === user?.id);
-      const isCollaborator = cloudDocument?.revisions.some(revision => revision.author.id === user?.id);
-      const isOthers = !isAuthor && !isCoauthor && !isCollaborator;
-      const showLocal = !!(value & (1 << 0)) && !!localDocument;
-      const showCloud = !!(value & (1 << 1)) && !!cloudDocument && !cloudDocument.published && !cloudDocument.collab && !cloudDocument.private;
-      const showPublished = !!(value & (1 << 2)) && !!cloudDocument?.published;
-      const showCollab = !!(value & (1 << 3)) && !!cloudDocument?.collab;
-      const showPrivate = !!(value & (1 << 4)) && !!cloudDocument?.private;
-      const showSynced = !!(value & (1 << 5)) && !!isSynced;
-      const showOutOfSync = !!(value & (1 << 6)) && !!isOutofSync;
-      const showAuthor = !!(value & (1 << 7)) && !!isAuthor;
-      const showCoauthor = !!(value & (1 << 8)) && !!isCoauthor;
-      const showCollaborator = !!(value & (1 << 9)) && !!isCollaborator && !isAuthor && !isCoauthor;
-      const showOthers = !!(value & (1 << 10)) && !!isOthers;
-
-      const shouldShow = showLocal || showCloud || showPublished || showCollab || showPrivate || showSynced || showOutOfSync || showAuthor || showCoauthor || showCollaborator || showOthers;
-      return shouldShow;
-    });
-    setDocuments(filteredDocuments);
-  }
 
   const handleReset = () => {
     setValue(0);
-    setDocuments(documents);
+    setTabsValue(0);
   };
 
   return (
     <Tabs
-      value={0}
+      value={tabsValue}
       variant="scrollable"
       scrollButtons
       allowScrollButtonsMobile
       sx={{
         height: 40,
         minHeight: 40,
+        '& .MuiTabScrollButton-root.Mui-disabled': {
+          opacity: 1,
+          color: "text.disabled"
+        },
         '& .MuiTabs-flexContainer': {
           height: "100%",
           gap: 1,
@@ -95,7 +95,7 @@ const DocumentFilterControl: FC<{
           px: 1,
           borderRadius: 4,
           '&.Mui-selected': {
-            color: value === 0 ? "primary.contrastText" : "text.secondary",
+            color: "primary.contrastText",
           },
         },
         ...sx
@@ -141,6 +141,6 @@ const DocumentFilterControl: FC<{
       }
     </Tabs >
   );
-}, isEqual);
+};
 
 export default DocumentFilterControl;
