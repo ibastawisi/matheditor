@@ -67,6 +67,9 @@ header {
     display: none !important;
   }
 
+  body>*:not(.editor-container) {
+    display: none !important;
+  }
 }
 
 .editor-container {
@@ -118,6 +121,10 @@ header {
 
 .google-revocation-link-placeholder {
   display: none;
+}
+
+body:has(>ins[data-anchor-status="dismissed"]) {
+  padding: 0 !important;
 }
 
 @font-face {
