@@ -6,9 +6,11 @@ import { IconButton, ListItemIcon, ListItemText, MenuItem } from "@mui/material"
 
 const DeleteDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
   const dispatch = useDispatch();
-  const localDocument = userDocument?.local;
+  const localDocument = userDocument.local;
+  const cloudDocument = userDocument.cloud;
   const isLocal = !!localDocument;
   const id = userDocument.id;
+  const name = localDocument?.name || cloudDocument?.name || "This Document";
 
   const handleDelete = async () => {
     if(closeMenu) closeMenu();

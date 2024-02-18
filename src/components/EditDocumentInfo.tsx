@@ -17,17 +17,13 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
   const userDocument = useSelector(state => state.documents.find(d => d.id === documentId));
   const localDocument = userDocument?.local;
   const cloudDocument = userDocument?.cloud;
-  const isLocalDocument = !!localDocument;
-  const isCloudDocument = !!cloudDocument;
-  const isUploaded = isLocalDocument && isCloudDocument;
+  const isCloud = !!cloudDocument;
   const localDocumentRevisions = localDocument?.revisions ?? [];
   const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
   const isHeadLocalRevision = localDocumentRevisions.some(r => r.id === localDocument?.head);
   const isHeadCloudRevision = cloudDocumentRevisions.some(r => r.id === localDocument?.head);
   const unsavedChanges = !isHeadLocalRevision && !isHeadCloudRevision;
-  const isCloud = !!cloudDocument;
   const isAuthor = isCloud ? cloudDocument.author.id === user?.id : true
-  const isCoauthor = isCloud ? cloudDocument.coauthors.some(u => u.id === user?.id) : false;
   const isPublished = isCloud && cloudDocument.published;
   const isCollab = isPublished && cloudDocument.collab;
   const collaborators = isCollab ? cloudDocument.revisions.reduce((acc, rev) => {
@@ -103,7 +99,7 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
             <IconButton aria-label="Print" color="inherit" onClick={() => { window.print(); }}><Print /></IconButton>
             <ShareDocument userDocument={userDocument} />
             <ForkDocument userDocument={userDocument} />
-            {(isAuthor || isCoauthor) && <DownloadDocument userDocument={userDocument} />}
+            <DownloadDocument userDocument={userDocument} />
             {isAuthor && <EditDocument userDocument={userDocument} />}
           </Box>}
         </Box>

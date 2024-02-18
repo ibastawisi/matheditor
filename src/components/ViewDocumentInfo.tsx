@@ -82,8 +82,8 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
             <IconButton aria-label="Print" color="inherit" onClick={() => { window.print(); }}><Print /></IconButton>
             <ShareDocument userDocument={userDocument} />
             {showFork && <ForkDocument userDocument={userDocument} />}
-            {(isAuthor || isCoauthor) && <DownloadDocument userDocument={userDocument} />}
-            {(isEditable) && <IconButton component={RouterLink} prefetch={false} href={`/edit/${handle}`} aria-label="Edit"><Edit /></IconButton>}
+            {isEditable && <DownloadDocument userDocument={userDocument} />}
+            {isEditable && <IconButton component={RouterLink} prefetch={false} href={`/edit/${handle}`} aria-label="Edit"><Edit /></IconButton>}
           </Box>
         </Box>
         <Grid container spacing={1}>

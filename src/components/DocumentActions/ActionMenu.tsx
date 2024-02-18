@@ -28,17 +28,18 @@ function DocumentActionMenu({ userDocument, user }: { userDocument: UserDocument
   const isUpToDate = isUploaded && localDocument.updatedAt === cloudDocument.updatedAt;
   const isAuthor = isCloud ? cloudDocument.author.id === user?.id : true
   const isCoauthor = isCloud ? cloudDocument.coauthors.some(u => u.id === user?.id) : false;
+  const isCollab = isCloud ? cloudDocument.collab : false;
   const id = userDocument.id;
 
-  const options = isAuthor ? ['download', 'fork', 'upload', 'delete'] :
-    isLocal ? ['download', 'fork', 'delete'] : isCoauthor ? ['download', 'fork'] : ["fork"];
-
-  if (options.length === 0) return null;
+  const options = ['fork', 'share'];
+  if (isAuthor || isCoauthor || isLocal || isCollab) options.push('download');
+  if (isAuthor || isLocal) options.push('delete');
+  if (isAuthor) options.push('edit', 'upload');
 
   return (
     <>
-      {isAuthor && <EditDocument userDocument={userDocument} />}
-      <ShareDocument userDocument={userDocument} />
+      {options.includes('edit') && <EditDocument userDocument={userDocument} />}
+      {options.includes('share') && <ShareDocument userDocument={userDocument} />}
       <IconButton
         id={`${id}-action-button`}
         aria-controls={open ? `${id}-action-menu` : undefined}
