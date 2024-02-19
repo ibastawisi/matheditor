@@ -1,4 +1,5 @@
 {
+  "$schema": "http://json.schemastore.org/web-manifest",
   "id": "matheditor.me",
   "short_name": "Math Editor",
   "name": "Math Editor",
@@ -8,9 +9,9 @@
   "lang": "en",
   "related_applications": [
     {
-      "platform": "webapp",
-      "url": "https://matheditor.me",
-      "id": "matheditor.me"
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=ml.matheditor.twa",
+      "id": "ml.matheditor.twa"
     }
   ],
   "prefer_related_applications": true,
@@ -51,7 +52,7 @@
   ],
   "file_handlers": [
     {
-      "action": "/open",
+      "action": "/",
       "accept": {
         "text/x-troff-me": [
           ".me"
@@ -98,5 +99,17 @@
     "standalone",
     "window-controls-overlay"
   ],
-  "handle_links": "preferred"
+  "handle_links": "preferred",
+  "screenshots": [
+    {
+      "src": "feature.png",
+      "sizes": "1024x500",
+      "type": "image/png",
+      "form-factor": "wide",
+      "label": "Math Editor"
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "auto"
+  }
 }
