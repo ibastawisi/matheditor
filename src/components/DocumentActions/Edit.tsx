@@ -1,21 +1,21 @@
 "use client"
 import { useDispatch, actions, useSelector } from "@/store";
-import { UserDocument, EditorDocument, CheckHandleResponse, DocumentUpdateInput, User } from "@/types";
+import { UserDocument, CheckHandleResponse, DocumentUpdateInput, User } from "@/types";
 import { CloudOff, Settings } from "@mui/icons-material";
 import { IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControlLabel, Checkbox, FormHelperText, useMediaQuery, ListItemIcon, ListItemText, MenuItem, TextField, Box, Typography } from "@mui/material";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import useFixedBodyScroll from "@/hooks/useFixedBodyScroll";
-import { useFormik } from "formik";
-import * as yup from 'yup';
 import { validate } from "uuid";
 import { debounce } from '@mui/material/utils';
 import UploadDocument from "./Upload";
 import UsersAutocomplete from "../UsersAutocomplete";
+import useOnlineStatus from "@/hooks/useOnlineStatus";
 
 const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
   const dispatch = useDispatch();
   const user = useSelector(state => state.user);
+  const isOnline = useOnlineStatus();
   const localDocument = userDocument?.local;
   const cloudDocument = userDocument?.cloud;
   const isLocal = !!localDocument;
@@ -28,58 +28,29 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
   const id = userDocument.id;
   const name = cloudDocument?.name ?? localDocument?.name ?? "Untitled Document";
   const handle = cloudDocument?.handle ?? localDocument?.handle ?? null;
-
-  const togglePrivate = async () => {
-    if (!isCloud) return dispatch(actions.announce({ message: { title: "Document is not saved to the cloud", subtitle: "Please save document to the cloud first" } }));
-    const payload: { id: string, partial: DocumentUpdateInput } = { id, partial: { private: !isPrivate } };
-    if (isPublished) payload.partial.published = false;
-    if (isCollab) payload.partial.collab = false;
-    const response = await dispatch(actions.updateCloudDocument(payload));
-    if (response.type === actions.updateCloudDocument.fulfilled.type) {
-      dispatch(actions.announce({
-        message: {
-          title: "Document Privacy Updated",
-          subtitle: `Document is now ${payload.partial.private ? "private" : "shared by link"}`
-        }
-      }));
-    }
-  };
-
-  const togglePublished = async () => {
-    if (!isCloud) return dispatch(actions.announce({ message: { title: "Document is not saved to the cloud", subtitle: "Please save document to the cloud first" } }));
-    const payload: { id: string, partial: DocumentUpdateInput } = { id, partial: { published: !isPublished } };
-    const response = await dispatch(actions.updateCloudDocument(payload));
-    if (response.type === actions.updateCloudDocument.fulfilled.type) {
-      dispatch(actions.announce({
-        message: {
-          title: "Document Published Status Updated",
-          subtitle: `Document is now ${payload.partial.published ? "published" : "unpublished"}`
-        }
-      }));
-    }
-  };
-
-  const toggleCollab = async () => {
-    if (!isCloud) return dispatch(actions.announce({ message: { title: "Document is not saved to the cloud", subtitle: "Please save document to the cloud first" } }));
-    const payload = { id, partial: { collab: !isCollab } };
-    const response = await dispatch(actions.updateCloudDocument(payload));
-    if (response.type === actions.updateCloudDocument.fulfilled.type) {
-      dispatch(actions.announce({ 
-        message: {
-          title: "Document Collaboration Status Updated",
-          subtitle: `Document is now ${payload.partial.collab ? "open for collaboration" : "closed for collaboration"}`
-        }
-      }));
-    }
-  };
-
-  const updateCoauthors = (users: (User | string)[]) => {
-    if (!cloudDocument) return dispatch(actions.announce({ message: { title: "Document is not saved to the cloud", subtitle: "Please save document to the cloud first" } }));
-    const coauthors = users.map(u => typeof u === "string" ? u : u.email);
-    dispatch(actions.updateCloudDocument({ id: cloudDocument.id, partial: { coauthors } }));
-  }
-
+  const [input, setInput] = useState<Partial<DocumentUpdateInput>>({
+    name,
+    handle,
+    coauthors: cloudDocument?.coauthors.map(u => u.email) ?? [],
+    private: isPrivate,
+    published: isPublished,
+    collab: isCollab,
+  });
+  
+  const [validating, setValidating] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+
+  useEffect(() => {
+    setInput({
+      name,
+      handle,
+      coauthors: cloudDocument?.coauthors.map(u => u.email) ?? [],
+      private: isPrivate,
+      published: isPublished,
+      collab: isCollab,
+    });
+  }, [userDocument, editDialogOpen]);
 
   const openEditDialog = () => {
     if (closeMenu) closeMenu();
@@ -90,67 +61,85 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
     setEditDialogOpen(false);
   };
 
-  const checkHandle = useCallback(debounce(async (resolve: (value: boolean) => void, value?: string) => {
-    if (!value) return resolve(true);
-    if (!navigator.onLine) return resolve(true);
-    if ((isCloud || isUploaded) && value === handle) return resolve(true);
+  
+  const updateInput = (partial: Partial<DocumentUpdateInput>) => {
+    setInput(input => ({ ...input, ...partial }));
+  }
+
+  const updateCoauthors = (users: (User | string)[]) => {
+    const coauthors = users.map(u => typeof u === "string" ? u : u.email);
+    updateInput({ coauthors });
+  }
+
+  const updateHandle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value.toLowerCase();
+    updateInput({ handle: value });
+    if (!value || value === handle ) return setValidationErrors({});
+    if (value.length < 3) {
+      return setValidationErrors({ handle: "Handle is too short: Handle must be at least 3 characters long" });
+    }
+    if (!/^[a-zA-Z0-9-]+$/.test(value)) {
+      return setValidationErrors({ handle: "Invalid Handle: Handle must only contain letters, numbers, and hyphens" });
+    }
+    if (validate(value)) {
+      return setValidationErrors({ handle: "Invalid Handle: Handle must not be a UUID" });
+    }
+    setValidating(true);
+    checkHandle(value);
+  };
+
+  const checkHandle = useCallback(debounce(async (handle: string) => {
     try {
-      const response = await fetch(`/api/documents/check?handle=${value}`);
-      const { data, error } = await response.json() as CheckHandleResponse;
-      if (error) return resolve(false);
-      return resolve(!!data);
-    } catch (err) { return resolve(false) }
-  }, 500), [userDocument]);
+      const response = await fetch(`/api/documents/check?handle=${handle}`);
+      const { error } = await response.json() as CheckHandleResponse;
+      if (error) setValidationErrors({ handle: `${error.title}: ${error.subtitle}` });
+      else setValidationErrors({});
+    } catch (error) {
+      setValidationErrors({ handle: `Something went wrong: Please try again later` });
+    }
+    setValidating(false);
+  }, 500), []);
 
-  const validationSchema = yup.object({
-    name: yup
-      .string()
-      .required('Name is required'),
-    handle: yup
-      .string()
-      .min(3, 'Handle must be at least 3 characters')
-      .strict().lowercase('Handle must be lowercase')
-      .matches(/^[a-zA-Z0-9-]*$/, 'Handle must only contain letters, numbers, and dashes')
-      .test('is-uuid', 'Handle cannot be a UUID', value => !value || !validate(value))
-      .test('is-online', 'Cannot change handle while offline', value => !value || value === handle || navigator.onLine)
-      .test('is-cloud', 'Document is not saved to the cloud', value => !value || value === handle || isCloud || isUploaded)
-      .test('is-unique', 'Handle is already taken', value => new Promise(resolve => checkHandle(resolve, value)))
-  });
-
-  const formik = useFormik({
-    initialValues: {
-      name: name,
-      handle: handle || "",
-    },
-    validationSchema: validationSchema,
-    onSubmit: async (values) => {
-      closeEditDialog();
-      const partial: Partial<EditorDocument> = {};
-      if (values.name !== name) {
-        partial.name = values.name;
-        partial.updatedAt = new Date().toISOString();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    closeEditDialog();
+    const partial: Partial<DocumentUpdateInput> = {};
+    if (input.name !== name) {
+      partial.name = input.name;
+      partial.updatedAt = new Date().toISOString();
+    }
+    if (input.handle !== handle) {
+      partial.handle = input.handle || null;
+    }
+    if (input.coauthors?.join(",") !== cloudDocument?.coauthors.map(u => u.email).join(",")) {
+      partial.coauthors = input.coauthors;
+    }
+    if (input.private !== isPrivate) {
+      partial.private = input.private;
+    }
+    if (input.published !== isPublished) {
+      partial.published = input.published;
+    }
+    if (input.collab !== isCollab) {
+      partial.collab = input.collab;
+    }
+    if (Object.keys(partial).length === 0) return;
+    if (isLocal) {
+      try {
+        dispatch(actions.updateLocalDocument({ id, partial }));
+      } catch (err) {
+        dispatch(actions.announce({
+          message: {
+            title: "Error Updating Document",
+            subtitle: "An error occurred while updating local document"
+          }
+        }));
       }
-      if (values.handle !== handle) {
-        partial.handle = values.handle || null;
-      }
-      if (Object.keys(partial).length === 0) return;
-      if (isLocal) {
-        try {
-          dispatch(actions.updateLocalDocument({ id, partial }));
-        } catch (err) {
-          dispatch(actions.announce({ 
-            message: {
-              title: "Error Updating Document",
-              subtitle: "An error occurred while updating local document"
-            }
-          }));
-        }
-      }
-      if (isUploaded || isCloud) {
-        await dispatch(actions.updateCloudDocument({ id, partial }));
-      }
-    },
-  });
+    }
+    if (isUploaded || isCloud) {
+      await dispatch(actions.updateCloudDocument({ id, partial }));
+    }
+  };
 
   useFixedBodyScroll(editDialogOpen);
   const theme = useTheme();
@@ -162,54 +151,48 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
       <ListItemText>Edit</ListItemText>
     </MenuItem> : <IconButton aria-label="Edit Document" onClick={openEditDialog} size="small"><Settings /></IconButton>}
     <Dialog open={editDialogOpen} onClose={closeEditDialog} fullWidth maxWidth="xs" fullScreen={fullScreen}>
-      <Box component="form" onSubmit={formik.handleSubmit} noValidate autoComplete="off" spellCheck="false" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
+      <Box component="form" onSubmit={handleSubmit} noValidate autoComplete="off" spellCheck="false" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
         <DialogTitle>Edit Document</DialogTitle>
         <DialogContent sx={{ "& .MuiFormHelperText-root": { overflow: "hidden", textOverflow: "ellipsis" } }}>
-          <TextField margin="normal" size="small" fullWidth
-            id="name"
+          <TextField margin="normal" size="small" fullWidth autoFocus
             label="Document Name"
-            name="name"
-            autoFocus
-            value={formik.values.name}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={!!formik.errors.name}
-            helperText={formik.errors.name}
+            value={input.name || ""}
+            onChange={e => updateInput({ name: e.target.value })}
+            sx={{ '& .MuiInputBase-root': { height: 40 } }}
+          />
+          <TextField margin="normal" size="small" fullWidth
+            label="Document Handle"
+            disabled={!isOnline}
+            value={input.handle || ""}
+            onChange={updateHandle}
+            error={!validating && !!validationErrors.handle}
+            helperText={
+              validating ? "Validating..."
+                : validationErrors.handle ? validationErrors.handle
+                  : input.handle ? `https://matheditor.me/view/${input.handle}`
+                    : "This will be used in the URL of your document"
+            }
           />
           {!cloudDocument && <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 2, gap: 2 }}>
             <CloudOff sx={{ width: 64, height: 64, fontSize: 64 }} />
             <Typography variant="overline" align="center" component="p">Please save document to the cloud first to unlock the following options</Typography>
             <UploadDocument userDocument={userDocument} variant="button" />
           </Box>}
-          <TextField margin="normal" size="small" fullWidth
-            id="handle"
-            label="Document Handle"
-            name="handle"
-            disabled={!isCloud}
-            value={formik.values.handle}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={!!formik.errors.handle}
-            helperText={formik.errors.handle ?? `https://matheditor.me/view/${formik.values.handle || id}`}
-          />
-          {isAuthor && <UsersAutocomplete label='Coauthors' placeholder='Email' value={cloudDocument?.coauthors ?? []} onChange={updateCoauthors} />}
-          {isAuthor && <FormControlLabel
-            control={<Checkbox checked={isPrivate} disabled={!isCloud} onChange={togglePrivate} />}
-            label="Private"
+          {isAuthor && <UsersAutocomplete label='Coauthors' placeholder='Email' value={input.coauthors ?? []} onChange={updateCoauthors} sx={{ my: 2 }} disabled={!isOnline || !isCloud} />}
+          {isAuthor && <FormControlLabel label="Private"
+            control={<Checkbox checked={input.private} disabled={!isOnline || !isCloud} onChange={() => updateInput({ private: !input.private, published: input.published && input.private, collab: input.collab && input.private })} />}
           />}
           <FormHelperText>
             Private documents are only accessible to authors and coauthors.
           </FormHelperText>
-          {isAuthor && <FormControlLabel
-            control={<Checkbox checked={isPublished} disabled={!isCloud || isPrivate} onChange={togglePublished} />}
-            label="Published"
+          {isAuthor && <FormControlLabel label="Published"
+            control={<Checkbox checked={input.published} disabled={!isOnline || !isCloud || input.private} onChange={() => updateInput({ published: !input.published })} />}
           />}
           <FormHelperText>
             Published documents are showcased on the homepage, can be forked by anyone, and can be found by search engines.
           </FormHelperText>
-          {isAuthor && <FormControlLabel
-            control={<Checkbox checked={isCollab} disabled={!isCloud || isPrivate} onChange={toggleCollab} />}
-            label="Collab"
+          {isAuthor && <FormControlLabel label="Collab"
+            control={<Checkbox checked={input.collab} disabled={!isOnline || !isCloud || input.private} onChange={() => updateInput({ collab: !input.collab })} />}
           />}
           <FormHelperText>
             Collab documents are open for anyone to edit.
@@ -217,7 +200,7 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
         </DialogContent>
         <DialogActions>
           <Button onClick={closeEditDialog}>Cancel</Button>
-          <Button type='submit'>Save</Button>
+          <Button type='submit' disabled={validating}>Save</Button>
         </DialogActions>
       </Box>
     </Dialog>

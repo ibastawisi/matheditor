@@ -36,16 +36,38 @@ export interface EditorDocument {
   data: SerializedEditorState;
   createdAt: string | Date;
   updatedAt: string | Date;
+  handle?: string | null;
+}
+
+export type LocalDocument = Omit<EditorDocument, "data"> & {
+  revisions: LocalDocumentRevision[]
+};
+export type CloudDocument = Omit<EditorDocument, "data"> & {
+  author: User;
+  coauthors: User[],
+  revisions: CloudDocumentRevision[],
   published?: boolean;
   collab?: boolean;
   private?: boolean;
-  handle?: string | null;
   baseId?: string | null;
 }
-
-export type LocalDocument = Omit<EditorDocument, "data"> & { revisions: LocalDocumentRevision[] };
-export type CloudDocument = Omit<EditorDocument, "data"> & { author: User; coauthors: User[], revisions: CloudDocumentRevision[] }
 export type UserDocument = { id: string; local?: LocalDocument; cloud?: CloudDocument; };
+
+export type DocumentCreateInput = EditorDocument & {
+  coauthors?: string[];
+  published?: boolean;
+  collab?: boolean;
+  private?: boolean;
+  baseId?: string | null;
+};
+
+export type DocumentUpdateInput = Partial<EditorDocument> & {
+  coauthors?: string[];
+  published?: boolean;
+  collab?: boolean;
+  private?: boolean;
+  baseId?: string | null;
+};
 
 export interface EditorDocumentRevision {
   id: string;
@@ -108,8 +130,6 @@ export interface GetDocumentResponse {
   data?: EditorDocument;
   error?: { title: string, subtitle?: string }
 }
-
-export type DocumentUpdateInput = Partial<EditorDocument> & { coauthors?: string[]; };
 
 export interface PatchDocumentResponse {
   data?: CloudDocument | null;

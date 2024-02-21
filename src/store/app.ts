@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import NProgress from "nprogress";
 import documentDB, { revisionDB } from '@/indexeddb';
-import { AppState, Announcement, Alert, EditorDocument, LocalDocument, User, PatchUserResponse, GetSessionResponse, DeleteRevisionResponse, GetRevisionResponse, ForkDocumentResponse, DocumentUpdateInput, EditorDocumentRevision, PostRevisionResponse } from '../types';
+import { AppState, Announcement, Alert, EditorDocument, LocalDocument, User, PatchUserResponse, GetSessionResponse, DeleteRevisionResponse, GetRevisionResponse, ForkDocumentResponse, DocumentUpdateInput, EditorDocumentRevision, PostRevisionResponse, DocumentCreateInput } from '../types';
 import { GetDocumentsResponse, PostDocumentsResponse, DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from '@/types';
 import { validate } from 'uuid';
 
@@ -181,8 +181,9 @@ export const forkCloudDocument = createAsyncThunk('app/forkCloudDocument', async
   }
 });
 
-export const createLocalDocument = createAsyncThunk('app/createLocalDocument', async (document: EditorDocument, thunkAPI) => {
+export const createLocalDocument = createAsyncThunk('app/createLocalDocument', async (payloadCreator: DocumentCreateInput, thunkAPI) => {
   try {
+    const { coauthors, published, collab, private: isPrivate, baseId, ...document } = payloadCreator;
     const id = await documentDB.add(document);
     if (!id) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to create document" });
     const { data, ...rest } = document;
@@ -206,13 +207,13 @@ export const createLocalRevision = createAsyncThunk('app/createLocalRevision', a
   }
 });
 
-export const createCloudDocument = createAsyncThunk('app/createCloudDocument', async (document: EditorDocument, thunkAPI) => {
+export const createCloudDocument = createAsyncThunk('app/createCloudDocument', async (payloadCreator: DocumentCreateInput, thunkAPI) => {
   try {
     NProgress.start();
     const response = await fetch('/api/documents', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(document),
+      body: JSON.stringify(payloadCreator),
     });
     const { data, error } = await response.json() as PostDocumentsResponse;
     if (error) return thunkAPI.rejectWithValue(error);
@@ -249,7 +250,8 @@ export const createCloudRevision = createAsyncThunk('app/createCloudRevision', a
 export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', async (payloadCreator: { id: string, partial: DocumentUpdateInput }, thunkAPI) => {
   try {
     const { id, partial } = payloadCreator;
-    const result = await documentDB.patch(id, partial);
+    const { coauthors, published, collab, private: isPrivate, baseId, ...document } = partial;
+    const result = await documentDB.patch(id, document);
     if (!result) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to update document" });
     return thunkAPI.fulfillWithValue(payloadCreator);
   } catch (error: any) {

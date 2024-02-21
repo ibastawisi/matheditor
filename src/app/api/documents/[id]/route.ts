@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server"
 import { validate } from "uuid";
 import { Prisma } from "@/lib/prisma";
+import { validateHandle } from "../utils";
 
 export const dynamic = "force-dynamic";
 
@@ -63,7 +64,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     }
     const { user } = session;
     if (user.disabled) {
-      response.error = { title: "Account Disabled", subtitle: "Account is disabled for violating terms of service"}
+      response.error = { title: "Account Disabled", subtitle: "Account is disabled for violating terms of service" }
       return NextResponse.json(response, { status: 403 })
     }
     const userDocument = await findUserDocument(params.id);
@@ -154,7 +155,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   const response: DeleteDocumentResponse = {};
   try {
     if (!validate(params.id)) {
-      response.error = { title: "Bad Request", subtitle: "Invalid id"}
+      response.error = { title: "Bad Request", subtitle: "Invalid id" }
       return NextResponse.json(response, { status: 400 })
     }
     const session = await getServerSession(authOptions);
@@ -169,7 +170,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     }
     const userDocument = await findUserDocument(params.id);
     if (!userDocument) {
-      response.error = { title: "Not Found", subtitle: "Document not found"}
+      response.error = { title: "Not Found", subtitle: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
     if (user.id !== userDocument.author.id) {
@@ -184,18 +185,4 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     response.error = { title: "Something went wrong", subtitle: "Please try again later" }
     return NextResponse.json(response, { status: 500 })
   }
-}
-
-const validateHandle = async (handle: string) => {
-  if (handle.length < 3) {
-    return { title: "Handle is too short", subtitle: "Handle must be at least 3 characters long" };
-  }
-  if (!/^[a-zA-Z0-9-]+$/.test(handle)) {
-    return { title: "Invalid Handle", subtitle: "Handle must only contain letters, numbers, and hyphens" };
-  }
-  const userDocument = await findUserDocument(handle);
-  if (userDocument) {
-    return { title: "Handle already in use", subtitle: "Please choose a different handle" };
-  }
-  return null;
 }

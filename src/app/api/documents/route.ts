@@ -1,9 +1,10 @@
 import { authOptions } from "@/lib/auth";
 import { createDocument, findDocumentsByAuthorId, findPublishedDocuments, findUserDocument } from "@/repositories/document";
-import { EditorDocument, GetDocumentsResponse, PostDocumentsResponse } from "@/types";
+import { DocumentCreateInput, GetDocumentsResponse, PostDocumentsResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { Prisma } from "@/lib/prisma"
+import { validateHandle } from "./utils";
 
 export const dynamic = "force-dynamic";
 
@@ -42,10 +43,10 @@ export async function POST(request: Request) {
     }
     const { user } = session;
     if (user.disabled) {
-      response.error = { title: "Account Disabled", subtitle: "Account is disabled for violating terms of service"}
+      response.error = { title: "Account Disabled", subtitle: "Account is disabled for violating terms of service" }
       return NextResponse.json(response, { status: 403 })
     }
-    const body = await request.json() as EditorDocument;
+    const body = await request.json() as DocumentCreateInput;
     if (!body) {
       response.error = { title: "Bad Request", subtitle: "No document provided" }
       return NextResponse.json(response, { status: 400 })
@@ -64,8 +65,10 @@ export async function POST(request: Request) {
       baseId: body.baseId,
       createdAt: body.createdAt,
       updatedAt: body.updatedAt,
-      handle: body.handle,
       head: body.head,
+      published: body.published,
+      collab: body.collab,
+      private: body.private,
       revisions: {
         create: {
           id: body.head || undefined,
@@ -75,6 +78,35 @@ export async function POST(request: Request) {
         }
       }
     };
+    if (body.handle) {
+      input.handle = body.handle.toLowerCase();
+      const validationError = await validateHandle(input.handle);
+      if (validationError) {
+        response.error = validationError;
+        return NextResponse.json(response, { status: 400 })
+      }
+    }
+    if (body.coauthors) {
+      const documentId = body.id;
+      const userEmails = body.coauthors as string[];
+      input.coauthors = {
+        connectOrCreate: userEmails.map(userEmail => ({
+          where: { documentId_userEmail: { documentId, userEmail } },
+          create: {
+            user: {
+              connectOrCreate: {
+                where: { email: userEmail },
+                create: {
+                  name: userEmail.split("@")[0],
+                  email: userEmail,
+                },
+              }
+            }
+          }
+        })),
+      };
+    }
+
 
     response.data = await createDocument(input);
     return NextResponse.json(response, { status: 200 })

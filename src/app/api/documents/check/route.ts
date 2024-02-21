@@ -1,6 +1,6 @@
-import { findUserDocument } from "@/repositories/document";
 import { CheckHandleResponse } from "@/types";
 import { NextResponse } from "next/server";
+import { validateHandle } from "../utils";
 
 export async function GET(request: Request) {
   const response: CheckHandleResponse = {};
@@ -11,8 +11,12 @@ export async function GET(request: Request) {
     return NextResponse.json(response, { status: 400 })
   }
   try {
-    const userDocument = await findUserDocument(handle);
-    response.data = !userDocument;
+    const validationError = await validateHandle(handle);
+    if (validationError) {
+      response.error = validationError;
+      return NextResponse.json(response, { status: 200 })
+    }
+    response.data = true;
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);

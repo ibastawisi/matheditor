@@ -1,21 +1,66 @@
 "use client"
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4, validate } from "uuid";
 import * as React from 'react';
-import { EditorDocument, UserDocument } from '@/types';
+import { CheckHandleResponse, DocumentCreateInput, User, UserDocument } from '@/types';
 import { SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "@/editor/types";
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, actions } from '@/store';
 import DocumentCard from './DocumentCard';
-import { Container, Box, Avatar, Typography, TextField, Button } from '@mui/material';
+import { Container, Box, Avatar, Typography, TextField, Button, FormControlLabel, FormHelperText, Switch, Checkbox } from '@mui/material';
 import { Article, Add } from '@mui/icons-material';
+import useOnlineStatus from '@/hooks/useOnlineStatus';
+import UsersAutocomplete from './UsersAutocomplete';
+import { debounce } from '@mui/material/utils';
+
+const getEditorData = (title: string) => {
+  const headingText: SerializedTextNode = {
+    detail: 0,
+    format: 0,
+    mode: 'normal',
+    style: '',
+    text: title,
+    type: 'text',
+    version: 1,
+  }
+  const heading: SerializedHeadingNode = {
+    children: [headingText],
+    direction: "ltr",
+    format: "center",
+    indent: 0,
+    tag: "h2",
+    type: "heading",
+    version: 1,
+  }
+  const paragraph: SerializedParagraphNode = {
+    children: [],
+    direction: "ltr",
+    format: 'left',
+    indent: 0,
+    type: "paragraph",
+    version: 1,
+  }
+  const root: SerializedRootNode = {
+    children: [heading, paragraph],
+    direction: "ltr",
+    type: "root",
+    version: 1,
+    format: 'left',
+    indent: 0
+  }
+  return ({ root });
+}
 
 const NewDocument: React.FC = () => {
+  const isOnline = useOnlineStatus();
   const [base, setBase] = useState<UserDocument>();
-  const [data, setData] = useState<EditorDocument["data"]>();
+  const [input, setInput] = useState<Partial<DocumentCreateInput>>({});
+  const [validating, setValidating] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [saveToCloud, setSaveToCloud] = useState(false);
   const dispatch = useDispatch();
   const pathname = usePathname();
-  const id = pathname.split('/')[2]?.toLowerCase();
+  const baseId = pathname.split('/')[2]?.toLowerCase();
   const searchParams = useSearchParams();
   const revisionId = searchParams.get('v');
 
@@ -27,90 +72,140 @@ const NewDocument: React.FC = () => {
         const { data, ...rest } = editorDocument;
         const localDocument = { ...rest, revisions: [] };
         setBase({ id: editorDocument.id, local: localDocument });
-        setData(data);
+        setInput({ ...input, data, baseId: editorDocument.id });
       } else {
         const cloudResponse = await dispatch(actions.forkCloudDocument({ id, revisionId }));
         if (cloudResponse.type === actions.forkCloudDocument.fulfilled.type) {
           const { data, ...userDocument } = cloudResponse.payload as ReturnType<typeof actions.forkCloudDocument.fulfilled>["payload"];
           setBase(userDocument);
-          setData(data);
+          setInput({ ...input, data, baseId: userDocument.id });
         }
       }
     }
-    id && loadDocument(id);
+    baseId && loadDocument(baseId);
   }, []);
 
   const router = useRouter();
   const navigate = (path: string) => router.push(path, { scroll: false });
 
-  const getData = async (name: string) => {
-    if (data) return data;
-    else {
-      const headingText: SerializedTextNode = {
-        detail: 0,
-        format: 0,
-        mode: 'normal',
-        style: '',
-        text: name,
-        type: 'text',
-        version: 1,
-      }
-      const heading: SerializedHeadingNode = {
-        children: [headingText],
-        direction: "ltr",
-        format: "center",
-        indent: 0,
-        tag: "h2",
-        type: "heading",
-        version: 1,
-      }
-      const paragraph: SerializedParagraphNode = {
-        children: [],
-        direction: "ltr",
-        format: 'left',
-        indent: 0,
-        type: "paragraph",
-        version: 1,
-      }
-      const root: SerializedRootNode = {
-        children: [heading, paragraph],
-        direction: "ltr",
-        type: "root",
-        version: 1,
-        format: 'left',
-        indent: 0
-      }
-      return ({ root });
-    }
-  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const name = formData.get("documentName") as string || 'Untitled Document';
-    const data = await getData(name);
+    const name = input.name || "Untitled Document";
+    const data = input.data || getEditorData(name);
     const createdAt = new Date().toISOString();
-    if (!data) return;
-    const newDocument: EditorDocument = { id: uuidv4(), name, head: uuidv4(), data, createdAt, updatedAt: createdAt };
-    if (base) newDocument.baseId = base.id;
-    const response = await dispatch(actions.createLocalDocument(newDocument))
+    const payload: DocumentCreateInput = {
+      ...input,
+      id: uuidv4(),
+      head: uuidv4(),
+      name,
+      data,
+      createdAt,
+      updatedAt: createdAt,
+    };
+    const response = await dispatch(actions.createLocalDocument(payload));
     if (response.type === actions.createLocalDocument.fulfilled.type) {
-      const href = `/edit/${newDocument.id}`;
+      if (saveToCloud) dispatch(actions.createCloudDocument(payload));
+      const href = `/edit/${payload.handle || payload.id}`;
       navigate(href);
     }
   };
+
+  const updateInput = (partial: Partial<DocumentCreateInput>) => {
+    setInput(input => ({ ...input, ...partial }));
+  }
+
+  const updateCoauthors = (users: (User | string)[]) => {
+    const coauthors = users.map(u => typeof u === "string" ? u : u.email);
+    updateInput({ coauthors });
+  }
+
+  const updateHandle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handle = event.target.value.toLowerCase();
+    updateInput({ handle });
+    if (!handle) return setValidationErrors({});
+    if (handle.length < 3) {
+      return setValidationErrors({ handle: "Handle is too short: Handle must be at least 3 characters long" });
+    }
+    if (!/^[a-zA-Z0-9-]+$/.test(handle)) {
+      return setValidationErrors({ handle: "Invalid Handle: Handle must only contain letters, numbers, and hyphens" });
+    }
+    if (validate(handle)) {
+      return setValidationErrors({ handle: "Invalid Handle: Handle must not be a UUID" });
+    }
+    setValidating(true);
+    checkHandle(handle);
+  };
+
+  const checkHandle = useCallback(debounce(async (handle: string) => {
+    try {
+      const response = await fetch(`/api/documents/check?handle=${handle}`);
+      const { error } = await response.json() as CheckHandleResponse;
+      if (error) setValidationErrors({ handle: `${error.title}: ${error.subtitle}` });
+      else setValidationErrors({});
+    } catch (error) {
+      setValidationErrors({ handle: `Something went wrong: Please try again later` });
+    }
+    setValidating(false);
+  }, 500), []);
 
   return (
     <Container maxWidth="xs">
       <Box sx={{ my: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}><Article /></Avatar>
-        <Typography component="h1" variant="h5">{id ? "Fork a document" : "Create a new document"}</Typography>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-          <TextField id="document-name" margin="normal" size="small" label="Document Name" name="documentName" autoComplete="off" fullWidth autoFocus sx={{ '& .MuiInputBase-root': { height: 40 } }} />
-          <Button type="submit" disabled={!!(id && !base)} fullWidth variant="contained" startIcon={<Add />} sx={{ my: 2 }}>Create</Button>
+        <Typography component="h1" variant="h5">{baseId ? "Fork a document" : "Create a new document"}</Typography>
+        {baseId && <>
+          <Typography variant="overline" sx={{ color: 'text.secondary', my: 1 }}>Based on</Typography>
+          <DocumentCard userDocument={base} sx={{ width: 396 }} />
+        </>}
+        <Box component="form" onSubmit={handleSubmit} noValidate autoComplete="off" spellCheck="false" sx={{ mt: 1 }}>
+          <TextField margin="normal" size="small" fullWidth autoFocus
+            label="Document Name"
+            value={input.name || ""}
+            onChange={e => updateInput({ name: e.target.value })}
+            sx={{ '& .MuiInputBase-root': { height: 40 } }}
+          />
+          <TextField margin="normal" size="small" fullWidth
+            label="Document Handle"
+            disabled={!isOnline}
+            value={input.handle || ""}
+            onChange={updateHandle}
+            error={!validating && !!validationErrors.handle}
+            helperText={
+              validating ? "Validating..."
+                : validationErrors.handle ? validationErrors.handle
+                  : input.handle ? `https://matheditor.me/view/${input.handle}`
+                    : "This will be used in the URL of your document"
+            }
+          />
+          <FormControlLabel
+            control={<Switch checked={saveToCloud} onChange={() => setSaveToCloud(!saveToCloud)} disabled={!isOnline} />}
+            label="Save to Cloud"
+          />
+          {saveToCloud && <>
+            <UsersAutocomplete label='Coauthors' placeholder='Email' value={input.coauthors ?? []} onChange={updateCoauthors} sx={{ my: 2 }} disabled={!isOnline} />
+            <FormControlLabel label="Private"
+              control={<Checkbox checked={input.private} disabled={!isOnline} onChange={() => updateInput({ private: !input.private, published: input.published && input.private, collab: input.collab && input.private })} />}
+            />
+            <FormHelperText>
+              Private documents are only accessible to authors and coauthors.
+            </FormHelperText>
+            <FormControlLabel label="Published"
+              control={<Checkbox checked={input.published} disabled={!isOnline || input.private} onChange={() => updateInput({ published: !input.published })} />}
+            />
+            <FormHelperText>
+              Published documents are showcased on the homepage, can be forked by anyone, and can be found by search engines.
+            </FormHelperText>
+            <FormControlLabel label="Collab"
+              control={<Checkbox checked={input.collab} disabled={!isOnline || input.private} onChange={() => updateInput({ collab: !input.collab })} />}
+            />
+            <FormHelperText>
+              Collab documents are open for anyone to edit.
+            </FormHelperText>
+          </>}
+          <Button type="submit" disabled={!!(baseId && !base) || validating} fullWidth variant="contained" startIcon={<Add />} sx={{ my: 2 }}>Create</Button>
         </Box>
-        {id && <Typography variant="overline" sx={{ color: 'text.secondary', my: 2 }}>Based on</Typography>}
-        {id && <DocumentCard userDocument={base} sx={{ width: 320 }} />}
+
       </Box>
     </Container>
   );

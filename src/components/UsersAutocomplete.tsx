@@ -7,6 +7,7 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { CloudDocument, User } from '@/types';
 import { useSelector } from '@/store';
 import { Chip } from '@mui/material';
+import { SxProps, Theme } from '@mui/material/styles';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -17,12 +18,14 @@ export default function UsersAutocomplete({
   value,
   onChange,
   disabled,
+  sx,
 }: {
   label?: string;
   placeholder?: string;
-  value: User[];
+  value: (User | string)[];
   onChange: (users: (User | string)[]) => void;
   disabled?: boolean;
+  sx?: SxProps<Theme>;
 }) {
   const handleChange = (event: React.SyntheticEvent, newValue: (User | string)[]) => {
     onChange(newValue);
@@ -50,6 +53,8 @@ export default function UsersAutocomplete({
     });
     return users;
   }, [] as User[]);
+
+  const userValue = value.map(u => typeof u === "string" ? users.find(user => user.email === u) || u : u);
 
   return (
     <Autocomplete
@@ -81,15 +86,16 @@ export default function UsersAutocomplete({
         </li>
       }}
       renderTags={(tagValue, getTagProps) => {
-        return tagValue.map((option, index) => (
-          <Chip {...getTagProps({ index })} key={option.email} label={option.email} />
-        ))
+        return tagValue.map((option, index) => {
+          const email = typeof option === 'string' ? option : option.email;
+          return <Chip {...getTagProps({ index })} key={email} label={email} />
+        })
       }}
       renderInput={(params) => (
-        <TextField {...params} label={label} placeholder={placeholder} />
+        <TextField {...params} label={label} placeholder={placeholder} sx={sx} />
       )}
 
-      value={value}
+      value={userValue}
       onChange={handleChange}
       disabled={disabled}
     />

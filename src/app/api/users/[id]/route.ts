@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { validate } from "uuid";
 import { Prisma } from "@/lib/prisma";
+import { validateHandle } from "../utils";
 
 export const dynamic = "force-dynamic";
 
@@ -115,18 +116,4 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     response.error = { title: "Something went wrong", subtitle: "Please try again later" }
     return NextResponse.json(response, { status: 500 })
   }
-}
-
-const validateHandle = async (handle: string) => {
-  if (handle.length < 3) {
-    return { title: "Handle too short", subtitle: "Handle must be at least 3 characters" }
-  }
-  if (!/^[a-zA-Z0-9-]+$/.test(handle)) {
-    return { title: "Invalid Handle", subtitle: "Handle must only contain letters, numbers, and hyphens" }
-  }
-  const user = await findUser(handle);
-  if (user) {
-    return { title: "Handle already taken", subtitle: "Please choose a different handle" }
-  }
-  return null;
 }
