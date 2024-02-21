@@ -123,6 +123,16 @@ header {
   display: none;
 }
 
+ins[data-anchor-status="dismissed"] {
+  display: none !important;
+  position: absolute !important;
+  top: -1000px !important;
+  left: -1000px !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+}
+
 body:has(>ins[data-anchor-status="dismissed"]) {
   padding: 0 !important;
 }
