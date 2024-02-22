@@ -186,9 +186,9 @@ const NewDocument: React.FC = () => {
             label="Save to Cloud"
           />
           <FormHelperText>
-            {!isOnline ? "You are offline: Please connect to the internet"
-              : unauthenticated ? "You are not signed in: Please sign in"
-                : "Save to the cloud to access your documents from anywhere"
+            {!isOnline ? "You are offline: Please connect to the internet to use this feature"
+              : unauthenticated ? "You are not signed in: Please sign in to use this feature"
+                : "Save to cloud to access your documents from anywhere"
             }
           </FormHelperText>
           {saveToCloud && <>

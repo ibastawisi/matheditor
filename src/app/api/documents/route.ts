@@ -87,6 +87,11 @@ export async function POST(request: Request) {
     if (body.coauthors) {
       const documentId = body.id;
       const userEmails = body.coauthors as string[];
+      const InvalidEmails = userEmails.filter(email => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+      if (InvalidEmails.length > 0) {
+        response.error = { title: "Invalid Coauther Email", subtitle: "One or more emails are invalid" }
+        return NextResponse.json(response, { status: 400 })
+      }
       input.coauthors = {
         connectOrCreate: userEmails.map(userEmail => ({
           where: { documentId_userEmail: { documentId, userEmail } },
@@ -109,7 +114,7 @@ export async function POST(request: Request) {
       const baseDocument = await findUserDocument(body.baseId);
       if (baseDocument) input.baseId = body.baseId;
     }
-    
+
     response.data = await createDocument(input);
     return NextResponse.json(response, { status: 200 })
   } catch (error) {

@@ -176,9 +176,10 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
                     : "This will be used in the URL of your document"
             }
           />
-          {!cloudDocument && <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 2, gap: 2 }}>
-            <CloudOff sx={{ width: 64, height: 64, fontSize: 64 }} />
-            <Typography variant="overline" align="center" component="p">Please save document to the cloud first to unlock the following options</Typography>
+          {!cloudDocument && <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 1, gap: 1 }}>
+            <FormHelperText>
+              Save the document to cloud to unlock the following options
+            </FormHelperText>
             <UploadDocument userDocument={userDocument} variant="button" />
           </Box>}
           {isAuthor && <UsersAutocomplete label='Coauthors' placeholder='Email' value={input.coauthors ?? []} onChange={updateCoauthors} sx={{ my: 2 }} disabled={!isOnline || !isCloud} />}

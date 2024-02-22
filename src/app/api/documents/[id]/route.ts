@@ -104,7 +104,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
     if (body.coauthors) {
       const documentId = params.id;
-      const userEmails = body.coauthors as string[];
+      const userEmails = body.coauthors;
+      const InvalidEmails = userEmails.filter(email => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+      if (InvalidEmails.length > 0) {
+        response.error = { title: "Invalid Coauther Email", subtitle: "One or more emails are invalid" }
+        return NextResponse.json(response, { status: 400 })
+      }
       input.coauthors = {
         deleteMany: {
           userEmail: { notIn: userEmails },
