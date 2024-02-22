@@ -1,7 +1,7 @@
 "use client"
 import * as React from 'react';
 import RouterLink from 'next/link'
-import { User, UserDocument } from '@/types';
+import { LocalDocumentRevision, User, UserDocument } from '@/types';
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, Badge } from '@mui/material';
@@ -20,7 +20,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
   const isUploaded = isLocal && isCloud;
   const isUpToDate = isUploaded && localDocument.updatedAt === cloudDocument.updatedAt;
   const isPublished = isCloud && cloudDocument.published;
-  const isCollab = isPublished && cloudDocument.collab;
+  const isCollab = isCloud && cloudDocument.collab;
   const isPrivate = isCloud && cloudDocument.private;
   const isAuthor = isCloud ? cloudDocument.author.id === user?.id : true
   const isCoauthor = isCloud ? cloudDocument.coauthors.some(u => u.id === user?.id) : false;
@@ -32,12 +32,17 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
 
   const localDocumentRevisions = localDocument?.revisions ?? [];
   const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
-  const collabDocumentRevisions = cloudDocumentRevisions.filter(r => r.author.id !== cloudDocument?.author.id);
+  const isHeadLocalRevision = localDocumentRevisions.some(r => r.id === localDocument?.head);
+  const isHeadCloudRevision = cloudDocumentRevisions.some(r => r.id === localDocument?.head);
+  const localOnlyRevisions = isUploaded ? localDocumentRevisions.filter(r => !cloudDocumentRevisions.some(cr => cr.id === r.id)) : [];
+  const unsavedChanges = isUploaded && !isHeadLocalRevision && !isHeadCloudRevision;
+  if (unsavedChanges) {
+    const unsavedRevision = { id: localDocument?.head, documentId: localDocument?.id, createdAt: localDocument?.updatedAt } as LocalDocumentRevision;
+    localOnlyRevisions.unshift(unsavedRevision);
+  }
   const cloudHeadIndex = cloudDocumentRevisions.findIndex(r => r.id === cloudDocument?.head);
-  const showRevisionsNumber = isAuthor && collabDocumentRevisions.length > 0 && cloudHeadIndex > 0;
-  const showRevisionsDot = isUploaded && !isUpToDate && !showRevisionsNumber;
-  const showRevisionsBadge = showRevisionsNumber || showRevisionsDot;
-  const revisionsBadgeContent = showRevisionsNumber ? cloudHeadIndex : 1;
+  let revisionsBadgeContent = localOnlyRevisions.length;
+  if (isAuthor && isCollab && cloudHeadIndex > 0) revisionsBadgeContent++;
 
   return (
     <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%", maxWidth: "100%", ...sx }}>
@@ -62,11 +67,10 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
               </Typography>
             </>
           }
-          avatar={showRevisionsBadge ?
-            <Badge badgeContent={revisionsBadgeContent} color="secondary" variant={showRevisionsDot ? "dot" : "standard"}>
+          avatar={
+            <Badge badgeContent={revisionsBadgeContent} color="secondary">
               <Avatar sx={{ bgcolor: 'primary.main' }}><Article /></Avatar>
-            </Badge> :
-            <Avatar sx={{ bgcolor: 'primary.main' }}><Article /></Avatar>
+            </Badge>
           }
         />
       </CardActionArea>
@@ -74,8 +78,8 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
         {!document && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} label={<Skeleton variant="text" width={50} />} />}
         {!document && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} label={<Skeleton variant="text" width={70} />} />}
         {isLocalOnly && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Local" />}
-        {isUploaded && !isCollab && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={isUpToDate ? <CloudDone /> : <CloudSync />} label={isUpToDate ? "Synced" : "Out of Sync"} />}
-        {isCloudOnly && !isCollab && (isAuthor || isCoauthor) && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
+        {isUploaded && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={isUpToDate ? <CloudDone /> : <CloudSync />} label={isUpToDate ? "Synced" : "Out of Sync"} />}
+        {isCloudOnly && (isAuthor || isCoauthor) && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
         {isPublished && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Public />} label="Published" />}
         {isCollab && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Workspaces />} label="Collab" />}
         {isPrivate && <Chip sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Security />} label="Private" />}

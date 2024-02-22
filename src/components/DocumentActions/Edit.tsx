@@ -39,6 +39,7 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
   
   const [validating, setValidating] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const hasErrors = Object.keys(validationErrors).length > 0;
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -50,6 +51,8 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
       published: isPublished,
       collab: isCollab,
     });
+    setValidating(false);
+    setValidationErrors({});
   }, [userDocument, editDialogOpen]);
 
   const openEditDialog = () => {
@@ -200,7 +203,7 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
         </DialogContent>
         <DialogActions>
           <Button onClick={closeEditDialog}>Cancel</Button>
-          <Button type='submit' disabled={validating}>Save</Button>
+          <Button type='submit' disabled={validating || hasErrors}>Save</Button>
         </DialogActions>
       </Box>
     </Dialog>

@@ -57,6 +57,7 @@ const NewDocument: React.FC = () => {
   const [input, setInput] = useState<Partial<DocumentCreateInput>>({});
   const [validating, setValidating] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const hasErrors = Object.keys(validationErrors).length > 0;
   const [saveToCloud, setSaveToCloud] = useState(false);
   const dispatch = useDispatch();
   const pathname = usePathname();
@@ -203,7 +204,7 @@ const NewDocument: React.FC = () => {
               Collab documents are open for anyone to edit.
             </FormHelperText>
           </>}
-          <Button type="submit" disabled={!!(baseId && !base) || validating} fullWidth variant="contained" startIcon={<Add />} sx={{ my: 2 }}>Create</Button>
+          <Button type="submit" disabled={!!(baseId && !base) || validating || hasErrors} fullWidth variant="contained" startIcon={<Add />} sx={{ my: 2 }}>Create</Button>
         </Box>
 
       </Box>

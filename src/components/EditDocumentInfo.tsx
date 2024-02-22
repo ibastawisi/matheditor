@@ -22,7 +22,6 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
   const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
   const isHeadLocalRevision = localDocumentRevisions.some(r => r.id === localDocument?.head);
   const isHeadCloudRevision = cloudDocumentRevisions.some(r => r.id === localDocument?.head);
-  const unsavedChanges = !isHeadLocalRevision && !isHeadCloudRevision;
   const isAuthor = isCloud ? cloudDocument.author.id === user?.id : true
   const isPublished = isCloud && cloudDocument.published;
   const isCollab = isPublished && cloudDocument.collab;
@@ -34,14 +33,14 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
   }, [] as User[]) : [];
 
   const revisions: UserDocumentRevision[] = [...cloudDocumentRevisions];
-  localDocumentRevisions.forEach(revision => { if (!revisions.find(r => r.id === revision.id)) revisions.push(revision); });
-  const sortedRevisions = [...revisions].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  const unsavedRevision = {
-    id: localDocument?.head,
-    documentId: localDocument?.id,
-    createdAt: localDocument?.updatedAt,
-  } as LocalDocumentRevision;
-  if (unsavedChanges) sortedRevisions.unshift(unsavedRevision);
+  localDocumentRevisions.forEach(revision => { if (!cloudDocumentRevisions.some(r => r.id === revision.id)) revisions.push(revision); });
+  const documentRevisions = [...revisions].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const unsavedChanges = !isHeadLocalRevision && !isHeadCloudRevision;
+  if (unsavedChanges) {
+    const unsavedRevision = { id: localDocument?.head, documentId: localDocument?.id, createdAt: localDocument?.updatedAt } as LocalDocumentRevision;
+    documentRevisions.unshift(unsavedRevision);
+  }
 
   return (
     <>
@@ -108,7 +107,7 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
             <History sx={{ mr: 1 }} />
             <Typography variant="h6">Revisions</Typography>
           </Grid>
-          {sortedRevisions.map(revision => <Grid item xs={12} key={revision.id}><RevisionCard revision={revision} editorRef={editorRef} /></Grid>)}
+          {documentRevisions.map(revision => <Grid item xs={12} key={revision.id}><RevisionCard revision={revision} editorRef={editorRef} /></Grid>)}
         </Grid>
       </AppDrawer>
     </>

@@ -21,10 +21,13 @@ function UserActionMenu({ user }: { user: User }): JSX.Element {
   const [input, setInput] = useState<Partial<User>>({ handle: user.handle });
   const [validating, setValidating] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const hasErrors = Object.keys(validationErrors).length > 0;
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   useEffect(() => {
     setInput({ handle: user.handle });
+    setValidating(false);
+    setValidationErrors({});
   }, [user, editDialogOpen]);
   
   const openEditDialog = () => {
@@ -113,7 +116,7 @@ function UserActionMenu({ user }: { user: User }): JSX.Element {
           </DialogContent>
           <DialogActions>
             <Button onClick={closeEditDialog}>Cancel</Button>
-            <Button type='submit' disabled={validating}>Save</Button>
+            <Button type='submit' disabled={validating || hasErrors}>Save</Button>
           </DialogActions>
         </form>
       </Dialog>
