@@ -1,4 +1,3 @@
-"use client"
 import { Cached } from '@mui/icons-material';
 import packageJson from '../../../package.json';
 import { Box, Typography, Link, IconButton } from '@mui/material';
