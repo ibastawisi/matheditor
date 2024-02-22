@@ -11,17 +11,16 @@ export async function generateMetadata({ params }: { params: { id?: string[] } }
   const metadata: OgMetadata = { id: params.id[0], title: 'Math Editor' };
   const document = await findUserDocument(params.id[0]);
   if (document) {
-    if (document.collab) {
+    if (document.private) {
+      metadata.title = 'Private Document | Math Editor';
+      metadata.subtitle = 'if you have access, please sign in to edit it';
+    } else {
       metadata.title = `${document.name} | Math Editor`;
       metadata.subtitle = `Last updated: ${new Date(document.updatedAt).toLocaleString()}`;
       metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
-    } else {
-      metadata.title = 'Private Document | Math Editor';
-      metadata.subtitle = 'if you have access, please sign in to edit it';
     }
   } else {
-    metadata.title = "Edit Document | Math Editor";
-    metadata.subtitle = "Edit a document on Math Editor";
+    metadata.subtitle = 'Document not found';
   }
   const { title, subtitle, description } = metadata;
   const image = `/api/og?metadata=${encodeURIComponent(JSON.stringify(metadata))}`;

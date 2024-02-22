@@ -21,7 +21,7 @@ export async function generateMetadata({ params, searchParams }: { params: { id:
   if (document) {
     const revisionId = searchParams.v ?? document.head;
     const revision = document.revisions.find((revision) => revision.id === revisionId);
-    if (document?.private) {
+    if (document.private) {
       metadata.title = 'Private Document | Math Editor';
       metadata.subtitle = 'If you have access, please sign in to view it';
     } else {

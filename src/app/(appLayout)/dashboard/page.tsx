@@ -3,7 +3,7 @@ import Dashboard from "@/components/Dashboard";
 
 export const metadata: Metadata = {
   title: 'Dashboard | Math Editor',
-  description: 'Manage your account and documents on Math Editor'
+  description: 'Manage your account on Math Editor'
 }
 
 const page = () => <Dashboard />;
