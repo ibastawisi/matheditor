@@ -183,7 +183,7 @@ export const forkCloudDocument = createAsyncThunk('app/forkCloudDocument', async
 
 export const createLocalDocument = createAsyncThunk('app/createLocalDocument', async (payloadCreator: DocumentCreateInput, thunkAPI) => {
   try {
-    const { coauthors, published, collab, private: isPrivate, baseId, ...document } = payloadCreator;
+    const { coauthors, published, collab, private: isPrivate, ...document } = payloadCreator;
     const id = await documentDB.add(document);
     if (!id) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to create document" });
     const { data, ...rest } = document;
@@ -250,7 +250,7 @@ export const createCloudRevision = createAsyncThunk('app/createCloudRevision', a
 export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', async (payloadCreator: { id: string, partial: DocumentUpdateInput }, thunkAPI) => {
   try {
     const { id, partial } = payloadCreator;
-    const { coauthors, published, collab, private: isPrivate, baseId, ...document } = partial;
+    const { coauthors, published, collab, private: isPrivate, ...document } = partial;
     const result = await documentDB.patch(id, document);
     if (!result) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to update document" });
     return thunkAPI.fulfillWithValue(payloadCreator);

@@ -37,6 +37,7 @@ export interface EditorDocument {
   createdAt: string | Date;
   updatedAt: string | Date;
   handle?: string | null;
+  baseId?: string | null;
 }
 
 export type LocalDocument = Omit<EditorDocument, "data"> & {
@@ -49,7 +50,6 @@ export type CloudDocument = Omit<EditorDocument, "data"> & {
   published?: boolean;
   collab?: boolean;
   private?: boolean;
-  baseId?: string | null;
 }
 export type UserDocument = { id: string; local?: LocalDocument; cloud?: CloudDocument; };
 

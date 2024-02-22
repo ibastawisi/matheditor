@@ -37,7 +37,6 @@ const idbConfig = {
         { name: "updatedAt", keyPath: "updatedAt" },
         { name: "baseId", keyPath: "baseId"},
         { name: "head", keyPath: "head"},
-        { name: "published", keyPath: "published"}
       ],
     },
     {

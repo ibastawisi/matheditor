@@ -30,7 +30,6 @@ export async function GET() {
     response.error = { title: "Something went wrong", subtitle: "Please try again later" }
     return NextResponse.json(response, { status: 500 })
   }
-
 }
 
 export async function POST(request: Request) {
@@ -62,7 +61,6 @@ export async function POST(request: Request) {
       id: body.id,
       authorId: user.id,
       name: body.name,
-      baseId: body.baseId,
       createdAt: body.createdAt,
       updatedAt: body.updatedAt,
       head: body.head,
@@ -107,7 +105,11 @@ export async function POST(request: Request) {
       };
     }
 
-
+    if (body.baseId) {
+      const baseDocument = await findUserDocument(body.baseId);
+      if (baseDocument) input.baseId = body.baseId;
+    }
+    
     response.data = await createDocument(input);
     return NextResponse.json(response, { status: 200 })
   } catch (error) {

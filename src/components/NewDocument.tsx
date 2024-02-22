@@ -5,7 +5,7 @@ import * as React from 'react';
 import { CheckHandleResponse, DocumentCreateInput, User, UserDocument } from '@/types';
 import { SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "@/editor/types";
 import { useCallback, useEffect, useState } from 'react';
-import { useDispatch, actions } from '@/store';
+import { useDispatch, actions, useSelector } from '@/store';
 import DocumentCard from './DocumentCard';
 import { Container, Box, Avatar, Typography, TextField, Button, FormControlLabel, FormHelperText, Switch, Checkbox } from '@mui/material';
 import { Article, Add } from '@mui/icons-material';
@@ -52,6 +52,9 @@ const getEditorData = (title: string) => {
 }
 
 const NewDocument: React.FC = () => {
+  const initialized = useSelector(state => state.ui.initialized);
+  const user = useSelector(state => state.user);
+  const unauthenticated = initialized && !user;
   const isOnline = useOnlineStatus();
   const [base, setBase] = useState<UserDocument>();
   const [input, setInput] = useState<Partial<DocumentCreateInput>>({});
@@ -88,7 +91,6 @@ const NewDocument: React.FC = () => {
 
   const router = useRouter();
   const navigate = (path: string) => router.push(path, { scroll: false });
-
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -180,9 +182,15 @@ const NewDocument: React.FC = () => {
             }
           />
           <FormControlLabel
-            control={<Switch checked={saveToCloud} onChange={() => setSaveToCloud(!saveToCloud)} disabled={!isOnline} />}
+            control={<Switch checked={saveToCloud} onChange={() => setSaveToCloud(!saveToCloud)} disabled={!isOnline || !user} />}
             label="Save to Cloud"
           />
+          <FormHelperText>
+            {!isOnline ? "You are offline: Please connect to the internet"
+              : unauthenticated ? "You are not signed in: Please sign in"
+                : "Save to the cloud to access your documents from anywhere"
+            }
+          </FormHelperText>
           {saveToCloud && <>
             <UsersAutocomplete label='Coauthors' placeholder='Email' value={input.coauthors ?? []} onChange={updateCoauthors} sx={{ my: 2 }} disabled={!isOnline} />
             <FormControlLabel label="Private"
