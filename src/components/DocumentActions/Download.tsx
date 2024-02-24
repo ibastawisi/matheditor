@@ -1,6 +1,6 @@
 "use client"
 import { useDispatch, actions } from "@/store";
-import { UserDocument } from "@/types";
+import { BackupDocument, UserDocument } from "@/types";
 import { Download } from "@mui/icons-material";
 import { IconButton, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
 
@@ -26,14 +26,25 @@ const DownloadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuit
     }
   };
 
+  const getBackupDocument = async () => {
+    const editorDocument = await getEditorDocument();
+    if (!editorDocument) return null;
+    const backupDocument: BackupDocument = { ...editorDocument, revisions: [] };
+    const revisionsResponse = await dispatch(actions.getLocalDocumentRevisions(id));
+    if (revisionsResponse.type === actions.getLocalDocumentRevisions.fulfilled.type) {
+      backupDocument.revisions = revisionsResponse.payload as ReturnType<typeof actions.getLocalDocumentRevisions.fulfilled>["payload"];
+    }
+    return backupDocument;
+  };
+
   const handleSave = async () => {
     if (closeMenu) closeMenu();
-    const editorDocument = await getEditorDocument();
-    if (!editorDocument) return dispatch(actions.announce({ message: { title: "Document Not Found" } }));
-    const blob = new Blob([JSON.stringify(editorDocument)], { type: "text/json" });
+    const backupDocument = await getBackupDocument();
+    if (!backupDocument) return dispatch(actions.announce({ message: { title: "Document Not Found" } }));
+    const blob = new Blob([JSON.stringify(backupDocument)], { type: "text/json" });
     const link = window.document.createElement("a");
 
-    link.download = editorDocument.name + ".me";
+    link.download = backupDocument.name + ".me";
     link.href = window.URL.createObjectURL(blob);
     link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
 

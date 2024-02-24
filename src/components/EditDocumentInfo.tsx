@@ -52,7 +52,7 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
             <Typography variant="subtitle2" color="text.secondary" gutterBottom>Updated: {new Date(localDocument.updatedAt).toLocaleString()}</Typography>
             {!cloudDocument && <Typography variant="subtitle2">Author <Chip
               avatar={<Avatar />}
-              label="Local User"
+              label={user?.name ?? "Local User"}
               variant="outlined"
             />
             </Typography>}

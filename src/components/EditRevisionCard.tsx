@@ -107,7 +107,7 @@ const RevisionCard: React.FC<{
       return;
     }
     if (isLocalDocument && !isCloudDocument) {
-      const editorDocument = { ...localDocument, data: editorDocumentRevision.data };
+      const editorDocument = { ...localDocument, data: editorDocumentRevision.data, revisions: [] };
       return dispatch(actions.createCloudDocument(editorDocument));
     }
     const response = await dispatch(actions.createCloudRevision(editorDocumentRevision));

@@ -52,6 +52,7 @@ export type CloudDocument = Omit<EditorDocument, "data"> & {
   private?: boolean;
 }
 export type UserDocument = { id: string; local?: LocalDocument; cloud?: CloudDocument; };
+export type BackupDocument = EditorDocument & { revisions: EditorDocumentRevision[]; };
 
 export type DocumentCreateInput = EditorDocument & {
   coauthors?: string[];
@@ -59,6 +60,7 @@ export type DocumentCreateInput = EditorDocument & {
   collab?: boolean;
   private?: boolean;
   baseId?: string | null;
+  revisions?: EditorDocumentRevision[];
 };
 
 export type DocumentUpdateInput = Partial<EditorDocument> & {
@@ -67,6 +69,7 @@ export type DocumentUpdateInput = Partial<EditorDocument> & {
   collab?: boolean;
   private?: boolean;
   baseId?: string | null;
+  revisions?: EditorDocumentRevision[];
 };
 
 export interface EditorDocumentRevision {

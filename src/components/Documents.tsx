@@ -4,10 +4,10 @@ import RouterLink from 'next/link'
 import { useDispatch, useSelector, actions } from '@/store';
 import DocumentCard from "./DocumentCard";
 import { memo, useEffect } from "react";
-import { EditorDocument, User, UserDocument } from '@/types';
+import { BackupDocument, EditorDocument, User, UserDocument } from '@/types';
 import { validate } from "uuid";
 import UserCard from "./UserCard";
-import documentDB from '@/indexeddb';
+import documentDB, { revisionDB } from '@/indexeddb';
 import { Box, Avatar, Button, Typography, Grid, Card, CardActionArea, CardHeader, Collapse, Pagination } from '@mui/material';
 import { PostAdd, UploadFile, Help, Storage, Science, Pageview } from '@mui/icons-material';
 import DocumentSortControl, { sortDocuments } from './DocumentSortControl';
@@ -41,75 +41,69 @@ const Documents: React.FC = () => {
 
   const handleFilesChange = async (files: FileList | File[] | null) => {
     if (!files?.length) return;
-    if (files.length === 1) {
-      await loadFromFile(files[0]);
-    } else {
-      Array.from(files).forEach(async file => await loadFromFile(file));
-      dispatch(actions.loadLocalDocuments());
-    }
+    Array.from(files).forEach(file => loadFromFile(file, files.length === 1));
+    dispatch(actions.loadLocalDocuments());
   }
 
-  async function loadFromFile(file: File): Promise<string | undefined> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsText(file);
-      reader.onload = () => {
-        const documentId = tryParseFile(reader.result as string)?.id;
-        resolve(documentId);
-      };
-    });
-  }
-
-  function tryParseFile(content: string): EditorDocument | null {
-    let document: EditorDocument | null = null;
-    try {
-      const data: EditorDocument | { [key: string]: EditorDocument } = JSON.parse(content);
-      if (validate((data as EditorDocument).id)) {
-        document = data as EditorDocument;
-        addDocument(data as EditorDocument, true);
-      } else {
-        Object.values(data).forEach((document: EditorDocument) => {
-          validate(document.id) && addDocument(document);
-        });
+  function loadFromFile(file: File, shouldNavigate?: boolean) {
+    const reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = () => {
+      try {
+        const data: BackupDocument | BackupDocument[] = JSON.parse(reader.result as string);
+        if (!Array.isArray(data)) {
+          validate(data.id) && addDocument(data, shouldNavigate);
+        } else {
+          data.forEach((document: BackupDocument) => validate(document.id) && addDocument(document));
+        }
+      } catch (error) {
+        dispatch(actions.announce({ message: { title: "Invalid file", subtitle: "Please select a valid .me file" } }));
       }
-    } catch (error) {
-      dispatch(actions.announce({ message: { title: "Invalid file", subtitle: "Please select a valid .me file" } }));
     }
-    return document;
   }
 
-  function addDocument(document: EditorDocument, navigateTo?: boolean) {
+  function addDocument(document: BackupDocument, shouldNavigate?: boolean) {
     if (documents.find(d => d.id === document.id && d.local)) {
       dispatch(actions.alert({
         title: "Document already exists",
         content: `Do you want to overwrite ${document.name}?`,
-        action: `dispatch(actions.updateLocalDocument({id:"${document.id}",partial:${JSON.stringify(document)}})).then(() => {${navigateTo ? `navigate("/edit/${document.id}");` : ""}})`
+        action: `dispatch(actions.updateLocalDocument({id:"${document.id}",partial:${JSON.stringify(document)}})).then(() => {${shouldNavigate ? `navigate("/edit/${document.id}");` : ""}})`
       }))
     } else {
       dispatch(actions.createLocalDocument(document)).then(() => {
-        navigateTo && navigate(`/edit/${document.id}`);
+        shouldNavigate && navigate(`/edit/${document.id}`);
       });
     }
   }
 
   async function backup() {
-    const documents = await documentDB.getAll();
-    const blob = new Blob([JSON.stringify(documents)], { type: "text/json" });
-    const link = window.document.createElement("a");
+    try {
+      const documents = await documentDB.getAll();
+      const revisions = await revisionDB.getAll();
+      const data: BackupDocument[] = documents.map(document => ({
+        ...document,
+        revisions: revisions.filter(revision => revision.documentId === document.id)
+      }));
 
-    const now = new Date();
-    link.download = now.toISOString() + ".me";
-    link.href = window.URL.createObjectURL(blob);
-    link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
+      const blob = new Blob([JSON.stringify(data)], { type: "text/json" });
+      const link = window.document.createElement("a");
 
-    const evt = new MouseEvent("click", {
-      view: window,
-      bubbles: true,
-      cancelable: true,
-    });
+      const now = new Date();
+      link.download = now.toISOString() + ".me";
+      link.href = window.URL.createObjectURL(blob);
+      link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
 
-    link.dispatchEvent(evt);
-    link.remove()
+      const evt = new MouseEvent("click", {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+      });
+
+      link.dispatchEvent(evt);
+      link.remove();
+    } catch (error) {
+      dispatch(actions.announce({ message: { title: "Backup failed", subtitle: "Please try again" } }));
+    };
   };
 
   const sort = useSelector(state => state.ui.sort);

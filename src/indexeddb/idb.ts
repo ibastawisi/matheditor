@@ -162,6 +162,27 @@ export function getActions<T>(currentStore: string) {
       });
     },
 
+    addMany(values: T[], keys?: any[]) {
+      return new Promise<number[]>((resolve, reject) => {
+        getConnection()
+          .then(db => {
+            validateBeforeTransaction(db, currentStore, reject);
+            let tx = createTransaction(db, "readwrite", currentStore, resolve, reject);
+            let objectStore = tx.objectStore(currentStore);
+            values.forEach((value, i) => {
+              let request = objectStore.put(value, keys?.[i]);
+              request.onsuccess = (e: any) => {
+                if (i === values.length - 1) {
+                  (tx as any)?.commit?.();
+                  resolve(e.target.result);
+                }
+              };
+            });
+          })
+          .catch(reject);
+      });
+    },
+
     update(value: T, key?: any) {
       return new Promise<any>((resolve, reject) => {
         getConnection()

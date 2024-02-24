@@ -111,6 +111,16 @@ export const getLocalRevision = createAsyncThunk('app/getLocalRevision', async (
   }
 });
 
+export const getLocalDocumentRevisions = createAsyncThunk('app/getLocalDocumentRevisions', async (id: string, thunkAPI) => {
+  try {
+    const revisions = await revisionDB.getManyByKey("documentId", id);
+    return thunkAPI.fulfillWithValue(revisions);
+  } catch (error: any) {
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
+  }
+});
+
 export const getCloudDocument = createAsyncThunk('app/getCloudDocument', async (id: string, thunkAPI) => {
   try {
     NProgress.start();
@@ -183,11 +193,16 @@ export const forkCloudDocument = createAsyncThunk('app/forkCloudDocument', async
 
 export const createLocalDocument = createAsyncThunk('app/createLocalDocument', async (payloadCreator: DocumentCreateInput, thunkAPI) => {
   try {
-    const { coauthors, published, collab, private: isPrivate, ...document } = payloadCreator;
+    const { coauthors, published, collab, private: isPrivate, revisions, ...document } = payloadCreator;
     const id = await documentDB.add(document);
     if (!id) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to create document" });
     const { data, ...rest } = document;
-    const localDocument: LocalDocument = { ...rest, revisions: [] };
+    if (revisions) await revisionDB.addMany(revisions)
+    const localDocumentRevisions = (revisions ?? []).map(revision => {
+      const { data, ...localRevision } = revision;
+      return localRevision;
+    });
+    const localDocument: LocalDocument = { ...rest, revisions: localDocumentRevisions };
     return thunkAPI.fulfillWithValue(localDocument);
   } catch (error: any) {
     console.error(error);
@@ -250,10 +265,19 @@ export const createCloudRevision = createAsyncThunk('app/createCloudRevision', a
 export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', async (payloadCreator: { id: string, partial: DocumentUpdateInput }, thunkAPI) => {
   try {
     const { id, partial } = payloadCreator;
-    const { coauthors, published, collab, private: isPrivate, ...document } = partial;
+    const { coauthors, published, collab, private: isPrivate, revisions, ...document } = partial;
     const result = await documentDB.patch(id, document);
+    const payload: { id: string, partial: Partial<LocalDocument> } = { id, partial: { ...document } };
+    if (revisions) {
+      await revisionDB.addMany(revisions);
+      const localDocumentRevisions = (revisions ?? []).map(revision => {
+        const { data, ...localRevision } = revision;
+        return localRevision;
+      });
+      payload.partial.revisions = localDocumentRevisions;
+    }
     if (!result) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to update document" });
-    return thunkAPI.fulfillWithValue(payloadCreator);
+    return thunkAPI.fulfillWithValue(payload);
   } catch (error: any) {
     console.error(error);
     return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
