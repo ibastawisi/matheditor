@@ -4,18 +4,20 @@ import TopAppBar from './TopAppBar';
 import AlertDialog from "./Alert";
 import Announcer from "./Announcer";
 import PwaUpdater from "./PwaUpdater";
-import Footer from "./Footer";
 import ProgressBar from "./ProgressBar";
 import { Container } from "@mui/material";
 import { Suspense } from "react";
+import DisplayAd from "../Ads/DisplayAd";
 
 const AppLayout = ({ children }: { children: React.ReactNode; }) => {
   return (
     <StoreProvider>
       <TopAppBar />
       <Suspense><ProgressBar /></Suspense>
-      <Container className='editor-container'>{children}</Container>
-      <Footer />
+      <Container className='editor-container'>
+        {children}
+        <DisplayAd sx={{ mt: 2 }} />
+      </Container>
       <AlertDialog />
       <Announcer />
       <PwaUpdater />

@@ -80,6 +80,10 @@ header {
   overflow: hidden;
 }
 
+footer {
+  z-index: 1000;
+}
+
 .splash-screen {
   position: fixed;
   inset: 0;
@@ -109,6 +113,7 @@ header {
   line-height: 2.66;
   letter-spacing: 0.08333em;
   text-transform: uppercase;
+  min-height: 32px;
 }
 
 .splash-screen-content .MuiTypography-subtitle2 {
