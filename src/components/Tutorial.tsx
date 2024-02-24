@@ -5,6 +5,7 @@ import type { EditorState } from "../editor/types";
 import { tasks, checkpoints } from "@/tutorial";
 import { Paper, Box, Typography, List, Pagination, ListItemButton, ListItemIcon, ListItemText, Collapse, Divider } from "@mui/material";
 import { Check, Clear, ExpandLess, ExpandMore } from "@mui/icons-material";
+import DisplayAd from "./Ads/DisplayAd";
 
 type CheckpointItem = typeof checkpoints[0][0];
 
@@ -40,6 +41,7 @@ const Tutorial: React.FC = () => {
       </Box>
       <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3, width: "100%" }} />
     </Paper>
+    <DisplayAd sx={{ mt: 2 }} />
   </>;
 }
 

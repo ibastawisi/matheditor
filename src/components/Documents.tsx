@@ -13,7 +13,7 @@ import { PostAdd, UploadFile, Help, Storage, Science, Pageview } from '@mui/icon
 import DocumentSortControl, { sortDocuments } from './DocumentSortControl';
 import DocumentFilterControl, { filterDocuments } from './DocumentFilterControl';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
-import CardAd from './Ads/CardAd';
+import FeedAd from './Ads/FeedAdd';
 
 const IS_VERCEL = !!process.env.NEXT_PUBLIC_VERCEL_URL;
 
@@ -24,6 +24,8 @@ const Documents: React.FC = () => {
   const navigate = (path: string) => router.push(path);
   const initialized = useSelector(state => state.ui.initialized);
   const documents = useSelector(state => state.documents);
+  const isOnline = useOnlineStatus();
+  const showAds = IS_VERCEL && isOnline && !!user;
 
   useEffect(() => {
     if ("launchQueue" in window && "LaunchParams" in window) {
@@ -157,6 +159,7 @@ const Documents: React.FC = () => {
         </Grid>
       </Grid>
       <Collapse timeout={1000} in={!(user && initialized)} unmountOnExit><Box sx={{ mb: 2 }}><UserCard user={user} /></Box></Collapse>
+      {showAds && <FeedAd sx={{ mb: 2 }} />}
       <DocumentsGrid documents={sortedDocuments} initialized={initialized} user={user} />
     </>
   )
@@ -166,9 +169,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initiali
   const dispatch = useDispatch();
   const showSkeletons = !initialized && !documents.length;
   const showEmpty = initialized && !documents.length;
-  const isOnline = useOnlineStatus();
-  const showAds = IS_VERCEL && isOnline && !showEmpty;
-  const pageSize = showAds ? 11 : 12;
+  const pageSize = 12;
   const pages = Math.ceil(documents.length / pageSize);
   const savedPage = useSelector(state => state.ui.page);
   const page = Math.min(savedPage, pages);
@@ -181,7 +182,6 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initiali
       <Pageview sx={{ width: 64, height: 64, fontSize: 64 }} />
       <Typography variant="overline" component="p">No documents found</Typography>
     </Grid>}
-    {showAds && <Grid item xs={12} sm={6} md={4}><CardAd /></Grid>}
     {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
       <DocumentCard userDocument={document} user={user} />
     </Grid>)}

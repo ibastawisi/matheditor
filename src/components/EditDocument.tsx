@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import { EditorState, LexicalEditor } from "@/editor";
 import { v4 as uuidv4 } from 'uuid';
 import dynamic from "next/dynamic";
+import DisplayAd from "./Ads/DisplayAd";
 
 const EditDocumentInfo = dynamic(() => import('@/components/EditDocumentInfo'), { ssr: false });
 
@@ -60,6 +61,7 @@ const EditDocument: React.FC = () => {
     <Helmet title={`${document.name} | Math Editor`} />
     <Editor document={document} editorRef={editorRef} onChange={handleChange} />
     <EditDocumentInfo documentId={document.id} editorRef={editorRef} />
+    <DisplayAd sx={{ mt: 2 }} />
   </>;
 }
 
