@@ -1,12 +1,12 @@
 import "mathlive/static.css"
 import '@/editor/theme.css';
 import { CloudDocument, User } from '@/types';
-
-import dynamic from "next/dynamic";
-import DisplayAd from "./Ads/DisplayAd";
-import ArticleAd from "./Ads/ArticleAd";
 import { Fragment } from "react";
+import dynamic from "next/dynamic";
+
 const ViewDocumentInfo = dynamic(() => import('@/components/ViewDocumentInfo'), { ssr: false });
+const DisplayAd = dynamic(() => import('@/components/Ads/DisplayAd'), { ssr: false });
+const ArticleAd = dynamic(() => import('@/components/Ads/ArticleAd'), { ssr: false });
 
 const ViewDocument: React.FC<React.PropsWithChildren & { cloudDocument: CloudDocument, user?: User }> = ({ cloudDocument, user, children }) => {
   return <>

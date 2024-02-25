@@ -12,7 +12,9 @@ import { Article, Add } from '@mui/icons-material';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
 import UsersAutocomplete from './UsersAutocomplete';
 import { debounce } from '@mui/material/utils';
-import DisplayAd from './Ads/DisplayAd';
+import dynamic from "next/dynamic";
+
+const DisplayAd = dynamic(() => import('@/components/Ads/DisplayAd'), { ssr: false });
 
 const getEditorData = (title: string) => {
   const headingText: SerializedTextNode = {

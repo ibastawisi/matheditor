@@ -5,7 +5,9 @@ import type { EditorState } from "../editor/types";
 import { tasks, checkpoints } from "@/tutorial";
 import { Paper, Box, Typography, List, Pagination, ListItemButton, ListItemIcon, ListItemText, Collapse, Divider } from "@mui/material";
 import { Check, Clear, ExpandLess, ExpandMore } from "@mui/icons-material";
-import DisplayAd from "./Ads/DisplayAd";
+import dynamic from "next/dynamic";
+
+const DisplayAd = dynamic(() => import('@/components/Ads/DisplayAd'), { ssr: false });
 
 type CheckpointItem = typeof checkpoints[0][0];
 

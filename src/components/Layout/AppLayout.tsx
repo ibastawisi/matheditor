@@ -7,7 +7,6 @@ import PwaUpdater from "./PwaUpdater";
 import ProgressBar from "./ProgressBar";
 import { Container } from "@mui/material";
 import { Suspense } from "react";
-import DisplayAd from "../Ads/DisplayAd";
 
 const AppLayout = ({ children }: { children: React.ReactNode; }) => {
   return (

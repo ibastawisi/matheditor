@@ -2,7 +2,9 @@
 import { useSelector } from '@/store';
 import UserCard from "./UserCard";
 import { Box } from "@mui/material";
-import DisplayAd from './Ads/DisplayAd';
+import dynamic from "next/dynamic";
+
+const DisplayAd = dynamic(() => import('@/components/Ads/DisplayAd'), { ssr: false });
 
 const Dashboard: React.FC = () => {
   const user = useSelector(state => state.user);

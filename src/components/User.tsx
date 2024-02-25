@@ -6,8 +6,10 @@ import DocumentCard from "./DocumentCard";
 import { Box, Grid, Pagination, Typography } from "@mui/material";
 import { Pageview } from "@mui/icons-material";
 import DocumentSortControl, { sortDocuments } from "./DocumentSortControl";
-import DisplayAd from "./Ads/DisplayAd";
-import TextAd from "./Ads/TextAd";
+import dynamic from "next/dynamic";
+
+const DisplayAd = dynamic(() => import('@/components/Ads/DisplayAd'), { ssr: false });
+const TextAd = dynamic(() => import('@/components/Ads/TextAd'), { ssr: false });
 
 const IS_VERCEL = !!process.env.NEXT_PUBLIC_VERCEL_URL;
 
