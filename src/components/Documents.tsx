@@ -4,7 +4,7 @@ import RouterLink from 'next/link'
 import { useDispatch, useSelector, actions } from '@/store';
 import DocumentCard from "./DocumentCard";
 import { memo, useEffect } from "react";
-import { BackupDocument, EditorDocument, User, UserDocument } from '@/types';
+import { BackupDocument, User, UserDocument } from '@/types';
 import { validate } from "uuid";
 import UserCard from "./UserCard";
 import documentDB, { revisionDB } from '@/indexeddb';
@@ -13,7 +13,7 @@ import { PostAdd, UploadFile, Help, Storage, Science, Pageview } from '@mui/icon
 import DocumentSortControl, { sortDocuments } from './DocumentSortControl';
 import DocumentFilterControl, { filterDocuments } from './DocumentFilterControl';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
-import FeedAd from './Ads/FeedAdd';
+import TextAd from './Ads/TextAd';
 
 const IS_VERCEL = !!process.env.NEXT_PUBLIC_VERCEL_URL;
 
@@ -153,7 +153,7 @@ const Documents: React.FC = () => {
         </Grid>
       </Grid>
       <Collapse timeout={1000} in={!(user && initialized)} unmountOnExit><Box sx={{ mb: 2 }}><UserCard user={user} /></Box></Collapse>
-      {showAds && <FeedAd sx={{ mb: 2 }} />}
+      {showAds && <TextAd sx={{ mb: 2 }} />}
       <DocumentsGrid documents={sortedDocuments} initialized={initialized} user={user} />
     </>
   )

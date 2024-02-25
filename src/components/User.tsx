@@ -1,5 +1,5 @@
 "use client"
-import { useState, Fragment } from "react";
+import { useState } from "react";
 import UserCard from "./UserCard";
 import { User, UserDocument } from '@/types';
 import DocumentCard from "./DocumentCard";
@@ -7,7 +7,7 @@ import { Box, Grid, Pagination, Typography } from "@mui/material";
 import { Pageview } from "@mui/icons-material";
 import DocumentSortControl, { sortDocuments } from "./DocumentSortControl";
 import DisplayAd from "./Ads/DisplayAd";
-import FeedAd from "./Ads/FeedAdd";
+import TextAd from "./Ads/TextAd";
 
 const IS_VERCEL = !!process.env.NEXT_PUBLIC_VERCEL_URL;
 
@@ -24,7 +24,7 @@ const User: React.FC<{ user?: User, sessionUser?: User, documents: UserDocument[
 
   return <Box>
     <UserCard user={user} sessionUser={sessionUser} />
-    {showAds && <FeedAd sx={{ my: 2 }} />}
+    {showAds && <TextAd sx={{ my: 2 }} />}
     {user && <Box sx={{ gap: 1, my: 2 }}>
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>
         <Typography variant="h6" component="h2" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Published Documents</Typography>
