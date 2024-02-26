@@ -24,6 +24,7 @@ import { INSERT_MATH_COMMAND } from '../MathPlugin';
 import { $isMathNode } from '@/editor/nodes/MathNode';
 import { createPortal } from 'react-dom';
 import { Alert } from '@mui/material';
+import { IS_MOBILE } from '@/editor/shared/environment';
 
 export const SPEECH_TO_TEXT_COMMAND: LexicalCommand<boolean> = createCommand(
   'SPEECH_TO_TEXT_COMMAND',
@@ -71,14 +72,12 @@ function SpeechToTextPlugin() {
           const resultItem = event.results.item(event.resultIndex);
           const { transcript } = resultItem.item(0);
           if (timer.current) clearTimeout(timer.current);
-          if (transcript) {
-            setTranscript(transcript);
-            timer.current = setTimeout(() => {
-              if (timer.current) clearTimeout(timer.current);
-              setTranscript(null);
-            }, 1000);
-          }
-
+          if (!transcript) return;
+          setTranscript(transcript);
+          timer.current = setTimeout(() => {
+            if (timer.current) clearTimeout(timer.current);
+            setTranscript(null);
+          }, 1000);
           if (!resultItem.isFinal) {
             return;
           }
@@ -113,6 +112,7 @@ function SpeechToTextPlugin() {
               }
             }
           });
+          setTranscript(null);
         },
       );
       recognition.current.addEventListener('end', () => {
@@ -168,4 +168,4 @@ const TranscriptAlert = ({ transcript }: { transcript: string }) => {
     , document.body);
 };
 
-export default SUPPORT_SPEECH_RECOGNITION ? SpeechToTextPlugin : () => null;
+export default !IS_MOBILE && SUPPORT_SPEECH_RECOGNITION ? SpeechToTextPlugin : () => null;

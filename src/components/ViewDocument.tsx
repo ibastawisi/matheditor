@@ -10,7 +10,7 @@ const ArticleAd = dynamic(() => import('@/components/Ads/ArticleAd'), { ssr: fal
 
 const ViewDocument: React.FC<React.PropsWithChildren & { cloudDocument: CloudDocument, user?: User }> = ({ cloudDocument, user, children }) => {
   return <>
-    {Array.isArray(children) ? children.map((child, i) => <Fragment key={i}>{child}{i && i % 20 === 0 && <ArticleAd sx={{ my: 2 }} />}</Fragment>) : children}
+    {Array.isArray(children) ? children.map((child, i) => <Fragment key={i}>{child}{(i && i % 20 === 0) ? <ArticleAd sx={{ my: 2 }} /> : null}</Fragment>) : children}
     <ViewDocumentInfo cloudDocument={cloudDocument} user={user} />
     <DisplayAd sx={{ mt: 'auto' }} />
   </>

@@ -12,7 +12,7 @@ import { BlockFormatSelect } from './Menus/BlockFormatSelect';
 import InsertToolMenu from './Menus/InsertToolMenu';
 import TextFormatToggles from './Tools/TextFormatToggles';
 import AlignTextMenu from './Menus/AlignTextMenu';
-import { IS_APPLE } from '../../shared/environment';
+import { IS_APPLE, IS_MOBILE } from '../../shared/environment';
 import { $isMathNode } from '../../nodes/MathNode';
 import MathTools from './Tools/MathTools';
 import { $isImageNode } from '../../nodes/ImageNode';
@@ -357,13 +357,13 @@ function ToolbarPlugin() {
             <InsertToolMenu editor={activeEditor} />
             <AlignTextMenu editor={activeEditor} isRTL={isRTL} />
           </Box>
-          {SUPPORT_SPEECH_RECOGNITION && <Fab size='small' color={isSpeechToText ? 'secondary' : 'primary'}
+          {(!IS_MOBILE && SUPPORT_SPEECH_RECOGNITION) ? <Fab size='small' color={isSpeechToText ? 'secondary' : 'primary'}
             sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 16, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}
             onClick={() => {
               editor.dispatchCommand(SPEECH_TO_TEXT_COMMAND, !isSpeechToText);
             }}>
             <Mic />
-          </Fab>}
+          </Fab> : null}
         </Toolbar >
       </AppBar>
       {toolbarTrigger && <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })} />}
