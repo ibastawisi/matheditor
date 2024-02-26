@@ -63,16 +63,14 @@ header {
     color: rgba(0, 0, 0, 0.87) !important;
   }
 
-  #nprogress {
-    display: none !important;
-  }
-
   body>*:not(.editor-container) {
     display: none !important;
   }
 }
 
 .editor-container {
+  display: flex !important;
+  flex-direction: column;
   flex: 1;
   margin: 1rem auto;
   font-size: 15px;

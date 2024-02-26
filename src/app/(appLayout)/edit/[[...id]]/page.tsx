@@ -8,7 +8,7 @@ export async function generateMetadata({ params }: { params: { id?: string[] } }
     title: "Edit Document | Math Editor",
     description: "Edit a document on Math Editor",
   };
-  const metadata: OgMetadata = { id: params.id[0], title: 'Math Editor' };
+  const metadata: OgMetadata = { id: params.id[0], title: 'Edit Document | Math Editor' };
   const document = await findUserDocument(params.id[0]);
   if (document) {
     if (document.private) {

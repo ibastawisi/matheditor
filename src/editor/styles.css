@@ -1,8 +1,3 @@
-.editor-container:has(.editor-input) {
-  display: flex;
-  flex-direction: column;
-}
-
 .editor-input {
   flex: 1;
   resize: none;

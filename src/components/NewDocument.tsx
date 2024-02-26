@@ -157,8 +157,8 @@ const NewDocument: React.FC = () => {
 
   return (
     <>
-      <Container maxWidth="xs">
-        <Box sx={{ my: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <Container maxWidth="xs" sx={{ flex: 1 }}>
+        <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}><Article /></Avatar>
           <Typography component="h1" variant="h5">{baseId ? "Fork a document" : "Create a new document"}</Typography>
           {baseId && <>

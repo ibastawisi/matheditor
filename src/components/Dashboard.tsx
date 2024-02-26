@@ -9,10 +9,12 @@ const DisplayAd = dynamic(() => import('@/components/Ads/DisplayAd'), { ssr: fal
 const Dashboard: React.FC = () => {
   const user = useSelector(state => state.user);
 
-  return <Box>
-    <UserCard user={user} sessionUser={user} />
+  return <>
+    <Box sx={{ flex: 1 }}>
+      <UserCard user={user} sessionUser={user} />
+    </Box>
     <DisplayAd sx={{ mt: 2 }} />
-  </Box>;
+  </>
 }
 
 export default Dashboard;

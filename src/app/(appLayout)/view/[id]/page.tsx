@@ -10,20 +10,31 @@ import SplashScreen from "@/components/SplashScreen";
 import { cache } from "react";
 
 const getCachedUserDocument = cache(async (id: string, revisions?: string) => await findUserDocument(id, revisions));
+const getCachedSession = cache(async () => await getServerSession(authOptions));
 
 export async function generateMetadata({ params, searchParams }: { params: { id: string }, searchParams: { v?: string } }): Promise<Metadata> {
   if (!params.id) return {
     title: "View Document | Math Editor",
     description: "View a document on Math Editor",
   };
-  const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
+  const metadata: OgMetadata = { id: params.id, title: 'View Document | Math Editor' };
   const document = await getCachedUserDocument(params.id, "all");
   if (document) {
     const revisionId = searchParams.v ?? document.head;
     const revision = document.revisions.find((revision) => revision.id === revisionId);
     if (document.private) {
-      metadata.title = 'Private Document | Math Editor';
-      metadata.subtitle = 'If you have access, please sign in to view it';
+      const session = await getCachedSession();
+      const user = session?.user;
+      const isAuthor = user && user.id === document.author.id;
+      const isCoauthor = user && document.coauthors.some(coauthor => coauthor.id === user.id);
+      if (isAuthor || isCoauthor) {
+        metadata.title = `${document.name} | Math Editor`;
+        metadata.subtitle = revision ? `Last updated: ${new Date(revision.createdAt).toLocaleString()}` : 'Revision not Found'
+        metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
+      } else {
+        metadata.title = 'Private Document | Math Editor';
+        metadata.subtitle = 'If you have access, please sign in to view it';
+      }
     } else {
       metadata.title = `${document.name} | Math Editor`;
       metadata.subtitle = revision ? `Last updated: ${new Date(revision.createdAt).toLocaleString()}` : 'Revision not Found'
@@ -51,7 +62,7 @@ export default async function Page({ params, searchParams }: { params: { id: str
   const revision = document.revisions.find((revision) => revision.id === revisionId);
   if (!revision) notFound();
   document.updatedAt = revision.createdAt;
-  const session = await getServerSession(authOptions);
+  const session = await getCachedSession();
   const isCollab = document.collab;
   if (!session) {
     if (document.private) return <SplashScreen title="This document is private" subtitle="Please sign in to view it" />
