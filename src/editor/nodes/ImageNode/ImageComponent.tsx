@@ -163,6 +163,7 @@ export default function ImageComponent({
         if ($isImageNode(node)) {
           node.selectPrevious();
           node.remove();
+          return true;
         }
       }
       return false;

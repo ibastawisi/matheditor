@@ -188,54 +188,52 @@
 .LexicalTheme__ol1 {
   padding: 0;
   margin: 0;
-  list-style-position: inside;
+  list-style-position: outside;
 }
 
 .LexicalTheme__ol2 {
   padding: 0;
   margin: 0;
-  margin-inline-start: 16px;
   list-style-type: upper-alpha;
-  list-style-position: inside;
+  list-style-position: outside;
 }
 
 .LexicalTheme__ol3 {
   padding: 0;
   margin: 0;
-  margin-inline-start: 16px;
   list-style-type: lower-alpha;
-  list-style-position: inside;
+  list-style-position: outside;
 }
 
 .LexicalTheme__ol4 {
   padding: 0;
   margin: 0;
-  margin-inline-start: 16px;
   list-style-type: upper-roman;
-  list-style-position: inside;
+  list-style-position: outside;
 }
 
 .LexicalTheme__ol5 {
   padding: 0;
   margin: 0;
-  margin-inline-start: 16px;
   list-style-type: lower-roman;
-  list-style-position: inside;
+  list-style-position: outside;
 }
 
 .LexicalTheme__ul {
   padding: 0;
   margin: 0;
-  list-style-position: inside;
+  list-style-position: outside;
 }
 
 .LexicalTheme__listItem {
-  margin: 8px 0;
+  margin: 8px 16px;
 }
 
 .LexicalTheme__listItemChecked,
 .LexicalTheme__listItemUnchecked {
   position: relative;
+  margin-left: 0;
+  margin-right: 0;
   padding-left: 24px;
   padding-right: 24px;
   list-style-type: none;
@@ -547,7 +545,7 @@ iframe {
   }
 }
 
-.LexicalTheme__layoutContaner {
+.LexicalTheme__layoutContainer {
   display: grid;
   gap: 0.25rem;
   margin-bottom: 0.5rem;
@@ -555,12 +553,6 @@ iframe {
 
 .LexicalTheme__layoutItem:not(:last-child) {
   margin-inline-end: 0.5rem;
-}
-
-@media print {
-  .LexicalTheme__layoutItem {
-    border-color: transparent !important;
-  }
 }
 
 /* color theme */

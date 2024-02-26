@@ -61,10 +61,11 @@ const theme: EditorThemeClasses = {
   },
   image: 'LexicalTheme__image',
   indent: 'LexicalTheme__indent',
-  layoutContainer: 'LexicalTheme__layoutContaner',
+  layoutContainer: 'LexicalTheme__layoutContainer',
   layoutItem: 'LexicalTheme__layoutItem',
   link: 'LexicalTheme__link',
   list: {
+    checklist: 'LexicalTheme__checklist',
     listitem: 'LexicalTheme__listItem',
     listitemChecked: 'LexicalTheme__listItemChecked',
     listitemUnchecked: 'LexicalTheme__listItemUnchecked',
