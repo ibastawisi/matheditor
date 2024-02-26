@@ -7,7 +7,7 @@ import { $isHeadingNode } from '@lexical/rich-text';
 import { $getSelectionStyleValueForProperty, $isParentElementRTL, $patchStyleText, } from '@lexical/selection';
 import { $getNearestNodeOfType, mergeRegister, } from '@lexical/utils';
 import { CAN_REDO_COMMAND, CAN_UNDO_COMMAND, REDO_COMMAND, SELECTION_CHANGE_COMMAND, UNDO_COMMAND, COMMAND_PRIORITY_CRITICAL, } from 'lexical';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { BlockFormatSelect } from './Menus/BlockFormatSelect';
 import InsertToolMenu from './Menus/InsertToolMenu';
 import TextFormatToggles from './Tools/TextFormatToggles';
@@ -17,13 +17,12 @@ import { $isMathNode } from '../../nodes/MathNode';
 import MathTools from './Tools/MathTools';
 import { $isImageNode } from '../../nodes/ImageNode';
 import ImageTools from './Tools/ImageTools';
-import { $isSketchNode } from '../../nodes/SketchNode';
 import { $isGraphNode } from '../../nodes/GraphNode';
 import { $patchStyle } from '../../nodes/utils';
 import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog, LinkDialog, LayoutDialog } from './Dialogs';
 import { $isStickyNode } from '../../nodes/StickyNode';
-import { SelectChangeEvent, useScrollTrigger, AppBar, Toolbar, Box, IconButton, Select, MenuItem } from '@mui/material';
-import { Redo, Undo } from '@mui/icons-material';
+import { SelectChangeEvent, useScrollTrigger, AppBar, Toolbar, Box, IconButton, Select, MenuItem, Fab } from '@mui/material';
+import { Mic, Redo, Undo } from '@mui/icons-material';
 import { $isIFrameNode } from '@/editor/nodes/IFrameNode';
 import { $findMatchingParent } from '@lexical/utils';
 import { $isTableNode, TableNode } from '@/editor/nodes/TableNode';
@@ -32,6 +31,7 @@ import { $isLinkNode } from '@lexical/link';
 import { EditorDialogs, SetDialogsPayload, SET_DIALOGS_COMMAND } from './Dialogs/commands';
 import { getSelectedNode } from '@/editor/utils/getSelectedNode';
 import { useMeasure } from '@/hooks/useMeasure';
+import { SPEECH_TO_TEXT_COMMAND, SUPPORT_SPEECH_RECOGNITION } from '../SpeechToTextPlugin';
 
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -98,6 +98,7 @@ function ToolbarPlugin() {
       open: false,
     },
   });
+  const [isSpeechToText, setIsSpeechToText] = useState(false);
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -203,6 +204,14 @@ function ToolbarPlugin() {
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
+      editor.registerCommand<boolean>(
+        SPEECH_TO_TEXT_COMMAND,
+        (payload) => {
+          setIsSpeechToText(payload);
+          return false;
+        },
+        COMMAND_PRIORITY_CRITICAL,
+      ),
     );
   }, [activeEditor, updateToolbar]);
 
@@ -283,9 +292,14 @@ function ToolbarPlugin() {
     ['20px', '20'],
   ];
 
-  const trigger = useScrollTrigger({
+  const toolbarTrigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 32,
+  });
+
+  const slideTrigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 100,
   });
 
   const showMathTools = $isMathNode(selectedNode);
@@ -299,9 +313,9 @@ function ToolbarPlugin() {
 
   return (
     <>
-      <AppBar elevation={trigger ? 4 : 0} position={trigger ? 'fixed' : 'static'}>
+      <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}>
         <Toolbar className="editor-toolbar" ref={toolbarRef} sx={{
-          displayPrint: 'none', px: `${(trigger ? 1 : 0)}!important`,
+          displayPrint: 'none', px: `${(toolbarTrigger ? 1 : 0)}!important`,
           display: "grid", gridTemplateColumns: "repeat(3,auto)", gridAutoFlow: "dense",
           justifyContent: "space-between", alignItems: "center", gap: 0.5, py: 1,
         }}>
@@ -343,9 +357,16 @@ function ToolbarPlugin() {
             <InsertToolMenu editor={activeEditor} />
             <AlignTextMenu editor={activeEditor} isRTL={isRTL} />
           </Box>
+          {SUPPORT_SPEECH_RECOGNITION && <Fab size='small' color={isSpeechToText ? 'secondary' : 'primary'}
+            sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 16, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}
+            onClick={() => {
+              editor.dispatchCommand(SPEECH_TO_TEXT_COMMAND, !isSpeechToText);
+            }}>
+            <Mic />
+          </Fab>}
         </Toolbar >
       </AppBar>
-      {trigger && <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })} />}
+      {toolbarTrigger && <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })} />}
       <ImageDialog editor={activeEditor} node={$isImageNode(selectedNode) ? selectedNode : null} open={dialogs.image.open} />
       <GraphDialog editor={activeEditor} node={$isGraphNode(selectedNode) ? selectedNode : null} open={dialogs.graph.open} />
       <SketchDialog editor={activeEditor} node={$isImageNode(selectedNode) ? selectedNode : null} open={dialogs.sketch.open} />

@@ -6,7 +6,6 @@ import RouterLink from "next/link";
 import ShareDocument from './DocumentActions/Share';
 import DownloadDocument from './DocumentActions/Download';
 import ForkDocument from './DocumentActions/Fork';
-import { Transition } from 'react-transition-group';
 import AppDrawer from './AppDrawer';
 import ViewRevisionCard from './ViewRevisionCard';
 import { useSearchParams } from 'next/navigation';
@@ -94,12 +93,10 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
           {cloudDocument.revisions.map(revision => <Grid item xs={12} key={revision.id}><ViewRevisionCard cloudDocument={cloudDocument} revision={revision} /></Grid>)}
         </Grid>
       </AppDrawer>
-      {showFork && <Transition in={slideTrigger} timeout={225}>
-        <Fab variant="extended" size='medium' component={RouterLink} prefetch={false} href={href}
-          sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 16, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>
-          {isEditable ? <Edit sx={{ mr: 1 }} /> : <FileCopy sx={{ mr: 1 }} />}{isEditable ? 'Edit' : 'Fork'}
-        </Fab>
-      </Transition>}
+      {showFork && <Fab variant="extended" size='medium' component={RouterLink} prefetch={false} href={href}
+        sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 16, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>
+        {isEditable ? <Edit sx={{ mr: 1 }} /> : <FileCopy sx={{ mr: 1 }} />}{isEditable ? 'Edit' : 'Fork'}
+      </Fab>}
     </>
   );
 }

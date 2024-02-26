@@ -5,6 +5,7 @@ import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
+import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { TablePlugin } from './TablePlugin';
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
@@ -39,6 +40,7 @@ import { IFrameNode } from "../nodes/IFrameNode";
 import IFramePlugin from "./IFramePlugin";
 import { LayoutPlugin } from "./LayoutPlugin";
 import { LayoutContainerNode } from "../nodes/LayoutNode";
+import SpeechToTextPlugin from "./SpeechToTextPlugin";
 
 export const EditorPlugins: React.FC<{
   contentEditable: React.ReactElement;
@@ -63,18 +65,19 @@ export const EditorPlugins: React.FC<{
       <MarkdownPlugin />
       <FloatingToolbarPlugin />
       <HorizontalRulePlugin />
-      {editor.hasNode(TableNode) && <TablePlugin />}
-      {editor.hasNode(TableNode) && <TableCellActionMenuPlugin /> }
-      {editor.hasNode(TableNode) && <TableCellResizer /> }
       <ComponentPickerMenuPlugin />
       <MathPlugin />
+      <DragDropPaste />
+      <CodeHighlightPlugin />
+      <AutoLinkPlugin />
+      <SpeechToTextPlugin />
+      {editor.hasNode(TableNode) && <TablePlugin />}
+      {editor.hasNode(TableNode) && <TableCellActionMenuPlugin />}
+      {editor.hasNode(TableNode) && <TableCellResizer />}
       {editor.hasNode(ImageNode) && <ImagePlugin />}
       {editor.hasNode(SketchNode) && <SketchPlugin />}
       {editor.hasNode(GraphNode) && <GraphPlugin />}
       {editor.hasNode(StickyNode) && <StickyPlugin />}
-      <DragDropPaste />
-      <CodeHighlightPlugin />
-      <AutoLinkPlugin />
       {editor.hasNode(PageBreakNode) && <PageBreakPlugin />}
       {editor.hasNode(IFrameNode) && <IFramePlugin />}
       {editor.hasNode(LayoutContainerNode) && <LayoutPlugin />}
