@@ -142,10 +142,20 @@ const findDocumentsByAuthorId = async (authorId: string) => {
     }
   });
 
+  const documentIds = documents.map(document => `'${document.id}'`);
+  const revisionSizesQuery = `SELECT id, pg_column_size("Revision".*) as size from "Revision" WHERE "documentId" IN (${documentIds})`;
+  const revisionSizes: { id: string, size: number }[] = await prisma.$queryRawUnsafe(revisionSizesQuery);
+
   const authoredDocuments = documents.map((document) => {
+    const revisions = document.revisions.map(revision => {
+      const size = revisionSizes.find((revisionSize) => revisionSize.id === revision.id)?.size ?? 0;
+      return { ...revision, size };
+    });
     const cloudDocument: CloudDocument = {
       ...document,
       coauthors: document.coauthors.map((coauthor) => coauthor.user),
+      revisions,
+      size: new Blob([JSON.stringify(document)]).size + revisions.reduce((acc, revision) => acc + revision.size, 0),
     };
     return cloudDocument;
   });
@@ -236,7 +246,7 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
 }
 
 const findDocumentsByCoauthorId = async (authorId: string) => {
-  const documents = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: authorId },
     select: {
       coauthored: {
@@ -306,8 +316,8 @@ const findDocumentsByCoauthorId = async (authorId: string) => {
       }
     }
   });
-  if (!documents) return [];
-  const cloudDocuments = documents.coauthored.map(({ document }) => {
+  if (!user) return [];
+  const cloudDocuments = user.coauthored.map(({ document }) => {
     const cloudDocument: CloudDocument = {
       ...document,
       coauthors: document.coauthors.map((coauthor) => coauthor.user),
@@ -409,13 +419,20 @@ const findUserDocument = async (handle: string, revisions?: "all" | string | nul
   });
 
   if (!document) return null;
+
+  const revisionSizes: { id: string, size: number }[] = await prisma.$queryRawUnsafe(`SELECT id, pg_column_size("Revision".*) as size from "Revision" WHERE "documentId" = '${document.id}'`);
   const cloudDocument: CloudDocument = {
     ...document,
     coauthors: document.coauthors.map((coauthor) => coauthor.user),
+    revisions: document.revisions.map(revision => {
+      const size = revisionSizes.find((revisionSize) => revisionSize.id === revision.id)?.size ?? 0;
+      return { ...revision, size };
+    }),
+    size: new Blob([JSON.stringify(document)]).size + revisionSizes.reduce((acc, revision) => acc + revision.size, 0),
   };
   if (revisions !== "all") {
     const revisionId = revisions ?? document.head;
-    cloudDocument.revisions = document.revisions.filter((revision) => revision.id === revisionId);
+    cloudDocument.revisions = cloudDocument.revisions.filter((revision) => revision.id === revisionId);
     cloudDocument.updatedAt = cloudDocument.revisions[0].createdAt;
   }
   return cloudDocument;

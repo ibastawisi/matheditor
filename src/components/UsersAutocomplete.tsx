@@ -30,7 +30,7 @@ export default function UsersAutocomplete({
   const dispatch = useDispatch();
   const user = useSelector(state => state.user);
   const documents = useSelector(state => state.documents);
-  const cloudDocuments = documents.filter(d => d.cloud).map(d => d.cloud) as CloudDocument[];
+  const cloudDocuments = documents.filter(d => !!d.cloud).map(d => d.cloud) as CloudDocument[];
 
   const users: User[] = cloudDocuments.reduce((users, document) => {
     const author = document.author;

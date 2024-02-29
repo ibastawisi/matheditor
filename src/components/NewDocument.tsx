@@ -77,7 +77,8 @@ const NewDocument: React.FC = () => {
       if (localResponse.type === actions.forkLocalDocument.fulfilled.type) {
         const editorDocument = localResponse.payload as ReturnType<typeof actions.forkLocalDocument.fulfilled>["payload"];
         const { data, ...rest } = editorDocument;
-        const localDocument = { ...rest, revisions: [] };
+        const editorDocumentSize = new Blob([JSON.stringify(editorDocument)]).size;
+        const localDocument = { ...rest, revisions: [], size: editorDocumentSize };
         setBase({ id: editorDocument.id, local: localDocument });
         setInput({ ...input, data, baseId: editorDocument.id });
       } else {

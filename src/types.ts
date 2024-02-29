@@ -41,7 +41,8 @@ export interface EditorDocument {
 }
 
 export type LocalDocument = Omit<EditorDocument, "data"> & {
-  revisions: LocalDocumentRevision[]
+  revisions: LocalDocumentRevision[],
+  size: number;
 };
 export type CloudDocument = Omit<EditorDocument, "data"> & {
   author: User;
@@ -50,6 +51,7 @@ export type CloudDocument = Omit<EditorDocument, "data"> & {
   published?: boolean;
   collab?: boolean;
   private?: boolean;
+  size?: number;
 }
 export type UserDocument = { id: string; local?: LocalDocument; cloud?: CloudDocument; };
 export type BackupDocument = EditorDocument & { revisions: EditorDocumentRevision[]; };
@@ -79,8 +81,8 @@ export interface EditorDocumentRevision {
   createdAt: string | Date;
 }
 
-export type LocalDocumentRevision = Omit<EditorDocumentRevision, "data">;
-export type CloudDocumentRevision = LocalDocumentRevision & { author: User; };
+export type LocalDocumentRevision = Omit<EditorDocumentRevision, "data"> & { size: number; };
+export type CloudDocumentRevision = Omit<EditorDocumentRevision, "data"> & { author: User; size?: number; };
 export type UserDocumentRevision = LocalDocumentRevision | CloudDocumentRevision;
 
 export interface User {
