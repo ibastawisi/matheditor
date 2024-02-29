@@ -18,6 +18,7 @@
     "@lexical/react": "^0.13.1",
     "@mui/icons-material": "^5.15.10",
     "@mui/material": "^5.15.10",
+    "@mui/x-charts": "^6.19.5",
     "@next-auth/prisma-adapter": "^1.0.7",
     "@next/bundle-analyzer": "^14.1.0",
     "@next/third-parties": "^14.1.0",
