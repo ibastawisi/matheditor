@@ -122,10 +122,6 @@ footer {
   min-height: 22px;
 }
 
-.google-revocation-link-placeholder {
-  display: none;
-}
-
 ins[data-anchor-status="dismissed"] {
   display: none !important;
 }
