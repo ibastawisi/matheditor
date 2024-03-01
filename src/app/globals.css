@@ -130,6 +130,10 @@ body:has(>ins[data-anchor-status="dismissed"]) {
   padding: 0 !important;
 }
 
+.MuiDialog-root {
+  z-index: 2147483647;
+}
+
 @font-face {
   font-family: Virgil;
   src: url(/excalidraw-assets/Virgil.woff2);

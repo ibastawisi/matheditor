@@ -8,7 +8,7 @@ math-field {
   color: inherit;
   width: 100%;
   padding: 0;
-  --selection-color: #nope;
+  --selection-color: nope;
 }
 
 math-field::part(virtual-keyboard-toggle),
@@ -29,21 +29,10 @@ math-field.selection-active {
   background-color: rgb(95 183 255 / 50%);
 }
 
-
-[theme=light] #mathlive-environment-popover {
-  --environment-panel-background: #fff;
-  --accent-color: #cacfd7;
-}
-
-[theme=dark] #mathlive-environment-popover {
-  --environment-panel-background: #1f2022;
-  --accent-color: #151515;
-}
-
 .ML__keyboard {
   --keycap-height: 52px !important;
   --_keyboard-height: 295px !important;
-  --keyboard-zindex: 9999;
+  --keyboard-zindex: 2147483647;
 }
 
 .MLK__plate,
