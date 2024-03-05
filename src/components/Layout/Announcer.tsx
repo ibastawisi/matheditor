@@ -5,6 +5,7 @@ import React from 'react';
 import { Snackbar, Button, IconButton, Typography } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { signIn } from 'next-auth/react';
+import { createPortal } from 'react-dom';
 
 function Announcer() {
   const announcement = useSelector(state => state.ui.announcements[0]);
@@ -31,7 +32,7 @@ function Announcer() {
     {announcement.message.subtitle ? announcement.message.subtitle : null}
   </>;
 
-  return <Snackbar
+  return createPortal(<Snackbar
     open
     autoHideDuration={announcement.timeout ?? 5000}
     onClose={handleClose}
@@ -46,7 +47,7 @@ function Announcer() {
         </IconButton>
       </>
       : null}
-  />
+  />, document.body);
 }
 
 export default Announcer;

@@ -7,10 +7,11 @@ import ColorPicker from "./ColorPicker";
 import type { MathfieldElement } from "mathlive";
 import useFixedBodyScroll from "@/hooks/useFixedBodyScroll";
 import { SxProps, Theme } from '@mui/material/styles';
-import { Box, Button, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, LinearProgress, MenuItem, Paper, Select, SelectChangeEvent, SvgIcon, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material';
-import { ContentPaste, Delete, Draw, Edit, ImageSearch, Menu, Save, UploadFile } from "@mui/icons-material";
+import { Box, Button, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, LinearProgress, MenuItem, Paper, Select, SelectChangeEvent, SvgIcon, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { Delete, Draw, Edit, Menu, Save } from "@mui/icons-material";
 import { useTheme } from '@mui/material/styles';
-import Compressor from 'compressorjs';
+import { SET_ANNOUNCEMENT_COMMAND } from "@/editor";
+import { Announcement } from "@/types";
 
 import dynamic from "next/dynamic";
 import type { ExcalidrawImperativeAPI, ExcalidrawProps } from "@excalidraw/excalidraw/types/types";
@@ -48,6 +49,8 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     ['19px', '19'],
     ['20px', '20'],
   ];
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     editor.getEditorState().read(() => {
@@ -140,6 +143,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
 
   const ocr = useCallback(async (blob: Blob) => {
     try {
+      setLoading(true);
       const data = new FormData()
       data.append('file', blob)
       const response = await fetch("/fastapi/pix2text", {
@@ -147,12 +151,14 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
         body: data,
       });
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Server responded with status ${response.status}`)
       }
       const result = await response.json();
+      setLoading(false);
       return result.generated_text;
     } catch (error: any) {
-      console.error('Error:', error);
+      annouunce({ message: { title: "Something went wrong", subtitle: error.message } })
+      setLoading(false);
     }
   }, []);
 
@@ -171,6 +177,10 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     mathfield.executeCommand(["insert", latex]);
     setValue(null);
   }, [excalidrawAPI, node, ocr]);
+
+  const annouunce = useCallback((announcement: Announcement) => {
+    editor.dispatchCommand(SET_ANNOUNCEMENT_COMMAND, announcement);
+  }, [editor]);
 
 
   return (
@@ -227,9 +237,10 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
             }}
             theme={theme.palette.mode}
           />
-          <IconButton onClick={handleFreeHand} sx={{ position: "absolute", bottom: 8, right: 8, zIndex: 1000 }}>
+          <IconButton onClick={handleFreeHand} sx={{ position: "absolute", bottom: 8, right: 8, zIndex: 1000 }} disabled={loading}>
             <Save />
           </IconButton>
+          <LinearProgress sx={{ visibility: loading ? 'visible' : 'hidden', position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 1000 }} />
         </Paper>
       </Collapse>}
       <ColorPicker onColorChange={onColorChange} onClose={handleClose} />

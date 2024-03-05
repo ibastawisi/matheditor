@@ -5,7 +5,8 @@ import { $createParagraphNode, $createTextNode, $getSelection, $insertNodes, $is
 import { useState, useEffect, useCallback } from "react";
 import Compressor from 'compressorjs';
 import { SET_DIALOGS_COMMAND } from "./commands";
-import { $insertNodeToNearestRoot, $wrapNodeInElement } from '@lexical/utils';
+import { Announcement } from "@/types";
+import { SET_ANNOUNCEMENT_COMMAND } from "@/editor/commands";
 
 const OCRDialog = ({ open, editor }: { open: boolean, editor: LexicalEditor }) => {
   const [formData, setFormData] = useState({ value: "" });
@@ -33,13 +34,14 @@ const OCRDialog = ({ open, editor }: { open: boolean, editor: LexicalEditor }) =
         updateValue(result);
       },
       error(err: Error) {
-        console.error("Uploading image failed: " + "Unsupported file type");
+        annouunce({ message: { title: "Uploading image failed", subtitle: "Unsupported file type" } })
       },
     });
   }, []);
 
   const ocr = useCallback(async (blob: Blob) => {
     try {
+      setLoading(true);
       const data = new FormData()
       data.append('file', blob)
       const response = await fetch("/fastapi/pix2text", {
@@ -47,19 +49,20 @@ const OCRDialog = ({ open, editor }: { open: boolean, editor: LexicalEditor }) =
         body: data,
       });
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Server responded with status ${response.status}`)
       }
       const result = await response.json();
+      setLoading(false);
       return result.generated_text;
     } catch (error: any) {
-      console.error(`Something went wrong: ${error.message}`);
+      annouunce({ message: { title: "Something went wrong", subtitle: error.message } })
+      setLoading(false);
     }
+    debugger;
   }, []);
 
   const updateValue = useCallback(async (blob: Blob) => {
-    setLoading(true);
     const latex = await ocr(blob);
-    setLoading(false);
     if (!latex) return;
     setFormData({ ...formData, value: latex });
   }, [formData]);
@@ -75,10 +78,14 @@ const OCRDialog = ({ open, editor }: { open: boolean, editor: LexicalEditor }) =
         throw new Error('Clipboard item is not an image')
       })
       updateValue(data)
-    } catch (err) {
-      console.error('Reading image failed: ' + err)
+    } catch (err: any) {
+      annouunce({ message: { title: "Reading image failed", subtitle: err.message } })
     }
   }, []);
+
+  const annouunce = useCallback((announcement: Announcement) => {
+    editor.dispatchCommand(SET_ANNOUNCEMENT_COMMAND, announcement);
+  }, [editor]);
 
   const closeDialog = () => {
     editor.dispatchCommand(SET_DIALOGS_COMMAND, { ocr: { open: false } })
@@ -104,19 +111,19 @@ const OCRDialog = ({ open, editor }: { open: boolean, editor: LexicalEditor }) =
     <Dialog open={open} maxWidth="md" sx={{ '& .MuiDialog-paper': { width: '100%' } }}>
       <DialogTitle>Image to LaTeX</DialogTitle>
       <DialogContent>
-        <Button variant="outlined" sx={{ my: 1, mr: 1 }} startIcon={<UploadFile />} component="label">
+        <Button variant="outlined" sx={{ my: 1, mr: 1 }} startIcon={<UploadFile />} component="label" disabled={loading}>
           Upload Image
-          <input type="file" hidden accept="image/*" onChange={handleFilesChange} autoFocus />
+          <input type="file" hidden accept="image/*" onChange={handleFilesChange} autoFocus disabled={loading} />
         </Button>
-        <Button variant="outlined" sx={{ my: 1 }} startIcon={<ContentPaste />} onClick={readFromClipboard}>
+        <Button variant="outlined" sx={{ my: 1 }} startIcon={<ContentPaste />} onClick={readFromClipboard} disabled={loading}>
           Paste from Clipboard
         </Button>
         <TextField margin="normal" size="small" fullWidth multiline id="value" value={formData.value} onChange={updateFormData} label="Result" name="value" />
-        {loading && <LinearProgress />}
+        <LinearProgress sx={{ visibility: loading ? 'visible' : 'hidden' }} />
       </DialogContent>
       <DialogActions>
         <Button onClick={closeDialog}>Cancel</Button>
-        <Button type='submit' onClick={handleSubmit}>Save</Button>
+        <Button type='submit' onClick={handleSubmit} disabled={loading}>Save</Button>
       </DialogActions>
     </Dialog>
   )
