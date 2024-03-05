@@ -138,20 +138,39 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
 
   useFixedBodyScroll(open);
 
-  // const handleFreeHand = useCallback(async () => {
-  //   const exportToBlob = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.exportToBlob).catch((e) => console.error(e));
-  //   if (!exportToBlob) return;
-  //   const blob = await exportToBlob({
-  //     elements: excalidrawAPI!.getSceneElements(),
-  //     mimeType: 'image/png',
-  //     exportPadding: 16,
-  //   });
-  //   const latex = await ocr(blob);
-  //   if (!latex) return;
-  //   const mathfield = node.getMathfield();
-  //   if (!mathfield) return;
-  //   mathfield.executeCommand(["insert", latex]);
-  // }, [excalidrawAPI, node, ocr]);
+  const ocr = useCallback(async (blob: Blob) => {
+    try {
+      const data = new FormData()
+      data.append('file', blob)
+      const response = await fetch("/fastapi/pix2text", {
+        method: "POST",
+        body: data,
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      return result.generated_text;
+    } catch (error: any) {
+      console.error('Error:', error);
+    }
+  }, []);
+
+  const handleFreeHand = useCallback(async () => {
+    const exportToBlob = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.exportToBlob).catch((e) => console.error(e));
+    if (!exportToBlob) return;
+    const blob = await exportToBlob({
+      elements: excalidrawAPI!.getSceneElements(),
+      mimeType: 'image/png',
+      exportPadding: 16,
+    });
+    const latex = await ocr(blob);
+    if (!latex) return;
+    const mathfield = node.getMathfield();
+    if (!mathfield) return;
+    mathfield.executeCommand(["insert", latex]);
+    setValue(null);
+  }, [excalidrawAPI, node, ocr]);
 
 
   return (
@@ -180,11 +199,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
           </DialogActions>
         </form>
       </Dialog>
-      <ToggleButton component="label" value="ocr">
-        <ImageSearch />
-      </ToggleButton>
-      <OCRDialog open={value === "ocr"} onClose={() => setValue(null)} editor={editor} node={node} />
-      {/* <ToggleButton component="label" value="draw">
+      <ToggleButton component="label" value="draw">
         <Draw />
       </ToggleButton>
       {value === "draw" && <Collapse in={value === "draw"}>
@@ -216,7 +231,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
             <Save />
           </IconButton>
         </Paper>
-      </Collapse>} */}
+      </Collapse>}
       <ColorPicker onColorChange={onColorChange} onClose={handleClose} />
       <ToggleButton value="delete"
         onClick={() => {
@@ -240,142 +255,5 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
         {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
       </Select>
     </ToggleButtonGroup>
-  )
-}
-
-const OCRDialog = ({ open, onClose, editor, node }: { open: boolean, onClose: () => void, editor: LexicalEditor, node: MathNode }) => {
-  const mathfieldRef = useRef<MathfieldElement>(null);
-  const [formData, setFormData] = useState({ value: node.getValue() });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleClose = () => {
-    setFormData({ value: '' });
-    setError(null);
-    onClose();
-  };
-
-  useEffect(() => {
-    if (!open) return;
-    setFormData({ value: node.getValue() });
-  }, [open, node]);
-
-  const updateFormData = async (event: any) => {
-    const { name, value } = event.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleFilesChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-    const file = files[0];
-    event.target.value = '';
-    new Compressor(file, {
-      quality: 0.6,
-      mimeType: 'image/jpeg',
-      success(result: File) {
-        updateValue(result);
-      },
-      error(err: Error) {
-        setError("Uploading image failed: " + "Unsupported file type");
-      },
-    });
-  }, []);
-
-  const ocr = useCallback(async (blob: Blob) => {
-    try {
-      const response = await fetch("/api/ocr", {
-        method: "POST",
-        body: blob,
-      });
-      const result = await response.json();
-      if (result.error) {
-        setError(`${result.error}: retrying in ${Math.floor(result.estimated_time)} seconds`);
-        if (response.status !== 503) return;
-        const waitTime = result.estimated_time * 1000;
-        return new Promise((resolve) => {
-          setTimeout(() => { resolve(ocr(blob)); }, waitTime);
-        });
-      }
-      setError(null);
-      return result[0].generated_text;
-    } catch (error: any) {
-      setError(`Something went wrong: ${error.message}`);
-    }
-  }, []);
-
-  const updateValue = useCallback(async (blob: Blob) => {
-    setLoading(true);
-    const latex = await ocr(blob);
-    setLoading(false);
-    if (!latex) return;
-    setFormData({ ...formData, value: latex });
-  }, [mathfieldRef, formData]);
-
-  useEffect(() => {
-    if (!open) return;
-    const mathfield = mathfieldRef.current;
-    if (!mathfield) return;
-    mathfield.setValue(formData.value);
-  }, [open, formData]);
-
-  useEffect(() => {
-    if (!open || !error) return;
-    const timeoutId = setTimeout(() => setError(null), 3000);
-    return () => clearTimeout(timeoutId);
-  }, [error, open]);
-
-  const readFromClipboard = useCallback(async () => {
-    try {
-      window.focus();
-      const clipboardItem = await navigator.clipboard.read()
-      if (!clipboardItem) {
-        throw new Error('Clipboard is empty')
-      }
-      const data = await clipboardItem[0].getType('image/png').catch(err => {
-        throw new Error('Clipboard item is not an image')
-      })
-      updateValue(data)
-    } catch (err) {
-      setError('Reading image failed: ' + err)
-    }
-  }, []);
-
-  const handleSubmit = async () => {
-    const { value } = formData;
-    const mathfield = node.getMathfield();
-    if (!mathfield) return;
-    mathfield.setValue(value, { selectionMode: 'after' });
-    handleClose();
-  };
-
-  useFixedBodyScroll(open);
-
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" sx={{ '& .MuiDialog-paper': { width: '100%' } }}>
-      <DialogTitle>Image to LaTeX</DialogTitle>
-      <DialogContent>
-        <Button variant="outlined" sx={{ my: 1, mr: 1 }} startIcon={<UploadFile />} component="label">
-          Upload Image
-          <input type="file" hidden accept="image/*" onChange={handleFilesChange} autoFocus />
-        </Button>
-        <Button variant="outlined" sx={{ my: 1 }} startIcon={<ContentPaste />} onClick={readFromClipboard}>
-          Paste from Clipboard
-        </Button>
-        <TextField margin="normal" size="small" fullWidth multiline id="value" value={formData.value} onChange={updateFormData} label="Latex Value" name="value" />
-        <Box sx={{ display: "flex", flexDirection: "column", mb: 2 }}>
-          <Typography variant="button" component="h3" color="text.secondary" sx={{ my: 1 }}>
-            Preview
-          </Typography>
-          <math-field ref={mathfieldRef} value={formData.value} style={{ width: "auto", margin: "0 auto" }} read-only></math-field>
-        </Box>
-        {loading && <LinearProgress />}
-        {error && <Typography color="error">{error}</Typography>}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button type='submit' onClick={handleSubmit}>Save</Button>
-      </DialogActions>
-    </Dialog>
   )
 }

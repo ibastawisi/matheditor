@@ -6,6 +6,7 @@ import TableDialog from "./TableDialog";
 import IFrameDialog from "./IFrameDialog";
 import LinkDialog from "./LinkDialog";
 import LayoutDialog from "./LayoutDialog";
+import OCRDialog from "./OCRDialog";
 
 export {
   GraphDialog,
@@ -14,5 +15,6 @@ export {
   TableDialog,
   IFrameDialog,
   LinkDialog,
-  LayoutDialog
+  LayoutDialog,
+  OCRDialog,
 };

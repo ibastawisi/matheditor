@@ -23,6 +23,9 @@ export interface EditorDialogs {
   layout: {
     open: boolean;
   },
+  ocr: {
+    open: boolean;
+  },
 };
 
 export type SetDialogsPayload = Readonly<Partial<EditorDialogs>>;

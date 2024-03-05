@@ -22,6 +22,10 @@ const config = {
       {
         source: '/pdf/:path*',
         destination: '/api/pdf/:path*',
+      },
+      {
+        source: '/fastapi/:path*',
+        destination: process.env.FASTAPI_URL + '/:path*',
       }
     ]
   },

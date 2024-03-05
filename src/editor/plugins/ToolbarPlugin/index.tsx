@@ -19,10 +19,10 @@ import { $isImageNode } from '../../nodes/ImageNode';
 import ImageTools from './Tools/ImageTools';
 import { $isGraphNode } from '../../nodes/GraphNode';
 import { $patchStyle } from '../../nodes/utils';
-import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog, LinkDialog, LayoutDialog } from './Dialogs';
+import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog, LinkDialog, LayoutDialog, OCRDialog } from './Dialogs';
 import { $isStickyNode } from '../../nodes/StickyNode';
-import { SelectChangeEvent, useScrollTrigger, AppBar, Toolbar, Box, IconButton, Select, MenuItem, Fab } from '@mui/material';
-import { Mic, Redo, Undo } from '@mui/icons-material';
+import { SelectChangeEvent, useScrollTrigger, AppBar, Toolbar, Box, IconButton, Select, MenuItem, Fab, ToggleButton } from '@mui/material';
+import { ImageSearch, Mic, Redo, Undo } from '@mui/icons-material';
 import { $isIFrameNode } from '@/editor/nodes/IFrameNode';
 import { $findMatchingParent } from '@lexical/utils';
 import { $isTableNode, TableNode } from '@/editor/nodes/TableNode';
@@ -95,6 +95,9 @@ function ToolbarPlugin() {
       open: false,
     },
     layout: {
+      open: false,
+    },
+    ocr: {
       open: false,
     },
   });
@@ -348,6 +351,11 @@ function ToolbarPlugin() {
                   </Select>
                   {showTableTools && <TableTools editor={activeEditor} node={selectedTable} />}
                   <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
+                  <ToggleButton component="label" value="ocr" size='small' onClick={() => {
+                    activeEditor.dispatchCommand(SET_DIALOGS_COMMAND, { ocr: { open: true } });
+                  }}>
+                    <ImageSearch />
+                  </ToggleButton>
                 </>
               )}
             </>
@@ -374,6 +382,7 @@ function ToolbarPlugin() {
       <IFrameDialog editor={activeEditor} node={$isIFrameNode(selectedNode) ? selectedNode : null} open={dialogs.iframe.open} />
       <LinkDialog editor={activeEditor} node={$isLinkNode(selectedNode) ? selectedNode : null} open={dialogs.link.open} />
       <LayoutDialog editor={activeEditor} open={dialogs.layout.open} />
+      <OCRDialog editor={activeEditor} open={dialogs.ocr.open} />
     </>
   );
 }
