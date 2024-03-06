@@ -98,6 +98,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
   }, []);
   const handleClose = () => {
     setOpen(false);
+    setValue(null);
     restoreSelection();
   };
   const restoreSelection = () => {
@@ -137,6 +138,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     const selection = mathfield.selection;
     const value = mathfield.getValue(selection, 'latex-unstyled') || mathfield.getValue('latex-unstyled');
     window.open(`https://www.wolframalpha.com/input?i=${encodeURIComponent(value)}`);
+    setTimeout(() => { setValue(null); }, 0);
   }, [node]);
 
   useFixedBodyScroll(open);
@@ -225,6 +227,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
           '& .App-top-bar': { display: "none !important" },
           '& .App-bottom-bar': { display: "none !important" },
           '& .popover': { display: 'none !important' },
+          '& canvas': { borderRadius: 1 },
         }}>
           <Excalidraw
             excalidrawAPI={excalidrawAPIRefCallback}
@@ -256,9 +259,11 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
       <ToggleButton value="menu"
         onClick={(e) => {
           const mathfield = node.getMathfield();
+          if (!mathfield) return;
           const x = e.currentTarget.getBoundingClientRect().left;
           const y = e.currentTarget.getBoundingClientRect().top + 40;
-          if (mathfield) mathfield.showMenu({ location: { x, y }, modifiers: { alt: false, control: false, shift: false, meta: false } });
+          mathfield.showMenu({ location: { x, y }, modifiers: { alt: false, control: false, shift: false, meta: false } });
+          setTimeout(() => { setValue(null); }, 0);
         }}>
         <Menu />
       </ToggleButton>

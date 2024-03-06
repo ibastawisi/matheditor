@@ -108,7 +108,7 @@ const OCRDialog = ({ open, editor }: { open: boolean, editor: LexicalEditor }) =
   useFixedBodyScroll(open);
 
   return (
-    <Dialog open={open} maxWidth="md" sx={{ '& .MuiDialog-paper': { width: '100%' } }}>
+    <Dialog open={open} maxWidth="md" sx={{ '& .MuiDialog-paper': { width: '100%' } }} onClose={closeDialog}>
       <DialogTitle>Image to LaTeX</DialogTitle>
       <DialogContent>
         <Button variant="outlined" sx={{ my: 1, mr: 1 }} startIcon={<UploadFile />} component="label" disabled={loading}>
@@ -118,7 +118,7 @@ const OCRDialog = ({ open, editor }: { open: boolean, editor: LexicalEditor }) =
         <Button variant="outlined" sx={{ my: 1 }} startIcon={<ContentPaste />} onClick={readFromClipboard} disabled={loading}>
           Paste from Clipboard
         </Button>
-        <TextField margin="normal" size="small" fullWidth multiline id="value" value={formData.value} onChange={updateFormData} label="Result" name="value" />
+        <TextField margin="normal" size="small" fullWidth multiline id="value" value={formData.value} onChange={updateFormData} label="Result" name="value" disabled={loading} />
         <LinearProgress sx={{ visibility: loading ? 'visible' : 'hidden' }} />
       </DialogContent>
       <DialogActions>

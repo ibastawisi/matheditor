@@ -47,7 +47,7 @@ export default function ColorPicker({ onColorChange, onClose, toggle = "togglebu
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
-    setAnchorEl(event.currentTarget);
+    setAnchorEl(open ? null : event.currentTarget);
   };
   const handleClose = () => {
     setAnchorEl(null);
@@ -65,7 +65,7 @@ export default function ColorPicker({ onColorChange, onClose, toggle = "togglebu
         </ListItemText>
       </MenuItem>
       }
-      {toggle === "togglebutton" && <ToggleButton size='small' value="color" onClick={handleClick} className="MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal">
+      {toggle === "togglebutton" && <ToggleButton size='small' value="color" onClick={handleClick} className="MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal" selected={open}>
         <FormatColorFill />
       </ToggleButton>}
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose} disableRestoreFocus
