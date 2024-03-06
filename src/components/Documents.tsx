@@ -12,10 +12,7 @@ import { Box, Avatar, Button, Typography, Grid, Card, CardActionArea, CardHeader
 import { PostAdd, UploadFile, Help, Storage, Science, Pageview } from '@mui/icons-material';
 import DocumentSortControl, { sortDocuments } from './DocumentSortControl';
 import DocumentFilterControl, { filterDocuments } from './DocumentFilterControl';
-import useOnlineStatus from '@/hooks/useOnlineStatus';
-import TextAd from './Ads/TextAd';
 
-const IS_VERCEL = !!process.env.NEXT_PUBLIC_VERCEL_URL;
 
 const Documents: React.FC = () => {
   const user = useSelector(state => state.user);
@@ -24,8 +21,6 @@ const Documents: React.FC = () => {
   const navigate = (path: string) => router.push(path);
   const initialized = useSelector(state => state.ui.initialized);
   const documents = useSelector(state => state.documents);
-  const isOnline = useOnlineStatus();
-  const showAds = IS_VERCEL && isOnline && !!user;
 
   useEffect(() => {
     if ("launchQueue" in window && "LaunchParams" in window) {
@@ -153,7 +148,6 @@ const Documents: React.FC = () => {
         </Grid>
       </Grid>
       <Collapse timeout={1000} in={!(user && initialized)} unmountOnExit><Box sx={{ mb: 2 }}><UserCard user={user} /></Box></Collapse>
-      {showAds && <TextAd sx={{ mb: 2 }} />}
       <DocumentsGrid documents={sortedDocuments} initialized={initialized} user={user} />
     </>
   )

@@ -9,14 +9,10 @@ import DocumentSortControl, { sortDocuments } from "./DocumentSortControl";
 import dynamic from "next/dynamic";
 
 const DisplayAd = dynamic(() => import('@/components/Ads/DisplayAd'), { ssr: false });
-const TextAd = dynamic(() => import('@/components/Ads/TextAd'), { ssr: false });
-
-const IS_VERCEL = !!process.env.NEXT_PUBLIC_VERCEL_URL;
 
 const User: React.FC<{ user?: User, sessionUser?: User, documents: UserDocument[] }> = ({ user, sessionUser, documents }) => {
   const [sort, setSort] = useState<{ key: string, direction: "asc" | "desc" }>({ key: 'updatedAt', direction: 'desc' });
   const showEmpty = !documents.length;
-  const showAds = IS_VERCEL && !!user && !showEmpty;
   const pageSize = 12;
   const pages = Math.ceil(documents.length / pageSize);
   const [page, setPage] = useState(1);
@@ -27,7 +23,6 @@ const User: React.FC<{ user?: User, sessionUser?: User, documents: UserDocument[
   return <>
     <Box sx={{ flex: 1 }}>
       <UserCard user={user} sessionUser={sessionUser} />
-      {showAds && <TextAd sx={{ my: 2 }} />}
       {user && <Box sx={{ gap: 1, my: 2 }}>
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>
           <Typography variant="h6" component="h2" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Published Documents</Typography>
