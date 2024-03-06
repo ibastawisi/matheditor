@@ -56,6 +56,7 @@ export const SUPPORT_SPEECH_RECOGNITION: boolean =
 function SpeechToTextPlugin() {
   const [editor] = useLexicalComposerContext();
   const [isEnabled, setIsEnabled] = useState<boolean>(false);
+  // @ts-expect-error missing type
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = useRef<typeof SpeechRecognition | null>(null);
   const [transcript, setTranscript] = useState<string | null>(null);
