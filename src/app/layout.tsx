@@ -3,8 +3,8 @@ import ThemeProvider from '@/components/Layout/ThemeProvider';
 import Footer from '@/components/Layout/Footer';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import './globals.css';
 import Script from 'next/script';
+import './globals.css';
 
 const IS_VERCEL = !!process.env.NEXT_PUBLIC_VERCEL_URL;
 const MEASUREMENT_ID = process.env.MEASUREMENT_ID;
@@ -62,7 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ThemeProvider>{children}<Footer /></ThemeProvider>
         {IS_VERCEL && <SpeedInsights />}
-        {IS_VERCEL && MEASUREMENT_ID && <Script id='gtag_enable_tcf_support' strategy='lazyOnload'>{`window['gtag_enable_tcf_support'] = true`}</Script>}
+        {IS_VERCEL && MEASUREMENT_ID && <Script id='gtag_enable_tcf_support'>{`window['gtag_enable_tcf_support'] = true`}</Script>}
         {IS_VERCEL && MEASUREMENT_ID && <GoogleAnalytics gaId={MEASUREMENT_ID} />}
       </body>
     </html>
