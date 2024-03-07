@@ -19,7 +19,7 @@ const DisplayAd: React.FC<{ sx?: SxProps<Theme> }> = memo(({ sx }) => {
 
   if (!IS_VERCEL || !isOnline) return null;
 
-  return <Card variant="outlined" sx={{ display: "flex", displayPrint: "none", flexDirection: "column", justifyContent: "space-between", height: "100%", maxWidth: "100%", ...sx }}>
+  return <Card variant="outlined" sx={{ display: "flex", displayPrint: "none", flexDirection: "column", justifyContent: "space-between", my: 2, height: "auto", maxWidth: "100%", ...sx }}>
     <ins
       className="adsbygoogle"
       style={{ display: "block" }}

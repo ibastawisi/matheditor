@@ -18,7 +18,7 @@ const Dashboard: React.FC = () => {
       <UserCard user={user} sessionUser={user} />
       <StorageChart />
     </Box>
-    <DisplayAd sx={{ mt: 2 }} />
+    <DisplayAd />
   </>
 }
 
@@ -47,6 +47,8 @@ const StorageChart: React.FC = () => {
   
   const localStorageEmpty = initialized && !(storageUsage.localStorage.usage || storageUsage.indexedDB.usage);
   const cloudStorageEmpty = initialized && !(storageUsage.cloud.usage);
+  const isLoading = !initialized || (localDocuments.length && !storageUsage.localStorage.usage) || (cloudDocuments.length && !storageUsage.cloud.usage);
+  const isLoaded = initialized && !isLoading;
 
   useEffect(() => {
     const calculateStorageUsage = async () => {
@@ -124,14 +126,14 @@ const StorageChart: React.FC = () => {
       <Grid container spacing={2}>
         <Grid item xs={12} md={6}>
           <Typography variant='overline' gutterBottom>Local Storage</Typography>
-          {!initialized && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+          {isLoading && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <CircularProgress disableShrink />
           </Box>}
-          {initialized && localStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+          {isLoaded && localStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <Storage sx={{ width: 64, height: 64, fontSize: 64 }} />
             <Typography variant="overline" component="p">Local storage is empty</Typography>
           </Box>}
-          {initialized && !localStorageEmpty && <PieChart
+          {isLoaded && !localStorageEmpty && <PieChart
             series={[
               {
                 innerRadius: 0,
@@ -157,18 +159,18 @@ const StorageChart: React.FC = () => {
         </Grid>
         {<Grid item xs={12} md={6}>
           <Typography variant='overline' gutterBottom>Cloud Storage</Typography>
-          {!initialized && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+          {isLoading && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <CircularProgress disableShrink />
           </Box>}
-          {initialized && !user && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+          {isLoaded && !user && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <Login sx={{ width: 64, height: 64, fontSize: 64 }} />
             <Typography variant="overline" component="p">Please login to use cloud storage</Typography>
           </Box>}
-          {initialized && user && cloudStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+          {isLoaded && user && cloudStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <Cloud sx={{ width: 64, height: 64, fontSize: 64 }} />
             <Typography variant="overline" component="p">Cloud storage is empty</Typography>
           </Box>}
-          {initialized && !cloudStorageEmpty && <PieChart
+          {isLoaded && !cloudStorageEmpty && <PieChart
             series={[
               {
                 innerRadius: 0,

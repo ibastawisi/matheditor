@@ -13,7 +13,6 @@ import { PostAdd, UploadFile, Help, Storage, Science, Pageview } from '@mui/icon
 import DocumentSortControl, { sortDocuments } from './DocumentSortControl';
 import DocumentFilterControl, { filterDocuments } from './DocumentFilterControl';
 
-
 const Documents: React.FC = () => {
   const user = useSelector(state => state.user);
   const dispatch = useDispatch();

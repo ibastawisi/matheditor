@@ -19,7 +19,7 @@ const Home: React.FC = () => {
   return (
     <>
       <Documents />
-      <DisplayAd sx={{ mt: 2 }} />
+      <DisplayAd />
       {!welcomed && (
         <Dialog open onClose={handleClose}>
           <DialogTitle>Welcome to Math Editor</DialogTitle>

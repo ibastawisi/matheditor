@@ -61,7 +61,7 @@ const EditDocument: React.FC = () => {
     <Helmet title={`${document.name} | Math Editor`} />
     <Editor document={document} editorRef={editorRef} onChange={handleChange} />
     <EditDocumentInfo documentId={document.id} editorRef={editorRef} />
-    <DisplayAd sx={{ mt: 2 }} />
+    <DisplayAd />
   </>;
 }
 

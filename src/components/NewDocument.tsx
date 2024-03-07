@@ -222,7 +222,7 @@ const NewDocument: React.FC = () => {
 
         </Box>
       </Container>
-      <DisplayAd sx={{ mt: 2 }} />
+      <DisplayAd />
     </>
   );
 }

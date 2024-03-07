@@ -43,7 +43,7 @@ const Tutorial: React.FC = () => {
       </Box>
       <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3, width: "100%" }} />
     </Paper>
-    <DisplayAd sx={{ mt: 2 }} />
+    <DisplayAd />
   </>;
 }
 

@@ -40,7 +40,7 @@ const User: React.FC<{ user?: User, sessionUser?: User, documents: UserDocument[
         </Box>}
       </Box>}
     </Box>
-    <DisplayAd sx={{ mt: 2 }} />
+    <DisplayAd />
   </>
 }
 

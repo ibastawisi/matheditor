@@ -9,7 +9,7 @@ const DisplayAd = dynamic(() => import('@/components/Ads/DisplayAd'), { ssr: fal
 const document = playgroundTemplate as unknown as EditorDocument;
 const Playground: React.FC = () => <>
   <Editor document={document} />
-  <DisplayAd sx={{ mt: 2 }} />
+  <DisplayAd />
 </>
 
 export default Playground;
