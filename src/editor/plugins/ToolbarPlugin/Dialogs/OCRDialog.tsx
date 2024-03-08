@@ -58,7 +58,6 @@ const OCRDialog = ({ open, editor }: { open: boolean, editor: LexicalEditor }) =
       annouunce({ message: { title: "Something went wrong", subtitle: error.message } })
       setLoading(false);
     }
-    debugger;
   }, []);
 
   const updateValue = useCallback(async (blob: Blob) => {
@@ -109,7 +108,7 @@ const OCRDialog = ({ open, editor }: { open: boolean, editor: LexicalEditor }) =
 
   return (
     <Dialog open={open} maxWidth="md" sx={{ '& .MuiDialog-paper': { width: '100%' } }} onClose={closeDialog}>
-      <DialogTitle>Image to LaTeX</DialogTitle>
+      <DialogTitle>Image to Text</DialogTitle>
       <DialogContent>
         <Button variant="outlined" sx={{ my: 1, mr: 1 }} startIcon={<UploadFile />} component="label" disabled={loading}>
           Upload Image

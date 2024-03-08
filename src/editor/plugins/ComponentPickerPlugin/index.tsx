@@ -43,7 +43,7 @@ import { StickyNode } from '@/editor/nodes/StickyNode';
 import { PageBreakNode } from '@/editor/nodes/PageBreakNode';
 import { INSERT_PAGE_BREAK } from '../PageBreakPlugin';
 import { Paper, MenuList, MenuItem, ListItemIcon, ListItemText, Typography, SvgIcon } from '@mui/material';
-import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight, FormatAlignJustify, FormatListNumbered, FormatListBulleted, PlaylistAddCheck, FormatQuote, Code, Image as ImageIcon, TableChart, HorizontalRule, Functions, Brush, StickyNote2, InsertPageBreak, Web, ViewColumn } from '@mui/icons-material';
+import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight, FormatAlignJustify, FormatListNumbered, FormatListBulleted, PlaylistAddCheck, FormatQuote, Code, Image as ImageIcon, TableChart, HorizontalRule, Functions, Brush, StickyNote2, InsertPageBreak, Web, ViewColumn, ImageSearch } from '@mui/icons-material';
 import { IFrameNode } from '@/editor/nodes/IFrameNode';
 import { LayoutContainerNode } from '@/editor/nodes/LayoutNode';
 
@@ -150,6 +150,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
   const openSketchDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ sketch: { open: true } }));
   const openIFrameDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ iframe: { open: true } }));
   const openLayoutDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ layout: { open: true } }));
+  const openOCRDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ ocr: { open: true } }));
 
   const checkForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
     minLength: 0,
@@ -290,6 +291,12 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
         keyboardShortcut: '$$',
         onSelect: () =>
           editor.dispatchCommand(INSERT_MATH_COMMAND, { value: '' }),
+      }),
+      new ComponentPickerOption('OCR', {
+        icon: <ImageSearch />,
+        keywords: ['ocr', 'image', 'text'],
+        keyboardShortcut: '/ocr',
+        onSelect: openOCRDialog,
       }),
       // new ComponentPickerOption('Graph', {
       //   icon: GraphIcon,

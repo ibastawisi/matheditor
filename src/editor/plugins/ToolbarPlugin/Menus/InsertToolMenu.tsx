@@ -14,7 +14,7 @@ import { StickyNode } from '@/editor/nodes/StickyNode';
 import { PageBreakNode } from '@/editor/nodes/PageBreakNode';
 import { INSERT_PAGE_BREAK } from '../../PageBreakPlugin';
 import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Typography, SvgIcon } from '@mui/material';
-import { Add, HorizontalRule, InsertPageBreak, Functions, Brush, StickyNote2, Image as ImageIcon, TableChart, Web, ViewColumn } from '@mui/icons-material';
+import { Add, HorizontalRule, InsertPageBreak, Functions, Brush, StickyNote2, Image as ImageIcon, TableChart, Web, ViewColumn, ImageSearch } from '@mui/icons-material';
 import { IFrameNode } from '@/editor/nodes/IFrameNode';
 import { LayoutContainerNode } from '@/editor/nodes/LayoutNode';
 
@@ -39,6 +39,7 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }): J
   const openSketchDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ sketch: { open: true } }));
   const openIFrameDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ iframe: { open: true } }));
   const openLayoutDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ layout: { open: true } }));
+  const openOCRDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ ocr: { open: true } }));
 
   return (
     <>
@@ -47,6 +48,13 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }): J
         <Add />
       </IconButton>
       <Menu id="insert-menu" aria-labelledby="insert-button" anchorEl={anchorEl} open={open} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center', }} transformOrigin={{ vertical: 'top', horizontal: 'center', }}>
+        <MenuItem onClick={() => { openOCRDialog(); handleClose(); }}>
+          <ListItemIcon>
+            <ImageSearch fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>OCR</ListItemText>
+          <Typography variant="body2" color="text.secondary">/ocr</Typography>
+        </MenuItem>
         {editor.hasNode(HorizontalRuleNode) && <MenuItem onClick={() => { editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined,); handleClose(); }}>
           <ListItemIcon>
             <HorizontalRule fontSize="small" />

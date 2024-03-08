@@ -350,11 +350,6 @@ function ToolbarPlugin() {
                     {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
                   </Select>
                   {showTableTools && <TableTools editor={activeEditor} node={selectedTable} />}
-                  <ToggleButton value="ocr" size='small' selected={dialogs.ocr.open} onClick={() => {
-                    activeEditor.dispatchCommand(SET_DIALOGS_COMMAND, { ocr: { open: true } });
-                  }}>
-                    <ImageSearch />
-                  </ToggleButton>
                   <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
                 </>
               )}
