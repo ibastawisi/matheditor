@@ -5,6 +5,7 @@ import AlertDialog from "./Alert";
 import Announcer from "./Announcer";
 import PwaUpdater from "./PwaUpdater";
 import ProgressBar from "./ProgressBar";
+import Footer from "./Footer";
 import { Container } from "@mui/material";
 import { Suspense } from "react";
 
@@ -14,6 +15,7 @@ const AppLayout = ({ children }: { children: React.ReactNode; }) => {
       <TopAppBar />
       <Suspense><ProgressBar /></Suspense>
       <Container className='editor-container'>{children}</Container>
+      <Footer />
       <AlertDialog />
       <Announcer />
       <PwaUpdater />

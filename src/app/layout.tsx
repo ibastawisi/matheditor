@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import ThemeProvider from '@/components/Layout/ThemeProvider';
-import Footer from '@/components/Layout/Footer';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import Script from 'next/script';
 import './globals.css';
@@ -59,7 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <ThemeProvider>{children}<Footer /></ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
         {IS_VERCEL && <SpeedInsights />}
         {IS_VERCEL && MEASUREMENT_ID &&
           <>
