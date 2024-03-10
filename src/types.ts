@@ -176,3 +176,7 @@ export interface DeleteRevisionResponse {
   error?: { title: string, subtitle?: string }
 }
 
+export interface Pix2textResponse {
+  data?: { generated_text: string; };
+  error?: { title: string, subtitle?: string }
+}

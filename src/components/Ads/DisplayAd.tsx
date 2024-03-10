@@ -4,7 +4,7 @@ import { Card } from '@mui/material';
 import { SxProps, Theme } from '@mui/material/styles';
 import { memo, useEffect } from 'react';
 
-const IS_VERCEL = !!process.env.NEXT_PUBLIC_VERCEL_URL;
+const PUBLISHER_ID = process.env.NEXT_PUBLIC_PUBLISHER_ID;
 
 const DisplayAd: React.FC<{ sx?: SxProps<Theme> }> = memo(({ sx }) => {
   const isOnline = useOnlineStatus();
@@ -17,7 +17,7 @@ const DisplayAd: React.FC<{ sx?: SxProps<Theme> }> = memo(({ sx }) => {
     }
   }, []);
 
-  if (!IS_VERCEL || !isOnline) return null;
+  if (!PUBLISHER_ID || !isOnline) return null;
 
   return <Card variant="outlined" sx={{ display: "flex", displayPrint: "none", flexDirection: "column", justifyContent: "space-between", my: 2, height: "auto", maxWidth: "100%", ...sx }}>
     <ins
@@ -25,7 +25,7 @@ const DisplayAd: React.FC<{ sx?: SxProps<Theme> }> = memo(({ sx }) => {
       style={{ display: "block" }}
       data-ad-format="auto"
       data-full-width-responsive="true"
-      data-ad-client="ca-pub-5688177297424594"
+      data-ad-client={`ca-${PUBLISHER_ID}`}
       data-ad-slot="2044943949"
     />
   </Card>

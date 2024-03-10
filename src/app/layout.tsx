@@ -4,8 +4,9 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import Script from 'next/script';
 import './globals.css';
 
+const PUBLIC_URL = process.env.PUBLIC_URL;
 const IS_VERCEL = !!process.env.NEXT_PUBLIC_VERCEL_URL;
-const MEASUREMENT_ID = process.env.MEASUREMENT_ID;
+const MEASUREMENT_ID = process.env.NEXT_PUBLIC_MEASUREMENT_ID;
 
 export const metadata: Metadata = {
   title: 'Math Editor',
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: "/favicon.ico",
   keywords: ["Math Editor", "Online Math Editor", "Matheditor", "Math", "Editor", "Latex", "Geogebra", "Excalidraw", "Markdown"],
-  metadataBase: new URL(process.env.VERCEL_URL ? 'https://matheditor.me' : `http://localhost:${process.env.PORT || 3000}`),
+  metadataBase: PUBLIC_URL ? new URL(PUBLIC_URL) : undefined,
   openGraph: {
     title: "Math Editor",
     description: "Math Editor is a free text editor, with support for LaTeX, Geogebra, Excalidraw and markdown shortcuts. Create, share and print math documents with ease.",
@@ -60,7 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ThemeProvider>{children}</ThemeProvider>
         {IS_VERCEL && <SpeedInsights />}
-        {IS_VERCEL && MEASUREMENT_ID &&
+        {MEASUREMENT_ID &&
           <>
             <Script src={`https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`} strategy="lazyOnload" />
             <Script id="google-analytics" strategy="afterInteractive">

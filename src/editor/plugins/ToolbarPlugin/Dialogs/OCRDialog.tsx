@@ -1,12 +1,14 @@
 import useFixedBodyScroll from "@/hooks/useFixedBodyScroll";
 import { UploadFile, ContentPaste } from "@mui/icons-material";
 import { Dialog, DialogTitle, DialogContent, Button, TextField, LinearProgress, DialogActions } from "@mui/material";
-import { $createParagraphNode, $createTextNode, $getSelection, $insertNodes, $isRootNode, LexicalEditor } from "lexical";
+import { $createParagraphNode, $createTextNode, $insertNodes, LexicalEditor } from "lexical";
 import { useState, useEffect, useCallback } from "react";
 import Compressor from 'compressorjs';
 import { SET_DIALOGS_COMMAND } from "./commands";
 import { Announcement } from "@/types";
 import { SET_ANNOUNCEMENT_COMMAND } from "@/editor/commands";
+
+const FASTAPI_URL = process.env.NEXT_PUBLIC_FASTAPI_URL;
 
 const OCRDialog = ({ open, editor }: { open: boolean, editor: LexicalEditor }) => {
   const [formData, setFormData] = useState({ value: "" });
@@ -42,20 +44,21 @@ const OCRDialog = ({ open, editor }: { open: boolean, editor: LexicalEditor }) =
   const ocr = useCallback(async (blob: Blob) => {
     try {
       setLoading(true);
-      const data = new FormData()
-      data.append('file', blob)
-      const response = await fetch("/fastapi/pix2text", {
+      const formData = new FormData();
+      formData.append("file", blob);
+
+      const response = await fetch(`${FASTAPI_URL}/pix2text`, {
         method: "POST",
-        body: data,
+        body: formData,
       });
       if (!response.ok) {
         throw new Error(`Server responded with status ${response.status}`)
       }
       const result = await response.json();
-      setLoading(false);
       return result.generated_text;
     } catch (error: any) {
       annouunce({ message: { title: "Something went wrong", subtitle: error.message } })
+    } finally {
       setLoading(false);
     }
   }, []);
