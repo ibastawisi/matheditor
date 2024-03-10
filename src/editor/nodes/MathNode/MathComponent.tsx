@@ -20,6 +20,34 @@ declare global {
   }
 }
 
+window.MathfieldElement.soundsDirectory = null;
+window.MathfieldElement.computeEngine = null;
+
+// @ts-expect-error
+window.mathVirtualKeyboard.normalizedLayouts[0].layers[0].rows[1][6] = {
+  variants: [
+    {
+      latex: "\\prod_{#0}^{#0}",
+      class: "small"
+    },
+    "\\otimes",
+    "\\cdot"
+  ],
+  latex: "\\times",
+  label: "&times;",
+  shift: {
+    latex: "\\cdot",
+  },
+  class: "big-op hide-shift"
+};
+
+// @ts-expect-error
+delete window.mathVirtualKeyboard.normalizedLayouts[0].layers[0].rows[3][9].shift;
+
+// remove first row mutation in place
+// @ts-expect-error
+window.mathVirtualKeyboard.normalizedLayouts[2].layers[0].rows.shift();
+
 export type MathComponentProps = { initialValue: string; nodeKey: NodeKey; mathfieldRef: React.RefObject<MathfieldElement>; };
 
 export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref }: MathComponentProps): JSX.Element {

@@ -12,9 +12,6 @@ import "mathlive";
 import "mathlive/fonts.css";
 import "./styles.css";
 
-window.MathfieldElement.soundsDirectory = null;
-window.MathfieldElement.computeEngine = null;
-
 export const Editor: React.FC<{
   initialConfig: Partial<InitialConfigType>;
   editorRef: MutableRefObject<LexicalEditor | null> | RefCallback<LexicalEditor>

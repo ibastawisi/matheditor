@@ -130,7 +130,7 @@ body:has(>ins[data-anchor-status="dismissed"]) {
 }
 
 .MuiDialog-root, .MuiSnackbar-root {
-  z-index: 2147483647;
+  z-index: 2147483647 !important;
 }
 
 @font-face {

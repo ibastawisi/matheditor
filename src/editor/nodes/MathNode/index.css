@@ -48,10 +48,6 @@ math-field.selection-active {
   height: var(--keycap-height) !important;
 }
 
-.MLK__plate .MLK__layer:nth-of-type(3) .MLK__rows .MLK__row:first-child {
-  display: none !important;
-}
-
 .MLK__variant-panel {
   user-select: none;
 }
