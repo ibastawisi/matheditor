@@ -51,25 +51,7 @@ header {
   transform: rotate(3deg) translate(0px, -4px);
 }
 
-@media print {
-  * {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  body {
-    background-color: #fff !important;
-    color: rgba(0, 0, 0, 0.87) !important;
-  }
-
-  body>*:not(.editor-container) {
-    display: none !important;
-  }
-}
-
 .editor-container {
-  display: flex !important;
-  flex-direction: column;
   flex: 1;
   margin: 1rem auto;
   font-size: 15px;
@@ -131,6 +113,22 @@ body:has(>ins[data-anchor-status="dismissed"]) {
 
 .MuiDialog-root, .MuiSnackbar-root {
   z-index: 2147483647 !important;
+}
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    background-color: #fff !important;
+    color: rgba(0, 0, 0, 0.87) !important;
+  }
+
+  body>*:not(.editor-container) {
+    display: none !important;
+  }
 }
 
 @font-face {
