@@ -3,12 +3,12 @@ import { findUserDocument } from "@/repositories/document";
 import ViewDocument from "@/components/ViewDocument";
 import htmr from 'htmr';
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import SplashScreen from "@/components/SplashScreen";
 import { cache } from "react";
 
+const PUBLIC_URL = process.env.PUBLIC_URL;
 const getCachedUserDocument = cache(async (id: string, revisions?: string) => await findUserDocument(id, revisions));
 const getCachedSession = cache(async () => await getServerSession(authOptions));
 
@@ -56,29 +56,37 @@ export async function generateMetadata({ params, searchParams }: { params: { id:
 }
 
 export default async function Page({ params, searchParams }: { params: { id: string }, searchParams: { v?: string } }) {
-  const document = await getCachedUserDocument(params.id, "all");
-  if (!document) notFound();
-  const revisionId = searchParams.v ?? document.head;
-  const revision = document.revisions.find((revision) => revision.id === revisionId);
-  if (!revision) notFound();
-  document.updatedAt = revision.createdAt;
-  const session = await getCachedSession();
-  const isCollab = document.collab;
-  if (!session) {
-    if (document.private) return <SplashScreen title="This document is private" subtitle="Please sign in to view it" />
-    if (!isCollab) document.revisions = [revision];
-  }
-  const user = session?.user;
-  if (user) {
-    const isAuthor = user.id === document.author.id;
-    const isCoauthor = document.coauthors.some(coauthor => coauthor.id === user.id);
-    if (!isAuthor && !isCoauthor) {
-      if (document.private) return <SplashScreen title="This document is private" subtitle="You are not authorized to view this document" />
+  try {
+    const document = await getCachedUserDocument(params.id, "all");
+    if (!document) return <SplashScreen title="Document not found" />;
+    const revisionId = searchParams.v ?? document.head;
+    const revision = document.revisions.find((revision) => revision.id === revisionId);
+    if (!revision) return <SplashScreen title="Something went wrong" subtitle="Revision not found" />;
+    document.updatedAt = revision.createdAt;
+    const session = await getCachedSession();
+    const isCollab = document.collab;
+    if (!session) {
+      if (document.private) return <SplashScreen title="This document is private" subtitle="Please sign in to view it" />
       if (!isCollab) document.revisions = [revision];
     }
+    const user = session?.user;
+    if (user) {
+      const isAuthor = user.id === document.author.id;
+      const isCoauthor = document.coauthors.some(coauthor => coauthor.id === user.id);
+      if (!isAuthor && !isCoauthor) {
+        if (document.private) return <SplashScreen title="This document is private" subtitle="You are not authorized to view this document" />
+        if (!isCollab) document.revisions = [revision];
+      }
+    }
+    const response = await fetch(`${PUBLIC_URL}/api/embed/${revisionId}`);
+    if (!response.ok) {
+      const { error } = await response.json();
+      return <SplashScreen title={error.title} subtitle={error.subtitle} />;
+    }
+    const html = await response.text();
+    return <ViewDocument cloudDocument={document} user={session?.user}>{htmr(html)}</ViewDocument>;
+  } catch (error) {
+    console.error(error);
+    return <SplashScreen title="Something went wrong" subtitle="Please try again later" />;
   }
-  const response = await fetch(`${process.env.PUBLIC_URL}/api/embed/${revisionId}`);
-  if (!response.ok) throw new Error('Failed to generate HTML');
-  const html = await response.text();
-  return <ViewDocument cloudDocument={document} user={session?.user}>{htmr(html)}</ViewDocument>;
 }

@@ -12,9 +12,6 @@ import { Article, Add } from '@mui/icons-material';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
 import UsersAutocomplete from './UsersAutocomplete';
 import { debounce } from '@mui/material/utils';
-import dynamic from "next/dynamic";
-
-const DisplayAd = dynamic(() => import('@/components/Ads/DisplayAd'), { ssr: false });
 
 const getEditorData = (title: string) => {
   const headingText: SerializedTextNode = {
@@ -157,73 +154,70 @@ const NewDocument: React.FC = () => {
   }, 500), []);
 
   return (
-    <>
-      <Container maxWidth="xs" sx={{ flex: 1 }}>
-        <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}><Article /></Avatar>
-          <Typography component="h1" variant="h5">{baseId ? "Fork a document" : "Create a new document"}</Typography>
-          {baseId && <>
-            <Typography variant="overline" sx={{ color: 'text.secondary', my: 1 }}>Based on</Typography>
-            <DocumentCard userDocument={base} sx={{ width: 396 }} />
-          </>}
-          <Box component="form" onSubmit={handleSubmit} noValidate autoComplete="off" spellCheck="false" sx={{ mt: 1 }}>
-            <TextField margin="normal" size="small" fullWidth autoFocus
-              label="Document Name"
-              value={input.name || ""}
-              onChange={e => updateInput({ name: e.target.value })}
-              sx={{ '& .MuiInputBase-root': { height: 40 } }}
-            />
-            <TextField margin="normal" size="small" fullWidth
-              label="Document Handle"
-              disabled={!isOnline}
-              value={input.handle || ""}
-              onChange={updateHandle}
-              error={!validating && !!validationErrors.handle}
-              helperText={
-                validating ? "Validating..."
-                  : validationErrors.handle ? validationErrors.handle
-                    : input.handle ? `https://matheditor.me/view/${input.handle}`
-                      : "This will be used in the URL of your document"
-              }
-            />
-            <FormControlLabel
-              control={<Switch checked={saveToCloud} onChange={() => setSaveToCloud(!saveToCloud)} disabled={!isOnline || !user} />}
-              label="Save to Cloud"
+    <Container maxWidth="xs" sx={{ flex: 1 }}>
+      <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}><Article /></Avatar>
+        <Typography component="h1" variant="h5">{baseId ? "Fork a document" : "Create a new document"}</Typography>
+        {baseId && <>
+          <Typography variant="overline" sx={{ color: 'text.secondary', my: 1 }}>Based on</Typography>
+          <DocumentCard userDocument={base} sx={{ width: 396 }} />
+        </>}
+        <Box component="form" onSubmit={handleSubmit} noValidate autoComplete="off" spellCheck="false" sx={{ mt: 1 }}>
+          <TextField margin="normal" size="small" fullWidth autoFocus
+            label="Document Name"
+            value={input.name || ""}
+            onChange={e => updateInput({ name: e.target.value })}
+            sx={{ '& .MuiInputBase-root': { height: 40 } }}
+          />
+          <TextField margin="normal" size="small" fullWidth
+            label="Document Handle"
+            disabled={!isOnline}
+            value={input.handle || ""}
+            onChange={updateHandle}
+            error={!validating && !!validationErrors.handle}
+            helperText={
+              validating ? "Validating..."
+                : validationErrors.handle ? validationErrors.handle
+                  : input.handle ? `https://matheditor.me/view/${input.handle}`
+                    : "This will be used in the URL of your document"
+            }
+          />
+          <FormControlLabel
+            control={<Switch checked={saveToCloud} onChange={() => setSaveToCloud(!saveToCloud)} disabled={!isOnline || !user} />}
+            label="Save to Cloud"
+          />
+          <FormHelperText>
+            {!isOnline ? "You are offline: Please connect to the internet to use this feature"
+              : unauthenticated ? "You are not signed in: Please sign in to use this feature"
+                : "Save to cloud to access your documents from anywhere"
+            }
+          </FormHelperText>
+          {saveToCloud && <>
+            <UsersAutocomplete label='Coauthors' placeholder='Email' value={input.coauthors ?? []} onChange={updateCoauthors} sx={{ my: 2 }} disabled={!isOnline} />
+            <FormControlLabel label="Private"
+              control={<Checkbox checked={input.private} disabled={!isOnline} onChange={() => updateInput({ private: !input.private, published: input.published && input.private, collab: input.collab && input.private })} />}
             />
             <FormHelperText>
-              {!isOnline ? "You are offline: Please connect to the internet to use this feature"
-                : unauthenticated ? "You are not signed in: Please sign in to use this feature"
-                  : "Save to cloud to access your documents from anywhere"
-              }
+              Private documents are only accessible to authors and coauthors.
             </FormHelperText>
-            {saveToCloud && <>
-              <UsersAutocomplete label='Coauthors' placeholder='Email' value={input.coauthors ?? []} onChange={updateCoauthors} sx={{ my: 2 }} disabled={!isOnline} />
-              <FormControlLabel label="Private"
-                control={<Checkbox checked={input.private} disabled={!isOnline} onChange={() => updateInput({ private: !input.private, published: input.published && input.private, collab: input.collab && input.private })} />}
-              />
-              <FormHelperText>
-                Private documents are only accessible to authors and coauthors.
-              </FormHelperText>
-              <FormControlLabel label="Published"
-                control={<Checkbox checked={input.published} disabled={!isOnline || input.private} onChange={() => updateInput({ published: !input.published })} />}
-              />
-              <FormHelperText>
-                Published documents are showcased on the homepage, can be forked by anyone, and can be found by search engines.
-              </FormHelperText>
-              <FormControlLabel label="Collab"
-                control={<Checkbox checked={input.collab} disabled={!isOnline || input.private} onChange={() => updateInput({ collab: !input.collab })} />}
-              />
-              <FormHelperText>
-                Collab documents are open for anyone to edit.
-              </FormHelperText>
-            </>}
-            <Button type="submit" disabled={!!(baseId && !base) || validating || hasErrors} fullWidth variant="contained" startIcon={<Add />} sx={{ my: 2 }}>Create</Button>
-          </Box>
-
+            <FormControlLabel label="Published"
+              control={<Checkbox checked={input.published} disabled={!isOnline || input.private} onChange={() => updateInput({ published: !input.published })} />}
+            />
+            <FormHelperText>
+              Published documents are showcased on the homepage, can be forked by anyone, and can be found by search engines.
+            </FormHelperText>
+            <FormControlLabel label="Collab"
+              control={<Checkbox checked={input.collab} disabled={!isOnline || input.private} onChange={() => updateInput({ collab: !input.collab })} />}
+            />
+            <FormHelperText>
+              Collab documents are open for anyone to edit.
+            </FormHelperText>
+          </>}
+          <Button type="submit" disabled={!!(baseId && !base) || validating || hasErrors} fullWidth variant="contained" startIcon={<Add />} sx={{ my: 2 }}>Create</Button>
         </Box>
-      </Container>
-      <DisplayAd />
-    </>
+
+      </Box>
+    </Container>
   );
 }
 

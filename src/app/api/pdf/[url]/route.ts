@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
 import puppeteer, { PDFOptions } from "puppeteer";
 
-const PUBLIC_URL = process.env.PUBLIC_URL;
-
 export async function GET(request: Request) {
   try {
-    if (!PUBLIC_URL) return NextResponse.json({ error: { title: "Something went wrong", subtitle: "Please set up the environment variable PUBLIC_URL" }, }, { status: 500 });
     const url = new URL(request.url);
     const search = url.searchParams;
     const handle = url.pathname.split("/").pop();
-    url.hostname = PUBLIC_URL;
+    if (url.hostname === 'localhost') url.protocol = 'http:'
     url.pathname = `/embed/${handle}`;
     const browser = await puppeteer.launch();
     const page = await browser.newPage()

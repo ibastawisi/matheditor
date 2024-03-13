@@ -2,24 +2,20 @@
 import { useSelector } from '@/store';
 import UserCard from "./UserCard";
 import { Box, CircularProgress, Grid, Paper, Typography } from "@mui/material";
-import dynamic from "next/dynamic";
 import { useEffect, useState } from 'react';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { CloudDocument, LocalDocument } from '@/types';
 import { Cloud, Login, Storage } from '@mui/icons-material';
 
-const DisplayAd = dynamic(() => import('@/components/Ads/DisplayAd'), { ssr: false });
-
 const Dashboard: React.FC = () => {
   const user = useSelector(state => state.user);
 
-  return <>
+  return (
     <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
       <UserCard user={user} sessionUser={user} />
       <StorageChart />
     </Box>
-    <DisplayAd />
-  </>
+  );
 }
 
 export default Dashboard;
@@ -44,7 +40,7 @@ const StorageChart: React.FC = () => {
       usageDetails: {} as Record<string, number>,
     }
   });
-  
+
   const localStorageEmpty = initialized && !(storageUsage.localStorage.usage || storageUsage.indexedDB.usage);
   const cloudStorageEmpty = initialized && !(storageUsage.cloud.usage);
   const isLoading = !initialized || (localDocuments.length && !storageUsage.localStorage.usage) || (cloudDocuments.length && !storageUsage.cloud.usage);

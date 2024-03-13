@@ -5,9 +5,6 @@ import type { EditorState } from "../editor/types";
 import { tasks, checkpoints } from "@/tutorial";
 import { Paper, Box, Typography, List, Pagination, ListItemButton, ListItemIcon, ListItemText, Collapse, Divider } from "@mui/material";
 import { Check, Clear, ExpandLess, ExpandMore } from "@mui/icons-material";
-import dynamic from "next/dynamic";
-
-const DisplayAd = dynamic(() => import('@/components/Ads/DisplayAd'), { ssr: false });
 
 type CheckpointItem = typeof checkpoints[0][0];
 
@@ -43,7 +40,6 @@ const Tutorial: React.FC = () => {
       </Box>
       <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3, width: "100%" }} />
     </Paper>
-    <DisplayAd />
   </>;
 }
 

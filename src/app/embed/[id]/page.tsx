@@ -1,12 +1,13 @@
 import type { OgMetadata } from "@/app/api/og/route";
 import htmr from 'htmr';
 import EmbedDocument from "@/components/EmbedDocument";
-import { notFound } from 'next/navigation'
 import { findUserDocument } from '@/repositories/document';
 import SplashScreen from '@/components/SplashScreen';
 import { cache } from 'react';
 import type { Metadata } from "next";
+import { validate } from "uuid";
 
+const PUBLIC_URL = process.env.PUBLIC_URL;
 const getCachedUserDocument = cache(async (id: string, revisions?: string) => await findUserDocument(id, revisions));
 
 export async function generateMetadata({ params, searchParams }: { params: { id: string }, searchParams: { v?: string } }): Promise<Metadata> {
@@ -42,12 +43,21 @@ export async function generateMetadata({ params, searchParams }: { params: { id:
 }
 
 export default async function Page({ params, searchParams }: { params: { id: string }, searchParams: { v?: string } }) {
-  const document = await getCachedUserDocument(params.id);
-  if (!document) notFound();
-  if (document.private) return <SplashScreen title="This document is private" />;
-  const revision = searchParams.v ?? document.head
-  const response = await fetch(`${process.env.PUBLIC_URL}/api/embed/${revision}`);
-  if (!response.ok) throw new Error('Failed to generate HTML');
-  const html = await response.text();
-  return <EmbedDocument>{htmr(html)}</EmbedDocument>
+  try {
+    const document = await getCachedUserDocument(params.id);
+    if (!document) return <SplashScreen title="Document not found" />;
+    if (document.private) return <SplashScreen title="This document is private" />;
+    const revision = searchParams.v ?? document.head;
+    if (!validate(revision)) return <SplashScreen title="Revision not found" />;
+    const response = await fetch(`${PUBLIC_URL}/api/embed/${revision}`);
+    if (!response.ok) {
+      const { error } = await response.json();
+      return <SplashScreen title={error.title} subtitle={error.subtitle} />;
+    }
+    const html = await response.text();
+    return <EmbedDocument>{htmr(html)}</EmbedDocument>
+  } catch (error) {
+    console.error(error);
+    return <SplashScreen title="Something went wrong" subtitle="Please try again later" />;
+  }
 }

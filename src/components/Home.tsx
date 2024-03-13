@@ -4,9 +4,7 @@ import { useEffect } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import Documents from "./Documents";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
-import dynamic from "next/dynamic";
 
-const DisplayAd = dynamic(() => import('@/components/Ads/DisplayAd'), { ssr: false });
 
 const Home: React.FC = () => {
   const [welcomed, setWelcomed] = useLocalStorage("welcomed", false);
@@ -19,7 +17,6 @@ const Home: React.FC = () => {
   return (
     <>
       <Documents />
-      <DisplayAd />
       {!welcomed && (
         <Dialog open onClose={handleClose}>
           <DialogTitle>Welcome to Math Editor</DialogTitle>

@@ -432,8 +432,10 @@ const findUserDocument = async (handle: string, revisions?: "all" | string | nul
   };
   if (revisions !== "all") {
     const revisionId = revisions ?? document.head;
-    cloudDocument.revisions = cloudDocument.revisions.filter((revision) => revision.id === revisionId);
-    cloudDocument.updatedAt = cloudDocument.revisions[0].createdAt;
+    const revision = cloudDocument.revisions.find((revision) => revision.id === revisionId);
+    if (!revision) return null;
+    cloudDocument.revisions = [revision];
+    cloudDocument.updatedAt = revision.createdAt;
   }
   return cloudDocument;
 }
