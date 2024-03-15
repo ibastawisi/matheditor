@@ -9,6 +9,7 @@ import { mergeRegister } from '@lexical/utils';
 import type { MathfieldElement, MathfieldElementAttributes } from "mathlive";
 import './index.css';
 import { $isMathNode } from ".";
+import './mathVirtualKeyboard';
 
 type CustomElement<T> = Partial<T & DOMAttributes<T>>;
 
@@ -22,31 +23,6 @@ declare global {
 
 window.MathfieldElement.soundsDirectory = null;
 window.MathfieldElement.computeEngine = null;
-
-// @ts-expect-error
-window.mathVirtualKeyboard.normalizedLayouts[0].layers[0].rows[1][6] = {
-  variants: [
-    {
-      latex: "\\prod_{#0}^{#0}",
-      class: "small"
-    },
-    "\\otimes",
-    "\\cdot"
-  ],
-  latex: "\\times",
-  label: "&times;",
-  shift: {
-    latex: "\\cdot",
-  },
-  class: "big-op hide-shift"
-};
-
-// @ts-expect-error
-delete window.mathVirtualKeyboard.normalizedLayouts[0].layers[0].rows[3][9].shift;
-
-// remove first row mutation in place
-// @ts-expect-error
-window.mathVirtualKeyboard.normalizedLayouts[2].layers[0].rows.shift();
 
 export type MathComponentProps = { initialValue: string; nodeKey: NodeKey; mathfieldRef: React.RefObject<MathfieldElement>; };
 
@@ -122,6 +98,10 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
 
     mathfield.addEventListener("input", e => {
       const event = e as InputEvent;
+      if (event.inputType === "insertLineBreak") {
+        event.preventDefault();
+        mathfield.executeCommand(["performWithFeedback", "addRowAfter"]);
+      }
       const value = mathfield.getValue();
       editor.update(() => {
         if (value === initialValue) return;
@@ -129,9 +109,6 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
         if (!$isMathNode(node)) return;
         node.setValue(value);
       });
-      if (event.inputType === "insertLineBreak") {
-        mathfield.executeCommand("addRowAfter");
-      }
     }, false);
 
     mathfield.addEventListener("click", event => {

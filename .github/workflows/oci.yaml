@@ -10,9 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: SSH Remote Commands
-      # You may pin to the exact commit or the version.
-      # uses: appleboy/ssh-action@f9010ff7f1bbd7db1a0b4bab661437550cea20c0
-      uses: appleboy/ssh-action@v0.1.5
+      uses: appleboy/ssh-action@v1.0.3
       with:
         # ssh host
         host: ${{ secrets.OCI_VM_IP }}
