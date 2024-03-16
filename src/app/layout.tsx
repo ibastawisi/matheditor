@@ -1,12 +1,10 @@
 import type { Metadata, Viewport } from 'next';
 import ThemeProvider from '@/components/Layout/ThemeProvider';
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import Script from 'next/script';
 import './globals.css';
 
 const PUBLIC_URL = process.env.PUBLIC_URL;
 const IS_VERCEL = !!process.env.NEXT_PUBLIC_VERCEL_URL;
-const MEASUREMENT_ID = process.env.NEXT_PUBLIC_MEASUREMENT_ID;
 
 export const metadata: Metadata = {
   title: 'Math Editor',
@@ -61,20 +59,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ThemeProvider>{children}</ThemeProvider>
         {IS_VERCEL && <SpeedInsights />}
-        {MEASUREMENT_ID &&
-          <>
-            <Script src={`https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`} strategy="lazyOnload" />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                window['gtag_enable_tcf_support'] = true
-                function gtag(){window.dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${MEASUREMENT_ID}');
-              `}
-            </Script>
-          </>
-        }
       </body>
     </html>
   )
