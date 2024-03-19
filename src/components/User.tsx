@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react";
 import UserCard from "./UserCard";
-import { User, UserDocument } from '@/types';
+import type { User, UserDocument } from '@/types';
 import DocumentCard from "./DocumentCard";
 import { Box, Grid, Pagination, Typography } from "@mui/material";
 import { Pageview } from "@mui/icons-material";

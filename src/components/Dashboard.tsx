@@ -27,62 +27,44 @@ const StorageChart: React.FC = () => {
   const localDocuments = documents.filter(document => !!document.local).map(document => document.local) as LocalDocument[];
   const cloudDocuments = documents.filter(document => !!document.cloud && document.cloud.author.id === user?.id).map(document => document.cloud) as CloudDocument[];
   const [storageUsage, setStorageUsage] = useState({
-    localStorage: {
+    local: {
       usage: 0,
-      usageDetails: {} as Record<string, number>,
-    },
-    indexedDB: {
-      usage: 0,
-      usageDetails: {} as Record<string, number>,
+      usageDetails: [] as {
+        value: number;
+        label?: string;
+        color?: string;
+      }[]
     },
     cloud: {
       usage: 0,
-      usageDetails: {} as Record<string, number>,
+      usageDetails: [] as {
+        value: number;
+        label?: string;
+        color?: string;
+      }[]
     }
   });
 
-  const localStorageEmpty = initialized && !(storageUsage.localStorage.usage || storageUsage.indexedDB.usage);
-  const cloudStorageEmpty = initialized && !(storageUsage.cloud.usage);
-  const isLoading = !initialized || (localDocuments.length && !storageUsage.localStorage.usage) || (cloudDocuments.length && !storageUsage.cloud.usage);
+  const localStorageEmpty = initialized && !storageUsage.local.usage;
+  const cloudStorageEmpty = initialized && !storageUsage.cloud.usage;
+  const isLoading = !initialized || !!((localDocuments.length && !storageUsage.local.usage) || (cloudDocuments.length && !storageUsage.cloud.usage));
   const isLoaded = initialized && !isLoading;
 
   useEffect(() => {
     const calculateStorageUsage = async () => {
-      const sketch = localStorage.getItem('excalidraw');
-      const sketchLibraries = localStorage.getItem('excalidraw-library');
-      let localStorageUsage = 0;
-      const localStorageUsageDetails: Record<string, number> = {};
-      if (sketch) {
-        const size = +(new Blob([sketch]).size / 1024 / 1024).toFixed(2);
-        localStorageUsageDetails['Sketch'] = size;
-        localStorageUsage += size;
-      }
-      if (sketchLibraries) {
-        const size = +(new Blob([sketchLibraries]).size / 1024 / 1024).toFixed(2);
-        localStorageUsageDetails['Sketch Libraries'] = size;
-        localStorageUsage += size;
-      }
-
-      const indexedDBUsage = localDocuments.reduce((acc, document) => acc + document.size, 0) / 1024 / 1024;
-      const indexedDBUsageDetails: Record<string, number> = {};
-      localDocuments.forEach(document => {
-        indexedDBUsageDetails[document.name] = document.size / 1024 / 1024;
+      const localUsage = localDocuments.reduce((acc, document) => acc + document.size, 0) / 1024 / 1024;
+      const localUsageDetails = localDocuments.map(document => {
+        return { value: document.size / 1024 / 1024, label: document.name };
       });
-
       const cloudUsage = cloudDocuments.reduce((acc, document) => acc + (document.size ?? 0), 0) / 1024 / 1024;
-      const cloudUsageDetails: Record<string, number> = {};
-      cloudDocuments.forEach(document => {
-        cloudUsageDetails[document.name] = (document.size ?? 0) / 1024 / 1024;
+      const cloudUsageDetails = cloudDocuments.map(document => {
+        return { value: (document.size ?? 0) / 1024 / 1024, label: document.name };
       });
 
       setStorageUsage({
-        localStorage: {
-          usage: localStorageUsage,
-          usageDetails: localStorageUsageDetails,
-        },
-        indexedDB: {
-          usage: indexedDBUsage,
-          usageDetails: indexedDBUsageDetails,
+        local: {
+          usage: localUsage,
+          usageDetails: localUsageDetails,
         },
         cloud: {
           usage: cloudUsage,
@@ -95,26 +77,11 @@ const StorageChart: React.FC = () => {
   }, [initialized]);
 
   const data1 = [
-    { id: 'editor', label: 'Editor', value: storageUsage.localStorage.usage, color: '#00C49F' },
-    { id: 'documents', label: 'Documents', value: storageUsage.indexedDB.usage, color: '#72CCFF' },
+    { id: 'local', label: 'Local', value: storageUsage.local.usage, color: '#72CCFF' },
   ];
 
   const data2 = [
-    ...Object.entries(storageUsage.localStorage.usageDetails).map(([label, value]) => {
-      return { label, value };
-    }),
-    ...Object.entries(storageUsage.indexedDB.usageDetails).map(([label, value]) => {
-      return { label, value };
-    })
-  ];
-
-  const data3 = [
     { id: 'cloud', label: 'Cloud', value: storageUsage.cloud.usage, color: '#FFBB28' }
-  ];
-  const data4 = [
-    ...Object.entries(storageUsage.cloud.usageDetails).map(([label, value]) => {
-      return { label, value };
-    })
   ];
 
   return (
@@ -140,17 +107,12 @@ const StorageChart: React.FC = () => {
               {
                 innerRadius: 100,
                 outerRadius: 120,
-                data: data2,
+                data: storageUsage.local.usageDetails,
                 valueFormatter: item => `${(item.value).toFixed(2)} MB`,
               },
             ]}
             height={300}
-            slotProps={{
-              legend: {
-                seriesToDisplay: data1,
-                position: { horizontal: 'right', vertical: 'bottom' }
-              }
-            }}
+            slotProps={{ legend: { hidden: true } }}
           />}
         </Grid>
         {<Grid item xs={12} md={6}>
@@ -171,23 +133,18 @@ const StorageChart: React.FC = () => {
               {
                 innerRadius: 0,
                 outerRadius: 80,
-                data: data3,
+                data: data2,
                 valueFormatter: item => `${(item.value).toFixed(2)} MB`,
               },
               {
                 innerRadius: 100,
                 outerRadius: 120,
-                data: data4,
+                data: storageUsage.cloud.usageDetails,
                 valueFormatter: item => `${(item.value).toFixed(2)} MB`,
               },
             ]}
             height={300}
-            slotProps={{
-              legend: {
-                seriesToDisplay: data3,
-                position: { horizontal: 'right', vertical: 'bottom' }
-              }
-            }}
+            slotProps={{ legend: { hidden: true } }}
           />}
         </Grid>}
       </Grid>
