@@ -87,12 +87,12 @@ const StorageChart: React.FC = () => {
   return (
     <Paper sx={{ p: 2 }}>
       <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
-          <Typography variant='overline' gutterBottom>Local Storage</Typography>
-          {isLoading && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+        <Grid item xs={12} sm={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Typography variant='overline' gutterBottom sx={{ alignSelf: 'start' }}>Local Storage</Typography>
+          {isLoading && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 256, gap: 2 }}>
             <CircularProgress disableShrink />
           </Box>}
-          {isLoaded && localStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+          {isLoaded && localStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 256, gap: 2 }}>
             <Storage sx={{ width: 64, height: 64, fontSize: 64 }} />
             <Typography variant="overline" component="p">Local storage is empty</Typography>
           </Box>}
@@ -101,30 +101,33 @@ const StorageChart: React.FC = () => {
               {
                 innerRadius: 0,
                 outerRadius: 80,
+                cx: 125,
                 data: data1,
                 valueFormatter: item => `${(item.value).toFixed(2)} MB`,
               },
               {
                 innerRadius: 100,
                 outerRadius: 120,
+                cx: 125,
                 data: storageUsage.local.usageDetails,
                 valueFormatter: item => `${(item.value).toFixed(2)} MB`,
               },
             ]}
-            height={300}
+            width={256}
+            height={256}
             slotProps={{ legend: { hidden: true } }}
           />}
         </Grid>
-        {<Grid item xs={12} md={6}>
-          <Typography variant='overline' gutterBottom>Cloud Storage</Typography>
-          {isLoading && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+        {<Grid item xs={12} sm={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Typography variant='overline' gutterBottom sx={{ alignSelf: 'start' }}>Cloud Storage</Typography>
+          {isLoading && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 256, gap: 2 }}>
             <CircularProgress disableShrink />
           </Box>}
-          {isLoaded && !user && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+          {isLoaded && !user && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 256, gap: 2 }}>
             <Login sx={{ width: 64, height: 64, fontSize: 64 }} />
             <Typography variant="overline" component="p">Please login to use cloud storage</Typography>
           </Box>}
-          {isLoaded && user && cloudStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+          {isLoaded && user && cloudStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 256, gap: 2 }}>
             <Cloud sx={{ width: 64, height: 64, fontSize: 64 }} />
             <Typography variant="overline" component="p">Cloud storage is empty</Typography>
           </Box>}
@@ -133,17 +136,20 @@ const StorageChart: React.FC = () => {
               {
                 innerRadius: 0,
                 outerRadius: 80,
+                cx: 125,
                 data: data2,
                 valueFormatter: item => `${(item.value).toFixed(2)} MB`,
               },
               {
                 innerRadius: 100,
                 outerRadius: 120,
+                cx: 125,
                 data: storageUsage.cloud.usageDetails,
                 valueFormatter: item => `${(item.value).toFixed(2)} MB`,
               },
             ]}
-            height={300}
+            width={256}
+            height={256}
             slotProps={{ legend: { hidden: true } }}
           />}
         </Grid>}
