@@ -89,10 +89,10 @@ const StorageChart: React.FC = () => {
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Typography variant='overline' gutterBottom sx={{ alignSelf: 'start' }}>Local Storage</Typography>
-          {isLoading && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 256, gap: 2 }}>
+          {isLoading && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <CircularProgress disableShrink />
           </Box>}
-          {isLoaded && localStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 256, gap: 2 }}>
+          {isLoaded && localStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <Storage sx={{ width: 64, height: 64, fontSize: 64 }} />
             <Typography variant="overline" component="p">Local storage is empty</Typography>
           </Box>}
@@ -114,20 +114,20 @@ const StorageChart: React.FC = () => {
               },
             ]}
             width={256}
-            height={256}
+            height={300}
             slotProps={{ legend: { hidden: true } }}
           />}
         </Grid>
         {<Grid item xs={12} sm={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Typography variant='overline' gutterBottom sx={{ alignSelf: 'start' }}>Cloud Storage</Typography>
-          {isLoading && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 256, gap: 2 }}>
+          {isLoading && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <CircularProgress disableShrink />
           </Box>}
-          {isLoaded && !user && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 256, gap: 2 }}>
+          {isLoaded && !user && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <Login sx={{ width: 64, height: 64, fontSize: 64 }} />
             <Typography variant="overline" component="p">Please login to use cloud storage</Typography>
           </Box>}
-          {isLoaded && user && cloudStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 256, gap: 2 }}>
+          {isLoaded && user && cloudStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <Cloud sx={{ width: 64, height: 64, fontSize: 64 }} />
             <Typography variant="overline" component="p">Cloud storage is empty</Typography>
           </Box>}
@@ -149,7 +149,7 @@ const StorageChart: React.FC = () => {
               },
             ]}
             width={256}
-            height={256}
+            height={300}
             slotProps={{ legend: { hidden: true } }}
           />}
         </Grid>}

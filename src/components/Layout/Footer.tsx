@@ -1,4 +1,4 @@
-import { AdminPanelSettings, Cached } from '@mui/icons-material';
+import { Cached } from '@mui/icons-material';
 import packageJson from '../../../package.json';
 import { Box, Typography, Link, IconButton } from '@mui/material';
 import RouterLink from "next/link";
@@ -20,10 +20,6 @@ const Footer: React.FC = () => {
       <Typography variant="button">
         <Link component={RouterLink} prefetch={false} href="/privacy" sx={{ textDecoration: "none" }}>Privacy Policy</Link>
       </Typography>
-      <IconButton size="small" sx={{ width: 24, height: 24 }} aria-label="Manage consent">
-        <script dangerouslySetInnerHTML={{ __html: `document.currentScript.parentElement.onclick = () => {window.googlefc?.callbackQueue.push(window.googlefc.showRevocationMessage)}` }} />
-        <AdminPanelSettings />
-      </IconButton>
       <Script
         id="_next-ga-init"
         dangerouslySetInnerHTML={{
