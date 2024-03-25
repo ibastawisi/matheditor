@@ -242,6 +242,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
               },
             }}
             theme={theme.palette.mode}
+            langCode='en'
           />
           <IconButton onClick={handleFreeHand} sx={{ position: "absolute", bottom: 8, right: 8, zIndex: 1000 }} disabled={loading}>
             <Save />

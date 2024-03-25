@@ -5,7 +5,7 @@ import { EditorDocument } from '@/types';
 import type { EditorState, LexicalEditor } from '@/editor/types';
 import dynamic from "next/dynamic";
 import SplashScreen from './SplashScreen';
-import { COMMAND_PRIORITY_LOW, SET_ANNOUNCEMENT_COMMAND, mergeRegister } from '@/editor';
+import { COMMAND_PRIORITY_LOW, SET_ANNOUNCEMENT_COMMAND } from '@/editor';
 import { actions, useDispatch } from '@/store';
 
 const Editor = dynamic(() => import("@/editor/Editor"), { ssr: false, loading: () => <SplashScreen title="Loading Editor" /> });
@@ -18,15 +18,13 @@ const Container: React.FC<{
   const dispatch = useDispatch();
   const editorRefCallback = (editor: LexicalEditor) => {
     if (editorRef) editorRef.current = editor;
-    mergeRegister(
-      editor.registerCommand(
-        SET_ANNOUNCEMENT_COMMAND,
-        (payload) => {
-          dispatch((actions.announce(payload)))
-          return false;
-        },
-        COMMAND_PRIORITY_LOW
-      ),
+    editor.registerCommand(
+      SET_ANNOUNCEMENT_COMMAND,
+      (payload) => {
+        dispatch((actions.announce(payload)))
+        return false;
+      },
+      COMMAND_PRIORITY_LOW
     );
   };
 

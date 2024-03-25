@@ -69,25 +69,6 @@
   }
 }
 
-.applet_scaler,
-.gbb_preview {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-.GeoGebraFrame button {
-  color: inherit;
-}
-
-.GeoGebraFrame .mainMenu > .menuView tr:first-of-type tr:nth-of-type(4),
-.GeoGebraFrame .mainMenu > .menuView tr:first-of-type tr:nth-of-type(5),
-.GeoGebraFrame .mainMenu > .menuView tr:first-of-type tr:nth-of-type(6),
-.GeoGebraFrame .mainMenu > .menuView tr:first-of-type tr:nth-of-type(8),
-.GeoGebraFrame .mainMenu > .menuView > tbody > tr:nth-last-of-type(1),
-.GeoGebraFrame .mainMenu > .menuView > tbody > tr:nth-last-of-type(2) {
-  display: none;
-}
-
 .excalidraw.excalidraw-modal-container,
 #typeahead-menu {
   z-index: 1500 !important;
