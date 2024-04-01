@@ -91,17 +91,17 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
     mathfield.smartMode = true;
     mathfield.mathModeSpace = "\\,";
 
+    mathfield.keybindings = [
+      ...mathfield.keybindings,
+      { key: '[Return]', ifMode: 'math', command: 'addRowAfter' },
+      { key: '[Enter]', ifMode: 'math', command: 'addRowAfter' },
+    ];
     // focus newly created mathfield
     if (isSelected && !mathfield.hasFocus()) {
       focus(mathfield);
     }
 
-    mathfield.addEventListener("input", e => {
-      const event = e as InputEvent;
-      if (event.inputType === "insertLineBreak") {
-        event.preventDefault();
-        mathfield.executeCommand(["performWithFeedback", "addRowAfter"]);
-      }
+    mathfield.addEventListener("input", event => {
       const value = mathfield.getValue();
       editor.update(() => {
         if (value === initialValue) return;

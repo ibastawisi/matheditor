@@ -1,7 +1,8 @@
 "use client";
 
+const mathVirtualKeyboardLayout =[ ...window.mathVirtualKeyboard.normalizedLayouts ];
 // @ts-expect-error
-window.mathVirtualKeyboard.normalizedLayouts[0].layers[0].rows[1][6] = {
+mathVirtualKeyboardLayout[0].layers[0].rows[1][6] = {
   variants: [
     {
       latex: "\\prod_{#0}^{#0}",
@@ -18,25 +19,25 @@ window.mathVirtualKeyboard.normalizedLayouts[0].layers[0].rows[1][6] = {
   class: "big-op hide-shift"
 };
 // @ts-expect-error
-window.mathVirtualKeyboard.normalizedLayouts[0].layers[0].rows[3][9].command = ['performWithFeedback', 'addRowAfter'];
+mathVirtualKeyboardLayout[0].layers[0].rows[3][9].command = ['performWithFeedback', 'addRowAfter'];
 // @ts-expect-error
-delete window.mathVirtualKeyboard.normalizedLayouts[0].layers[0].rows[3][9].shift;
+delete mathVirtualKeyboardLayout[0].layers[0].rows[3][9].shift;
 // @ts-expect-error
-window.mathVirtualKeyboard.normalizedLayouts[0].layers[0].rows[3][8].command = ['performWithFeedback', 'addRowAfter'];
+mathVirtualKeyboardLayout[1].layers[0].rows[3][8].command = ['performWithFeedback', 'addRowAfter'];
 // @ts-expect-error
-delete window.mathVirtualKeyboard.normalizedLayouts[1].layers[0].rows[3][8].shift;
+delete mathVirtualKeyboardLayout[1].layers[0].rows[3][8].shift;
 // @ts-expect-error
-window.mathVirtualKeyboard.normalizedLayouts[0].layers[0].rows[3][8].command = ['performWithFeedback', 'addRowAfter'];
+mathVirtualKeyboardLayout[2].layers[0].rows[3][8].command = ['performWithFeedback', 'addRowAfter'];
 // @ts-expect-error
-delete window.mathVirtualKeyboard.normalizedLayouts[2].layers[0].rows[3][8].shift;
+delete mathVirtualKeyboardLayout[2].layers[0].rows[3][8].shift;
 // @ts-expect-error
-window.mathVirtualKeyboard.normalizedLayouts[0].layers[0].rows[3][8].command = ['performWithFeedback', 'addRowAfter'];
+mathVirtualKeyboardLayout[3].layers[0].rows[3][8].command = ['performWithFeedback', 'addRowAfter'];
 // @ts-expect-error
-delete window.mathVirtualKeyboard.normalizedLayouts[3].layers[0].rows[3][8].shift;
+delete mathVirtualKeyboardLayout[3].layers[0].rows[3][8].shift;
 // @ts-expect-error
-window.mathVirtualKeyboard.normalizedLayouts[2].layers[0].rows.shift();
+mathVirtualKeyboardLayout[2].layers[0].rows.shift();
 // @ts-expect-error
-mathVirtualKeyboard.normalizedLayouts[0].layers[0].rows[2][9].variants = [
+mathVirtualKeyboardLayout[0].layers[0].rows[2][9].variants = [
   { latex: '\\exists', aside: 'there is' },
   { latex: '\\nexists', aside: 'there isn’t' },
 
@@ -74,7 +75,7 @@ mathVirtualKeyboard.normalizedLayouts[0].layers[0].rows[2][9].variants = [
 ];
 
 // @ts-expect-error
-mathVirtualKeyboard.normalizedLayouts[2].layers[0].rows[3][3].variants = [
+mathVirtualKeyboardLayout[2].layers[0].rows[3][3].variants = [
   {
     latex: '\\char"203A\\ \\char"2039',
     insert: '\\ ',
@@ -96,3 +97,5 @@ mathVirtualKeyboard.normalizedLayouts[2].layers[0].rows[3][3].variants = [
     aside: '2 em',
   },
 ];
+
+window.mathVirtualKeyboard.layouts = mathVirtualKeyboardLayout;

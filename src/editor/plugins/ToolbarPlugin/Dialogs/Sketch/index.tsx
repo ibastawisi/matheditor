@@ -143,7 +143,6 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
         }
       } else {
         convertImagetoSketch(src);
-        excalidrawAPI?.setActiveTool({ type: "freedraw" });
       }
     } catch (error) {
       console.error(error);
@@ -206,7 +205,14 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
             },
           ]);
           setLastSceneVersion(getSceneVersion([imageElement]));
-          excalidrawAPI?.updateScene({ elements: [imageElement], appState: { theme: theme.palette.mode } });
+          excalidrawAPI?.updateScene({
+            elements: [imageElement],
+            appState: {
+              activeTool: { type: "freedraw", lastActiveTool: null, customType: null, locked: true },
+              currentItemStrokeWidth: 0.5,
+              theme: theme.palette.mode
+            }
+          });
         }
       };
       reader.readAsDataURL(blob);
