@@ -103,16 +103,8 @@ footer {
   min-height: 22px;
 }
 
-ins[data-anchor-status="dismissed"] {
-  display: none !important;
-}
-
-body:has(>ins[data-anchor-status="dismissed"]) {
-  padding: 0 !important;
-}
-
-.MuiDialog-root, .MuiSnackbar-root {
-  z-index: 2147483647 !important;
+.MuiSnackbar-root {
+  z-index: 15000;
 }
 
 @media print {
