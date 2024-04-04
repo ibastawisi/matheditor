@@ -1,6 +1,5 @@
 "use client"
 import { useEffect, useState, useRef } from "react";
-import Editor from "./Editor";
 import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
 import { EditorDocument } from '@/types';
@@ -10,6 +9,7 @@ import { EditorState, LexicalEditor } from "@/editor";
 import { v4 as uuidv4 } from 'uuid';
 import dynamic from "next/dynamic";
 
+const Editor = dynamic(() => import("@/components/Editor"), { ssr: false, loading: () => <SplashScreen title="Loading Editor" /> });
 const EditDocumentInfo = dynamic(() => import('@/components/EditDocumentInfo'), { ssr: false });
 
 const EditDocument: React.FC = () => {

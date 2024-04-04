@@ -1,5 +1,5 @@
 import { Typography, Select, MenuItem } from "@mui/material";
-import type { EditorState, ListItemNode } from "../editor/types";
+import type { TextNode, EditorState, ListItemNode, ParagraphNode } from "../editor/types";
 
 const Checkpoint2 = [
   {
@@ -25,9 +25,9 @@ const Checkpoint2 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 1)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
-        const target = paragraphNode.getFirstChild();
+        const target = paragraphNode.getFirstChild<TextNode>();
         if (target && target.getStyle().includes("font-size: 20px")) result = true;
       });
       return result;
@@ -56,9 +56,9 @@ const Checkpoint2 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 2)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
-        const target = paragraphNode.getFirstChild();
+        const target = paragraphNode.getFirstChild<TextNode>();
         if (target && target.getStyle().includes("font-family: KaTeX_Main")) result = true;
       });
       return result;
@@ -87,9 +87,9 @@ const Checkpoint2 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 3)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
-        const target = paragraphNode.getFirstChild();
+        const target = paragraphNode.getFirstChild<TextNode>();
         if (target && target.getStyle().includes("font-family: Virgil")) result = true;
       });
       return result;

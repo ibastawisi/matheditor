@@ -21,6 +21,7 @@ import {
   getDOMCellFromTarget,
   TableCellNode,
 } from '../../nodes/TableNode';
+import { calculateZoomLevel } from '@lexical/utils';
 import {
   $getNearestNodeFromDOMNode,
   $getSelection,
@@ -143,7 +144,9 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
   }, [activeCell, draggingDirection, editor, resetState]);
 
   const isHeightChanging = (direction: MouseDraggingDirection) => {
-    if (direction === 'bottom') return true;
+    if (direction === 'bottom') {
+      return true;
+    }
     return false;
   };
 
@@ -257,10 +260,11 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
           if (activeCell === null) {
             return;
           }
+          const zoom = calculateZoomLevel(event.target as Element);
 
           if (isHeightChanging(direction)) {
             const height = activeCell.elem.getBoundingClientRect().height;
-            const heightChange = Math.abs(event.clientY - y);
+            const heightChange = Math.abs(event.clientY - y) / zoom;
 
             const isShrinking = direction === 'bottom' && y > event.clientY;
 
@@ -276,7 +280,7 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
             width -=
               parseFloat(computedStyle.paddingLeft) +
               parseFloat(computedStyle.paddingRight);
-            const widthChange = Math.abs(event.clientX - x);
+            const widthChange = Math.abs(event.clientX - x) / zoom;
 
             const isShrinking = direction === 'right' && x > event.clientX;
 
@@ -323,6 +327,7 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
     if (activeCell) {
       const { height, width, top, left } =
         activeCell.elem.getBoundingClientRect();
+      const zoom = calculateZoomLevel(activeCell.elem);
 
       const styles = {
         bottom: {
@@ -349,14 +354,14 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
         if (isHeightChanging(draggingDirection)) {
           styles[draggingDirection].left = `${window.pageXOffset + tableRect.left
             }px`;
-          styles[draggingDirection].top = `${window.pageYOffset + mouseCurrentPos.y
+          styles[draggingDirection].top = `${window.pageYOffset + mouseCurrentPos.y / zoom
             }px`;
           styles[draggingDirection].height = '1px';
           styles[draggingDirection].width = `${tableRect.width}px`;
         } else {
           styles[draggingDirection].top = `${window.pageYOffset + tableRect.top
             }px`;
-          styles[draggingDirection].left = `${window.pageXOffset + mouseCurrentPos.x
+          styles[draggingDirection].left = `${window.pageXOffset + mouseCurrentPos.x / zoom
             }px`;
           styles[draggingDirection].width = '1px';
           styles[draggingDirection].height = `${tableRect.height}px`;

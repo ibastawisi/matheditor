@@ -1,5 +1,6 @@
 import { Typography } from "@mui/material";
-import type { EditorState, ListItemNode } from "../editor/types";
+import type { EditorState, ListItemNode, ParagraphNode } from "../editor/types";
+import type { TableNode } from "@/editor/nodes/TableNode";
 
 const Checkpoint7 = [
   {
@@ -24,7 +25,7 @@ const Checkpoint7 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 1)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
         const target = paragraphNode.getFirstChild();
         if (target?.__type === "graph") result = true;
@@ -54,7 +55,7 @@ const Checkpoint7 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 2)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
         const target = paragraphNode.getFirstChild();
         if (target?.__type === "sketch") result = true;
@@ -81,9 +82,9 @@ const Checkpoint7 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 3)?.[1] as ListItemNode;
         if (!node) return result;
-            const paragraphNode = node.getParent()?.getNextSibling();
+            const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
             if (!paragraphNode) return result;
-            const target = paragraphNode.getNextSibling();
+            const target = paragraphNode.getNextSibling<TableNode>();
             if (target?.__type === "table" && target.__size === 4) result = true;
       });
       return result;

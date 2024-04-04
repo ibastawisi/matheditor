@@ -1,5 +1,5 @@
 import { FormatAlignCenter, FormatAlignLeft, FormatAlignRight, FormatIndentIncrease } from "@mui/icons-material";
-import type { EditorState, ListItemNode } from "../editor/types";
+import type { ParagraphNode, EditorState, ListItemNode } from "../editor/types";
 import { Typography, IconButton } from "@mui/material";
 
 const Checkpoint4 = [
@@ -25,7 +25,7 @@ const Checkpoint4 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 1)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
         if (paragraphNode.__format === 2) result = true;
       });
@@ -54,7 +54,7 @@ const Checkpoint4 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 2)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
         if (paragraphNode.__format === 3) result = true;
       });
@@ -83,7 +83,7 @@ const Checkpoint4 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 3)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
         if (paragraphNode.getIndent() === 1) result = true;
       });

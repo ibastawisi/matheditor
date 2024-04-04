@@ -7,59 +7,42 @@
  */
 
 import type {
+  BaseSelection,
   LexicalCommand,
   LexicalEditor,
   LexicalNode,
-  RangeSelection,
   LineBreakNode,
   NodeKey,
-  BaseSelection,
-  ElementNode,
+  RangeSelection,
 } from 'lexical';
-
-import * as Prism from 'prismjs';
-
-import 'prismjs/components/prism-clike';
-import 'prismjs/components/prism-javascript';
-import 'prismjs/components/prism-markup';
-import 'prismjs/components/prism-markdown';
-import 'prismjs/components/prism-c';
-import 'prismjs/components/prism-css';
-import 'prismjs/components/prism-objectivec';
-import 'prismjs/components/prism-sql';
-import 'prismjs/components/prism-python';
-import 'prismjs/components/prism-rust';
-import 'prismjs/components/prism-swift';
-import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-java';
-import 'prismjs/components/prism-cpp';
-import 'prismjs/components/prism-csharp';
 
 import { mergeRegister } from '@lexical/utils';
 import {
   $createLineBreakNode,
+  $createTabNode,
   $createTextNode,
   $getNodeByKey,
   $getSelection,
+  $insertNodes,
   $isLineBreakNode,
-  $createTabNode,
   $isRangeSelection,
+  $isTabNode,
   $isTextNode,
   COMMAND_PRIORITY_LOW,
-  INSERT_TAB_COMMAND,
   INDENT_CONTENT_COMMAND,
+  INSERT_TAB_COMMAND,
   KEY_ARROW_DOWN_COMMAND,
   KEY_ARROW_UP_COMMAND,
+  KEY_TAB_COMMAND,
   MOVE_TO_END,
   MOVE_TO_START,
-  $insertNodes,
   OUTDENT_CONTENT_COMMAND,
-  KEY_TAB_COMMAND,
-  TextNode,
-  $isTabNode,
   TabNode,
+  TextNode,
 } from 'lexical';
+import invariant from '../../shared/invariant';
 
+import { Prism, reifyPrismLanguages } from './CodeHighlighterPrism';
 import {
   $createCodeHighlightNode,
   $isCodeHighlightNode,
@@ -68,9 +51,7 @@ import {
   getFirstCodeNodeOfLine,
   getLastCodeNodeOfLine,
 } from './CodeHighlightNode';
-
 import { $isCodeNode, CodeNode } from './CodeNode';
-import invariant from '../../shared/invariant';
 
 type TokenContent = string | Token | (string | Token)[];
 
@@ -364,7 +345,7 @@ function updateAndRetainSelection(
 
   // Calculating previous text offset (all text node prior to anchor + anchor own text offset)
   if (!isNewLineAnchor) {
-    const anchorNode: ElementNode = anchor.getNode();
+    const anchorNode = anchor.getNode();
     textOffset =
       anchorOffset +
       anchorNode.getPreviousSiblings().reduce((offset, _node) => {
@@ -800,6 +781,7 @@ export function registerCodeHighlighting(
   editor: LexicalEditor,
   tokenizer?: Tokenizer,
 ): () => void {
+  reifyPrismLanguages();
   if (!editor.hasNodes([CodeNode, CodeHighlightNode])) {
     throw new Error(
       'CodeHighlightPlugin: CodeNode or CodeHighlightNode not registered on editor',
@@ -811,7 +793,7 @@ export function registerCodeHighlighting(
   }
 
   return mergeRegister(
-    editor.registerNodeTransform(CodeNode, (node) =>
+        editor.registerNodeTransform(CodeNode, (node) =>
       codeNodeTransform(node, editor, tokenizer as Tokenizer),
     ),
     editor.registerNodeTransform(TextNode, (node) =>

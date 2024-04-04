@@ -1,5 +1,5 @@
 import { FormatBold, FormatItalic, FormatUnderlined, Code, FormatStrikethrough, Subscript, Superscript, FormatColorFill } from "@mui/icons-material";
-import { ListItemNode, type EditorState, TextNode } from "../editor/types";
+import type { ListItemNode, EditorState, TextNode, ParagraphNode } from "../editor/types";
 import { Typography, ToggleButton } from "@mui/material";
 
 const Checkpoint1 = [
@@ -23,9 +23,9 @@ const Checkpoint1 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 1)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
-        const target = paragraphNode.getFirstChild();
+        const target = paragraphNode.getFirstChild<TextNode>();
         if (target && target.hasFormat("bold")) result = true;
       });
       return result;
@@ -51,9 +51,9 @@ const Checkpoint1 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 2)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
-        const target = paragraphNode.getFirstChild();
+        const target = paragraphNode.getFirstChild<TextNode>();
         if (target && target.hasFormat("italic")) result = true;
       });
       return result;
@@ -79,9 +79,9 @@ const Checkpoint1 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 3)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
-        const target = paragraphNode.getFirstChild();
+        const target = paragraphNode.getFirstChild<TextNode>();
         if (target && target.hasFormat("underline")) result = true;
       });
       return result;
@@ -107,9 +107,9 @@ const Checkpoint1 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 4)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
-        const target = paragraphNode.getFirstChild();
+        const target = paragraphNode.getFirstChild<TextNode>();
         if (target && target.hasFormat("code")) result = true;
       });
       return result;
@@ -135,9 +135,9 @@ const Checkpoint1 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 5)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
-        const target = paragraphNode.getFirstChild();
+        const target = paragraphNode.getFirstChild<TextNode>();
         if (target && target.hasFormat("strikethrough")) result = true;
       });
       return result;
@@ -220,9 +220,9 @@ const Checkpoint1 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 8)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
-        const target = paragraphNode.getFirstChild();
+        const target = paragraphNode.getFirstChild<TextNode>();
         if (target && target.getStyle().includes("color")) result = true;
       });
       return result;
@@ -251,9 +251,9 @@ const Checkpoint1 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 9)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
-        const target = paragraphNode.getFirstChild();
+        const target = paragraphNode.getFirstChild<TextNode>();
         if (target && target.getStyle().includes("background-color")) result = true;
       });
       return result;

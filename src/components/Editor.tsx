@@ -3,12 +3,9 @@ import { MutableRefObject } from 'react';
 import { memo } from 'react';
 import { EditorDocument } from '@/types';
 import type { EditorState, LexicalEditor } from '@/editor/types';
-import dynamic from "next/dynamic";
-import SplashScreen from './SplashScreen';
 import { COMMAND_PRIORITY_LOW, SET_ANNOUNCEMENT_COMMAND } from '@/editor';
 import { actions, useDispatch } from '@/store';
-
-const Editor = dynamic(() => import("@/editor/Editor"), { ssr: false, loading: () => <SplashScreen title="Loading Editor" /> });
+import Editor from '@/editor/Editor';
 
 const Container: React.FC<{
   document: EditorDocument,

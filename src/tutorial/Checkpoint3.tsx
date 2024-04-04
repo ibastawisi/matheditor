@@ -1,5 +1,5 @@
 import { ViewHeadline, FormatListBulleted, FormatQuote, Code } from "@mui/icons-material";
-import type { EditorState, ListItemNode } from "../editor/types";
+import type { HeadingNode, EditorState, ListItemNode, ListNode } from "../editor/types";
 import { ListItemIcon, ListItemText, MenuItem, Select, SvgIcon, Typography } from "@mui/material";
 
 const H3 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small' sx={{ verticalAlign: "middle" }}>
@@ -39,7 +39,7 @@ const Checkpoint3 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 1)?.[1] as ListItemNode;
         if (!node) return result;
-        const target = node.getParent()?.getNextSibling();
+        const target = node.getParent()?.getNextSibling<HeadingNode>();
         if (target?.__tag == "h3") result = true;
       });
       return result;
@@ -77,7 +77,7 @@ const Checkpoint3 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 2)?.[1] as ListItemNode;
         if (!node) return result;
-        const target = node.getParent()?.getNextSibling();
+        const target = node.getParent()?.getNextSibling<ListNode>();
         if (target?.__tag == "ul") result = true;
       });
       return result;

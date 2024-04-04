@@ -5,7 +5,6 @@ import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { TablePlugin } from './TablePlugin';
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
@@ -41,6 +40,7 @@ import IFramePlugin from "./IFramePlugin";
 import { LayoutPlugin } from "./LayoutPlugin";
 import { LayoutContainerNode } from "../nodes/LayoutNode";
 import SpeechToTextPlugin from "./SpeechToTextPlugin";
+import useLexicalEditable from "@lexical/react/useLexicalEditable";
 
 export const EditorPlugins: React.FC<{
   contentEditable: React.ReactElement;
@@ -49,6 +49,7 @@ export const EditorPlugins: React.FC<{
 }> = ({ contentEditable, placeholder = null, onChange }) => {
   const [editor] = useLexicalComposerContext();
   const { historyState } = useSharedHistoryContext();
+  const isEditable = useLexicalEditable();
 
   return (
     <>
@@ -58,7 +59,7 @@ export const EditorPlugins: React.FC<{
       <ListPlugin />
       <CheckListPlugin />
       <LinkPlugin />
-      <ClickableLinkPlugin />
+      <ClickableLinkPlugin disabled={isEditable} />
       <TabFocusPlugin />
       <TabIndentationPlugin />
       <ListMaxIndentLevelPlugin maxDepth={7} />

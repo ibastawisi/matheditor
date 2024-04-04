@@ -1,10 +1,13 @@
 "use client"
-import Editor from "./Editor";
 import { useState } from "react";
 import type { EditorState } from "../editor/types";
 import { tasks, checkpoints } from "@/tutorial";
 import { Paper, Box, Typography, List, Pagination, ListItemButton, ListItemIcon, ListItemText, Collapse, Divider } from "@mui/material";
 import { Check, Clear, ExpandLess, ExpandMore } from "@mui/icons-material";
+import dynamic from "next/dynamic";
+import SplashScreen from './SplashScreen';
+
+const Editor = dynamic(() => import("@/components/Editor"), { ssr: false, loading: () => <SplashScreen title="Loading Editor" /> });
 
 type CheckpointItem = typeof checkpoints[0][0];
 

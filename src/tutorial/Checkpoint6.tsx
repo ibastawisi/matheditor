@@ -1,5 +1,6 @@
 import { Typography } from "@mui/material";
-import type { EditorState, ListItemNode } from "../editor/types";
+import type { HeadingNode, EditorState, ListItemNode, TextNode, ParagraphNode, ListNode } from "../editor/types";
+import type { MathNode } from "@/editor/nodes/MathNode";
 
 const Checkpoint6 = [
   {
@@ -18,7 +19,7 @@ const Checkpoint6 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 1)?.[1] as ListItemNode;
         if (!node) return result;
-        const target = node.getParent()?.getNextSibling();
+        const target = node.getParent()?.getNextSibling<HeadingNode>();
         if (target?.__tag == "h2") result = true;
       });
       return result;
@@ -41,9 +42,9 @@ const Checkpoint6 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 2)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
-        const target = paragraphNode.getFirstChild();
+        const target = paragraphNode.getFirstChild<TextNode>();
         if (target && target.hasFormat("bold")) result = true;
       });
       return result;
@@ -65,9 +66,9 @@ const Checkpoint6 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 3)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
-        const target = paragraphNode.getFirstChild();
+        const target = paragraphNode.getFirstChild<TextNode>();
         if (target && target.hasFormat("italic")) result = true;
       });
       return result;
@@ -111,7 +112,7 @@ const Checkpoint6 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 5)?.[1] as ListItemNode;
         if (!node) return result;
-        const target = node.getParent()?.getNextSibling();
+        const target = node.getParent()?.getNextSibling<ListNode>();
         if (target?.__tag == "ul") result = true;
       });
       return result;
@@ -133,9 +134,9 @@ const Checkpoint6 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 6)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
-        const target = paragraphNode.getFirstChild();
+        const target = paragraphNode.getFirstChild<TextNode>();
         if (target && target.hasFormat("code")) result = true;
       });
       return result;
@@ -207,7 +208,7 @@ const Checkpoint6 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 9)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
         const target = paragraphNode.getFirstChild();
         if (target?.__type === "link") result = true;
@@ -231,7 +232,7 @@ const Checkpoint6 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 10)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
         const target = paragraphNode.getFirstChild();
         if (target?.__type === "image") result = true;
@@ -255,7 +256,7 @@ const Checkpoint6 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 11)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
         const target = paragraphNode.getFirstChild();
         if (target?.__type === "math") result = true;
@@ -279,9 +280,9 @@ const Checkpoint6 = [
       editorState.read(() => {
         const node = [...editorState._nodeMap].find(([_, node]) => node.__type === "listitem" && (node as ListItemNode).__value === 12)?.[1] as ListItemNode;
         if (!node) return result;
-        const paragraphNode = node.getParent()?.getNextSibling();
+        const paragraphNode = node.getParent()?.getNextSibling<ParagraphNode>();
         if (!paragraphNode) return result;
-        const target = paragraphNode.getFirstChild();
+        const target = paragraphNode.getFirstChild<MathNode>();
         if (target?.__type === "math" && target.__value === "y=x^2") result = true;
       });
       return result;
