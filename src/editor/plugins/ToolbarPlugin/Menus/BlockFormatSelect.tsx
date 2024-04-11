@@ -131,8 +131,8 @@ export function BlockFormatSelect({ editor, blockType }: {
   return (
     <Select value={blockType} aria-label="Formatting options for text style" size='small' sx={{
       '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', py: 0.5 },
-      '& .MuiListItemIcon-root': { mr: { sm: 0.5 }, minWidth: 20 },
-      '& .MuiListItemText-root': { display: { xs: "none", sm: "flex" } }
+      '& .MuiListItemIcon-root': { mr: { md: 0.5 }, minWidth: 20 },
+      '& .MuiListItemText-root': { display: { xs: "none", md: "flex" } }
     }}>
       <MenuItem value='paragraph' onClick={formatParagraph}>
         <ListItemIcon>

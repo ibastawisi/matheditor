@@ -32,6 +32,7 @@ import { EditorDialogs, SetDialogsPayload, SET_DIALOGS_COMMAND } from './Dialogs
 import { getSelectedNode } from '@/editor/utils/getSelectedNode';
 import { useMeasure } from '@/hooks/useMeasure';
 import { SPEECH_TO_TEXT_COMMAND, SUPPORT_SPEECH_RECOGNITION } from '../SpeechToTextPlugin';
+import AITools from './Tools/AITools';
 
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -343,12 +344,13 @@ function ToolbarPlugin() {
                 </Select>
               ) : (
                 <>
-                  <Select size='small' sx={{ width: 68 }} onChange={onFontFamilySelect} value={fontFamily}>
-                    {FONT_FAMILY_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
+                  <Select size='small' sx={{ width: { xs: 86, md: "auto" } }} onChange={onFontFamilySelect} value={fontFamily}>
+                    {FONT_FAMILY_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
                   </Select>
-                  <Select size='small' sx={{ width: 68 }} onChange={onFontSizeSelect} value={fontSize}>
-                    {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>  {text}</MenuItem>)}
+                  <Select size='small' sx={{ width: { xs: 86, md: "auto" } }} onChange={onFontSizeSelect} value={fontSize}>
+                    {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text} px</MenuItem>)}
                   </Select>
+                  <AITools editor={activeEditor} />
                   {showTableTools && <TableTools editor={activeEditor} node={selectedTable} />}
                   <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
                 </>
