@@ -1,11 +1,12 @@
 "use client"
-import { $getPreviousSelection, $getRoot, $getSelection, $isRangeSelection, $setSelection, BaseSelection, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, LexicalEditor, SELECTION_CHANGE_COMMAND, UNDO_COMMAND, } from "lexical";
+import { $getSelection, $isRangeSelection, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, LexicalEditor, SELECTION_CHANGE_COMMAND, } from "lexical";
 import { mergeRegister } from "@lexical/utils";
 import { useEffect, useRef, useState } from "react";
 import { Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, TextField, CircularProgress } from "@mui/material";
-import { KeyboardArrowDown, AutoAwesome, Recycling, UnfoldMore, UnfoldLess, PlayArrow } from "@mui/icons-material";
+import { KeyboardArrowDown, AutoAwesome, UnfoldMore, UnfoldLess, PlayArrow, ImageSearch, Autorenew } from "@mui/icons-material";
 import { SxProps, Theme } from '@mui/material/styles';
 import { useCompletion } from "ai/react";
+import { SET_DIALOGS_COMMAND } from "../Dialogs/commands";
 
 export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> }): JSX.Element {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -24,7 +25,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
   });
 
   const [isCollapsed, setIsCollapsed] = useState(true);
-  const initialOffset = useRef(0);
+  const offset = useRef(0);
 
   const handlePrompt = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     e.stopPropagation();
@@ -82,39 +83,38 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
       const anchorNode = selection.anchor.getNode();
-      initialOffset.current = selection.anchor.offset;
       let textContent = anchorNode.getTextContent() || "";
       if (!textContent) {
         const previousSibling = anchorNode.getPreviousSibling();
         textContent += previousSibling?.getTextContent();
       }
+      if (!isCollapsed) {
+        selection.focus.getNode().selectEnd();
+      }
       complete(textContent, { body: { option: "continue" } });
     });
   }
 
+  const handleOCR = async () => {
+    handleClose();
+    editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ ocr: { open: true } }));
+  }
+
   useEffect(() => {
-    if (!isLoading) return;
+    if (!isLoading) {
+      offset.current = 0; return;
+    }
     const hasCompletion = completion.length > 0;
     if (!hasCompletion) return;
-    if (!isCollapsed) {
-      editor.update(() => {
-        const selection = $getSelection();
-        if (!$isRangeSelection(selection)) return;
-        selection.removeText();
-      });
-    }
 
-    setTimeout(() => {
-      editor.update(() => {
-        editor.setEditable(false);
-        const selection = $getSelection();
-        if (!$isRangeSelection(selection)) return;
-        const offset = selection.anchor.offset - initialOffset.current;
-        selection.insertText(completion.slice(offset));
-        editor.setEditable(true);
-      }, { tag: "history-merge" });
-    }, 0);
-  }, [completion, isCollapsed, isLoading, editor]);
+    editor.update(() => {
+      const selection = $getSelection();
+      if (!$isRangeSelection(selection)) return;
+      selection.insertText(completion.slice(offset.current));
+      offset.current = completion.length;
+    }, { tag: !!(offset.current) ? "history-merge" : undefined });
+
+  }, [completion, isCollapsed, isLoading]);
 
   useEffect(() => {
     return mergeRegister(
@@ -137,11 +137,6 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
         COMMAND_PRIORITY_CRITICAL,
       ));
   }, [editor, isLoading, stop]);
-
-  useEffect(() => {
-    if (isLoading) return;
-    initialOffset.current = 0;
-  }, [isLoading]);
 
   return (
     <>
@@ -209,7 +204,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
             }}
           />
         </MenuItem>
-        <MenuItem disabled={isLoading || !isCollapsed} onClick={handleContinue}>
+        <MenuItem disabled={isLoading} onClick={handleContinue}>
           <ListItemIcon>
             <PlayArrow />
           </ListItemIcon>
@@ -217,7 +212,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
         </MenuItem>
         <MenuItem disabled={isLoading || isCollapsed} onClick={handleRewrite}>
           <ListItemIcon>
-            <Recycling />
+            <Autorenew />
           </ListItemIcon>
           <ListItemText>Rewrite</ListItemText>
         </MenuItem>
@@ -233,8 +228,13 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
           </ListItemIcon>
           <ListItemText>Expand</ListItemText>
         </MenuItem>
+        <MenuItem disabled={isLoading || !isCollapsed} onClick={handleOCR}>
+          <ListItemIcon>
+            <ImageSearch />
+          </ListItemIcon>
+          <ListItemText>OCR</ListItemText>
+        </MenuItem>
       </Menu>
     </>
-
   );
 }

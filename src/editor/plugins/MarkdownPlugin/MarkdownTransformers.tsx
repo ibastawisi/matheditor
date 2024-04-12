@@ -386,10 +386,10 @@ export const TRANSFORMERS: Array<Transformer> = [
   MATH,
   STICKY,
   CHECK_LIST,
-  ...ELEMENT_TRANSFORMERS,
+  CODE,
+  ...ELEMENT_TRANSFORMERS.splice(2),
   ...TEXT_FORMAT_TRANSFORMERS,
   ...TEXT_MATCH_TRANSFORMERS,
-  CODE,
 ];
 
 export default function createMarkdownTransformers(editor: LexicalEditor): Array<Transformer> {

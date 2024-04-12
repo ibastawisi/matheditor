@@ -78,6 +78,18 @@ export class MathNode extends DecoratorNode<JSX.Element> {
     return this.__mathfieldRef.current;
   }
 
+  getText(): string {
+    return `$${this.__value}$`
+  }
+
+  getTextContentSize(): number {
+    return this.__value.length + 2;
+  }
+
+  getTextContent(): string {
+    return `$${this.__value}$`;
+  }
+
   getValue(): string {
     return this.__value;
   }

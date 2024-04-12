@@ -25,7 +25,7 @@ math-field:not(:focus-within) {
   --selection-background-color: transparent;
 }
 
-math-field.selection-active {
+.editor-container:focus-within math-field.selection-active {
   background-color: rgb(95 183 255 / 50%);
 }
 
