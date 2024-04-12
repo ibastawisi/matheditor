@@ -1,12 +1,14 @@
 "use client"
 import { $getSelection, $isRangeSelection, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, LexicalEditor, SELECTION_CHANGE_COMMAND, } from "lexical";
 import { mergeRegister } from "@lexical/utils";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, TextField, CircularProgress } from "@mui/material";
 import { KeyboardArrowDown, AutoAwesome, UnfoldMore, UnfoldLess, PlayArrow, ImageSearch, Autorenew } from "@mui/icons-material";
 import { SxProps, Theme } from '@mui/material/styles';
 import { useCompletion } from "ai/react";
 import { SET_DIALOGS_COMMAND } from "../Dialogs/commands";
+import { SET_ANNOUNCEMENT_COMMAND } from "@/editor/commands";
+import { Announcement } from "@/types";
 
 export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> }): JSX.Element {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -22,7 +24,14 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
 
   const { completion, complete, isLoading, stop } = useCompletion({
     api: '/api/completion',
+    onError(error) {
+      annouunce({ message: { title: "Something went wrong", subtitle: error.message } })
+    }
   });
+
+  const annouunce = useCallback((announcement: Announcement) => {
+    editor.dispatchCommand(SET_ANNOUNCEMENT_COMMAND, announcement);
+  }, [editor]);
 
   const [isCollapsed, setIsCollapsed] = useState(true);
   const offset = useRef(0);
