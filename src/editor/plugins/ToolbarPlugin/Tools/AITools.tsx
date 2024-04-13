@@ -1,5 +1,5 @@
 "use client"
-import { $getSelection, $isRangeSelection, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, LexicalEditor, SELECTION_CHANGE_COMMAND, } from "lexical";
+import { $getSelection, $isRangeSelection, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, } from "lexical";
 import { mergeRegister } from "@lexical/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, TextField, CircularProgress } from "@mui/material";
@@ -25,7 +25,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
   const { completion, complete, isLoading, stop } = useCompletion({
     api: '/api/completion',
     onError(error) {
-      annouunce({ message: { title: "Something went wrong", subtitle: error.message } })
+      annouunce({ message: { title: "Something went wrong", subtitle: "Please try again later" } });
     }
   });
 
@@ -92,10 +92,11 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
       const anchorNode = selection.anchor.getNode();
-      let textContent = anchorNode.getTextContent() || "";
-      if (!textContent) {
-        const previousSibling = anchorNode.getPreviousSibling();
-        textContent += previousSibling?.getTextContent();
+      let currentNode: LexicalNode | null | undefined = anchorNode;
+      let textContent = "";
+      while (currentNode && textContent.length < 100) {
+        textContent = currentNode.getTextContent() + "\n" + textContent;
+        currentNode = currentNode.getPreviousSibling() || currentNode.getParent()?.getPreviousSibling();
       }
       if (!isCollapsed) {
         selection.focus.getNode().selectEnd();
@@ -144,7 +145,16 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
           return false;
         },
         COMMAND_PRIORITY_CRITICAL,
-      ));
+      ),
+      editor.registerCommand(
+        KEY_DOWN_COMMAND,
+        () => {
+          if (isLoading) stop();
+          return false;
+        },
+        COMMAND_PRIORITY_CRITICAL,
+      ),
+    );
   }, [editor, isLoading, stop]);
 
   return (
@@ -201,6 +211,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
           <TextField
             multiline
             hiddenLabel
+            fullWidth
             variant="filled"
             size="small"
             placeholder="What to do?"

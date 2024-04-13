@@ -18,61 +18,61 @@ export async function POST(req: Request) {
     .with("continue", () => [
       {
         role: "system",
-        content: "You are an AI writing assistant that generates text based on a prompt.",
+        content: "You are an AI writing assistant.",
       },
       {
         role: "user",
-        content: `Continue this text: ${prompt}`
+        content: `Continue writing\n${prompt}`,
       },
     ])
     .with("improve", () => [
       {
         role: "system",
-        content: "You are an AI writing assistant that generates text based on a prompt.",
+        content: "You are an AI writing assistant.",
       },
       {
         role: "user",
-        content: `Rewrite this text in another way: ${prompt}`
+        content: `Rewrite in another way\n${prompt}`,
       },
     ])
     .with("shorter", () => [
       {
         role: "system",
-        content: "You are an AI writing assistant that generates text based on a prompt.",
+        content: "You are an AI writing assistant.",
       },
       {
         role: "user",
-        content: `Summarize this text: ${prompt}`
+        content: `Rewrite this shorter\n${prompt}`,
       },
     ])
     .with("longer", () => [
       {
         role: "system",
-        content: "You are an AI writing assistant that generates text based on a prompt.",
+        content: "You are an AI writing assistant.",
       },
       {
         role: "user",
-        content: `Expand this text: ${prompt}`
+        content: `Rewrite this longer\n${prompt}`,
       },
     ])
     .with("fix", () => [
       {
         role: "system",
-        content: "You are an AI writing assistant that generates text based on a prompt.",
+        content: "You are an AI writing assistant.",
       },
       {
         role: "user",
-        content: `Fix spelling and grammar in this text: ${prompt}`
+        content: `Fix spelling and grammar\n${prompt}`,
       },
     ])
     .with("zap", () => [
       {
         role: "system",
-        content: "You area an AI writing assistant that generates text based on a prompt."
+        content: "You area an AI writing assistant."
       },
       {
         role: "user",
-        content: `${command}${prompt? ` For this text: ${prompt}` : ""}`,
+        content: `${command}${prompt ? `\n${prompt}` : ""}`,
       },
     ])
     .run() as ChatCompletionMessageParam[];
