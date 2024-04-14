@@ -37,8 +37,12 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
   const offset = useRef(0);
 
   const handlePrompt = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    e.stopPropagation();
-    const command = promptRef.current?.value || "";
+    const textarea = e.currentTarget;
+    const isNavigatingUp = textarea.selectionStart === 0 && e.key === "ArrowUp";
+    const isNavigatingDown = textarea.selectionStart === textarea.value.length && e.key === "ArrowDown";
+    if (!isNavigatingUp && !isNavigatingDown) e.stopPropagation();
+    if (isNavigatingDown) textarea.closest("li")?.focus();
+    const command = textarea.value;
     const isSubmit = e.key === "Enter" && !e.shiftKey && command.trim().length > 0;
     if (!isSubmit) return;
     e.preventDefault();

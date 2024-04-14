@@ -311,17 +311,12 @@ function ToolbarPlugin() {
   const showTableTools = !!selectedTable;
   const showTextTools = (!showMathTools && !showImageTools) || $isStickyNode(selectedNode);
 
-  const [toolbarRef, toolbarDimensions] = useMeasure();
-  const [toolboxRef, toolboxDimensions] = useMeasure();
-  const toolboxOverflow = toolbarDimensions.width && toolboxDimensions.width ? toolboxDimensions.width + 168 > toolbarDimensions.width : false;
-
   return (
     <>
       <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}>
-        <Toolbar className="editor-toolbar" ref={toolbarRef} sx={{
+        <Toolbar className="editor-toolbar" sx={{
           displayPrint: 'none', px: `${(toolbarTrigger ? 1 : 0)}!important`,
-          display: "grid", gridTemplateColumns: "repeat(3,auto)", gridAutoFlow: "dense",
-          justifyContent: "space-between", alignItems: "center", gap: 0.5, py: 1,
+          justifyContent: "space-between", alignItems: "start", gap: 0.5, py: 1,
         }}>
           <Box sx={{ display: "flex" }}>
             <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
@@ -333,7 +328,7 @@ function ToolbarPlugin() {
               <Redo />
             </IconButton>
           </Box>
-          <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', gridColumn: toolboxOverflow ? "1/-1" : "auto" }} ref={toolboxRef}>
+          <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', flexWrap: "wrap", justifyContent: "center" }}>
             {showMathTools && <MathTools editor={activeEditor} node={selectedNode} />}
             {(showImageTools) && <ImageTools editor={activeEditor} node={selectedNode} />}
             {showTextTools && <>
@@ -344,11 +339,11 @@ function ToolbarPlugin() {
                 </Select>
               ) : (
                 <>
-                  <Select size='small' sx={{ width: { xs: 86, md: "auto" } }} onChange={onFontFamilySelect} value={fontFamily}>
+                  <Select size='small' sx={{ width: { xs: 68, md: "auto" } }} onChange={onFontFamilySelect} value={fontFamily}>
                     {FONT_FAMILY_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
                   </Select>
-                  <Select size='small' sx={{ width: { xs: 86, md: "auto" } }} onChange={onFontSizeSelect} value={fontSize}>
-                    {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text} px</MenuItem>)}
+                  <Select size='small' sx={{ width: { xs: 68, md: "auto" } }} onChange={onFontSizeSelect} value={fontSize}>
+                    {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option} sx={{ justifyContent: "center" }}>{text}</MenuItem>)}
                   </Select>
                   <AITools editor={activeEditor} />
                   {showTableTools && <TableTools editor={activeEditor} node={selectedTable} />}

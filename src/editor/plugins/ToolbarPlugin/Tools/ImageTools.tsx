@@ -55,46 +55,50 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
   };
 
   return (
-    <ToggleButtonGroup size="small" sx={{ ...sx }} >
-      <ToggleButton value="edit" key="edit"
-        onClick={openDialog}>
-        <Edit />
-      </ToggleButton>
-      {(!$isSketchNode(node) && !$isIFrameNode(node)) && <ToggleButton value="sketch" key="sketch"
-        onClick={openSketchDialog}>
-        <Draw />
-      </ToggleButton>}
-      <ToggleButton value="caption" key="caption" selected={node.getShowCaption()}
-        onClick={toggleShowCaption}>
-        {node.getShowCaption() ? <ClosedCaption /> : <ClosedCaptionDisabled />}
-      </ToggleButton>
-      <ToggleButton value="float-left" key="float-left" selected={style?.float === "left"}
-        onClick={() => {
-          updateStyle({ "float": "left", "margin": "0 1em 0 0", "max-width": "50%" });
-        }}>
-        <FormatImageLeft />
-      </ToggleButton>
-      <ToggleButton value="float-none" key="float-none" selected={!style || style?.float === "none"}
-        onClick={() => {
-          updateStyle({ "float": "none", "margin": "0", "max-width": "100%" });
-        }}>
-        <ViewHeadline />
-      </ToggleButton>,
-      <ToggleButton value="float-right" key="float-right" selected={style?.float === "right"}
-        onClick={() => {
-          updateStyle({ "float": "right", "margin": "0 0 0 1em", "max-width": "50%" });
-        }}>
-        <FormatImageRight />
-      </ToggleButton>
-      <ToggleButton value="delete"
-        onClick={() => {
-          editor.update(() => {
-            node.selectPrevious();
-            node.remove();
-          });
-        }}>
-        <Delete />
-      </ToggleButton>
-    </ToggleButtonGroup>
+    <>
+      <ToggleButtonGroup size="small" sx={{ ...sx }} >
+        <ToggleButton value="edit" key="edit"
+          onClick={openDialog}>
+          <Edit />
+        </ToggleButton>
+        {(!$isSketchNode(node) && !$isIFrameNode(node)) && <ToggleButton value="sketch" key="sketch"
+          onClick={openSketchDialog}>
+          <Draw />
+        </ToggleButton>}
+        <ToggleButton value="caption" key="caption" selected={node.getShowCaption()}
+          onClick={toggleShowCaption}>
+          {node.getShowCaption() ? <ClosedCaption /> : <ClosedCaptionDisabled />}
+        </ToggleButton>
+        <ToggleButton value="delete"
+          onClick={() => {
+            editor.update(() => {
+              node.selectPrevious();
+              node.remove();
+            });
+          }}>
+          <Delete />
+        </ToggleButton>
+      </ToggleButtonGroup>
+      <ToggleButtonGroup size="small" sx={{ ...sx }} >
+        <ToggleButton value="float-left" key="float-left" selected={style?.float === "left"}
+          onClick={() => {
+            updateStyle({ "float": "left", "margin": "0 1em 0 0", "max-width": "50%" });
+          }}>
+          <FormatImageLeft />
+        </ToggleButton>
+        <ToggleButton value="float-none" key="float-none" selected={!style || style?.float === "none"}
+          onClick={() => {
+            updateStyle({ "float": "none", "margin": "0", "max-width": "100%" });
+          }}>
+          <ViewHeadline />
+        </ToggleButton>,
+        <ToggleButton value="float-right" key="float-right" selected={style?.float === "right"}
+          onClick={() => {
+            updateStyle({ "float": "right", "margin": "0 0 0 1em", "max-width": "50%" });
+          }}>
+          <FormatImageRight />
+        </ToggleButton>
+      </ToggleButtonGroup>
+    </>
   )
 }

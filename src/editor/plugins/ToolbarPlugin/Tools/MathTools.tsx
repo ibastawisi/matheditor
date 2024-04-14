@@ -189,91 +189,95 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
 
 
   return (
-    <ToggleButtonGroup size="small" sx={{ position: "relative", ...sx }} exclusive value={value} onChange={(e, newValue) => setValue(newValue)}>
-      <ToggleButton value="wolfram" onClick={openWolfram}>
-        <WolframIcon />
-      </ToggleButton>
-      <ToggleButton value="edit" onClick={openEditDialog}>
-        <Edit />
-      </ToggleButton>
-      <Dialog open={open} onClose={handleClose} maxWidth="md" sx={{ '& .MuiDialog-paper': { width: '100%' } }}>
-        <form onSubmit={handleEdit}>
-          <DialogTitle>Edit LaTeX</DialogTitle>
-          <DialogContent >
-            <TextField margin="normal" size="small" fullWidth multiline id="value" value={formData.value} onChange={updateFormData} label="Latex Value" name="value" autoFocus />
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
-              <Typography variant="button" component="h3" color="text.secondary" sx={{ my: 1 }}>
-                Preview
-              </Typography>
-              <math-field ref={mathfieldRef} value={formData.value} style={{ width: "auto", margin: "0 auto" }} read-only></math-field>
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button type='submit' onClick={handleEdit}>Save</Button>
-          </DialogActions>
-        </form>
-      </Dialog>
-      <ToggleButton component="label" value="draw">
-        <Draw />
-      </ToggleButton>
-      {value === "draw" && <Collapse in={value === "draw"}>
-        <Paper sx={{
-          position: "absolute",
-          top: 48,
-          left: 0,
-          width: "100%",
-          height: 128,
-          border: "1px solid",
-          borderColor: theme.palette.divider,
-          zIndex: 1000,
-          '& .App-top-bar': { display: "none !important" },
-          '& .App-bottom-bar': { display: "none !important" },
-          '& .popover': { display: 'none !important' },
-          '& canvas': { borderRadius: 1 },
-        }}>
-          <Excalidraw
-            excalidrawAPI={excalidrawAPIRefCallback}
-            initialData={{
-              elements: [],
-              appState: {
-                activeTool: { type: "freedraw", lastActiveTool: null, customType: null, locked: true },
-                currentItemStrokeWidth: 0.5,
-              },
-            }}
-            theme={theme.palette.mode}
-            langCode='en'
-          />
-          <IconButton onClick={handleFreeHand} sx={{ position: "absolute", bottom: 8, right: 8, zIndex: 1000 }} disabled={loading}>
-            <Save />
-          </IconButton>
-          <LinearProgress sx={{ visibility: loading ? 'visible' : 'hidden', position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 1000 }} />
-        </Paper>
-      </Collapse>}
-      <ColorPicker onColorChange={onColorChange} onClose={handleClose} />
-      <ToggleButton value="delete"
-        onClick={() => {
-          editor.update(() => {
-            node.selectPrevious();
-            node.remove();
-          });
-        }}>
-        <Delete />
-      </ToggleButton>
-      <ToggleButton value="menu"
-        onClick={(e) => {
-          const mathfield = node.getMathfield();
-          if (!mathfield) return;
-          const x = e.currentTarget.getBoundingClientRect().left;
-          const y = e.currentTarget.getBoundingClientRect().top + 40;
-          mathfield.showMenu({ location: { x, y }, modifiers: { alt: false, control: false, shift: false, meta: false } });
-          setTimeout(() => { setValue(null); }, 0);
-        }}>
-        <Menu />
-      </ToggleButton>
+    <>
+      <ToggleButtonGroup size="small" sx={{ position: "relative", ...sx }} exclusive value={value} onChange={(e, newValue) => setValue(newValue)}>
+        <ToggleButton value="wolfram" onClick={openWolfram}>
+          <WolframIcon />
+        </ToggleButton>
+        <ToggleButton value="edit" onClick={openEditDialog}>
+          <Edit />
+        </ToggleButton>
+        <Dialog open={open} onClose={handleClose} maxWidth="md" sx={{ '& .MuiDialog-paper': { width: '100%' } }}>
+          <form onSubmit={handleEdit}>
+            <DialogTitle>Edit LaTeX</DialogTitle>
+            <DialogContent >
+              <TextField margin="normal" size="small" fullWidth multiline id="value" value={formData.value} onChange={updateFormData} label="Latex Value" name="value" autoFocus />
+              <Box sx={{ display: "flex", flexDirection: "column" }}>
+                <Typography variant="button" component="h3" color="text.secondary" sx={{ my: 1 }}>
+                  Preview
+                </Typography>
+                <math-field ref={mathfieldRef} value={formData.value} style={{ width: "auto", margin: "0 auto" }} read-only></math-field>
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose}>Cancel</Button>
+              <Button type='submit' onClick={handleEdit}>Save</Button>
+            </DialogActions>
+          </form>
+        </Dialog>
+        <ToggleButton component="label" value="draw">
+          <Draw />
+        </ToggleButton>
+        {value === "draw" && <Collapse in={value === "draw"}>
+          <Paper sx={{
+            position: "absolute",
+            top: 48,
+            left: 0,
+            width: "100%",
+            height: 128,
+            border: "1px solid",
+            borderColor: theme.palette.divider,
+            zIndex: 1000,
+            '& .App-top-bar': { display: "none !important" },
+            '& .App-bottom-bar': { display: "none !important" },
+            '& .popover': { display: 'none !important' },
+            '& canvas': { borderRadius: 1 },
+          }}>
+            <Excalidraw
+              excalidrawAPI={excalidrawAPIRefCallback}
+              initialData={{
+                elements: [],
+                appState: {
+                  activeTool: { type: "freedraw", lastActiveTool: null, customType: null, locked: true },
+                  currentItemStrokeWidth: 0.5,
+                },
+              }}
+              theme={theme.palette.mode}
+              langCode='en'
+            />
+            <IconButton onClick={handleFreeHand} sx={{ position: "absolute", bottom: 8, right: 8, zIndex: 1000 }} disabled={loading}>
+              <Save />
+            </IconButton>
+            <LinearProgress sx={{ visibility: loading ? 'visible' : 'hidden', position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 1000 }} />
+          </Paper>
+        </Collapse>}
+        <ColorPicker onColorChange={onColorChange} onClose={handleClose} />
+      </ToggleButtonGroup>
       <Select size='small' onChange={onFontSizeSelect} value={fontSize}>
-        {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
+        {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option} sx={{ justifyContent: "center" }}>{text}</MenuItem>)}
       </Select>
-    </ToggleButtonGroup>
+      <ToggleButtonGroup size="small" sx={{ position: "relative", ...sx }} exclusive>
+        <ToggleButton value="menu"
+          onClick={(e) => {
+            const mathfield = node.getMathfield();
+            if (!mathfield) return;
+            const x = e.currentTarget.getBoundingClientRect().left;
+            const y = e.currentTarget.getBoundingClientRect().top + 40;
+            mathfield.showMenu({ location: { x, y }, modifiers: { alt: false, control: false, shift: false, meta: false } });
+            setTimeout(() => { setValue(null); }, 0);
+          }}>
+          <Menu />
+        </ToggleButton>
+        <ToggleButton value="delete"
+          onClick={() => {
+            editor.update(() => {
+              node.selectPrevious();
+              node.remove();
+            });
+          }}>
+          <Delete />
+        </ToggleButton>
+      </ToggleButtonGroup>
+    </>
   )
 }
