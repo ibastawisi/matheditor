@@ -11,11 +11,14 @@ jobs:
     steps:
     - name: SSH Remote Commands
       uses: appleboy/ssh-action@v1.0.3
+      env:
+        NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA: ${{ github.sha }}
       with:
         # ssh host
         host: ${{ secrets.OCI_VM_IP }}
         username: ${{ secrets.OCI_VM_USERNAME }}
         key: ${{ secrets.OCI_VM_SSH }}
+        envs: NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA
         # execute commands
         script: |
           cd ~/matheditor
