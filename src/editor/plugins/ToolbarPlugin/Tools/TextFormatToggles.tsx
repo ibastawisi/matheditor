@@ -2,9 +2,8 @@
 import * as React from 'react';
 import { $getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND, LexicalEditor, COMMAND_PRIORITY_CRITICAL, SELECTION_CHANGE_COMMAND, TextFormatType, } from "lexical";
 import { $patchStyleText, } from '@lexical/selection';
-import { mergeRegister, } from '@lexical/utils';
+import { mergeRegister, IS_APPLE } from '@lexical/utils';
 import { $isLinkNode } from '@lexical/link';
-import { IS_APPLE } from '../../../shared/environment';
 import { useCallback, useEffect, useState } from 'react';
 import ColorPicker from './ColorPicker';
 import { $isMathNode, MathNode } from '../../../nodes/MathNode';

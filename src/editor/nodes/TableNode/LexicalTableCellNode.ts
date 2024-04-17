@@ -24,6 +24,7 @@ import {
   $createParagraphNode,
   $isElementNode,
   $isLineBreakNode,
+  $isTextNode,
   ElementNode,
   isHTMLElement,
 } from 'lexical';
@@ -299,11 +300,17 @@ export function convertTableCellNodeElement(
   );
 
   tableCellNode.__rowSpan = domNode_.rowSpan;
-
-  const style = domNode_.style.cssText;
-  if (style !== '') {
-    tableCellNode.__style = style;
+  const cssText = domNode_.style.cssText;
+  if (cssText !== '') {
+    tableCellNode.__style = cssText;
   }
+
+  const style = domNode_.style;
+  const hasBoldFontWeight =
+    style.fontWeight === '700' || style.fontWeight === 'bold';
+  const hasLinethroughTextDecoration = style.textDecoration === 'line-through';
+  const hasItalicFontStyle = style.fontStyle === 'italic';
+  const hasUnderlineTextDecoration = style.textDecoration === 'underline';
 
   return {
     after: (childLexicalNodes) => {
@@ -320,6 +327,20 @@ export function convertTableCellNodeElement(
           lexicalNode.getTextContent() === '\n'
         ) {
           return null;
+        }
+        if ($isTextNode(lexicalNode)) {
+          if (hasBoldFontWeight) {
+            lexicalNode.toggleFormat('bold');
+          }
+          if (hasLinethroughTextDecoration) {
+            lexicalNode.toggleFormat('strikethrough');
+          }
+          if (hasItalicFontStyle) {
+            lexicalNode.toggleFormat('italic');
+          }
+          if (hasUnderlineTextDecoration) {
+            lexicalNode.toggleFormat('underline');
+          }
         }
         paragraphNode.append(lexicalNode);
         return paragraphNode;

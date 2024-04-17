@@ -24,7 +24,7 @@ import type {
   TextFormatType,
 } from 'lexical';
 
-import { $findMatchingParent } from '@lexical/utils';
+import { $findMatchingParent, CAN_USE_DOM } from '@lexical/utils';
 import {
   $createParagraphNode,
   $createRangeSelectionFromDom,
@@ -57,7 +57,6 @@ import {
   SELECTION_CHANGE_COMMAND,
   SELECTION_INSERT_CLIPBOARD_NODES_COMMAND,
 } from 'lexical';
-import { CAN_USE_DOM } from '../../shared/canUseDOM';
 import invariant from '../../shared/invariant';
 
 import { getStyleObjectFromCSS } from '../utils';
@@ -282,22 +281,6 @@ export function applyTableHandlers(
       ) {
         // TODO: Fix Delete Line in Table Cells.
         return true;
-      }
-
-      if (
-        command === DELETE_CHARACTER_COMMAND ||
-        command === DELETE_WORD_COMMAND
-      ) {
-        if (selection.isCollapsed() && selection.anchor.offset === 0) {
-          if (nearestElementNode !== topLevelCellElementNode) {
-            const children = nearestElementNode.getChildren();
-            const newParagraphNode = $createParagraphNode();
-            children.forEach((child) => newParagraphNode.append(child));
-            nearestElementNode.replace(newParagraphNode);
-            nearestElementNode.getWritable().__parent = tableCellNode.getKey();
-            return true;
-          }
-        }
       }
     }
 

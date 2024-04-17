@@ -24,7 +24,6 @@ import {
   DROP_COMMAND,
 } from 'lexical';
 import { useEffect } from 'react';
-import getDOMSelection from '../../shared/getDOMSelection';
 
 import { $createImageNode, $isImageNode, ImageNode, ImagePayload, } from '../../nodes/ImageNode';
 
@@ -192,7 +191,7 @@ function canDropImage(event: DragEvent): boolean {
 
 function getDragSelection(event: DragEvent): Range | null | undefined {
   let range;
-  const domSelection = getDOMSelection();
+  const domSelection = window.getSelection();
   if (document.caretRangeFromPoint) {
     range = document.caretRangeFromPoint(event.clientX, event.clientY);
   } else if (event.rangeParent && domSelection !== null) {

@@ -15,7 +15,7 @@ import { useEffect } from 'react';
 import { $wrapNodeInElement } from '@lexical/utils';
 
 import { $createMathNode, MathNode } from '../../nodes/MathNode';
-import { IS_MOBILE } from '@/editor/shared/environment';
+import { IS_MOBILE } from '../../shared/environment';
 
 type CommandPayload = {
   value: string;
