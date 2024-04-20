@@ -5,13 +5,15 @@ import { ChatCompletionMessageParam } from 'openai/resources/chat/completions.mj
 
 export const runtime = "edge";
 
+const LLM_WORKER_URL = process.env.LLM_WORKER_URL;
+
 const llama = new OpenAI({
   apiKey: 'llama',
   baseURL: process.env.OPENAI_BASE_URL,
 });
 
 export async function POST(req: Request) {
-  // Extract the `prompt` from the body of the request
+
   const { prompt, option, command } = await req.json();
 
   const messages = match(option)
@@ -76,6 +78,14 @@ export async function POST(req: Request) {
       },
     ])
     .run() as ChatCompletionMessageParam[];
+
+  if (LLM_WORKER_URL) {
+    return fetch(LLM_WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages }),
+    });
+  }
 
   const response = await llama.chat.completions.create({
     model: "gpt-3.5-turbo",

@@ -2,7 +2,6 @@ import { Cached } from '@mui/icons-material';
 import packageJson from '../../../package.json';
 import { Box, Typography, Link, IconButton } from '@mui/material';
 import RouterLink from "next/link";
-import Script from 'next/script';
 
 const Footer: React.FC = () => {
   const version = packageJson.version;
@@ -20,12 +19,6 @@ const Footer: React.FC = () => {
       <Typography variant="button">
         <Link component={RouterLink} prefetch={false} href="/privacy" sx={{ textDecoration: "none" }}>Privacy Policy</Link>
       </Typography>
-      <Script
-        id="_next-ga-init"
-        dangerouslySetInnerHTML={{
-          __html: `new MutationObserver(() => {document.querySelector(".google-revocation-link-placeholder")?.remove()}).observe(document.body, {childList: true})`
-        }}
-      />
     </Box>
   )
 }
