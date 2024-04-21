@@ -115,19 +115,18 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
   }
 
   useEffect(() => {
-    if (!isLoading) {
-      offset.current = 0; return;
-    }
     const hasCompletion = completion.length > 0;
     if (!hasCompletion) return;
-
+    if (!isLoading) offset.current = 0;
+    if (!isLoading) return;
     editor.update(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
-      selection.insertText(completion.slice(offset.current));
+      const delta = completion.slice(offset.current);
+      if (delta === "\n\n" || delta === "\n" || delta === "<eos>") selection.insertParagraph();
+      else selection.insertText(delta);
       offset.current = completion.length;
     }, { tag: !!(offset.current) ? "history-merge" : undefined });
-
   }, [completion, isCollapsed, isLoading]);
 
   useEffect(() => {
@@ -199,7 +198,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
         }}
       >
         <MenuItem
-          sx={{ p: 0, mb: 1, }}
+          sx={{ p: 0, mb: 1, flexDirection: 'column' }}
           onFocusVisible={(e) => {
             const currentTarget = e.currentTarget;
             const relatedTarget = e.relatedTarget;
@@ -226,6 +225,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
             inputProps={{
               onKeyDown: handlePrompt
             }}
+            sx={{ flexGrow: 1, '& .MuiInputBase-root': { flexGrow: 1 } }}
           />
         </MenuItem>
         <MenuItem disabled={isLoading} onClick={handleContinue}>
@@ -256,7 +256,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
           <ListItemIcon>
             <ImageSearch />
           </ListItemIcon>
-          <ListItemText>OCR</ListItemText>
+          <ListItemText>Image to Text</ListItemText>
         </MenuItem>
       </Menu>
     </>

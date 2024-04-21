@@ -19,19 +19,11 @@ export async function POST(req: Request) {
   const messages = match(option)
     .with("continue", () => [
       {
-        role: "system",
-        content: "You are an AI writing assistant.",
-      },
-      {
         role: "user",
-        content: `Continue writing\n${prompt}`,
+        content: `Write on one more paragraph\n${prompt}`,
       },
     ])
     .with("improve", () => [
-      {
-        role: "system",
-        content: "You are an AI writing assistant.",
-      },
       {
         role: "user",
         content: `Rewrite in another way\n${prompt}`,
@@ -39,29 +31,17 @@ export async function POST(req: Request) {
     ])
     .with("shorter", () => [
       {
-        role: "system",
-        content: "You are an AI writing assistant.",
-      },
-      {
         role: "user",
         content: `Rewrite this shorter\n${prompt}`,
       },
     ])
     .with("longer", () => [
       {
-        role: "system",
-        content: "You are an AI writing assistant.",
-      },
-      {
         role: "user",
-        content: `Rewrite this longer\n${prompt}`,
+        content: `Rewrite this in a longer form\n${prompt}`,
       },
     ])
     .with("fix", () => [
-      {
-        role: "system",
-        content: "You are an AI writing assistant.",
-      },
       {
         role: "user",
         content: `Fix spelling and grammar\n${prompt}`,

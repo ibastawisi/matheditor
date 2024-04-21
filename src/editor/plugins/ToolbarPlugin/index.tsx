@@ -32,6 +32,7 @@ import { EditorDialogs, SetDialogsPayload, SET_DIALOGS_COMMAND } from './Dialogs
 import { getSelectedNode } from '@/editor/utils/getSelectedNode';
 import { SPEECH_TO_TEXT_COMMAND, SUPPORT_SPEECH_RECOGNITION } from '../SpeechToTextPlugin';
 import AITools from './Tools/AITools';
+import useOnlineStatus from '@/hooks/useOnlineStatus';
 
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -305,15 +306,19 @@ function ToolbarPlugin() {
     threshold: 100,
   });
 
+  const isOnline = useOnlineStatus();
+  
   const showMathTools = $isMathNode(selectedNode);
   const showImageTools = $isImageNode(selectedNode);
   const showTableTools = !!selectedTable;
   const showTextTools = (!showMathTools && !showImageTools) || $isStickyNode(selectedNode);
+  const showAITools = !!isOnline;
 
   return (
     <>
       <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}>
         <Toolbar className="editor-toolbar" sx={{
+          position: "relative", 
           displayPrint: 'none', px: `${(toolbarTrigger ? 1 : 0)}!important`,
           justifyContent: "space-between", alignItems: "start", gap: 0.5, py: 1,
         }}>
@@ -344,7 +349,7 @@ function ToolbarPlugin() {
                   <Select size='small' sx={{ width: { xs: 68, md: "auto" } }} onChange={onFontSizeSelect} value={fontSize}>
                     {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option} sx={{ justifyContent: "center" }}>{text}</MenuItem>)}
                   </Select>
-                  <AITools editor={activeEditor} />
+                  {showAITools && <AITools editor={activeEditor} />}
                   {showTableTools && <TableTools editor={activeEditor} node={selectedTable} />}
                   <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
                 </>

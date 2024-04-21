@@ -15,10 +15,11 @@ import { Announcement } from "@/types";
 
 import dynamic from "next/dynamic";
 import type { ExcalidrawImperativeAPI, ExcalidrawProps } from "@excalidraw/excalidraw/types/types";
+import useOnlineStatus from "@/hooks/useOnlineStatus";
 const Excalidraw = dynamic<ExcalidrawProps>(() => import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => ({ default: module.Excalidraw })), { ssr: false });
 
 const WolframIcon = () => <SvgIcon viewBox='0 0 20 20' fontSize='small'>
-  <path d="M15.33 10l2.17-2.47-3.19-.71.33-3.29-3 1.33L10 2 8.35 4.86l-3-1.33.32 3.29-3.17.71L4.67 10 2.5 12.47l3.19.71-.33 3.29 3-1.33L10 18l1.65-2.86 3 1.33-.32-3.29 3.19-.71zm-2.83 1.5h-5v-1h5zm0-2h-5v-1h5z" fill="#f96932"></path>
+  <path d="M15.33 10l2.17-2.47-3.19-.71.33-3.29-3 1.33L10 2 8.35 4.86l-3-1.33.32 3.29-3.17.71L4.67 10 2.5 12.47l3.19.71-.33 3.29 3-1.33L10 18l1.65-2.86 3 1.33-.32-3.29 3.19-.71zm-2.83 1.5h-5v-1h5zm0-2h-5v-1h5z" fill="currentColor"></path>
 </SvgIcon>;
 
 const FASTAPI_URL = process.env.NEXT_PUBLIC_FASTAPI_URL;
@@ -36,6 +37,7 @@ export const useCallbackRefState = () => {
 export default function MathTools({ editor, node, sx }: { editor: LexicalEditor, node: MathNode, sx?: SxProps<Theme> | undefined }) {
   const [value, setValue] = useState<string | null>(null);
   const theme = useTheme();
+  const isOnline = useOnlineStatus();
   const [excalidrawAPI, excalidrawAPIRefCallback] = useCallbackRefState();
   const [fontSize, setFontSize] = useState('15px');
   const FONT_SIZE_OPTIONS: [string, string][] = [
@@ -190,8 +192,8 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
 
   return (
     <>
-      <ToggleButtonGroup size="small" sx={{ position: "relative", ...sx }} exclusive value={value} onChange={(e, newValue) => setValue(newValue)}>
-        <ToggleButton value="wolfram" onClick={openWolfram}>
+      <ToggleButtonGroup size="small" sx={{ ...sx }} exclusive value={value} onChange={(e, newValue) => setValue(newValue)}>
+        <ToggleButton value="wolfram" onClick={openWolfram} disabled={!isOnline} sx={{ color: isOnline ? "#f96932" : undefined }}>
           <WolframIcon />
         </ToggleButton>
         <ToggleButton value="edit" onClick={openEditDialog}>
@@ -215,22 +217,20 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
             </DialogActions>
           </form>
         </Dialog>
-        <ToggleButton component="label" value="draw">
+        <ToggleButton component="label" value="draw" disabled={!isOnline}>
           <Draw />
         </ToggleButton>
         {value === "draw" && <Collapse in={value === "draw"}>
           <Paper sx={{
             position: "absolute",
-            top: 48,
+            top: 52,
             left: 0,
             width: "100%",
-            height: 128,
+            height: 160,
             border: "1px solid",
             borderColor: theme.palette.divider,
             zIndex: 1000,
-            '& .App-top-bar': { display: "none !important" },
-            '& .App-bottom-bar': { display: "none !important" },
-            '& .popover': { display: 'none !important' },
+            '& .layer-ui__wrapper, .App-top-bar, .App-bottom-bar, .popover': { display: 'none !important' },
             '& canvas': { borderRadius: 1 },
           }}>
             <Excalidraw
