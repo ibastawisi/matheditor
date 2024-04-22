@@ -1,5 +1,5 @@
 "use client"
-import { $getSelection, $isRangeSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, } from "lexical";
+import { $getSelection, $isRangeSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, INSERT_PARAGRAPH_COMMAND, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, } from "lexical";
 import { mergeRegister } from "@lexical/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, TextField, CircularProgress } from "@mui/material";
@@ -7,7 +7,7 @@ import { KeyboardArrowDown, AutoAwesome, UnfoldMore, UnfoldLess, PlayArrow, Imag
 import { SxProps, Theme } from '@mui/material/styles';
 import { useCompletion } from "ai/react";
 import { SET_DIALOGS_COMMAND } from "../Dialogs/commands";
-import { SET_ANNOUNCEMENT_COMMAND } from "@/editor/commands";
+import { SET_ANNOUNCEMENT_COMMAND, UPDATE_DOCUMENT_COMMAND } from "@/editor/commands";
 import { Announcement } from "@/types";
 
 export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> }): JSX.Element {
@@ -35,6 +35,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
 
   const [isCollapsed, setIsCollapsed] = useState(true);
   const offset = useRef(0);
+  const shouldMerge = useRef(false);
 
   const handlePrompt = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget;
@@ -121,8 +122,12 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
   useEffect(() => {
     const hasCompletion = completion.length > 0;
     if (!hasCompletion) return;
-    if (!isLoading) offset.current = 0;
-    if (!isLoading) return;
+    if (!isLoading) {
+      offset.current = 0;
+      shouldMerge.current = false;
+      editor.dispatchCommand(UPDATE_DOCUMENT_COMMAND, undefined);
+      return;
+    }
     editor.update(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
@@ -130,10 +135,12 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       offset.current = completion.length;
       const isStartingWithNewline = delta === completion && delta === "\n\n";
       const isAtNewline = selection.anchor.offset === 0 && selection.focus.offset === 0;
-      if (isStartingWithNewline && (isAtNewline || !isCollapsed)) return;
+      const shouldSkipNewline = isStartingWithNewline && (isAtNewline || !isCollapsed);
+      shouldMerge.current = !shouldSkipNewline && !!(offset.current)
+      if (shouldSkipNewline) return;
       if (delta === "\n\n" || delta === "\n" || delta === "<eos>") selection.insertParagraph();
       else selection.insertText(delta);
-    }, { tag: !!(offset.current) ? "history-merge" : undefined });
+    }, { tag: shouldMerge.current ? "history-merge" : undefined });
   }, [completion, isCollapsed, isLoading]);
 
   useEffect(() => {
