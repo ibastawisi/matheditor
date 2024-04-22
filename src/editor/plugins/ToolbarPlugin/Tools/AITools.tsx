@@ -1,5 +1,5 @@
 "use client"
-import { $getSelection, $isRangeSelection, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, } from "lexical";
+import { $getSelection, $isRangeSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, } from "lexical";
 import { mergeRegister } from "@lexical/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, TextField, CircularProgress } from "@mui/material";
@@ -48,10 +48,16 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
     e.preventDefault();
     handleClose();
     editor.focus();
-    editor.update(() => {
+    editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
-      const textContent = selection.getTextContent();
+      const anchorNode = selection.anchor.getNode();
+      let currentNode: LexicalNode | null | undefined = anchorNode;
+      let textContent = "";
+      while (currentNode && textContent.length < 100) {
+        textContent = currentNode.getTextContent() + "\n\n" + textContent;
+        currentNode = currentNode.getPreviousSibling() || currentNode.getParent()?.getPreviousSibling();
+      }
       complete(textContent, { body: { option: "zap", command } });
     });
   }
@@ -59,7 +65,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
   const handleRewrite = async () => {
     handleClose();
     editor.focus();
-    editor.update(() => {
+    editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
       const textContent = selection.getTextContent();
@@ -70,7 +76,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
   const handleSummarize = async () => {
     handleClose();
     editor.focus();
-    editor.update(() => {
+    editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
       const textContent = selection.getTextContent();
@@ -81,7 +87,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
   const handleExpand = async () => {
     handleClose();
     editor.focus();
-    editor.update(() => {
+    editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
       const textContent = selection.getTextContent();
@@ -99,12 +105,10 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       let currentNode: LexicalNode | null | undefined = anchorNode;
       let textContent = "";
       while (currentNode && textContent.length < 100) {
-        textContent = currentNode.getTextContent() + "\n" + textContent;
+        textContent = currentNode.getTextContent() + "\n\n" + textContent;
         currentNode = currentNode.getPreviousSibling() || currentNode.getParent()?.getPreviousSibling();
       }
-      if (!isCollapsed) {
-        selection.focus.getNode().selectEnd();
-      }
+      if (!isCollapsed) (selection.isBackward() ? selection.anchor : selection.focus).getNode().selectEnd();
       complete(textContent, { body: { option: "continue" } });
     });
   }
@@ -123,9 +127,12 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
       const delta = completion.slice(offset.current);
+      offset.current = completion.length;
+      const isStartingWithNewline = delta === completion && delta === "\n\n";
+      const isAtNewline = selection.anchor.offset === 0 && selection.focus.offset === 0;
+      if (isStartingWithNewline && (isAtNewline || !isCollapsed)) return;
       if (delta === "\n\n" || delta === "\n" || delta === "<eos>") selection.insertParagraph();
       else selection.insertText(delta);
-      offset.current = completion.length;
     }, { tag: !!(offset.current) ? "history-merge" : undefined });
   }, [completion, isCollapsed, isLoading]);
 
@@ -151,6 +158,14 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       ),
       editor.registerCommand(
         KEY_DOWN_COMMAND,
+        () => {
+          if (isLoading) stop();
+          return false;
+        },
+        COMMAND_PRIORITY_CRITICAL,
+      ),
+      editor.registerCommand(
+        BLUR_COMMAND,
         () => {
           if (isLoading) stop();
           return false;

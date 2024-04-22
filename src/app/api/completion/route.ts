@@ -19,38 +19,65 @@ export async function POST(req: Request) {
   const messages = match(option)
     .with("continue", () => [
       {
+        role: "system",
+        content:
+          "You are an AI writing assistant for the text editor application 'Math Editor'. " +
+          "You are asked to continue writing more text following user's " +
+          "Limit your response to no more than 200 characters, but make sure to construct complete sentences." +
+          "Respond directly without any conversation starters.",
+      },
+      {
         role: "user",
-        content: `Write on one more paragraph\n${prompt}`,
+        content: prompt,
       },
     ])
     .with("improve", () => [
       {
+        role: "system",
+        content:
+          "You are an AI writing assistant for the text editor application 'Math Editor'. " +
+          "You are asked to rewrite what user writes in another way. " +
+          "Limit your response to no more than 200 characters, but make sure to construct complete sentences." +
+          "Respond directly without any conversation starters.",
+      },
+      {
         role: "user",
-        content: `Rewrite in another way\n${prompt}`,
+        content: prompt,
       },
     ])
     .with("shorter", () => [
       {
+        role: "system",
+        content:
+          "You are an AI writing assistant for the text editor application 'Math Editor'. " +
+          "You are asked to rewrite what user writes in a shorter form. " +
+          "Respond directly without any conversation starters.",
+      },
+      {
         role: "user",
-        content: `Rewrite this shorter\n${prompt}`,
+        content: prompt,
       },
     ])
     .with("longer", () => [
       {
-        role: "user",
-        content: `Rewrite this in a longer form\n${prompt}`,
+        role: "system",
+        content:
+          "You are an AI writing assistant for the text editor application 'Math Editor'. " +
+          "You are asked to rewrite what user writes in a longer form. " +
+          "Respond directly without any conversation starters.",
       },
-    ])
-    .with("fix", () => [
       {
         role: "user",
-        content: `Fix spelling and grammar\n${prompt}`,
+        content: prompt,
       },
     ])
     .with("zap", () => [
       {
         role: "system",
-        content: "You area an AI writing assistant."
+        content:
+          "You are an AI writing assistant for the text editor application 'Math Editor'. " +
+          "You are asked to help the user with his document. " +
+          "Respond directly without any conversation starters.",
       },
       {
         role: "user",
@@ -58,7 +85,6 @@ export async function POST(req: Request) {
       },
     ])
     .run() as ChatCompletionMessageParam[];
-
   if (LLM_WORKER_URL) {
     return fetch(LLM_WORKER_URL, {
       method: "POST",
