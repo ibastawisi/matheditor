@@ -74,7 +74,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
     });
   }
 
-  const handleSummarize = async () => {
+  const handleShorter = async () => {
     handleClose();
     editor.focus();
     editor.getEditorState().read(() => {
@@ -85,7 +85,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
     });
   }
 
-  const handleExpand = async () => {
+  const handleLonger = async () => {
     handleClose();
     editor.focus();
     editor.getEditorState().read(() => {
@@ -262,17 +262,17 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
           </ListItemIcon>
           <ListItemText>Rewrite</ListItemText>
         </MenuItem>
-        <MenuItem disabled={isLoading || isCollapsed} onClick={handleSummarize}>
+        <MenuItem disabled={isLoading || isCollapsed} onClick={handleShorter}>
           <ListItemIcon>
             <UnfoldLess />
           </ListItemIcon>
-          <ListItemText>Summarize</ListItemText>
+          <ListItemText>Shorter</ListItemText>
         </MenuItem>
-        <MenuItem disabled={isLoading || isCollapsed} onClick={handleExpand}>
+        <MenuItem disabled={isLoading || isCollapsed} onClick={handleLonger}>
           <ListItemIcon>
             <UnfoldMore />
           </ListItemIcon>
-          <ListItemText>Expand</ListItemText>
+          <ListItemText>Longer</ListItemText>
         </MenuItem>
         <MenuItem disabled={isLoading || !isCollapsed} onClick={handleOCR}>
           <ListItemIcon>
