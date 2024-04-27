@@ -35,7 +35,6 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
 
   const [isCollapsed, setIsCollapsed] = useState(true);
   const offset = useRef(0);
-  const shouldMerge = useRef(false);
 
   const handlePrompt = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget;
@@ -74,7 +73,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
     });
   }
 
-  const handleSummarize = async () => {
+  const handleShorter = async () => {
     handleClose();
     editor.focus();
     editor.getEditorState().read(() => {
@@ -85,7 +84,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
     });
   }
 
-  const handleExpand = async () => {
+  const handleLonger = async () => {
     handleClose();
     editor.focus();
     editor.getEditorState().read(() => {
@@ -109,6 +108,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
         textContent = currentNode.getTextContent() + "\n\n" + textContent;
         currentNode = currentNode.getPreviousSibling() || currentNode.getParent()?.getPreviousSibling();
       }
+      const isCollapsed = selection.isCollapsed();
       if (!isCollapsed) (selection.isBackward() ? selection.anchor : selection.focus).getNode().selectEnd();
       complete(textContent, { body: { option: "continue" } });
     });
@@ -122,26 +122,28 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
   useEffect(() => {
     const hasCompletion = completion.length > 0;
     if (!hasCompletion) return;
-    if (!isLoading) {
-      offset.current = 0;
-      shouldMerge.current = false;
-      editor.dispatchCommand(UPDATE_DOCUMENT_COMMAND, undefined);
-      return;
-    }
+    const isStarting = offset.current === 0;
     editor.update(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
       const delta = completion.slice(offset.current);
       offset.current = completion.length;
-      const isStartingWithNewline = delta === completion && delta === "\n\n";
+      const isCollapsed = selection.isCollapsed();
       const isAtNewline = selection.anchor.offset === 0 && selection.focus.offset === 0;
-      const shouldSkipNewline = isStartingWithNewline && (isAtNewline || !isCollapsed);
-      shouldMerge.current = !shouldSkipNewline && !!(offset.current)
-      if (shouldSkipNewline) return;
+      const shouldInsertNewline = isStarting && isCollapsed && !isAtNewline;
+      if (shouldInsertNewline) selection.insertParagraph();
       if (delta === "\n\n" || delta === "\n" || delta === "<eos>") selection.insertParagraph();
       else selection.insertText(delta);
-    }, { tag: shouldMerge.current ? "history-merge" : undefined });
-  }, [completion, isCollapsed, isLoading]);
+    }, { tag: !isStarting ? "history-merge" : undefined });
+  }, [completion]);
+
+  useEffect(() => {
+    if (isLoading) return;
+    const isStarting = offset.current === 0;
+    if (isStarting) return;
+    offset.current = 0;
+    editor.dispatchCommand(UPDATE_DOCUMENT_COMMAND, undefined);
+  }, [isLoading]);
 
   useEffect(() => {
     return mergeRegister(
@@ -262,17 +264,17 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
           </ListItemIcon>
           <ListItemText>Rewrite</ListItemText>
         </MenuItem>
-        <MenuItem disabled={isLoading || isCollapsed} onClick={handleSummarize}>
+        <MenuItem disabled={isLoading || isCollapsed} onClick={handleShorter}>
           <ListItemIcon>
             <UnfoldLess />
           </ListItemIcon>
-          <ListItemText>Summarize</ListItemText>
+          <ListItemText>Shorter</ListItemText>
         </MenuItem>
-        <MenuItem disabled={isLoading || isCollapsed} onClick={handleExpand}>
+        <MenuItem disabled={isLoading || isCollapsed} onClick={handleLonger}>
           <ListItemIcon>
             <UnfoldMore />
           </ListItemIcon>
-          <ListItemText>Expand</ListItemText>
+          <ListItemText>Longer</ListItemText>
         </MenuItem>
         <MenuItem disabled={isLoading || !isCollapsed} onClick={handleOCR}>
           <ListItemIcon>
