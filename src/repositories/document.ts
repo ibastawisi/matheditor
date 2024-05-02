@@ -160,8 +160,9 @@ const findDocumentsByAuthorId = async (authorId: string) => {
     return cloudDocument;
   });
   const coauthoredDocuments = await findDocumentsByCoauthorId(authorId);
+  const collaboratorDocuments = await findDocumentsByCollaboratorId(authorId);
   const publishedDocuments = await findPublishedDocuments();
-  return [...authoredDocuments, ...coauthoredDocuments, ...publishedDocuments]
+  return [...authoredDocuments, ...coauthoredDocuments, ...collaboratorDocuments, ...publishedDocuments]
     .filter((document, index, self) => self.findIndex((d) => d.id === document.id) === index)
     .sort((a, b) => {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
@@ -324,6 +325,82 @@ const findDocumentsByCoauthorId = async (authorId: string) => {
     };
     return cloudDocument;
   });
+  return cloudDocuments;
+}
+
+const findDocumentsByCollaboratorId = async (authorId: string) => {
+  const revisions = await prisma.revision.findMany({
+    where: { authorId, document: { collab: true, authorId: { not: authorId } } },
+    select: {
+      document: {
+        select: {
+          id: true,
+          handle: true,
+          name: true,
+          createdAt: true,
+          updatedAt: true,
+          published: true,
+          collab: true,
+          private: true,
+          baseId: true,
+          head: true,
+          revisions: {
+            select: {
+              id: true,
+              documentId: true,
+              createdAt: true,
+              author: {
+                select: {
+                  id: true,
+                  handle: true,
+                  name: true,
+                  image: true,
+                  email: true,
+                }
+              }
+            },
+            orderBy: {
+              createdAt: 'desc'
+            }
+          },
+          author: {
+            select: {
+              id: true,
+              handle: true,
+              name: true,
+              image: true,
+              email: true,
+            }
+          },
+          coauthors: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  handle: true,
+                  name: true,
+                  image: true,
+                  email: true,
+                }
+              }
+            },
+            orderBy: {
+              createdAt: 'asc'
+            }
+          },
+        },
+      },
+    },
+  });
+
+  const cloudDocuments = revisions.map(({ document }) => {
+    const cloudDocument: CloudDocument = {
+      ...document,
+      coauthors: document.coauthors.map((coauthor) => coauthor.user),
+    };
+    return cloudDocument;
+  });
+
   return cloudDocuments;
 }
 

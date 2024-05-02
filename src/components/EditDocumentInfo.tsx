@@ -1,10 +1,10 @@
 import { LocalDocumentRevision, User, UserDocumentRevision } from '@/types';
 import RevisionCard from './EditRevisionCard';
-import { useSelector } from '@/store';
+import { actions, useDispatch, useSelector } from '@/store';
 import { Avatar, Box, Chip, Grid, IconButton, Typography } from '@mui/material';
 import { History, Print } from '@mui/icons-material';
 import { LexicalEditor } from '@/editor/types';
-import { MutableRefObject } from 'react';
+import { MutableRefObject, useEffect } from 'react';
 import RouterLink from "next/link";
 import ShareDocument from './DocumentActions/Share';
 import DownloadDocument from './DocumentActions/Download';
@@ -15,6 +15,7 @@ import AppDrawer from './AppDrawer';
 export default function EditDocumentInfo({ editorRef, documentId }: { editorRef: MutableRefObject<LexicalEditor | null>, documentId: string }) {
   const user = useSelector(state => state.user);
   const userDocument = useSelector(state => state.documents.find(d => d.id === documentId));
+  const initialized = useSelector(state => state.ui.initialized);
   const localDocument = userDocument?.local;
   const cloudDocument = userDocument?.cloud;
   const isCloud = !!cloudDocument;
@@ -23,8 +24,7 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
   const isHeadLocalRevision = localDocumentRevisions.some(r => r.id === localDocument?.head);
   const isHeadCloudRevision = cloudDocumentRevisions.some(r => r.id === localDocument?.head);
   const isAuthor = isCloud ? cloudDocument.author.id === user?.id : true
-  const isPublished = isCloud && cloudDocument.published;
-  const isCollab = isPublished && cloudDocument.collab;
+  const isCollab = isCloud && cloudDocument.collab;
   const collaborators = isCollab ? cloudDocument.revisions.reduce((acc, rev) => {
     if (rev.author.id !== cloudDocument.author.id &&
       !cloudDocument.coauthors.some(u => u.id === rev.author.id) &&
@@ -41,6 +41,12 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
     const unsavedRevision = { id: localDocument?.head, documentId: localDocument?.id, createdAt: localDocument?.updatedAt } as LocalDocumentRevision;
     documentRevisions.unshift(unsavedRevision);
   }
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (!initialized || !!cloudDocument) return;
+    dispatch(actions.loadCloudDocument(documentId));
+  }, [initialized, cloudDocument]);
 
   return (
     <>

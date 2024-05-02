@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import NProgress from "nprogress";
 import documentDB, { revisionDB } from '@/indexeddb';
-import { AppState, Announcement, Alert, LocalDocument, User, PatchUserResponse, GetSessionResponse, DeleteRevisionResponse, GetRevisionResponse, ForkDocumentResponse, DocumentUpdateInput, EditorDocumentRevision, PostRevisionResponse, DocumentCreateInput, BackupDocument, LocalDocumentRevision } from '../types';
+import { AppState, Announcement, Alert, LocalDocument, User, PatchUserResponse, GetSessionResponse, DeleteRevisionResponse, GetRevisionResponse, ForkDocumentResponse, DocumentUpdateInput, EditorDocumentRevision, PostRevisionResponse, DocumentCreateInput, BackupDocument, LocalDocumentRevision, CloudDocument, GetCloudDocumentResponse } from '../types';
 import { GetDocumentsResponse, PostDocumentsResponse, DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from '@/types';
 import { validate } from 'uuid';
 
@@ -77,9 +77,10 @@ export const loadLocalDocuments = createAsyncThunk('app/loadLocalDocuments', asy
   }
 });
 
-export const loadCloudDocuments = createAsyncThunk('app/loadCloudDocuments', async (_, thunkAPI) => {
+export const loadCloudDocuments = createAsyncThunk('app/loadCloudDocuments', async (payloadCreator: CloudDocument[] | undefined, thunkAPI) => {
   try {
     NProgress.start();
+    if (payloadCreator) return thunkAPI.fulfillWithValue(payloadCreator);
     const response = await fetch('/api/documents');
     const { data, error } = await response.json() as GetDocumentsResponse;
     if (error) return thunkAPI.rejectWithValue(error);
@@ -90,6 +91,19 @@ export const loadCloudDocuments = createAsyncThunk('app/loadCloudDocuments', asy
     return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   } finally {
     NProgress.done();
+  }
+});
+
+export const loadCloudDocument = createAsyncThunk('app/loadCloudDocument', async (id: string, thunkAPI) => {
+  try {
+    const response = await fetch(`/api/documents/${id}/metadata`);
+    const { data, error } = await response.json() as GetCloudDocumentResponse;
+    if (error) return thunkAPI.rejectWithValue(error);
+    if (!data) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "document not found" });
+    return thunkAPI.fulfillWithValue(data);
+  } catch (error: any) {
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   }
 });
 
@@ -295,7 +309,7 @@ export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', a
     const backupDocument: BackupDocument = { ...editorDocument, revisions: editorDocumentRevisions };
     const backupDocumentSize = new Blob([JSON.stringify(backupDocument)]).size;
     payload.partial.size = backupDocumentSize;
-    
+
     return thunkAPI.fulfillWithValue(payload);
   } catch (error: any) {
     console.error(error);
@@ -467,6 +481,12 @@ export const appSlice = createSlice({
           else userDocument.cloud = document;
         });
       })
+      .addCase(loadCloudDocument.fulfilled, (state, action) => {
+        const document = action.payload;
+        const userDocument = state.documents.find(doc => doc.id === document.id);
+        if (!userDocument) state.documents.unshift({ id: document.id, cloud: document });
+        else userDocument.cloud = document;
+      })
       .addCase(getCloudDocument.rejected, (state, action) => {
         const message = action.payload as { title: string, subtitle: string };
         state.ui.announcements.push({ message });
@@ -570,7 +590,7 @@ export const appSlice = createSlice({
         if (!cloudDocument) return;
         const revision = cloudDocument.revisions.find(revision => revision.id === id);
         if (!revision) return;
-        cloudDocument.revisions = cloudDocument.revisions.filter(revision => revision.id !== id);        
+        cloudDocument.revisions = cloudDocument.revisions.filter(revision => revision.id !== id);
         if (!cloudDocument.size || !revision.size) return;
         cloudDocument.size -= revision.size;
       })

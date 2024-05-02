@@ -20,7 +20,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const session = await getServerSession(authOptions);
     const isAuthor = session?.user && session.user.id === cloudDocument.author.id;
     const isCoauthor = session?.user && cloudDocument.coauthors.some(coauthor => coauthor.id === session.user.id);
-    if (!isAuthor && !isCoauthor && !cloudDocument.published) {
+    if (!isAuthor && !isCoauthor && !cloudDocument.published && !cloudDocument.collab) {
       response.error = { title: "This document is private", subtitle: "You are not authorized to fork this document" }
       return NextResponse.json(response, { status: 403 })
     }

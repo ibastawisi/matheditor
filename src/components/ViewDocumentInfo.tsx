@@ -9,6 +9,8 @@ import ForkDocument from './DocumentActions/Fork';
 import AppDrawer from './AppDrawer';
 import ViewRevisionCard from './ViewRevisionCard';
 import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import { actions, useDispatch } from '@/store';
 
 export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocument: CloudDocument, user?: User }) {
   const slideTrigger = useScrollTrigger({
@@ -19,10 +21,11 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
   const handle = cloudDocument.handle || cloudDocument.id;
   const isAuthor = cloudDocument.author.id === user?.id;
   const isCoauthor = cloudDocument.coauthors.some(u => u.id === user?.id);
-  const showFork = cloudDocument.published || isAuthor || isCoauthor;
   const userDocument = { id: cloudDocument.id, cloud: cloudDocument };
   const isPublished = cloudDocument.published;
-  const isCollab = isPublished && cloudDocument.collab;
+  const isCollab = cloudDocument.collab;
+  const isEditable = isAuthor || isCoauthor || isCollab;
+  const showFork = isPublished || isEditable;
   const collaborators = isCollab ? cloudDocument.revisions.reduce((acc, rev) => {
     if (rev.author.id !== cloudDocument.author.id &&
       !cloudDocument.coauthors.some(u => u.id === rev.author.id) &&
@@ -30,10 +33,15 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
     return acc;
   }, [] as User[]) : [];
 
-  const isEditable = isAuthor || isCoauthor || isCollab;
   const searchParams = useSearchParams();
   const revisionId = searchParams.get('v');
   const href = isEditable ? `/edit/${handle}` : `/new/${handle}${revisionId ? `?v=${revisionId}` : ''}`;
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (!cloudDocument) return;
+    dispatch(actions.loadCloudDocuments([cloudDocument]));
+  }, [cloudDocument]);
 
   return (
     <>
