@@ -1,7 +1,7 @@
 "use client"
 import type { LexicalEditor } from 'lexical';
 import { $createCodeNode } from '../../../nodes/CodeNode';
-import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list';
+import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from '../../../nodes/ListNode';
 import { $createHeadingNode, $createQuoteNode, HeadingTagType, } from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
 import { $createParagraphNode, $getSelection, $isRangeSelection } from 'lexical';

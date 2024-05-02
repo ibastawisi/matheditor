@@ -1,5 +1,5 @@
 "use client"
-import { $getListDepth, $isListItemNode, $isListNode } from "@lexical/list";
+import { $getListDepth, $isListItemNode, $isListNode } from "../../nodes/ListNode";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
   $getSelection,
