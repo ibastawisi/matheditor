@@ -60,6 +60,7 @@ const TopAppBar: React.FC<{}> = () => {
   const user = useSelector(state => state.user);
 
   const handlePrint = () => { window.print(); }
+  const toggleDrawer = () => { dispatch(actions.toggleDrawer()); }
 
   useEffect(() => {
     if (!initialized) dispatch(actions.load());
@@ -86,7 +87,8 @@ const TopAppBar: React.FC<{}> = () => {
             {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={handlePrint}>
               <Print />
             </IconButton>}
-            {showDrawerButton && <DrawerButton />}
+            {showDrawerButton && <IconButton id="document-info" aria-label="Document Info" color='inherit' onClick={toggleDrawer}
+              sx={{ '& >.MuiBadge-root': { height: '1em', userSelect: 'none', zIndex: -1 } }} ><Info /></IconButton>}
           </Toolbar>
         </AppBar>
       </HideOnScroll>
@@ -97,36 +99,3 @@ const TopAppBar: React.FC<{}> = () => {
 };
 
 export default TopAppBar;
-
-const DrawerButton = () => {
-  const dispatch = useDispatch();
-  const pathname = usePathname();
-  const isEdit = pathname.startsWith('/edit');
-  const showDrawerButton = !!['/edit', '/view'].find(path => pathname.startsWith(path));
-  const documentId = showDrawerButton && pathname.split('/')[2]?.toLowerCase();
-  const userDocument = useSelector(state => state.documents.find(d => d.id === documentId || (d.cloud || d.local)?.handle === documentId));
-  const localDocument = userDocument?.local;
-  const cloudDocument = userDocument?.cloud;
-  const localDocumentRevisions = localDocument?.revisions ?? [];
-  const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
-
-  const revisions: UserDocumentRevision[] = [...cloudDocumentRevisions];
-  if (isEdit) localDocumentRevisions.forEach(revision => { if (!revisions.find(r => r.id === revision.id)) revisions.push(revision); });
-  if (isEdit && localDocument && !revisions.find(r => r.id === localDocument.head)) {
-    const unsavedRevision = {
-      id: localDocument.head,
-      documentId: localDocument.id,
-      createdAt: localDocument.updatedAt,
-    } as LocalDocumentRevision;
-    revisions.unshift(unsavedRevision);
-  }
-  
-  const revisionsBadgeContent = isEdit ? revisions.length : cloudDocumentRevisions.length;
-  const showRevisionsBadge = revisionsBadgeContent > (isEdit ? 0 : 1);
-
-  const toggleDrawer = () => { dispatch(actions.toggleDrawer()); }
-
-  return <IconButton id="document-info" aria-label="Document Info" color='inherit' onClick={toggleDrawer}>
-    {showRevisionsBadge ? <Badge badgeContent={revisionsBadgeContent} color="secondary"><Info /></Badge> : <Info />}
-  </IconButton>
-}

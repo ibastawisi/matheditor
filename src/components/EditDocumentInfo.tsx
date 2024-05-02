@@ -1,7 +1,7 @@
 import { LocalDocumentRevision, User, UserDocumentRevision } from '@/types';
 import RevisionCard from './EditRevisionCard';
 import { actions, useDispatch, useSelector } from '@/store';
-import { Avatar, Box, Chip, Grid, IconButton, Typography } from '@mui/material';
+import { Avatar, Badge, Box, Chip, Grid, IconButton, Portal, Typography } from '@mui/material';
 import { History, Print } from '@mui/icons-material';
 import { LexicalEditor } from '@/editor/types';
 import { MutableRefObject, useEffect } from 'react';
@@ -47,6 +47,9 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
     if (!initialized || !!cloudDocument) return;
     dispatch(actions.loadCloudDocument(documentId));
   }, [initialized, cloudDocument]);
+
+  const revisionsBadgeContent = revisions.length;
+  const showRevisionsBadge = revisionsBadgeContent > 0;
 
   return (
     <>
@@ -116,6 +119,9 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
           {documentRevisions.map(revision => <Grid item xs={12} key={revision.id}><RevisionCard revision={revision} editorRef={editorRef} /></Grid>)}
         </Grid>
       </AppDrawer>
+      {showRevisionsBadge && <Portal container={document.querySelector('#document-info')}>
+        <Badge badgeContent={revisionsBadgeContent} color="secondary"></Badge>
+      </Portal>}
     </>
   );
 }

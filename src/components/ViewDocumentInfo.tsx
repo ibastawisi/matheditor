@@ -1,6 +1,6 @@
 "use client"
 import { CloudDocument, User } from '@/types';
-import { Avatar, Box, Chip, Fab, Grid, IconButton, Typography, useScrollTrigger } from '@mui/material';
+import { Avatar, Badge, Box, Chip, Fab, Grid, IconButton, Portal, Typography, useScrollTrigger } from '@mui/material';
 import { Edit, FileCopy, Print, History } from '@mui/icons-material';
 import RouterLink from "next/link";
 import ShareDocument from './DocumentActions/Share';
@@ -9,8 +9,6 @@ import ForkDocument from './DocumentActions/Fork';
 import AppDrawer from './AppDrawer';
 import ViewRevisionCard from './ViewRevisionCard';
 import { useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
-import { actions, useDispatch } from '@/store';
 
 export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocument: CloudDocument, user?: User }) {
   const slideTrigger = useScrollTrigger({
@@ -37,11 +35,9 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
   const revisionId = searchParams.get('v');
   const href = isEditable ? `/edit/${handle}` : `/new/${handle}${revisionId ? `?v=${revisionId}` : ''}`;
 
-  const dispatch = useDispatch();
-  useEffect(() => {
-    if (!cloudDocument) return;
-    dispatch(actions.loadCloudDocuments([cloudDocument]));
-  }, [cloudDocument]);
+  const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
+  const revisionsBadgeContent = cloudDocumentRevisions.length;
+  const showRevisionsBadge = revisionsBadgeContent > 1;
 
   return (
     <>
@@ -105,6 +101,9 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
         sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 16, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>
         {isEditable ? <Edit sx={{ mr: 1 }} /> : <FileCopy sx={{ mr: 1 }} />}{isEditable ? 'Edit' : 'Fork'}
       </Fab>}
+      {showRevisionsBadge && <Portal container={document.querySelector('#document-info')}>
+        <Badge badgeContent={revisionsBadgeContent} color="secondary"></Badge>
+      </Portal>}
     </>
   );
 }
