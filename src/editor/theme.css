@@ -227,6 +227,7 @@
 
 .LexicalTheme__listItem {
   margin: 8px 16px;
+  text-align: start;
 }
 
 .LexicalTheme__listItemChecked,
