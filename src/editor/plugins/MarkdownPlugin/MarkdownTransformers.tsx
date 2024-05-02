@@ -10,7 +10,6 @@
 import {
   $convertFromMarkdownString,
   $convertToMarkdownString,
-  CHECK_LIST,
   ELEMENT_TRANSFORMERS,
   ElementTransformer,
   TEXT_FORMAT_TRANSFORMERS,
@@ -51,6 +50,7 @@ import { $createGraphNode, $isGraphNode, GraphNode } from '../../nodes/GraphNode
 import { $createSketchNode, $isSketchNode, SketchNode } from '../../nodes/SketchNode';
 import { $createStickyNode, $isStickyNode, StickyNode } from '../../nodes/StickyNode';
 import { $createCodeNode, $isCodeNode, CodeNode } from '../../nodes/CodeNode';
+import { $createListNode, $createListItemNode, $isListItemNode, $isListNode, ListType, ListNode, ListItemNode } from '../../nodes/ListNode';
 
 export const HR: ElementTransformer = {
   dependencies: [HorizontalRuleNode],
@@ -377,6 +377,129 @@ const mapToTableCells = (textContent: string): Array<TableCellNode> | null => {
   return match[1].split('|').map((text) => createTableCell(text));
 };
 
+// Amount of spaces that define indentation level
+// TODO: should be an option
+const LIST_INDENT_SIZE = 4;
+
+function getIndent(whitespaces: string): number {
+  const tabs = whitespaces.match(/\t/g);
+  const spaces = whitespaces.match(/ /g);
+
+  let indent = 0;
+
+  if (tabs) {
+    indent += tabs.length;
+  }
+
+  if (spaces) {
+    indent += Math.floor(spaces.length / LIST_INDENT_SIZE);
+  }
+
+  return indent;
+}
+
+const listReplace = (listType: ListType): ElementTransformer['replace'] => {
+  return (parentNode, children, match) => {
+    const previousNode = parentNode.getPreviousSibling();
+    const nextNode = parentNode.getNextSibling();
+    const listItem = $createListItemNode(
+      listType === 'check' ? match[3] === 'x' : undefined,
+    );
+    if ($isListNode(nextNode) && nextNode.getListType() === listType) {
+      const firstChild = nextNode.getFirstChild();
+      if (firstChild !== null) {
+        firstChild.insertBefore(listItem);
+      } else {
+        // should never happen, but let's handle gracefully, just in case.
+        nextNode.append(listItem);
+      }
+      parentNode.remove();
+    } else if (
+      $isListNode(previousNode) &&
+      previousNode.getListType() === listType
+    ) {
+      previousNode.append(listItem);
+      parentNode.remove();
+    } else {
+      const list = $createListNode(
+        listType,
+        listType === 'number' ? Number(match[2]) : undefined,
+      );
+      list.append(listItem);
+      parentNode.replace(list);
+    }
+    listItem.append(...children);
+    listItem.select(0, 0);
+    const indent = getIndent(match[1]);
+    if (indent) {
+      listItem.setIndent(indent);
+    }
+  };
+};
+
+const listExport = (
+  listNode: ListNode,
+  exportChildren: (node: ElementNode) => string,
+  depth: number,
+): string => {
+  const output = [];
+  const children = listNode.getChildren();
+  let index = 0;
+  for (const listItemNode of children) {
+    if ($isListItemNode(listItemNode)) {
+      if (listItemNode.getChildrenSize() === 1) {
+        const firstChild = listItemNode.getFirstChild();
+        if ($isListNode(firstChild)) {
+          output.push(listExport(firstChild, exportChildren, depth + 1));
+          continue;
+        }
+      }
+      const indent = ' '.repeat(depth * LIST_INDENT_SIZE);
+      const listType = listNode.getListType();
+      const prefix =
+        listType === 'number'
+          ? `${listNode.getStart() + index}. `
+          : listType === 'check'
+            ? `- [${listItemNode.getChecked() ? 'x' : ' '}] `
+            : '- ';
+      output.push(indent + prefix + exportChildren(listItemNode));
+      index++;
+    }
+  }
+
+  return output.join('\n');
+};
+
+export const UNORDERED_LIST: ElementTransformer = {
+  dependencies: [ListNode, ListItemNode],
+  export: (node, exportChildren) => {
+    return $isListNode(node) ? listExport(node, exportChildren, 0) : null;
+  },
+  regExp: /^(\s*)[-*+]\s/,
+  replace: listReplace('bullet'),
+  type: 'element',
+};
+
+export const CHECK_LIST: ElementTransformer = {
+  dependencies: [ListNode, ListItemNode],
+  export: (node, exportChildren) => {
+    return $isListNode(node) ? listExport(node, exportChildren, 0) : null;
+  },
+  regExp: /^(\s*)(?:-\s)?\s?(\[(\s|x)?\])\s/i,
+  replace: listReplace('check'),
+  type: 'element',
+};
+
+export const ORDERED_LIST: ElementTransformer = {
+  dependencies: [ListNode, ListItemNode],
+  export: (node, exportChildren) => {
+    return $isListNode(node) ? listExport(node, exportChildren, 0) : null;
+  },
+  regExp: /^(\s*)(\d{1,})\.\s/,
+  replace: listReplace('number'),
+  type: 'element',
+};
+
 export const TRANSFORMERS: Array<Transformer> = [
   TABLE,
   HR,
@@ -385,6 +508,8 @@ export const TRANSFORMERS: Array<Transformer> = [
   SKETCH,
   MATH,
   STICKY,
+  UNORDERED_LIST,
+  ORDERED_LIST,
   CHECK_LIST,
   CODE,
   ...ELEMENT_TRANSFORMERS.splice(2),
@@ -396,10 +521,12 @@ export default function createMarkdownTransformers(editor: LexicalEditor): Array
   const TRANSFORMERS: Array<Transformer> = [
     HR,
     MATH,
-    CHECK_LIST,
     ...ELEMENT_TRANSFORMERS,
     ...TEXT_FORMAT_TRANSFORMERS,
     ...TEXT_MATCH_TRANSFORMERS,
+    UNORDERED_LIST,
+    ORDERED_LIST,
+    CHECK_LIST,
     CODE,
   ];
   if (editor.hasNode(TableNode)) TRANSFORMERS.unshift(TABLE);
