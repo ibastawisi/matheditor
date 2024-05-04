@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from "react";
 import Compressor from 'compressorjs';
 import { SET_DIALOGS_COMMAND } from "./commands";
 import { Announcement } from "@/types";
-import { SET_ANNOUNCEMENT_COMMAND } from "@/editor/commands";
+import { ANNOUNCE_COMMAND } from "@/editor/commands";
 
 const FASTAPI_URL = process.env.NEXT_PUBLIC_FASTAPI_URL;
 
@@ -86,7 +86,7 @@ const OCRDialog = ({ open, editor }: { open: boolean, editor: LexicalEditor }) =
   }, []);
 
   const annouunce = useCallback((announcement: Announcement) => {
-    editor.dispatchCommand(SET_ANNOUNCEMENT_COMMAND, announcement);
+    editor.dispatchCommand(ANNOUNCE_COMMAND, announcement);
   }, [editor]);
 
   const closeDialog = () => {

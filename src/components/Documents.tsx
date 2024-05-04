@@ -12,6 +12,7 @@ import { Box, Avatar, Button, Typography, Grid, Card, CardActionArea, CardHeader
 import { PostAdd, UploadFile, Help, Storage, Science, Pageview } from '@mui/icons-material';
 import DocumentSortControl, { sortDocuments } from './DocumentSortControl';
 import DocumentFilterControl, { filterDocuments } from './DocumentFilterControl';
+import { v4 as uuid } from 'uuid';
 
 const Documents: React.FC = () => {
   const user = useSelector(state => state.user);
@@ -56,13 +57,20 @@ const Documents: React.FC = () => {
     }
   }
 
-  function addDocument(document: BackupDocument, shouldNavigate?: boolean) {
+  async function addDocument(document: BackupDocument, shouldNavigate?: boolean) {
     if (documents.find(d => d.id === document.id && d.local)) {
-      dispatch(actions.alert({
-        title: "Document already exists",
+      const alert = {
+        title: `Document already exists`,
         content: `Do you want to overwrite ${document.name}?`,
-        action: `dispatch(actions.updateLocalDocument({id:"${document.id}",partial:${JSON.stringify(document)}})).then(() => {${shouldNavigate ? `navigate("/edit/${document.id}");` : ""}})`
-      }))
+        actions: [
+          { label: "Cancel", id: uuid() },
+          { label: "Overwrite", id: uuid() }
+        ]
+      };
+      const response = await dispatch(actions.alert(alert));
+      if (response.payload === alert.actions[1].id) {
+        dispatch(actions.updateLocalDocument({ id: document.id, partial: document })).then(() => { if (shouldNavigate) navigate(`/edit/${document.id}`) });
+      }
     } else {
       dispatch(actions.createLocalDocument(document)).then(() => {
         shouldNavigate && navigate(`/edit/${document.id}`);

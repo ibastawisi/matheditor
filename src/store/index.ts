@@ -23,6 +23,7 @@ import {
   deleteLocalRevision,
   deleteCloudRevision,
   getLocalDocumentRevisions,
+  alert,
 } from "./app";
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
@@ -55,6 +56,7 @@ export const actions = {
   deleteCloudRevision,
 
   updateUser,
+  alert,
 };
 
 export const store = configureStore({ reducer: appSlice.reducer });

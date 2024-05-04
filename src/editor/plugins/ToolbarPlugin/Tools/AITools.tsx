@@ -7,7 +7,7 @@ import { KeyboardArrowDown, AutoAwesome, UnfoldMore, UnfoldLess, PlayArrow, Imag
 import { SxProps, Theme } from '@mui/material/styles';
 import { useCompletion } from "ai/react";
 import { SET_DIALOGS_COMMAND } from "../Dialogs/commands";
-import { SET_ANNOUNCEMENT_COMMAND, UPDATE_DOCUMENT_COMMAND } from "@/editor/commands";
+import { ANNOUNCE_COMMAND, UPDATE_DOCUMENT_COMMAND } from "@/editor/commands";
 import { Announcement } from "@/types";
 
 export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> }): JSX.Element {
@@ -30,7 +30,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
   });
 
   const annouunce = useCallback((announcement: Announcement) => {
-    editor.dispatchCommand(SET_ANNOUNCEMENT_COMMAND, announcement);
+    editor.dispatchCommand(ANNOUNCE_COMMAND, announcement);
   }, [editor]);
 
   const [isCollapsed, setIsCollapsed] = useState(true);

@@ -13,6 +13,8 @@ import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, de
 import dynamic from 'next/dynamic';
 import { ImageNode } from '@/editor/nodes/ImageNode';
 import type { ExcalidrawElement, ExcalidrawImageElement, FileId } from '@excalidraw/excalidraw/types/element/types';
+import { ALERT_COMMAND } from '@/editor/commands';
+import { v4 as uuid } from 'uuid';
 
 const Excalidraw = dynamic<ExcalidrawProps>(() => import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => ({ default: module.Excalidraw })), { ssr: false });
 const AddLibraries = dynamic(() => import('./AddLibraries'), { ssr: false });
@@ -57,7 +59,7 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
   const handleSubmit = async () => {
     const elements = excalidrawAPI?.getSceneElements();
     const files = excalidrawAPI?.getFiles();
-    const exportToSvg = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.exportToSvg).catch((e) => console.error(e));
+    const exportToSvg = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.exportToSvg).catch(console.error);
     if (!elements || !files || !exportToSvg) return;
     const element: SVGElement = await exportToSvg({
       appState: {
@@ -65,7 +67,7 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
       },
       elements: elements!,
       files: files!,
-      exportPadding: 16,
+      exportPadding: (!node || $isSketchNode(node)) ? 16 : 0,
     });
 
     const serialized = new XMLSerializer().serializeToString(element);
@@ -91,31 +93,81 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
     })
   }
 
-  const handleClose = () => {
-    const unsavedScene = localStorage.getItem("excalidraw");
-    if (unsavedScene && confirm("discard unsaved changes?")) {
+  const handleClose = async () => {
+    function discard() {
       clearLocalStorage();
       closeDialog();
       restoreSelection();
-    } else {
+    }
+    function cancel() {
       closeDialog();
       restoreSelection();
     }
+    const unsavedScene = localStorage.getItem("excalidraw");
+    if (unsavedScene) {
+      const alert = {
+        title: "Discard unsaved Changes",
+        content: "Are you sure you want to discard unsaved changes?",
+        actions: [
+          { label: "Cancel", id: uuid() },
+          { label: "Discard", id: uuid() },
+        ]
+      };
+      editor.dispatchCommand(ALERT_COMMAND, alert);
+      const id = await new Promise((resolve) => {
+        const handler = (event: MouseEvent): any => {
+          const target = event.target as HTMLElement;
+          const button = target.closest("button");
+          const paper = target.closest(".MuiDialog-paper");
+          if (paper && !button) return document.addEventListener("click", handler, { once: true });
+          resolve(button?.id ?? null);
+        };
+        setTimeout(() => { document.addEventListener("click", handler, { once: true }); }, 0);
+      });
+      if (id === alert.actions[1].id) discard();
+    } else cancel();
+  }
+
+  async function restoreSerializedScene(serialized: string) {
+    const scene = JSON.parse(serialized);
+    const files = Object.values(scene.files) as BinaryFileData[];
+    if (files.length) excalidrawAPI?.addFiles(files);
+    const { getNonDeletedElements, isLinearElement } = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js')
+      .then((module) => ({ getNonDeletedElements: module.getNonDeletedElements, isLinearElement: module.isLinearElement }));
+    const elements = getNonDeletedElements(scene.elements).map((element: ExcalidrawElement) =>
+      isLinearElement(element) ? { ...element, lastCommittedPoint: null } : element,
+    );
+    return excalidrawAPI?.updateScene({ elements, appState: { theme: theme.palette.mode } });
   }
 
   const loadSceneOrLibrary = async () => {
     const unsavedScene = localStorage.getItem("excalidraw");
-    if (unsavedScene && confirm("restore unsaved scene from last session?")) {
-      const scene = JSON.parse(unsavedScene);
-      const files = Object.values(scene.files) as BinaryFileData[];
-      if (files.length) excalidrawAPI?.addFiles(files);
-      const { getNonDeletedElements, isLinearElement } = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js')
-        .then((module) => ({ getNonDeletedElements: module.getNonDeletedElements, isLinearElement: module.isLinearElement }));
-      const elements = getNonDeletedElements(scene.elements).map((element: ExcalidrawElement) =>
-        isLinearElement(element) ? { ...element, lastCommittedPoint: null } : element,
-      );
-      return excalidrawAPI?.updateScene({ elements, appState: { theme: theme.palette.mode } });
-    }
+    if (unsavedScene) {
+      const alert = {
+        title: "Restore last unsaved Changes",
+        content: "You've unsaved changes from last session. Do you want to restore them?",
+        actions: [
+          { label: "Cancel", id: uuid() },
+          { label: "Restore", id: uuid() },
+        ]
+      };
+      editor.dispatchCommand(ALERT_COMMAND, alert);
+      const id = await new Promise((resolve) => {
+        const handler = (event: MouseEvent): any => {
+          const target = event.target as HTMLElement;
+          const button = target.closest("button");
+          const paper = target.closest(".MuiDialog-paper");
+          if (paper && !button) return document.addEventListener("click", handler, { once: true });
+          resolve(button?.id ?? null);
+        };
+        setTimeout(() => { document.addEventListener("click", handler, { once: true }); }, 0);
+      });
+      if (!id || id === alert.actions[0].id) tryLoadSceneFromNode();
+      if (id === alert.actions[1].id) restoreSerializedScene(unsavedScene);
+    } else tryLoadSceneFromNode();
+  };
+
+  async function tryLoadSceneFromNode() {
     const src = node?.getSrc();
     if (!src) return;
     const blob = await (await fetch(src)).blob();
@@ -147,7 +199,7 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
     } catch (error) {
       console.error(error);
     }
-  };
+  }
 
   async function convertImagetoSketch(src: string) {
     const now = Date.now();

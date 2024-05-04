@@ -413,7 +413,24 @@ export const updateUser = createAsyncThunk('app/updateUser', async (payloadCreat
   }
 });
 
-
+export const alert = createAsyncThunk('app/alert', async (payloadCreator: Alert, thunkAPI) => {
+  try {
+    const id = await new Promise((resolve) => {
+      const handler = (event: MouseEvent): any => {
+        const target = event.target as HTMLElement;
+        const button = target.closest("button");
+        const paper = target.closest(".MuiDialog-paper");
+        if (paper && !button) return document.addEventListener("click", handler, { once: true });
+        resolve(button?.id ?? null);
+      };
+      setTimeout(() => { document.addEventListener("click", handler, { once: true }); }, 0);
+    });
+    return thunkAPI.fulfillWithValue(id);
+  } catch (error: any) {
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
+  }
+});
 
 export const appSlice = createSlice({
   name: 'app',
@@ -427,9 +444,6 @@ export const appSlice = createSlice({
     },
     clearAnnouncement: (state) => {
       state.ui.announcements.shift();
-    },
-    alert: (state, action: PayloadAction<Alert>) => {
-      state.ui.alerts.push(action.payload);
     },
     clearAlert: (state) => {
       state.ui.alerts.shift();
@@ -603,6 +617,18 @@ export const appSlice = createSlice({
         state.user = user;
       })
       .addCase(updateUser.rejected, (state, action) => {
+        const message = action.payload as { title: string, subtitle: string };
+        state.ui.announcements.push({ message });
+      })
+      .addCase(alert.pending, (state, action) => {
+        const alert = action.meta.arg;
+        state.ui.alerts.push(alert);
+      })
+      .addCase(alert.fulfilled, state => {
+        state.ui.alerts.shift();
+      })
+      .addCase(alert.rejected, (state, action) => {
+        state.ui.alerts.shift();
         const message = action.payload as { title: string, subtitle: string };
         state.ui.announcements.push({ message });
       })

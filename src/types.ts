@@ -5,7 +5,7 @@ import type { Session } from 'next-auth';
 export interface Alert {
   title: string;
   content: string;
-  action?: string;
+  actions: { label: string; id: string }[];
 }
 export interface Announcement {
   message?: { title: string; subtitle?: string; }

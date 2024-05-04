@@ -1,8 +1,7 @@
 "use client";
-import { Announcement } from '@/types';
+import { Alert, Announcement } from '@/types';
 import { LexicalCommand, createCommand } from 'lexical';
 
-export type SetAnnouncementPayload = Readonly<Announcement>;
-
-export const SET_ANNOUNCEMENT_COMMAND: LexicalCommand<SetAnnouncementPayload> = createCommand();
+export const ANNOUNCE_COMMAND: LexicalCommand<Readonly<Announcement>> = createCommand();
+export const ALERT_COMMAND: LexicalCommand<Readonly<Alert>> = createCommand();
 export const UPDATE_DOCUMENT_COMMAND: LexicalCommand<void> = createCommand();

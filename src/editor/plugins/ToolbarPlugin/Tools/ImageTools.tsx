@@ -54,6 +54,8 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
     });
   };
 
+  const isImageNode = !$isGraphNode(node) && !$isSketchNode(node) && !$isIFrameNode(node);
+
   return (
     <>
       <ToggleButtonGroup size="small" sx={{ ...sx }} >
@@ -61,7 +63,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
           onClick={openDialog}>
           <Edit />
         </ToggleButton>
-        {(!$isSketchNode(node) && !$isIFrameNode(node)) && <ToggleButton value="sketch" key="sketch"
+        {isImageNode && <ToggleButton value="sketch" key="sketch"
           onClick={openSketchDialog}>
           <Draw />
         </ToggleButton>}

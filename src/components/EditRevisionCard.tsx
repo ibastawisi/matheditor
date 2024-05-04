@@ -9,6 +9,7 @@ import { actions, useDispatch, useSelector } from '@/store';
 import { CLEAR_HISTORY_COMMAND, type LexicalEditor } from '@/editor';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
 import NProgress from 'nprogress';
+import { v4 as uuid } from 'uuid';
 
 const RevisionCard: React.FC<{
   revision: UserDocumentRevision,
@@ -137,12 +138,21 @@ const RevisionCard: React.FC<{
     await dispatch(actions.updateCloudDocument(payload));
   }
 
-  const deleteRevision = () => {
+  const deleteRevision = async () => {
     const variant = isLocalRevision ? 'Local' : 'Cloud';
-    const title = `Delete ${variant} Revision?`;
-    const content = `Are you sure you want to delete this ${variant} revision?`;
-    const action = `dispatch(actions.delete${variant}Revision({ id: "${revision.id}", documentId: "${revision.documentId}" }))`;
-    dispatch(actions.alert({ title, content, action }));
+    const alert = {
+      title: `Delete ${variant} Revision?`,
+      content: `Are you sure you want to delete this ${variant} revision?`,
+      actions: [
+        { label: "Cancel", id: uuid() },
+        { label: "Delete", id: uuid() },
+      ]
+    };
+    const response = await dispatch(actions.alert(alert));
+    if (response.payload === alert.actions[1].id) {
+      if (isLocalRevision) dispatch(actions.deleteLocalRevision({ id: revision.id, documentId: revision.documentId }));
+      else dispatch(actions.deleteCloudRevision({ id: revision.id, documentId: revision.documentId }));
+    }
   }
 
   return (

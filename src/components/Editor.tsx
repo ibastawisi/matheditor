@@ -3,7 +3,7 @@ import { MutableRefObject } from 'react';
 import { memo } from 'react';
 import { EditorDocument } from '@/types';
 import type { EditorState, LexicalEditor } from '@/editor/types';
-import { COMMAND_PRIORITY_LOW, SET_ANNOUNCEMENT_COMMAND, UPDATE_DOCUMENT_COMMAND } from '@/editor';
+import { COMMAND_PRIORITY_LOW, ANNOUNCE_COMMAND, UPDATE_DOCUMENT_COMMAND, ALERT_COMMAND, mergeRegister } from '@/editor';
 import { actions, useDispatch } from '@/store';
 import Editor from '@/editor/Editor';
 
@@ -15,24 +15,34 @@ const Container: React.FC<{
   const dispatch = useDispatch();
   const editorRefCallback = (editor: LexicalEditor) => {
     if (editorRef) editorRef.current = editor;
-    editor.registerCommand(
-      SET_ANNOUNCEMENT_COMMAND,
-      (payload) => {
-        dispatch((actions.announce(payload)))
-        return false;
-      },
-      COMMAND_PRIORITY_LOW
-    );
-    editor.registerCommand(
-      UPDATE_DOCUMENT_COMMAND,
-      () => {
-        if (editorRef && editorRef.current) {
-          const editorState = editorRef.current.getEditorState();
-          onChange?.(editorState, editorRef.current, new Set());
-        }
-        return false;
-      },
-      COMMAND_PRIORITY_LOW
+    return mergeRegister(
+      editor.registerCommand(
+        ANNOUNCE_COMMAND,
+        (payload) => {
+          dispatch((actions.announce(payload)))
+          return false;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+      editor.registerCommand(
+        ALERT_COMMAND,
+        (payload) => {
+          dispatch(actions.alert(payload));
+          return false;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+      editor.registerCommand(
+        UPDATE_DOCUMENT_COMMAND,
+        () => {
+          if (editorRef && editorRef.current) {
+            const editorState = editorRef.current.getEditorState();
+            onChange?.(editorState, editorRef.current, new Set());
+          }
+          return false;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
     );
   };
 
