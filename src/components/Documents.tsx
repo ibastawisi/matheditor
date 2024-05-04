@@ -36,25 +36,30 @@ const Documents: React.FC = () => {
 
   const handleFilesChange = async (files: FileList | File[] | null) => {
     if (!files?.length) return;
-    Array.from(files).forEach(file => loadFromFile(file, files.length === 1));
-    dispatch(actions.loadLocalDocuments());
+    for (const file of files) await loadFromFile(file, files.length === 1);
   }
 
-  function loadFromFile(file: File, shouldNavigate?: boolean) {
+  async function loadFromFile(file: File, shouldNavigate?: boolean) {
     const reader = new FileReader();
     reader.readAsText(file);
-    reader.onload = () => {
-      try {
-        const data: BackupDocument | BackupDocument[] = JSON.parse(reader.result as string);
-        if (!Array.isArray(data)) {
-          validate(data.id) && addDocument(data, shouldNavigate);
-        } else {
-          data.forEach((document: BackupDocument) => validate(document.id) && addDocument(document));
+    await new Promise<void>(resolve => {
+      reader.onload = async () => {
+        try {
+          const data: BackupDocument | BackupDocument[] = JSON.parse(reader.result as string);
+          if (!Array.isArray(data)) {
+            validate(data.id) && await addDocument(data, shouldNavigate);
+          } else {
+            for (const document of data) {
+              validate(document.id) && await addDocument(document);
+            }
+          }
+        } catch (error) {
+          dispatch(actions.announce({ message: { title: "Invalid file", subtitle: "Please select a valid .me file" } }));
+        } finally {
+          resolve();
         }
-      } catch (error) {
-        dispatch(actions.announce({ message: { title: "Invalid file", subtitle: "Please select a valid .me file" } }));
       }
-    }
+    })
   }
 
   async function addDocument(document: BackupDocument, shouldNavigate?: boolean) {
