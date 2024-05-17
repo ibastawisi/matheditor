@@ -22,9 +22,4 @@ jobs:
         # execute commands
         script: |
           cd ~/matheditor
-          git fetch
-          git reset --hard origin/master
-          npm ci
-          npx prisma migrate deploy
-          npm run build
-          pm2 reload "matheditor"
+          ./deploy.sh
