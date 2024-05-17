@@ -3,7 +3,7 @@ import { DOMAttributes } from "react";
 import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, BaseSelection, NodeKey, RangeSelection } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey } from 'lexical';
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 import type { MathfieldElement, MathfieldElementAttributes } from "mathlive";
@@ -78,7 +78,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
         const isParentAnchor = anchorNode === mathNode.getParent();
         const indexWithinParent = mathNode.getIndexWithinParent();
         const isBefore = isParentAnchor ? anchorOffset - indexWithinParent === 0 : anchorNode.isBefore(mathNode);
-        focus(mathfield);
+        mathfield.focus();
         mathfield.executeCommand(isBefore ? 'moveToMathfieldStart' : 'moveToMathfieldEnd');
       });
     }
@@ -98,7 +98,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
     ];
     // focus newly created mathfield
     if (isSelected && !mathfield.hasFocus()) {
-      focus(mathfield);
+      mathfield.focus();
     }
 
     mathfield.addEventListener("input", event => {
@@ -111,10 +111,18 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
       });
     }, false);
 
+    mathfield.addEventListener("focus", () => {
+      const mathVirtualKeyboard = window.mathVirtualKeyboard;
+      mathVirtualKeyboard.show({ animate: true });
+      const container = mathVirtualKeyboard.container;
+      if (!container) return;
+      container.ontransitionend = () => mathfield.executeCommand("scrollIntoView");
+    });
+
     mathfield.addEventListener("click", event => {
       clearSelection();
       setSelected(true);
-      focus(mathfield);
+      mathfield.focus();
       if (mathfield.selectionIsCollapsed) mathfield.setCaretPoint(event.clientX, event.clientY);
     });
 
@@ -154,15 +162,6 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
       });
     });
 
-  }, []);
-
-  const focus = useCallback((mathfield: MathfieldElement) => {
-    mathfield.focus();
-    const mathVirtualKeyboard = window.mathVirtualKeyboard;
-    mathVirtualKeyboard.show({ animate: true });
-    const container = mathVirtualKeyboard.container;
-    if (!container) return;
-    container.addEventListener('transitionend', () => mathfield.executeCommand("scrollIntoView"), { once: true });
   }, []);
 
   return <math-field ref={ref} />;
