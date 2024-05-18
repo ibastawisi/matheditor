@@ -13,20 +13,11 @@ CURRENT_LIVE_DIR=false
 
 DEPLOYING_TO_NAME=false
 DEPLOYING_TO_DIR=false
+DEPLOYING_TO_PORT=false
 
 # this checks if the green and blue apps are running
 GREEN_ONLINE=$(pm2 jlist | jq -r '.[] | select(.name == "matheditor-green") | .name, .pm2_env.status' | tr -d '\n\r')
 BLUE_ONLINE=$(pm2 jlist | jq -r '.[] | select(.name == "matheditor-blue") | .name, .pm2_env.status' | tr -d '\n\r')
-
-# if green is running, set the current live to green and 'deploying to' is blue
-if [ "$GREEN_ONLINE" == "matheditor-greenonline" ]; then
-    echo "Green is running"
-    CURRENT_LIVE_NAME="matheditor-green"
-    CURRENT_LIVE_DIR=$GREEN_DIR
-    
-    DEPLOYING_TO_NAME="matheditor-blue"
-    DEPLOYING_TO_DIR=$BLUE_DIR
-fi
 
 # if blue is running, set the current live to blue and 'deploying to' is green
 if [ "$BLUE_ONLINE" == "matheditor-blueonline" ]; then
@@ -35,12 +26,18 @@ if [ "$BLUE_ONLINE" == "matheditor-blueonline" ]; then
     CURRENT_LIVE_DIR=$BLUE_DIR
     
     DEPLOYING_TO_NAME="matheditor-green"
+    DEPLOYING_TO_PORT=3001
     DEPLOYING_TO_DIR=$GREEN_DIR
 fi
 
-# if both green and blue are running, set 'deploying to' to blue
-if [ "$GREEN_ONLINE" == "matheditor-greenonline" ] && [ "$BLUE_ONLINE" == "matheditor-blueonline" ]; then
-    echo "Both blue and green are running"
+# if green is running, set the current live to green and 'deploying to' is blue
+if [ "$GREEN_ONLINE" == "matheditor-greenonline" ]; then
+    echo "Green is running"
+    CURRENT_LIVE_NAME="matheditor-green"
+    CURRENT_LIVE_DIR=$GREEN_DIR
+    
+    DEPLOYING_TO_NAME="matheditor-blue"
+    DEPLOYING_TO_PORT=3000
     DEPLOYING_TO_DIR=$BLUE_DIR
 fi
 
@@ -66,8 +63,8 @@ npx prisma migrate deploy || { echo 'Prisma migrate deploy failed' ; exit 1; }
 # Build the project
 npm run build || { echo 'Build failed' ; exit 1; }
 
-# Restart the pm2 process
-pm2 restart $DEPLOYING_TO_NAME || { echo 'pm2 restart failed' ; exit 1; }
+# start the pm2 process
+pm2 start npm --name $DEPLOYING_TO_NAME -- start -- --port=$DEPLOYING_TO_PORT || { echo 'pm2 start failed' ; exit 1; }
 
 # add a delay to allow the server to start
 sleep 5
@@ -82,5 +79,6 @@ else
     exit 1
 fi
 
-# stop the live one which is out of date
-pm2 stop $CURRENT_LIVE_NAME;
+# update process list
+pm2 delete $CURRENT_LIVE_NAME
+pm2 save
