@@ -26,5 +26,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `https://matheditor.me/view/${document.handle || document.id}`,
       lastModified: document.updatedAt,
     })),
+    ...publishedDocuments.map((document) => ({
+      url: `https://matheditor.me/pdf/${document.handle || document.id}.pdf`,
+      lastModified: document.updatedAt,
+    })),
   ]
 }

@@ -51,6 +51,7 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
     url.pathname = `/${format}/${handle || id}`;
     if (revision && revision !== cloudDocument?.head) url.searchParams.append("v", revision);
     if (format === "pdf") {
+      url.pathname += ".pdf";
       const scale = formdata.get("scale") as string;
       const landscape = formdata.get("landscape") as string;
       const format = formdata.get("format") as string;
