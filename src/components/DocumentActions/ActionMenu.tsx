@@ -9,6 +9,7 @@ import UploadDocument from './Upload';
 import { User, UserDocument } from '@/types';
 import ShareDocument from './Share';
 import EditDocument from './Edit';
+import RestoreDocument from './Restore';
 
 function DocumentActionMenu({ userDocument, user }: { userDocument: UserDocument, user?: User }) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -35,6 +36,7 @@ function DocumentActionMenu({ userDocument, user }: { userDocument: UserDocument
   if (isAuthor || isCoauthor || isLocal || isCollab) options.push('download');
   if (isAuthor || isLocal) options.push('delete');
   if (isAuthor) options.push('edit', 'upload');
+  if (isUploaded && !isUpToDate) options.push('restore');
 
   return (
     <>
@@ -69,6 +71,7 @@ function DocumentActionMenu({ userDocument, user }: { userDocument: UserDocument
         {options.includes('download') && <DownloadDocument userDocument={userDocument} variant="menuitem" closeMenu={closeMenu} />}
         {options.includes('fork') && <ForkDocument userDocument={userDocument} variant="menuitem" closeMenu={closeMenu} />}
         {options.includes('upload') && isLocal && !isUpToDate && <UploadDocument userDocument={userDocument} variant="menuitem" closeMenu={closeMenu} />}
+        {options.includes('restore') && <RestoreDocument userDocument={userDocument} variant="menuitem" closeMenu={closeMenu} />}
         {options.includes('delete') && <DeleteDocument userDocument={userDocument} variant="menuitem" closeMenu={closeMenu} />}
       </Menu>
     </>
