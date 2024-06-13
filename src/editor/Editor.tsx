@@ -2,7 +2,6 @@
 import type { EditorState, LexicalEditor } from "lexical";
 import { LexicalComposer, InitialConfigType } from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
-import TreeViewPlugin from "./plugins/TreeViewPlugin";
 import ToolbarPlugin from "./plugins/ToolbarPlugin";
 import { editorConfig } from "./config";
 import { EditorPlugins } from "./plugins";
@@ -23,7 +22,6 @@ export const Editor: React.FC<{
         <ToolbarPlugin />
         <EditorPlugins contentEditable={<ContentEditable className="editor-input" />} onChange={onChange} />
         <EditorRefPlugin editorRef={editorRef} />
-        {process.env.NODE_ENV === "development" && <TreeViewPlugin />}
       </>
     </LexicalComposer>
   );
