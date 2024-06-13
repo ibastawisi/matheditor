@@ -63,6 +63,15 @@ const Documents: React.FC = () => {
   }
 
   async function addDocument(document: BackupDocument, shouldNavigate?: boolean) {
+    const isHeadLocalRevision = !!document.revisions.find(revision => revision.id === document.head);
+    if (!isHeadLocalRevision) {
+      document.revisions.push({
+        id: document.head,
+        documentId: document.id,
+        data: document.data,
+        createdAt: document.updatedAt,
+      });
+    }
     if (documents.find(d => d.id === document.id && d.local)) {
       const alert = {
         title: `Document already exists`,
@@ -89,7 +98,7 @@ const Documents: React.FC = () => {
       const revisions = await revisionDB.getAll();
       const data: BackupDocument[] = documents.map(document => ({
         ...document,
-        revisions: revisions.filter(revision => revision.documentId === document.id)
+        revisions: revisions.filter(revision => revision.documentId === document.id && revision.id !== document.head)
       }));
 
       const blob = new Blob([JSON.stringify(data)], { type: "text/json" });

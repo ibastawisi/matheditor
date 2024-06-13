@@ -32,7 +32,8 @@ const DownloadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuit
     const backupDocument: BackupDocument = { ...editorDocument, revisions: [] };
     const revisionsResponse = await dispatch(actions.getLocalDocumentRevisions(id));
     if (revisionsResponse.type === actions.getLocalDocumentRevisions.fulfilled.type) {
-      backupDocument.revisions = revisionsResponse.payload as ReturnType<typeof actions.getLocalDocumentRevisions.fulfilled>["payload"];
+      const revisions = revisionsResponse.payload as ReturnType<typeof actions.getLocalDocumentRevisions.fulfilled>["payload"];
+      backupDocument.revisions = revisions.filter(revision => revision.id !== editorDocument.head);
     }
     return backupDocument;
   };
