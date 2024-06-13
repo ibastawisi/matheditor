@@ -98,7 +98,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
     ];
     // focus newly created mathfield
     if (isSelected && !mathfield.hasFocus()) {
-      mathfield.focus();
+      setTimeout(() => { mathfield.focus(); }, 0);
     }
 
     mathfield.addEventListener("input", event => {
@@ -123,7 +123,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
       clearSelection();
       setSelected(true);
       mathfield.focus();
-      if (mathfield.selectionIsCollapsed) mathfield.setCaretPoint(event.clientX, event.clientY);
+      if (mathfield.selectionIsCollapsed) mathfield.position = mathfield.getOffsetFromPoint(event.clientX, event.clientY);
     });
 
     mathfield.addEventListener("keydown", event => {

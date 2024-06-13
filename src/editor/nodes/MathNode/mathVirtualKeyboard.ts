@@ -27,6 +27,8 @@ mathVirtualKeyboardLayout[1].layers[0].rows[3][8].command = ['performWithFeedbac
 // @ts-expect-error
 delete mathVirtualKeyboardLayout[1].layers[0].rows[3][8].shift;
 // @ts-expect-error
+mathVirtualKeyboardLayout[2].layers[0].rows.shift();
+// @ts-expect-error
 mathVirtualKeyboardLayout[2].layers[0].rows[3][8].command = ['performWithFeedback', 'addRowAfter'];
 // @ts-expect-error
 delete mathVirtualKeyboardLayout[2].layers[0].rows[3][8].shift;
@@ -34,8 +36,6 @@ delete mathVirtualKeyboardLayout[2].layers[0].rows[3][8].shift;
 mathVirtualKeyboardLayout[3].layers[0].rows[3][8].command = ['performWithFeedback', 'addRowAfter'];
 // @ts-expect-error
 delete mathVirtualKeyboardLayout[3].layers[0].rows[3][8].shift;
-// @ts-expect-error
-mathVirtualKeyboardLayout[2].layers[0].rows.shift();
 // @ts-expect-error
 mathVirtualKeyboardLayout[0].layers[0].rows[2][9].variants = [
   { latex: '\\exists', aside: 'there is' },
