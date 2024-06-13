@@ -297,7 +297,7 @@ function ToolbarPlugin() {
   ];
 
   const toolbarTrigger = useScrollTrigger({
-    disableHysteresis: true,
+    disableHysteresis: IS_MOBILE,
     threshold: 32,
   });
 

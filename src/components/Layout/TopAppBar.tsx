@@ -9,13 +9,13 @@ import { useDispatch, actions, useSelector } from '@/store';
 import { useTheme } from '@mui/material/styles';
 import { useScrollTrigger, Slide, Zoom, Box, AppBar, Toolbar, Typography, IconButton, Avatar, Fab, Link, Badge } from '@mui/material';
 import { Brightness7, Brightness4, Print, KeyboardArrowUp, Info } from '@mui/icons-material';
-import { UserDocumentRevision, LocalDocumentRevision } from '@/types';
+import { IS_MOBILE } from '@/editor/shared/environment';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname();
   const shouldHide = !!['/edit', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
   const trigger = useScrollTrigger({
-    disableHysteresis: true,
+    disableHysteresis: IS_MOBILE,
     threshold: 32,
   });
   if (!shouldHide) return children;
