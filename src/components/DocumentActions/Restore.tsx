@@ -24,6 +24,7 @@ const RestoreDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuite
       await dispatch(actions.createLocalRevision(editorDocumentRevision));
     }
     if (isCloudHeadLocalRevision) {
+      const cloudDocument = userDocument.cloud!;
       const localRevisionResponse = await dispatch(actions.getLocalRevision(cloudDocument.head));
       if (localRevisionResponse.type === actions.getLocalRevision.rejected.type) return dispatch(actions.announce({ message: { title: "Local Revision Not Found" } }));
       const localRevision = localRevisionResponse.payload as ReturnType<typeof actions.getLocalRevision.fulfilled>["payload"];
@@ -31,9 +32,9 @@ const RestoreDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuite
     }
     const cloudResponse = await dispatch(actions.getCloudDocument(id));
     if (cloudResponse.type === actions.getCloudDocument.rejected.type) return dispatch(actions.announce({ message: { title: "Cloud Document Not Found" } }));
-    const cloudEditorDocument = cloudResponse.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>["payload"];
-    await dispatch(actions.createLocalRevision({ id: cloudEditorDocument.head, documentId: cloudEditorDocument.id, createdAt: cloudEditorDocument.updatedAt, data: cloudEditorDocument.data }));
-    return dispatch(actions.updateLocalDocument({ id, partial: cloudEditorDocument }));
+    const { cloudDocument, ...editorDocument } = cloudResponse.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>["payload"];
+    await dispatch(actions.createLocalRevision({ id: editorDocument.head, documentId: editorDocument.id, createdAt: editorDocument.updatedAt, data: editorDocument.data }));
+    return dispatch(actions.updateLocalDocument({ id, partial: editorDocument }));
   };
 
   if (variant === 'menuitem') return (

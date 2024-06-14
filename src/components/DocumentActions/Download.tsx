@@ -20,7 +20,7 @@ const DownloadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuit
     } else {
       const response = await dispatch(actions.getCloudDocument(id));
       if (response.type === actions.getCloudDocument.fulfilled.type) {
-        const editorDocument = response.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>["payload"];
+        const { cloudDocument, ...editorDocument } = response.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>["payload"];
         return editorDocument;
       }
     }

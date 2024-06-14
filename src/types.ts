@@ -132,7 +132,7 @@ export interface GetPublishedDocumentsResponse {
 }
 
 export interface GetDocumentResponse {
-  data?: EditorDocument;
+  data?: EditorDocument & { cloudDocument: CloudDocument };
   error?: { title: string, subtitle?: string }
 }
 
@@ -153,11 +153,6 @@ export interface ForkDocumentResponse {
 
 export interface CheckHandleResponse {
   data?: boolean;
-  error?: { title: string, subtitle?: string }
-}
-
-export interface GetCloudDocumentResponse {
-  data?: CloudDocument;
   error?: { title: string, subtitle?: string }
 }
 

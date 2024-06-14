@@ -1,7 +1,25 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import NProgress from "nprogress";
 import documentDB, { revisionDB } from '@/indexeddb';
-import { AppState, Announcement, Alert, LocalDocument, User, PatchUserResponse, GetSessionResponse, DeleteRevisionResponse, GetRevisionResponse, ForkDocumentResponse, DocumentUpdateInput, EditorDocumentRevision, PostRevisionResponse, DocumentCreateInput, BackupDocument, LocalDocumentRevision, CloudDocument, GetCloudDocumentResponse } from '../types';
+import {
+  AppState,
+  Announcement,
+  Alert,
+  LocalDocument,
+  User,
+  PatchUserResponse,
+  GetSessionResponse,
+  DeleteRevisionResponse,
+  GetRevisionResponse,
+  ForkDocumentResponse,
+  DocumentUpdateInput,
+  EditorDocumentRevision,
+  PostRevisionResponse,
+  DocumentCreateInput,
+  BackupDocument,
+  LocalDocumentRevision,
+  CloudDocument
+} from '../types';
 import { GetDocumentsResponse, PostDocumentsResponse, DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from '@/types';
 import { validate } from 'uuid';
 
@@ -91,19 +109,6 @@ export const loadCloudDocuments = createAsyncThunk('app/loadCloudDocuments', asy
     return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   } finally {
     NProgress.done();
-  }
-});
-
-export const loadCloudDocument = createAsyncThunk('app/loadCloudDocument', async (id: string, thunkAPI) => {
-  try {
-    const response = await fetch(`/api/documents/${id}/metadata`);
-    const { data, error } = await response.json() as GetCloudDocumentResponse;
-    if (error) return thunkAPI.rejectWithValue(error);
-    if (!data) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "document not found" });
-    return thunkAPI.fulfillWithValue(data);
-  } catch (error: any) {
-    console.error(error);
-    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
   }
 });
 
@@ -495,11 +500,11 @@ export const appSlice = createSlice({
           else userDocument.cloud = document;
         });
       })
-      .addCase(loadCloudDocument.fulfilled, (state, action) => {
-        const document = action.payload;
-        const userDocument = state.documents.find(doc => doc.id === document.id);
-        if (!userDocument) state.documents.unshift({ id: document.id, cloud: document });
-        else userDocument.cloud = document;
+      .addCase(getCloudDocument.fulfilled, (state, action) => {
+        const { cloudDocument} = action.payload;
+        const userDocument = state.documents.find(doc => doc.id === cloudDocument.id);
+        if (!userDocument) state.documents.unshift({ id: cloudDocument.id, cloud: cloudDocument });
+        else userDocument.cloud = cloudDocument;
       })
       .addCase(getCloudDocument.rejected, (state, action) => {
         const message = action.payload as { title: string, subtitle: string };

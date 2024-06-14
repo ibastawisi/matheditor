@@ -3,7 +3,6 @@ import {
   appSlice,
   deleteCloudDocument,
   getCloudDocument,
-  loadCloudDocument,
   loadLocalDocuments,
   createCloudDocument,
   updateCloudDocument,
@@ -33,7 +32,6 @@ export const actions = {
   load,
   loadLocalDocuments,
   loadCloudDocuments,
-  loadCloudDocument,
 
   getLocalDocument,
   createLocalDocument,

@@ -13,7 +13,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
   const response: GetDocumentResponse = {};
   try {
     const session = await getServerSession(authOptions);
-    const userDocument = await findUserDocument(params.id);
+    const userDocument = await findUserDocument(params.id, "all");
     if (!userDocument) {
       response.error = { title: "Not Found", subtitle: "Document not found" }
       return NextResponse.json(response, { status: 404 })
@@ -41,7 +41,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       response.error = { title: "Not Found", subtitle: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
-    response.data = editorDocument;
+    response.data = { ...editorDocument, cloudDocument: userDocument };
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
