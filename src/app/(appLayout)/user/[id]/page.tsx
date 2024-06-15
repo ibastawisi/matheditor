@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
   const user = await getCachedUser(params.id);
   if (user) {
-    metadata.title = `${user.name} | Math Editor`;
+    metadata.title = user.name;
     metadata.subtitle = `Member since: ${new Date(user.createdAt).toDateString()}`
     metadata.user = { name: user.name, image: user.image!, email: user.email };
   } else {

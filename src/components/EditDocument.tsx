@@ -57,7 +57,7 @@ const EditDocument: React.FC = () => {
   if (!document) return <SplashScreen title="Loading Document" />;
 
   return <>
-    <Helmet title={`${document.name} | Math Editor`} />
+    <Helmet title={document.name} />
     <Editor document={document} editorRef={editorRef} onChange={handleChange} />
     <EditDocumentInfo documentId={document.id} editorRef={editorRef} />
   </>;

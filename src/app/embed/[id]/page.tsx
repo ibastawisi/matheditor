@@ -12,7 +12,7 @@ const getCachedUserDocument = cache(async (id: string, revisions?: string) => aw
 
 export async function generateMetadata({ params, searchParams }: { params: { id: string }, searchParams: { v?: string } }): Promise<Metadata> {
   if (!params.id) return {
-    title: "Embed Document | Math Editor",
+    title: "Embed Document",
     description: "Embed a document on Math Editor",
   };
   const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
@@ -21,9 +21,9 @@ export async function generateMetadata({ params, searchParams }: { params: { id:
     const revisionId = searchParams.v ?? document.head;
     const revision = document.revisions.find((revision) => revision.id === revisionId);
     if (document.private) {
-      metadata.title = 'Private Document | Math Editor';
+      metadata.title = 'Private Document';
     } else {
-      metadata.title = `${document.name} | Math Editor`;
+      metadata.title = document.name;
       metadata.subtitle = revision ? `Last updated: ${new Date(revision.createdAt).toLocaleString()}` : 'Revision not Found'
       metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
     }

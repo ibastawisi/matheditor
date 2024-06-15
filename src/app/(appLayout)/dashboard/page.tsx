@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Dashboard from "@/components/Dashboard";
 
 export const metadata: Metadata = {
-  title: 'Dashboard | Math Editor',
+  title: 'Dashboard',
   description: 'Manage your account on Math Editor'
 }
 

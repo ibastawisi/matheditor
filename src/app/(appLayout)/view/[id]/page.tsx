@@ -14,10 +14,10 @@ const getCachedSession = cache(async () => await getServerSession(authOptions));
 
 export async function generateMetadata({ params, searchParams }: { params: { id: string }, searchParams: { v?: string } }): Promise<Metadata> {
   if (!params.id) return {
-    title: "View Document | Math Editor",
+    title: "View Document",
     description: "View a document on Math Editor",
   };
-  const metadata: OgMetadata = { id: params.id, title: 'View Document | Math Editor' };
+  const metadata: OgMetadata = { id: params.id, title: 'View Document' };
   const document = await getCachedUserDocument(params.id, "all");
   if (document) {
     const revisionId = searchParams.v ?? document.head;
@@ -28,15 +28,15 @@ export async function generateMetadata({ params, searchParams }: { params: { id:
       const isAuthor = user && user.id === document.author.id;
       const isCoauthor = user && document.coauthors.some(coauthor => coauthor.id === user.id);
       if (isAuthor || isCoauthor) {
-        metadata.title = `${document.name} | Math Editor`;
+        metadata.title = document.name;
         metadata.subtitle = revision ? `Last updated: ${new Date(revision.createdAt).toLocaleString()}` : 'Revision not Found'
         metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
       } else {
-        metadata.title = 'Private Document | Math Editor';
+        metadata.title = 'Private Document';
         metadata.subtitle = 'If you have access, please sign in to view it';
       }
     } else {
-      metadata.title = `${document.name} | Math Editor`;
+      metadata.title = document.name;
       metadata.subtitle = revision ? `Last updated: ${new Date(revision.createdAt).toLocaleString()}` : 'Revision not Found'
       metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
     }
