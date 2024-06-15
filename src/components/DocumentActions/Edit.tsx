@@ -75,7 +75,7 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
   }
 
   const updateHandle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value.toLowerCase();
+    const value = event.target.value.toLowerCase().replaceAll(' ', '-');
     updateInput({ handle: value });
     if (!value || value === handle ) return setValidationErrors({});
     if (value.length < 3) {

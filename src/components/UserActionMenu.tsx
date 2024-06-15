@@ -43,7 +43,7 @@ function UserActionMenu({ user }: { user: User }): JSX.Element {
   }
 
   const updateHandle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value.toLowerCase();
+    const value = event.target.value.toLowerCase().replaceAll(' ', '-');;
     updateInput({ handle: value });
     if (!value || value === user.handle) return setValidationErrors({});
     if (value.length < 3) {

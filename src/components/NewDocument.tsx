@@ -126,7 +126,7 @@ const NewDocument: React.FC = () => {
   }
 
   const updateHandle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const handle = event.target.value.toLowerCase();
+    const handle = event.target.value.toLowerCase().replaceAll(' ', '-');
     updateInput({ handle });
     if (!handle) return setValidationErrors({});
     if (handle.length < 3) {
