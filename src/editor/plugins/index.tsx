@@ -10,7 +10,7 @@ import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "./ListPlugin";
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
-import MarkdownPlugin from "./MarkdownPlugin/MarkdownShortcutPlugin";
+import MarkdownShortcutPlugin from "./MarkdownPlugin/MarkdownShortcutPlugin";
 import MarkdownAutoImportPlugin from "./MarkdownPlugin/MarkdownAutoImportPlugin";
 import ListMaxIndentLevelPlugin from "./ListPlugin/ListMaxIndentLevelPlugin";
 import CodeHighlightPlugin from "./CodePlugin/CodeHighlightPlugin";
@@ -64,7 +64,7 @@ export const EditorPlugins: React.FC<{
       <TabFocusPlugin />
       <TabIndentationPlugin />
       <ListMaxIndentLevelPlugin maxDepth={7} />
-      <MarkdownPlugin />
+      <MarkdownShortcutPlugin />
       <MarkdownAutoImportPlugin />
       <FloatingToolbarPlugin />
       <HorizontalRulePlugin />

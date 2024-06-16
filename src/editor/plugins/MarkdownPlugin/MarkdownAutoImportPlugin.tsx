@@ -56,6 +56,7 @@ function runTextMatchTransformers(
 
     const startIndex = match.index || 0;
     const endIndex = startIndex + match[0].length;
+    if (!match.slice(1).map(Boolean).includes(true)) continue;
     let replaceNode;
 
     if (startIndex === 0) {
@@ -84,6 +85,7 @@ function $runTextFormatTransformers(
     const matches = textContent.matchAll(regex);
     for (const match of matches) {
       const startIndex = match.index || 0;
+      if (textContent[startIndex - 1] === matcher.tag[0]) continue;
       const endIndex = startIndex + match[0].length;
       let targetNode;
       if (startIndex === 0) {
