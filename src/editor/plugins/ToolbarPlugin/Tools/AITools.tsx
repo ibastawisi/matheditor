@@ -131,8 +131,8 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       const isCollapsed = selection.isCollapsed();
       const isAtNewline = selection.anchor.offset === 0 && selection.focus.offset === 0;
       const shouldInsertNewline = isStarting && isCollapsed && !isAtNewline;
-      if (shouldInsertNewline) selection.insertParagraph();
-      if (delta === "\n\n" || delta === "\n" || delta === "<eos>") selection.insertParagraph();
+      const isEndinginNewline = delta.endsWith("\n\n") || delta.endsWith("\n") || delta.endsWith("<eos>");
+      if (shouldInsertNewline || isEndinginNewline) selection.insertParagraph();
       else selection.insertText(delta);
     }, { tag: !isStarting ? "history-merge" : undefined });
   }, [completion]);
