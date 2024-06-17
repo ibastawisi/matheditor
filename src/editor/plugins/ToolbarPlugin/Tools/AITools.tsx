@@ -1,5 +1,5 @@
 "use client"
-import { $createTextNode, $getSelection, $isRangeSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, INSERT_PARAGRAPH_COMMAND, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, } from "lexical";
+import { $createParagraphNode, $createTextNode, $getSelection, $isRangeSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, INSERT_PARAGRAPH_COMMAND, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, } from "lexical";
 import { mergeRegister } from "@lexical/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, TextField, CircularProgress } from "@mui/material";
@@ -155,12 +155,11 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
           elementNode.getLastChild()?.remove();
           elementNode.getLastChild()?.remove();
           elementNode.getLastChild()?.remove();
-          shouldInsertNewlineOnUpdate = true;
-          elementNode.selectNext().insertParagraph();
+          elementNode.insertAfter($createParagraphNode()).selectStart().insertParagraph();
         }
       }
       else selection.insertText(newDelta);
-      if (isListNode && isEndinginNewline) elementNode.selectNext().insertParagraph();
+      if (isListNode && isEndinginNewline) elementNode.insertAfter($createParagraphNode()).selectStart();
     }, {
       tag: !isStarting ? "history-merge" : undefined,
       onUpdate() {
