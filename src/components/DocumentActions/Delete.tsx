@@ -1,7 +1,7 @@
 "use client"
 import { useDispatch, actions } from "@/store";
 import { UserDocument } from "@/types";
-import { DeleteForever } from "@mui/icons-material";
+import { Delete, DeleteForever } from "@mui/icons-material";
 import { IconButton, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
 import { v4 as uuid } from "uuid";
 
@@ -10,6 +10,8 @@ const DeleteDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem
   const localDocument = userDocument.local;
   const cloudDocument = userDocument.cloud;
   const isLocal = !!localDocument;
+  const isCloud = !!cloudDocument;
+  const isLastCopy = (isLocal && !isCloud) || (isCloud && !isLocal);
   const id = userDocument.id;
   const name = localDocument?.name || cloudDocument?.name || "This Document";
 
@@ -32,12 +34,12 @@ const DeleteDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem
   if (variant === 'menuitem') return (
     <MenuItem onClick={handleDelete}>
       <ListItemIcon>
-        <DeleteForever />
+        {isLastCopy ? <DeleteForever /> : <Delete />}
       </ListItemIcon>
       <ListItemText>Delete</ListItemText>
     </MenuItem>
   );
-  return <IconButton aria-label="Delete Document" onClick={handleDelete} size="small"><DeleteForever /></IconButton>
+  return <IconButton aria-label="Delete Document" onClick={handleDelete} size="small">{isLastCopy ? <DeleteForever /> : <Delete />}</IconButton>
 }
 
 export default DeleteDocument;

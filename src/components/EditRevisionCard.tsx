@@ -4,7 +4,7 @@ import { UserDocumentRevision } from '@/types';
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Avatar, CardActions, Chip, IconButton } from '@mui/material';
-import { Cloud, CloudSync, CloudUpload, Delete, MobileFriendly, Save } from '@mui/icons-material';
+import { Cloud, CloudSync, CloudUpload, Delete, DeleteForever, MobileFriendly, Save } from '@mui/icons-material';
 import { actions, useDispatch, useSelector } from '@/store';
 import { CLEAR_HISTORY_COMMAND, type LexicalEditor } from '@/editor';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
@@ -33,6 +33,9 @@ const RevisionCard: React.FC<{
   const isLocalHead = isLocalDocument && localDocument.head === revision.id;
   const isCloudHead = isCloudDocument && isCloudRevision && cloudDocument.head === revision.id;
   const isSaved = isLocalRevision || isCloudRevision;
+  const isLocalOnlyRevision = isLocalRevision && !isCloudRevision;
+  const isCloudOnlyRevision = isCloudRevision && !isLocalRevision;
+  const isLastCopy = isCloudOnlyRevision || isCloudOnlyRevision;
   const isHeadLocalRevision = localDocumentRevisions.some(r => r.id === localDocument?.head);
   const isHeadCloudRevision = cloudDocumentRevisions.some(r => r.id === localDocument?.head);
   const unsavedChanges = !isHeadLocalRevision && !isHeadCloudRevision;
@@ -182,7 +185,7 @@ const RevisionCard: React.FC<{
           onClick={createRevision} />
         }
         {showUpdate && <IconButton aria-label="Update Cloud Head" size="small" onClick={updateCloudHead}><CloudSync /></IconButton>}
-        {showDelete && <IconButton aria-label="Delete Revision" size="small" onClick={deleteRevision}><Delete /></IconButton>}
+        {showDelete && <IconButton aria-label="Delete Revision" size="small" onClick={deleteRevision}>{isLastCopy ? <DeleteForever /> : <Delete />}</IconButton>}
       </CardActions>
     </Card>
   );
