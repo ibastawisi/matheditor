@@ -1,5 +1,5 @@
 "use client"
-import { $getSelection, $isRangeSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, INSERT_PARAGRAPH_COMMAND, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, } from "lexical";
+import { $createTextNode, $getSelection, $isRangeSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, INSERT_PARAGRAPH_COMMAND, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, } from "lexical";
 import { mergeRegister } from "@lexical/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, TextField, CircularProgress } from "@mui/material";
@@ -9,6 +9,8 @@ import { useCompletion } from "ai/react";
 import { SET_DIALOGS_COMMAND } from "../Dialogs/commands";
 import { ANNOUNCE_COMMAND, UPDATE_DOCUMENT_COMMAND } from "@/editor/commands";
 import { Announcement } from "@/types";
+import { $isCodeNode } from "@/editor/nodes/CodeNode";
+import { $isListNode } from "@/editor/nodes/ListNode";
 
 export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> }): JSX.Element {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -123,18 +125,53 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
     const hasCompletion = completion.length > 0;
     if (!hasCompletion) return;
     const isStarting = offset.current === 0;
+    let shouldInsertNewlineOnUpdate = false;
     editor.update(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
       const delta = completion.slice(offset.current);
       offset.current = completion.length;
+      const anchorNode = selection.anchor.getNode();
+      const elementNode = anchorNode.getTopLevelElement();
+      const isCodeNode = $isCodeNode(elementNode);
+      const isListNode = $isListNode(elementNode);
       const isCollapsed = selection.isCollapsed();
       const isAtNewline = selection.anchor.offset === 0 && selection.focus.offset === 0;
-      const shouldInsertNewline = isStarting && isCollapsed && !isAtNewline;
+      const shouldInsertNewline = isStarting && isCollapsed && !isAtNewline && !isCodeNode && !isListNode;
       const isEndinginNewline = delta.endsWith("\n\n") || delta.endsWith("\n") || delta.endsWith("<eos>");
-      if (shouldInsertNewline || isEndinginNewline) selection.insertParagraph();
-      else selection.insertText(delta);
-    }, { tag: !isStarting ? "history-merge" : undefined });
+      shouldInsertNewlineOnUpdate = isEndinginNewline && !isCodeNode && !isListNode;
+      if (shouldInsertNewline && !isCodeNode) selection.insertParagraph();
+      let newDelta = delta;
+      if (isEndinginNewline && !isCodeNode) newDelta = delta.trimEnd();
+      if (isCodeNode) {
+        const language = completion.match(/```(\w+)$/)?.[1];
+        if (language) return elementNode.setLanguage(language);
+        if (elementNode.getTextContent() === "\n") elementNode.getFirstChild()?.remove();
+        if (elementNode.getTextContentSize() === 0 && newDelta === "\n") newDelta = "";
+        const textNode = $createTextNode(newDelta);
+        elementNode.append(textNode).selectEnd();
+        const isEnding = elementNode.getTextContent().trimEnd().endsWith("```");
+        if (isEnding) {
+          elementNode.getLastChild()?.remove();
+          elementNode.getLastChild()?.remove();
+          elementNode.getLastChild()?.remove();
+          shouldInsertNewlineOnUpdate = true;
+          elementNode.selectNext().insertParagraph();
+        }
+      }
+      else selection.insertText(newDelta);
+      if (isListNode && isEndinginNewline) elementNode.selectNext().insertParagraph();
+    }, {
+      tag: !isStarting ? "history-merge" : undefined,
+      onUpdate() {
+        if (!shouldInsertNewlineOnUpdate) return;
+        editor.update(() => {
+          const selection = $getSelection();
+          if (!$isRangeSelection(selection)) return;
+          selection.insertParagraph();
+        }, { tag: "history-merge" });
+      },
+    });
   }, [completion]);
 
   useEffect(() => {

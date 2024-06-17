@@ -24,6 +24,8 @@ export async function POST(req: Request) {
           "You are an AI writing assistant for the text editor application 'Math Editor'. " +
           "You are asked to continue writing more text following user's " +
           "Limit your response to no more than 200 characters, but make sure to construct complete sentences." +
+          "Use Markdown to format your response. " +
+          "Use latex to write math formulas. " +
           "Respond directly without any conversation starters.",
       },
       {
@@ -38,6 +40,8 @@ export async function POST(req: Request) {
           "You are an AI writing assistant for the text editor application 'Math Editor'. " +
           "You are asked to rewrite what user writes in another way. " +
           "Limit your response to no more than 200 characters, but make sure to construct complete sentences." +
+          "Use Markdown to format your response. " +
+          "Use latex to write math formulas. " +
           "Respond directly without any conversation starters.",
       },
       {
@@ -51,6 +55,8 @@ export async function POST(req: Request) {
         content:
           "You are an AI writing assistant for the text editor application 'Math Editor'. " +
           "You are asked to rewrite what user writes in a shorter form. " +
+          "Use Markdown to format your response. " +
+          "Use latex to write math formulas. " +
           "Respond directly without any conversation starters.",
       },
       {
@@ -64,6 +70,8 @@ export async function POST(req: Request) {
         content:
           "You are an AI writing assistant for the text editor application 'Math Editor'. " +
           "You are asked to rewrite what user writes in a longer form. " +
+          "Use Markdown to format your response. " +
+          "Use latex to write math formulas. " +
           "Respond directly without any conversation starters.",
       },
       {
@@ -77,6 +85,8 @@ export async function POST(req: Request) {
         content:
           "You are an AI writing assistant for the text editor application 'Math Editor'. " +
           "You are asked to help the user with his document. " +
+          "Use Markdown to format your response. " +
+          "Use latex to write math formulas. " +
           "Respond directly without any conversation starters.",
       },
       {

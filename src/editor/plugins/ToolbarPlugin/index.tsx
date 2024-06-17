@@ -312,13 +312,15 @@ function ToolbarPlugin() {
   const showImageTools = $isImageNode(selectedNode);
   const showTableTools = !!selectedTable;
   const showTextTools = (!showMathTools && !showImageTools) || $isStickyNode(selectedNode);
+  const showCodeTools = blockType === 'code';
+  const showTextFormatTools = showTextTools && !showCodeTools;
   const showAITools = !!isOnline;
 
   return (
     <>
       <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}>
         <Toolbar className="editor-toolbar" sx={{
-          position: "relative", 
+          position: "relative",
           displayPrint: 'none', px: `${(toolbarTrigger ? 1 : 0)}!important`,
           justifyContent: "space-between", alignItems: "start", gap: 0.5, py: 1,
         }}>
@@ -334,28 +336,22 @@ function ToolbarPlugin() {
           </Box>
           <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', flexWrap: "wrap", justifyContent: "center" }}>
             {showMathTools && <MathTools editor={activeEditor} node={selectedNode} />}
-            {(showImageTools) && <ImageTools editor={activeEditor} node={selectedNode} />}
+            {showImageTools && <ImageTools editor={activeEditor} node={selectedNode} />}
             {showTextTools && <>
               {blockType in blockTypeToBlockName && <BlockFormatSelect blockType={blockType} editor={activeEditor} />}
-              {blockType === 'code' ? (
-                <Select size='small' onChange={onCodeLanguageSelect} value={codeLanguage}>
-                  {CODE_LANGUAGE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
-                </Select>
-              ) : (
-                <>
-                  <Select size='small' sx={{ width: { xs: 68, md: "auto" } }} onChange={onFontFamilySelect} value={fontFamily}>
-                    {FONT_FAMILY_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
-                  </Select>
-                  <Select size='small' sx={{ width: { xs: 68, md: "auto" } }} onChange={onFontSizeSelect} value={fontSize}>
-                    {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option} sx={{ justifyContent: "center" }}>{text}</MenuItem>)}
-                  </Select>
-                  {showAITools && <AITools editor={activeEditor} />}
-                  {showTableTools && <TableTools editor={activeEditor} node={selectedTable} />}
-                  <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />
-                </>
-              )}
-            </>
-            }
+              {showCodeTools && <Select size='small' onChange={onCodeLanguageSelect} value={codeLanguage}>
+                {CODE_LANGUAGE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
+              </Select>}
+              {showTextFormatTools && <Select size='small' sx={{ width: { xs: 68, md: "auto" } }} onChange={onFontFamilySelect} value={fontFamily}>
+                {FONT_FAMILY_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
+              </Select>}
+              {showTextFormatTools && <Select size='small' sx={{ width: { xs: 68, md: "auto" } }} onChange={onFontSizeSelect} value={fontSize}>
+                {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option} sx={{ justifyContent: "center" }}>{text}</MenuItem>)}
+              </Select>}
+              {showAITools && <AITools editor={activeEditor} />}
+              {showTableTools && <TableTools editor={activeEditor} node={selectedTable} />}
+              {showTextFormatTools && <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />}
+            </>}
           </Box>
           <Box sx={{ display: "flex", gridColumn: "3/-1" }}>
             <InsertToolMenu editor={activeEditor} />
