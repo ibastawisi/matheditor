@@ -29,6 +29,7 @@ import {
 } from '@lexical/rich-text';
 import {
   $createLineBreakNode,
+  $createParagraphNode,
   $createTextNode,
   $isTextNode,
   ElementNode,
@@ -450,7 +451,7 @@ export const HR: ElementTransformer = {
       parentNode.insertBefore(line);
     }
 
-    line.selectNext();
+    line.insertAfter($createParagraphNode()).selectEnd();
   },
   type: 'element',
 };
