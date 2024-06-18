@@ -1,5 +1,5 @@
 "use client"
-import { $createParagraphNode, $createTextNode, $getSelection, $isRangeSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, INSERT_PARAGRAPH_COMMAND, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, } from "lexical";
+import { $createParagraphNode, $createTextNode, $getSelection, $isRangeSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, TextNode, } from "lexical";
 import { mergeRegister } from "@lexical/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, TextField, CircularProgress } from "@mui/material";
@@ -138,7 +138,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       const isCollapsed = selection.isCollapsed();
       const isAtNewline = selection.anchor.offset === 0 && selection.focus.offset === 0;
       const shouldInsertNewline = isStarting && isCollapsed && !isAtNewline && !isCodeNode && !isListNode;
-      const isEndinginNewline = delta.endsWith("\n\n") || delta.endsWith("\n") || delta.endsWith("<eos>");
+      const isEndinginNewline = delta.endsWith("\n\n") || delta.endsWith("\n");
       shouldInsertNewlineOnUpdate = isEndinginNewline && !isCodeNode && !isListNode;
       if (shouldInsertNewline && !isCodeNode) selection.insertParagraph();
       let newDelta = delta;
@@ -150,11 +150,16 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
         if (elementNode.getTextContentSize() === 0 && newDelta === "\n") newDelta = "";
         const textNode = $createTextNode(newDelta);
         elementNode.append(textNode).selectEnd();
-        const isEnding = elementNode.getTextContent().trimEnd().endsWith("```");
+        const endIndex = elementNode.getTextContent().lastIndexOf("\n```");
+        const isEnding = endIndex !== -1;
         if (isEnding) {
-          elementNode.getLastChild()?.remove();
-          elementNode.getLastChild()?.remove();
-          elementNode.getLastChild()?.remove();
+          let deleteCount = elementNode.getTextContentSize() - endIndex;
+          while (deleteCount > 0) {
+            const lastChild = elementNode.getLastChild<TextNode>();
+            if (!lastChild) break;
+            deleteCount -= lastChild?.getTextContentSize();
+            lastChild.remove();
+          }
           elementNode.insertAfter($createParagraphNode()).selectStart().insertParagraph();
         }
       }
