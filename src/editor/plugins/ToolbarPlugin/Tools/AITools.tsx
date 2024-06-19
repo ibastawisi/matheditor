@@ -125,7 +125,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
     const hasCompletion = completion.length > 0;
     if (!hasCompletion) return;
     const isStarting = offset.current === 0;
-    let shouldInsertNewlineOnUpdate = false;
+    let shouldInsertNewlineAfter = false;
     editor.update(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
@@ -137,18 +137,15 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       const isListNode = $isListNode(elementNode);
       const isCollapsed = selection.isCollapsed();
       const isAtNewline = selection.anchor.offset === 0 && selection.focus.offset === 0;
-      const shouldInsertNewline = isStarting && isCollapsed && !isAtNewline && !isCodeNode && !isListNode;
-      const isEndinginNewline = delta.endsWith("\n\n") || delta.endsWith("\n");
-      shouldInsertNewlineOnUpdate = isEndinginNewline && !isCodeNode && !isListNode;
-      if (shouldInsertNewline && !isCodeNode) selection.insertParagraph();
-      let newDelta = delta;
-      if (isEndinginNewline && !isCodeNode) newDelta = delta.trimEnd();
+      const shouldInsertNewlineBefore = isStarting && isCollapsed && !isAtNewline && !isCodeNode && !isListNode;
+      const isEndingInNewline = delta.endsWith("\n");
+      if (shouldInsertNewlineBefore && !isCodeNode) selection.insertParagraph();
       if (isCodeNode) {
         const language = completion.match(/```(\w+)$/)?.[1];
         if (language) return elementNode.setLanguage(language);
         if (elementNode.getTextContent() === "\n") elementNode.getFirstChild()?.remove();
-        if (elementNode.getTextContentSize() === 0 && newDelta === "\n") newDelta = "";
-        const textNode = $createTextNode(newDelta);
+        const isStartingInNewline = elementNode.getTextContentSize() === 0 && isEndingInNewline;
+        const textNode = $createTextNode(isStartingInNewline ? delta.trim() : delta);
         elementNode.append(textNode).selectEnd();
         const endIndex = elementNode.getTextContent().lastIndexOf("\n```");
         const isEnding = endIndex !== -1;
@@ -163,16 +160,21 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
           elementNode.insertAfter($createParagraphNode()).selectStart().insertParagraph();
         }
       }
-      else selection.insertText(newDelta);
-      if (isListNode && isEndinginNewline) elementNode.insertAfter($createParagraphNode()).selectStart();
+      else selection.insertText(isEndingInNewline ? delta.trimEnd() : delta);
+      shouldInsertNewlineAfter = isEndingInNewline && (!isCodeNode || isListNode);
     }, {
       tag: !isStarting ? "history-merge" : undefined,
+      discrete: true,
       onUpdate() {
-        if (!shouldInsertNewlineOnUpdate) return;
+        if (!shouldInsertNewlineAfter) return;
         editor.update(() => {
           const selection = $getSelection();
           if (!$isRangeSelection(selection)) return;
-          selection.insertParagraph();
+          const anchorNode = selection.anchor.getNode();
+          const elementNode = anchorNode.getTopLevelElement();
+          const isListNode = $isListNode(elementNode);
+          if (isListNode) elementNode.insertAfter($createParagraphNode()).selectStart();
+          else selection.insertParagraph();
         }, { tag: "history-merge" });
       },
     });

@@ -57,15 +57,16 @@ function runTextMatchTransformers(
     const startIndex = match.index || 0;
     const endIndex = startIndex + match[0].length;
     if (!match.slice(1).map(Boolean).includes(true)) continue;
-    let replaceNode;
+    let replaceNode, endNode;
 
     if (startIndex === 0) {
-      [replaceNode] = anchorNode.splitText(endIndex);
+      [replaceNode, endNode] = anchorNode.splitText(endIndex);
     } else {
-      [, replaceNode] = anchorNode.splitText(startIndex, endIndex);
+      [, replaceNode, endNode] = anchorNode.splitText(startIndex, endIndex);
     }
 
     transformer.replace(replaceNode, match);
+    if (endNode) endNode.selectEnd();
     return true;
   }
 
@@ -87,11 +88,11 @@ function $runTextFormatTransformers(
       const startIndex = match.index || 0;
       if (textContent[startIndex - 1] === matcher.tag[0]) continue;
       const endIndex = startIndex + match[0].length;
-      let targetNode;
+      let targetNode, endNode;
       if (startIndex === 0) {
-        [targetNode] = anchorNode.splitText(endIndex);
+        [targetNode, endNode] = anchorNode.splitText(endIndex);
       } else {
-        [, targetNode] = anchorNode.splitText(startIndex, endIndex);
+        [, targetNode, endNode] = anchorNode.splitText(startIndex, endIndex);
       }
       if (!targetNode) continue;
       targetNode.setTextContent(match[1]);
@@ -101,6 +102,7 @@ function $runTextFormatTransformers(
         }
       }
       targetNode.selectEnd();
+      if (endNode) endNode.selectEnd();
     }
   }
 
