@@ -31,6 +31,7 @@ import {
   $createLineBreakNode,
   $createParagraphNode,
   $createTextNode,
+  $isLineBreakNode,
   $isTextNode,
   ElementNode,
   Klass,
@@ -293,17 +294,23 @@ export const CODE: ElementTransformer = {
   },
   regExp: /^[ \t]*```(\w{1,10})?/,
   replace: (parentNode, children, match, isImport) => {
+    const codeNode = $createCodeNode(match ? match[1] : undefined);
+    parentNode.replace(codeNode);
     if (isImport) {
-      const previousNode = parentNode.getPreviousSibling();
-      if ($isCodeNode(previousNode)) {
-        previousNode.selectNext();
-        return;
-      }
+      const nextSiblings = codeNode.getNextSiblings();
+      const closingTagIndex = nextSiblings.findIndex((node) => node.getTextContent().endsWith('```'));
+      if (closingTagIndex === -1) return;
+      const nodesToReplace = nextSiblings.slice(0, closingTagIndex);
+      nodesToReplace.forEach((node, index) => {
+        const textContent = node.getTextContent();
+        const isLastNode = index === nodesToReplace.length - 1;
+        const textNode = $createTextNode(textContent + (isLastNode ? '' : '\n'));
+        codeNode.append(textNode);
+        node.remove();
+      });
+      const endNode = nextSiblings[closingTagIndex];
+      endNode.replace($createParagraphNode()).selectEnd();
     }
-
-    createBlockNode((match) => {
-      return $createCodeNode(match ? match[1] : undefined);
-    })(parentNode, children, match, isImport);
   },
   type: 'element',
 };

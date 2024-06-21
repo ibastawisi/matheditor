@@ -140,17 +140,6 @@ export default function MarkdownAutoImportPlugin(): JSX.Element | null {
       textFormatTransformers,
     );
 
-    const parentNode = anchorNode.getParent();
-    if (!parentNode) return;
-    let previousSibling = parentNode.getPreviousSibling();
-    if ($isCodeNode(previousSibling)) {
-      const nextSibling = parentNode.getNextSibling();
-      const isClosing = nextSibling?.getTextContent() === '```';
-      const textContent = parentNode.getTextContent() + (isClosing ? '' : '\n');
-      const textNode = $createTextNode(textContent);
-      previousSibling.append(textNode);
-      parentNode.remove();
-    }
   };
 
   useEffect(() => {
