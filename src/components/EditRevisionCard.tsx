@@ -4,7 +4,7 @@ import { UserDocumentRevision } from '@/types';
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Avatar, CardActions, Chip, IconButton } from '@mui/material';
-import { Cloud, CloudSync, CloudUpload, Delete, DeleteForever, MobileFriendly, Save } from '@mui/icons-material';
+import { Cloud, CloudSync, CloudUpload, Delete, DeleteForever, History, MobileFriendly, Update } from '@mui/icons-material';
 import { actions, useDispatch, useSelector } from '@/store';
 import { CLEAR_HISTORY_COMMAND, type LexicalEditor } from '@/editor';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
@@ -32,8 +32,6 @@ const RevisionCard: React.FC<{
   const isCloudRevision = !!cloudRevision;
   const isLocalHead = isLocalDocument && localDocument.head === revision.id;
   const isCloudHead = isCloudDocument && isCloudRevision && cloudDocument.head === revision.id;
-  const isSaved = isLocalRevision || isCloudRevision;
-  const isLocalOnlyRevision = isLocalRevision && !isCloudRevision;
   const isCloudOnlyRevision = isCloudRevision && !isLocalRevision;
   const isLastCopy = isCloudOnlyRevision || isCloudOnlyRevision;
   const isHeadLocalRevision = localDocumentRevisions.some(r => r.id === localDocument?.head);
@@ -42,9 +40,18 @@ const RevisionCard: React.FC<{
 
   const isDocumentAuthor = isCloudDocument ? user?.id === cloudDocument.author.id : true;
   const isRevisionAuthor = isCloudRevision ? user?.id === cloudRevision.author.id : true;
-  const showCreate = !isCloudRevision;
+  const diff = useSelector(state => state.ui.diff);
+  const showLocal = !diff.open && (isLocalRevision || isLocalHead);
+  const showCloud = !diff.open && isCloudRevision;
+  const showCreate = !diff.open && !isCloudRevision;
   const showUpdate = isOnline && isDocumentAuthor && isCloudRevision && !isCloudHead;
-  const showDelete = isRevisionAuthor && !isLocalHead && !isCloudHead;
+  const showDelete = !diff.open && isRevisionAuthor && !isLocalHead && !isCloudHead;
+  const showDiff = diff.open;
+  const isOld = diff.old === revision.id;
+  const isNew = diff.new === revision.id;
+
+  const setAsOld = () => dispatch(actions.setDiff({ old: revision.id }));
+  const setAsNew = () => dispatch(actions.setDiff({ new: revision.id }));
 
   const getEditorDocumentRevision = async () => {
     const localResponse = await dispatch(actions.getLocalRevision(revision.id));
@@ -122,6 +129,7 @@ const RevisionCard: React.FC<{
   const viewRevision = async () => {
     NProgress.start();
     if (unsavedChanges) await createLocalRevision();
+    if (diff.open) dispatch(actions.setDiff({ old: revision.id, new: revision.id }));
     const editorDocumentRevision = await getEditorDocumentRevision();
     if (!editorDocumentRevision) return NProgress.done();
     const editor = editorRef.current;
@@ -176,8 +184,10 @@ const RevisionCard: React.FC<{
         />
       </CardActionArea>
       <CardActions sx={{ "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
-        {(isLocalRevision || isLocalHead) && <Chip color={isLocalHead ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Local" />}
-        {isCloudRevision && <Chip color={isCloudHead ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
+        {showLocal && <Chip color={isLocalHead ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Local" />}
+        {showCloud && <Chip color={isCloudHead ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
+        {showDiff && <Chip color={isOld ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<History />} label="Old" onClick={setAsOld} />}
+        {showDiff && <Chip color={isNew ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Update />} label="New" onClick={setAsNew} />}
         {showCreate && <Chip variant='outlined' clickable
           sx={{ width: 0, flex: 1, maxWidth: "fit-content" }}
           icon={<CloudUpload />}

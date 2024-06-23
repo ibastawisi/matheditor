@@ -3,11 +3,12 @@ import { useEffect, useState, useRef } from "react";
 import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
 import { EditorDocument } from '@/types';
-import { useDispatch, actions } from '@/store';
+import { useDispatch, actions, useSelector } from '@/store';
 import { usePathname } from "next/navigation";
 import { EditorState, LexicalEditor } from "@/editor";
 import { v4 as uuidv4 } from 'uuid';
 import dynamic from "next/dynamic";
+import DiffView from "./Diff";
 
 const Editor = dynamic(() => import("@/components/Editor"), { ssr: false, loading: () => <SplashScreen title="Loading Editor" /> });
 const EditDocumentInfo = dynamic(() => import('@/components/EditDocumentInfo'), { ssr: false });
@@ -19,6 +20,7 @@ const EditDocument: React.FC = () => {
   const pathname = usePathname();
   const id = pathname.split('/')[2]?.toLowerCase();
   const editorRef = useRef<LexicalEditor>(null);
+  const showDiff = useSelector(state => state.ui.diff.open);
 
   function handleChange(editorState: EditorState, editor: LexicalEditor, tags: Set<string>) {
     if (!document) return;
@@ -51,6 +53,9 @@ const EditDocument: React.FC = () => {
       }
     }
     id ? loadDocument(id) : setError({ title: "Document Not Found", subtitle: "No document id provided" });
+    return () => {
+      dispatch(actions.setDiff({ open: false }));
+    }
   }, []);
 
   if (error) return <SplashScreen title={error.title} subtitle={error.subtitle} />;
@@ -58,6 +63,7 @@ const EditDocument: React.FC = () => {
 
   return <>
     <Helmet title={document.name} />
+    {showDiff && <DiffView />}
     <Editor document={document} editorRef={editorRef} onChange={handleChange} />
     <EditDocumentInfo documentId={document.id} editorRef={editorRef} />
   </>;

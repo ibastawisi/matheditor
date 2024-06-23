@@ -1,10 +1,10 @@
 import { LocalDocumentRevision, User, UserDocumentRevision } from '@/types';
 import RevisionCard from './EditRevisionCard';
-import { useSelector } from '@/store';
-import { Avatar, Badge, Box, Chip, Grid, IconButton, Portal, Typography } from '@mui/material';
-import { History, Print } from '@mui/icons-material';
+import { actions, useDispatch, useSelector } from '@/store';
+import { Avatar, Badge, Box, Button, Chip, Dialog, Grid, IconButton, Portal, Typography } from '@mui/material';
+import { Close, Compare, History, Print } from '@mui/icons-material';
 import { LexicalEditor } from '@/editor/types';
-import { MutableRefObject } from 'react';
+import { MutableRefObject, useState } from 'react';
 import RouterLink from "next/link";
 import ShareDocument from './DocumentActions/Share';
 import DownloadDocument from './DocumentActions/Download';
@@ -13,6 +13,7 @@ import EditDocument from './DocumentActions/Edit';
 import AppDrawer from './AppDrawer';
 
 export default function EditDocumentInfo({ editorRef, documentId }: { editorRef: MutableRefObject<LexicalEditor | null>, documentId: string }) {
+  const dispatch = useDispatch();
   const user = useSelector(state => state.user);
   const userDocument = useSelector(state => state.documents.find(d => d.id === documentId));
   const localDocument = userDocument?.local;
@@ -43,6 +44,30 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
 
   const revisionsBadgeContent = revisions.length;
   const showRevisionsBadge = revisionsBadgeContent > 0;
+
+  const isDiffViewOpen = useSelector(state => state.ui.diff.open);
+  const toggleDiffView = async () => {
+    if (unsavedChanges) await createLocalRevision();
+    const newRevisionId = documentRevisions[0]?.id;
+    const oldRevisionId = documentRevisions[1]?.id ?? newRevisionId;
+    dispatch(actions.setDiff({ open: !isDiffViewOpen, old: oldRevisionId, new: newRevisionId }));
+  }
+  const getLocalEditorData = () => editorRef.current?.getEditorState().toJSON();
+
+  const createLocalRevision = async () => {
+    if (!localDocument) return;
+    const data = getLocalEditorData();
+    if (!data) return;
+    const payload = {
+      id: localDocument.head,
+      documentId: localDocument.id,
+      createdAt: localDocument.updatedAt,
+      data,
+    }
+    const response = await dispatch(actions.createLocalRevision(payload));
+    if (response.type === actions.createLocalRevision.rejected.type) return;
+    return response.payload as ReturnType<typeof actions.createLocalRevision.fulfilled>['payload'];
+  }
 
   return (
     <>
@@ -108,6 +133,9 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
           <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center' }}>
             <History sx={{ mr: 1 }} />
             <Typography variant="h6">Revisions</Typography>
+            <Button sx={{ ml: 'auto' }} onClick={toggleDiffView} endIcon={isDiffViewOpen ? <Close /> : <Compare />}>
+              {isDiffViewOpen ? "Exit" : "Compare"}
+            </Button>
           </Grid>
           {documentRevisions.map(revision => <Grid item xs={12} key={revision.id}><RevisionCard revision={revision} editorRef={editorRef} /></Grid>)}
         </Grid>

@@ -35,6 +35,9 @@ const initialState: AppState = {
     sort: {
       key: "updatedAt",
       direction: "desc"
+    },
+    diff: {
+      open: false,
     }
   }
 };
@@ -465,6 +468,9 @@ export const appSlice = createSlice({
     },
     setSort: (state, action: PayloadAction<Partial<{ key: string, direction: "asc" | "desc" }>>) => {
       state.ui.sort = { ...state.ui.sort, ...action.payload };
+    },
+    setDiff: (state, action: PayloadAction<Partial<AppState["ui"]["diff"]>>) => {
+      state.ui.diff = { ...state.ui.diff, ...action.payload };
     }
   },
   extraReducers: (builder) => {
@@ -501,7 +507,7 @@ export const appSlice = createSlice({
         });
       })
       .addCase(getCloudDocument.fulfilled, (state, action) => {
-        const { cloudDocument} = action.payload;
+        const { cloudDocument } = action.payload;
         const userDocument = state.documents.find(doc => doc.id === cloudDocument.id);
         if (!userDocument) state.documents.unshift({ id: cloudDocument.id, cloud: cloudDocument });
         else userDocument.cloud = cloudDocument;

@@ -9,7 +9,7 @@ import { mergeRegister } from '@lexical/utils';
 import type { MathfieldElement, MathfieldElementAttributes } from "mathlive";
 import './index.css';
 import { $isMathNode } from ".";
-import './mathVirtualKeyboard';
+import { customizeMathVirtualKeyboard } from "./mathVirtualKeyboard";
 
 type CustomElement<T> = Partial<T & DOMAttributes<T>>;
 
@@ -21,8 +21,11 @@ declare global {
   }
 }
 
-window.MathfieldElement.soundsDirectory = null;
-window.MathfieldElement.computeEngine = null;
+if (typeof window !== 'undefined') {
+  window.MathfieldElement.soundsDirectory = null;
+  window.MathfieldElement.computeEngine = null;
+  customizeMathVirtualKeyboard();
+}
 
 export type MathComponentProps = { initialValue: string; nodeKey: NodeKey; mathfieldRef: React.RefObject<MathfieldElement>; };
 

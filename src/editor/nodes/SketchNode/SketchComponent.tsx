@@ -4,17 +4,6 @@ import { useEffect, useState } from 'react';
 import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
 import ImageComponent from '../ImageNode/ImageComponent';
 
-export const encodeFonts = Promise.all([
-  fetch("/excalidraw-assets/Virgil.woff2").then(res => res.arrayBuffer()).then(buffer => arrayBufferToBase64Font(buffer)),
-  fetch("/excalidraw-assets/Cascadia.woff2").then(res => res.arrayBuffer()).then(async buffer => arrayBufferToBase64Font(buffer)),
-]);
-
-const arrayBufferToBase64Font = (buffer: ArrayBuffer) => {
-  const bytes = new Uint8Array(buffer);
-  const binary = bytes.reduce((acc, byte) => acc + String.fromCharCode(byte), '');
-  return `data:font/woff2;base64,${btoa(binary)}`;
-}
-
 export default function SketchComponent({
   nodeKey, width, height, src, altText, value, showCaption, caption
 }: {
@@ -31,6 +20,17 @@ export default function SketchComponent({
   const [source, setSource] = useState<string | null>(null);
 
   useEffect(() => {
+    const encodeFonts = Promise.all([
+      fetch("/excalidraw-assets/Virgil.woff2").then(res => res.arrayBuffer()).then(buffer => arrayBufferToBase64Font(buffer)),
+      fetch("/excalidraw-assets/Cascadia.woff2").then(res => res.arrayBuffer()).then(async buffer => arrayBufferToBase64Font(buffer)),
+    ]);
+
+    const arrayBufferToBase64Font = (buffer: ArrayBuffer) => {
+      const bytes = new Uint8Array(buffer);
+      const binary = bytes.reduce((acc, byte) => acc + String.fromCharCode(byte), '');
+      return `data:font/woff2;base64,${btoa(binary)}`;
+    }
+
     async function embedFonts() {
       try {
         const [virgil, cascadia] = await encodeFonts;

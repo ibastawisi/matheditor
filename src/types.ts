@@ -26,6 +26,7 @@ export interface AppState {
     page: number;
     filter: number;
     sort: { key: string, direction: "asc" | "desc" };
+    diff: { open: boolean; old?: string; new?: string; };
   }
 }
 
