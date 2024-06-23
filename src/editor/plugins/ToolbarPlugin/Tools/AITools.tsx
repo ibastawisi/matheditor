@@ -1,5 +1,5 @@
 "use client"
-import { $createParagraphNode, $createTextNode, $getSelection, $isRangeSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, TextNode, } from "lexical";
+import { $createParagraphNode, $createTextNode, $getSelection, $isLineBreakNode, $isRangeSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, TextNode, } from "lexical";
 import { mergeRegister } from "@lexical/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, TextField, CircularProgress } from "@mui/material";
@@ -11,6 +11,7 @@ import { ANNOUNCE_COMMAND, UPDATE_DOCUMENT_COMMAND } from "@/editor/commands";
 import { Announcement } from "@/types";
 import { $isCodeNode } from "@/editor/nodes/CodeNode";
 import { $isListNode } from "@/editor/nodes/ListNode";
+import { $isHorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
 
 export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> }): JSX.Element {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -139,6 +140,8 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       const isAtNewline = selection.anchor.offset === 0 && selection.focus.offset === 0;
       const shouldInsertNewlineBefore = isStarting && isCollapsed && !isAtNewline && !isCodeNode && !isListNode;
       const isEndingInNewline = delta.endsWith("\n");
+      const previousSibling = anchorNode.getPreviousSibling();
+      if ($isHorizontalRuleNode(previousSibling) && delta.match(/^(---|===)\s?/)) return;
       if (shouldInsertNewlineBefore && !isCodeNode) selection.insertParagraph();
       if (isCodeNode) {
         const language = completion.match(/```(\w+)$/)?.[1];

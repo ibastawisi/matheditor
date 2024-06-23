@@ -449,12 +449,6 @@ export const HR: ElementTransformer = {
   },
   regExp: /^(---|===)\s?/,
   replace: (parentNode, _1, _2, isImport) => {
-    const previousNode = parentNode.getPreviousSibling();
-    if ($isHorizontalRuleNode(previousNode)) {
-      previousNode.selectNext();
-      return;
-    }
-
     const line = $createHorizontalRuleNode();
 
     // TODO: Get rid of isImport flag
