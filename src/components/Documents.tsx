@@ -63,14 +63,19 @@ const Documents: React.FC = () => {
   }
 
   async function addDocument(document: BackupDocument, shouldNavigate?: boolean) {
-    const isHeadLocalRevision = !!document.revisions.find(revision => revision.id === document.head);
+    const revisions = document.revisions || [];
+    if (!document.head) document.head = uuid();
+    const isHeadLocalRevision = !!revisions.find(revision => revision.id === document.head);
     if (!isHeadLocalRevision) {
-      document.revisions.push({
-        id: document.head,
-        documentId: document.id,
-        data: document.data,
-        createdAt: document.updatedAt,
-      });
+      document.revisions = [
+        {
+          id: document.head,
+          documentId: document.id,
+          data: document.data,
+          createdAt: document.updatedAt
+        },
+        ...revisions
+      ];
     }
     if (documents.find(d => d.id === document.id && d.local)) {
       const alert = {
