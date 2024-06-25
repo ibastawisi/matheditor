@@ -9,6 +9,7 @@ math-field {
   width: 100%;
   padding: 0;
   --selection-color: nope;
+  pointer-events: auto;
 }
 
 math-field::part(virtual-keyboard-toggle),

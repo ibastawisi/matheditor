@@ -1,6 +1,6 @@
 "use client"
 import { DOMAttributes } from "react";
-import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, BaseSelection, NodeKey, RangeSelection } from 'lexical';
+import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, BaseSelection, COMMAND_PRIORITY_EDITOR, KEY_ARROW_DOWN_COMMAND, KEY_ARROW_UP_COMMAND, NodeKey, RangeSelection } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey } from 'lexical';
 import { useEffect, useLayoutEffect, useState } from 'react';
@@ -51,7 +51,36 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
         if ($isRangeSelection(newSelection)) {
           setLastRangeSelection(newSelection);
         }
-      })
+      }),
+
+      // workaround for arrow up and arrow down key events
+      editor.registerCommand<KeyboardEvent>(KEY_ARROW_UP_COMMAND, (event => {
+        const rootElement = editor.getRootElement();
+        if (!rootElement) return false;
+        const mathfields = rootElement.querySelectorAll<MathfieldElement>('math-field');
+        mathfields.forEach(mathfield => {
+          const keyboardSink = mathfield.shadowRoot?.querySelector('[part="keyboard-sink"]');
+          keyboardSink?.removeAttribute('contenteditable');
+          setTimeout(() => {
+            keyboardSink?.setAttribute('contenteditable', 'true');
+          }, 0);
+        });
+        return false;
+      }), COMMAND_PRIORITY_EDITOR),
+      editor.registerCommand<KeyboardEvent>(KEY_ARROW_DOWN_COMMAND, (event => {
+        const rootElement = editor.getRootElement();
+        if (!rootElement) return false;
+        const mathfields = rootElement.querySelectorAll<MathfieldElement>('math-field');
+        mathfields.forEach(mathfield => {
+          const keyboardSink = mathfield.shadowRoot?.querySelector('[part="keyboard-sink"]');
+          keyboardSink?.removeAttribute('contenteditable');
+          setTimeout(() => {
+            keyboardSink?.setAttribute('contenteditable', 'true');
+          }, 0);
+        });
+        return false;
+      }), COMMAND_PRIORITY_EDITOR),
+
     );
   }, []);
 
@@ -167,5 +196,12 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
 
   }, []);
 
-  return <math-field ref={ref} />;
+  return <math-field ref={ref}>
+    <style>{`
+@media (hover: none) and (pointer: coarse) {
+  :host(:not(:focus)) .ML__container {
+    pointer-events: none;
+  }
+}`}</style>
+  </math-field>;
 }
