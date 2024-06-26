@@ -10,6 +10,7 @@ import type { MathfieldElement, MathfieldElementAttributes } from "mathlive";
 import './index.css';
 import { $isMathNode } from ".";
 import { customizeMathVirtualKeyboard } from "./mathVirtualKeyboard";
+import { IS_MOBILE } from "@/editor/shared/environment";
 
 type CustomElement<T> = Partial<T & DOMAttributes<T>>;
 
@@ -194,14 +195,19 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
       });
     });
 
+    document.addEventListener("contextmenu", event => {
+      if (IS_MOBILE) event.preventDefault();
+    }, { capture: true });
+
   }, []);
 
   return <math-field ref={ref}>
-    <style>{`
-@media (hover: none) and (pointer: coarse) {
-  :host(:not(:focus)) .ML__container {
-    pointer-events: none;
-  }
-}`}</style>
+    <style>
+      {`@media (hover: none) and (pointer: coarse) {
+          :host(:not(:focus)) .ML__container {
+            pointer-events: none;
+          }
+        }`}
+    </style>
   </math-field>;
 }
