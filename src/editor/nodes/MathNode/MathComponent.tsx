@@ -195,7 +195,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
       });
     });
 
-    document.addEventListener("contextmenu", event => {
+    mathfield.addEventListener("contextmenu", event => {
       if (IS_MOBILE) event.preventDefault();
     }, { capture: true });
 
