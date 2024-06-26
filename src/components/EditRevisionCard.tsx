@@ -186,14 +186,9 @@ const RevisionCard: React.FC<{
       <CardActions sx={{ "& button:first-of-type": { ml: "auto !important" }, '& .MuiChip-root:last-of-type': { mr: 1 } }}>
         {showLocal && <Chip color={isLocalHead ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Local" />}
         {showCloud && <Chip color={isCloudHead ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
-        {showDiff && <Chip color={isOld ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<History />} label="Old" onClick={setAsOld} />}
-        {showDiff && <Chip color={isNew ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Update />} label="New" onClick={setAsNew} />}
-        {showCreate && <Chip variant='outlined' clickable
-          sx={{ width: 0, flex: 1, maxWidth: "fit-content" }}
-          icon={<CloudUpload />}
-          label="Save to Cloud"
-          onClick={createRevision} />
-        }
+        {showDiff && <Chip color={isOld ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<History />} label="Old" onClick={setAsOld} disabled={!isOnline && !isLocalRevision} />}
+        {showDiff && <Chip color={isNew ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Update />} label="New" onClick={setAsNew} disabled={!isOnline && !isLocalRevision}/>}
+        {showCreate && <Chip variant='outlined' clickable sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudUpload />} label="Save to Cloud" onClick={createRevision} />}
         {showUpdate && <IconButton aria-label="Update Cloud Head" size="small" onClick={updateCloudHead}><CloudSync /></IconButton>}
         {showDelete && <IconButton aria-label="Delete Revision" size="small" onClick={deleteRevision}>{isLastCopy ? <DeleteForever /> : <Delete />}</IconButton>}
       </CardActions>
