@@ -8,7 +8,7 @@ import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { TablePlugin } from './TablePlugin';
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "./ListPlugin";
-import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
+import { CheckListPlugin } from './ListPlugin/LexicalCheckListPlugin';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import MarkdownShortcutPlugin from "./MarkdownPlugin/MarkdownShortcutPlugin";
 import MarkdownAutoImportPlugin from "./MarkdownPlugin/MarkdownAutoImportPlugin";

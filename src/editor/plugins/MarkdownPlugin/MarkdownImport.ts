@@ -6,7 +6,7 @@
  *
  */
 
-import type { CodeNode } from '@editor/nodes/CodeNode';
+import type { CodeNode } from '@/editor/nodes/CodeNode';
 import type {
   ElementTransformer,
   TextFormatTransformer,
@@ -15,8 +15,8 @@ import type {
 } from '.';
 import type { TextNode } from 'lexical';
 
-import { $createCodeNode } from '@editor/nodes/CodeNode';
-import { $isListItemNode, $isListNode, ListItemNode } from '@editor/nodes/ListNode';
+import { $createCodeNode } from '@/editor/nodes/CodeNode';
+import { $isListItemNode, $isListNode, ListItemNode } from '@/editor/nodes/ListNode';
 import { $isQuoteNode } from '@lexical/rich-text';
 import { $findMatchingParent, IS_APPLE_WEBKIT, IS_IOS, IS_SAFARI } from '@lexical/utils';
 import {

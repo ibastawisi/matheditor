@@ -6,10 +6,10 @@
  *
  */
 
-import type { ListType } from '@editor/nodes/ListNode';
+import type { ListType } from '@/editor/nodes/ListNode';
 import type { HeadingTagType } from '@lexical/rich-text';
 
-import { $createCodeNode, $isCodeNode, CodeNode } from '@editor/nodes/CodeNode';
+import { $createCodeNode, $isCodeNode, CodeNode } from '@/editor/nodes/CodeNode';
 import { $createLinkNode, $isLinkNode, LinkNode } from '@lexical/link';
 import {
   $createListItemNode,
@@ -18,7 +18,7 @@ import {
   $isListNode,
   ListItemNode,
   ListNode,
-} from '@editor/nodes/ListNode';
+} from '@/editor/nodes/ListNode';
 import {
   $createHeadingNode,
   $createQuoteNode,
