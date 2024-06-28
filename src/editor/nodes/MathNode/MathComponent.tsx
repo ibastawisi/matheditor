@@ -149,9 +149,9 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
     mathfield.addEventListener("focus", () => {
       const mathVirtualKeyboard = window.mathVirtualKeyboard;
       mathVirtualKeyboard.show({ animate: true });
-      const container = mathVirtualKeyboard.container;
-      if (!container) return;
-      container.ontransitionend = () => mathfield.executeCommand("scrollIntoView");
+      const element = (mathVirtualKeyboard as any).element as HTMLElement;
+      if (!element) return;
+      element.ontransitionend = () => mathfield.executeCommand("scrollIntoView");
     });
 
     mathfield.addEventListener("click", event => {
