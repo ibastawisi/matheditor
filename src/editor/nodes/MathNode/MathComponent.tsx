@@ -130,7 +130,9 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
       { key: '[Enter]', ifMode: 'math', command: 'addRowAfter' },
     ];
     // focus newly created mathfield
-    if (isSelected && $isNodeSelection(selection) && !mathfield.hasFocus()) {
+    if (isSelected && !mathfield.hasFocus()) {
+      const selection = editor.getEditorState().read($getSelection);
+      if (!$isNodeSelection(selection)) return;
       setTimeout(() => { mathfield.focus(); }, 0);
     }
 

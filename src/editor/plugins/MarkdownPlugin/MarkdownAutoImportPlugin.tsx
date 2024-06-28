@@ -1,6 +1,6 @@
 "use client"
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $isRootOrShadowRoot, $isTextNode, TextNode } from 'lexical';
+import { $isParagraphNode, $isRootOrShadowRoot, $isTextNode, TextNode } from 'lexical';
 import { useEffect } from 'react';
 import { TRANSFORMERS } from './MarkdownTransformers';
 import { ElementTransformer, TextFormatTransformer, TextMatchTransformer } from '.';
@@ -22,6 +22,8 @@ function runElementTransformers(
   ) {
     return false;
   }
+
+  if (!$isParagraphNode(parentNode)) return false;
 
   const textContent = anchorNode.getTextContent();
 
@@ -78,10 +80,12 @@ function $runTextFormatTransformers(
 ): boolean {
   if (!anchorNode.getParent()) return false;
   if (!$isTextNode(anchorNode)) return false;
+  const textContent = anchorNode.getTextContent();
+  const isPossiblyLatex = textContent.includes('$$');
+  if (isPossiblyLatex) return false;
   for (const matcher of textFormatTransformers) {
     const tag = matcher.tag.replaceAll('*', '\\*');
     const regex = new RegExp(`${tag}([^${tag}]+?)${tag}`, 'g');
-    const textContent = anchorNode.getTextContent();
     const matches = textContent.matchAll(regex);
     for (const match of matches) {
       const startIndex = match.index || 0;
