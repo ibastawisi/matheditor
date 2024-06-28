@@ -120,7 +120,7 @@ function ToolbarPlugin() {
       const parent = node.getParent();
       if ($isLinkNode(parent)) setSelectedNode(parent);
 
-      const tableNode = $findMatchingParent(node, $isTableNode) as TableNode | null;
+      const tableNode = $findMatchingParent(node, $isTableNode);
       setSelectedTable(tableNode);
       const anchorNode = selection.anchor.getNode();
       const element =

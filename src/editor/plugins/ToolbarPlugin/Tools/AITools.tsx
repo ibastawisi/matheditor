@@ -1,5 +1,5 @@
 "use client"
-import { $createParagraphNode, $createTextNode, $getSelection, $isLineBreakNode, $isRangeSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, TextNode, } from "lexical";
+import { $createParagraphNode, $createTextNode, $getSelection, $isRangeSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, TextNode, } from "lexical";
 import { mergeRegister } from "@lexical/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, TextField, CircularProgress } from "@mui/material";
@@ -12,6 +12,8 @@ import { Announcement } from "@/types";
 import { $isCodeNode } from "@/editor/nodes/CodeNode";
 import { $isListNode } from "@/editor/nodes/ListNode";
 import { $isHorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
+import { $findMatchingParent } from "@/editor";
+import { $createTableCellNode, $createTableRowNode, $isTableCellNode, $isTableNode, $isTableRowNode, TableCellHeaderStates } from "@/editor/nodes/TableNode";
 
 export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> }): JSX.Element {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -134,24 +136,73 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       offset.current = completion.length;
       const anchorNode = selection.anchor.getNode();
       const elementNode = anchorNode.getTopLevelElement();
+      const tableNode = $findMatchingParent(anchorNode, $isTableNode);
       const isCodeNode = $isCodeNode(elementNode);
       const isListNode = $isListNode(elementNode);
+      const isTableNode = !!tableNode;
       const isCollapsed = selection.isCollapsed();
       const isAtNewline = selection.anchor.offset === 0 && selection.focus.offset === 0;
       const shouldInsertNewlineBefore = isStarting && isCollapsed && !isAtNewline && !isCodeNode && !isListNode;
       const isEndingInNewline = delta.endsWith("\n");
+      const isDeltaHrEnding = /^(-|=)+\n*$/.test(delta);
+      const isDeltaLineBreaks = /^\n+$/.test(delta);
+      const shouldTrimDelta = isEndingInNewline;
       const previousSibling = anchorNode.getPreviousSibling();
-      if ($isHorizontalRuleNode(previousSibling) && delta.match(/^(---|===)\s?/)) return;
-      if (shouldInsertNewlineBefore && !isCodeNode) selection.insertParagraph();
+      // handle line break after
+      shouldInsertNewlineAfter = isEndingInNewline && !isDeltaHrEnding;
+      if (isListNode) shouldInsertNewlineAfter &&= isListNode;
+      // handle horizontal rule
+      if ($isHorizontalRuleNode(previousSibling) && (isDeltaHrEnding || isDeltaLineBreaks)) return;
+      // handle line break before
+      if (shouldInsertNewlineBefore) selection.insertParagraph();
+      // handle table node
+      if (isTableNode) {
+        shouldInsertNewlineAfter = false;
+        const currentRow = $findMatchingParent(anchorNode, $isTableRowNode);
+        const currentCell = $findMatchingParent(anchorNode, $isTableCellNode);
+        const isNewTable = tableNode.getChildrenSize() === 1 && currentRow?.getChildrenSize() === 1;
+        const isEmptyCell = currentCell && currentCell.getTextContentSize() === 0;
+        const shouldInsertNewCell = isNewTable || (delta.endsWith("|") && !isEmptyCell);
+        const shouldInsertNewRow = delta.endsWith("\n") && !isEmptyCell;
+        const shouldEndTable = delta.endsWith("\n\n");
+        const isTableRowDivider = /^(-|=)+\n*$/.test(delta.trim());
+        if (isTableRowDivider) {
+          const lastRow = currentRow?.getPreviousSibling();
+          if (!$isTableRowNode(lastRow)) return;
+          const lastRowCells = lastRow.getChildren().filter($isTableCellNode);
+          const isLastRowHighlighted = lastRowCells.some(cell => cell.getHeaderStyles() === TableCellHeaderStates.ROW);
+          if (isLastRowHighlighted) return;
+          lastRowCells.forEach(cell => {
+            cell.toggleHeaderStyle(TableCellHeaderStates.ROW);
+          });
+          return;
+        }
+        if (shouldEndTable) {
+          shouldInsertNewlineAfter = true;
+          return tableNode.insertAfter($createParagraphNode()).selectEnd();
+        }
+        const cell = $createTableCellNode(TableCellHeaderStates.NO_STATUS);
+        const paragraph = $createParagraphNode();
+        const cellText = shouldTrimDelta ? delta.trimEnd().replaceAll("|", "") : delta.replaceAll("|", "");
+        const textNode = $createTextNode(cellText);
+        cell.append(paragraph.append(textNode));
+        if (shouldInsertNewCell) return currentRow?.append(cell).selectEnd();
+        if (shouldInsertNewRow) return tableNode.append($createTableRowNode()).selectEnd();
+        selection.insertText(cellText);
+        return;
+      }
+      // handle code block
       if (isCodeNode) {
+        shouldInsertNewlineAfter = false;
         const language = completion.match(/```(\w+)$/)?.[1];
         if (language) return elementNode.setLanguage(language);
-        if (elementNode.getTextContent() === "\n") elementNode.getFirstChild()?.remove();
+        const elementText = elementNode.getTextContent();
+        if (elementText === "\n") elementNode.getFirstChild()?.remove();
         const isStartingInNewline = elementNode.getTextContentSize() === 0 && isEndingInNewline;
         const textNode = $createTextNode(isStartingInNewline ? delta.trim() : delta);
         elementNode.append(textNode).selectEnd();
         const endIndex = elementNode.getTextContent().lastIndexOf("\n```");
-        const isEnding = endIndex !== -1;
+        const isEnding = endIndex > -1;
         if (isEnding) {
           let deleteCount = elementNode.getTextContentSize() - endIndex;
           while (deleteCount > 0) {
@@ -162,9 +213,10 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
           }
           elementNode.insertAfter($createParagraphNode()).selectStart().insertParagraph();
         }
+        return;
       }
-      else selection.insertText(isEndingInNewline ? delta.trimEnd() : delta);
-      shouldInsertNewlineAfter = isEndingInNewline && (!isCodeNode || isListNode);
+      // normal text
+      selection.insertText(shouldTrimDelta ? delta.trimEnd() : delta);
     }, {
       tag: !isStarting ? "history-merge" : undefined,
       discrete: true,
@@ -176,7 +228,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
           const anchorNode = selection.anchor.getNode();
           const elementNode = anchorNode.getTopLevelElement();
           const isListNode = $isListNode(elementNode);
-          if (isListNode) elementNode.insertAfter($createParagraphNode()).selectStart();
+          if (isListNode) elementNode.insertAfter($createParagraphNode()).selectEnd();
           else selection.insertParagraph();
         }, { tag: "history-merge" });
       },

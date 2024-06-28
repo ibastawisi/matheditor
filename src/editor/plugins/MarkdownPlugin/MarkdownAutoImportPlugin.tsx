@@ -1,10 +1,9 @@
 "use client"
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $createTextNode, $isRootOrShadowRoot, $isTextNode, TextNode } from 'lexical';
+import { $isRootOrShadowRoot, $isTextNode, TextNode } from 'lexical';
 import { useEffect } from 'react';
 import { TRANSFORMERS } from './MarkdownTransformers';
 import { ElementTransformer, TextFormatTransformer, TextMatchTransformer } from '.';
-import { $isCodeNode } from '@/editor/nodes/CodeNode';
 
 
 function runElementTransformers(

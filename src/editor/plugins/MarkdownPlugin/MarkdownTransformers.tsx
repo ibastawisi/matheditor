@@ -31,7 +31,6 @@ import {
   $createLineBreakNode,
   $createParagraphNode,
   $createTextNode,
-  $isLineBreakNode,
   $isTextNode,
   ElementNode,
   Klass,
