@@ -167,8 +167,8 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
 
     mathfield.addEventListener("move-out", event => {
       const direction = event.detail.direction;
-      var range = document.createRange();
-      var selection = window.getSelection();
+      const range = document.createRange();
+      const selection = window.getSelection();
       const span = mathfield.parentElement!;
 
       switch (direction) {

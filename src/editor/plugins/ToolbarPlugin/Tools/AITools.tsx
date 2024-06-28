@@ -13,7 +13,7 @@ import { $isCodeNode } from "@/editor/nodes/CodeNode";
 import { $isListNode } from "@/editor/nodes/ListNode";
 import { $isHorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
 import { $findMatchingParent } from "@/editor";
-import { $createTableCellNode, $createTableRowNode, $isTableCellNode, $isTableNode, $isTableRowNode, TableCellHeaderStates } from "@/editor/nodes/TableNode";
+import { $createTableCellNode, $createTableRowNode, $isTableCellNode, $isTableNode, $isTableRowNode, TableCellHeaderStates, TableRowNode } from "@/editor/nodes/TableNode";
 
 export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> }): JSX.Element {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -146,7 +146,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       const isEndingInNewline = delta.endsWith("\n");
       const isDeltaHrEnding = /^(-|=)+\n*$/.test(delta);
       const isDeltaLineBreaks = /^\n+$/.test(delta);
-      const shouldTrimDelta = isEndingInNewline;
+      const shouldTrimEndDelta = isEndingInNewline;
       const previousSibling = anchorNode.getPreviousSibling();
       // handle line break after
       shouldInsertNewlineAfter = isEndingInNewline && !isDeltaHrEnding;
@@ -162,10 +162,18 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
         const currentCell = $findMatchingParent(anchorNode, $isTableCellNode);
         const isNewTable = tableNode.getChildrenSize() === 1 && currentRow?.getChildrenSize() === 1;
         const isEmptyCell = currentCell && currentCell.getTextContentSize() === 0;
-        const shouldInsertNewCell = isNewTable || (delta.endsWith("|") && !isEmptyCell);
+        const anchorText = anchorNode.getTextContent();
+        const isPossiblyLatex = (anchorText.match(/\$+/g) || []).length % 2 !== 0;
+        const headerRow = tableNode.getFirstChild<TableRowNode>();
+        const headerCellCount = headerRow?.getChildrenSize() || 0;
+        const currentRowCellCount = currentRow?.getChildrenSize() || 0;
+        const isHeaderRow = currentRow?.getIndexWithinParent() === 0;
+        const isCurrentRowFull = !isHeaderRow && currentRowCellCount === headerCellCount;
+        const shouldInsertNewCell = isNewTable || (delta.includes("|") && !isEmptyCell && !isPossiblyLatex && !isCurrentRowFull);
         const shouldInsertNewRow = delta.endsWith("\n") && !isEmptyCell;
-        const shouldEndTable = delta.endsWith("\n\n");
-        const isTableRowDivider = /^(-|=)+\n*$/.test(delta.trim());
+        const shouldEndTable = delta.endsWith("\n\n") || (shouldInsertNewCell && isCurrentRowFull);
+        const shouTrimStartDelta = isEmptyCell || shouldInsertNewCell;
+        const isTableRowDivider = /^(-|=)+\n*$/.test(delta.trim()) && !isPossiblyLatex;
         if (isTableRowDivider) {
           const lastRow = currentRow?.getPreviousSibling();
           if (!$isTableRowNode(lastRow)) return;
@@ -179,15 +187,20 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
         }
         if (shouldEndTable) {
           shouldInsertNewlineAfter = true;
-          return tableNode.insertAfter($createParagraphNode()).selectEnd();
+          tableNode.insertAfter($createParagraphNode()).selectEnd();
+          return;
         }
-        const cell = $createTableCellNode(TableCellHeaderStates.NO_STATUS);
-        const paragraph = $createParagraphNode();
-        const cellText = shouldTrimDelta ? delta.trimEnd().replaceAll("|", "") : delta.replaceAll("|", "");
-        const textNode = $createTextNode(cellText);
-        cell.append(paragraph.append(textNode));
-        if (shouldInsertNewCell) return currentRow?.append(cell).selectEnd();
         if (shouldInsertNewRow) return tableNode.append($createTableRowNode()).selectEnd();
+        let cellText = delta.replaceAll("|", "");
+        if (shouTrimStartDelta) cellText = cellText.trimStart();
+        if (shouldTrimEndDelta) cellText = cellText.trimEnd();
+        if (shouldInsertNewCell) {
+          const cell = $createTableCellNode(TableCellHeaderStates.NO_STATUS);
+          const paragraph = $createParagraphNode();
+          const textNode = $createTextNode(cellText);
+          cell.append(paragraph.append(textNode));
+          return currentRow?.append(cell).selectEnd();
+        }
         selection.insertText(cellText);
         return;
       }
@@ -216,7 +229,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
         return;
       }
       // normal text
-      selection.insertText(shouldTrimDelta ? delta.trimEnd() : delta);
+      selection.insertText(shouldTrimEndDelta ? delta.trimEnd() : delta);
     }, {
       tag: !isStarting ? "history-merge" : undefined,
       discrete: true,

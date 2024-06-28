@@ -81,7 +81,7 @@ function $runTextFormatTransformers(
   if (!anchorNode.getParent()) return false;
   if (!$isTextNode(anchorNode)) return false;
   const textContent = anchorNode.getTextContent();
-  const isPossiblyLatex = textContent.includes('$$');
+  const isPossiblyLatex = (textContent.match(/\$+/g) || []).length % 2 !== 0;
   if (isPossiblyLatex) return false;
   for (const matcher of textFormatTransformers) {
     const tag = matcher.tag.replaceAll('*', '\\*');

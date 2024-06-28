@@ -21,7 +21,7 @@ function convertHtmlToListOfWords(text: string, blockExpressions: RegExp[]) {
 	// let groupingUntil = -1
 
 	for (let i = 0; i < text.length; i++) {
-		var character = text[i]
+		const character = text[i]
 
 		// TODO: Implementation of this block seems to be incorrect. As `index` is not defined anywhere.
 		// Don't bother executing block checks if we don't have any blocks to check for!

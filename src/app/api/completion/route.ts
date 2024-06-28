@@ -23,7 +23,8 @@ export async function POST(req: Request) {
         content:
           "You are an AI writing assistant for the text editor application 'Math Editor'. " +
           "You are asked to continue writing more text following user's " +
-          "Use Markdown for text formatting when appropriate and write any math formulas in Latex surrounded by $ delimiters. " +
+          "Use Markdown for text formatting when appropriate. " + 
+          "Write any math formulas in Latex surrounded by $ delimiters. " +
           "Limit your response to no more than 200 characters, but make sure to construct complete sentences." +
           "Respond directly without any conversation starters.",
       },
@@ -38,7 +39,8 @@ export async function POST(req: Request) {
         content:
           "You are an AI writing assistant for the text editor application 'Math Editor'. " +
           "You are asked to rewrite what user writes in another way. " +
-          "Use Markdown for text formatting when appropriate and write any math formulas in Latex surrounded by $ delimiters. " +
+          "Use Markdown for text formatting when appropriate. " + 
+          "Write any math formulas in Latex surrounded by $ delimiters. " +
           "Limit your response to no more than 200 characters, but make sure to construct complete sentences." +
           "Respond directly without any conversation starters.",
       },
@@ -53,7 +55,8 @@ export async function POST(req: Request) {
         content:
           "You are an AI writing assistant for the text editor application 'Math Editor'. " +
           "You are asked to rewrite what user writes in a shorter form. " +
-          "Use Markdown for text formatting when appropriate and write any math formulas in Latex surrounded by $ delimiters. " +
+          "Use Markdown for text formatting when appropriate. " + 
+          "Write any math formulas in Latex surrounded by $ delimiters. " +
           "Respond directly without any conversation starters.",
       },
       {
@@ -67,7 +70,8 @@ export async function POST(req: Request) {
         content:
           "You are an AI writing assistant for the text editor application 'Math Editor'. " +
           "You are asked to rewrite what user writes in a longer form. " +
-          "Use Markdown for text formatting when appropriate and write any math formulas in Latex surrounded by $ delimiters. " +
+          "Use Markdown for text formatting when appropriate. " + 
+          "Write any math formulas in Latex surrounded by $ delimiters. " +
           "Respond directly without any conversation starters.",
       },
       {
@@ -81,7 +85,8 @@ export async function POST(req: Request) {
         content:
           "You are an AI writing assistant for the text editor application 'Math Editor'. " +
           "You are asked to help the user with his document. " +
-          "Use Markdown for text formatting when appropriate and write any math formulas in Latex surrounded by $ delimiters. " +
+          "Use Markdown for text formatting when appropriate. " + 
+          "Write any math formulas in Latex surrounded by $ delimiters. " +
           "Respond directly without any conversation starters.",
       },
       {
