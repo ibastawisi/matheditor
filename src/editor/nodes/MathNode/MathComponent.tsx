@@ -155,10 +155,12 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
     });
 
     mathfield.addEventListener("click", event => {
-      clearSelection();
-      setSelected(true);
-      mathfield.focus();
-      if (mathfield.selectionIsCollapsed) mathfield.position = mathfield.getOffsetFromPoint(event.clientX, event.clientY);
+      setTimeout(() => {
+        clearSelection();
+        setSelected(true);
+        mathfield.focus();
+        if (mathfield.selectionIsCollapsed) mathfield.position = mathfield.getOffsetFromPoint(event.clientX, event.clientY);        
+      }, 0);
     });
 
     mathfield.addEventListener("keydown", event => {
