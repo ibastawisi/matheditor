@@ -509,7 +509,7 @@ iframe {
   padding: 2px 0px 2px 1px;
 }
 
-.LexicalTheme__paragraph:has(> .LexicalTheme__math):hover {
+.LexicalTheme__math:hover {
   overflow-x: auto;
   overflow-y: hidden;
 }

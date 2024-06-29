@@ -18,7 +18,7 @@ import type {
 
 import * as React from 'react';
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
-import { $generateHtmlFromNodes } from '@/editor/utils/html';
+import { $generateHtmlFromNodes } from "@lexical/html";
 import ImageComponent from '../ImageNode/ImageComponent';
 
 function convertIFrameElement(domNode: HTMLElement,): null | DOMConversionOutput {

@@ -21,7 +21,7 @@ import { $getRoot, DecoratorNode, createEditor, isHTMLElement } from 'lexical';
 import * as React from 'react';
 import { Suspense } from 'react';
 import { editorConfig } from './config';
-import { $generateHtmlFromNodes } from '@/editor/utils/html';
+import { $generateHtmlFromNodes } from "@lexical/html";
 import StickyComponent from './StickyComponent';
 
 type StickyNoteColor = 'pink' | 'yellow';

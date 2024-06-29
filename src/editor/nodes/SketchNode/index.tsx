@@ -10,7 +10,7 @@ import { DOMConversionMap, DOMConversionOutput, DOMExportOutput, LexicalEditor, 
 import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
 
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
-import { $generateHtmlFromNodes } from '@/editor/utils/html';
+import { $generateHtmlFromNodes } from "@lexical/html";
 
 import SketchComponent from './SketchComponent';
 

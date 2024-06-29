@@ -27,7 +27,7 @@ import {
 
 import { DecoratorNode } from 'lexical';
 import { editorConfig } from './config';
-import { $generateHtmlFromNodes } from '@/editor/utils/html';
+import { $generateHtmlFromNodes } from "@lexical/html";
 
 import ImageComponent from './ImageComponent';
 export interface ImagePayload {

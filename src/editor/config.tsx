@@ -5,14 +5,17 @@ import { CodeHighlightNode, CodeNode } from "./nodes/CodeNode";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { HorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
 import { MathNode } from "./nodes/MathNode";
-import { ImageNode } from "./nodes/ImageNode";
+import { $isImageNode, ImageNode } from "./nodes/ImageNode";
 import { SketchNode } from './nodes/SketchNode';
 import { GraphNode } from './nodes/GraphNode';
-import { StickyNode } from './nodes/StickyNode';
+import { $isStickyNode, StickyNode } from './nodes/StickyNode';
 import theme from "./theme";
 import { PageBreakNode } from "./nodes/PageBreakNode";
 import { IFrameNode } from "./nodes/IFrameNode";
 import { LayoutContainerNode, LayoutItemNode } from "./nodes/LayoutNode";
+import { ParagraphNode, isHTMLElement } from "lexical";
+import type { InitialConfigType } from "@lexical/react/LexicalComposer";
+import type { CreateEditorArgs } from "lexical";
 
 export const editorConfig = {
   namespace: "matheditor",
@@ -45,5 +48,27 @@ export const editorConfig = {
     IFrameNode,
     LayoutContainerNode,
     LayoutItemNode,
-  ]
-};
+  ],
+  html: {
+    export: new Map([
+      [
+        ParagraphNode,
+        (editor, node) => {
+          const paragraphNode = node as ParagraphNode;
+          const output = paragraphNode.exportDOM(editor);
+          const children = paragraphNode.getChildren();
+          const hasDivs = children.some((child) => $isImageNode(child) || $isStickyNode(child));
+          if (!hasDivs) return output;
+          const element = output.element;
+          if (!element || !isHTMLElement(element)) return output;
+          const div = document.createElement("div");
+          div.append(...element.childNodes);
+          for (const attr of element.attributes) {
+            div.setAttribute(attr.name, attr.value);
+          }
+          return { element: div };
+        },
+      ],
+    ]),
+  },
+} satisfies InitialConfigType & CreateEditorArgs;
