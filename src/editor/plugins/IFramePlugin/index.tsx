@@ -11,7 +11,7 @@ import { $wrapNodeInElement } from '@lexical/utils';
 import { $createParagraphNode, $insertNodes, $isRootOrShadowRoot, COMMAND_PRIORITY_EDITOR, createCommand, LexicalCommand } from 'lexical';
 import { useEffect } from 'react';
 
-import { $createIFrameNode, IFrameNode, IFramePayload } from '../../nodes/IFrameNode';
+import { $createIFrameNode, IFrameNode, IFramePayload } from '@/editor/nodes/IFrameNode';
 
 export const INSERT_IFRAME_COMMAND: LexicalCommand<IFramePayload> = createCommand(
   'INSERT_IFRAME_COMMAND',

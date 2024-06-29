@@ -16,7 +16,7 @@ import type {
 import type { TextNode } from 'lexical';
 
 import { $createCodeNode } from '@/editor/nodes/CodeNode';
-import { $isListItemNode, $isListNode, ListItemNode } from '@/editor/nodes/ListNode';
+import { $isListItemNode, $isListNode, ListItemNode } from '@lexical/list';
 import { $isQuoteNode } from '@lexical/rich-text';
 import { $findMatchingParent, IS_APPLE_WEBKIT, IS_IOS, IS_SAFARI } from '@lexical/utils';
 import {

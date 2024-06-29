@@ -1,10 +1,10 @@
 "use client"
 import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
-import { INSERT_IMAGE_COMMAND, InsertImagePayload } from '../../ImagePlugin';
+import { INSERT_IMAGE_COMMAND, InsertImagePayload } from '@/editor/plugins/ImagePlugin';
 import { useEffect, useState, memo } from 'react';
 
 import Compressor from 'compressorjs';
-import { ImageNode } from '../../../nodes/ImageNode';
+import { ImageNode } from '@/editor/nodes/ImageNode';
 import { SET_DIALOGS_COMMAND } from './commands';
 import { getImageDimensions } from '@/editor/nodes/utils';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';

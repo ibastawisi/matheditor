@@ -1,8 +1,8 @@
 "use client"
 import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
-import { INSERT_SKETCH_COMMAND, InsertSketchPayload } from '../../../SketchPlugin';
+import { INSERT_SKETCH_COMMAND, InsertSketchPayload } from '@/editor/plugins/SketchPlugin';
 import { Suspense, useEffect, useState, memo, useCallback } from 'react';
-import { $isSketchNode } from '../../../../nodes/SketchNode';
+import { $isSketchNode } from '@/editor/nodes/SketchNode';
 import type { ExcalidrawImperativeAPI, ExcalidrawProps, DataURL, LibraryItems, BinaryFiles, AppState, BinaryFileData } from '@excalidraw/excalidraw/types/types';
 import type { ImportedLibraryData } from '@excalidraw/excalidraw/types/data/types';
 import { SET_DIALOGS_COMMAND } from '../commands';

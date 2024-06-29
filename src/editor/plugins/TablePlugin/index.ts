@@ -10,7 +10,7 @@ import type {
   HTMLTableElementWithWithTableSelectionState,
   InsertTableCommandPayload,
   TableObserver,
-} from '../../nodes/TableNode';
+} from '@/editor/nodes/TableNode';
 import type { NodeKey } from 'lexical';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -22,7 +22,7 @@ import {
   TableCellNode,
   TableNode,
   TableRowNode,
-} from '../../nodes/TableNode';
+} from '@/editor/nodes/TableNode';
 import { $insertNodeToNearestRoot } from '@lexical/utils';
 import {
   $getNodeByKey,
@@ -31,7 +31,7 @@ import {
   COMMAND_PRIORITY_EDITOR,
 } from 'lexical';
 import { useEffect } from 'react';
-import invariant from '../../shared/invariant';
+import invariant from '@/shared/invariant';
 
 export function TablePlugin({
   hasTabHandler = true,

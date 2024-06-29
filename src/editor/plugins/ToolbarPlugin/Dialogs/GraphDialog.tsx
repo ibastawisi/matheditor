@@ -1,7 +1,7 @@
 "use client"
 import { LexicalEditor, $setSelection } from 'lexical';
-import { INSERT_GRAPH_COMMAND, InsertGraphPayload } from '../../GraphPlugin';
-import { GraphNode } from '../../../nodes/GraphNode';
+import { INSERT_GRAPH_COMMAND, InsertGraphPayload } from '@/editor/plugins/GraphPlugin';
+import { GraphNode } from '@/editor/nodes/GraphNode';
 import { memo, useEffect, useId, useRef, useState } from 'react';
 import { $getSelection } from 'lexical';
 import { SET_DIALOGS_COMMAND } from './commands';

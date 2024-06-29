@@ -6,7 +6,7 @@
  *
  */
 
-import type { ListType } from '@/editor/nodes/ListNode';
+import type { ListType } from '@lexical/list';
 import type { HeadingTagType } from '@lexical/rich-text';
 
 import { $createCodeNode, $isCodeNode, CodeNode } from '@/editor/nodes/CodeNode';
@@ -18,7 +18,7 @@ import {
   $isListNode,
   ListItemNode,
   ListNode,
-} from '@/editor/nodes/ListNode';
+} from '@lexical/list';
 import {
   $createHeadingNode,
   $createQuoteNode,
@@ -52,7 +52,7 @@ import {
   $createHorizontalRuleNode,
   $isHorizontalRuleNode,
   HorizontalRuleNode,
-} from '../../nodes/HorizontalRuleNode';
+} from '@/editor/nodes/HorizontalRuleNode';
 
 import {
   $createTableCellNode,
@@ -65,12 +65,12 @@ import {
   TableCellNode,
   TableNode,
   TableRowNode,
-} from '../../nodes/TableNode';
-import { $createMathNode, $isMathNode, MathNode } from '../../nodes/MathNode';
-import { $createImageNode, $isImageNode, ImageNode } from '../../nodes/ImageNode';
-import { $createGraphNode, $isGraphNode, GraphNode } from '../../nodes/GraphNode';
-import { $createSketchNode, $isSketchNode, SketchNode } from '../../nodes/SketchNode';
-import { $createStickyNode, $isStickyNode, StickyNode } from '../../nodes/StickyNode';
+} from '@/editor/nodes/TableNode';
+import { $createMathNode, $isMathNode, MathNode } from '@/editor/nodes/MathNode';
+import { $createImageNode, $isImageNode, ImageNode } from '@/editor/nodes/ImageNode';
+import { $createGraphNode, $isGraphNode, GraphNode } from '@/editor/nodes/GraphNode';
+import { $createSketchNode, $isSketchNode, SketchNode } from '@/editor/nodes/SketchNode';
+import { $createStickyNode, $isStickyNode, StickyNode } from '@/editor/nodes/StickyNode';
 
 
 export type Transformer =

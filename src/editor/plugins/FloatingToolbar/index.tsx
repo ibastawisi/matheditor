@@ -7,7 +7,7 @@
  *
  */
 
-import { $isCodeHighlightNode } from '../../nodes/CodeNode';
+import { $isCodeHighlightNode } from '@/editor/nodes/CodeNode';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { mergeRegister } from '@lexical/utils';
 import {
@@ -20,9 +20,9 @@ import {
 } from 'lexical';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { getDOMRangeRect } from '../../utils/getDOMRangeRect';
-import { getSelectedNode } from '../../utils/getSelectedNode';
-import { setFloatingElemPosition } from '../../utils/setFloatingElemPosition';
+import { getDOMRangeRect } from '@/editor/utils/getDOMRangeRect';
+import { getSelectedNode } from '@/editor/utils/getSelectedNode';
+import { setFloatingElemPosition } from '@/editor/utils/setFloatingElemPosition';
 import TextFormatToggles from '../ToolbarPlugin/Tools/TextFormatToggles';
 import { Paper } from '@mui/material';
 

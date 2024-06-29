@@ -36,7 +36,7 @@ import {
   $createLayoutItemNode,
   $isLayoutItemNode,
   LayoutItemNode,
-} from '../../nodes/LayoutNode';
+} from '@/editor/nodes/LayoutNode';
 
 export const INSERT_LAYOUT_COMMAND: LexicalCommand<string> =
   createCommand<string>();

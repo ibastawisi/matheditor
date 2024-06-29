@@ -1,5 +1,5 @@
 import { FormatBold, FormatItalic, FormatUnderlined, Code, FormatStrikethrough, Subscript, Superscript, FormatColorFill } from "@mui/icons-material";
-import type { ListItemNode, EditorState, TextNode, ParagraphNode } from "../editor/types";
+import type { ListItemNode, EditorState, TextNode, ParagraphNode } from "@/editor";
 import { Typography, ToggleButton } from "@mui/material";
 
 const Checkpoint1 = [

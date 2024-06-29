@@ -1,5 +1,5 @@
 import { Typography, Select, MenuItem } from "@mui/material";
-import type { TextNode, EditorState, ListItemNode, ParagraphNode } from "../editor/types";
+import type { TextNode, EditorState, ListItemNode, ParagraphNode } from "@/editor";
 
 const Checkpoint2 = [
   {

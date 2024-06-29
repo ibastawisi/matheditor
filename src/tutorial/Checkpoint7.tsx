@@ -1,6 +1,5 @@
 import { Typography } from "@mui/material";
-import type { EditorState, ListItemNode, ParagraphNode } from "../editor/types";
-import type { TableNode } from "@/editor/nodes/TableNode";
+import type { EditorState, ListItemNode, ParagraphNode, TableNode } from "@/editor";
 
 const Checkpoint7 = [
   {

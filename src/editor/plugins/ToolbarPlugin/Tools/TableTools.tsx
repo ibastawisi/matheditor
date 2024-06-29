@@ -1,6 +1,6 @@
 "use client"
 import { LexicalEditor, } from "lexical";
-import { $patchStyle, getStyleObjectFromCSS } from '../../../nodes/utils';
+import { $patchStyle, getStyleObjectFromCSS } from '@/editor/nodes/utils';
 import { useEffect, useState } from "react";
 import { ToggleButtonGroup, ToggleButton, SvgIcon, Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import { ViewHeadline, Delete, KeyboardArrowDown, DeleteForever, TableChart } from "@mui/icons-material";

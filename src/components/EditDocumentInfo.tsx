@@ -1,10 +1,10 @@
 import { LocalDocumentRevision, User, UserDocumentRevision } from '@/types';
 import RevisionCard from './EditRevisionCard';
 import { actions, useDispatch, useSelector } from '@/store';
-import { Avatar, Badge, Box, Button, Chip, Dialog, Grid, IconButton, Portal, Typography } from '@mui/material';
+import { Avatar, Badge, Box, Button, Chip, Grid, IconButton, Portal, Typography } from '@mui/material';
 import { Close, Compare, History, Print } from '@mui/icons-material';
-import { LexicalEditor } from '@/editor/types';
-import { MutableRefObject, useState } from 'react';
+import type { LexicalEditor } from '@/editor';
+import { MutableRefObject } from 'react';
 import RouterLink from "next/link";
 import ShareDocument from './DocumentActions/Share';
 import DownloadDocument from './DocumentActions/Download';

@@ -57,7 +57,7 @@ import {
   SELECTION_CHANGE_COMMAND,
   SELECTION_INSERT_CLIPBOARD_NODES_COMMAND,
 } from 'lexical';
-import invariant from '../../shared/invariant';
+import invariant from '@/shared/invariant';
 
 import { getStyleObjectFromCSS } from '../utils';
 import { $isTableCellNode } from './LexicalTableCellNode';

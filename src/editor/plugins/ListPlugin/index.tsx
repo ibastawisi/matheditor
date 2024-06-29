@@ -6,7 +6,7 @@
  *
  */
 
-import { ListItemNode, ListNode } from '../../nodes/ListNode';
+import { ListItemNode, ListNode } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useEffect } from 'react';
 

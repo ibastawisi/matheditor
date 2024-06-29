@@ -5,7 +5,7 @@ import { SET_DIALOGS_COMMAND } from './commands';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, IconButton, Switch, TextField, useMediaQuery } from '@mui/material';
-import { INSERT_IFRAME_COMMAND } from '../../IFramePlugin';
+import { INSERT_IFRAME_COMMAND } from '@/editor/plugins/IFramePlugin';
 import { IFrameNode } from '@/editor/nodes/IFrameNode';
 
 function IFrameDialog({ editor, node, open }: { editor: LexicalEditor, node: IFrameNode | null; open: boolean }) {

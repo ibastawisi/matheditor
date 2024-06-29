@@ -1,7 +1,7 @@
 "use client"
 import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, LexicalNode, NodeKey } from 'lexical';
-import { $isCodeNode, CODE_LANGUAGE_MAP, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from '../../nodes/CodeNode';
-import { $isListNode, ListNode, } from '../../nodes/ListNode';
+import { $isCodeNode, CODE_LANGUAGE_MAP, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from '@/editor/nodes/CodeNode';
+import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
 import { $getSelectionStyleValueForProperty, $isParentElementRTL, $patchStyleText, } from '@lexical/selection';
@@ -12,15 +12,15 @@ import { BlockFormatSelect } from './Menus/BlockFormatSelect';
 import InsertToolMenu from './Menus/InsertToolMenu';
 import TextFormatToggles from './Tools/TextFormatToggles';
 import AlignTextMenu from './Menus/AlignTextMenu';
-import { IS_MOBILE } from '../../shared/environment';
-import { $isMathNode } from '../../nodes/MathNode';
+import { IS_MOBILE } from '@/shared/environment';
+import { $isMathNode } from '@/editor/nodes/MathNode';
 import MathTools from './Tools/MathTools';
-import { $isImageNode } from '../../nodes/ImageNode';
+import { $isImageNode } from '@/editor/nodes/ImageNode';
 import ImageTools from './Tools/ImageTools';
-import { $isGraphNode } from '../../nodes/GraphNode';
-import { $patchStyle } from '../../nodes/utils';
+import { $isGraphNode } from '@/editor/nodes/GraphNode';
+import { $patchStyle } from '@/editor/nodes/utils';
 import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog, LinkDialog, LayoutDialog, OCRDialog } from './Dialogs';
-import { $isStickyNode } from '../../nodes/StickyNode';
+import { $isStickyNode } from '@/editor/nodes/StickyNode';
 import { SelectChangeEvent, useScrollTrigger, AppBar, Toolbar, Box, IconButton, Select, MenuItem, Fab } from '@mui/material';
 import { Mic, Redo, Undo } from '@mui/icons-material';
 import { $isIFrameNode } from '@/editor/nodes/IFrameNode';
@@ -307,7 +307,7 @@ function ToolbarPlugin() {
   });
 
   const isOnline = useOnlineStatus();
-  
+
   const showMathTools = $isMathNode(selectedNode);
   const showImageTools = $isImageNode(selectedNode);
   const showTableTools = !!selectedTable;

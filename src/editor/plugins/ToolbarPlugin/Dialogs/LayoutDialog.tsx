@@ -1,6 +1,6 @@
 "use client"
 import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
-import { INSERT_LAYOUT_COMMAND } from '../../../plugins/LayoutPlugin';
+import { INSERT_LAYOUT_COMMAND } from '@/editor/plugins/LayoutPlugin';
 import React, { memo } from 'react';
 import { SET_DIALOGS_COMMAND } from './commands';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';

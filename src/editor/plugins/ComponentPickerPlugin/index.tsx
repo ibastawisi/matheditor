@@ -7,12 +7,12 @@
  *
  */
 
-import { $createCodeNode } from '../../nodes/CodeNode';
+import { $createCodeNode } from '@/editor/nodes/CodeNode';
 import {
   INSERT_CHECK_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
-} from '../../nodes/ListNode';
+} from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@/editor/nodes/HorizontalRuleNode';
 import {
@@ -22,7 +22,7 @@ import {
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import { $createHeadingNode, $createQuoteNode } from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
-import { INSERT_TABLE_COMMAND, TableNode } from '../../nodes/TableNode';
+import { INSERT_TABLE_COMMAND, TableNode } from '@/editor/nodes/TableNode';
 import {
   $getSelection,
   $isRangeSelection,

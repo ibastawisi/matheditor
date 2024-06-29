@@ -31,7 +31,7 @@ import {
   TableCellNode,
   TableRowNode,
   TableSelection,
-} from '../../nodes/TableNode';
+} from '@/editor/nodes/TableNode';
 import {
   $createParagraphNode,
   $getRoot,
@@ -44,10 +44,10 @@ import {
 import * as React from 'react';
 import { ReactPortal, useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import invariant from '../../shared/invariant';
+import invariant from '@/shared/invariant';
 
 import ColorPicker from '../ToolbarPlugin/Tools/ColorPicker';
-import { getStyleObjectFromCSS } from '../../nodes/utils';
+import { getStyleObjectFromCSS } from '@/editor/nodes/utils';
 import { MenuItem, ListItemText, Menu, Divider, Box, IconButton } from '@mui/material';
 import { DragIndicator } from '@mui/icons-material';
 

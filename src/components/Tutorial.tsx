@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react";
-import type { EditorState } from "../editor/types";
+import type { EditorState } from "@/editor";
 import { tasks, checkpoints } from "@/tutorial";
 import { Paper, Box, Typography, List, Pagination, ListItemButton, ListItemIcon, ListItemText, Collapse, Divider } from "@mui/material";
 import { Check, Clear, ExpandLess, ExpandMore } from "@mui/icons-material";

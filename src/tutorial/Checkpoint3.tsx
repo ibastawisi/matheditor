@@ -1,5 +1,5 @@
 import { ViewHeadline, FormatListBulleted, FormatQuote, Code } from "@mui/icons-material";
-import type { HeadingNode, EditorState, ListItemNode, ListNode } from "../editor/types";
+import type { HeadingNode, EditorState, ListItemNode, ListNode } from "@/editor";
 import { ListItemIcon, ListItemText, MenuItem, Select, SvgIcon, Typography } from "@mui/material";
 
 const H3 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small' sx={{ verticalAlign: "middle" }}>

@@ -24,7 +24,7 @@ import { INSERT_MATH_COMMAND } from '../MathPlugin';
 import { $isMathNode } from '@/editor/nodes/MathNode';
 import { createPortal } from 'react-dom';
 import { Alert } from '@mui/material';
-import { IS_MOBILE } from '@/editor/shared/environment';
+import { IS_MOBILE } from '@/shared/environment';
 
 export const SPEECH_TO_TEXT_COMMAND: LexicalCommand<boolean> = createCommand(
   'SPEECH_TO_TEXT_COMMAND',

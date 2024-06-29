@@ -7,7 +7,7 @@
  *
  */
 
-import { registerCodeHighlighting } from '../../nodes/CodeNode';
+import { registerCodeHighlighting } from '@/editor/nodes/CodeNode';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useEffect } from 'react';
 

@@ -40,7 +40,7 @@ import {
   TabNode,
   TextNode,
 } from 'lexical';
-import invariant from '../../shared/invariant';
+import invariant from '@/shared/invariant';
 
 import { Prism, reifyPrismLanguages } from './CodeHighlighterPrism';
 import {
@@ -793,7 +793,7 @@ export function registerCodeHighlighting(
   }
 
   return mergeRegister(
-        editor.registerNodeTransform(CodeNode, (node) =>
+    editor.registerNodeTransform(CodeNode, (node) =>
       codeNodeTransform(node, editor, tokenizer as Tokenizer),
     ),
     editor.registerNodeTransform(TextNode, (node) =>

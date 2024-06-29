@@ -1,6 +1,5 @@
 import { Typography } from "@mui/material";
-import type { HeadingNode, EditorState, ListItemNode, TextNode, ParagraphNode, ListNode } from "../editor/types";
-import type { MathNode } from "@/editor/nodes/MathNode";
+import type { HeadingNode, EditorState, ListItemNode, TextNode, ParagraphNode, ListNode, MathNode } from "@/editor";
 
 const Checkpoint6 = [
   {

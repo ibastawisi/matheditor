@@ -10,7 +10,7 @@ import type { MathfieldElement, MathfieldElementAttributes } from "mathlive";
 import './index.css';
 import { $isMathNode } from ".";
 import { customizeMathVirtualKeyboard } from "./mathVirtualKeyboard";
-import { IS_MOBILE } from "@/editor/shared/environment";
+import { IS_MOBILE } from "@/shared/environment";
 
 type CustomElement<T> = Partial<T & DOMAttributes<T>>;
 
@@ -159,7 +159,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
         clearSelection();
         setSelected(true);
         mathfield.focus();
-        if (mathfield.selectionIsCollapsed) mathfield.position = mathfield.getOffsetFromPoint(event.clientX, event.clientY);        
+        if (mathfield.selectionIsCollapsed) mathfield.position = mathfield.getOffsetFromPoint(event.clientX, event.clientY);
       }, 0);
     });
 

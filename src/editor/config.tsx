@@ -1,21 +1,21 @@
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { TableCellNode, TableNode, TableRowNode } from "./nodes/TableNode";
-import { ListItemNode, ListNode } from "./nodes/ListNode";
+import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "./nodes/CodeNode";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { HorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
 import { MathNode } from "./nodes/MathNode";
-import { $isImageNode, ImageNode } from "./nodes/ImageNode";
+import { ImageNode } from "./nodes/ImageNode";
 import { SketchNode } from './nodes/SketchNode';
 import { GraphNode } from './nodes/GraphNode';
-import { $isStickyNode, StickyNode } from './nodes/StickyNode';
+import { StickyNode } from './nodes/StickyNode';
 import theme from "./theme";
 import { PageBreakNode } from "./nodes/PageBreakNode";
 import { IFrameNode } from "./nodes/IFrameNode";
 import { LayoutContainerNode, LayoutItemNode } from "./nodes/LayoutNode";
-import { ParagraphNode, isHTMLElement } from "lexical";
 import type { InitialConfigType } from "@lexical/react/LexicalComposer";
 import type { CreateEditorArgs } from "lexical";
+import { htmlConfig } from "./utils/htmlConfig";
 
 export const editorConfig = {
   namespace: "matheditor",
@@ -49,26 +49,5 @@ export const editorConfig = {
     LayoutContainerNode,
     LayoutItemNode,
   ],
-  html: {
-    export: new Map([
-      [
-        ParagraphNode,
-        (editor, node) => {
-          const paragraphNode = node as ParagraphNode;
-          const output = paragraphNode.exportDOM(editor);
-          const children = paragraphNode.getChildren();
-          const hasDivs = children.some((child) => $isImageNode(child) || $isStickyNode(child));
-          if (!hasDivs) return output;
-          const element = output.element;
-          if (!element || !isHTMLElement(element)) return output;
-          const div = document.createElement("div");
-          div.append(...element.childNodes);
-          for (const attr of element.attributes) {
-            div.setAttribute(attr.name, attr.value);
-          }
-          return { element: div };
-        },
-      ],
-    ]),
-  },
+  html: htmlConfig,
 } satisfies InitialConfigType & CreateEditorArgs;

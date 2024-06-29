@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type { TableDOMCell } from '../../nodes/TableNode';
+import type { TableDOMCell } from '@/editor/nodes/TableNode';
 import type { LexicalEditor } from 'lexical';
 
 import './TableCellResizer.css';
@@ -20,7 +20,7 @@ import {
   $isTableSelection,
   getDOMCellFromTarget,
   TableCellNode,
-} from '../../nodes/TableNode';
+} from '@/editor/nodes/TableNode';
 import { calculateZoomLevel } from '@lexical/utils';
 import {
   $getNearestNodeFromDOMNode,

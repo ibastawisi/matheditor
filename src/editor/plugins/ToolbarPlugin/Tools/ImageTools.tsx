@@ -1,9 +1,9 @@
 "use client"
 import { LexicalEditor, } from "lexical";
-import { ImageNode } from "../../../nodes/ImageNode";
-import { $isSketchNode, SketchNode } from "../../../nodes/SketchNode";
-import { $isGraphNode, GraphNode } from "../../../nodes/GraphNode";
-import { $patchStyle, getStyleObjectFromCSS } from '../../../nodes/utils';
+import { ImageNode } from "@/editor/nodes/ImageNode";
+import { $isSketchNode, SketchNode } from "@/editor/nodes/SketchNode";
+import { $isGraphNode, GraphNode } from "@/editor/nodes/GraphNode";
+import { $patchStyle, getStyleObjectFromCSS } from '@/editor/nodes/utils';
 import { useEffect, useState } from "react";
 import { SET_DIALOGS_COMMAND } from '../Dialogs/commands';
 import { SxProps, Theme } from '@mui/material/styles';

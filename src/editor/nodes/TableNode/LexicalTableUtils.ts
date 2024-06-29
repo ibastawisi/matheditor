@@ -18,7 +18,7 @@ import {
   $isRangeSelection,
   LexicalNode,
 } from 'lexical';
-import invariant from '../../shared/invariant';
+import invariant from '@/shared/invariant';
 
 import { InsertTableCommandPayloadHeaders } from '.';
 import {

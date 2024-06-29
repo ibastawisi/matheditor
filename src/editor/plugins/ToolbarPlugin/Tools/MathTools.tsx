@@ -1,8 +1,8 @@
 "use client"
 import { LexicalEditor, } from "lexical";
-import { MathNode } from "../../../nodes/MathNode";
+import { MathNode } from "@/editor/nodes/MathNode";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { $getNodeStyleValueForProperty, $patchStyle } from "../../../nodes/utils";
+import { $getNodeStyleValueForProperty, $patchStyle } from "@/editor/nodes/utils";
 import ColorPicker from "./ColorPicker";
 import type { MathfieldElement } from "mathlive";
 import useFixedBodyScroll from "@/hooks/useFixedBodyScroll";

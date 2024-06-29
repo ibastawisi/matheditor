@@ -6,8 +6,8 @@ import { mergeRegister, IS_APPLE } from '@lexical/utils';
 import { $isLinkNode } from '@lexical/link';
 import { useCallback, useEffect, useState } from 'react';
 import ColorPicker from './ColorPicker';
-import { $isMathNode, MathNode } from '../../../nodes/MathNode';
-import { $patchStyle } from '../../../nodes/utils';
+import { $isMathNode, MathNode } from '@/editor/nodes/MathNode';
+import { $patchStyle } from '@/editor/nodes/utils';
 
 import { SxProps, Theme } from '@mui/material/styles';
 import { ToggleButtonGroup, ToggleButton, SvgIcon } from '@mui/material';

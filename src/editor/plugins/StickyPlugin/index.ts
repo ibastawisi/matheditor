@@ -25,7 +25,7 @@ import {
   DROP_COMMAND,
 } from 'lexical';
 
-import { $createStickyNode, $isStickyNode, StickyNode, StickyPayload } from '../../nodes/StickyNode';
+import { $createStickyNode, $isStickyNode, StickyNode, StickyPayload } from '@/editor/nodes/StickyNode';
 export type InsertStickyPayload = Readonly<StickyPayload>;
 
 export const INSERT_STICKY_COMMAND: LexicalCommand<InsertStickyPayload | undefined> = createCommand();

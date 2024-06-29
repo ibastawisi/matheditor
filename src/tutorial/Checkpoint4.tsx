@@ -1,5 +1,5 @@
 import { FormatAlignCenter, FormatAlignLeft, FormatAlignRight, FormatIndentIncrease } from "@mui/icons-material";
-import type { ParagraphNode, EditorState, ListItemNode } from "../editor/types";
+import type { ParagraphNode, EditorState, ListItemNode } from "@/editor";
 import { Typography, IconButton } from "@mui/material";
 
 const Checkpoint4 = [

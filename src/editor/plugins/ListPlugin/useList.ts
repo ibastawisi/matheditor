@@ -15,7 +15,7 @@ import {
   insertList,
   REMOVE_LIST_COMMAND,
   removeList,
-} from '../../nodes/ListNode';
+} from '@lexical/list';
 import { mergeRegister } from '@lexical/utils';
 import { COMMAND_PRIORITY_LOW, INSERT_PARAGRAPH_COMMAND } from 'lexical';
 import { useEffect } from 'react';

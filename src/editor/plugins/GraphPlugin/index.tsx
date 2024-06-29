@@ -18,7 +18,7 @@ import {
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useEffect } from 'react';
 
-import { $createGraphNode, $isGraphNode, GraphNode, GraphPayload } from '../../nodes/GraphNode';
+import { $createGraphNode, $isGraphNode, GraphNode, GraphPayload } from '@/editor/nodes/GraphNode';
 
 export type InsertGraphPayload = Readonly<GraphPayload>;
 

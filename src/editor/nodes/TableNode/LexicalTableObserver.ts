@@ -24,7 +24,7 @@ import {
   $setSelection,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
-import invariant from '../../shared/invariant';
+import invariant from '@/shared/invariant';
 
 import { $isTableCellNode } from './LexicalTableCellNode';
 import { $isTableNode } from './LexicalTableNode';

@@ -9,7 +9,7 @@ import { useDispatch, actions, useSelector } from '@/store';
 import { useTheme } from '@mui/material/styles';
 import { useScrollTrigger, Slide, Zoom, Box, AppBar, Toolbar, Typography, IconButton, Avatar, Fab, Link, Badge } from '@mui/material';
 import { Brightness7, Brightness4, Print, KeyboardArrowUp, Info } from '@mui/icons-material';
-import { IS_MOBILE } from '@/editor/shared/environment';
+import { IS_MOBILE } from '@/shared/environment';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname();

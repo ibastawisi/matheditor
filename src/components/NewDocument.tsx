@@ -3,7 +3,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { v4 as uuidv4, validate } from "uuid";
 import * as React from 'react';
 import { CheckHandleResponse, DocumentCreateInput, User, UserDocument } from '@/types';
-import { SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "@/editor/types";
+import type { SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "@/editor";
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, actions, useSelector } from '@/store';
 import DocumentCard from './DocumentCard';

@@ -18,7 +18,7 @@ import {
   NodeKey,
   PointType,
 } from 'lexical';
-import invariant from '../../shared/invariant';
+import invariant from '@/shared/invariant';
 
 import { $isTableCellNode, TableCellNode } from './LexicalTableCellNode';
 import { $isTableNode } from './LexicalTableNode';

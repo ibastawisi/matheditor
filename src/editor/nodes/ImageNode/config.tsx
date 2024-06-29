@@ -1,10 +1,10 @@
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
-import { ListItemNode, ListNode } from "../ListNode";
+import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "../CodeNode";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { HorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
 import { MathNode } from "../MathNode";
-import theme from "../../theme";
+import theme from "@/editor/theme";
 import type { InitialConfigType } from "@lexical/react/LexicalComposer";
 import type { CreateEditorArgs } from "lexical";
 

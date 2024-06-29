@@ -1,6 +1,6 @@
 "use client"
 import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
-import { INSERT_TABLE_COMMAND } from '../../../nodes/TableNode';
+import { INSERT_TABLE_COMMAND } from '@/editor/nodes/TableNode';
 import React, { memo, useState } from 'react';
 import { SET_DIALOGS_COMMAND } from './commands';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';

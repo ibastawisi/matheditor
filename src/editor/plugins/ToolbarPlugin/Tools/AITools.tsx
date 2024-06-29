@@ -10,7 +10,7 @@ import { SET_DIALOGS_COMMAND } from "../Dialogs/commands";
 import { ANNOUNCE_COMMAND, UPDATE_DOCUMENT_COMMAND } from "@/editor/commands";
 import { Announcement } from "@/types";
 import { $isCodeNode } from "@/editor/nodes/CodeNode";
-import { $isListNode } from "@/editor/nodes/ListNode";
+import { $isListNode } from "@lexical/list";
 import { $isHorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
 import { $findMatchingParent } from "@/editor";
 import { $createTableCellNode, $createTableRowNode, $isTableCellNode, $isTableNode, $isTableRowNode, TableCellHeaderStates, TableRowNode } from "@/editor/nodes/TableNode";

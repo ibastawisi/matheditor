@@ -6,7 +6,7 @@
  *
  */
 
-import type { ListItemNode } from '@/editor/nodes/ListNode';
+import type { ListItemNode } from '@lexical/list';
 import type { LexicalEditor } from 'lexical';
 
 import {
@@ -14,7 +14,7 @@ import {
   $isListNode,
   INSERT_CHECK_LIST_COMMAND,
   insertList,
-} from '@/editor/nodes/ListNode';
+} from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $findMatchingParent,

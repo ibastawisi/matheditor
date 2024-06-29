@@ -1,7 +1,7 @@
 "use client"
 import type { LexicalEditor } from 'lexical';
-import { $createCodeNode } from '../../../nodes/CodeNode';
-import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from '../../../nodes/ListNode';
+import { $createCodeNode } from '@/editor/nodes/CodeNode';
+import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list';
 import { $createHeadingNode, $createQuoteNode, HeadingTagType, } from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
 import { $createParagraphNode, $getSelection, $isRangeSelection } from 'lexical';
@@ -127,7 +127,7 @@ export function BlockFormatSelect({ editor, blockType }: {
       });
     }
   };
-  
+
   return (
     <Select value={blockType} aria-label="Formatting options for text style" size='small' sx={{
       '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', py: 0.5 },

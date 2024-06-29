@@ -6,7 +6,7 @@
  *
  */
 
-import type { ListNode } from '@/editor/nodes/ListNode';
+import type { ListNode } from '@lexical/list';
 import type {
   ElementTransformer,
   TextFormatTransformer,
@@ -15,7 +15,7 @@ import type {
 } from './MarkdownTransformers';
 
 import { $isCodeNode } from '@/editor/nodes/CodeNode';
-import { $isListItemNode, $isListNode } from '@/editor/nodes/ListNode';
+import { $isListItemNode, $isListNode } from '@lexical/list';
 import { $isHeadingNode, $isQuoteNode } from '@lexical/rich-text';
 import {
   $isParagraphNode,

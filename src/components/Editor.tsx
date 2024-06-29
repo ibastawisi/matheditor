@@ -2,7 +2,7 @@
 import { MutableRefObject } from 'react';
 import { memo } from 'react';
 import { EditorDocument } from '@/types';
-import type { EditorState, LexicalEditor } from '@/editor/types';
+import type { EditorState, LexicalEditor } from '@/editor';
 import { COMMAND_PRIORITY_LOW, ANNOUNCE_COMMAND, UPDATE_DOCUMENT_COMMAND, ALERT_COMMAND, mergeRegister } from '@/editor';
 import { actions, useDispatch } from '@/store';
 import Editor from '@/editor/Editor';
