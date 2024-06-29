@@ -1,7 +1,8 @@
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { TableCellNode, TableNode, TableRowNode } from "./nodes/TableNode";
 import { ListItemNode, ListNode } from "@lexical/list";
-import { CodeHighlightNode, CodeNode } from "./nodes/CodeNode";
+import { CodeHighlightNode, CodeNode } from "@lexical/code";
+import 'prismjs/components/prism-csharp';
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { HorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
 import { MathNode } from "./nodes/MathNode";

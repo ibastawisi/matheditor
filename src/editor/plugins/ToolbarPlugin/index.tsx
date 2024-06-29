@@ -1,6 +1,6 @@
 "use client"
 import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, LexicalNode, NodeKey } from 'lexical';
-import { $isCodeNode, CODE_LANGUAGE_MAP, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from '@/editor/nodes/CodeNode';
+import { $isCodeNode, CODE_LANGUAGE_MAP, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from '@lexical/code';
 import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
@@ -56,6 +56,8 @@ function getCodeLanguageOptions(): [string, string][] {
   )) {
     options.push([lang, friendlyName]);
   }
+
+  options.splice(3, 0, ['csharp', 'C#']);
 
   return options;
 }

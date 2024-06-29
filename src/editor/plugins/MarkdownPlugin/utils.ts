@@ -14,7 +14,7 @@ import type {
   Transformer,
 } from './MarkdownTransformers';
 
-import { $isCodeNode } from '@/editor/nodes/CodeNode';
+import { $isCodeNode } from '@lexical/code';
 import { $isListItemNode, $isListNode } from '@lexical/list';
 import { $isHeadingNode, $isQuoteNode } from '@lexical/rich-text';
 import {

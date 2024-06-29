@@ -7,7 +7,7 @@
  *
  */
 
-import { $isCodeHighlightNode } from '@/editor/nodes/CodeNode';
+import { $isCodeHighlightNode } from '@lexical/code';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { mergeRegister } from '@lexical/utils';
 import {

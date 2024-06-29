@@ -14,7 +14,7 @@ import type {
 } from '.';
 import type { ElementNode, LexicalEditor, TextNode } from 'lexical';
 
-import { $isCodeNode } from '@/editor/nodes/CodeNode';
+import { $isCodeNode } from '@lexical/code';
 import {
   $createRangeSelection,
   $getSelection,
