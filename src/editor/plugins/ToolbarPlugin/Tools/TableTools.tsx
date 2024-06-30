@@ -18,8 +18,8 @@ const FormatImageLeft = () => <SvgIcon viewBox='0 -960 960 960'>
 
 export default function TableTools({ editor, node }: { editor: LexicalEditor, node: TableNode }): JSX.Element {
 
-  const [formatType, setFormatType] = useState(getNodeFormatType());
-  const [float, setFloat] = useState(getNodeFloat());
+  const [formatType, setFormatType] = useState<ElementFormatType>();
+  const [float, setFloat] = useState<string>();
 
   function getNodeFormatType(): ElementFormatType {
     return editor.getEditorState().read(() => {

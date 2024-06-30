@@ -46,9 +46,11 @@ export class TableNode extends LexicalTableNode {
   }
 
   static importJSON(_serializedNode: SerializedTableNode): TableNode {
-    const tableNode = $createTableNode();
-    tableNode.__style = _serializedNode.style;
-    return tableNode;
+    const node = $createTableNode();
+    node.setFormat(_serializedNode.format);
+    node.setDirection(_serializedNode.direction);
+    node.setStyle(_serializedNode.style);
+    return node;
   }
 
   constructor(key?: NodeKey) {
@@ -65,13 +67,19 @@ export class TableNode extends LexicalTableNode {
   }
 
   createDOM(config: EditorConfig, editor?: LexicalEditor): HTMLElement {
-    const tableElement = super.createDOM(config, editor);
+    const element = super.createDOM(config, editor);
 
-    if (this.__style) {
-      tableElement.style.cssText = this.__style;
+    const style = this.getStyle();
+    if (style) {
+      element.style.cssText = style;
     }
-
-    return tableElement;
+    const formatType = this.getFormatType();
+    element.style.textAlign = formatType;
+    const direction = this.getDirection();
+    if (direction) {
+      element.dir = direction;
+    }
+    return element;
   }
 
   updateDOM(): boolean {
@@ -86,8 +94,15 @@ export class TableNode extends LexicalTableNode {
     const output = super.exportDOM(editor);
     const element = output.element;
     if (element && isHTMLElement(element)) {
-      if (this.__style) {
-        element.style.cssText = this.__style;
+      const style = this.getStyle();
+      if (style) {
+        element.style.cssText = style;
+      }
+      const formatType = this.getFormatType();
+      element.style.textAlign = formatType;
+      const direction = this.getDirection();
+      if (direction) {
+        element.dir = direction;
       }
     }
     return output;
