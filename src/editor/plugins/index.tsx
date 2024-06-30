@@ -7,12 +7,12 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { TablePlugin } from './TablePlugin';
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
-import { ListPlugin } from "./ListPlugin";
-import { CheckListPlugin } from './ListPlugin/LexicalCheckListPlugin';
+import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin'; 
+import ListMaxIndentLevelPlugin from "./ListPlugin/ListMaxIndentLevelPlugin";
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import MarkdownShortcutPlugin from "./MarkdownPlugin/MarkdownShortcutPlugin";
 import MarkdownAutoImportPlugin from "./MarkdownPlugin/MarkdownAutoImportPlugin";
-import ListMaxIndentLevelPlugin from "./ListPlugin/ListMaxIndentLevelPlugin";
 import CodeHighlightPlugin from "./CodePlugin/CodeHighlightPlugin";
 import AutoLinkPlugin from "./LinkPlugin/AutoLinkPlugin";
 import TableCellActionMenuPlugin from './TablePlugin/TableActionMenuPlugin';
@@ -24,7 +24,6 @@ import ImagePlugin from "./ImagePlugin";
 import SketchPlugin from './SketchPlugin';
 import GraphPlugin from './GraphPlugin';
 import StickyPlugin from './StickyPlugin';
-import ClickableLinkPlugin from './LinkPlugin/ClickableLinkPlugin';
 import ComponentPickerMenuPlugin from './ComponentPickerPlugin';
 import TabFocusPlugin from './TabFocusPlugin';
 import DragDropPaste from './DragDropPastePlugin';
@@ -41,7 +40,6 @@ import IFramePlugin from "./IFramePlugin";
 import { LayoutPlugin } from "./LayoutPlugin";
 import { LayoutContainerNode } from "../nodes/LayoutNode";
 import SpeechToTextPlugin from "./SpeechToTextPlugin";
-import useLexicalEditable from "@lexical/react/useLexicalEditable";
 
 export const EditorPlugins: React.FC<{
   contentEditable: React.ReactElement;
@@ -50,7 +48,6 @@ export const EditorPlugins: React.FC<{
 }> = ({ contentEditable, placeholder = null, onChange }) => {
   const [editor] = useLexicalComposerContext();
   const { historyState } = useSharedHistoryContext();
-  const isEditable = useLexicalEditable();
 
   return (
     <>
@@ -60,7 +57,6 @@ export const EditorPlugins: React.FC<{
       <ListPlugin />
       <CheckListPlugin />
       <LinkPlugin />
-      <ClickableLinkPlugin disabled={isEditable} />
       <TabFocusPlugin />
       <TabIndentationPlugin />
       <ListMaxIndentLevelPlugin maxDepth={7} />
