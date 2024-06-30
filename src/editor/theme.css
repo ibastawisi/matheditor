@@ -185,37 +185,37 @@
   text-align: start;
 }
 
-.LexicalTheme__table[style*='float: left'] {
+.LexicalTheme__table:is([style*="float:left"], [style*="float: left"]) {
   margin: 0 1em 0 0;
   table-layout: auto;
   width: auto;
 }
 
-.LexicalTheme__table[style*='float: right'] {
+.LexicalTheme__table:is([style*="float:right"], [style*="float: right"]) {
   margin: 0 0 0 1em;
   table-layout: auto;
   width: auto;
 }
 
-.LexicalTheme__table[style*='text-align: center'] {
+.LexicalTheme__table:is([style*="text-align:center"], [style*="text-align: center"]) {
   margin: 0 auto;
   table-layout: auto;
   width: auto;
 }
 
-.LexicalTheme__table[style*='text-align: right'] {
+.LexicalTheme__table:is([style*="text-align:right"], [style*="text-align: right"]) {
   margin: 0 0 0 auto;
   table-layout: auto;
   width: auto;
 }
 
-.LexicalTheme__table[style*='text-align: left'] {
+.LexicalTheme__table:is([style*="text-align:left"], [style*="text-align: left"]) {
   margin: 0 auto 0 0;
   table-layout: auto;
   width: auto;
 }
 
-.LexicalTheme__table[style*='text-align: justify'] {
+.LexicalTheme__table:is([style*='text-align:justify'], [style*='text-align: justify']) {
   margin: 0;
   table-layout: fixed;
   width: 100%;
