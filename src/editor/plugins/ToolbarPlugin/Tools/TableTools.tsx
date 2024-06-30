@@ -5,7 +5,7 @@ import { ToggleButtonGroup, ToggleButton, SvgIcon, Menu, Button, MenuItem, ListI
 import { ViewHeadline, Delete, KeyboardArrowDown, TableChart } from "@mui/icons-material";
 import { TableNode } from "@/editor/nodes/TableNode";
 import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight } from '@mui/icons-material';
-import { $getNodeStyleValueForProperty, $patchNodeStyle } from "@/editor/nodes/utils";
+import { $getNodeStyleValueForProperty, $patchStyle } from "@/editor/nodes/utils";
 
 const FormatImageRight = () => <SvgIcon viewBox='0 -960 960 960'>
   <path xmlns="http://www.w3.org/2000/svg" d="M450-285v-390h390v390H450Zm60-60h270v-270H510v270ZM120-120v-60h720v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h720v60H120Z" />
@@ -40,7 +40,7 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
   function updateFloat(newFloat: 'left' | 'right' | 'none'){
     setFloat(newFloat);
     editor.update(() => {
-      $patchNodeStyle(node, { float: newFloat });
+      $patchStyle(node, { float: newFloat });
     });
   }
 

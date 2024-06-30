@@ -44,7 +44,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
   function updateStyle(newStyle: Record<string, string>) {
     setStyle({ ...style, ...newStyle });
     editor.update(() => {
-      $patchStyle([node], newStyle);
+      $patchStyle(node, newStyle);
     });
   }
 

@@ -4,6 +4,7 @@ export const CSS_TO_STYLES: Map<string, Record<string, string>> = new Map();
 
 export function getStyleObjectFromRawCSS(css: string): Record<string, string> {
   const styleObject: Record<string, string> = {};
+  if (!css) return styleObject;
   const styles = css.split(';');
 
   for (const style of styles) {
@@ -82,6 +83,15 @@ export function $patchNodeStyle(
   CSS_TO_STYLES.set(newCSSText, newStyles);
 }
 
+
+export function $patchStyle(
+  target: LexicalNode | LexicalNode[],
+  patch: Record<string, string>,
+): void {
+  if (Array.isArray(target)) return target.forEach(node => $patchNodeStyle(node, patch));
+  $patchNodeStyle(target, patch);
+}
+
 const hasGetStyle = (node: LexicalNode): node is LexicalNode & { getStyle(): string } => {
   return 'getStyle' in node;
 }
@@ -92,25 +102,6 @@ const hasSetStyle = (node: LexicalNode): node is LexicalNode & { setStyle(style:
 
 const isStylableNode = (node: LexicalNode): node is LexicalNode & { getStyle(): string; setStyle(style: string): void } => {
   return hasGetStyle(node) && hasSetStyle(node);
-}
-
-const getStylableNodes = (nodes: LexicalNode[]): LexicalNode[] => {
-  const stylableNodes: LexicalNode[] = [];
-  for (let node of nodes) {
-    if (isStylableNode(node)) {
-      stylableNodes.push(node);
-    } else if ($isElementNode(node)) {
-      stylableNodes.push(...getStylableNodes(node.getChildren()));
-    }
-  }
-  return stylableNodes;
-}
-
-export function $patchStyle(
-  nodes: LexicalNode[],
-  patch: Record<string, string>,
-): void {
-  getStylableNodes(nodes).forEach((node) => $patchNodeStyle(node, patch));
 }
 
 export function getImageDimensions(src: string): Promise<{ width: number; height: number }> {

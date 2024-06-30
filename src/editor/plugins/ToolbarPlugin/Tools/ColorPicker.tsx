@@ -37,11 +37,12 @@ const backgroundPalete = [
   "#ffffff",
 ];
 
-export default function ColorPicker({ onColorChange, onClose, toggle = "togglebutton" }
+export default function ColorPicker({ onColorChange, onClose, toggle = "togglebutton", label = "Color" }
   : {
     onColorChange: (key: string, value: string) => void,
     onClose?: () => void,
-    toggle?: "togglebutton" | "menuitem"
+    toggle?: "togglebutton" | "menuitem",
+    label?: string
   }): JSX.Element {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -60,9 +61,7 @@ export default function ColorPicker({ onColorChange, onClose, toggle = "togglebu
   return (
     <>
       {toggle === "menuitem" && <MenuItem onClick={handleClick}>
-        <ListItemText>
-          Color
-        </ListItemText>
+        <ListItemText>{label}</ListItemText>
       </MenuItem>
       }
       {toggle === "togglebutton" && <ToggleButton size='small' value="color" onClick={handleClick} className="MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal" selected={open}>

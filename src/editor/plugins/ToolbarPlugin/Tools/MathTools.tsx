@@ -66,7 +66,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
   const applyStyleMath = useCallback(
     (styles: Record<string, string>) => {
       editor.update(() => {
-        $patchStyle([node], styles);
+        $patchStyle(node, styles);
       });
     },
     [editor, node],

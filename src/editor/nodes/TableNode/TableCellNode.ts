@@ -23,7 +23,7 @@ import {
   isHTMLElement,
 } from 'lexical';
 
-import { PIXEL_VALUE_REG_EXP } from './constants';
+import { getStyleObjectFromRawCSS } from '../utils';
 
 export type TableCellHeaderState =
   typeof TableCellHeaderStates[keyof typeof TableCellHeaderStates];
@@ -74,7 +74,13 @@ export class TableCellNode extends LexicalTableCellNode {
       serializedNode.width || undefined,
     );
     cellNode.__rowSpan = rowSpan;
+    cellNode.__backgroundColor = serializedNode.backgroundColor || null;
     cellNode.__style = serializedNode.style;
+    const styles = getStyleObjectFromRawCSS(cellNode.__style);
+    const backgroundColor = styles['background-color'];
+    if (backgroundColor) {
+     cellNode.__backgroundColor = backgroundColor;
+    }
     return cellNode;
   }
 
@@ -147,6 +153,7 @@ export function $convertTableCellNodeElement(
   const nodeName = domNode.nodeName.toLowerCase();
 
   let width: number | undefined = undefined;
+  const PIXEL_VALUE_REG_EXP = /^(\d+(?:\.\d+)?)px$/;
 
   if (PIXEL_VALUE_REG_EXP.test(domNode_.style.width)) {
     width = parseFloat(domNode_.style.width);

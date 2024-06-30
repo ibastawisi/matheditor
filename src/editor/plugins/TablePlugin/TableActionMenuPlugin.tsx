@@ -9,7 +9,7 @@
 import type { ElementNode, LexicalEditor } from 'lexical';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import useLexicalEditable from '@lexical/react/useLexicalEditable';
+import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import {
   $deleteTableColumn__EXPERIMENTAL,
   $deleteTableRow__EXPERIMENTAL,
@@ -23,7 +23,6 @@ import {
   $isTableCellNode,
   $isTableRowNode,
   $isTableSelection,
-  $patchCellStyle,
   $unmergeCell,
   getTableObserverFromTableElement,
   HTMLTableElementWithWithTableSelectionState,
@@ -47,7 +46,7 @@ import { createPortal } from 'react-dom';
 import invariant from '@/shared/invariant';
 
 import ColorPicker from '../ToolbarPlugin/Tools/ColorPicker';
-import { getStyleObjectFromCSS } from '@/editor/nodes/utils';
+import { getStyleObjectFromCSS, $patchStyle } from '@/editor/nodes/utils';
 import { MenuItem, ListItemText, Menu, Divider, Box, IconButton } from '@mui/material';
 import { DragIndicator } from '@mui/icons-material';
 
@@ -148,7 +147,6 @@ function currentCellStyle(
       const [cell] = $getNodeTriplet(selection.anchor);
       if ($isTableCellNode(cell)) {
         const css = cell.getStyle();
-        if (!css) return null;
         const style = getStyleObjectFromCSS(css);
         return style;
       }
@@ -229,7 +227,7 @@ function TableActionMenu({
         }
 
         const tableSelection = getTableObserverFromTableElement(tableElement);
-        if (tableSelection !== null) {
+        if (tableSelection) {
           tableSelection.clearHighlight();
         }
 
@@ -424,13 +422,13 @@ function TableActionMenu({
         if ($isRangeSelection(selection) || $isTableSelection(selection)) {
           const [cell] = $getNodeTriplet(selection.anchor);
           if ($isTableCellNode(cell)) {
-            $patchCellStyle([cell], styles);
+            $patchStyle(cell, styles);
           }
 
           if ($isTableSelection(selection)) {
             const nodes = selection.getNodes();
             const cells = nodes.filter($isTableCellNode);
-            $patchCellStyle(cells, styles);
+            $patchStyle(cells, styles);
           }
         }
       });
@@ -497,6 +495,7 @@ function TableActionMenu({
       <ColorPicker
         onColorChange={handleCellColor}
         toggle="menuitem"
+        label='Cell color'
       />
       <Divider />
       <MenuItem onClick={() => insertTableRowAtSelection(false)}>
@@ -575,7 +574,7 @@ function TableCellActionMenuContainer({
     null,
   );
 
-  const moveMenu = useCallback(() => {
+  const $moveMenu = useCallback(() => {
     const menu = menuButtonRef.current;
     const selection = $getSelection();
     const nativeSelection = window.getSelection();
@@ -598,7 +597,7 @@ function TableCellActionMenuContainer({
         selection.anchor.getNode(),
       );
 
-      if (tableCellNodeFromSelection == null || !$isTableCellNode(tableCellNodeFromSelection)) {
+      if (!$isTableCellNode(tableCellNodeFromSelection)) {
         setTableMenuCellNode(null);
         return;
       }
@@ -621,7 +620,7 @@ function TableCellActionMenuContainer({
   useEffect(() => {
     return editor.registerUpdateListener(() => {
       editor.getEditorState().read(() => {
-        moveMenu();
+        $moveMenu();
       });
     });
   });
