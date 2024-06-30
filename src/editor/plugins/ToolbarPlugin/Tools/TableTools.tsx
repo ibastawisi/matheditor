@@ -1,11 +1,11 @@
 "use client"
-import { LexicalEditor, } from "lexical";
-import { $patchStyle, getStyleObjectFromCSS } from '@/editor/nodes/utils';
+import { ElementFormatType, LexicalEditor, } from "lexical";
 import { useEffect, useState } from "react";
 import { ToggleButtonGroup, ToggleButton, SvgIcon, Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography } from "@mui/material";
-import { ViewHeadline, Delete, KeyboardArrowDown, DeleteForever, TableChart } from "@mui/icons-material";
+import { ViewHeadline, Delete, KeyboardArrowDown, TableChart } from "@mui/icons-material";
 import { TableNode } from "@/editor/nodes/TableNode";
-import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight, FormatAlignJustify } from '@mui/icons-material';
+import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight } from '@mui/icons-material';
+import { $getNodeStyleValueForProperty, $patchNodeStyle } from "@/editor/nodes/utils";
 
 const FormatImageRight = () => <SvgIcon viewBox='0 -960 960 960'>
   <path xmlns="http://www.w3.org/2000/svg" d="M450-285v-390h390v390H450Zm60-60h270v-270H510v270ZM120-120v-60h720v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h720v60H120Z" />
@@ -18,26 +18,37 @@ const FormatImageLeft = () => <SvgIcon viewBox='0 -960 960 960'>
 
 export default function TableTools({ editor, node }: { editor: LexicalEditor, node: TableNode }): JSX.Element {
 
-  const [style, setStyle] = useState(currentNodeStyle());
+  const [formatType, setFormatType] = useState(getNodeFormatType());
+  const [float, setFloat] = useState(getNodeFloat());
 
-  function currentNodeStyle(): Record<string, string> | null {
+  function getNodeFormatType(): ElementFormatType {
     return editor.getEditorState().read(() => {
-      if ('getStyle' in node === false) return null;
-      const css = node.getStyle();
-      if (!css) return null;
-      const style = getStyleObjectFromCSS(css);
-      return style;
+      return node.getFormatType();
+    });
+  }
+  function getNodeFloat(): string {
+    return editor.getEditorState().read(() => {
+      return $getNodeStyleValueForProperty(node, "float", "none");
     });
   }
 
   useEffect(() => {
-    setStyle(currentNodeStyle());
+    setFormatType(getNodeFormatType());
+    setFloat(getNodeFloat());
   }, [node]);
 
-  function updateStyle(newStyle: Record<string, string>) {
-    setStyle({ ...style, ...newStyle });
+  function updateFloat(newFloat: 'left' | 'right' | 'none'){
+    setFloat(newFloat);
     editor.update(() => {
-      $patchStyle([node], newStyle);
+      $patchNodeStyle(node, { float: newFloat });
+    });
+  }
+
+  function updateFormat(newFormat: ElementFormatType) {
+    updateFloat("none");
+    setFormatType(newFormat);
+    editor.update(() => {
+      node.setFormat(newFormat);
     });
   }
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -84,21 +95,21 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
       >
         <MenuItem>
           <ToggleButtonGroup size="small" sx={{ width: "100%", justifyContent: "center" }}>
-            <ToggleButton value="align-left" key="align-left" selected={style?.margin === "0 auto 0 0"}
+            <ToggleButton value="align-left" key="align-left" selected={formatType === "left"}
               onClick={() => {
-                updateStyle({ "float": "none", "margin": "0 auto 0 0", "table-layout": "auto", "width": "auto" });
+                updateFormat('left');
               }}>
               <FormatAlignLeft />
             </ToggleButton>
-            <ToggleButton value="align-none" key="align-none" selected={style?.margin === "0 auto"}
+            <ToggleButton value="align-center" key="align-center" selected={formatType === "center"}
               onClick={() => {
-                updateStyle({ "float": "none", "margin": "0 auto", "table-layout": "auto", "width": "auto" });
+                updateFormat('center');
               }}>
               <FormatAlignCenter />
             </ToggleButton>,
-            <ToggleButton value="align-right" key="align-right" selected={style?.margin === "0 0 0 auto"}
+            <ToggleButton value="align-right" key="align-right" selected={formatType === "right"}
               onClick={() => {
-                updateStyle({ "float": "none", "margin": "0 0 0 auto", "table-layout": "auto", "width": "auto" });
+                updateFormat('right');
               }}>
               <FormatAlignRight />
             </ToggleButton>
@@ -106,21 +117,21 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
         </MenuItem>
         <MenuItem>
           <ToggleButtonGroup size="small" sx={{ width: "100%", justifyContent: "center" }}>
-            <ToggleButton value="float-left" key="float-left" selected={style?.float === "left"}
+            <ToggleButton value="float-left" key="float-left" selected={float === "left"}
               onClick={() => {
-                updateStyle({ "float": "left", "margin": "0 1em 0 0", "table-layout": "auto", "width": "auto" });
+                updateFloat("left");
               }}>
               <FormatImageLeft />
             </ToggleButton>
-            <ToggleButton value="float-none" key="float-none" selected={!style || (style.float === "none" && style.width === "100%")}
+            <ToggleButton value="align-justify" key="align-justify" selected={formatType === "justify"}
               onClick={() => {
-                updateStyle({ "float": "none", "margin": "0", "table-layout": "fixed", "width": "100%" });
+                updateFormat('justify');
               }}>
               <ViewHeadline />
             </ToggleButton>,
-            <ToggleButton value="float-right" key="float-right" selected={style?.float === "right"}
+            <ToggleButton value="float-right" key="float-right" selected={float === "right"}
               onClick={() => {
-                updateStyle({ "float": "right", "margin": "0 0 0 1em", "table-layout": "auto", "width": "auto" });
+                updateFloat("right");
               }}>
               <FormatImageRight />
             </ToggleButton>

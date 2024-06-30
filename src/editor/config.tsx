@@ -1,5 +1,5 @@
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
-import { TableCellNode, TableNode, TableRowNode } from "./nodes/TableNode";
+import { TableCellNode, TableNode } from "./nodes/TableNode";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import 'prismjs/components/prism-csharp';
@@ -17,6 +17,11 @@ import { LayoutContainerNode, LayoutItemNode } from "./nodes/LayoutNode";
 import type { InitialConfigType } from "@lexical/react/LexicalComposer";
 import type { CreateEditorArgs } from "lexical";
 import { htmlConfig } from "./utils/htmlConfig";
+import {
+  TableCellNode as LexicalTableCellNode,
+  TableNode as LexicalTableNode,
+  TableRowNode as LexicalTableRowNode,
+} from "@lexical/table";
 
 export const editorConfig = {
   namespace: "matheditor",
@@ -36,7 +41,20 @@ export const editorConfig = {
     CodeHighlightNode,
     TableNode,
     TableCellNode,
-    TableRowNode,
+    {
+      replace: LexicalTableNode,
+      with: (node: any) => new TableNode(),
+    },
+    {
+      replace: LexicalTableCellNode,
+      with: (node: LexicalTableCellNode) =>
+        new TableCellNode(
+          node.__headerState,
+          node.__colSpan,
+          node.__width,
+        ),
+    },
+    LexicalTableRowNode,
     AutoLinkNode,
     LinkNode,
     HorizontalRuleNode,

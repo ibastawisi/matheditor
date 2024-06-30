@@ -38,11 +38,11 @@ export function getCSSFromStyleObject(styles: Record<string, string>): string {
 }
 
 export function $getNodeStyleValueForProperty(
-  node: LexicalNode & { getStyle?(): string },
+  node: LexicalNode,
   styleProperty: string,
   defaultValue: string,
 ): string {
-  if (node.getStyle === undefined) return defaultValue;
+  if (!isStylableNode(node)) return defaultValue;
   const css = node.getStyle();
   const styleObject = getStyleObjectFromCSS(css);
 
@@ -53,18 +53,18 @@ export function $getNodeStyleValueForProperty(
   return defaultValue;
 }
 
-export function $addNodeStyle(node: LexicalNode & { getStyle?(): string }): void {
-  if (node.getStyle === undefined) return;
+export function $addNodeStyle(node: LexicalNode): void {
+  if (!isStylableNode(node)) return;
   const CSSText = node.getStyle();
   const styles = getStyleObjectFromRawCSS(CSSText);
   CSS_TO_STYLES.set(CSSText, styles);
 }
 
 export function $patchNodeStyle(
-  target: LexicalNode & { getStyle?(): string; setStyle?(css: string): void },
-  patch: Record<string, string | null>,
+  target: LexicalNode,
+  patch: Record<string, string>,
 ): void {
-  if (target.getStyle === undefined || target.setStyle === undefined) return;
+  if (!isStylableNode(target)) return;
   const prevStyles = getStyleObjectFromCSS(target.getStyle() || '');
   const newStyles = Object.entries(patch).reduce<Record<string, string>>(
     (styles, [key, value]) => {
@@ -82,11 +82,22 @@ export function $patchNodeStyle(
   CSS_TO_STYLES.set(newCSSText, newStyles);
 }
 
+const hasGetStyle = (node: LexicalNode): node is LexicalNode & { getStyle(): string } => {
+  return 'getStyle' in node;
+}
+
+const hasSetStyle = (node: LexicalNode): node is LexicalNode & { setStyle(style: string): void } => {
+  return 'setStyle' in node;
+}
+
+const isStylableNode = (node: LexicalNode): node is LexicalNode & { getStyle(): string; setStyle(style: string): void } => {
+  return hasGetStyle(node) && hasSetStyle(node);
+}
 
 const getStylableNodes = (nodes: LexicalNode[]): LexicalNode[] => {
   const stylableNodes: LexicalNode[] = [];
   for (let node of nodes) {
-    if ('getStyle' in node) {
+    if (isStylableNode(node)) {
       stylableNodes.push(node);
     } else if ($isElementNode(node)) {
       stylableNodes.push(...getStylableNodes(node.getChildren()));
@@ -97,7 +108,7 @@ const getStylableNodes = (nodes: LexicalNode[]): LexicalNode[] => {
 
 export function $patchStyle(
   nodes: LexicalNode[],
-  patch: Record<string, string | null>,
+  patch: Record<string, string>,
 ): void {
   getStylableNodes(nodes).forEach((node) => $patchNodeStyle(node, patch));
 }

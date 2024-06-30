@@ -1,5 +1,5 @@
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
-import { TableCellNode, TableNode, TableRowNode } from "../TableNode";
+import { TableCellNode, TableNode } from "../TableNode";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
@@ -14,6 +14,11 @@ import { LayoutContainerNode, LayoutItemNode } from "../LayoutNode";
 import type { InitialConfigType } from "@lexical/react/LexicalComposer";
 import type { CreateEditorArgs } from "lexical";
 import { htmlConfig } from "@/editor/utils/htmlConfig";
+import {
+  TableCellNode as LexicalTableCellNode,
+  TableNode as LexicalTableNode,
+  TableRowNode as LexicalTableRowNode,
+} from "@lexical/table";
 
 export const editorConfig = {
   namespace: "matheditor",
@@ -33,7 +38,20 @@ export const editorConfig = {
     CodeHighlightNode,
     TableNode,
     TableCellNode,
-    TableRowNode,
+    {
+      replace: LexicalTableNode,
+      with: (node: LexicalTableNode) => new TableNode(),
+    },
+    {
+      replace: LexicalTableCellNode,
+      with: (node: LexicalTableCellNode) =>
+        new TableCellNode(
+          node.__headerState,
+          node.__colSpan,
+          node.__width,
+        ),
+    },
+    LexicalTableRowNode,
     AutoLinkNode,
     LinkNode,
     HorizontalRuleNode,

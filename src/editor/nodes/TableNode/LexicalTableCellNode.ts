@@ -1,10 +1,8 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
+import {
+  TableCellNode as LexicalTableCellNode,
+  SerializedTableCellNode as LexicalSerializedTableCellNode,
+  TableCellHeaderStates,
+} from '@lexical/table';
 
 import type {
   DOMConversionMap,
@@ -14,59 +12,31 @@ import type {
   LexicalEditor,
   LexicalNode,
   NodeKey,
-  SerializedElementNode,
-  Spread,
 } from 'lexical';
 
-import { addClassNamesToElement } from '@lexical/utils';
 import {
   $applyNodeReplacement,
   $createParagraphNode,
   $isElementNode,
   $isLineBreakNode,
   $isTextNode,
-  ElementNode,
   isHTMLElement,
 } from 'lexical';
 
 import { PIXEL_VALUE_REG_EXP } from './constants';
 
-export const TableCellHeaderStates = {
-  BOTH: 3,
-  COLUMN: 2,
-  NO_STATUS: 0,
-  ROW: 1,
-};
-
 export type TableCellHeaderState =
   typeof TableCellHeaderStates[keyof typeof TableCellHeaderStates];
 
-export type SerializedTableCellNode = Spread<
-  {
-    colSpan?: number;
-    rowSpan?: number;
-    headerState: TableCellHeaderState;
-    width?: number;
-    style?: string;
-  },
-  SerializedElementNode
->;
+export type SerializedTableCellNode = LexicalSerializedTableCellNode & {
+  style: string;
+};
 
 /** @noInheritDoc */
-export class TableCellNode extends ElementNode {
-  /** @internal */
-  __colSpan: number;
-  /** @internal */
-  __rowSpan: number;
-  /** @internal */
-  __headerState: TableCellHeaderState;
-  /** @internal */
-  __width?: number;
-  /** @internal */
-  __style?: string;
-
+export class TableCellNode extends LexicalTableCellNode {
+  __style: string;
   static getType(): string {
-    return 'tablecell';
+    return 'matheditor-tablecell';
   }
 
   static clone(node: TableCellNode): TableCellNode {
@@ -77,6 +47,7 @@ export class TableCellNode extends ElementNode {
       node.__key,
     );
     cellNode.__rowSpan = node.__rowSpan;
+    cellNode.__backgroundColor = node.__backgroundColor;
     cellNode.__style = node.__style;
     return cellNode;
   }
@@ -84,11 +55,11 @@ export class TableCellNode extends ElementNode {
   static importDOM(): DOMConversionMap | null {
     return {
       td: (node: Node) => ({
-        conversion: convertTableCellNodeElement,
+        conversion: $convertTableCellNodeElement,
         priority: 0,
       }),
       th: (node: Node) => ({
-        conversion: convertTableCellNodeElement,
+        conversion: $convertTableCellNodeElement,
         priority: 0,
       }),
     };
@@ -113,55 +84,28 @@ export class TableCellNode extends ElementNode {
     width?: number,
     key?: NodeKey,
   ) {
-    super(key);
-    this.__colSpan = colSpan;
-    this.__rowSpan = 1;
-    this.__headerState = headerState;
-    this.__width = width;
+    super(headerState, colSpan, width, key);
+    this.__style = '';
   }
 
   createDOM(config: EditorConfig): HTMLElement {
-    const element = document.createElement(
-      this.getTag(),
-    ) as HTMLTableCellElement;
-
-    if (this.__width) {
-      element.style.width = `${this.__width}px`;
-    }
-    if (this.__colSpan > 1) {
-      element.colSpan = this.__colSpan;
-    }
-    if (this.__rowSpan > 1) {
-      element.rowSpan = this.__rowSpan;
-    }
-    if (this.__style) {
-      element.style.cssText = this.__style;
-    }
-
-    addClassNamesToElement(
-      element,
-      config.theme.tableCell,
-      this.hasHeader() && config.theme.tableCellHeader,
-    );
+    const element = super.createDOM(config);
+    element.style.cssText = this.__style;
 
     return element;
   }
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
-    const { element } = super.exportDOM(editor);
+    const element = this.createDOM(editor._config);
 
     if (element && isHTMLElement(element)) {
+      element.style.cssText = this.__style;
+      // linkedom does not implement setting colSpan and rowSpan
       if (this.__colSpan > 1) {
         element.setAttribute('colspan', this.__colSpan.toString());
       }
       if (this.__rowSpan > 1) {
         element.setAttribute('rowspan', this.__rowSpan.toString());
-      }
-      if (this.__style) {
-        element.style.cssText = this.__style;
-      }
-      if (this.__width) {
-        element.style.width = `${this.getWidth()}px`;
       }
     }
 
@@ -173,58 +117,13 @@ export class TableCellNode extends ElementNode {
   exportJSON(): SerializedTableCellNode {
     return {
       ...super.exportJSON(),
-      style: this.getStyle(),
-      colSpan: this.__colSpan,
-      headerState: this.__headerState,
-      rowSpan: this.__rowSpan,
-      type: 'tablecell',
-      width: this.getWidth(),
+      style: this.__style,
+      type: TableCellNode.getType(),
     };
   }
 
-  getColSpan(): number {
-    return this.__colSpan;
-  }
 
-  setColSpan(colSpan: number): this {
-    this.getWritable().__colSpan = colSpan;
-    return this;
-  }
-
-  getRowSpan(): number {
-    return this.__rowSpan;
-  }
-
-  setRowSpan(rowSpan: number): this {
-    this.getWritable().__rowSpan = rowSpan;
-    return this;
-  }
-
-  getTag(): string {
-    return this.hasHeader() ? 'th' : 'td';
-  }
-
-  setHeaderStyles(headerState: TableCellHeaderState): TableCellHeaderState {
-    const self = this.getWritable();
-    self.__headerState = headerState;
-    return this.__headerState;
-  }
-
-  getHeaderStyles(): TableCellHeaderState {
-    return this.getLatest().__headerState;
-  }
-
-  setWidth(width: number): number | null | undefined {
-    const self = this.getWritable();
-    self.__width = width;
-    return this.__width;
-  }
-
-  getWidth(): number | undefined {
-    return this.getLatest().__width;
-  }
-
-  getStyle(): string | undefined {
+  getStyle(): string {
     return this.getLatest().__style;
   }
 
@@ -232,54 +131,16 @@ export class TableCellNode extends ElementNode {
     this.getWritable().__style = newStyle;
   }
 
-  toggleHeaderStyle(headerStateToToggle: TableCellHeaderState): TableCellNode {
-    const self = this.getWritable();
-
-    if ((self.__headerState & headerStateToToggle) === headerStateToToggle) {
-      self.__headerState -= headerStateToToggle;
-    } else {
-      self.__headerState += headerStateToToggle;
-    }
-
-    return self;
-  }
-
-  hasHeaderState(headerState: TableCellHeaderState): boolean {
-    return (this.getHeaderStyles() & headerState) === headerState;
-  }
-
-  hasHeader(): boolean {
-    return this.getLatest().__headerState !== TableCellHeaderStates.NO_STATUS;
-  }
-
   updateDOM(prevNode: TableCellNode): boolean {
     return (
-      prevNode.__headerState !== this.__headerState ||
-      prevNode.__width !== this.__width ||
-      prevNode.__colSpan !== this.__colSpan ||
-      prevNode.__rowSpan !== this.__rowSpan ||
+      super.updateDOM(prevNode) ||
       prevNode.__style !== this.__style
     );
   }
 
-  isShadowRoot(): boolean {
-    return true;
-  }
-
-  collapseAtStart(): true {
-    return true;
-  }
-
-  canBeEmpty(): false {
-    return false;
-  }
-
-  canIndent(): false {
-    return false;
-  }
 }
 
-export function convertTableCellNodeElement(
+export function $convertTableCellNodeElement(
   domNode: Node,
 ): DOMConversionOutput {
   const domNode_ = domNode as HTMLTableCellElement;
@@ -301,17 +162,15 @@ export function convertTableCellNodeElement(
 
   tableCellNode.__rowSpan = domNode_.rowSpan;
   const cssText = domNode_.style.cssText;
-  if (cssText !== '') {
-    tableCellNode.__style = cssText;
-  }
+  tableCellNode.__style = cssText;
 
   const style = domNode_.style;
+  const textDecoration = style.textDecoration.split(' ');
   const hasBoldFontWeight =
     style.fontWeight === '700' || style.fontWeight === 'bold';
-  const hasLinethroughTextDecoration = style.textDecoration === 'line-through';
+  const hasLinethroughTextDecoration = textDecoration.includes('line-through');
   const hasItalicFontStyle = style.fontStyle === 'italic';
-  const hasUnderlineTextDecoration = style.textDecoration === 'underline';
-
+  const hasUnderlineTextDecoration = textDecoration.includes('underline');
   return {
     after: (childLexicalNodes) => {
       if (childLexicalNodes.length === 0) {
