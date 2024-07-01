@@ -14,6 +14,7 @@ import { $isListNode } from "@lexical/list";
 import { $isHorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
 import { $findMatchingParent } from "@/editor";
 import { $createTableCellNode, $createTableRowNode, $isTableCellNode, $isTableNode, $isTableRowNode, TableCellHeaderStates, TableRowNode } from "@/editor/nodes/TableNode";
+import { throttle } from "@/editor/utils/throttle";
 
 export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> }): JSX.Element {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -234,6 +235,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       tag: !isStarting ? "history-merge" : undefined,
       discrete: true,
       onUpdate() {
+        updateDocument();
         if (!shouldInsertNewlineAfter) return;
         editor.update(() => {
           const selection = $getSelection();
@@ -247,6 +249,10 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       },
     });
   }, [completion]);
+
+  const updateDocument = useCallback(throttle(() => {
+    editor.dispatchCommand(UPDATE_DOCUMENT_COMMAND, undefined);
+  }, 1000), [editor]);
 
   useEffect(() => {
     if (isLoading) return;

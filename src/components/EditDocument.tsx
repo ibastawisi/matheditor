@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import SplashScreen from "./SplashScreen";
 import { Helmet } from "react-helmet";
 import { EditorDocument } from '@/types';
@@ -9,6 +9,7 @@ import { EditorState, LexicalEditor } from "@/editor";
 import { v4 as uuidv4 } from 'uuid';
 import dynamic from "next/dynamic";
 import DiffView from "./Diff";
+import { debounce } from "@mui/material";
 
 const Editor = dynamic(() => import("@/components/Editor"), { ssr: false, loading: () => <SplashScreen title="Loading Editor" /> });
 const EditDocumentInfo = dynamic(() => import('@/components/EditDocumentInfo'), { ssr: false });
@@ -22,6 +23,10 @@ const EditDocument: React.FC = () => {
   const editorRef = useRef<LexicalEditor>(null);
   const showDiff = useSelector(state => state.ui.diff.open);
 
+  const debouncedUpdateLocalDocument = useCallback(debounce((id: string, partial: Partial<EditorDocument>) => {
+    dispatch(actions.updateLocalDocument({ id, partial}));
+  }, 300), [document]);
+
   function handleChange(editorState: EditorState, editor: LexicalEditor, tags: Set<string>) {
     if (!document) return;
     const data = editorState.toJSON();
@@ -30,7 +35,7 @@ const EditDocument: React.FC = () => {
       const payload = JSON.parse(tags.values().next().value);
       if (payload.id === document.id) { Object.assign(updatedDocument, payload.partial); }
     } catch (e) { }
-    dispatch(actions.updateLocalDocument({ id: document.id, partial: updatedDocument }));
+    debouncedUpdateLocalDocument(document.id, updatedDocument);
   }
 
   useEffect(() => {
