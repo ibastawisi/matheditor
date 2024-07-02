@@ -245,7 +245,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
           const isListNode = $isListNode(elementNode);
           if (isListNode) elementNode.insertAfter($createParagraphNode()).selectEnd();
           else selection.insertParagraph();
-        }, { tag: "history-merge" });
+        }, { tag: "history-merge", discrete: true });
       },
     });
   }, [completion]);

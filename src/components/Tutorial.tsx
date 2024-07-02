@@ -2,7 +2,7 @@
 import { useState } from "react";
 import type { EditorState } from "@/editor";
 import { tasks, checkpoints } from "@/tutorial";
-import { Paper, Box, Typography, List, Pagination, ListItemButton, ListItemIcon, ListItemText, Collapse, Divider } from "@mui/material";
+import { Paper, Box, Typography, List, Pagination, ListItemButton, ListItemIcon, ListItemText, Collapse, Divider, debounce } from "@mui/material";
 import { Check, Clear, ExpandLess, ExpandMore } from "@mui/icons-material";
 import dynamic from "next/dynamic";
 import SplashScreen from './SplashScreen';
@@ -31,7 +31,7 @@ const Tutorial: React.FC = () => {
   }
 
   return <>
-    <Editor key={currentTask} document={tasks[currentTask]} onChange={onChange} />
+    <Editor key={currentTask} document={tasks[currentTask]} onChange={debounce(onChange, 300)} />
     <Paper sx={{ p: 2, mt: 3, displayPrint: 'none' }}>
       <Box key={`task-${currentTask}`} sx={{ mb: 2 }}>
         <Typography variant="h6">{tasks[currentTask].name}</Typography>

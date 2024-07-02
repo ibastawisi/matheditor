@@ -50,13 +50,17 @@ function runTextMatchTransformers(
 ): boolean {
   if (!anchorNode.getParent()) return false;
   if (!$isTextNode(anchorNode)) return false;
-  let textContent = anchorNode.getTextContent();
+  const textContent = anchorNode.getTextContent();
+  const isPossiblyInlineCode = (textContent.match(/`+/g) || []).length % 2 !== 0;
+  if (isPossiblyInlineCode) return false;
   for (const transformer of textMatchTransformers) {
     const match = textContent.match(transformer.regExp);
     if (match === null) continue;
 
     const startIndex = match.index || 0;
     const endIndex = startIndex + match[0].length;
+    const isInlineCode = anchorNode.hasFormat('code') || textContent[startIndex - 1] === '`';
+    if (isInlineCode) break;
     if (!match.slice(1).map(Boolean).includes(true)) continue;
     let replaceNode, endNode;
 
@@ -83,11 +87,15 @@ function $runTextFormatTransformers(
   const textContent = anchorNode.getTextContent();
   const isPossiblyLatex = (textContent.match(/\$+/g) || []).length % 2 !== 0;
   if (isPossiblyLatex) return false;
+  const isPossiblyInlineCode = (textContent.match(/`+/g) || []).length % 2 !== 0;
+  if (isPossiblyInlineCode) return false;
   for (const matcher of textFormatTransformers) {
     const tag = matcher.tag.replaceAll('*', '\\*');
     const regex = new RegExp(`${tag}([^${tag}]+?)${tag}`, 'g');
     const matches = textContent.matchAll(regex);
     for (const match of matches) {
+      const isInlineCode = anchorNode.hasFormat('code');
+      if (isInlineCode) break;
       const startIndex = match.index || 0;
       if (textContent[startIndex - 1] === matcher.tag[0]) continue;
       const endIndex = startIndex + match[0].length;
