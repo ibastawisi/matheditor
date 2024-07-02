@@ -8,7 +8,7 @@ import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { TablePlugin } from './TablePlugin';
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
-import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin'; 
+import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import ListMaxIndentLevelPlugin from "./ListPlugin/ListMaxIndentLevelPlugin";
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import MarkdownShortcutPlugin from "./MarkdownPlugin/MarkdownShortcutPlugin";
@@ -40,6 +40,8 @@ import IFramePlugin from "./IFramePlugin";
 import { LayoutPlugin } from "./LayoutPlugin";
 import { LayoutContainerNode } from "../nodes/LayoutNode";
 import SpeechToTextPlugin from "./SpeechToTextPlugin";
+import DetailsPlugin from "./DetailsPlugin";
+import { DetailsContainerNode } from "../nodes/DetailsNode";
 
 export const EditorPlugins: React.FC<{
   contentEditable: React.ReactElement;
@@ -80,6 +82,7 @@ export const EditorPlugins: React.FC<{
       {editor.hasNode(PageBreakNode) && <PageBreakPlugin />}
       {editor.hasNode(IFrameNode) && <IFramePlugin />}
       {editor.hasNode(LayoutContainerNode) && <LayoutPlugin />}
+      {editor.hasNode(DetailsContainerNode) && <DetailsPlugin />}
     </>
   );
 };

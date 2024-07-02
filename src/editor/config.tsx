@@ -22,6 +22,7 @@ import {
   TableNode as LexicalTableNode,
   TableRowNode as LexicalTableRowNode,
 } from "@lexical/table";
+import { DetailsContainerNode, DetailsContentNode, DetailsSummaryNode } from "./nodes/DetailsNode";
 
 export const editorConfig = {
   namespace: "matheditor",
@@ -67,6 +68,9 @@ export const editorConfig = {
     IFrameNode,
     LayoutContainerNode,
     LayoutItemNode,
+    DetailsContainerNode,
+    DetailsContentNode,
+    DetailsSummaryNode,
   ],
   html: htmlConfig,
 } satisfies InitialConfigType & CreateEditorArgs;
