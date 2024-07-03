@@ -13,6 +13,10 @@
   caret-color: #444;
 }
 
+body:has(.editor-input:not(:focus-within)) .floating-toolbar {
+  display: none;
+}
+
 [theme="dark"] .editor-input {
   caret-color: #eee;
   color-scheme: dark;
