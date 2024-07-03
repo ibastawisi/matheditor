@@ -4,7 +4,7 @@ import { $isCodeNode, CODE_LANGUAGE_MAP, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from 
 import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
-import { $getSelectionStyleValueForProperty, $isParentElementRTL, $patchStyleText, } from '@lexical/selection';
+import { $isParentElementRTL, } from '@lexical/selection';
 import { $getNearestNodeOfType, mergeRegister, } from '@lexical/utils';
 import { CAN_REDO_COMMAND, CAN_UNDO_COMMAND, REDO_COMMAND, SELECTION_CHANGE_COMMAND, UNDO_COMMAND, COMMAND_PRIORITY_CRITICAL, } from 'lexical';
 import { useCallback, useEffect, useState } from 'react';
@@ -18,7 +18,6 @@ import MathTools from './Tools/MathTools';
 import { $isImageNode } from '@/editor/nodes/ImageNode';
 import ImageTools from './Tools/ImageTools';
 import { $isGraphNode } from '@/editor/nodes/GraphNode';
-import { $patchStyle } from '@/editor/nodes/utils';
 import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog, LinkDialog, LayoutDialog, OCRDialog } from './Dialogs';
 import { $isStickyNode } from '@/editor/nodes/StickyNode';
 import { SelectChangeEvent, useScrollTrigger, AppBar, Toolbar, Box, IconButton, Select, MenuItem, Fab } from '@mui/material';
@@ -33,6 +32,7 @@ import { getSelectedNode } from '@/editor/utils/getSelectedNode';
 import { SPEECH_TO_TEXT_COMMAND, SUPPORT_SPEECH_RECOGNITION } from '../SpeechToTextPlugin';
 import AITools from './Tools/AITools';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
+import FontSelect from './Menus/FontSelect';
 
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -70,8 +70,6 @@ function ToolbarPlugin() {
   const [activeEditor, setActiveEditor] = useState(editor);
   const [blockType, setBlockType] = useState<keyof typeof blockTypeToBlockName>('paragraph');
   const [selectedElementKey, setSelectedElementKey] = useState<NodeKey | null>(null);
-  const [fontSize, setFontSize] = useState<string>('15px');
-  const [fontFamily, setFontFamily] = useState<string>('Roboto');
   const [isRTL, setIsRTL] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
@@ -162,13 +160,6 @@ function ToolbarPlugin() {
           }
         }
       }
-      // Handle buttons
-      setFontSize(
-        $getSelectionStyleValueForProperty(selection, 'font-size', '15px'),
-      );
-      setFontFamily(
-        $getSelectionStyleValueForProperty(selection, 'font-family', 'Roboto'),
-      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeEditor]);
@@ -232,35 +223,6 @@ function ToolbarPlugin() {
     );
   }, [activeEditor, dialogs]);
 
-  const applyStyleText = useCallback(
-    (styles: Record<string, string>) => {
-      activeEditor.update(() => {
-        const selection = $getSelection();
-        if ($isRangeSelection(selection)) {
-          $patchStyleText(selection, styles);
-          const mathNodes = selection.getNodes().filter($isMathNode);
-          $patchStyle(mathNodes, styles);
-        }
-      });
-    },
-    [activeEditor],
-  );
-
-  const onFontSizeSelect = useCallback(
-    (e: SelectChangeEvent) => {
-      applyStyleText({ 'font-size': (e.target as HTMLSelectElement).value });
-    },
-    [applyStyleText],
-  );
-
-
-  const onFontFamilySelect = useCallback(
-    (e: SelectChangeEvent) => {
-      applyStyleText({ 'font-family': (e.target as HTMLSelectElement).value });
-    },
-    [applyStyleText],
-  );
-
   const onCodeLanguageSelect = useCallback(
     (e: SelectChangeEvent) => {
       activeEditor.update(() => {
@@ -274,29 +236,6 @@ function ToolbarPlugin() {
     },
     [activeEditor, selectedElementKey],
   );
-
-  const FONT_FAMILY_OPTIONS = [
-    ['Roboto', 'Roboto'],
-    ['KaTeX_Main', 'KaTeX'],
-    ['Virgil', 'Virgil'],
-    ['Cascadia', 'Cascadia'],
-    ['Courier New', 'Courier New'],
-    ['Georgia', 'Georgia'],
-  ];
-
-  const FONT_SIZE_OPTIONS: [string, string][] = [
-    ['10px', '10'],
-    ['11px', '11'],
-    ['12px', '12'],
-    ['13px', '13'],
-    ['14px', '14'],
-    ['15px', '15'],
-    ['16px', '16'],
-    ['17px', '17'],
-    ['18px', '18'],
-    ['19px', '19'],
-    ['20px', '20'],
-  ];
 
   const toolbarTrigger = useScrollTrigger({
     disableHysteresis: IS_MOBILE,
@@ -344,12 +283,7 @@ function ToolbarPlugin() {
               {showCodeTools && <Select size='small' onChange={onCodeLanguageSelect} value={codeLanguage}>
                 {CODE_LANGUAGE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
               </Select>}
-              {showTextFormatTools && <Select size='small' sx={{ width: { xs: 68, md: "auto" } }} onChange={onFontFamilySelect} value={fontFamily}>
-                {FONT_FAMILY_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
-              </Select>}
-              {showTextFormatTools && <Select size='small' sx={{ width: { xs: 68, md: "auto" } }} onChange={onFontSizeSelect} value={fontSize}>
-                {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option} sx={{ justifyContent: "center" }}>{text}</MenuItem>)}
-              </Select>}
+              {showTextFormatTools && <FontSelect editor={activeEditor} />}
               {showAITools && <AITools editor={activeEditor} />}
               {showTableTools && <TableTools editor={activeEditor} node={selectedTable} />}
               {showTextFormatTools && <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />}
