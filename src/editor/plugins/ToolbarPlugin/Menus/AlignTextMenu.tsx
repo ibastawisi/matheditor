@@ -1,8 +1,9 @@
 "use client"
 import * as React from 'react';
-import { FORMAT_ELEMENT_COMMAND, INDENT_CONTENT_COMMAND, LexicalEditor, OUTDENT_CONTENT_COMMAND } from 'lexical';
+import { $getSelection, $setSelection, FORMAT_ELEMENT_COMMAND, INDENT_CONTENT_COMMAND, LexicalEditor, OUTDENT_CONTENT_COMMAND } from 'lexical';
 import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Divider } from '@mui/material';
 import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight, FormatAlignJustify, FormatIndentIncrease, FormatIndentDecrease } from '@mui/icons-material';
+import { useCallback } from 'react';
 
 export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor, isRTL: boolean }): JSX.Element {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -10,9 +11,21 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setAnchorEl(null);
-  };
+    const selection = editor.getEditorState().read($getSelection);
+    if (selection) editor.update(
+      () => {
+        $setSelection(selection.clone());
+      },
+      {
+        discrete: true,
+        onUpdate() {
+          setTimeout(() => editor.focus(), 0);
+        }
+      }
+    );
+  }, [editor]);
 
   return (
     <>

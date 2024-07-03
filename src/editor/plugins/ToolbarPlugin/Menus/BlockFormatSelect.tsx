@@ -4,11 +4,12 @@ import { $createCodeNode } from '@lexical/code';
 import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list';
 import { $createHeadingNode, $createQuoteNode, HeadingTagType, } from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
-import { $createParagraphNode, $getSelection, $isRangeSelection } from 'lexical';
+import { $createParagraphNode, $getSelection, $isRangeSelection, $setSelection } from 'lexical';
 
 import { Select, MenuItem, ListItemIcon, ListItemText, SvgIcon } from '@mui/material';
 import { ViewHeadline, FormatListBulleted, FormatListNumbered, PlaylistAddCheck, FormatQuote, Code } from '@mui/icons-material';
 import { $isTableSelection } from '@/editor/nodes/TableNode';
+import { useCallback } from 'react';
 
 const H1 = () => <SvgIcon viewBox='0 96 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M200 776V376h60v170h180V376h60v400h-60V606H260v170h-60Zm500 0V436h-80v-60h140v400h-60Z" />
@@ -128,12 +129,30 @@ export function BlockFormatSelect({ editor, blockType }: {
     }
   };
 
+  const handleClose = useCallback(() => {
+    const selection = editor.getEditorState().read($getSelection);
+    if (selection) editor.update(
+      () => {
+        $setSelection(selection.clone());
+      },
+      {
+        discrete: true,
+        onUpdate() {
+          setTimeout(() => editor.focus(), 0);
+        }
+      }
+    );
+  }, [editor]);
+
   return (
-    <Select value={blockType} aria-label="Formatting options for text style" size='small' sx={{
-      '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', py: 0.5 },
-      '& .MuiListItemIcon-root': { mr: { md: 0.5 }, minWidth: 20 },
-      '& .MuiListItemText-root': { display: { xs: "none", md: "flex" } }
-    }}>
+    <Select value={blockType} aria-label="Formatting options for text style" size='small'
+      onClose={handleClose} sx={{
+        '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', py: 0.5 },
+        '& .MuiListItemIcon-root': { mr: { md: 0.5 }, minWidth: 20 },
+        '& .MuiListItemText-root': { display: { xs: "none", md: "flex" } },
+        fieldset: { borderColor: 'divider' },
+        '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+      }}>
       <MenuItem value='paragraph' onClick={formatParagraph}>
         <ListItemIcon>
           <ViewHeadline fontSize="small" />
