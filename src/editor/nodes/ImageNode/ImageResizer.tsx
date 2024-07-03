@@ -73,14 +73,14 @@ export default function ImageResizer({
     ? maxWidth
     : editorRootElement !== null
       ? editorRootElement.getBoundingClientRect().width - 20
-      : 100;
+      : 40;
   const maxHeightContainer =
     editorRootElement !== null
       ? editorRootElement.getBoundingClientRect().height - 20
-      : 100;
+      : 40;
 
-  const minWidth = 100;
-  const minHeight = 100;
+  const minWidth = 40;
+  const minHeight = 40;
 
   const setStartCursor = (direction: number) => {
     const ew = direction === Direction.east || direction === Direction.west;
