@@ -602,12 +602,14 @@ iframe {
   margin-bottom: 8px;
 }
 
-[contenteditable='true'] .details__container[contenteditable='false'] {
+[contenteditable='true'] .details__container[contenteditable='false'],
+[contenteditable='true'] .details__summary[contenteditable='false'] {
   user-select: none;
 }
 
 .details__container[contenteditable='false'] .details__summary *,
-.details__container[contenteditable='false'] .details__content * {
+.details__container[contenteditable='false'] .details__content *,
+.details__summary[contenteditable='false'] * {
   pointer-events: none;
 }
 
