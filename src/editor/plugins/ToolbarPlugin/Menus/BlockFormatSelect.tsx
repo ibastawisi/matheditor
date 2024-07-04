@@ -130,18 +130,19 @@ export function BlockFormatSelect({ editor, blockType }: {
   };
 
   const handleClose = useCallback(() => {
-    const selection = editor.getEditorState().read($getSelection);
-    if (selection) editor.update(
-      () => {
-        $setSelection(selection.clone());
-      },
-      {
-        discrete: true,
-        onUpdate() {
-          setTimeout(() => editor.focus(), 0);
+    setTimeout(() => {
+      editor.update(
+        () => {
+          const selection = $getSelection();
+          if (!selection) return;
+          $setSelection(selection.clone());
+        },
+        {
+          discrete: true,
+          onUpdate() { editor.focus() }
         }
-      }
-    );
+      );
+    }, 0);
   }, [editor]);
 
   return (

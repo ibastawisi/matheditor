@@ -15,12 +15,13 @@ export const Editor: React.FC<{
   initialConfig: Partial<InitialConfigType>;
   editorRef: MutableRefObject<LexicalEditor | null> | RefCallback<LexicalEditor>
   onChange?: (editorState: EditorState, editor: LexicalEditor, tags: Set<string>) => void;
-}> = ({ initialConfig, onChange, editorRef }) => {
+  ignoreHistoryMerge?: boolean;
+}> = ({ initialConfig, onChange, editorRef, ignoreHistoryMerge }) => {
   return (
     <LexicalComposer initialConfig={{ ...editorConfig, ...initialConfig }}>
       <>
         <ToolbarPlugin />
-        <EditorPlugins contentEditable={<ContentEditable className="editor-input" />} onChange={onChange} />
+        <EditorPlugins contentEditable={<ContentEditable className="editor-input" />} onChange={onChange} ignoreHistoryMerge={ignoreHistoryMerge} />
         <EditorRefPlugin editorRef={editorRef} />
       </>
     </LexicalComposer>

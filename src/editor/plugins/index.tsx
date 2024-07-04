@@ -47,7 +47,8 @@ export const EditorPlugins: React.FC<{
   contentEditable: React.ReactElement;
   placeholder?: JSX.Element | ((isEditable: boolean) => JSX.Element | null) | null;
   onChange?: (editorState: EditorState, editor: LexicalEditor, tags: Set<string>) => void;
-}> = ({ contentEditable, placeholder = null, onChange }) => {
+  ignoreHistoryMerge?: boolean;
+}> = ({ contentEditable, placeholder = null, onChange, ignoreHistoryMerge = true }) => {
   const [editor] = useLexicalComposerContext();
   const { historyState } = useSharedHistoryContext();
 
@@ -55,7 +56,7 @@ export const EditorPlugins: React.FC<{
     <>
       <RichTextPlugin contentEditable={contentEditable} ErrorBoundary={LexicalErrorBoundary} placeholder={placeholder} />
       <HistoryPlugin externalHistoryState={historyState} />
-      {onChange && <OnChangePlugin ignoreHistoryMergeTagChange ignoreSelectionChange onChange={onChange} />}
+      {onChange && <OnChangePlugin ignoreHistoryMergeTagChange={ignoreHistoryMerge} ignoreSelectionChange onChange={onChange} />}
       <ListPlugin />
       <CheckListPlugin />
       <LinkPlugin />

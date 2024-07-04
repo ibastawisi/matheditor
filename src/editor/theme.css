@@ -597,8 +597,18 @@ iframe {
 }
 
 .details__container {
+  display: flow-root;
   border: 1px solid;
   margin-bottom: 8px;
+}
+
+[contenteditable='true'] .details__container[contenteditable='false'] {
+  user-select: none;
+}
+
+.details__container[contenteditable='false'] .details__summary *,
+.details__container[contenteditable='false'] .details__content * {
+  pointer-events: none;
 }
 
 .details__summary {

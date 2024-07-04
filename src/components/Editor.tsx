@@ -1,5 +1,5 @@
 "use client"
-import { MutableRefObject } from 'react';
+import { MutableRefObject, RefCallback } from 'react';
 import { memo } from 'react';
 import { EditorDocument } from '@/types';
 import type { EditorState, LexicalEditor } from '@/editor';
@@ -9,12 +9,17 @@ import Editor from '@/editor/Editor';
 
 const Container: React.FC<{
   document: EditorDocument,
-  editorRef?: MutableRefObject<LexicalEditor | null>,
+  editorRef?: MutableRefObject<LexicalEditor | null> | RefCallback<LexicalEditor>,
   onChange?: (editorState: EditorState, editor: LexicalEditor, tags: Set<string>) => void;
-}> = ({ document, editorRef, onChange }) => {
+  ignoreHistoryMerge?: boolean;
+}> = ({ document, editorRef, onChange, ignoreHistoryMerge }) => {
   const dispatch = useDispatch();
   const editorRefCallback = (editor: LexicalEditor) => {
-    if (editorRef) editorRef.current = editor;
+    if (typeof editorRef === 'function') {
+      editorRef(editor);
+    } else if (typeof editorRef === 'object') {
+      editorRef.current = editor;
+    }
     return mergeRegister(
       editor.registerCommand(
         ANNOUNCE_COMMAND,
@@ -35,10 +40,8 @@ const Container: React.FC<{
       editor.registerCommand(
         UPDATE_DOCUMENT_COMMAND,
         () => {
-          if (editorRef && editorRef.current) {
-            const editorState = editorRef.current.getEditorState();
-            onChange?.(editorState, editorRef.current, new Set());
-          }
+          const editorState = editor.getEditorState();
+          onChange?.(editorState, editor, new Set());
           return false;
         },
         COMMAND_PRIORITY_LOW
@@ -47,7 +50,7 @@ const Container: React.FC<{
   };
 
   return (
-    <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={onChange} editorRef={editorRefCallback} />
+    <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={onChange} editorRef={editorRefCallback} ignoreHistoryMerge={ignoreHistoryMerge} />
   );
 }
 

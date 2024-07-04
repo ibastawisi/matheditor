@@ -24,7 +24,9 @@ import invariant from '@/shared/invariant';
 import { $isDetailsContainerNode } from './DetailsContainerNode';
 import { $isDetailsContentNode } from './DetailsContentNode';
 
-type SerializedDetailsSummaryNode = SerializedElementNode;
+type SerializedDetailsSummaryNode = SerializedElementNode & {
+  editable: boolean;
+};
 
 export function $convertSummaryElement(
   domNode: HTMLElement,
@@ -36,12 +38,20 @@ export function $convertSummaryElement(
 }
 
 export class DetailsSummaryNode extends ElementNode {
+  __editable: boolean;
   static getType(): string {
     return 'details-summary';
   }
 
   static clone(node: DetailsSummaryNode): DetailsSummaryNode {
-    return new DetailsSummaryNode(node.__key);
+    const summaryNode = new DetailsSummaryNode(node.__key);
+    summaryNode.__editable = node.__editable;
+    return summaryNode;
+  }
+
+  constructor(key?: string) {
+    super(key);
+    this.__editable = true;
   }
 
   createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
@@ -59,10 +69,18 @@ export class DetailsSummaryNode extends ElementNode {
         });
       });
     }
+    if (this.__editable === false) dom.setAttribute('contenteditable', 'false');
     return dom;
   }
 
   updateDOM(prevNode: DetailsSummaryNode, dom: HTMLElement): boolean {
+    if (prevNode.__editable !== this.__editable) {
+      if (this.__editable) {
+        dom.removeAttribute('contenteditable');
+      } else {
+        dom.setAttribute('contenteditable', 'false');
+      }
+    }
     return false;
   }
 
@@ -80,12 +98,15 @@ export class DetailsSummaryNode extends ElementNode {
   static importJSON(
     serializedNode: SerializedDetailsSummaryNode,
   ): DetailsSummaryNode {
-    return $createDetailsSummaryNode();
+    const summaryNode = $createDetailsSummaryNode();
+    summaryNode.__editable = serializedNode.editable;
+    return summaryNode;
   }
 
   exportJSON(): SerializedDetailsSummaryNode {
     return {
       ...super.exportJSON(),
+      editable: this.__editable,
       type: 'details-summary',
       version: 1,
     };
@@ -127,6 +148,16 @@ export class DetailsSummaryNode extends ElementNode {
       return paragraph;
     }
   }
+
+  setEditable(editable: boolean): void {
+    const writable = this.getWritable();
+    writable.__editable = editable;
+  }
+
+  getEditable(): boolean {
+    return this.getLatest().__editable;
+  }
+
 }
 
 export function $createDetailsSummaryNode(): DetailsSummaryNode {

@@ -16,6 +16,7 @@ import {
   LexicalEditor,
   LexicalNode,
   NodeKey,
+  RangeSelection,
   SerializedElementNode,
   Spread,
 } from 'lexical';
@@ -27,6 +28,7 @@ import { setDomHiddenUntilFound } from './utils';
 export type SerializedDetailsContainerNode = Spread<
   {
     open: boolean;
+    editable: boolean;
   },
   SerializedElementNode
 >;
@@ -43,10 +45,12 @@ export function $convertDetailsElement(
 
 export class DetailsContainerNode extends ElementNode {
   __open: boolean;
+  __editable: boolean;
 
   constructor(open: boolean, key?: NodeKey) {
     super(key);
     this.__open = open;
+    this.__editable = true;
   }
 
   static getType(): string {
@@ -54,7 +58,9 @@ export class DetailsContainerNode extends ElementNode {
   }
 
   static clone(node: DetailsContainerNode): DetailsContainerNode {
-    return new DetailsContainerNode(node.__open, node.__key);
+    const containerNode = new DetailsContainerNode(node.__open, node.__key);
+    containerNode.__editable = node.__editable;
+    return containerNode;
   }
 
   createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
@@ -76,7 +82,7 @@ export class DetailsContainerNode extends ElementNode {
       dom = detailsDom;
     }
     dom.classList.add('details__container');
-
+    if (this.__editable === false) dom.setAttribute('contenteditable', 'false');
     return dom;
   }
 
@@ -104,7 +110,13 @@ export class DetailsContainerNode extends ElementNode {
         dom.open = this.__open;
       }
     }
-
+    if (prevNode.__editable !== this.__editable) {
+      if (this.__editable) {
+        dom.removeAttribute('contenteditable');
+      } else {
+        dom.setAttribute('contenteditable', 'false');
+      }
+    }
     return false;
   }
 
@@ -123,6 +135,7 @@ export class DetailsContainerNode extends ElementNode {
     serializedNode: SerializedDetailsContainerNode,
   ): DetailsContainerNode {
     const node = $createDetailsContainerNode(serializedNode.open);
+    node.__editable = serializedNode.editable;
     return node;
   }
 
@@ -131,6 +144,7 @@ export class DetailsContainerNode extends ElementNode {
     element.classList.add('details__container');
     element.setAttribute('open', '');
     if (!this.__open) element.removeAttribute('open');
+    if (this.__editable === false) element.setAttribute('contenteditable', 'false');
     return { element };
   }
 
@@ -138,6 +152,7 @@ export class DetailsContainerNode extends ElementNode {
     return {
       ...super.exportJSON(),
       open: this.__open,
+      editable: this.__editable,
       type: 'details-container',
       version: 1,
     };
@@ -155,6 +170,16 @@ export class DetailsContainerNode extends ElementNode {
   toggleOpen(): void {
     this.setOpen(!this.getOpen());
   }
+
+  setEditable(editable: boolean): void {
+    const writable = this.getWritable();
+    writable.__editable = editable;
+  }
+
+  getEditable(): boolean {
+    return this.getLatest().__editable;
+  }
+
 }
 
 export function $createDetailsContainerNode(

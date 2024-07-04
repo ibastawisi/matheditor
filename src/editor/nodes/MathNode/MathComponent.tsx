@@ -207,11 +207,14 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
 
   return <math-field ref={ref}>
     <style>
-      {`@media (hover: none) and (pointer: coarse) {
+      {
+        `:host .ML__container { pointer-events: inherit; }
+        @media (hover: none) and (pointer: coarse) {
           :host(:not(:focus)) .ML__container {
             pointer-events: none;
           }
-        }`}
+        }`
+      }
     </style>
   </math-field>;
 }

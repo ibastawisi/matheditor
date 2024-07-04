@@ -17,6 +17,10 @@ body:has(.editor-input:not(:focus-within)) .floating-toolbar {
   display: none;
 }
 
+.floating-toolbar:has(:hover, :focus, :focus-within, :active) {
+  display: block !important;
+}
+
 [theme="dark"] .editor-input {
   caret-color: #eee;
   color-scheme: dark;
@@ -83,7 +87,7 @@ body:has(.excalidraw.excalidraw-modal-container) {
   overflow: hidden !important;
 }
 
-.diff-container ~ .editor-input,
-.diff-container ~ .MuiAppBar-root {
+.diff-container~.editor-input,
+.diff-container~.MuiAppBar-root {
   display: none;
 }

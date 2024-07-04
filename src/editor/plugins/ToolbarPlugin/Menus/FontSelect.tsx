@@ -109,19 +109,20 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
   ];
 
   const handleClose = useCallback(() => {
-    const selection = editor.getEditorState().read($getSelection);
-    if (selection) editor.update(
-      () => {
-        $setSelection(selection.clone());
-      },
-      {
-        discrete: true,
-        tag: shouldMergeHistory.current ? 'history-merge' : undefined,
-        onUpdate() {
-          setTimeout(() => editor.focus(), 0);
+    setTimeout(() => {
+      editor.update(
+        () => {
+          const selection = $getSelection();
+          if (!selection) return;
+          $setSelection(selection.clone());
+        },
+        {
+          discrete: true,
+          tag: shouldMergeHistory.current ? 'history-merge' : undefined,
+          onUpdate() { editor.focus() }
         }
-      }
-    );
+      );
+    }, 0);
   }, [editor, shouldMergeHistory.current]);
 
   return (
@@ -291,8 +292,8 @@ const FontSizePicker = ({ editor, fontSize, updateFontSize, fontSizeInputRef }: 
           },
           '& .MuiInputBase-input': {
             textAlign: 'center',
+            MozAppearance: 'textfield',
             '&::-webkit-inner-spin-button, &::-webkit-outer-spin-button': { appearance: 'none', margin: 0 },
-            '-moz-appearance': 'textfield',
           },
         }}
         type="number"
