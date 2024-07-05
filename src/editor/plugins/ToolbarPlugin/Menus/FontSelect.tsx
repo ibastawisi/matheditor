@@ -30,9 +30,13 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
       if (!domElement) return false;
       const computedStyle = window.getComputedStyle(domElement);
       const computedFontSize = computedStyle.getPropertyValue('font-size');
-      const computedFontFamily = computedStyle.getPropertyValue('font-family').split(',')[0].trim();
-      if (!currentFontSize) setFontSize(computedFontSize);
-      if (!currentFontFamily) setFontFamily(computedFontFamily);
+      const computedFontFamily = computedStyle.getPropertyValue('font-family');
+      setFontSize(computedFontSize);
+      setFontFamily(computedFontFamily.split(',')[0].trim());
+      // document.fonts.load(`${computedFontSize} ${computedFontFamily}`).then(fonts => {
+      //   const active = computedFontFamily.split(',').find(family => document.fonts.check(`${computedFontSize} ${family}`));
+      //   if (active) setFontFamily(active.trim());
+      // });
     }
     return false;
 
@@ -167,6 +171,10 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
           <ListItemIcon sx={{ fontFamily: option }}>Aa</ListItemIcon>
           <ListItemText sx={{ '& *': { fontFamily: option } }}>{text}</ListItemText>
         </MenuItem>)}
+        {!FONT_FAMILY_OPTIONS.find(([option]) => option === fontFamily) && <MenuItem value={fontFamily}>
+          <ListItemIcon sx={{ fontFamily: fontFamily }}>Aa</ListItemIcon>
+          <ListItemText sx={{ '& *': { fontFamily: fontFamily } }}>{fontFamily}</ListItemText>
+        </MenuItem>}
       </Select>
       {matches && <FontSizePicker
         fontSize={fontSize}
