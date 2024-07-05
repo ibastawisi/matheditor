@@ -65,6 +65,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     (fontSize: number) => {
       setFontSize(fontSize + 'px');
       applyStyleMath({ 'font-size': fontSize + 'px' });
+      // restoreSelection();
     },
     [applyStyleMath],
   );
@@ -241,7 +242,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
         </Collapse>}
         <ColorPicker onColorChange={onColorChange} onClose={handleClose} />
       </ToggleButtonGroup>
-      <FontSizePicker fontSize={fontSize} updateFontSize={updateFontSize} />
+      <FontSizePicker fontSize={fontSize} updateFontSize={updateFontSize} onBlur={restoreSelection} />
       <ToggleButtonGroup size="small" sx={{ position: "relative", ...sx }} exclusive>
         <ToggleButton value="menu"
           onClick={(e) => {

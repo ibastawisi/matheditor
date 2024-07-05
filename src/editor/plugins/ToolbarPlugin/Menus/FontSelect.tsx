@@ -156,14 +156,13 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
           <FontSizePicker
             fontSize={fontSize}
             updateFontSize={updateFontSize}
+            onBlur={() => { }}
           />
 
         </MenuItem>
         {FONT_FAMILY_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}
           onFocusVisible={(e) => {
-            updateFontFamily(option);
-            const menuItem = e.currentTarget as HTMLElement;
-            menuItem.focus();
+            if (fontFamily !== option) updateFontFamily(option);
           }}>
           <ListItemIcon sx={{ fontFamily: option }}>Aa</ListItemIcon>
           <ListItemText sx={{ '& *': { fontFamily: option } }}>{text}</ListItemText>
@@ -172,6 +171,7 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
       {matches && <FontSizePicker
         fontSize={fontSize}
         updateFontSize={updateFontSize}
+        onBlur={handleClose}
       />}
     </Box>
   );

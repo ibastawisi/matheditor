@@ -1,14 +1,14 @@
 import { TextDecrease, TextIncrease } from "@mui/icons-material";
 import { Box, IconButton, TextField } from "@mui/material";
-import { LexicalEditor } from "lexical";
 import { useCallback } from "react";
 
 const MIN_ALLOWED_FONT_SIZE = 8;
 const MAX_ALLOWED_FONT_SIZE = 72;
 
-export const FontSizePicker = ({ fontSize, updateFontSize }: {
+export const FontSizePicker = ({ fontSize, updateFontSize, onBlur }: {
   fontSize: string,
   updateFontSize: (fontSize: number) => void,
+  onBlur: () => void,
 }): JSX.Element => {
   const increaseFontSize = useCallback(() => {
     const currentFontSize = parseInt(fontSize);
@@ -69,6 +69,7 @@ export const FontSizePicker = ({ fontSize, updateFontSize }: {
         onClick={e => {
           e.stopPropagation();
           decreaseFontSize();
+          onBlur();
         }}
         sx={{
           width: 40,
@@ -112,11 +113,20 @@ export const FontSizePicker = ({ fontSize, updateFontSize }: {
           e.target.focus();
         }}
         onClick={(e) => e.stopPropagation()}
+        onBlur={(e) => {
+          const inputValue = parseInt(e.target.value || '0') % 100;
+          const prevValue = parseInt(fontSize);
+          if (inputValue !== prevValue) return;
+          if (inputValue < MIN_ALLOWED_FONT_SIZE) updateFontSize(MIN_ALLOWED_FONT_SIZE);
+          if (inputValue > MAX_ALLOWED_FONT_SIZE) updateFontSize(MAX_ALLOWED_FONT_SIZE);
+        }}
         inputProps={{
           min: MIN_ALLOWED_FONT_SIZE,
           max: MAX_ALLOWED_FONT_SIZE,
           onKeyDown: (e) => {
             const input = e.currentTarget;
+            const isEscaping = e.key === "Escape";
+            if (isEscaping) return onBlur();
             const isNavigatingUp = e.key === "ArrowUp";
             const isNavigatingDown = e.key === "ArrowDown";
             if (!isNavigatingUp && !isNavigatingDown) e.stopPropagation();
@@ -131,6 +141,7 @@ export const FontSizePicker = ({ fontSize, updateFontSize }: {
         onClick={e => {
           e.stopPropagation();
           increaseFontSize();
+          onBlur();
         }}
         sx={{
           width: 40,

@@ -24,6 +24,7 @@ math-field::part(menu-toggle) {
 
 math-field:not(:focus-within) {
   --selection-background-color: transparent;
+  --caret-color: nope;
 }
 
 .editor-container:focus-within math-field.selection-active {
