@@ -1,20 +1,16 @@
 import { $isMathNode } from "@/editor/nodes/MathNode";
 import { $patchStyle } from "@/editor/nodes/utils";
 import { $getSelectionStyleValueForProperty, $patchStyleText, } from '@lexical/selection';
-import { TextDecrease, TextIncrease } from "@mui/icons-material";
-import { Box, Select, MenuItem, SelectChangeEvent, IconButton, TextField, ListItemIcon, ListItemText, useMediaQuery } from "@mui/material";
+import { Box, Select, MenuItem, SelectChangeEvent, ListItemIcon, ListItemText, useMediaQuery } from "@mui/material";
 import { $getSelection, $isRangeSelection, $setSelection, COMMAND_PRIORITY_CRITICAL, LexicalEditor, SELECTION_CHANGE_COMMAND } from "lexical";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTheme } from '@mui/material/styles';
 import { mergeRegister } from "@lexical/utils";
-
-const MIN_ALLOWED_FONT_SIZE = 8;
-const MAX_ALLOWED_FONT_SIZE = 72;
+import { FontSizePicker } from "../Tools/FontSizePicker";
 
 export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.Element {
   const [fontSize, setFontSize] = useState<string>('16px');
   const [fontFamily, setFontFamily] = useState<string>('Roboto');
-  const fontSizeInputRef = useRef<HTMLInputElement>(null);
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up('md'));
   const shouldMergeHistory = useRef(false);
@@ -148,7 +144,7 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
             const currentTarget = e.currentTarget;
             const relatedTarget = e.relatedTarget;
             setTimeout(() => {
-              const promptInput = fontSizeInputRef.current;
+              const promptInput = currentTarget.querySelector('input[type="number"]');
               const isPromptFocused = document.activeElement === promptInput;
               if (isPromptFocused) return;
               if (relatedTarget !== promptInput) promptInput?.focus();
@@ -158,10 +154,8 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
           sx={{ justifyContent: 'center' }}
         >
           <FontSizePicker
-            editor={editor}
             fontSize={fontSize}
             updateFontSize={updateFontSize}
-            fontSizeInputRef={fontSizeInputRef}
           />
 
         </MenuItem>
@@ -176,159 +170,9 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
         </MenuItem>)}
       </Select>
       {matches && <FontSizePicker
-        editor={editor}
         fontSize={fontSize}
         updateFontSize={updateFontSize}
-        fontSizeInputRef={fontSizeInputRef}
       />}
-    </Box>
-  );
-};
-
-const FontSizePicker = ({ editor, fontSize, updateFontSize, fontSizeInputRef }: {
-  editor: LexicalEditor,
-  fontSize: string,
-  updateFontSize: (fontSize: number) => void,
-  fontSizeInputRef: React.RefObject<HTMLInputElement>,
-}): JSX.Element => {
-  const increaseFontSize = useCallback(() => {
-    const currentFontSize = parseInt(fontSize);
-    let updatedFontSize = currentFontSize;
-    switch (true) {
-      case currentFontSize < MIN_ALLOWED_FONT_SIZE:
-        updatedFontSize = MIN_ALLOWED_FONT_SIZE;
-        break;
-      case currentFontSize < 12:
-        updatedFontSize += 1;
-        break;
-      case currentFontSize < 20:
-        updatedFontSize += 2;
-        break;
-      case currentFontSize < 36:
-        updatedFontSize += 4;
-        break;
-      case currentFontSize <= 60:
-        updatedFontSize += 12;
-        break;
-      default:
-        updatedFontSize = MAX_ALLOWED_FONT_SIZE;
-        break;
-    }
-    updateFontSize(updatedFontSize);
-  }, [fontSize, updateFontSize]);
-
-  const decreaseFontSize = useCallback(() => {
-    const currentFontSize = parseInt(fontSize);
-    let updatedFontSize = currentFontSize;
-    switch (true) {
-      case currentFontSize > MAX_ALLOWED_FONT_SIZE:
-        updatedFontSize = MAX_ALLOWED_FONT_SIZE;
-        break;
-      case currentFontSize >= 48:
-        updatedFontSize -= 12;
-        break;
-      case currentFontSize >= 24:
-        updatedFontSize -= 4;
-        break;
-      case currentFontSize >= 14:
-        updatedFontSize -= 2;
-        break;
-      case currentFontSize >= 9:
-        updatedFontSize -= 1;
-        break;
-      default:
-        updatedFontSize = MIN_ALLOWED_FONT_SIZE;
-        break;
-    }
-    updateFontSize(updatedFontSize);
-  }, [fontSize, updateFontSize]);
-
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
-      <IconButton
-        disabled={parseInt(fontSize) <= MIN_ALLOWED_FONT_SIZE}
-        onClick={e => {
-          e.stopPropagation();
-          decreaseFontSize();
-        }}
-        sx={{
-          width: 40,
-          height: 40,
-          borderRadius: 1,
-          borderTopRightRadius: 0,
-          borderBottomRightRadius: 0,
-          borderRight: 'none',
-          borderWidth: 1,
-          borderStyle: 'solid',
-          borderColor: 'divider',
-          '&:hover': { borderColor: 'primary.main' },
-        }}
-        aria-label="increase font size"
-      >
-        <TextDecrease fontSize="small" />
-      </IconButton>
-      <TextField
-        hiddenLabel
-        variant="outlined"
-        size="small"
-        inputRef={fontSizeInputRef}
-        autoComplete="off"
-        spellCheck="false"
-        sx={{
-          width: 48,
-          fieldset: { borderColor: 'divider' },
-          '& .MuiInputBase-root': {
-            borderRadius: 0,
-            '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
-          },
-          '& .MuiInputBase-input': {
-            textAlign: 'center',
-            MozAppearance: 'textfield',
-            '&::-webkit-inner-spin-button, &::-webkit-outer-spin-button': { appearance: 'none', margin: 0 },
-          },
-        }}
-        type="number"
-        value={parseInt(fontSize) || ''}
-        onChange={(e) => {
-          updateFontSize(parseInt(e.target.value || '0') % 100);
-          e.target.focus();
-        }}
-        onClick={(e) => e.stopPropagation()}
-        inputProps={{
-          min: MIN_ALLOWED_FONT_SIZE,
-          max: MAX_ALLOWED_FONT_SIZE,
-          onKeyDown: (e) => {
-            const input = e.currentTarget;
-            const isNavigatingUp = input.selectionStart === 0 && e.key === "ArrowUp";
-            const isNavigatingDown = input.selectionStart === input.value.length && e.key === "ArrowDown";
-            if (!isNavigatingUp && !isNavigatingDown) e.stopPropagation();
-            const menuItem = input.closest("li");
-            const isInsideMenu = !!menuItem;
-            if (isInsideMenu && isNavigatingDown) menuItem.focus();
-          }
-        }}
-      />
-      <IconButton
-        disabled={parseInt(fontSize) >= MAX_ALLOWED_FONT_SIZE}
-        onClick={e => {
-          e.stopPropagation();
-          increaseFontSize();
-        }}
-        sx={{
-          width: 40,
-          height: 40,
-          borderRadius: 1,
-          borderTopLeftRadius: 0,
-          borderBottomLeftRadius: 0,
-          borderWidth: 1,
-          borderStyle: 'solid',
-          borderColor: 'divider',
-          '&:hover': { borderColor: 'primary.main' },
-        }}
-        aria-label="decrease font size"
-      >
-        <TextIncrease fontSize="small" />
-      </IconButton>
     </Box>
   );
 };

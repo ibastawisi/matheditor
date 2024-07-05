@@ -1,5 +1,5 @@
 "use client"
-import { $createParagraphNode, $createTextNode, $getSelection, $isRangeSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, TextNode, } from "lexical";
+import { $createParagraphNode, $createTextNode, $getSelection, $isRangeSelection, $setSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, TextNode, } from "lexical";
 import { mergeRegister } from "@lexical/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, TextField, CircularProgress } from "@mui/material";
@@ -22,9 +22,20 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setAnchorEl(null);
-  };
+    editor.update(
+      () => {
+        const selection = $getSelection();
+        if (!selection) return;
+        $setSelection(selection.clone());
+      },
+      {
+        discrete: true,
+        onUpdate() { setTimeout(() => { editor.focus(); }, 0); }
+      }
+    );
+  }, [editor]);
 
   const promptRef = useRef<HTMLTextAreaElement>(null);
 
@@ -315,9 +326,9 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
         sx={{
           color: 'text.primary',
           borderColor: 'divider',
+          width: { xs: 66, md: 'auto' },
           height: 40,
-          '& .MuiButton-startIcon': { mr: { xs: 0, md: 0.5 } },
-          '& .MuiButton-endIcon': { mr: '-6px', ml: 0, '& svg': { fontSize: 24 } },
+          '& .MuiButton-startIcon': { mr: { xs: 0, md: 1 } },
         }}
         disabled={isLoading}
       >

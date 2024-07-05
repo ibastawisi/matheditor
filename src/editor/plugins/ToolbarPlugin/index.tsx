@@ -21,7 +21,7 @@ import { $isGraphNode } from '@/editor/nodes/GraphNode';
 import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog, LinkDialog, LayoutDialog, OCRDialog } from './Dialogs';
 import { $isStickyNode } from '@/editor/nodes/StickyNode';
 import { SelectChangeEvent, useScrollTrigger, AppBar, Toolbar, Box, IconButton, Select, MenuItem, Fab } from '@mui/material';
-import { Mic, Redo, Undo } from '@mui/icons-material';
+import { Code, Mic, Redo, Undo } from '@mui/icons-material';
 import { $isIFrameNode } from '@/editor/nodes/IFrameNode';
 import { IS_APPLE, $findMatchingParent } from '@lexical/utils';
 import { $isTableNode, TableNode } from '@/editor/nodes/TableNode';
@@ -33,6 +33,7 @@ import { SPEECH_TO_TEXT_COMMAND, SUPPORT_SPEECH_RECOGNITION } from '../SpeechToT
 import AITools from './Tools/AITools';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
 import FontSelect from './Menus/FontSelect';
+import CodeTools from './Tools/CodeTools';
 
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -48,32 +49,15 @@ const blockTypeToBlockName = {
 };
 
 
-function getCodeLanguageOptions(): [string, string][] {
-  const options: [string, string][] = [];
-
-  for (const [lang, friendlyName] of Object.entries(
-    CODE_LANGUAGE_FRIENDLY_NAME_MAP,
-  )) {
-    options.push([lang, friendlyName]);
-  }
-
-  options.splice(3, 0, ['csharp', 'C#']);
-
-  return options;
-}
-
-const CODE_LANGUAGE_OPTIONS = getCodeLanguageOptions();
 
 
 function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
   const [activeEditor, setActiveEditor] = useState(editor);
   const [blockType, setBlockType] = useState<keyof typeof blockTypeToBlockName>('paragraph');
-  const [selectedElementKey, setSelectedElementKey] = useState<NodeKey | null>(null);
   const [isRTL, setIsRTL] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
-  const [codeLanguage, setCodeLanguage] = useState<string>('');
   const [selectedNode, setSelectedNode] = useState<LexicalNode | null>(null);
   const [selectedTable, setSelectedTable] = useState<TableNode | null>(null);
   const [dialogs, setDialogs] = useState<EditorDialogs>({
@@ -109,7 +93,6 @@ function ToolbarPlugin() {
     if ($isNodeSelection(selection)) {
       const node = selection.getNodes()[0];
       setSelectedNode(node);
-      setSelectedElementKey(null);
       setBlockType('paragraph');
     } else {
       setSelectedNode(null);
@@ -133,7 +116,6 @@ function ToolbarPlugin() {
       setIsRTL($isParentElementRTL(selection));
 
       if (elementDOM !== null) {
-        setSelectedElementKey(elementKey);
         if ($isListNode(element)) {
           const parentList = $getNearestNodeOfType<ListNode>(
             anchorNode,
@@ -151,11 +133,7 @@ function ToolbarPlugin() {
             setBlockType(type as keyof typeof blockTypeToBlockName);
           }
           if ($isCodeNode(element)) {
-            const language =
-              element.getLanguage() as keyof typeof CODE_LANGUAGE_MAP;
-            setCodeLanguage(
-              language ? CODE_LANGUAGE_MAP[language] || language : '',
-            );
+            setSelectedNode(element);
             return;
           }
         }
@@ -223,20 +201,6 @@ function ToolbarPlugin() {
     );
   }, [activeEditor, dialogs]);
 
-  const onCodeLanguageSelect = useCallback(
-    (e: SelectChangeEvent) => {
-      activeEditor.update(() => {
-        if (selectedElementKey !== null) {
-          const node = $getNodeByKey(selectedElementKey);
-          if ($isCodeNode(node)) {
-            node.setLanguage((e.target as HTMLSelectElement).value);
-          }
-        }
-      });
-    },
-    [activeEditor, selectedElementKey],
-  );
-
   const toolbarTrigger = useScrollTrigger({
     disableHysteresis: IS_MOBILE,
     threshold: 32,
@@ -251,9 +215,9 @@ function ToolbarPlugin() {
 
   const showMathTools = $isMathNode(selectedNode);
   const showImageTools = $isImageNode(selectedNode);
+  const showCodeTools = $isCodeNode(selectedNode);
   const showTableTools = !!selectedTable;
   const showTextTools = (!showMathTools && !showImageTools) || $isStickyNode(selectedNode);
-  const showCodeTools = blockType === 'code';
   const showTextFormatTools = showTextTools && !showCodeTools;
   const showAITools = !!isOnline;
 
@@ -280,9 +244,7 @@ function ToolbarPlugin() {
             {showImageTools && <ImageTools editor={activeEditor} node={selectedNode} />}
             {showTextTools && <>
               {blockType in blockTypeToBlockName && <BlockFormatSelect blockType={blockType} editor={activeEditor} />}
-              {showCodeTools && <Select size='small' onChange={onCodeLanguageSelect} value={codeLanguage}>
-                {CODE_LANGUAGE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option}>{text}</MenuItem>)}
-              </Select>}
+              {showCodeTools && <CodeTools editor={activeEditor} node={selectedNode} />}
               {showTextFormatTools && <FontSelect editor={activeEditor} />}
               {showAITools && <AITools editor={activeEditor} />}
               {showTableTools && <TableTools editor={activeEditor} node={selectedTable} />}

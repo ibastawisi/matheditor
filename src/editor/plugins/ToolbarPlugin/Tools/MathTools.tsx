@@ -16,6 +16,8 @@ import { Announcement } from "@/types";
 import dynamic from "next/dynamic";
 import type { ExcalidrawImperativeAPI, ExcalidrawProps } from "@excalidraw/excalidraw/types/types";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
+import { FontSizePicker } from "./FontSizePicker";
+
 const Excalidraw = dynamic<ExcalidrawProps>(() => import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => ({ default: module.Excalidraw })), { ssr: false });
 
 const WolframIcon = () => <SvgIcon viewBox='0 0 20 20' fontSize='small'>
@@ -39,26 +41,13 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
   const theme = useTheme();
   const isOnline = useOnlineStatus();
   const [excalidrawAPI, excalidrawAPIRefCallback] = useCallbackRefState();
-  const [fontSize, setFontSize] = useState('15px');
-  const FONT_SIZE_OPTIONS: [string, string][] = [
-    ['10px', '10'],
-    ['11px', '11'],
-    ['12px', '12'],
-    ['13px', '13'],
-    ['14px', '14'],
-    ['15px', '15'],
-    ['16px', '16'],
-    ['17px', '17'],
-    ['18px', '18'],
-    ['19px', '19'],
-    ['20px', '20'],
-  ];
+  const [fontSize, setFontSize] = useState('16px');
 
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     editor.getEditorState().read(() => {
-      const fontSize = $getNodeStyleValueForProperty(node, 'font-size', '15px');
+      const fontSize = $getNodeStyleValueForProperty(node, 'font-size', '16px');
       setFontSize(fontSize);
     });
   }, [node]);
@@ -72,11 +61,10 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     [editor, node],
   );
 
-  const onFontSizeSelect = useCallback(
-    (e: SelectChangeEvent) => {
-      const fontSize = e.target.value;
-      setFontSize(fontSize);
-      applyStyleMath({ 'font-size': fontSize });
+  const updateFontSize = useCallback(
+    (fontSize: number) => {
+      setFontSize(fontSize + 'px');
+      applyStyleMath({ 'font-size': fontSize + 'px' });
     },
     [applyStyleMath],
   );
@@ -253,9 +241,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
         </Collapse>}
         <ColorPicker onColorChange={onColorChange} onClose={handleClose} />
       </ToggleButtonGroup>
-      <Select size='small' onChange={onFontSizeSelect} value={fontSize}>
-        {FONT_SIZE_OPTIONS.map(([option, text]) => <MenuItem key={option} value={option} sx={{ justifyContent: "center" }}>{text}</MenuItem>)}
-      </Select>
+      <FontSizePicker fontSize={fontSize} updateFontSize={updateFontSize} />
       <ToggleButtonGroup size="small" sx={{ position: "relative", ...sx }} exclusive>
         <ToggleButton value="menu"
           onClick={(e) => {

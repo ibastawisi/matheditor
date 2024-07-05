@@ -1,6 +1,6 @@
 "use client"
-import { ElementFormatType, LexicalEditor, } from "lexical";
-import { useEffect, useState } from "react";
+import { $getSelection, $setSelection, ElementFormatType, LexicalEditor, } from "lexical";
+import { useCallback, useEffect, useState } from "react";
 import { ToggleButtonGroup, ToggleButton, SvgIcon, Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import { ViewHeadline, Delete, KeyboardArrowDown, TableChart } from "@mui/icons-material";
 import { TableNode } from "@/editor/nodes/TableNode";
@@ -37,7 +37,7 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
     setFloat(getNodeFloat());
   }, [node]);
 
-  function updateFloat(newFloat: 'left' | 'right' | 'none'){
+  function updateFloat(newFloat: 'left' | 'right' | 'none') {
     setFloat(newFloat);
     editor.update(() => {
       $patchStyle(node, { float: newFloat });
@@ -56,9 +56,22 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setAnchorEl(null);
-  };
+    setTimeout(() => {
+      editor.update(
+        () => {
+          const selection = $getSelection();
+          if (!selection) return;
+          $setSelection(selection.clone());
+        },
+        {
+          discrete: true,
+          onUpdate() { editor.focus() }
+        }
+      );
+    }, 0);
+  }, [editor]);
 
   return (
     <>
@@ -92,6 +105,9 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
           vertical: 'top',
           horizontal: 'center',
         }}
+        sx={{
+          '& .MuiBackdrop-root': { userSelect: 'none' },
+        }}
       >
         <MenuItem>
           <ToggleButtonGroup size="small" sx={{ width: "100%", justifyContent: "center" }}>
@@ -123,7 +139,7 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
               }}>
               <FormatImageLeft />
             </ToggleButton>
-            <ToggleButton value="align-justify" key="align-justify" selected={formatType === "justify"}
+            <ToggleButton value="align-justify" key="align-justify" selected={formatType === "justify" || (formatType === "" && float === "none")}
               onClick={() => {
                 updateFormat('justify');
               }}>
