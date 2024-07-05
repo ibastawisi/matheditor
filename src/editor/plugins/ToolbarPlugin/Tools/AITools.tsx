@@ -3,7 +3,7 @@ import { $createParagraphNode, $createTextNode, $getSelection, $isRangeSelection
 import { mergeRegister } from "@lexical/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, TextField, CircularProgress } from "@mui/material";
-import { KeyboardArrowDown, AutoAwesome, UnfoldMore, UnfoldLess, PlayArrow, ImageSearch, Autorenew } from "@mui/icons-material";
+import { KeyboardArrowDown, AutoAwesome, UnfoldMore, UnfoldLess, PlayArrow, ImageSearch, Autorenew, ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
 import { SxProps, Theme } from '@mui/material/styles';
 import { useCompletion } from "ai/react";
 import { SET_DIALOGS_COMMAND } from "../Dialogs/commands";
@@ -311,16 +311,17 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
         variant="outlined"
         onClick={handleClick}
         startIcon={<AutoAwesome />}
-        endIcon={isLoading ? <CircularProgress size={16} /> : <KeyboardArrowDown />}
+        endIcon={isLoading ? <CircularProgress size={16} /> : open ? <ArrowDropUp /> : <ArrowDropDown />}
         sx={{
           color: 'text.primary',
           borderColor: 'divider',
           height: 40,
-          '& .MuiButton-startIcon': { mr: { xs: 0, sm: 0.5 } }
+          '& .MuiButton-startIcon': { mr: { xs: 0, md: 0.5 } },
+          '& .MuiButton-endIcon': { mr: '-6px', ml: 0, '& svg': { fontSize: 24 } },
         }}
         disabled={isLoading}
       >
-        <Typography variant="button" sx={{ display: { xs: "none", sm: "block" } }}>AI</Typography>
+        <Typography variant="button" sx={{ display: { xs: "none", md: "block" } }}>AI</Typography>
       </Button>
       <Menu id="ai-tools-menu" aria-label="Formatting options for ai"
         anchorEl={anchorEl}

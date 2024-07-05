@@ -109,24 +109,15 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
   ];
 
   const handleClose = useCallback(() => {
-    setTimeout(() => {
-      editor.update(
-        () => {
-          const selection = $getSelection();
-          if (!selection) return;
-          $setSelection(selection.clone());
-        },
-        {
-          discrete: true,
-          tag: shouldMergeHistory.current ? 'history-merge' : undefined,
-          onUpdate() { editor.focus() }
-        }
-      );
-    }, 0);
+    editor.update(() => {
+      const selection = $getSelection();
+      if (!selection) return;
+      $setSelection(selection.clone());
+    }, { discrete: true, tag: shouldMergeHistory.current ? 'history-merge' : undefined, onUpdate() { setTimeout(() => editor.focus(), 0); } });
   }, [editor, shouldMergeHistory.current]);
 
   return (
-    <Box sx={{ display: 'flex', gap: 0.5 }}>
+    <Box sx={{ display: 'flex', gap: 0.5, height: 40 }}>
       <Select size='small'
         sx={{
           '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', py: 0.5 },
