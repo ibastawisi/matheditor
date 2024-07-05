@@ -53,6 +53,9 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
           vertical: 'top',
           horizontal: 'center',
         }}
+        sx={{
+          '& .MuiBackdrop-root': { userSelect: 'none' }
+        }}
       >
         <MenuItem onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'left');

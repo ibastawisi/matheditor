@@ -48,7 +48,13 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }): J
         onClick={handleClick}>
         <Add />
       </IconButton>
-      <Menu id="insert-menu" aria-labelledby="insert-button" anchorEl={anchorEl} open={open} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center', }} transformOrigin={{ vertical: 'top', horizontal: 'center', }}>
+      <Menu id="insert-menu" aria-labelledby="insert-button"
+        anchorEl={anchorEl} open={open}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center', }}
+        transformOrigin={{ vertical: 'top', horizontal: 'center', }}
+        sx={{ '& .MuiBackdrop-root': { userSelect: 'none' } }}
+      >
         {editor.hasNode(HorizontalRuleNode) && <MenuItem onClick={() => { editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined,); handleClose(); }}>
           <ListItemIcon>
             <HorizontalRule fontSize="small" />

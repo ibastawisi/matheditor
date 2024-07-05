@@ -337,8 +337,8 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
         }}
         sx={{
           '& .MuiList-root': { pt: 0, },
-        }}
-      >
+          '& .MuiBackdrop-root': { userSelect: 'none' },
+        }}>
         <MenuItem
           sx={{ p: 0, mb: 1, flexDirection: 'column' }}
           onFocusVisible={(e) => {

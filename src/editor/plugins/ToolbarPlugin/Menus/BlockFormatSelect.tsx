@@ -153,6 +153,11 @@ export function BlockFormatSelect({ editor, blockType }: {
         '& .MuiListItemText-root': { display: { xs: "none", md: "flex" } },
         fieldset: { borderColor: 'divider' },
         '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+      }}
+      MenuProps={{
+        slotProps: {
+          root: { sx: { '& .MuiBackdrop-root': { userSelect: 'none' } } },
+        }
       }}>
       <MenuItem value='paragraph' onClick={formatParagraph}>
         <ListItemIcon>
