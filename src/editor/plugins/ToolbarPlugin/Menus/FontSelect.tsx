@@ -26,17 +26,14 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
       if (!domSelection) return false;
       const focusNode = domSelection.focusNode;
       if (!focusNode) return false;
-      const domElement = focusNode instanceof HTMLElement ? focusNode : focusNode.parentElement;
+      const isTextNode = focusNode.nodeType === Node.TEXT_NODE;
+      const domElement = isTextNode ? focusNode.parentElement : focusNode as HTMLElement;
       if (!domElement) return false;
       const computedStyle = window.getComputedStyle(domElement);
       const computedFontSize = computedStyle.getPropertyValue('font-size');
-      const computedFontFamily = computedStyle.getPropertyValue('font-family');
-      setFontSize(computedFontSize);
-      setFontFamily(computedFontFamily.split(',')[0].trim());
-      // document.fonts.load(`${computedFontSize} ${computedFontFamily}`).then(fonts => {
-      //   const active = computedFontFamily.split(',').find(family => document.fonts.check(`${computedFontSize} ${family}`));
-      //   if (active) setFontFamily(active.trim());
-      // });
+      const computedFontFamily = computedStyle.getPropertyValue('font-family').split(',')[0].trim().replace(/['"]+/g, '');
+      setFontSize(isTextNode || !currentFontSize ? computedFontSize : currentFontSize);
+      setFontFamily(isTextNode || !currentFontFamily ? computedFontFamily : currentFontFamily);
     }
     return false;
 
