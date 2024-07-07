@@ -22,12 +22,7 @@ math-field::part(menu-toggle) {
   --selection-background-color: rgb(95 183 255 / 50%);
 }
 
-math-field:not(:focus-within) {
-  --selection-background-color: transparent;
-  --caret-color: nope;
-}
-
-.editor-container:focus-within math-field.selection-active {
+math-field.selection-active {
   background-color: rgb(95 183 255 / 50%);
 }
 

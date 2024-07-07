@@ -1,9 +1,9 @@
 "use client"
 import { DOMAttributes } from "react";
-import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, BaseSelection, COMMAND_PRIORITY_EDITOR, KEY_ARROW_DOWN_COMMAND, KEY_ARROW_UP_COMMAND, NodeKey, RangeSelection } from 'lexical';
+import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, BaseSelection, NodeKey, RangeSelection } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey } from 'lexical';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 import type { MathfieldElement, MathfieldElementAttributes } from "mathlive";
@@ -53,45 +53,8 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
           setLastRangeSelection(newSelection);
         }
       }),
-
-      // workaround for arrow up and arrow down key events
-      editor.registerCommand<KeyboardEvent>(KEY_ARROW_UP_COMMAND, (event => {
-        const rootElement = editor.getRootElement();
-        if (!rootElement) return false;
-        const mathfields = rootElement.querySelectorAll<MathfieldElement>('math-field');
-        mathfields.forEach(mathfield => {
-          const keyboardSink = mathfield.shadowRoot?.querySelector('[part="keyboard-sink"]');
-          keyboardSink?.removeAttribute('contenteditable');
-          setTimeout(() => {
-            keyboardSink?.setAttribute('contenteditable', 'true');
-          }, 0);
-        });
-        return false;
-      }), COMMAND_PRIORITY_EDITOR),
-      editor.registerCommand<KeyboardEvent>(KEY_ARROW_DOWN_COMMAND, (event => {
-        const rootElement = editor.getRootElement();
-        if (!rootElement) return false;
-        const mathfields = rootElement.querySelectorAll<MathfieldElement>('math-field');
-        mathfields.forEach(mathfield => {
-          const keyboardSink = mathfield.shadowRoot?.querySelector('[part="keyboard-sink"]');
-          keyboardSink?.removeAttribute('contenteditable');
-          setTimeout(() => {
-            keyboardSink?.setAttribute('contenteditable', 'true');
-          }, 0);
-        });
-        return false;
-      }), COMMAND_PRIORITY_EDITOR),
-
     );
   }, []);
-
-  useLayoutEffect(() => {
-    const mathfield = ref.current;
-    if (!mathfield) return;
-    // highlight when range selected
-    const active = isSelected && $isRangeSelection(selection);
-    mathfield.classList.toggle("selection-active", active);
-  }, [ref, isSelected, selection]);
 
   useEffect(() => {
     const mathfield = ref.current;
@@ -209,6 +172,10 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
     <style>
       {
         `:host .ML__container { pointer-events: inherit; }
+        :host(:not(:focus)) .ML__contains-caret,
+        :host(:not(:focus)) .ML__contains-caret * {
+          color: inherit;
+        }
         @media (hover: none) and (pointer: coarse) {
           :host(:not(:focus)) .ML__container {
             pointer-events: none;
