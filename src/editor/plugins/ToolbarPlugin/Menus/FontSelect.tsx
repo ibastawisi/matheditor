@@ -2,7 +2,7 @@ import { $isMathNode } from "@/editor/nodes/MathNode";
 import { $patchStyle } from "@/editor/nodes/utils";
 import { $getSelectionStyleValueForProperty, $patchStyleText, } from '@lexical/selection';
 import { Box, Select, MenuItem, SelectChangeEvent, ListItemIcon, ListItemText, useMediaQuery } from "@mui/material";
-import { $getSelection, $isRangeSelection, $setSelection, COMMAND_PRIORITY_CRITICAL, LexicalEditor, SELECTION_CHANGE_COMMAND } from "lexical";
+import { $getPreviousSelection, $getSelection, $isRangeSelection, $setSelection, COMMAND_PRIORITY_CRITICAL, LexicalEditor, SELECTION_CHANGE_COMMAND } from "lexical";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTheme } from '@mui/material/styles';
 import { mergeRegister } from "@lexical/utils";
@@ -13,7 +13,7 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
   const [fontFamily, setFontFamily] = useState<string>('Roboto');
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up('md'));
-  const shouldMergeHistory = useRef(false);
+  const shouldMergeHistoryRef = useRef(false);
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -44,8 +44,13 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
       editor.registerCommand(
         SELECTION_CHANGE_COMMAND,
         () => {
-          shouldMergeHistory.current = false;
           updateToolbar();
+          const selection = $getSelection();
+          const previousSelection = $getPreviousSelection();
+          const isSameSelection = $isRangeSelection(selection) && $isRangeSelection(previousSelection)
+            && selection.anchor.key === previousSelection.anchor.key && selection.anchor.offset === previousSelection.anchor.offset
+            && selection.focus.key === previousSelection.focus.key && selection.focus.offset === previousSelection.focus.offset;
+          shouldMergeHistoryRef.current &&= isSameSelection;
           return false;
         },
         COMMAND_PRIORITY_CRITICAL,
@@ -63,14 +68,14 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
       editor.update(() => {
         const selection = $getSelection();
         if ($isRangeSelection(selection)) {
-          shouldMergeHistory.current = true;
+          shouldMergeHistoryRef.current = true;
           $patchStyleText(selection, styles);
           const mathNodes = selection.getNodes().filter($isMathNode);
           $patchStyle(mathNodes, styles);
         }
-      }, { discrete: true, tag: shouldMergeHistory.current ? 'history-merge' : undefined });
+      }, { discrete: true, tag: shouldMergeHistoryRef.current ? 'history-merge' : undefined });
     },
-    [editor, shouldMergeHistory.current],
+    [editor, shouldMergeHistoryRef.current],
   );
 
   const updateFontSize = useCallback(
@@ -105,13 +110,18 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
     ['Georgia', 'Georgia'],
   ];
 
-  const handleClose = useCallback(() => {
+  const restoreFocus = useCallback(() => {
     editor.update(() => {
       const selection = $getSelection();
       if (!selection) return;
       $setSelection(selection.clone());
-    }, { discrete: true, tag: shouldMergeHistory.current ? 'history-merge' : undefined, onUpdate() { setTimeout(() => editor.focus(), 0); } });
-  }, [editor, shouldMergeHistory.current]);
+    }, { discrete: true, onUpdate() { setTimeout(() => editor.focus(), 0); } });
+  }, [editor]);
+
+  const handleClose = useCallback(() => {
+    shouldMergeHistoryRef.current = false;
+    restoreFocus();
+  }, [editor]);
 
   return (
     <Box sx={{ display: 'flex', gap: 0.5, height: 40 }}>
@@ -176,8 +186,9 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
       {matches && <FontSizePicker
         fontSize={fontSize}
         updateFontSize={updateFontSize}
-        onBlur={handleClose}
+        onBlur={restoreFocus}
       />}
     </Box>
   );
+
 };
