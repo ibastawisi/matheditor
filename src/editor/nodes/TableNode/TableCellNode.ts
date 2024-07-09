@@ -97,8 +97,13 @@ export class TableCellNode extends LexicalTableCellNode {
 
   createDOM(config: EditorConfig): HTMLElement {
     const element = super.createDOM(config);
-    element.style.cssText += this.__style;
-
+    const styles = getStyleObjectFromRawCSS(this.__style);
+    const color = styles.color;
+    const backgroundColor = styles['background-color'];
+    const writingMode = styles['writing-mode'];
+    element.style.color = color;
+    element.style.backgroundColor = backgroundColor;
+    element.style.writingMode = writingMode;
     return element;
   }
 
@@ -106,7 +111,14 @@ export class TableCellNode extends LexicalTableCellNode {
     const element = this.createDOM(editor._config);
 
     if (element && isHTMLElement(element)) {
-      element.style.cssText += this.__style;
+      const styles = getStyleObjectFromRawCSS(this.__style);
+      const color = styles.color;
+      const backgroundColor = styles['background-color'];
+      const writingMode = styles['writing-mode'];
+      element.style.color = color;
+      element.style.backgroundColor = backgroundColor;
+      element.style.writingMode = writingMode;
+
       // linkedom does not implement setting colSpan and rowSpan
       if (this.__colSpan > 1) {
         element.setAttribute('colspan', this.__colSpan.toString());

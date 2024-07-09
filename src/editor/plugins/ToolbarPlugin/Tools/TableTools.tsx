@@ -542,15 +542,16 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
   function updateFloat(newFloat: 'left' | 'right' | 'none') {
     setFloat(newFloat);
     editor.update(() => {
+      node.setFormat('');
       $patchStyle(node, { float: newFloat });
     });
   }
 
   function updateFormat(newFormat: ElementFormatType) {
-    updateFloat("none");
     setFormatType(newFormat);
     editor.update(() => {
       node.setFormat(newFormat);
+      $patchStyle(node, { float: "none" });
     });
   }
 

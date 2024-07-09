@@ -18,6 +18,7 @@ import { isHTMLElement } from '@lexical/utils';
 import {
   $applyNodeReplacement,
 } from 'lexical';
+import { getStyleObjectFromRawCSS } from '../utils';
 
 export type SerializedTableNode = LexicalSerializedTableNode & {
   style: string;
@@ -69,16 +70,16 @@ export class TableNode extends LexicalTableNode {
   createDOM(config: EditorConfig, editor?: LexicalEditor): HTMLElement {
     const element = super.createDOM(config, editor);
 
-    const style = this.getStyle();
-    if (style) {
-      element.style.cssText += style;
-    }
     const formatType = this.getFormatType();
     element.style.textAlign = formatType;
     const direction = this.getDirection();
     if (direction) {
       element.dir = direction;
     }
+    const styles = getStyleObjectFromRawCSS(this.__style);
+    const float = styles.float;
+    element.style.float = float;
+
     return element;
   }
 
@@ -88,8 +89,10 @@ export class TableNode extends LexicalTableNode {
     if (!isHTMLElement(dom)) {
       return super.updateDOM();
     }
-    if (this.__style === prevNode.__style) {
-      dom.style.cssText += this.__style;
+    if (this.__style !== prevNode.__style) {
+      const styles = getStyleObjectFromRawCSS(this.__style);
+      const float = styles.float;
+      dom.style.float = float;
     }
     return super.updateDOM();
   }
