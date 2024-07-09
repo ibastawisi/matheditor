@@ -1,11 +1,101 @@
 "use client"
-import { $getSelection, $setSelection, ElementFormatType, LexicalEditor, } from "lexical";
+import { $createParagraphNode, $getRoot, $getSelection, $isElementNode, $isParagraphNode, $isRangeSelection, $isTextNode, $setSelection, ElementFormatType, ElementNode, LexicalEditor, } from "lexical";
 import { useCallback, useEffect, useState } from "react";
-import { ToggleButtonGroup, ToggleButton, SvgIcon, Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography } from "@mui/material";
+import { ToggleButtonGroup, ToggleButton, SvgIcon, Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, Divider } from "@mui/material";
 import { ViewHeadline, Delete, KeyboardArrowDown, TableChart } from "@mui/icons-material";
-import { TableNode } from "@/editor/nodes/TableNode";
+import { $deleteTableColumn__EXPERIMENTAL, $deleteTableRow__EXPERIMENTAL, $getNodeTriplet, $getTableCellNodeFromLexicalNode, $getTableColumnIndexFromTableCellNode, $getTableRowIndexFromTableCellNode, $insertTableColumn__EXPERIMENTAL, $insertTableRow__EXPERIMENTAL, $isTableCellNode, $isTableRowNode, $isTableSelection, $unmergeCell, getTableObserverFromTableElement, HTMLTableElementWithWithTableSelectionState, TableCellHeaderStates, TableCellNode, TableNode, TableRowNode, TableSelection } from "@/editor/nodes/TableNode";
 import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight } from '@mui/icons-material';
-import { $getNodeStyleValueForProperty, $patchStyle } from "@/editor/nodes/utils";
+import { $getNodeStyleValueForProperty, $patchStyle, getStyleObjectFromCSS } from "@/editor/nodes/utils";
+import invariant from "@/shared/invariant";
+import ColorPicker from "./ColorPicker";
+
+function computeSelectionCount(selection: TableSelection): {
+  columns: number;
+  rows: number;
+} {
+  const selectionShape = selection.getShape();
+  return {
+    columns: selectionShape.toX - selectionShape.fromX + 1,
+    rows: selectionShape.toY - selectionShape.fromY + 1,
+  };
+}
+
+// This is important when merging cells as there is no good way to re-merge weird shapes (a result
+// of selecting merged cells and non-merged)
+function isTableSelectionRectangular(selection: TableSelection): boolean {
+  const nodes = selection.getNodes();
+  const currentRows: Array<number> = [];
+  let currentRow = null;
+  let expectedColumns = null;
+  let currentColumns = 0;
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    if ($isTableCellNode(node)) {
+      const row = node.getParentOrThrow();
+      invariant(
+        $isTableRowNode(row),
+        'Expected CellNode to have a RowNode parent',
+      );
+      if (currentRow !== row) {
+        if (expectedColumns !== null && currentColumns !== expectedColumns) {
+          return false;
+        }
+        if (currentRow !== null) {
+          expectedColumns = currentColumns;
+        }
+        currentRow = row;
+        currentColumns = 0;
+      }
+      const colSpan = node.__colSpan;
+      for (let j = 0; j < colSpan; j++) {
+        if (currentRows[currentColumns + j] === undefined) {
+          currentRows[currentColumns + j] = 0;
+        }
+        currentRows[currentColumns + j] += node.__rowSpan;
+      }
+      currentColumns += colSpan;
+    }
+  }
+  return (
+    (expectedColumns === null || currentColumns === expectedColumns) &&
+    currentRows.every((v) => v === currentRows[0])
+  );
+}
+
+function $canUnmerge(): boolean {
+  const selection = $getSelection();
+  if (
+    ($isRangeSelection(selection) && !selection.isCollapsed()) ||
+    ($isTableSelection(selection) && !selection.anchor.is(selection.focus)) ||
+    (!$isRangeSelection(selection) && !$isTableSelection(selection))
+  ) {
+    return false;
+  }
+  const [cell] = $getNodeTriplet(selection.anchor);
+  return cell.__colSpan > 1 || cell.__rowSpan > 1;
+}
+
+function $cellContainsEmptyParagraph(cell: TableCellNode): boolean {
+  if (cell.getChildrenSize() !== 1) {
+    return false;
+  }
+  const firstChild = cell.getFirstChildOrThrow();
+  if (!$isParagraphNode(firstChild) || !firstChild.isEmpty()) {
+    return false;
+  }
+  return true;
+}
+
+function $selectLastDescendant(node: ElementNode): void {
+  const lastDescendant = node.getLastDescendant();
+  if ($isTextNode(lastDescendant)) {
+    lastDescendant.select();
+  } else if ($isElementNode(lastDescendant)) {
+    lastDescendant.selectEnd();
+  } else if (lastDescendant !== null) {
+    lastDescendant.selectNext();
+  }
+}
 
 const FormatImageRight = () => <SvgIcon viewBox='0 -960 960 960'>
   <path xmlns="http://www.w3.org/2000/svg" d="M450-285v-390h390v390H450Zm60-60h270v-270H510v270ZM120-120v-60h720v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h720v60H120Z" />
@@ -15,11 +105,401 @@ const FormatImageLeft = () => <SvgIcon viewBox='0 -960 960 960'>
   <path xmlns="http://www.w3.org/2000/svg" d="M120-285v-390h390v390H120Zm60-60h270v-270H180v270Zm-60-435v-60h720v60H120Zm450 165v-60h270v60H570Zm0 165v-60h270v60H570Zm0 165v-60h270v60H570ZM120-120v-60h720v60H120Z" />
 </SvgIcon>;
 
+const CellMerge = () => <SvgIcon viewBox='0 -960 960 960'>
+  <path d="M120-120v-240h80v160h160v80H120Zm480 0v-80h160v-160h80v240H600ZM287-327l-57-56 57-57H80v-80h207l-57-57 57-56 153 153-153 153Zm386 0L520-480l153-153 57 56-57 57h207v80H673l57 57-57 56ZM120-600v-240h240v80H200v160h-80Zm640 0v-160H600v-80h240v240h-80Z" />
+</SvgIcon>;
+
+const TextRotationNone = () => <SvgIcon viewBox='0 -960 960 960'>
+  <path d="M160-200v-80h528l-42-42 56-56 138 138-138 138-56-56 42-42H160Zm116-200 164-440h80l164 440h-76l-38-112H392l-40 112h-76Zm138-176h132l-64-182h-4l-64 182Z" />
+</SvgIcon>;
+
+const TextRotationVertical = () => <SvgIcon viewBox='0 -960 960 960'>
+  <path d="m436-320 164-440h80l164 440h-76l-40-112H552l-40 112h-76Zm138-176h132l-64-182h-4l-64 182ZM240-160 100-300l56-56 44 42v-526h80v526l44-42 56 56-140 140Z" />
+</SvgIcon>;
+
+const AddRowAbove = () => <SvgIcon viewBox='0 -960 960 960'>
+  <path d="M200-160h560v-240H200v240Zm640 80H120v-720h160v80h-80v240h560v-240h-80v-80h160v720ZM480-480Zm0 80v-80 80Zm0 0Zm-40-240v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80Z" />
+</SvgIcon>;
+
+const AddRowBelow = () => <SvgIcon viewBox='0 -960 960 960'>
+  <path d="M200-560h560v-240H200v240Zm-80 400v-720h720v720H680v-80h80v-240H200v240h80v80H120Zm360-320Zm0-80v80-80Zm0 0ZM440-80v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80Z" />
+</SvgIcon>;
+
+const AddColumnLeft = () => <SvgIcon viewBox='0 -960 960 960'>
+  <path d="M800-200v-560H560v560h240Zm-640 80v-160h80v80h240v-560H240v80h-80v-160h720v720H160Zm320-360Zm80 0h-80 80Zm0 0ZM160-360v-80H80v-80h80v-80h80v80h80v80h-80v80h-80Z" />
+</SvgIcon>;
+
+const AddColumnRight = () => <SvgIcon viewBox='0 -960 960 960'>
+  <path d="M160-760v560h240v-560H160ZM80-120v-720h720v160h-80v-80H480v560h240v-80h80v160H80Zm400-360Zm-80 0h80-80Zm0 0Zm320 120v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80Z" />
+</SvgIcon>;
+
+const RemoveRow = () => <SvgIcon viewBox='0 -960 960 960'>
+  <path d="M560-280H120v-400h720v120h-80v-40H200v240h360v80Zm-360-80v-240 240Zm440 104 84-84-84-84 56-56 84 84 84-84 56 56-83 84 83 84-56 56-84-83-84 83-56-56Z" />
+</SvgIcon>;
+
+const RemoveColumn = () => <SvgIcon viewBox='0 -960 960 960' sx={{ transform: 'rotate(90deg)' }}>
+  <path d="M560-280H120v-400h720v120h-80v-40H200v240h360v80Zm-360-80v-240 240Zm440 104 84-84-84-84 56-56 84 84 84-84 56 56-83 84 83 84-56 56-84-83-84 83-56-56Z" />
+</SvgIcon>;
+
+const RemoveRowHeader = () => <SvgIcon viewBox='0 -960 960 960'>
+  <path d="M120-280v-400h720v400H120Zm80-80h560v-240H200v240Zm0 0v-240 240Z" />
+</SvgIcon>;
+
+const RemoveColumnHeader = () => <SvgIcon viewBox='0 -960 960 960' sx={{ transform: 'rotate(90deg)' }}>
+  <path d="M120-280v-400h720v400H120Zm80-80h560v-240H200v240Zm0 0v-240 240Z" />
+</SvgIcon>;
+
+const AddRowHeader = () => <SvgIcon viewBox='0 -960 960 960'>
+  <path d="m272-104-38-38-42 42q-19 19-46.5 19.5T100-100q-19-19-19-46t19-46l42-42-38-40 554-554q12-12 29-12t29 12l112 112q12 12 12 29t-12 29L272-104Zm172-396L216-274l58 58 226-228-56-56Z" />
+</SvgIcon>;
+
+const AddColumnHeader = () => <SvgIcon viewBox='0 -960 960 960'>
+  <path d="m272-104-38-38-42 42q-19 19-46.5 19.5T100-100q-19-19-19-46t19-46l42-42-38-40 554-554q12-12 29-12t29 12l112 112q12 12 12 29t-12 29L272-104Zm172-396L216-274l58 58 226-228-56-56Z" />
+</SvgIcon>;
+
+const $getSelectedTableCell = (editor: LexicalEditor): TableCellNode | null => {
+  const selection = $getSelection();
+  const nativeSelection = window.getSelection();
+  const activeElement = document.activeElement;
+
+  if (selection == null) {
+    return null;
+  }
+
+  const rootElement = editor.getRootElement();
+
+  if (
+    $isRangeSelection(selection) &&
+    rootElement !== null &&
+    nativeSelection !== null &&
+    rootElement.contains(nativeSelection.anchorNode)
+  ) {
+    const tableCellNodeFromSelection = $getTableCellNodeFromLexicalNode(
+      selection.anchor.getNode(),
+    );
+
+    if (!$isTableCellNode(tableCellNodeFromSelection)) {
+      return null;
+    }
+
+    const tableCellParentNodeDOM = editor.getElementByKey(
+      tableCellNodeFromSelection.getKey(),
+    );
+
+    if (tableCellParentNodeDOM == null) {
+      return null;
+    }
+
+    return tableCellNodeFromSelection;
+  } else if (!activeElement) {
+    return null;
+  }
+  return null;
+};
+
 
 export default function TableTools({ editor, node }: { editor: LexicalEditor, node: TableNode }): JSX.Element {
-
   const [formatType, setFormatType] = useState<ElementFormatType>();
   const [float, setFloat] = useState<string>();
+  const [selectionCounts, setSelectionCounts] = useState({ columns: 1, rows: 1, });
+  const [canMergeCells, setCanMergeCells] = useState(false);
+  const [canUnmergeCell, setCanUnmergeCell] = useState(false);
+  const [cellNode, setCellNode] = useState<TableCellNode | null>(null);
+  const [tableCellStyle, setTableCellStyle] = useState<Record<string, string> | null>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+
+  useEffect(() => {
+    return editor.registerUpdateListener(() => {
+      editor.getEditorState().read(() => {
+        const tableCell = $getSelectedTableCell(editor);
+        setCellNode(tableCell);
+      });
+    });
+  }, [editor]);
+
+  useEffect(() => {
+    if (cellNode === null) return;
+    return editor.registerMutationListener(TableCellNode, (nodeMutations) => {
+      const nodeUpdated =
+        nodeMutations.get(cellNode.getKey()) === 'updated';
+
+      if (nodeUpdated) {
+        editor.getEditorState().read(() => {
+          setCellNode(cellNode.getLatest());
+        });
+        const cellStyle = getCellStyle();
+        setTableCellStyle(cellStyle);
+      }
+    });
+  }, [editor, cellNode]);
+
+  useEffect(() => {
+    editor.getEditorState().read(() => {
+      const selection = $getSelection();
+      // Merge cells
+      if ($isTableSelection(selection)) {
+        const currentSelectionCounts = computeSelectionCount(selection);
+        setSelectionCounts(currentSelectionCounts);
+        setCanMergeCells(
+          isTableSelectionRectangular(selection) &&
+          (currentSelectionCounts.columns > 1 ||
+            currentSelectionCounts.rows > 1),
+        );
+      } else {
+        setSelectionCounts({ columns: 1, rows: 1 });
+        setCanMergeCells(false);
+      }
+      // Unmerge cell
+      setCanUnmergeCell($canUnmerge());
+    });
+  }, [editor, open, cellNode]);
+
+  const clearTableSelection = useCallback(() => {
+    if (cellNode === null) return;
+    editor.update(() => {
+      if (cellNode.isAttached()) {
+        const tableElement = editor.getElementByKey(
+          node.getKey(),
+        ) as HTMLTableElementWithWithTableSelectionState;
+
+        if (!tableElement) {
+          throw new Error('Expected to find tableElement in DOM');
+        }
+
+        const tableSelection = getTableObserverFromTableElement(tableElement);
+        if (tableSelection) {
+          tableSelection.clearHighlight();
+        }
+
+        node.markDirty();
+        setCellNode(cellNode.getLatest());
+      }
+
+      const previousSibling = node.getPreviousSibling() || $getRoot();
+      previousSibling.selectEnd();
+    });
+  }, [editor, node, cellNode]);
+
+  const mergeTableCellsAtSelection = () => {
+    editor.update(() => {
+      const selection = $getSelection();
+      if ($isTableSelection(selection)) {
+        const { columns, rows } = computeSelectionCount(selection);
+        const nodes = selection.getNodes();
+        let firstCell: null | TableCellNode = null;
+        for (let i = 0; i < nodes.length; i++) {
+          const node = nodes[i];
+          if ($isTableCellNode(node)) {
+            if (firstCell === null) {
+              node.setColSpan(columns).setRowSpan(rows);
+              firstCell = node;
+              const isEmpty = $cellContainsEmptyParagraph(node);
+              let firstChild;
+              if (
+                isEmpty &&
+                $isParagraphNode((firstChild = node.getFirstChild()))
+              ) {
+                firstChild.remove();
+              }
+            } else if ($isTableCellNode(firstCell)) {
+              const isEmpty = $cellContainsEmptyParagraph(node);
+              if (!isEmpty) {
+                firstCell.append(...node.getChildren());
+              }
+              node.remove();
+            }
+          }
+        }
+        if (firstCell !== null) {
+          if (firstCell.getChildrenSize() === 0) {
+            firstCell.append($createParagraphNode());
+          }
+          $selectLastDescendant(firstCell);
+        }
+      }
+    });
+  };
+
+  const unmergeTableCellsAtSelection = () => {
+    editor.update(() => {
+      $unmergeCell();
+    });
+  };
+
+  const handleCellMerge = () => {
+    if (canMergeCells) {
+      mergeTableCellsAtSelection();
+    } else if (canUnmergeCell) {
+      unmergeTableCellsAtSelection();
+    }
+  };
+
+  const insertTableRowAtSelection = useCallback(
+    (shouldInsertAfter: boolean) => {
+      editor.update(() => {
+        $insertTableRow__EXPERIMENTAL(shouldInsertAfter);
+      });
+    },
+    [editor],
+  );
+
+  const insertTableColumnAtSelection = useCallback(
+    (shouldInsertAfter: boolean) => {
+      editor.update(() => {
+        for (let i = 0; i < selectionCounts.columns; i++) {
+          $insertTableColumn__EXPERIMENTAL(shouldInsertAfter);
+        }
+      });
+    },
+    [editor, selectionCounts.columns],
+  );
+
+  const deleteTableRowAtSelection = useCallback(() => {
+    editor.update(() => {
+      $deleteTableRow__EXPERIMENTAL();
+      handleClose();
+    });
+  }, [editor]);
+
+  const deleteTableAtSelection = useCallback(() => {
+    if (cellNode === null) return;
+    editor.update(() => {
+      node.remove();
+
+      clearTableSelection();
+      handleClose();
+    });
+  }, [editor, node, cellNode, clearTableSelection]);
+
+  const deleteTableColumnAtSelection = useCallback(() => {
+    editor.update(() => {
+      $deleteTableColumn__EXPERIMENTAL();
+      handleClose();
+    });
+  }, [editor]);
+
+  const getTableRowHeaderState = useCallback(() => {
+    if (cellNode === null) return TableCellHeaderStates.NO_STATUS;
+    return cellNode.__headerState & TableCellHeaderStates.ROW;
+  }, [cellNode]);
+
+  const getTableColumnHeaderState = useCallback(() => {
+    if (cellNode === null) return TableCellHeaderStates.NO_STATUS;
+    return cellNode.__headerState & TableCellHeaderStates.COLUMN;
+  }, [cellNode]);
+
+  const toggleTableRowIsHeader = useCallback(() => {
+    if (cellNode === null) return;
+    editor.update(() => {
+
+      const tableRowIndex = $getTableRowIndexFromTableCellNode(cellNode);
+
+      const tableRows = node.getChildren();
+
+      if (tableRowIndex >= tableRows.length || tableRowIndex < 0) {
+        throw new Error('Expected table cell to be inside of table row.');
+      }
+
+      const tableRow = tableRows[tableRowIndex];
+
+      if (!$isTableRowNode(tableRow)) {
+        throw new Error('Expected table row');
+      }
+
+      tableRow.getChildren().forEach((tableCell) => {
+        if (!$isTableCellNode(tableCell)) {
+          throw new Error('Expected table cell');
+        }
+
+        tableCell.toggleHeaderStyle(TableCellHeaderStates.ROW);
+      });
+
+    });
+  }, [editor, node, cellNode, clearTableSelection]);
+
+  const toggleTableColumnIsHeader = useCallback(() => {
+    if (cellNode === null) return;
+    editor.update(() => {
+
+      const tableColumnIndex =
+        $getTableColumnIndexFromTableCellNode(cellNode);
+
+      const tableRows = node.getChildren<TableRowNode>();
+      const maxRowsLength = Math.max(
+        ...tableRows.map((row) => row.getChildren().length),
+      );
+
+      if (tableColumnIndex >= maxRowsLength || tableColumnIndex < 0) {
+        throw new Error('Expected table cell to be inside of table row.');
+      }
+
+      for (let r = 0; r < tableRows.length; r++) {
+        const tableRow = tableRows[r];
+
+        if (!$isTableRowNode(tableRow)) {
+          throw new Error('Expected table row');
+        }
+
+        const tableCells = tableRow.getChildren();
+        if (tableColumnIndex >= tableCells.length) {
+          // if cell is outside of bounds for the current row (for example various merge cell cases) we shouldn't highlight it
+          continue;
+        }
+
+        const tableCell = tableCells[tableColumnIndex];
+
+        if (!$isTableCellNode(tableCell)) {
+          throw new Error('Expected table cell');
+        }
+
+        tableCell.toggleHeaderStyle(TableCellHeaderStates.COLUMN);
+      }
+    });
+  }, [editor, node, cellNode, clearTableSelection]);
+
+  const applyCellStyle = useCallback(
+    (styles: Record<string, string>) => {
+      editor.update(() => {
+        const selection = $getSelection();
+        if ($isRangeSelection(selection) || $isTableSelection(selection)) {
+          const [cell] = $getNodeTriplet(selection.anchor);
+          if ($isTableCellNode(cell)) {
+            $patchStyle(cell, styles);
+          }
+
+          if ($isTableSelection(selection)) {
+            const nodes = selection.getNodes();
+            const cells = nodes.filter($isTableCellNode);
+            $patchStyle(cells, styles);
+          }
+        }
+      });
+    },
+    [editor],
+  );
+
+  const updateCellColor = useCallback(
+    (key: string, value: string) => {
+      const styleKey = key === 'text' ? 'color' : 'background-color';
+      applyCellStyle({ [styleKey]: value });
+    },
+    [editor],
+  );
+
+  const getCellWritingMode = useCallback(() => {
+    return tableCellStyle?.['writing-mode'] ?? '';
+  }, [tableCellStyle]);
+
+  const toggleCellWritingMode = useCallback(
+    () => {
+      const value = getCellWritingMode() === '' ? 'vertical-rl' : '';
+      applyCellStyle({ 'writing-mode': value });
+    },
+    [editor, tableCellStyle],
+  );
+
 
   function getNodeFormatType(): ElementFormatType {
     return editor.getEditorState().read(() => {
@@ -37,6 +517,27 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
     setFloat(getNodeFloat());
   }, [node]);
 
+  function getCellStyle(): Record<string, string> | null {
+    return editor.getEditorState().read(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection) || $isTableSelection(selection)) {
+        const [cell] = $getNodeTriplet(selection.anchor);
+        if ($isTableCellNode(cell)) {
+          const css = cell.getStyle();
+          const style = getStyleObjectFromCSS(css);
+          return style;
+        }
+      }
+      return null;
+    });
+  }
+
+  useEffect(() => {
+    if (cellNode === null) return;
+    const cellStyle = getCellStyle();
+    setTableCellStyle(cellStyle);
+  }, [cellNode]);
+
   function updateFloat(newFloat: 'left' | 'right' | 'none') {
     setFloat(newFloat);
     editor.update(() => {
@@ -51,26 +552,26 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
       node.setFormat(newFormat);
     });
   }
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
+    editor.getEditorState().read(() => {
+      const tableCell = $getSelectedTableCell(editor);
+      setCellNode(tableCell);
+    });
   };
+
+  const restoreFocus = useCallback(() => {
+    editor.update(() => {
+      const selection = $getSelection();
+      if (!selection) return;
+      $setSelection(selection.clone());
+    }, { discrete: true, onUpdate() { setTimeout(() => editor.focus(), 0); } });
+  }, [editor]);
+
   const handleClose = useCallback(() => {
     setAnchorEl(null);
-    setTimeout(() => {
-      editor.update(
-        () => {
-          const selection = $getSelection();
-          if (!selection) return;
-          $setSelection(selection.clone());
-        },
-        {
-          discrete: true,
-          onUpdate() { editor.focus() }
-        }
-      );
-    }, 0);
+    restoreFocus();
   }, [editor]);
 
   return (
@@ -154,12 +655,110 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
           </ToggleButtonGroup>
 
         </MenuItem>
-        <MenuItem onClick={() => {
-          editor.update(() => {
-            node.selectPrevious();
-            node.remove();
-          });
-        }}>
+        <Divider />
+
+        <MenuItem onClick={handleCellMerge} disabled={!canMergeCells && !canUnmergeCell}>
+          <ListItemIcon>
+            <CellMerge />
+          </ListItemIcon>
+          <ListItemText>
+            {canUnmergeCell ? 'Unmerge cell' : 'Merge cells'}
+          </ListItemText>
+        </MenuItem>
+        <MenuItem onClick={toggleCellWritingMode}>
+          <ListItemIcon>
+            {getCellWritingMode() === '' ? <TextRotationVertical /> : <TextRotationNone />}
+          </ListItemIcon>
+          <ListItemText>
+            Make {getCellWritingMode() === '' ? 'Vertical' : 'Horizontal'}
+          </ListItemText>
+        </MenuItem>
+        <ColorPicker
+          onColorChange={updateCellColor}
+          toggle="menuitem"
+          label='Cell color'
+        />
+        <MenuItem onClick={() => toggleTableRowIsHeader()}>
+          <ListItemIcon>
+            {(getTableRowHeaderState() & TableCellHeaderStates.ROW) === TableCellHeaderStates.ROW
+              ? <RemoveRowHeader />
+              : <AddRowHeader />}
+          </ListItemIcon>
+          <ListItemText>
+            {(getTableRowHeaderState() & TableCellHeaderStates.ROW) === TableCellHeaderStates.ROW
+              ? 'Remove'
+              : 'Add'}{' '}
+            row header
+          </ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => toggleTableColumnIsHeader()}>
+          <ListItemIcon>
+            {(getTableColumnHeaderState() & TableCellHeaderStates.COLUMN) === TableCellHeaderStates.COLUMN
+              ? <RemoveColumnHeader />
+              : <AddColumnHeader />}
+          </ListItemIcon>
+          <ListItemText>
+            {(getTableColumnHeaderState() & TableCellHeaderStates.COLUMN) === TableCellHeaderStates.COLUMN
+              ? 'Remove'
+              : 'Add'}{' '}
+            column header
+          </ListItemText>
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={() => insertTableRowAtSelection(false)}>
+          <ListItemIcon>
+            <AddRowAbove />
+          </ListItemIcon>
+          <ListItemText>
+            Insert{' '}
+            {selectionCounts.rows === 1 ? 'row' : `${selectionCounts.rows} rows`}{' '}
+            above
+          </ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => insertTableRowAtSelection(true)}>
+          <ListItemIcon>
+            <AddRowBelow />
+          </ListItemIcon>
+          <ListItemText>
+            Insert{' '}
+            {selectionCounts.rows === 1 ? 'row' : `${selectionCounts.rows} rows`}{' '}
+            below
+          </ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => insertTableColumnAtSelection(false)}>
+          <ListItemIcon>
+            <AddColumnLeft />
+          </ListItemIcon>
+          <ListItemText>
+            Insert{' '}
+            {selectionCounts.columns === 1 ? 'column' : `${selectionCounts.columns} columns`}{' '}
+            left
+          </ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => insertTableColumnAtSelection(true)}>
+          <ListItemIcon>
+            <AddColumnRight />
+          </ListItemIcon>
+          <ListItemText>
+            Insert{' '}
+            {selectionCounts.columns === 1 ? 'column' : `${selectionCounts.columns} columns`}{' '}
+            right
+          </ListItemText>
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={deleteTableColumnAtSelection}>
+          <ListItemIcon>
+            <RemoveColumn />
+          </ListItemIcon>
+          <ListItemText>Delete column</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={deleteTableRowAtSelection}>
+          <ListItemIcon>
+            <RemoveRow />
+          </ListItemIcon>
+          <ListItemText>Delete row</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={deleteTableAtSelection}>
           <ListItemIcon>
             <Delete fontSize="small" />
           </ListItemIcon>

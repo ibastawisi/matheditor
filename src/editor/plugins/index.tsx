@@ -15,7 +15,6 @@ import MarkdownShortcutPlugin from "./MarkdownPlugin/MarkdownShortcutPlugin";
 import MarkdownAutoImportPlugin from "./MarkdownPlugin/MarkdownAutoImportPlugin";
 import CodeHighlightPlugin from "./CodePlugin/CodeHighlightPlugin";
 import AutoLinkPlugin from "./LinkPlugin/AutoLinkPlugin";
-import TableCellActionMenuPlugin from './TablePlugin/TableActionMenuPlugin';
 import TableCellResizer from './TablePlugin/TableCellResizer';
 import FloatingToolbarPlugin from "./FloatingToolbar";
 import HorizontalRulePlugin from "./HorizontalRulePlugin";
@@ -74,7 +73,6 @@ export const EditorPlugins: React.FC<{
       <AutoLinkPlugin />
       <SpeechToTextPlugin />
       {editor.hasNode(TableNode) && <TablePlugin />}
-      {editor.hasNode(TableNode) && <TableCellActionMenuPlugin />}
       {editor.hasNode(TableNode) && <TableCellResizer />}
       {editor.hasNode(ImageNode) && <ImagePlugin />}
       {editor.hasNode(SketchNode) && <SketchPlugin />}

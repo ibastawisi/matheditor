@@ -1,6 +1,6 @@
 "use client"
 import * as React from 'react';
-import { MenuItem, ListItemText, ToggleButton, Menu, ListSubheader } from '@mui/material';
+import { MenuItem, ListItemText, ToggleButton, Menu, ListSubheader, ListItemIcon } from '@mui/material';
 import { FormatColorFill, CircleOutlined, FormatClear, FormatColorReset, Circle } from '@mui/icons-material';
 
 const textPalete = [
@@ -61,6 +61,9 @@ export default function ColorPicker({ onColorChange, onClose, toggle = "togglebu
   return (
     <>
       {toggle === "menuitem" && <MenuItem onClick={handleClick}>
+        <ListItemIcon>
+          <FormatColorFill />
+        </ListItemIcon>
         <ListItemText>{label}</ListItemText>
       </MenuItem>
       }

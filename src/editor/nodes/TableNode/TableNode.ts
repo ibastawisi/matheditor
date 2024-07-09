@@ -71,7 +71,7 @@ export class TableNode extends LexicalTableNode {
 
     const style = this.getStyle();
     if (style) {
-      element.style.cssText = style;
+      element.style.cssText += style;
     }
     const formatType = this.getFormatType();
     element.style.textAlign = formatType;
@@ -84,10 +84,14 @@ export class TableNode extends LexicalTableNode {
 
   updateDOM(): boolean {
     const prevNode = arguments[0] as TableNode;
-    return (
-      super.updateDOM() ||
-      this.__style !== prevNode.__style
-    );
+    const dom = arguments[1] as HTMLElement;
+    if (!isHTMLElement(dom)) {
+      return super.updateDOM();
+    }
+    if (this.__style === prevNode.__style) {
+      dom.style.cssText += this.__style;
+    }
+    return super.updateDOM();
   }
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
