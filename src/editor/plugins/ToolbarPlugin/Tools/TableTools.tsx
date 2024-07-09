@@ -236,6 +236,7 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
   }, [editor, cellNode]);
 
   useEffect(() => {
+    if (!open) return;
     editor.getEditorState().read(() => {
       const selection = $getSelection();
       // Merge cells

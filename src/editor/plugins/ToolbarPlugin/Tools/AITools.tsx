@@ -3,7 +3,7 @@ import { $createParagraphNode, $createTextNode, $getSelection, $isRangeSelection
 import { mergeRegister } from "@lexical/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, TextField, CircularProgress } from "@mui/material";
-import { KeyboardArrowDown, AutoAwesome, UnfoldMore, UnfoldLess, PlayArrow, ImageSearch, Autorenew, ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
+import { AutoAwesome, UnfoldMore, UnfoldLess, PlayArrow, ImageSearch, Autorenew, ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
 import { SxProps, Theme } from '@mui/material/styles';
 import { useCompletion } from "ai/react";
 import { SET_DIALOGS_COMMAND } from "../Dialogs/commands";
@@ -13,7 +13,7 @@ import { $isCodeNode } from "@lexical/code";
 import { $isListNode } from "@lexical/list";
 import { $isHorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
 import { $findMatchingParent } from "@/editor";
-import { $createTableCellNode, $createTableRowNode, $isTableCellNode, $isTableNode, $isTableRowNode, TableCellHeaderStates, TableRowNode } from "@/editor/nodes/TableNode";
+import { $getTableCellNodeFromLexicalNode, $insertTableColumn__EXPERIMENTAL, $insertTableRow__EXPERIMENTAL, $isTableCellNode, $isTableNode, $isTableRowNode, TableCellHeaderStates } from "@/editor/nodes/TableNode";
 import { throttle } from "@/editor/utils/throttle";
 
 export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> }): JSX.Element {
@@ -171,21 +171,19 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       if (isTableNode) {
         shouldInsertNewlineAfter = false;
         const currentRow = $findMatchingParent(anchorNode, $isTableRowNode);
-        const currentCell = $findMatchingParent(anchorNode, $isTableCellNode);
+        const currentCell = $getTableCellNodeFromLexicalNode(anchorNode);
         const isNewTable = tableNode.getChildrenSize() === 1 && currentRow?.getChildrenSize() === 1;
         const isEmptyCell = currentCell && currentCell.getTextContentSize() === 0;
         const anchorText = anchorNode.getTextContent();
         const isPossiblyLatex = (anchorText.match(/\$+/g) || []).length % 2 !== 0;
-        const headerRow = tableNode.getFirstChild<TableRowNode>();
-        const headerCellCount = headerRow?.getChildrenSize() || 0;
-        const currentRowCellCount = currentRow?.getChildrenSize() || 0;
         const isHeaderRow = currentRow?.getIndexWithinParent() === 0;
-        const isCurrentRowFull = !isHeaderRow && currentRowCellCount === headerCellCount;
-        const shouldInsertNewCell = isNewTable || (delta.includes("|") && !isEmptyCell && !isPossiblyLatex && !isCurrentRowFull);
+        const shouldInsertNewCell = isNewTable || (delta.includes("|") && !isEmptyCell && !isPossiblyLatex);
+        const shouldSelectNextCell = shouldInsertNewCell && !isHeaderRow;
         const shouldInsertNewRow = delta.endsWith("\n") && !isEmptyCell;
-        const shouldEndTable = delta.endsWith("\n\n") || (shouldInsertNewCell && isCurrentRowFull);
+        const shouldEndTable = delta.endsWith("\n\n");
         const shouTrimStartDelta = isEmptyCell || shouldInsertNewCell;
         const isTableRowDivider = /^(-|=)+\n*$/.test(delta.trim()) && !isPossiblyLatex;
+        
         if (isTableRowDivider) {
           const lastRow = currentRow?.getPreviousSibling();
           if (!$isTableRowNode(lastRow)) return;
@@ -202,16 +200,22 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
           tableNode.insertAfter($createParagraphNode()).selectEnd();
           return;
         }
-        if (shouldInsertNewRow) return tableNode.append($createTableRowNode()).selectEnd();
+        if (shouldInsertNewRow) {
+          $insertTableRow__EXPERIMENTAL(true);
+          currentRow?.getNextSibling()?.selectStart();
+          return;
+        }
+        if (shouldSelectNextCell) {
+          $getTableCellNodeFromLexicalNode(anchorNode)?.selectNext();
+          return;
+        }
         let cellText = delta.replaceAll("|", "");
         if (shouTrimStartDelta) cellText = cellText.trimStart();
         if (shouldTrimEndDelta) cellText = cellText.trimEnd();
         if (shouldInsertNewCell) {
-          const cell = $createTableCellNode(TableCellHeaderStates.NO_STATUS);
-          const paragraph = $createParagraphNode();
-          const textNode = $createTextNode(cellText);
-          cell.append(paragraph.append(textNode));
-          return currentRow?.append(cell).selectEnd();
+          $insertTableColumn__EXPERIMENTAL(true);
+          $getTableCellNodeFromLexicalNode(anchorNode)?.selectNext()?.insertText(cellText);
+          return;
         }
         selection.insertText(cellText);
         return;
