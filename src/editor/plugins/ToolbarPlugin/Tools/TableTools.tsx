@@ -278,8 +278,6 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
         setCellNode(cellNode.getLatest());
       }
 
-      const previousSibling = node.getPreviousSibling() || $getRoot();
-      previousSibling.selectEnd();
     });
   }, [editor, node, cellNode]);
 
@@ -367,12 +365,11 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
   const deleteTableAtSelection = useCallback(() => {
     if (cellNode === null) return;
     editor.update(() => {
+      node.selectPrevious();
       node.remove();
-
-      clearTableSelection();
       handleClose();
     });
-  }, [editor, node, cellNode, clearTableSelection]);
+  }, [editor, node, cellNode]);
 
   const deleteTableColumnAtSelection = useCallback(() => {
     editor.update(() => {
@@ -418,7 +415,7 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
       });
 
     });
-  }, [editor, node, cellNode, clearTableSelection]);
+  }, [editor, node, cellNode]);
 
   const toggleTableColumnIsHeader = useCallback(() => {
     if (cellNode === null) return;
@@ -458,7 +455,7 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
         tableCell.toggleHeaderStyle(TableCellHeaderStates.COLUMN);
       }
     });
-  }, [editor, node, cellNode, clearTableSelection]);
+  }, [editor, node, cellNode]);
 
   const applyCellStyle = useCallback(
     (styles: Record<string, string>) => {
