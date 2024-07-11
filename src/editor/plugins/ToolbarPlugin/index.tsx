@@ -1,6 +1,6 @@
 "use client"
-import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, LexicalNode, NodeKey } from 'lexical';
-import { $isCodeNode, CODE_LANGUAGE_MAP, CODE_LANGUAGE_FRIENDLY_NAME_MAP } from '@lexical/code';
+import { $getSelection, $isNodeSelection, $isRangeSelection, LexicalNode } from 'lexical';
+import { $isCodeNode } from '@lexical/code';
 import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
@@ -20,8 +20,8 @@ import ImageTools from './Tools/ImageTools';
 import { $isGraphNode } from '@/editor/nodes/GraphNode';
 import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog, LinkDialog, LayoutDialog, OCRDialog } from './Dialogs';
 import { $isStickyNode } from '@/editor/nodes/StickyNode';
-import { SelectChangeEvent, useScrollTrigger, AppBar, Toolbar, Box, IconButton, Select, MenuItem, Fab } from '@mui/material';
-import { Code, Mic, Redo, Undo } from '@mui/icons-material';
+import { useScrollTrigger, AppBar, Toolbar, Box, IconButton, Fab } from '@mui/material';
+import { Mic, Redo, Undo } from '@mui/icons-material';
 import { $isIFrameNode } from '@/editor/nodes/IFrameNode';
 import { IS_APPLE, $findMatchingParent } from '@lexical/utils';
 import { $isTableNode, TableNode } from '@/editor/nodes/TableNode';
@@ -202,7 +202,7 @@ function ToolbarPlugin() {
   }, [activeEditor, dialogs]);
 
   const toolbarTrigger = useScrollTrigger({
-    disableHysteresis: IS_MOBILE,
+    disableHysteresis: true,
     threshold: 32,
   });
 

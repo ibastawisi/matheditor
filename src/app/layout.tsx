@@ -48,7 +48,7 @@ export const viewport: Viewport = {
     media: "(prefers-color-scheme: dark)",
     color: "#121212"
   }],
-
+  interactiveWidget: 'resizes-content',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
