@@ -41,20 +41,16 @@ export const viewport: Viewport = {
   maximumScale: 1,
   viewportFit: 'cover',
   colorScheme: 'dark light',
-  themeColor: [{
-    media: "(prefers-color-scheme: light)",
-    color: "#1976d2"
-  },
-  {
-    media: "(prefers-color-scheme: dark)",
-    color: "#121212"
-  }],
   interactiveWidget: 'resizes-content',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <meta name='theme-color' media='(prefers-color-scheme: light)' content='#1976d2' data-react-helmet='true' />
+        <meta name='theme-color' media='(prefers-color-scheme: dark)' content='#272727' data-react-helmet='true' />
+      </head>
       <body>
         <InitColorSchemeScript attribute='theme' defaultMode='system' />
         <ThemeProvider>

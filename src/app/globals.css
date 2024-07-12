@@ -112,6 +112,10 @@ footer {
   z-index: 15000;
 }
 
+[theme=dark] .MuiFab-root {
+  color: var(--mui-palette-primary-contrastText);
+}
+
 @media print {
   * {
     -webkit-print-color-adjust: exact;

@@ -5,9 +5,10 @@ import { useEffect } from 'react';
 import logo from "@public/logo.svg";
 import Image from 'next/image';
 import { useDispatch, actions, useSelector } from '@/store';
-import { useTheme, useColorScheme } from '@mui/material/styles';
+import { useColorScheme } from '@mui/material/styles';
 import { useScrollTrigger, Slide, Zoom, Box, AppBar, Toolbar, Typography, IconButton, Avatar, Fab, Link } from '@mui/material';
 import { Brightness7, Brightness4, Print, KeyboardArrowUp, Info } from '@mui/icons-material';
+import { Helmet } from 'react-helmet';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname();
@@ -70,7 +71,11 @@ const TopAppBar: React.FC<{}> = () => {
 
   return (
     <>
-      <HideOnScroll>
+      <Helmet meta={[
+        { name: 'theme-color', media: '(prefers-color-scheme: light)', content: mode === 'dark' ? '#272727' : '#1976d2' },
+        { name: 'theme-color', media: '(prefers-color-scheme: dark)', content: mode === 'light' ? '#1976d2' : '#272727' },
+      ]} />
+      < HideOnScroll >
         <AppBar sx={{ displayPrint: "none" }}>
           <Toolbar sx={{ minHeight: 64 }} id="app-toolbar">
             <Link component={RouterLink} prefetch={false} href="/">
@@ -93,7 +98,7 @@ const TopAppBar: React.FC<{}> = () => {
               sx={{ '& >.MuiBadge-root': { height: '1em', userSelect: 'none', zIndex: -1 } }} ><Info /></IconButton>}
           </Toolbar>
         </AppBar>
-      </HideOnScroll>
+      </HideOnScroll >
       <Toolbar id="back-to-top-anchor" sx={{ displayPrint: "none" }} />
       <ScrollTop />
     </>
