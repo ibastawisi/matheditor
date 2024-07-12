@@ -1,12 +1,11 @@
 "use client"
 import { usePathname } from 'next/navigation';
 import RouterLink from 'next/link'
-import { useContext, useEffect } from 'react';
-import { ColorModeContext } from '@/components/Layout/ThemeProvider';
+import { useEffect } from 'react';
 import logo from "@public/logo.svg";
 import Image from 'next/image';
 import { useDispatch, actions, useSelector } from '@/store';
-import { useTheme } from '@mui/material/styles';
+import { useTheme, useColorScheme } from '@mui/material/styles';
 import { useScrollTrigger, Slide, Zoom, Box, AppBar, Toolbar, Typography, IconButton, Avatar, Fab, Link } from '@mui/material';
 import { Brightness7, Brightness4, Print, KeyboardArrowUp, Info } from '@mui/icons-material';
 
@@ -49,14 +48,18 @@ function ScrollTop() {
 }
 
 const TopAppBar: React.FC<{}> = () => {
-  const colorMode = useContext(ColorModeContext);
+  const { mode, setMode, systemMode } = useColorScheme();
   const dispatch = useDispatch();
-  const theme = useTheme();
   const pathname = usePathname();
   const showPrintButton = !!['/edit', '/view', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
   const showDrawerButton = !!['/edit', '/view'].find(path => pathname.startsWith(path));
   const initialized = useSelector(state => state.ui.initialized);
   const user = useSelector(state => state.user);
+
+  const toggleColorMode = () => {
+    const currentMode = mode === 'system' ? systemMode : mode;
+    setMode(currentMode === 'dark' ? 'light' : 'dark');
+  }
 
   const handlePrint = () => { window.print(); }
   const toggleDrawer = () => { dispatch(actions.toggleDrawer()); }
@@ -80,8 +83,8 @@ const TopAppBar: React.FC<{}> = () => {
             <IconButton component={RouterLink} prefetch={false} href="/dashboard" aria-label="Dashboard">
               <Avatar alt={user?.name} src={user?.image ?? undefined} sx={{ width: 30, height: 30 }} />
             </IconButton>
-            <IconButton onClick={colorMode.toggleColorMode} color="inherit" aria-label='Toggle dark mode'>
-              {theme.palette.mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
+            <IconButton onClick={toggleColorMode} color="inherit" aria-label='Toggle dark mode'>
+              {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
             </IconButton>
             {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={handlePrint}>
               <Print />

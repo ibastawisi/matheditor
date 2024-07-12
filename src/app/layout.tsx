@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import ThemeProvider from '@/components/Layout/ThemeProvider';
 import './globals.css';
 
@@ -55,6 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
+        <InitColorSchemeScript attribute='theme' defaultMode='system' />
         <ThemeProvider>
           {children}
         </ThemeProvider>
