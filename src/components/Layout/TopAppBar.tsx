@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useDispatch, actions, useSelector } from '@/store';
 import { useColorScheme } from '@mui/material/styles';
 import { useScrollTrigger, Slide, Zoom, Box, AppBar, Toolbar, Typography, IconButton, Avatar, Fab, Link } from '@mui/material';
-import { Brightness7, Brightness4, Print, KeyboardArrowUp, Info } from '@mui/icons-material';
+import { Brightness7, Brightness4, Print, KeyboardArrowUp, Info, BrightnessAuto } from '@mui/icons-material';
 import { Helmet } from 'react-helmet';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
@@ -49,7 +49,7 @@ function ScrollTop() {
 }
 
 const TopAppBar: React.FC<{}> = () => {
-  const { mode, setMode, systemMode } = useColorScheme();
+  const { mode, setMode } = useColorScheme();
   const dispatch = useDispatch();
   const pathname = usePathname();
   const showPrintButton = !!['/edit', '/view', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
@@ -58,8 +58,9 @@ const TopAppBar: React.FC<{}> = () => {
   const user = useSelector(state => state.user);
 
   const toggleColorMode = () => {
-    const currentMode = mode === 'system' ? systemMode : mode;
-    setMode(currentMode === 'dark' ? 'light' : 'dark');
+    const modes = ['light', 'dark', 'system'];
+    const nextMode = modes[(modes.indexOf(mode ?? 'system') + 1) % modes.length] as typeof mode;
+    setMode(nextMode ?? 'light');
   }
 
   const handlePrint = () => { window.print(); }
@@ -74,6 +75,7 @@ const TopAppBar: React.FC<{}> = () => {
       <Helmet meta={[
         { name: 'theme-color', media: '(prefers-color-scheme: light)', content: mode === 'dark' ? '#272727' : '#1976d2' },
         { name: 'theme-color', media: '(prefers-color-scheme: dark)', content: mode === 'light' ? '#1976d2' : '#272727' },
+        { name: 'color-scheme', content: mode === 'system' ? 'light dark' : mode },
       ]} />
       < HideOnScroll >
         <AppBar sx={{ displayPrint: "none" }}>
@@ -89,7 +91,7 @@ const TopAppBar: React.FC<{}> = () => {
               <Avatar alt={user?.name} src={user?.image ?? undefined} sx={{ width: 30, height: 30 }} />
             </IconButton>
             <IconButton onClick={toggleColorMode} color="inherit" aria-label='Toggle dark mode'>
-              {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
+              {mode === 'light' ? <Brightness7 /> : mode === 'dark' ? <Brightness4 /> : <BrightnessAuto />}
             </IconButton>
             {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={handlePrint}>
               <Print />
