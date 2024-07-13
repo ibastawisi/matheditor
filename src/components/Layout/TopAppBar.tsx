@@ -70,6 +70,11 @@ const TopAppBar: React.FC<{}> = () => {
     if (!initialized) dispatch(actions.load());
   }, []);
 
+  useEffect(() => {
+    if (!mode) return;
+    window.postMessage({ type: 'set-color-mode', payload: mode }, '*');
+  }, [mode]);
+
   return (
     <>
       <Helmet meta={[
