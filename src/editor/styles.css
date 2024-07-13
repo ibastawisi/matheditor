@@ -23,7 +23,6 @@ body:has(.editor-input:not(:focus-within)) .floating-toolbar {
 
 [theme="dark"] .editor-input {
   caret-color: #eee;
-  color-scheme: dark;
 }
 
 .editor-placeholder {
@@ -47,23 +46,6 @@ body:has(.editor-input:not(:focus-within)) .floating-toolbar {
   background-color: #121212;
 }
 
-.tree-view-output {
-  margin-top: 1rem;
-  font-size: 12px;
-}
-
-.tree-view-output.MuiAppBar-root {
-  background-color: #121212;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.09));
-  color-scheme: dark;
-  max-height: 276px;
-}
-
-.tree-view-output pre {
-  white-space: pre-wrap;
-  word-break: break-word;
-  scroll-behavior: smooth;
-}
 
 @media print {
   * {

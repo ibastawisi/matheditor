@@ -20,37 +20,25 @@ const Highlight = () => <SvgIcon viewBox='0 -960 960 960'>
 </SvgIcon>;
 
 export default function TextFormatToggles({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> | undefined }): JSX.Element {
-  const [isLink, setIsLink] = useState(false);
-  const [isBold, setIsBold] = useState(false);
-  const [isItalic, setIsItalic] = useState(false);
-  const [isUnderline, setIsUnderline] = useState(false);
-  const [isStrikethrough, setIsStrikethrough] = useState(false);
-  const [isSubscript, setIsSubscript] = useState(false);
-  const [isSuperscript, setIsSuperscript] = useState(false);
-  const [isCode, setIsCode] = useState(false);
-  const [isHighlight, setIsHighlight] = useState(false);
+  const [format, setFormat] = useState<{ [key: string]: boolean }>({});
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
     if ($isRangeSelection(selection)) {
-      setIsBold(selection.hasFormat('bold'));
-      setIsItalic(selection.hasFormat('italic'));
-      setIsUnderline(selection.hasFormat('underline'));
-      setIsStrikethrough(selection.hasFormat('strikethrough'));
-      setIsSubscript(selection.hasFormat('subscript'));
-      setIsSuperscript(selection.hasFormat('superscript'));
-      setIsCode(selection.hasFormat('code'));
-      setIsHighlight(selection.hasFormat('highlight'));
-
       const node = getSelectedNode(selection);
       const parent = node.getParent();
-      if ($isLinkNode(parent) || $isLinkNode(node)) {
-        setIsLink(true);
-      } else {
-        setIsLink(false);
-      }
+      setFormat({
+        bold: selection.hasFormat('bold'),
+        italic: selection.hasFormat('italic'),
+        underline: selection.hasFormat('underline'),
+        strikethrough: selection.hasFormat('strikethrough'),
+        subscript: selection.hasFormat('subscript'),
+        superscript: selection.hasFormat('superscript'),
+        code: selection.hasFormat('code'),
+        highlight: selection.hasFormat('highlight'),
+        link: $isLinkNode(parent) || $isLinkNode(node),
+      });
     }
-
   }, [editor]);
 
   useEffect(() => {
@@ -72,6 +60,10 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
         });
       }),
     );
+  }, [editor, updateToolbar]);
+
+  useEffect(() => {
+    editor.getEditorState().read(() => { updateToolbar(); });
   }, [editor, updateToolbar]);
 
   const applyStyleText = useCallback(
@@ -99,17 +91,7 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
     editor.dispatchCommand(FORMAT_TEXT_COMMAND, button.value as TextFormatType);
   };
 
-  const formatObj = { isBold, isItalic, isUnderline, isStrikethrough, isSubscript, isSuperscript, isCode, isHighlight, isLink };
-  const formatKeys = Object.keys(formatObj) as Array<keyof typeof formatObj>;
-
-  const formats = formatKeys.reduce(
-    (accumelator, currentKey) => {
-      if (formatObj[currentKey]) {
-        accumelator.push(currentKey.toLowerCase().split('is')[1]);
-      }
-      return accumelator;
-    }, [] as string[],
-  );
+  const formatKeys = Object.keys(format).filter(key => Boolean(format[key]));
 
   useEffect(() => {
     return editor.registerCommand(
@@ -143,7 +125,7 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
 
   const openLinkDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ link: { open: true } }));
 
-  return (<ToggleButtonGroup size="small" sx={{ ...sx }} value={formats} onChange={handleFormat} aria-label="text formatting">
+  return (<ToggleButtonGroup size="small" sx={{ ...sx }} value={formatKeys} onChange={handleFormat} aria-label="text formatting">
     <ToggleButton value="bold" title={IS_APPLE ? 'Bold (⌘B)' : 'Bold (Ctrl+B)'} aria-label={`Format text as bold. Shortcut: ${IS_APPLE ? '⌘B' : 'Ctrl+B'}`}>
       <FormatBold />
     </ToggleButton>
