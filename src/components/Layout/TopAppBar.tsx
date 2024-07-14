@@ -8,7 +8,6 @@ import { useDispatch, actions, useSelector } from '@/store';
 import { useColorScheme } from '@mui/material/styles';
 import { useScrollTrigger, Slide, Zoom, Box, AppBar, Toolbar, Typography, IconButton, Avatar, Fab, Link } from '@mui/material';
 import { Brightness7, Brightness4, Print, KeyboardArrowUp, Info, BrightnessAuto } from '@mui/icons-material';
-import { Helmet } from 'react-helmet';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname();
@@ -72,12 +71,7 @@ const TopAppBar: React.FC = () => {
 
   return (
     <>
-      <Helmet meta={[
-        { name: 'theme-color', media: '(prefers-color-scheme: light)', content: mode === 'dark' ? '#272727' : '#1976d2' },
-        { name: 'theme-color', media: '(prefers-color-scheme: dark)', content: mode === 'light' ? '#1976d2' : '#272727' },
-        { name: 'color-scheme', content: mode === 'system' ? 'light dark' : mode },
-      ]} />
-      < HideOnScroll >
+      <HideOnScroll>
         <AppBar sx={{ displayPrint: "none" }}>
           <Toolbar sx={{ minHeight: 64 }} id="app-toolbar">
             <Link component={RouterLink} prefetch={false} href="/">

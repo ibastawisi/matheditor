@@ -1,9 +1,8 @@
-"use client"
-import { useColorScheme } from '@mui/material/styles';
+"use client";
+import { useColorScheme } from "@mui/material/styles";
 import { Helmet } from "react-helmet";
-import SplashScreen from './SplashScreen';
 
-const Offline: React.FC = () => {
+const AppLayout = ({ children }: { children: React.ReactNode; }) => {
   const { mode } = useColorScheme();
   return (
     <>
@@ -12,8 +11,9 @@ const Offline: React.FC = () => {
         { name: 'theme-color', media: '(prefers-color-scheme: dark)', content: mode === 'light' ? '#ffffff' : '#121212' },
         { name: 'color-scheme', content: mode === 'system' ? 'light dark' : mode },
       ]} />
-      <SplashScreen title="You are offline" subtitle="Please check your connection" />
+      {children}
     </>
   );
-}
-export default Offline;
+};
+
+export default AppLayout;

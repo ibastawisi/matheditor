@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import ThemeProvider from '@/components/Layout/ThemeProvider';
 import './globals.css';
+import RootLayout from '@/components/Layout/RootLayout';
 
 const PUBLIC_URL = process.env.PUBLIC_URL;
 
@@ -43,7 +44,7 @@ export const viewport: Viewport = {
   interactiveWidget: 'resizes-content',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -54,7 +55,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <InitColorSchemeScript attribute='theme' defaultMode='system' />
         <ThemeProvider>
-          {children}
+          <RootLayout>
+            {children}
+          </RootLayout>
         </ThemeProvider>
       </body>
     </html>
