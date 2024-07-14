@@ -1,5 +1,5 @@
-import SplashScreen from "@/components/SplashScreen";
+import Offline from "@/components/Offline";
 
-const page = () => <SplashScreen title="You are offline" subtitle="Please check your connection" />;
+const page = () => <Offline />;
 
 export default page;

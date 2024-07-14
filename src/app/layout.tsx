@@ -45,7 +45,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta name='theme-color' media='(prefers-color-scheme: light)' content='#1976d2' data-react-helmet='true' />
         <meta name='theme-color' media='(prefers-color-scheme: dark)' content='#272727' data-react-helmet='true' />

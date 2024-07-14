@@ -1,6 +1,7 @@
 import { UserDocument } from "@/types";
 import { ArrowUpward, ArrowDownward } from "@mui/icons-material";
 import { Box, ToggleButton, alpha, Select, MenuItem, ListItemText, SelectChangeEvent } from "@mui/material";
+import type { } from '@mui/material/themeCssVarsAugmentation';
 
 function compareObjectsByKey(key: string, ascending = true) {
   return function innerSort(objectA: any, objectB: any) {
@@ -55,7 +56,7 @@ const DocumentSortControl: React.FC<{
           borderTopRightRadius: 0,
           borderBottomRightRadius: 0,
           borderRight: 'none',
-          borderColor: alpha(theme.palette.primary.main, 0.5),
+          borderColor: `rgb(from ${theme.vars.palette.primary.main} r g b / 0.5)`,
           '&:hover': { borderColor: 'primary.main' },
         })}
         aria-label="sort direction"
@@ -72,7 +73,7 @@ const DocumentSortControl: React.FC<{
           borderBottomLeftRadius: 0,
           '& .MuiSelect-select': { display: 'flex', alignItems: 'center', py: 0.5 },
           '& .MuiListItemIcon-root': { minWidth: 30 },
-          '& .MuiOutlinedInput-notchedOutline': { borderWidth: 1, borderColor: alpha(theme.palette.primary.main, 0.5) },
+          '& .MuiOutlinedInput-notchedOutline': { borderWidth: 1, borderColor: `rgb(from ${theme.vars.palette.primary.main} r g b / 0.5)` },
           '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' }
         })}
       >

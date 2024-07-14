@@ -1,7 +1,7 @@
 "use client"
 import { usePathname } from 'next/navigation';
 import RouterLink from 'next/link'
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import logo from "@public/logo.svg";
 import Image from 'next/image';
 import { useDispatch, actions, useSelector } from '@/store';
@@ -48,7 +48,7 @@ function ScrollTop() {
   );
 }
 
-const TopAppBar: React.FC<{}> = () => {
+const TopAppBar: React.FC = () => {
   const { mode, setMode } = useColorScheme();
   const dispatch = useDispatch();
   const pathname = usePathname();
@@ -70,11 +70,6 @@ const TopAppBar: React.FC<{}> = () => {
     if (!initialized) dispatch(actions.load());
   }, []);
 
-  useEffect(() => {
-    if (!mode) return;
-    window.postMessage({ type: 'set-color-mode', payload: mode }, '*');
-  }, [mode]);
-
   return (
     <>
       <Helmet meta={[
@@ -95,8 +90,8 @@ const TopAppBar: React.FC<{}> = () => {
             <IconButton component={RouterLink} prefetch={false} href="/dashboard" aria-label="Dashboard">
               <Avatar alt={user?.name} src={user?.image ?? undefined} sx={{ width: 30, height: 30 }} />
             </IconButton>
-            <IconButton onClick={toggleColorMode} color="inherit" aria-label='Toggle dark mode'>
-              {mode === 'light' ? <Brightness7 /> : mode === 'dark' ? <Brightness4 /> : <BrightnessAuto />}
+            <IconButton onClick={toggleColorMode} color="inherit" aria-label='Toggle dark mode' key={!mode ? 'server' : 'client'}>
+              <BrightnessIcon mode={mode} />
             </IconButton>
             {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={handlePrint}>
               <Print />
@@ -111,5 +106,17 @@ const TopAppBar: React.FC<{}> = () => {
     </>
   );
 };
+
+const BrightnessIcon: React.FC<{ mode?: string }> = ({ mode }) => {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => setIsClient(true), []);
+  if (!isClient) return <BrightnessAuto />;
+  switch (mode) {
+    case 'light': return <Brightness7 />;
+    case 'dark': return <Brightness4 />;
+    case 'system': return <BrightnessAuto />;
+    default: return <BrightnessAuto />;
+  }
+}
 
 export default TopAppBar;
