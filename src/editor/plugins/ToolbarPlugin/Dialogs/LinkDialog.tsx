@@ -74,7 +74,7 @@ function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkN
       </Box>
     </DialogContent>
     <DialogActions>
-      <Button autoFocus onClick={handleClose}>
+      <Button onClick={handleClose}>
         Cancel
       </Button>
       <Button onClick={handleSubmit} disabled={!formData.url}>

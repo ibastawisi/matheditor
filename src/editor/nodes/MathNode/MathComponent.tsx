@@ -117,6 +117,14 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
       element.ontransitionend = () => mathfield.executeCommand("scrollIntoView");
     });
 
+    mathfield.addEventListener("blur", event => {
+      if (!event.isTrusted) return;
+      const relatedTarget = event.relatedTarget as HTMLElement;
+      if (relatedTarget.tagName === "MATH-FIELD") return;
+      const mathVirtualKeyboard = window.mathVirtualKeyboard;
+      mathVirtualKeyboard.hide();
+    }, true);
+
     mathfield.addEventListener("click", event => {
       setTimeout(() => {
         clearSelection();
