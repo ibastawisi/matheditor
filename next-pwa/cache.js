@@ -1,6 +1,7 @@
 "use strict";
 
 // Workbox RuntimeCaching config: https://developers.google.com/web/tools/workbox/reference-docs/latest/module-workbox-build#.RuntimeCachingEntry
+/** @type {import('workbox-build').RuntimeCaching[]} */
 module.exports = [
   {
     urlPattern: ({ url: { pathname }, sameOrigin }) => {
@@ -53,6 +54,18 @@ module.exports = [
         maxAgeSeconds: 24 * 60 * 60 * 30,
       },
       networkTimeoutSeconds: 10,
+    },
+  },
+  {
+    urlPattern: () => true,
+    handler: "NetworkFirst",
+    options: {
+      cacheName: "others",
+      plugins: [
+        {
+          cacheWillUpdate: async () => void 0,
+        }
+      ]
     },
   },
 ];

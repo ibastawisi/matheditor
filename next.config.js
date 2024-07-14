@@ -14,6 +14,9 @@ const withPWA = require("./next-pwa")({
   cacheStartUrl: false,
   dynamicStartUrl: false,
   reloadOnOnline: false,
+  fallbacks: {
+    document: "/offline",
+  },
 });
 
 
