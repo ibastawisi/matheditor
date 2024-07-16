@@ -119,8 +119,8 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
 
     mathfield.addEventListener("blur", event => {
       if (!event.isTrusted) return;
-      const relatedTarget = event.relatedTarget as HTMLElement;
-      if (relatedTarget.tagName === "MATH-FIELD") return;
+      const relatedTarget = event.relatedTarget as HTMLElement | null;
+      if (relatedTarget?.tagName === "MATH-FIELD") return;
       const mathVirtualKeyboard = window.mathVirtualKeyboard;
       mathVirtualKeyboard.hide();
     }, true);

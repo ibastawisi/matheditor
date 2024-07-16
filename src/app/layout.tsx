@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import ThemeProvider from '@/components/Layout/ThemeProvider';
 import './globals.css';
 
@@ -53,9 +52,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <InitColorSchemeScript defaultMode='system' />
         <ThemeProvider>
           {children}
         </ThemeProvider>

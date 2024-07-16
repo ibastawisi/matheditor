@@ -19,8 +19,15 @@ math-field::part(menu-toggle) {
   display: none;
 }
 
-math-field.selection-active {
-  background-color: rgb(95 183 255 / 50%);
+[theme=light] math-field {
+  --contains-highlight-background-color: initial;
+  --selection-background-color: initial;
+}
+
+@media screen {
+  math-field.selection-active {
+    background-color: rgb(95 183 255 / 50%);
+  }
 }
 
 .ML__keyboard {
@@ -49,13 +56,5 @@ math-field.selection-active {
 @media print {
   .ML__keyboard {
     display: none !important;
-  }
-}
-
-@media print,
-(prefers-color-scheme: light) {
-  math-field {
-    --contains-highlight-background-color: initial;
-    --selection-background-color: initial;
   }
 }

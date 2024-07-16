@@ -108,15 +108,8 @@ footer {
   color: var(--mui-palette-primary-contrastText);
 }
 
-@media print,
-(prefers-color-scheme: light) {
-  .splash-screen {
-    background-color: #fff;
-  }
-
-  .MuiFab-root.MuiFab-extended {
-    color: var(--mui-palette-text-primary);
-  }
+[theme=light] .MuiFab-root.MuiFab-extended {
+  color: var(--mui-palette-text-primary);
 }
 
 @media print {

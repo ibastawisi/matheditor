@@ -13,12 +13,8 @@
   caret-color: #eee;
 }
 
-body:has(.editor-input:not(:focus-within)) .floating-toolbar {
-  display: none;
-}
-
-.floating-toolbar:has(:hover, :focus, :focus-within, :active) {
-  display: block !important;
+[theme=light] .editor-input {
+  caret-color: #444;
 }
 
 .editor-placeholder {
@@ -36,6 +32,10 @@ body:has(.editor-input:not(:focus-within)) .floating-toolbar {
 
 .editor-toolbar {
   background-color: #121212;
+}
+
+[theme=light] .editor-toolbar {
+  background-color: #fff;
 }
 
 @media print {
