@@ -715,48 +715,8 @@ iframe {
   background-color: rgba(255, 255, 255, 0.08);
 }
 
-[theme=light] .LexicalTheme__quote {
-  color: rgb(101, 103, 107);
-  border-left-color: rgb(206, 208, 212);
-}
-
-[theme=light] .LexicalTheme__link {
-  color: rgb(33, 111, 219);
-}
-
-[theme=light] .LexicalTheme__code {
-  background-color: rgb(240, 242, 245);
-  color: inherit;
-}
-
-[theme=light] .LexicalTheme__code:before {
-  background-color: #eee;
-  border-right-color: #ccc;
-  color: #777;
-}
-
-[theme=light] .LexicalTheme__code:after {
-  color: rgba(0, 0, 0, 0.5);
-}
-
-[theme=light] .LexicalTheme__tableCell {
-  border-color: rgba(0, 0, 0, 0.2);
-}
-
-[theme=light] .LexicalTheme__tableCellHeader {
-  background-color: rgba(0, 0, 0, 0.03);
-}
-
-[theme='light'] .details__container {
-  border-color: rgba(0, 0, 0, 0.12);
-}
-
-[theme='light'] .details__summary:hover,
-[theme='light'] .details__container[open]>.details__summary {
-  background-color: rgba(0, 0, 0, 0.04);
-}
-
-@media print {
+@media print,
+(prefers-color-scheme: light) {
   .LexicalTheme__quote {
     color: rgb(101, 103, 107);
     border-left-color: rgb(206, 208, 212);

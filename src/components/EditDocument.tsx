@@ -1,7 +1,6 @@
 "use client"
 import { useEffect, useState, useRef, useCallback } from "react";
 import SplashScreen from "./SplashScreen";
-import { Helmet } from "react-helmet";
 import { EditorDocument } from '@/types';
 import { useDispatch, actions, useSelector } from '@/store';
 import { usePathname } from "next/navigation";
@@ -67,7 +66,7 @@ const EditDocument: React.FC = () => {
   if (!document) return <SplashScreen title="Loading Document" />;
 
   return <>
-    <Helmet title={document.name} />
+    <title>{document.name}</title>
     {showDiff && <DiffView />}
     <Editor document={document} editorRef={editorRef} onChange={handleChange} />
     <EditDocumentInfo documentId={document.id} editorRef={editorRef} />

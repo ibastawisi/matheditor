@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import ThemeProvider from '@/components/Layout/ThemeProvider';
 import './globals.css';
-import RootLayout from '@/components/Layout/RootLayout';
 
 const PUBLIC_URL = process.env.PUBLIC_URL;
 
@@ -42,22 +41,23 @@ export const viewport: Viewport = {
   maximumScale: 1,
   viewportFit: 'cover',
   interactiveWidget: 'resizes-content',
+  colorScheme: 'dark light',
+  themeColor: [{
+    media: '(prefers-color-scheme: light)',
+    color: '#ffffff',
+  }, {
+    media: '(prefers-color-scheme: dark)',
+    color: '#121212',
+  }],
 }
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <meta name='theme-color' media='(prefers-color-scheme: light)' content='#1976d2' data-react-helmet='true' />
-        <meta name='theme-color' media='(prefers-color-scheme: dark)' content='#272727' data-react-helmet='true' />
-        <meta name='color-scheme' content='light dark' data-react-helmet='true' />
-      </head>
+    <html lang="en">
       <body>
-        <InitColorSchemeScript attribute='theme' defaultMode='system' />
+        <InitColorSchemeScript defaultMode='system' />
         <ThemeProvider>
-          <RootLayout>
-            {children}
-          </RootLayout>
+          {children}
         </ThemeProvider>
       </body>
     </html>

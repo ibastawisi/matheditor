@@ -1,13 +1,12 @@
 "use client"
 import { usePathname } from 'next/navigation';
 import RouterLink from 'next/link'
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import logo from "@public/logo.svg";
 import Image from 'next/image';
 import { useDispatch, actions, useSelector } from '@/store';
-import { useColorScheme } from '@mui/material/styles';
 import { useScrollTrigger, Slide, Zoom, Box, AppBar, Toolbar, Typography, IconButton, Avatar, Fab, Link } from '@mui/material';
-import { Brightness7, Brightness4, Print, KeyboardArrowUp, Info, BrightnessAuto } from '@mui/icons-material';
+import { Print, KeyboardArrowUp, Info } from '@mui/icons-material';
 
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname();
@@ -48,19 +47,12 @@ function ScrollTop() {
 }
 
 const TopAppBar: React.FC = () => {
-  const { mode, setMode } = useColorScheme();
   const dispatch = useDispatch();
   const pathname = usePathname();
   const showPrintButton = !!['/edit', '/view', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
   const showDrawerButton = !!['/edit', '/view'].find(path => pathname.startsWith(path));
   const initialized = useSelector(state => state.ui.initialized);
   const user = useSelector(state => state.user);
-
-  const toggleColorMode = () => {
-    const modes = ['light', 'dark', 'system'];
-    const nextMode = modes[(modes.indexOf(mode ?? 'system') + 1) % modes.length] as typeof mode;
-    setMode(nextMode ?? 'light');
-  }
 
   const handlePrint = () => { window.print(); }
   const toggleDrawer = () => { dispatch(actions.toggleDrawer()); }
@@ -84,9 +76,6 @@ const TopAppBar: React.FC = () => {
             <IconButton component={RouterLink} prefetch={false} href="/dashboard" aria-label="Dashboard">
               <Avatar alt={user?.name} src={user?.image ?? undefined} sx={{ width: 30, height: 30 }} />
             </IconButton>
-            <IconButton onClick={toggleColorMode} color="inherit" aria-label='Toggle dark mode' key={!mode ? 'server' : 'client'}>
-              <BrightnessIcon mode={mode} />
-            </IconButton>
             {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={handlePrint}>
               <Print />
             </IconButton>}
@@ -100,17 +89,5 @@ const TopAppBar: React.FC = () => {
     </>
   );
 };
-
-const BrightnessIcon: React.FC<{ mode?: string }> = ({ mode }) => {
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => setIsClient(true), []);
-  if (!isClient) return <BrightnessAuto />;
-  switch (mode) {
-    case 'light': return <Brightness7 />;
-    case 'dark': return <Brightness4 />;
-    case 'system': return <BrightnessAuto />;
-    default: return <BrightnessAuto />;
-  }
-}
 
 export default TopAppBar;

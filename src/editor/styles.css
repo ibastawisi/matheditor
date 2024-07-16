@@ -10,7 +10,7 @@
   position: relative;
   tab-size: 1;
   outline: 0;
-  caret-color: #444;
+  caret-color: #eee;
 }
 
 body:has(.editor-input:not(:focus-within)) .floating-toolbar {
@@ -19,10 +19,6 @@ body:has(.editor-input:not(:focus-within)) .floating-toolbar {
 
 .floating-toolbar:has(:hover, :focus, :focus-within, :active) {
   display: block !important;
-}
-
-[theme="dark"] .editor-input {
-  caret-color: #eee;
 }
 
 .editor-placeholder {
@@ -39,13 +35,8 @@ body:has(.editor-input:not(:focus-within)) .floating-toolbar {
 }
 
 .editor-toolbar {
-  background-color: #fff;
-}
-
-[theme="dark"] .editor-toolbar {
   background-color: #121212;
 }
-
 
 @media print {
   * {
@@ -72,4 +63,15 @@ body:has(.excalidraw.excalidraw-modal-container) {
 .diff-container~.editor-input,
 .diff-container~.MuiAppBar-root {
   display: none;
+}
+
+@media print,
+(prefers-color-scheme: light) {
+  .editor-input {
+    caret-color: #444;
+  }
+
+  .editor-toolbar {
+    background-color: #fff;
+  }
 }

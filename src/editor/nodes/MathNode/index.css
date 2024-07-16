@@ -8,18 +8,15 @@ math-field {
   color: inherit;
   width: 100%;
   padding: 0;
-  --selection-color: nope;
   pointer-events: auto;
+  --selection-color: nope;
+  --contains-highlight-background-color: rgba(255, 255, 255, 0.1);
+  --selection-background-color: rgb(95 183 255 / 50%);
 }
 
 math-field::part(virtual-keyboard-toggle),
 math-field::part(menu-toggle) {
   display: none;
-}
-
-[theme=dark] math-field {
-  --contains-highlight-background-color: rgba(255, 255, 255, 0.1);
-  --selection-background-color: rgb(95 183 255 / 50%);
 }
 
 math-field.selection-active {
@@ -52,5 +49,13 @@ math-field.selection-active {
 @media print {
   .ML__keyboard {
     display: none !important;
+  }
+}
+
+@media print,
+(prefers-color-scheme: light) {
+  math-field {
+    --contains-highlight-background-color: initial;
+    --selection-background-color: initial;
   }
 }

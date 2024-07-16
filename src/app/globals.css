@@ -69,10 +69,6 @@ footer {
   z-index: 1000;
 }
 
-[theme=light] .splash-screen {
-  background-color: #fff;
-}
-
 .splash-screen-content {
   min-width: 192px;
   max-width: 75vw;
@@ -80,7 +76,7 @@ footer {
   text-align: center;
 }
 
-.splash-screen-content > img {
+.splash-screen-content>img {
   display: block;
   margin: 0 auto;
 }
@@ -108,8 +104,19 @@ footer {
   z-index: 15000;
 }
 
-[theme=dark] .MuiFab-root {
+.MuiFab-root.MuiFab-extended {
   color: var(--mui-palette-primary-contrastText);
+}
+
+@media print,
+(prefers-color-scheme: light) {
+  .splash-screen {
+    background-color: #fff;
+  }
+
+  .MuiFab-root.MuiFab-extended {
+    color: var(--mui-palette-text-primary);
+  }
 }
 
 @media print {

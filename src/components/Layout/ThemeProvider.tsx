@@ -13,7 +13,7 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
   const theme = extendTheme();
 
   return (
-    <CssVarsProvider theme={theme} attribute='theme' defaultMode='system' >
+    <CssVarsProvider theme={theme} defaultMode='system' >
       <CssBaseline />
       {children}
     </CssVarsProvider>
