@@ -1,3 +1,7 @@
+body:has(.editor-input) footer {
+  visibility: hidden;
+}
+
 .editor-container:has(.editor-input) {
   display: flex;
   flex-direction: column;
