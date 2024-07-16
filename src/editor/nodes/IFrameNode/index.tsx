@@ -114,7 +114,9 @@ export class IFrameNode extends ImageNode {
     iframe.setAttribute('data-lexical-iFrame', this.__src);
     if (this.__width) iframe.setAttribute('width', this.__width.toString());
     if (this.__height) iframe.setAttribute('height', this.__height.toString());
-    iframe.setAttribute('src', this.__src);
+    const matchYoutube = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/.exec(this.__src);
+    const videoId = matchYoutube ? (matchYoutube?.[2].length === 11 ? matchYoutube[2] : null) : null;
+    iframe.setAttribute('src', videoId ? `https://www.youtube-nocookie.com/embed/${videoId}` : this.__src);
     iframe.setAttribute('frameborder', '0');
     iframe.setAttribute(
       'allow',
@@ -154,9 +156,13 @@ export class IFrameNode extends ImageNode {
   }
 
   decorate(): JSX.Element {
+    const matchYoutube = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/.exec(this.__src);
+    const videoId = matchYoutube ? (matchYoutube?.[2].length === 11 ? matchYoutube[2] : null) : null;
+    const src = videoId ? `https://www.youtube-nocookie.com/embed/${videoId}` : this.__src;
+
     return (
       <ImageComponent
-        src={this.__src}
+        src={src}
         altText={this.__altText}
         width={this.__width}
         height={this.__height}

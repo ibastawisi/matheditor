@@ -71,10 +71,11 @@ function IFrameDialog({ editor, node, open }: { editor: LexicalEditor, node: IFr
         <TextField margin="normal" size="small" fullWidth value={formData.width} onChange={updateFormData} label="Width" name="width" autoComplete="width" />
         <TextField margin="normal" size="small" fullWidth value={formData.height} onChange={updateFormData} label="Height" name="height" autoComplete="height" />
         <FormControlLabel control={<Switch checked={formData.showCaption} onChange={updateFormData} />} label="Show Caption" name="showCaption" />
+        <Button hidden type="submit" />
       </Box>
     </DialogContent>
     <DialogActions>
-      <Button autoFocus onClick={handleClose}>
+      <Button onClick={handleClose}>
         Cancel
       </Button>
       <Button onClick={handleSubmit} disabled={!formData.src}>
