@@ -69,6 +69,10 @@ footer {
   z-index: 1000;
 }
 
+[theme=light] .splash-screen {
+  background-color: #fff;
+}
+
 .splash-screen-content {
   min-width: 192px;
   max-width: 75vw;
