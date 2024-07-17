@@ -37,20 +37,12 @@
   fill: transparent;
 }
 
-[theme=dark] .image-control-wrapper>svg [fill='#000000'] {
-  fill: currentColor;
+[theme=dark] .image-control-wrapper>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath) {
+  filter: invert(93%) hue-rotate(180deg);
 }
 
-[theme=dark] .image-control-wrapper>svg [fill='#1e1e1e'] {
-  fill: currentColor;
-}
-
-[theme=dark] .image-control-wrapper>svg [stroke='#000000'] {
-  stroke: currentColor;
-}
-
-[theme=dark] .image-control-wrapper>svg [stroke='#1e1e1e'] {
-  stroke: currentColor;
+.sticky-note-container .image-control-wrapper>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath) {
+  filter: initial;
 }
 
 .LexicalTheme__image .focused {

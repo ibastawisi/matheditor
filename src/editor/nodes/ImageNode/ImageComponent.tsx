@@ -313,11 +313,13 @@ export default function ImageComponent({
       const svg = new DOMParser().parseFromString(string, 'image/svg+xml').documentElement;
       const styles = svg.querySelectorAll('style');
       styles.forEach(style => { style.remove(); });
-      imageRef.current.setAttribute('viewBox', svg.getAttribute('viewBox') || '');
+      const viewBox = svg.getAttribute('viewBox');
+      const svgWidth = svg.getAttribute('width');
+      const svgHeight = svg.getAttribute('height');
+      imageRef.current.setAttribute('viewBox', viewBox ? viewBox : `0 0 ${svgWidth} ${svgHeight}`);
+      if (!width && svgWidth) imageRef.current.setAttribute('width', svgWidth);
+      if (!height && svgHeight) imageRef.current.setAttribute('height', svgHeight);
       imageRef.current.innerHTML = svg.innerHTML;
-      if (width && height) return;
-      imageRef.current.setAttribute('width', svg.getAttribute('width') || '');
-      imageRef.current.setAttribute('height', svg.getAttribute('height') || '');
     }
   }, [imageRef]);
 

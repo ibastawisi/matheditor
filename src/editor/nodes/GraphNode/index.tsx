@@ -135,6 +135,7 @@ export class GraphNode extends ImageNode {
         nodeKey={this.getKey()}
         showCaption={this.__showCaption}
         caption={this.__caption}
+        element={this.__src.startsWith('data:image/svg+xml') ? 'svg' : 'img'}
       />
     );
   }
