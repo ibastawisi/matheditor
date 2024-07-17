@@ -12,7 +12,7 @@ import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/elem
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
 import { $generateHtmlFromNodes } from "@lexical/html";
 
-import SketchComponent from './SketchComponent';
+import ImageComponent from '../ImageNode/ImageComponent';
 
 export type SketchPayload = Spread<{
   /**
@@ -94,7 +94,12 @@ export class SketchNode extends ImageNode {
       element.innerHTML = html.replace(/<!-- payload-start -->\s*(.+?)\s*<!-- payload-end -->/, "");
       const svg = element.firstElementChild!;
       const style = svg.querySelector('style');
-      if (style) style.innerHTML = "@font-face { font-family: 'Virgil'; src: url('/excalidraw-assets/Virgil.woff2') format('woff2');} @font-face { font-family: 'Cascadia'; src: url('/excalidraw-assets/Cascadia.woff2') format('woff2'); }";
+      if (style) style.innerHTML = `@media screen {
+        [theme=dark] [fill='#ffffff'] { fill: transparent; }
+        [theme=dark] [fill='#000000'] { fill: currentColor; }
+        [theme=dark] [stroke='#000000'] { stroke: currentColor; }
+        [theme=dark] [stroke='#1e1e1e'] { stroke: currentColor; }
+      }`;
       if (this.__width) svg.setAttribute('width', this.__width.toString());
       if (this.__height) svg.setAttribute('height', this.__height.toString());
       if (!this.__showCaption) return { element };
@@ -154,15 +159,15 @@ export class SketchNode extends ImageNode {
 
   decorate(): JSX.Element {
     return (
-      <SketchComponent
-        width={this.__width}
-        height={this.__height}
+      <ImageComponent
+        width={this.getWidth()}
+        height={this.getHeight()}
         src={this.getSrc()}
         altText={this.getAltText()}
         nodeKey={this.getKey()}
-        value={this.getValue()}
-        showCaption={this.__showCaption}
-        caption={this.__caption}
+        showCaption={this.getShowCaption()}
+        caption={this.getCaption()}
+        element='svg'
       />
     );
   }

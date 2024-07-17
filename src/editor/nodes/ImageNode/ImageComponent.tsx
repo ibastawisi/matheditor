@@ -57,7 +57,7 @@ function LazyImage({
   altText: string;
   className: string | null;
   height: number;
-  imageRef: { current: null | HTMLImageElement };
+  imageRef: React.Ref<HTMLImageElement>;
   src: string;
   width: number;
   draggable: boolean
@@ -93,9 +93,9 @@ export default function ImageComponent({
   width: number;
   showCaption: boolean;
   caption: LexicalEditor;
-  element?: "img" | "iframe";
+  element?: "img" | "iframe" | "svg";
 }): JSX.Element {
-  const imageRef = useRef<null | HTMLImageElement>(null);
+  const imageRef = useRef<HTMLImageElement | HTMLIFrameElement | SVGSVGElement>(null);
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);
   const [isResizing, setIsResizing] = useState<boolean>(false);
@@ -199,7 +199,7 @@ export default function ImageComponent({
           if (isResizing) {
             return true;
           }
-          if (event.target === imageRef.current) {
+          if (imageRef.current && imageRef.current.contains(event.target as Node)) {
             if (event.shiftKey) {
               setSelected(!isSelected);
             } else {
@@ -305,6 +305,24 @@ export default function ImageComponent({
 
   const draggable = isSelected && $isNodeSelection(selection) && !isResizing;
   const isFocused = $isNodeSelection(selection) && (isSelected || isResizing);
+
+  useEffect(() => {
+    if (!imageRef.current) return;
+    if (element === 'svg') {
+      const string = decodeURIComponent(src.split(',')[1]).replace(/<!-- payload-start -->\s*(.+?)\s*<!-- payload-end -->/, "");
+      const svg = new DOMParser().parseFromString(string, 'image/svg+xml').documentElement;
+      const style = svg.querySelector('style');
+      if (style) style.innerHTML = `@media screen {
+        [theme=dark] [fill='#ffffff'] { fill: transparent; }
+        [theme=dark] [fill='#000000'] { fill: currentColor; }
+        [theme=dark] [stroke='#000000'] { stroke: currentColor; }
+        [theme=dark] [stroke='#1e1e1e'] { stroke: currentColor; }
+      }`;
+      svg.getAttributeNames().forEach(attr => { imageRef.current?.setAttribute(attr, svg.getAttribute(attr) || ''); });
+      imageRef.current.innerHTML = svg.innerHTML;
+    }
+  }, [imageRef]);
+
   return (
     <>
       <ImageResizer
@@ -314,9 +332,16 @@ export default function ImageComponent({
         onResizeEnd={onResizeEnd}
         showResizers={isFocused}
       >
-        {element === 'iframe' ? (
+        {element === 'svg' ? (
+          <svg
+            ref={imageRef as React.Ref<SVGSVGElement>}
+            className={isFocused ? 'focused' : ''}
+            width={width || undefined}
+            height={height || undefined}
+          />
+        ) : element === 'iframe' ? (
           <iframe
-            ref={imageRef as unknown as React.Ref<HTMLIFrameElement>}
+            ref={imageRef as React.Ref<HTMLIFrameElement>}
             className={isFocused ? 'focused' : ''}
             width={width}
             height={height}
@@ -331,7 +356,7 @@ export default function ImageComponent({
             className={isFocused ? `focused ${$isNodeSelection(selection) ? 'draggable' : ''}` : null}
             src={src}
             altText={altText}
-            imageRef={imageRef}
+            imageRef={imageRef as React.Ref<HTMLImageElement>}
             width={width}
             height={height}
             draggable={draggable}

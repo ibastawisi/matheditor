@@ -34,7 +34,7 @@ export default function ImageResizer({
   showResizers
 }: {
   editor: LexicalEditor;
-  imageRef: { current: null | HTMLElement };
+  imageRef: React.RefObject<HTMLImageElement | HTMLIFrameElement | SVGSVGElement>;
   maxWidth?: number;
   onResizeEnd: (width: number, height: number) => void;
   onResizeStart: () => void;
@@ -242,7 +242,7 @@ export default function ImageResizer({
       controlWrapper.classList.remove('image-control-wrapper--resizing');
 
       setEndCursor();
-      if (image.tagName === 'IMG') image.style.height = 'auto';
+      if (image instanceof HTMLImageElement) image.style.height = 'auto';
       onResizeEnd(width, height);
 
       document.removeEventListener('pointermove', handlePointerMove);

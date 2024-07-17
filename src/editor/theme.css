@@ -419,7 +419,14 @@ iframe {
   min-width: 40px;
   max-width: 100%;
   height: auto;
-  background-color: white;
+}
+
+.LexicalTheme__image>img {
+  background-color: #fff;
+}
+
+.LexicalTheme__image>svg {
+  user-select: none;
 }
 
 .LexicalTheme__image figcaption {
