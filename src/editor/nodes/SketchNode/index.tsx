@@ -93,14 +93,8 @@ export class SketchNode extends ImageNode {
       const html = decodeURIComponent(this.__src.split(',')[1]);
       element.innerHTML = html.replace(/<!-- payload-start -->\s*(.+?)\s*<!-- payload-end -->/, "");
       const svg = element.firstElementChild!;
-      const style = svg.querySelector('style');
-      if (style) style.innerHTML = `@media screen {
-        [theme=dark] [fill='#ffffff'] { fill: transparent; }
-        [theme=dark] [fill='#000000'] { fill: currentColor; }
-        [theme=dark] [fill='#1e1e1e'] { fill: currentColor; }
-        [theme=dark] [stroke='#000000'] { stroke: currentColor; }
-        [theme=dark] [stroke='#1e1e1e'] { stroke: currentColor; }
-      }`;
+      const styles = svg.querySelectorAll('style');
+      styles.forEach(style => { style.remove(); });
       if (this.__width) svg.setAttribute('width', this.__width.toString());
       if (this.__height) svg.setAttribute('height', this.__height.toString());
       if (!this.__showCaption) return { element };

@@ -429,6 +429,26 @@ iframe {
   user-select: none;
 }
 
+[theme=dark] .LexicalTheme__image>svg [fill='#ffffff'] {
+  fill: transparent;
+}
+
+[theme=dark] .LexicalTheme__image>svg [fill='#000000'] {
+  fill: currentColor;
+}
+
+[theme=dark] .LexicalTheme__image>svg [fill='#1e1e1e'] {
+  fill: currentColor;
+}
+
+[theme=dark] .LexicalTheme__image>svg [stroke='#000000'] {
+  stroke: currentColor;
+}
+
+[theme=dark] .LexicalTheme__image>svg [stroke='#1e1e1e'] {
+  stroke: currentColor;
+}
+
 .LexicalTheme__image figcaption {
   display: flex;
   flex-direction: column;

@@ -311,14 +311,8 @@ export default function ImageComponent({
     if (element === 'svg') {
       const string = decodeURIComponent(src.split(',')[1]).replace(/<!-- payload-start -->\s*(.+?)\s*<!-- payload-end -->/, "");
       const svg = new DOMParser().parseFromString(string, 'image/svg+xml').documentElement;
-      const style = svg.querySelector('style');
-      if (style) style.innerHTML = `@media screen {
-        [theme=dark] [fill='#ffffff'] { fill: transparent; }
-        [theme=dark] [fill='#000000'] { fill: currentColor; }
-        [theme=dark] [fill='#1e1e1e'] { fill: currentColor; }
-        [theme=dark] [stroke='#000000'] { stroke: currentColor; }
-        [theme=dark] [stroke='#1e1e1e'] { stroke: currentColor; }
-      }`;
+      const styles = svg.querySelectorAll('style');
+      styles.forEach(style => { style.remove(); });
       imageRef.current.setAttribute('viewBox', svg.getAttribute('viewBox') || '');
       imageRef.current.innerHTML = svg.innerHTML;
       if (width && height) return;
