@@ -92,6 +92,8 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
       { key: '[Return]', ifMode: 'math', command: 'addRowAfter' },
       { key: '[Enter]', ifMode: 'math', command: 'addRowAfter' },
     ];
+    // @ts-expect-error
+    mathfield.registers.arraystretch = 1.5;
     // focus newly created mathfield
     if (isSelected && !mathfield.hasFocus()) {
       const selection = editor.getEditorState().read($getSelection);
@@ -178,8 +180,8 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
 
   return <math-field ref={ref}>
     <style>
-      {
-        `:host .ML__container { pointer-events: inherit; }
+      {`
+        :host .ML__container { pointer-events: inherit; }
         :host(:not(:focus)) .ML__contains-caret,
         :host(:not(:focus)) .ML__contains-caret * {
           color: inherit;
@@ -188,8 +190,9 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
           :host(:not(:focus)) .ML__container {
             pointer-events: none;
           }
-        }`
-      }
+        }
+        :host .ML__latex, :host .ML__text { font-family: inherit; }
+      `}
     </style>
   </math-field>;
 }
