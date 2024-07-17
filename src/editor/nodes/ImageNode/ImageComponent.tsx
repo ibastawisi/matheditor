@@ -315,11 +315,15 @@ export default function ImageComponent({
       if (style) style.innerHTML = `@media screen {
         [theme=dark] [fill='#ffffff'] { fill: transparent; }
         [theme=dark] [fill='#000000'] { fill: currentColor; }
+        [theme=dark] [fill='#1e1e1e'] { fill: currentColor; }
         [theme=dark] [stroke='#000000'] { stroke: currentColor; }
         [theme=dark] [stroke='#1e1e1e'] { stroke: currentColor; }
       }`;
-      svg.getAttributeNames().forEach(attr => { imageRef.current?.setAttribute(attr, svg.getAttribute(attr) || ''); });
+      imageRef.current.setAttribute('viewBox', svg.getAttribute('viewBox') || '');
       imageRef.current.innerHTML = svg.innerHTML;
+      if (width && height) return;
+      imageRef.current.setAttribute('width', svg.getAttribute('width') || '');
+      imageRef.current.setAttribute('height', svg.getAttribute('height') || '');
     }
   }, [imageRef]);
 
@@ -338,6 +342,8 @@ export default function ImageComponent({
             className={isFocused ? 'focused' : ''}
             width={width || undefined}
             height={height || undefined}
+            xmlns="http://www.w3.org/2000/svg"
+            version="1.1"
           />
         ) : element === 'iframe' ? (
           <iframe

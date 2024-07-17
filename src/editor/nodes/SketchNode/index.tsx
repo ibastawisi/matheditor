@@ -97,6 +97,7 @@ export class SketchNode extends ImageNode {
       if (style) style.innerHTML = `@media screen {
         [theme=dark] [fill='#ffffff'] { fill: transparent; }
         [theme=dark] [fill='#000000'] { fill: currentColor; }
+        [theme=dark] [fill='#1e1e1e'] { fill: currentColor; }
         [theme=dark] [stroke='#000000'] { stroke: currentColor; }
         [theme=dark] [stroke='#1e1e1e'] { stroke: currentColor; }
       }`;
