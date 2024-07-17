@@ -83,24 +83,11 @@ export default function MathPlugin(): JSX.Element | null {
   useEffect(() => {
     const handleSelectionChange = () => {
       const domSelection = document.getSelection();
-      if (!domSelection || domSelection.rangeCount === 0) return false;
-      const range = domSelection.getRangeAt(0);
+      if (!domSelection) return false;
       const mathfields = document.querySelectorAll('math-field');
-      if (range.collapsed) {
-        mathfields.forEach((mathfield) => {
-          mathfield.classList.remove("selection-active");
-        });
-        return false;
-      }
       mathfields.forEach((mathfield) => {
-        const startContainerBits = range.startContainer.compareDocumentPosition(mathfield);
-        const endContainerBits = range.endContainer.compareDocumentPosition(mathfield);
-        const startMask = Node.DOCUMENT_POSITION_FOLLOWING | Node.DOCUMENT_POSITION_CONTAINED_BY;
-        const endMask = Node.DOCUMENT_POSITION_PRECEDING | Node.DOCUMENT_POSITION_CONTAINED_BY;
-        const isFollowingStartContainer = !!(startContainerBits & startMask);
-        const isPrecedingEndContainer = !!(endContainerBits & endMask);
-        const isSelected = isFollowingStartContainer && isPrecedingEndContainer;
-        mathfield.classList.toggle("selection-active", isSelected);
+        const isSelected = domSelection.containsNode(mathfield);
+        mathfield.classList.toggle("selection-highlight", isSelected);
       });
     };
 

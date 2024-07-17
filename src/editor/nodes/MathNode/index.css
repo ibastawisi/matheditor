@@ -24,12 +24,6 @@ math-field::part(menu-toggle) {
   --selection-background-color: initial;
 }
 
-@media screen {
-  math-field.selection-active {
-    background-color: rgb(95 183 255 / 50%);
-  }
-}
-
 .ML__keyboard {
   --keycap-height: 52px !important;
   --_keyboard-height: 295px !important;

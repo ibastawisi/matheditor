@@ -425,10 +425,6 @@ iframe {
   background-color: #fff;
 }
 
-.LexicalTheme__image>svg {
-  user-select: none;
-}
-
 [theme=dark] .LexicalTheme__image>svg [fill='#ffffff'] {
   fill: transparent;
 }

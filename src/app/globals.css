@@ -20,6 +20,12 @@ header {
   background-color: rgb(95 183 255 / 50%);
 }
 
+@media screen {
+  .selection-highlight {
+    background-color: rgb(95 183 255 / 50%);
+  }
+}
+
 #nprogress {
   pointer-events: none;
 }

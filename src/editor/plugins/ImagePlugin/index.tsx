@@ -75,6 +75,23 @@ export default function ImagesPlugin(): JSX.Element | null {
     );
   }, [editor]);
 
+  useEffect(() => {
+    const handleSelectionChange = () => {
+      const domSelection = document.getSelection();
+      if (!domSelection) return false;
+      const figures = document.querySelectorAll('figure');
+      figures.forEach((figure) => {
+        const isSelected = domSelection.containsNode(figure);
+        figure.classList.toggle("selection-highlight", isSelected);
+      });
+    };
+
+    document.addEventListener("selectionchange", handleSelectionChange);
+    return () => {
+      document.removeEventListener("selectionchange", handleSelectionChange);
+    };
+  }, []);
+
   return null;
 }
 
