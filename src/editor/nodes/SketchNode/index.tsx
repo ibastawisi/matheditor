@@ -6,13 +6,14 @@
  *
  */
 
-import { DOMConversionMap, DOMConversionOutput, DOMExportOutput, LexicalEditor, LexicalNode, NodeKey, Spread, isHTMLElement, } from 'lexical';
+import { DOMConversionMap, DOMConversionOutput, LexicalEditor, LexicalNode, NodeKey, Spread, } from 'lexical';
 import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
 
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
 import { $generateHtmlFromNodes } from "@lexical/html";
 
 import ImageComponent from '../ImageNode/ImageComponent';
+import htmr from 'htmr';
 
 export type SketchPayload = Spread<{
   /**
@@ -87,26 +88,6 @@ export class SketchNode extends ImageNode {
     return node;
   }
 
-  exportDOM(editor: LexicalEditor): DOMExportOutput {
-    const element = super.createDOM(editor._config);
-    if (element && isHTMLElement(element)) {
-      const html = decodeURIComponent(this.__src.split(',')[1]);
-      element.innerHTML = html.replace(/<!-- payload-start -->\s*(.+?)\s*<!-- payload-end -->/, "");
-      const svg = element.firstElementChild!;
-      const styles = svg.querySelectorAll('style');
-      styles.forEach(style => { style.remove(); });
-      if (this.__width) svg.setAttribute('width', this.__width.toString());
-      if (this.__height) svg.setAttribute('height', this.__height.toString());
-      if (!this.__showCaption) return { element };
-      const caption = document.createElement('figcaption');
-      this.__caption.getEditorState().read(() => {
-        caption.innerHTML = $generateHtmlFromNodes(this.__caption);
-      });
-      element.appendChild(caption);
-    }
-    return { element };
-  }
-
   static importDOM(): DOMConversionMap | null {
     return {
       img: (node: Node) => ({
@@ -153,6 +134,9 @@ export class SketchNode extends ImageNode {
   }
 
   decorate(): JSX.Element {
+    const html = this.__caption.getEditorState().read(() => $generateHtmlFromNodes(this.__caption));
+    const children = htmr(html);
+
     return (
       <ImageComponent
         width={this.getWidth()}
@@ -163,7 +147,9 @@ export class SketchNode extends ImageNode {
         showCaption={this.getShowCaption()}
         caption={this.getCaption()}
         element='svg'
-      />
+      >
+        {children}
+      </ImageComponent>
     );
   }
 }

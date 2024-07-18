@@ -34,16 +34,15 @@ import {
   KEY_DELETE_COMMAND,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import ImageResizer from './ImageResizer';
 import { $isImageNode } from '.';
 
 import { editorConfig } from './config';
-import dynamic from 'next/dynamic';
 import { Typography } from '@mui/material';
 
-const NestedEditor = dynamic(() => import('@/editor/NestedEditor'), { ssr: false });
+const NestedEditor = lazy(() => import('@/editor/NestedEditor'));
 
 function LazyImage({
   altText,
@@ -85,6 +84,7 @@ export default function ImageComponent({
   showCaption,
   caption,
   element = 'img',
+  children,
 }: {
   altText: string;
   height: number;
@@ -94,6 +94,7 @@ export default function ImageComponent({
   showCaption: boolean;
   caption: LexicalEditor;
   element?: "img" | "iframe" | "svg";
+  children?: React.ReactNode;
 }): JSX.Element {
   const imageRef = useRef<HTMLImageElement | HTMLIFrameElement | SVGSVGElement>(null);
   const [isSelected, setSelected, clearSelection] =
@@ -103,18 +104,8 @@ export default function ImageComponent({
   const [selection, setSelection] = useState<BaseSelection | null>(null);
   const activeEditorRef = useRef<LexicalEditor | null>(null);
 
-  const onEnter = useCallback(
+  const $onEnter = useCallback(
     (event: KeyboardEvent) => {
-      if (activeEditorRef.current === caption) {
-        if (event.shiftKey) return false;
-        $setSelection(null);
-        editor.update(() => {
-          const node = $getNodeByKey(nodeKey);
-          if (!$isImageNode(node)) return;
-          node.selectNext();
-        });
-        return true;
-      }
       const latestSelection = $getSelection();
       if (
         isSelected &&
@@ -134,7 +125,7 @@ export default function ImageComponent({
     [caption, isSelected, showCaption],
   );
 
-  const onEscape = useCallback(
+  const $onEscape = useCallback(
     (event: KeyboardEvent) => {
       if (
         activeEditorRef.current === caption
@@ -154,7 +145,7 @@ export default function ImageComponent({
     [caption, editor, setSelected],
   );
 
-  const onDelete = useCallback(
+  const $onDelete = useCallback(
     (payload: KeyboardEvent) => {
       if (isSelected && $isNodeSelection($getSelection())) {
         const event: KeyboardEvent = payload;
@@ -168,12 +159,30 @@ export default function ImageComponent({
       }
       return false;
     },
-    [isSelected, nodeKey, setSelected],
+    [isSelected, nodeKey],
   );
 
-  useEffect(() => {
-    isSelected && onLoad();
-  }, [isSelected, imageRef]);
+  const onClick = useCallback(
+    (payload: MouseEvent) => {
+      const event = payload;
+
+      if (isResizing) {
+        return true;
+      }
+      if (imageRef.current && imageRef.current.contains(event.target as Node)) {
+        if (event.shiftKey) {
+          setSelected(!isSelected);
+        } else {
+          clearSelection();
+          setSelected(true);
+        }
+        return true;
+      }
+
+      return false;
+    },
+    [isResizing, isSelected, setSelected, clearSelection],
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -193,24 +202,7 @@ export default function ImageComponent({
       ),
       editor.registerCommand<MouseEvent>(
         CLICK_COMMAND,
-        (payload) => {
-          const event = payload;
-
-          if (isResizing) {
-            return true;
-          }
-          if (imageRef.current && imageRef.current.contains(event.target as Node)) {
-            if (event.shiftKey) {
-              setSelected(!isSelected);
-            } else {
-              clearSelection();
-              setSelected(true);
-            }
-            return true;
-          }
-
-          return false;
-        },
+        onClick,
         COMMAND_PRIORITY_LOW,
       ),
       editor.registerCommand(
@@ -228,22 +220,22 @@ export default function ImageComponent({
       ),
       editor.registerCommand(
         KEY_DELETE_COMMAND,
-        onDelete,
+        $onDelete,
         COMMAND_PRIORITY_LOW,
       ),
       editor.registerCommand(
         KEY_BACKSPACE_COMMAND,
-        onDelete,
+        $onDelete,
         COMMAND_PRIORITY_LOW,
       ),
-      editor.registerCommand(KEY_ENTER_COMMAND, onEnter, COMMAND_PRIORITY_LOW),
+      editor.registerCommand(KEY_ENTER_COMMAND, $onEnter, COMMAND_PRIORITY_LOW),
       editor.registerCommand(
         KEY_ESCAPE_COMMAND,
-        onEscape,
+        $onEscape,
         COMMAND_PRIORITY_LOW,
       ),
-
     );
+
     return () => {
       isMounted = false;
       unregister();
@@ -254,9 +246,10 @@ export default function ImageComponent({
     isResizing,
     isSelected,
     nodeKey,
-    onDelete,
-    onEnter,
-    onEscape,
+    $onDelete,
+    $onEnter,
+    $onEscape,
+    onClick,
     setSelected,
   ]);
 
@@ -294,6 +287,10 @@ export default function ImageComponent({
     });
   }
 
+  useEffect(() => {
+    isSelected && onLoad();
+  }, [isSelected, imageRef]);
+
   const onChange = () => {
     editor.update(() => {
       const node = $getNodeByKey(nodeKey);
@@ -322,6 +319,7 @@ export default function ImageComponent({
       imageRef.current.innerHTML = svg.innerHTML;
     }
   }, [imageRef]);
+
 
   return (
     <>
@@ -367,7 +365,7 @@ export default function ImageComponent({
       </ImageResizer>
       {showCaption && (
         <figcaption>
-          <Suspense fallback={null}>
+          <Suspense fallback={children}>
             <NestedEditor initialEditor={caption} initialNodes={editorConfig.nodes} onChange={onChange}
               placeholder={<Typography color="text.secondary" className="nested-placeholder">Write a caption</Typography>}
             />

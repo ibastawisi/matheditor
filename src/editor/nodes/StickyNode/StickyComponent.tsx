@@ -12,16 +12,15 @@ import { mergeRegister } from '@lexical/utils';
 import './StickyNode.css';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { editorConfig } from './config';
-import dynamic from 'next/dynamic';
 import { IconButton } from '@mui/material';
 import { Delete, FormatPaint, DragIndicator } from '@mui/icons-material';
 import { $isStickyNode } from '.';
 
-const NestedEditor = dynamic(() => import('@/editor/NestedEditor'), { ssr: false });
+const NestedEditor = lazy(() => import('@/editor/NestedEditor'));
 
-export default function StickyComponent({ nodeKey, color, stickyEditor }: { stickyEditor: LexicalEditor; color: 'pink' | 'yellow'; nodeKey: NodeKey; }): JSX.Element {
+export default function StickyComponent({ nodeKey, color, stickyEditor, children }: { nodeKey: NodeKey, color: string, stickyEditor: LexicalEditor, children?: React.ReactNode }) {
   const [editor] = useLexicalComposerContext();
   const [isSelected, setSelected] = useLexicalNodeSelection(nodeKey);
 
@@ -71,6 +70,7 @@ export default function StickyComponent({ nodeKey, color, stickyEditor }: { stic
     });
   }
 
+
   return (
     <div ref={stickyContainerRef} className="sticky-note-container" draggable={isSelected} {...{ theme: 'light' }}>
       <div className='sticky-tools'>
@@ -86,7 +86,9 @@ export default function StickyComponent({ nodeKey, color, stickyEditor }: { stic
         </IconButton>
       </div>
       <div className={`sticky-note ${color}`}>
-        <NestedEditor initialEditor={stickyEditor} initialNodes={editorConfig.nodes} onChange={onChange} />
+        <Suspense fallback={children}>
+          <NestedEditor initialEditor={stickyEditor} initialNodes={editorConfig.nodes} onChange={onChange} />
+        </Suspense>
       </div>
     </div >
   );

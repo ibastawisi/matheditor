@@ -10,7 +10,10 @@ import { DOMConversionMap, DOMConversionOutput, LexicalEditor, LexicalNode, Node
 
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
 
+import { $generateHtmlFromNodes } from "@lexical/html";
+
 import ImageComponent from '../ImageNode/ImageComponent';
+import htmr from 'htmr';
 
 export type GraphPayload = Spread<{
   value: string;
@@ -126,6 +129,9 @@ export class GraphNode extends ImageNode {
   }
 
   decorate(): JSX.Element {
+    const html = this.__caption.getEditorState().read(() => $generateHtmlFromNodes(this.__caption));
+    const children = htmr(html);
+
     return (
       <ImageComponent
         src={this.__src}
@@ -136,7 +142,9 @@ export class GraphNode extends ImageNode {
         showCaption={this.__showCaption}
         caption={this.__caption}
         element={this.__src.startsWith('data:image/svg+xml') ? 'svg' : 'img'}
-      />
+      >
+        {children}
+      </ImageComponent>
     );
   }
 

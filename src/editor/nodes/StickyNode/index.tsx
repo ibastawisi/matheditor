@@ -19,10 +19,10 @@ import type {
 
 import { $getRoot, DecoratorNode, createEditor, isHTMLElement } from 'lexical';
 import * as React from 'react';
-import { Suspense } from 'react';
 import { editorConfig } from './config';
 import { $generateHtmlFromNodes } from "@lexical/html";
 import StickyComponent from './StickyComponent';
+import htmr from 'htmr';
 
 type StickyNoteColor = 'pink' | 'yellow';
 
@@ -136,13 +136,17 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
   }
 
   decorate(): JSX.Element {
-    return <Suspense fallback={null}>
+    const html = this.__editor.getEditorState().read(() => $generateHtmlFromNodes(this.__editor));
+    const children = htmr(html);
+    return (
       <StickyComponent
         color={this.__color}
         nodeKey={this.getKey()}
         stickyEditor={this.__editor}
-      />
-    </Suspense>;
+      >
+        {children}
+      </StickyComponent>
+    );
   }
 
   isIsolated(): true {

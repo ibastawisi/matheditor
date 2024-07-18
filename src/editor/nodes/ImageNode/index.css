@@ -33,7 +33,7 @@
   user-select: none;
 }
 
-[theme=dark] .image-control-wrapper>svg [fill='#ffffff'] {
+.image-control-wrapper>svg [fill='#ffffff'] {
   fill: transparent;
 }
 
@@ -156,4 +156,8 @@
   .image-control-wrapper .image-resizer {
     display: none !important;
   }
+}
+
+.LexicalTheme__image:focus-within {
+  outline: 2px solid rgb(95 183 255 / 75%);
 }
