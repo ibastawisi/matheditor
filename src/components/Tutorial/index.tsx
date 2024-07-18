@@ -4,14 +4,13 @@ import { debounce } from "@mui/material";
 import dynamic from "next/dynamic";
 import SplashScreen from '../SplashScreen';
 import { EditorDocument } from "@/types";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import data from "./tutorial.json";
 import { checkpoints } from "./checkpoints";
+import { EditorSkeleton } from "../EditorSkeleton";
 
-const Editor = dynamic(() => import("@/components/Editor"), { ssr: false, loading: () => <SplashScreen title="Loading Editor" /> });
-
-const Tutorial: React.FC = () => {
-  const [editor, setEditor] = useState<LexicalEditor | null>(null);
+const Tutorial: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const Editor = dynamic(() => import("@/components/Editor"), { ssr: false, loading: () => <EditorSkeleton>{children}</EditorSkeleton> });
 
   const onChange = (editorState: EditorState, editor: LexicalEditor, tags: Set<string>) => {
     if (tags.has('checkpoint')) return;
@@ -47,7 +46,7 @@ const Tutorial: React.FC = () => {
     }, { discrete: true, tag: 'checkpoint' })
   };
 
-  useEffect(() => {
+  const registerListeners = useCallback((editor: LexicalEditor) => {
     if (!editor) return;
     return editor.registerCommand(
       DELETE_CHARACTER_COMMAND,
@@ -83,9 +82,9 @@ const Tutorial: React.FC = () => {
       COMMAND_PRIORITY_NORMAL,
     );
 
-  }, [editor]);
+  }, []);
 
-  return <Editor document={data as unknown as EditorDocument} onChange={debounce(onChange, 300)} ignoreHistoryMerge={false} editorRef={setEditor} />;
+  return <Editor document={data as unknown as EditorDocument} onChange={debounce(onChange, 300)} ignoreHistoryMerge={false} editorRef={registerListeners} />;
 }
 
 export default Tutorial;

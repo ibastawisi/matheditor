@@ -34,14 +34,6 @@ body:has(.editor-input) footer {
   pointer-events: none;
 }
 
-.editor-toolbar {
-  background-color: #121212;
-}
-
-[theme=light] .editor-toolbar {
-  background-color: #fff;
-}
-
 @media print {
   * {
     overflow: visible !important;

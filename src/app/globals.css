@@ -61,6 +61,14 @@ header {
   overflow: hidden;
 }
 
+.editor-toolbar {
+  background-color: #121212;
+}
+
+[theme=light] .editor-toolbar {
+  background-color: #fff;
+}
+
 footer {
   z-index: 1000;
 }
