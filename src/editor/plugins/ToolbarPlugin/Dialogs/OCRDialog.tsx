@@ -3,12 +3,19 @@ import { UploadFile, ContentPaste } from "@mui/icons-material";
 import { Dialog, DialogTitle, DialogContent, Button, TextField, LinearProgress, DialogActions } from "@mui/material";
 import { $createParagraphNode, $createTextNode, $insertNodes, LexicalEditor } from "lexical";
 import { useState, useEffect, useCallback } from "react";
-import Compressor from 'compressorjs';
 import { SET_DIALOGS_COMMAND } from "./commands";
 import { Announcement } from "@/types";
 import { ANNOUNCE_COMMAND } from "@/editor/commands";
+import { isMimeType,  } from "@lexical/utils";
 
 const FASTAPI_URL = process.env.NEXT_PUBLIC_FASTAPI_URL;
+const ACCEPTABLE_IMAGE_TYPES = [
+  'image/',
+  'image/heic',
+  'image/heif',
+  'image/gif',
+  'image/webp',
+];
 
 const OCRDialog = ({ open, editor }: { open: boolean, editor: LexicalEditor }) => {
   const [formData, setFormData] = useState({ value: "" });
@@ -29,16 +36,11 @@ const OCRDialog = ({ open, editor }: { open: boolean, editor: LexicalEditor }) =
     if (!files || files.length === 0) return;
     const file = files[0];
     event.target.value = '';
-    new Compressor(file, {
-      quality: 0.6,
-      mimeType: 'image/jpeg',
-      success(result: File) {
-        updateValue(result);
-      },
-      error(err: Error) {
-        annouunce({ message: { title: "Uploading image failed", subtitle: "Unsupported file type" } })
-      },
-    });
+    if (isMimeType(file, ACCEPTABLE_IMAGE_TYPES)) {
+      updateValue(file);
+    } else {
+      annouunce({ message: { title: "Uploading image failed", subtitle: "Unsupported file type" } })
+    }
   }, []);
 
   const ocr = useCallback(async (blob: Blob) => {

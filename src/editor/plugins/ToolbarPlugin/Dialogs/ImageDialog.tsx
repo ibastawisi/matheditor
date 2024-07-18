@@ -3,7 +3,7 @@ import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
 import { INSERT_IMAGE_COMMAND, InsertImagePayload } from '@/editor/plugins/ImagePlugin';
 import { useEffect, useState, memo } from 'react';
 
-import Compressor from 'compressorjs';
+import { isMimeType, mediaFileReader } from '@lexical/utils';
 import { ImageNode } from '@/editor/nodes/ImageNode';
 import { SET_DIALOGS_COMMAND } from './commands';
 import { getImageDimensions } from '@/editor/nodes/utils';
@@ -11,6 +11,15 @@ import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Switch, TextField, Typography, useMediaQuery } from '@mui/material';
 import { UploadFile } from '@mui/icons-material';
+import { ANNOUNCE_COMMAND } from '@/editor/commands';
+
+const ACCEPTABLE_IMAGE_TYPES = [
+  'image/',
+  'image/heic',
+  'image/heif',
+  'image/gif',
+  'image/webp',
+];
 
 function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: ImageNode | null; open: boolean; }) {
   const theme = useTheme();
@@ -42,30 +51,23 @@ function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: Imag
     }
   };
 
-  const loadImage = (files: FileList | null) => {
-    const reader = new FileReader();
-    reader.onload = async function () {
-      if (typeof reader.result === 'string') {
+  const loadImage = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const filesResult = await mediaFileReader(
+      [...files],
+      [ACCEPTABLE_IMAGE_TYPES].flatMap((x) => x),
+    );
+    for (const { file, result } of filesResult) {
+      if (isMimeType(file, ACCEPTABLE_IMAGE_TYPES)) {
         try {
-          const dimensions = await getImageDimensions(reader.result);
-          setFormData({ src: reader.result, altText: files![0].name.replace(/\.[^/.]+$/, ""), ...dimensions, showCaption: true });
+          const dimensions = await getImageDimensions(result);
+          setFormData({ src: result, altText: files![0].name.replace(/\.[^/.]+$/, ""), ...dimensions, showCaption: true });
         } catch (e) {
-          setFormData({ ...formData, src: reader.result, altText: files![0].name.replace(/\.[^/.]+$/, ""), showCaption: true });
+          setFormData({ ...formData, src: result, altText: files![0].name.replace(/\.[^/.]+$/, ""), showCaption: true });
         }
+      } else {
+        editor.dispatchCommand(ANNOUNCE_COMMAND, { message: { title: "Uploading image failed", subtitle: "Unsupported file type" } });
       }
-    };
-    if (files !== null) {
-      new Compressor(files[0], {
-        quality: 0.6,
-        mimeType: 'image/jpeg',
-        success(result: File) {
-          reader.readAsDataURL(result);
-        },
-        error(err: Error) {
-          console.log(err.message);
-          reader.readAsDataURL(files[0]);
-        },
-      });
     }
   };
 

@@ -14,8 +14,8 @@ import { COMMAND_PRIORITY_LOW } from 'lexical';
 import { useEffect } from 'react';
 
 import { INSERT_IMAGE_COMMAND } from '../ImagePlugin';
-import Compressor from 'compressorjs';
 import { getImageDimensions } from '@/editor/nodes/utils';
+import { ANNOUNCE_COMMAND } from '@/editor/commands';
 
 const ACCEPTABLE_IMAGE_TYPES = [
   'image/',
@@ -38,36 +38,15 @@ export default function DragDropPaste(): null {
           );
           for (const { file, result } of filesResult) {
             if (isMimeType(file, ACCEPTABLE_IMAGE_TYPES)) {
-              new Compressor(file, {
-                quality: 0.6,
-                success(result) {
-                  const reader = new FileReader();
-                  reader.readAsDataURL(result);
-                  reader.onloadend = async () => {
-                    if (typeof reader.result !== 'string') {
-                      return;
-                    }
-                    const dimensions = await getImageDimensions(reader.result);
-                    editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-                      src: reader.result,
-                      altText: file.name.replace(/\.[^/.]+$/, ""),
-                      showCaption: true,
-                      ...dimensions,
-                    });
-                  };
-                },
-                error(err) {
-                  console.log(err.message);
-                  getImageDimensions(result).then((dimensions) => {
-                    editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-                      src: result,
-                      altText: file.name.replace(/\.[^/.]+$/, ""),
-                      showCaption: true,
-                      ...dimensions,
-                    });
-                  });
-                }
+              const dimensions = await getImageDimensions(result);
+              editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+                src: result,
+                altText: file.name.replace(/\.[^/.]+$/, ""),
+                showCaption: true,
+                ...dimensions,
               });
+            } else {
+              editor.dispatchCommand(ANNOUNCE_COMMAND, { message: { title: "Uploading image failed", subtitle: "Unsupported file type" } });
             }
           }
         })();
