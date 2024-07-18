@@ -1,5 +1,5 @@
-import "mathlive/static.css"
-import '@/editor/theme.css';
+import "mathlive/static.css";
+import '@/editor/theme.css'; 
 import { Undo, Redo, Add, FormatAlignLeft } from "@mui/icons-material";
 import { AppBar, Toolbar, Box, IconButton, useScrollTrigger, Typography } from "@mui/material";
 import { PropsWithChildren } from "react";
@@ -26,7 +26,7 @@ export const EditorSkeleton: React.FC<PropsWithChildren> = ({ children }) => {
               <Redo />
             </IconButton>
           </Box>
-          <Box sx={{ display: "flex", gap: 1, mx: 'auto', justifyContent: "center", alignItems: "center", height: 48 }}>
+          <Box sx={{ display: "flex", gap: 1, margin: 'auto', justifyContent: "center", alignItems: "center" }}>
             <Typography variant="overline" color="WindowText">Loading Editor</Typography>
           </Box>
           <Box sx={{ display: "flex", gridColumn: "3/-1" }}>

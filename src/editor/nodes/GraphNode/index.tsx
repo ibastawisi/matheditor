@@ -6,7 +6,7 @@
  *
  */
 
-import { DOMConversionMap, DOMConversionOutput, LexicalEditor, LexicalNode, NodeKey, Spread, } from 'lexical';
+import { DOMConversionMap, DOMConversionOutput, DOMExportOutput, isHTMLElement, LexicalEditor, LexicalNode, NodeKey, Spread, } from 'lexical';
 
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
 
@@ -82,6 +82,32 @@ export class GraphNode extends ImageNode {
       }
     } catch (e) { console.error(e); }
     return node;
+  }
+
+  exportDOM(editor: LexicalEditor): DOMExportOutput {
+    const isSVG = this.__src.startsWith('data:image/svg+xml');
+    if (!isSVG) return super.exportDOM(editor);
+    const element = super.createDOM(editor._config);
+    if (element && isHTMLElement(element)) {
+      const html = decodeURIComponent(this.__src.split(',')[1]);
+      element.innerHTML = html.replace(/<!-- payload-start -->\s*(.+?)\s*<!-- payload-end -->/, "");
+      const svg = element.firstElementChild!;
+      const styles = svg.querySelectorAll('style');
+      styles.forEach(style => { style.remove(); });
+      const viewBox = svg.getAttribute('viewBox');
+      const svgWidth = svg.getAttribute('width') || this.__width.toString();
+      const svgHeight = svg.getAttribute('height') || this.__height.toString();
+      if (!viewBox) svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
+      if (this.__width) svg.setAttribute('width', this.__width.toString());
+      if (this.__height) svg.setAttribute('height', this.__height.toString());
+      if (!this.__showCaption) return { element };
+      const caption = document.createElement('figcaption');
+      this.__caption.getEditorState().read(() => {
+        caption.innerHTML = $generateHtmlFromNodes(this.__caption);
+      });
+      element.appendChild(caption);
+    }
+    return { element };
   }
 
   static importDOM(): DOMConversionMap | null {

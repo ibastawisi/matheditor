@@ -118,30 +118,19 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const { element } = super.exportDOM(editor);
     if (!element) return { element };
-    if (isHTMLElement(element)) {
-      const isSvg = this.__src.startsWith('data:image/svg+xml');
-      if (isSvg) {
-        const html = decodeURIComponent(this.__src.split(',')[1]);
-        element.innerHTML = html.replace(/<!-- payload-start -->\s*(.+?)\s*<!-- payload-end -->/, "");
-        const styles = element.querySelectorAll('style');
-        styles.forEach(style => { style.remove(); });
-      } else {
-        const img = document.createElement('img');
-        img.setAttribute('src', this.__src);
-        img.setAttribute('alt', this.__altText);
-        if (this.__width && this.__height) img.setAttribute('style', `aspect-ratio: ${this.__width}/${this.__height};`);
-        element.appendChild(img);
-      }
-      const child = element.firstElementChild!;
-      if (this.__width) child.setAttribute('width', this.__width.toString());
-      if (this.__height) child.setAttribute('height', this.__height.toString());
-      if (!this.__showCaption) return { element };
-      const caption = document.createElement('figcaption');
-      this.__caption.getEditorState().read(() => {
-        caption.innerHTML = $generateHtmlFromNodes(this.__caption);
-      });
-      element.appendChild(caption);
-    }
+    const img = document.createElement('img');
+    img.setAttribute('src', this.__src);
+    img.setAttribute('alt', this.__altText);
+    if (this.__width) img.setAttribute('width', this.__width.toString());
+    if (this.__height) img.setAttribute('height', this.__height.toString());
+    if (this.__width && this.__height) img.setAttribute('style', `aspect-ratio: ${this.__width}/${this.__height};`);
+    element.appendChild(img);
+    if (!this.__showCaption) return { element };
+    const caption = document.createElement('figcaption');
+    this.__caption.getEditorState().read(() => {
+      caption.innerHTML = $generateHtmlFromNodes(this.__caption);
+    });
+    element.appendChild(caption);
     return { element };
   }
 
@@ -307,7 +296,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
         nodeKey={this.getKey()}
         showCaption={this.__showCaption}
         caption={this.__caption}
-        element={this.__src.startsWith('data:image/svg+xml') ? 'svg' : 'img'}
       >
         {children}
       </ImageComponent>

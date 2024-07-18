@@ -306,7 +306,9 @@ export default function ImageComponent({
   useEffect(() => {
     if (!imageRef.current) return;
     if (element === 'svg') {
-      const string = decodeURIComponent(src.split(',')[1]).replace(/<!-- payload-start -->\s*(.+?)\s*<!-- payload-end -->/, "");
+      const isBase64 = src.startsWith('data:image/svg+xml;base64');
+      const decoded = isBase64 ? atob(src.split(',')[1]) : decodeURIComponent(src.split(',')[1]);
+      const string = decoded.replace(/<!-- payload-start -->\s*(.+?)\s*<!-- payload-end -->/, "");
       const svg = new DOMParser().parseFromString(string, 'image/svg+xml').documentElement;
       const styles = svg.querySelectorAll('style');
       styles.forEach(style => { style.remove(); });
