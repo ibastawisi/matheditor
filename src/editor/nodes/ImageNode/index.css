@@ -25,10 +25,6 @@
   scroll-margin-bottom: 24px;
 }
 
-.image-control-wrapper>img {
-  background-color: #fff;
-}
-
 .image-control-wrapper>svg {
   user-select: none;
 }

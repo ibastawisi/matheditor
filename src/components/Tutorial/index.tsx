@@ -2,14 +2,12 @@
 import { $getRoot, $getSelection, $isDetailsContainerNode, $isDetailsContentNode, $isDetailsSummaryNode, $isListItemNode, $isListNode, $isRangeSelection, COMMAND_PRIORITY_NORMAL, DELETE_CHARACTER_COMMAND, LexicalNode, type EditorState, type LexicalEditor } from "@/editor";
 import { debounce } from "@mui/material";
 import dynamic from "next/dynamic";
-import SplashScreen from '../SplashScreen';
 import { EditorDocument } from "@/types";
-import { useCallback, useEffect, useState } from "react";
-import data from "./tutorial.json";
+import { useCallback } from "react";
 import { checkpoints } from "./checkpoints";
 import { EditorSkeleton } from "../EditorSkeleton";
 
-const Tutorial: React.FC<React.PropsWithChildren> = ({ children }) => {
+const Tutorial: React.FC<React.PropsWithChildren<{ document: EditorDocument }>> = ({ document, children }) => {
   const Editor = dynamic(() => import("@/components/Editor"), { ssr: false, loading: () => <EditorSkeleton>{children}</EditorSkeleton> });
 
   const onChange = (editorState: EditorState, editor: LexicalEditor, tags: Set<string>) => {
@@ -84,7 +82,7 @@ const Tutorial: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   }, []);
 
-  return <Editor document={data as unknown as EditorDocument} onChange={debounce(onChange, 300)} ignoreHistoryMerge={false} editorRef={registerListeners} />;
+  return <Editor document={document} onChange={debounce(onChange, 300)} ignoreHistoryMerge={false} editorRef={registerListeners} />;
 }
 
 export default Tutorial;

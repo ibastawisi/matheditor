@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import ThemeProvider from '@/components/Layout/ThemeProvider';
 import './globals.css';
 
@@ -54,9 +55,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" {...{ theme: 'dark' }} suppressHydrationWarning>
       <body>
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        <AppRouterCacheProvider>
+          <ThemeProvider>
+            {children}
+          </ThemeProvider>
+        </AppRouterCacheProvider>
       </body>
     </html>
   )

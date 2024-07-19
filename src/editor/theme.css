@@ -421,10 +421,6 @@ iframe {
   height: auto;
 }
 
-.LexicalTheme__image>img {
-  background-color: #fff;
-}
-
 .LexicalTheme__image>svg [fill='#ffffff'] {
   fill: transparent;
 }
