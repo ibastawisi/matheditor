@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Tutorial from "@/components/Tutorial";
 import htmr from "htmr";
-import tutorialTemplate from './tutorial.json';
+import tutorialTemplate from '@/components/Tutorial/tutorial.json';
 import type { EditorDocument } from '@/types';
 import { generateServerHtml } from "@/editor/utils/generateServerHtml";
 
@@ -14,7 +14,7 @@ const document = tutorialTemplate as unknown as EditorDocument;
 
 const page = async () => {
   const html = await generateServerHtml(document.data);
-  return <Tutorial document={document}>{htmr(html)}</Tutorial>
+  return <Tutorial>{htmr(html)}</Tutorial>
 }
 
 export default page;
