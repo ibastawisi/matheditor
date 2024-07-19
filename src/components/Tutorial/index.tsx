@@ -7,6 +7,7 @@ import { checkpoints } from "./checkpoints";
 import { EditorSkeleton } from "../EditorSkeleton";
 import tutorialTemplate from './tutorial.json';
 import type { EditorDocument } from '@/types';
+
 const document = tutorialTemplate as unknown as EditorDocument;
 
 const Tutorial: React.FC<React.PropsWithChildren> = ({ children }) => {

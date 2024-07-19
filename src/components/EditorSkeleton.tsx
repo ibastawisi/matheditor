@@ -1,14 +1,20 @@
-import "mathlive/static.css";
-import '@/editor/theme.css'; 
 import { Undo, Redo, Add, FormatAlignLeft } from "@mui/icons-material";
 import { AppBar, Toolbar, Box, IconButton, useScrollTrigger, Typography } from "@mui/material";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useEffect } from "react";
 
 export const EditorSkeleton: React.FC<PropsWithChildren> = ({ children }) => {
   const toolbarTrigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 32,
   });
+  useEffect(() => {
+    const lightThemeMeta = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]');
+    const darkThemeMeta = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]');
+    if (lightThemeMeta && darkThemeMeta) {
+      lightThemeMeta.setAttribute('content', toolbarTrigger ? '#ffffff' : '#1976d2');
+      darkThemeMeta.setAttribute('content', toolbarTrigger ? '#121212' : '#272727');
+    }
+  }, [toolbarTrigger]);
 
   return (
     <>

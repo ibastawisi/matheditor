@@ -56,6 +56,15 @@ body:has(.excalidraw.excalidraw-modal-container) {
   overflow: hidden !important;
 }
 
+.diff-container ins {
+  background-color: rgb(200 255 200 / 50%);
+  text-decoration: none;
+}
+
+.diff-container del {
+  background-color: rgb(255 200 200 / 50%)
+}
+
 .diff-container~.editor-input,
 .diff-container~.MuiAppBar-root {
   display: none;

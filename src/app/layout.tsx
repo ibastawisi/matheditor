@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import ThemeProvider from '@/components/Layout/ThemeProvider';
+import 'mathlive/static.css';
+import '@/editor/theme.css';
 import './globals.css';
 
 const PUBLIC_URL = process.env.PUBLIC_URL;

@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import { EditorSkeleton } from '../EditorSkeleton';
 import playgroundTemplate from './playground.json';
 import type { EditorDocument } from '@/types';
+
 const document = playgroundTemplate as unknown as EditorDocument;
 
 const Playground: React.FC<React.PropsWithChildren> = ({ children }) => {

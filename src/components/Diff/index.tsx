@@ -5,8 +5,6 @@ import { actions, useDispatch, useSelector } from '@/store';
 import { generateHtml } from '@/editor';
 import htmr from 'htmr';
 import NProgress from 'nprogress';
-import "mathlive/static.css";
-import './styles.css';
 
 const DiffView = () => {
   const dispatch = useDispatch();

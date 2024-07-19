@@ -1,5 +1,3 @@
-import "mathlive/static.css"
-import '@/editor/theme.css';
 import { CloudDocument, User } from '@/types';
 import dynamic from "next/dynamic";
 
