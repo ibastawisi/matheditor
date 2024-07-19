@@ -325,8 +325,8 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
         aria-expanded={open ? 'true' : undefined}
         variant="outlined"
         onClick={handleClick}
-        startIcon={<AutoAwesome />}
-        endIcon={isLoading ? <CircularProgress size={16} /> : open ? <ArrowDropUp /> : <ArrowDropDown />}
+        startIcon={<AutoAwesome color={isLoading ? "disabled" : "action"} />}
+        endIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : open ? <ArrowDropUp color={isLoading ? "disabled" : "action"} /> : <ArrowDropDown color={isLoading ? "disabled" : "action"} />}
         sx={{
           color: 'text.primary',
           borderColor: 'divider',
@@ -355,7 +355,9 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
           '& .MuiBackdrop-root': { userSelect: 'none' },
         }}>
         <MenuItem
-          sx={{ p: 0, mb: 1, flexDirection: 'column' }}
+          sx={{ p: 0, mb: 1, flexDirection: 'column', backgroundColor: 'transparent !important' }}
+          disableRipple
+          disableTouchRipple
           onFocusVisible={(e) => {
             const currentTarget = e.currentTarget;
             const relatedTarget = e.relatedTarget;

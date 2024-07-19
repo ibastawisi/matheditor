@@ -206,6 +206,15 @@ function ToolbarPlugin() {
     threshold: 32,
   });
 
+  useEffect(() => {
+    const lightThemeMeta = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]');
+    const darkThemeMeta = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]');
+    if (lightThemeMeta && darkThemeMeta) {
+      lightThemeMeta.setAttribute('content', toolbarTrigger ? '#ffffff' : '#1976d2');
+      darkThemeMeta.setAttribute('content', toolbarTrigger ? '#121212' : '#272727');
+    }
+  }, [toolbarTrigger]);
+
   const slideTrigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 100,

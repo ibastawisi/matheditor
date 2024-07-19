@@ -175,11 +175,11 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
           onFocusVisible={(e) => {
             if (fontFamily !== option) updateFontFamily(option);
           }}>
-          <ListItemIcon sx={{ fontFamily: option }}>Aa</ListItemIcon>
+          <ListItemIcon sx={{ fontFamily: option, fontWeight: 500 }} color="action">Aa</ListItemIcon>
           <ListItemText sx={{ '& *': { fontFamily: option } }}>{text}</ListItemText>
         </MenuItem>)}
         {!FONT_FAMILY_OPTIONS.find(([option]) => option === fontFamily) && <MenuItem value={fontFamily}>
-          <ListItemIcon sx={{ fontFamily: fontFamily }}>Aa</ListItemIcon>
+          <ListItemIcon sx={{ fontFamily: fontFamily, fontWeight: 500 }} color="action">Aa</ListItemIcon>
           <ListItemText sx={{ '& *': { fontFamily: fontFamily } }}>{fontFamily}</ListItemText>
         </MenuItem>}
       </Select>
