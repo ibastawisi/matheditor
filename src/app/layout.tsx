@@ -55,7 +55,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" {...{ theme: 'dark' }} suppressHydrationWarning>
+    <html lang="en" {...{ theme: 'light' }} suppressHydrationWarning>
       <body>
         <AppRouterCacheProvider>
           <ThemeProvider>

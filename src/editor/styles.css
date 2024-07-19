@@ -10,15 +10,11 @@ body:has(.editor-input) footer {
 .editor-input {
   flex: 1;
   resize: none;
-  caret-color: rgb(5, 5, 5);
+  caret-color: #444;
   position: relative;
   tab-size: 1;
   outline: 0;
   caret-color: #eee;
-}
-
-[theme=light] .editor-input {
-  caret-color: #444;
 }
 
 .editor-placeholder {
@@ -68,4 +64,10 @@ body:has(.excalidraw.excalidraw-modal-container) {
 .diff-container~.editor-input,
 .diff-container~.MuiAppBar-root {
   display: none;
+}
+
+@media screen {
+  [theme=dark] .editor-input {
+    caret-color: rgb(5, 5, 5);
+  }
 }

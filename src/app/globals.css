@@ -62,10 +62,6 @@ header {
 }
 
 .editor-toolbar {
-  background-color: #121212;
-}
-
-[theme=light] .editor-toolbar {
   background-color: #fff;
 }
 
@@ -79,12 +75,8 @@ footer {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #121212;
-  z-index: 1000;
-}
-
-[theme=light] .splash-screen {
   background-color: #fff;
+  z-index: 1000;
 }
 
 .splash-screen-content {
@@ -128,6 +120,16 @@ footer {
 
 [theme=light] .MuiFab-root.MuiFab-extended {
   color: var(--mui-palette-text-primary);
+}
+
+@media screen {
+  [theme=dark] .editor-toolbar {
+    background-color: #121212;
+  }
+
+  [theme=dark] .splash-screen {
+    background-color: #121212;
+  }  
 }
 
 @media print {

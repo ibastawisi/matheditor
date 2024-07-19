@@ -33,15 +33,12 @@
   fill: transparent;
 }
 
-[theme=dark] .image-control-wrapper>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath) {
-  filter: invert(93%) hue-rotate(180deg);
-}
-
 .sticky-note-container .image-control-wrapper>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath) {
   filter: initial;
 }
 
-.LexicalTheme__image .focused {
+.LexicalTheme__image .focused,
+.LexicalTheme__image:focus-within {
   outline: 2px solid rgb(95 183 255 / 75%);
 }
 
@@ -154,6 +151,8 @@
   }
 }
 
-.LexicalTheme__image:focus-within {
-  outline: 2px solid rgb(95 183 255 / 75%);
+@media screen {
+  [theme=dark] .image-control-wrapper>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath) {
+    filter: invert(93%) hue-rotate(180deg);
+  }  
 }

@@ -10,18 +10,11 @@ math-field {
   padding: 0;
   pointer-events: auto;
   --selection-color: nope;
-  --contains-highlight-background-color: rgba(255, 255, 255, 0.1);
-  --selection-background-color: rgb(95 183 255 / 50%);
 }
 
 math-field::part(virtual-keyboard-toggle),
 math-field::part(menu-toggle) {
   display: none;
-}
-
-[theme=light] math-field {
-  --contains-highlight-background-color: initial;
-  --selection-background-color: initial;
 }
 
 .ML__keyboard {
@@ -50,5 +43,12 @@ math-field::part(menu-toggle) {
 @media print {
   .ML__keyboard {
     display: none !important;
+  }
+}
+
+@media screen {
+  [theme=dark] math-field {
+    --contains-highlight-background-color: rgba(255, 255, 255, 0.1);
+    --selection-background-color: rgb(95 183 255 / 50%);
   }
 }

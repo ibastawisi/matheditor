@@ -425,13 +425,10 @@ iframe {
   fill: transparent;
 }
 
-[theme=dark] .LexicalTheme__image>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath) {
-  filter: invert(93%) hue-rotate(180deg);
-}
-
 .sticky-note-container .LexicalTheme__image>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath) {
   filter: initial;
 }
+
 .LexicalTheme__image figcaption {
   display: flex;
   flex-direction: column;
@@ -685,135 +682,95 @@ iframe {
 
 /* color theme */
 
-.LexicalTheme__quote {
-  color: #a6a6a6;
-  border-left-color: #4d4d4d;
-}
-
 .LexicalTheme__textCode {
   background-color: rgba(230, 230, 230, 0.3);
 }
 
-.LexicalTheme__link {
-  color: #90caf9;
-}
-
-.LexicalTheme__code {
-  background-color: rgb(30, 30, 30);
-  color: #9cdcfe;
-}
-
-.LexicalTheme__code:before {
-  background-color: #333;
-  color: #858585;
-  border-right-color: #1e1e1e;
-}
-
-.LexicalTheme__code:after {
-  color: #858585;
-}
-
-.LexicalTheme__tableCell {
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.LexicalTheme__tableCellHeader {
-  background-color: rgba(255, 255, 255, 0.03);
-}
-
-.details__container {
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-.details__summary:hover,
-.details__container[open]>.details__summary {
-  background-color: rgba(255, 255, 255, 0.08);
-}
-
-[theme=light] .LexicalTheme__quote {
+.LexicalTheme__quote {
   color: rgb(101, 103, 107);
   border-left-color: rgb(206, 208, 212);
 }
 
-[theme=light] .LexicalTheme__link {
+.LexicalTheme__link {
   color: rgb(33, 111, 219);
 }
 
-[theme=light] .LexicalTheme__code {
+.LexicalTheme__code {
   background-color: rgb(240, 242, 245);
   color: inherit;
 }
 
-[theme=light] .LexicalTheme__code:before {
+.LexicalTheme__code:before {
   background-color: #eee;
   border-right-color: #ccc;
   color: #777;
 }
 
-[theme=light] .LexicalTheme__code:after {
+.LexicalTheme__code:after {
   color: rgba(0, 0, 0, 0.5);
 }
 
-[theme=light] .LexicalTheme__tableCell {
+.LexicalTheme__tableCell {
   border-color: rgba(0, 0, 0, 0.2);
 }
 
-[theme=light] .LexicalTheme__tableCellHeader {
+.LexicalTheme__tableCellHeader {
   background-color: rgba(0, 0, 0, 0.03);
 }
 
-[theme='light'] .details__container {
+.details__container {
   border-color: rgba(0, 0, 0, 0.12);
 }
 
-[theme='light'] .details__summary:hover,
-[theme='light'] .details__container[open]>.details__summary {
+.details__summary:hover,
+.details__container[open]>.details__summary {
   background-color: rgba(0, 0, 0, 0.04);
 }
 
-@media print {
-  .LexicalTheme__quote {
-    color: rgb(101, 103, 107);
-    border-left-color: rgb(206, 208, 212);
+
+@media screen {
+  [theme=dark] .LexicalTheme__quote {
+    color: #a6a6a6;
+    border-left-color: #4d4d4d;
   }
 
-  .LexicalTheme__textCode {
-    background-color: rgb(240, 242, 245);
+  [theme=dark] .LexicalTheme__link {
+    color: #90caf9;
   }
 
-  .LexicalTheme__link {
-    color: rgb(33, 111, 219);
+  [theme=dark] .LexicalTheme__code {
+    background-color: rgb(30, 30, 30);
+    color: #9cdcfe;
   }
 
-  .LexicalTheme__code {
-    background-color: rgb(240, 242, 245);
-    color: inherit;
+  [theme=dark] .LexicalTheme__code:before {
+    background-color: #333;
+    color: #858585;
+    border-right-color: #1e1e1e;
   }
 
-  .LexicalTheme__code:before {
-    background-color: #eee;
-    border-right-color: #ccc;
-    color: #777;
+  [theme=dark] .LexicalTheme__code:after {
+    color: #858585;
   }
 
-  .LexicalTheme__code:after {
-    color: rgba(0, 0, 0, 0.5);
+  [theme=dark] .LexicalTheme__tableCell {
+    border-color: rgba(255, 255, 255, 0.2);
   }
 
-  .LexicalTheme__tableCell {
-    border-color: rgba(0, 0, 0, 0.2);
+  [theme=dark] .LexicalTheme__tableCellHeader {
+    background-color: rgba(255, 255, 255, 0.03);
   }
 
-  .LexicalTheme__tableCellHeader {
-    background-color: rgba(0, 0, 0, 0.03);
+  [theme='dark'] .details__container {
+    border-color: rgba(255, 255, 255, 0.12);
   }
 
-  .details__container {
-    border-color: rgba(0, 0, 0, 0.12);
+  [theme='dark'] .details__summary:hover,
+  [theme='dark'] .details__container[open]>.details__summary {
+    background-color: rgba(255, 255, 255, 0.08);
   }
 
-  .details__container[open]>.details__summary {
-    background-color: rgba(0, 0, 0, 0.04);
+  [theme=dark] .LexicalTheme__image>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath) {
+    filter: invert(93%) hue-rotate(180deg);
   }
-
 }
