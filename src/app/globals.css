@@ -118,7 +118,7 @@ footer {
   color: var(--mui-palette-primary-contrastText);
 }
 
-[theme=light] .MuiFab-root.MuiFab-extended {
+:not([theme=dark]) .MuiFab-root.MuiFab-extended {
   color: var(--mui-palette-text-primary);
 }
 

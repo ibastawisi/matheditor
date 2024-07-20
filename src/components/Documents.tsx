@@ -14,7 +14,7 @@ import DocumentSortControl, { sortDocuments } from './DocumentSortControl';
 import DocumentFilterControl, { filterDocuments } from './DocumentFilterControl';
 import { v4 as uuid } from 'uuid';
 
-const Documents: React.FC = () => {
+const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocuments }) => {
   const user = useSelector(state => state.user);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -174,14 +174,14 @@ const Documents: React.FC = () => {
         </Grid>
       </Grid>
       <Collapse timeout={1000} in={!(user && initialized)} unmountOnExit><Box sx={{ mb: 2 }}><UserCard user={user} /></Box></Collapse>
-      <DocumentsGrid documents={sortedDocuments} initialized={initialized} user={user} />
+      <DocumentsGrid documents={sortedDocuments.length ? sortedDocuments : staticDocuments} initialized={initialized} user={user} />
     </>
   )
 }
 
 const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initialized: boolean }> = memo(({ documents, user, initialized }) => {
   const dispatch = useDispatch();
-  const showSkeletons = !initialized && !documents.length;
+  const showSkeletons = !documents.length;
   const showEmpty = initialized && !documents.length;
   const pageSize = 12;
   const pages = Math.ceil(documents.length / pageSize);

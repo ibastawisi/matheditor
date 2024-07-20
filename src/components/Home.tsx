@@ -4,9 +4,10 @@ import { useEffect } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import Documents from "./Documents";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { UserDocument } from '@/types';
 
 
-const Home: React.FC = () => {
+const Home: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocuments }) => {
   const [welcomed, setWelcomed] = useLocalStorage("welcomed", false);
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
@@ -16,7 +17,7 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <Documents />
+      <Documents staticDocuments={staticDocuments} />
       {!welcomed && (
         <Dialog open onClose={handleClose}>
           <DialogTitle>Welcome to Math Editor</DialogTitle>

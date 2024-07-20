@@ -13,7 +13,7 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
   const theme = extendTheme();
 
   return (
-    <CssVarsProvider theme={theme} attribute="theme">
+    <CssVarsProvider theme={theme} attribute="theme" defaultMode="system">
       <script dangerouslySetInnerHTML={{
         __html: `(function(){try {document.documentElement.setAttribute('theme',  window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark': 'light');} catch(e){}})();`
       }} />
