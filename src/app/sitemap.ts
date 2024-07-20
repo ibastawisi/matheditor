@@ -1,34 +1,39 @@
-import { findPublishedDocuments } from '@/repositories/document'
-import { MetadataRoute } from 'next'
+import { findPublishedDocuments } from '@/repositories/document';
+import { MetadataRoute } from 'next';
+
+const PUBLIC_URL = process.env.PUBLIC_URL;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const publishedDocuments = await findPublishedDocuments();
+  const now = new Date().toISOString();
   return [
     {
-      url: 'https://matheditor.me/',
+      url: `${PUBLIC_URL}/`,
+      lastModified: now,
     },
     {
-      url: 'https://matheditor.me/playground',
+      url: `${PUBLIC_URL}/playground`,
+      lastModified: now,
     },
     {
-      url: 'https://matheditor.me/tutorial',
+      url: `${PUBLIC_URL}/tutorial`,
+      lastModified: now,
     },
     {
-      url: 'https://matheditor.me/new',
+      url: `${PUBLIC_URL}/new`,
+      lastModified: now,
     },
     {
-      url: 'https://matheditor.me/dashboard',
+      url: `${PUBLIC_URL}/dashboard`,
+      lastModified: now,
     },
     {
-      url: 'https://matheditor.me/privacy',
+      url: `${PUBLIC_URL}/privacy`,
+      lastModified: now,
     },
     ...publishedDocuments.map((document) => ({
-      url: `https://matheditor.me/view/${document.handle || document.id}`,
+      url: `${PUBLIC_URL}/view/${document.handle || document.id}`,
       lastModified: document.updatedAt,
     })),
-    ...publishedDocuments.map((document) => ({
-      url: `https://matheditor.me/pdf/${document.handle || document.id}.pdf`,
-      lastModified: document.updatedAt,
-    })),
-  ]
+  ];
 }
