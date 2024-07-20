@@ -4,7 +4,7 @@ import RouterLink from 'next/link'
 import { LocalDocumentRevision, User, UserDocument } from '@/types';
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
-import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, Badge } from '@mui/material';
+import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, Badge, NoSsr } from '@mui/material';
 import { Article, MobileFriendly, Cloud, Public, Workspaces, Security, CloudDone, CloudSync } from '@mui/icons-material';
 
 import dynamic from "next/dynamic";
@@ -58,12 +58,12 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
               </Typography>
               <Typography variant="overline" color="text.secondary"
                 sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {document ? <>Created: {new Date(document.createdAt).toLocaleString()}</> : <Skeleton variant="text" width={150} />}
+                {document ? <NoSsr fallback={<Skeleton variant="text" width={150} />}>Created: {new Date(document.createdAt).toLocaleString()}</NoSsr> : <Skeleton variant="text" width={150} />}
               </Typography>
               <Typography variant="overline" color="text.secondary"
                 sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
               >
-                {document ? <>Updated: {new Date(document.updatedAt).toLocaleString()}</> : <Skeleton variant="text" width={160}></Skeleton>}
+                {document ? <NoSsr fallback={<Skeleton variant="text" width={160} />}>Updated: {new Date(document.updatedAt).toLocaleString()}</NoSsr> : <Skeleton variant="text" width={160} />}
               </Typography>
             </>
           }
