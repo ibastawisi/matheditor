@@ -683,7 +683,7 @@ iframe {
 /* color theme */
 
 .LexicalTheme__textCode {
-  background-color: rgba(230, 230, 230, 0.3);
+  background-color: rgb(225 230 235 / 44%);
 }
 
 .LexicalTheme__quote {
