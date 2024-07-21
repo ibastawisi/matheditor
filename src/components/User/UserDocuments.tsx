@@ -24,9 +24,6 @@ const UserDocuments: React.FC<{ documents?: UserDocument[] }> = ({ documents }) 
         {!showLoading && !showEmpty && <DocumentSortControl value={sort} setValue={setSort} />}
       </Box>
       <Grid container spacing={2}>
-        {showLoading && Array.from({ length: 9 }).map((_, i) => <Grid item key={i} xs={12} sm={6} md={4}>
-          <DocumentCard />
-        </Grid>)}
         {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
           <DocumentCard userDocument={document} />
         </Grid>)}
