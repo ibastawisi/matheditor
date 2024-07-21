@@ -1,6 +1,6 @@
 "use client"
 import { useSelector } from '@/store';
-import UserCard from "./UserCard";
+import UserCard from "./User/UserCard";
 import { Box, CircularProgress, Grid, Paper, Typography } from "@mui/material";
 import { useEffect, useState } from 'react';
 import { PieChart } from '@mui/x-charts/PieChart';
@@ -12,7 +12,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <UserCard user={user} sessionUser={user} />
+      <UserCard user={user} showActions />
       <StorageChart />
     </Box>
   );

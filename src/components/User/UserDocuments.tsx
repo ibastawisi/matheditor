@@ -1,30 +1,32 @@
 "use client"
 import { useState } from "react";
-import UserCard from "./UserCard";
-import type { User, UserDocument } from '@/types';
-import DocumentCard from "./DocumentCard";
+import type { User as UserDocuments, UserDocument } from '@/types';
+import DocumentCard from "../DocumentCard";
 import { Box, Grid, Pagination, Typography } from "@mui/material";
 import { Pageview } from "@mui/icons-material";
-import DocumentSortControl, { sortDocuments } from "./DocumentSortControl";
+import DocumentSortControl, { sortDocuments } from "../DocumentSortControl";
 
-const User: React.FC<{ user?: User, sessionUser?: User, documents: UserDocument[] }> = ({ user, sessionUser, documents }) => {
+const UserDocuments: React.FC<{ documents?: UserDocument[] }> = ({ documents }) => {
   const [sort, setSort] = useState<{ key: string, direction: "asc" | "desc" }>({ key: 'updatedAt', direction: 'desc' });
-  const showEmpty = !documents.length;
+  const showLoading = !documents;
+  const showEmpty = !showLoading && !documents.length;
   const pageSize = 12;
-  const pages = Math.ceil(documents.length / pageSize);
+  const pages = Math.ceil(documents?.length ?? 0 / pageSize);
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
-  const sortedDocuments = sortDocuments(documents, sort);
+  const sortedDocuments = sortDocuments(documents ?? [], sort);
   const pageDocuments = sortedDocuments.slice((page - 1) * pageSize, page * pageSize);
 
   return <>
-    <UserCard user={user} sessionUser={sessionUser} />
-    {user && <Box sx={{ gap: 1, mt: 2 }}>
-      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1 }}>
+    <Box sx={{ mt: 2 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1, minHeight: 40 }}>
         <Typography variant="h6" component="h2" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Published Documents</Typography>
-        <DocumentSortControl value={sort} setValue={setSort} />
+        {!showLoading && !showEmpty && <DocumentSortControl value={sort} setValue={setSort} />}
       </Box>
       <Grid container spacing={2}>
+        {showLoading && Array.from({ length: 9 }).map((_, i) => <Grid item key={i} xs={12} sm={6} md={4}>
+          <DocumentCard />
+        </Grid>)}
         {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
           <DocumentCard userDocument={document} />
         </Grid>)}
@@ -34,8 +36,8 @@ const User: React.FC<{ user?: User, sessionUser?: User, documents: UserDocument[
         <Pageview sx={{ width: 64, height: 64, fontSize: 64 }} />
         <Typography variant="overline" component="p">No documents found</Typography>
       </Box>}
-    </Box>}
+    </Box>
   </>
 }
 
-export default User;
+export default UserDocuments;

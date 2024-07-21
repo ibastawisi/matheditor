@@ -10,7 +10,7 @@ import DocumentCard from './DocumentCard';
 import { Container, Box, Avatar, Typography, TextField, Button, FormControlLabel, FormHelperText, Switch, Checkbox } from '@mui/material';
 import { Article, Add } from '@mui/icons-material';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
-import UsersAutocomplete from './UsersAutocomplete';
+import UsersAutocomplete from './User/UsersAutocomplete';
 import { debounce } from '@mui/material/utils';
 
 const getEditorData = (title: string) => {

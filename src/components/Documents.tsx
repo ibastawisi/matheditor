@@ -6,7 +6,7 @@ import DocumentCard from "./DocumentCard";
 import { memo, useEffect } from "react";
 import { BackupDocument, User, UserDocument } from '@/types';
 import { validate } from "uuid";
-import UserCard from "./UserCard";
+import UserCard from "./User/UserCard";
 import documentDB, { revisionDB } from '@/indexeddb';
 import { Box, Avatar, Button, Typography, Grid, Card, CardActionArea, CardHeader, Collapse, Pagination } from '@mui/material';
 import { PostAdd, UploadFile, Help, Storage, Science, Pageview } from '@mui/icons-material';
@@ -173,7 +173,7 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
           </Card>
         </Grid>
       </Grid>
-      <Collapse timeout={1000} in={!(user && initialized)} unmountOnExit><Box sx={{ mb: 2 }}><UserCard user={user} /></Box></Collapse>
+      <Collapse timeout={1000} in={!(user && initialized)} unmountOnExit><Box sx={{ mb: 2 }}><UserCard user={user} showActions={!user} /></Box></Collapse>
       <DocumentsGrid documents={sortedDocuments.length ? sortedDocuments : staticDocuments} initialized={initialized} user={user} />
     </>
   )

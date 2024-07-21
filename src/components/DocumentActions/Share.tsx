@@ -3,7 +3,7 @@ import { useDispatch, actions, useSelector } from "@/store";
 import { DocumentUpdateInput, User, UserDocument } from "@/types";
 import { CloudOff, ContentCopy, Share } from "@mui/icons-material";
 import { IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Tabs, Tab, FormControl, FormLabel, FormControlLabel, Checkbox, FormHelperText, Slider, RadioGroup, Radio, useMediaQuery, ListItemIcon, ListItemText, MenuItem, Select, Typography, Switch } from "@mui/material";
-import UsersAutocomplete from "../UsersAutocomplete";
+import UsersAutocomplete from "../User/UsersAutocomplete";
 import { useRef, useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import useFixedBodyScroll from "@/hooks/useFixedBodyScroll";

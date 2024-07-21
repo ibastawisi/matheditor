@@ -9,7 +9,7 @@ import useFixedBodyScroll from "@/hooks/useFixedBodyScroll";
 import { validate } from "uuid";
 import { debounce } from '@mui/material/utils';
 import UploadDocument from "./Upload";
-import UsersAutocomplete from "../UsersAutocomplete";
+import UsersAutocomplete from "../User/UsersAutocomplete";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
 
 const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
@@ -36,7 +36,7 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
     published: isPublished,
     collab: isCollab,
   });
-  
+
   const [validating, setValidating] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const hasErrors = Object.keys(validationErrors).length > 0;
@@ -64,7 +64,7 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
     setEditDialogOpen(false);
   };
 
-  
+
   const updateInput = (partial: Partial<DocumentUpdateInput>) => {
     setInput(input => ({ ...input, ...partial }));
   }
@@ -77,7 +77,7 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
   const updateHandle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.toLowerCase().replaceAll(' ', '-');
     updateInput({ handle: value });
-    if (!value || value === handle ) return setValidationErrors({});
+    if (!value || value === handle) return setValidationErrors({});
     if (value.length < 3) {
       return setValidationErrors({ handle: "Handle is too short: Handle must be at least 3 characters long" });
     }

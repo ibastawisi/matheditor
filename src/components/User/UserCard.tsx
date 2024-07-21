@@ -8,14 +8,13 @@ import UserActionMenu from './UserActionMenu';
 import { Card, Box, CardActionArea, CardContent, Typography, Skeleton, CardActions, Button, IconButton, Avatar } from '@mui/material';
 import { Google, Share } from '@mui/icons-material';
 
-const UserCard: React.FC<{ user?: User, sessionUser?: User }> = memo(({ user, sessionUser }) => {
+const UserCard: React.FC<{ user?: User, showActions?: boolean }> = memo(({ user, showActions }) => {
   const dispatch = useDispatch();
   const login = () => signIn("google", undefined, { prompt: "select_account" });
   const logout = () => signOut();
   const initialized = useSelector(state => state.ui.initialized);
-  const showLogout = user && sessionUser && user.id === sessionUser.id;
-  const showLogin = initialized && !user && !sessionUser;
-  const showActions = user && sessionUser && user.id === sessionUser.id;
+  const showLogout = showActions && user;
+  const showLogin = showActions && initialized && !user;
 
   const handleShare = async () => {
     const shareData = {
@@ -51,7 +50,7 @@ const UserCard: React.FC<{ user?: User, sessionUser?: User }> = memo(({ user, se
             <Typography variant="button" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Login with Google</Typography>
           </Button>}
           <Box sx={{ ml: 'auto !important' }}>
-            {showActions && <UserActionMenu user={user} />}
+            {showActions && user && <UserActionMenu user={user} />}
             {user && <IconButton size="small" aria-label="Share" onClick={handleShare}><Share /></IconButton>}
           </Box>
         </CardActions>

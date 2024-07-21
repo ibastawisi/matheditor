@@ -2,11 +2,15 @@ import { OgMetadata } from "@/app/api/og/route";
 import type { Metadata } from "next";
 import { findPublishedDocumentsByAuthorId } from "@/repositories/document";
 import { notFound } from "next/navigation";
-import User from "@/components/User";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { findUser } from "@/repositories/user";
-import { cache } from "react";
+import { cache, Suspense } from "react";
+import UserCard from "@/components/User/UserCard";
+import UserDocuments from "@/components/User/UserDocuments";
+
+async function delay<T>(fn: () => Promise<T>, delayMs: number): Promise<T> {
+  await new Promise(resolve => setTimeout(resolve, delayMs));
+  return await fn();
+}
 
 const getCachedUser = cache(async (id: string) => await findUser(id));
 
@@ -33,12 +37,29 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   }
 }
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const user = await getCachedUser(params.id);
+const UserCardWrapper = async ({ id }: { id: string }) => {
+  const user = await getCachedUser(id);
   if (!user) notFound();
-  const session = await getServerSession(authOptions);
+  return <UserCard user={user} />;
+}
+
+const UserDocumentsWrapper = async ({ id }: { id: string }) => {
+  const user = await getCachedUser(id);
+  if (!user) notFound();
   const documentsResponse = await findPublishedDocumentsByAuthorId(user.id);
   const documents = documentsResponse.map(document => ({ id: document.id, cloud: document }));
+  return <UserDocuments documents={documents} />;
+}
 
-  return <User user={user} sessionUser={session?.user} documents={documents} />
+export default async function Page({ params }: { params: { id: string } }) {
+  return (
+    <>
+      <Suspense fallback={<UserCard />}>
+        <UserCardWrapper id={params.id} />
+      </Suspense>
+      <Suspense fallback={<UserDocuments />}>
+        <UserDocumentsWrapper id={params.id} />
+      </Suspense>
+    </>
+  );
 }
