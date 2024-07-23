@@ -1,4 +1,4 @@
-body:has(.editor-input) footer {
+body:has(.editor-input)>footer {
   visibility: hidden;
 }
 
