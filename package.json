@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.38",
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
@@ -29,7 +30,7 @@
     "@types/node": "20.14.11",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
-    "ai": "^3.2.27",
+    "ai": "^3.2.34",
     "eslint": "8.57.0",
     "eslint-config-next": "14.2.5",
     "htmr": "^1.0.2",

@@ -1,15 +1,18 @@
 import { StreamingTextResponse, OpenAIStream } from 'ai';
 import OpenAI from 'openai';
 import { match } from "ts-pattern";
-import { ChatCompletionMessageParam } from 'openai/resources/chat/completions.mjs';
+import { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
 export const runtime = "edge";
 
-const LLM_WORKER_URL = process.env.LLM_WORKER_URL;
+// const openai = createOpenAI({
+//   apiKey: process.env.CLOUDFLARE_API_KEY,
+//   baseURL: `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/v1`,
+// });
 
-const llama = new OpenAI({
-  apiKey: 'llama',
-  baseURL: process.env.OPENAI_BASE_URL,
+const openai = new OpenAI({
+  apiKey: process.env.CLOUDFLARE_API_KEY,
+  baseURL: `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/v1`,
 });
 
 export async function POST(req: Request) {
@@ -95,23 +98,18 @@ export async function POST(req: Request) {
       },
     ])
     .run() as ChatCompletionMessageParam[];
-  if (LLM_WORKER_URL) {
-    return fetch(LLM_WORKER_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages }),
-    });
-  }
 
-  const response = await llama.chat.completions.create({
-    model: "gpt-3.5-turbo",
-    stream: true,
+  // const result = await streamText({
+  //   model: openai("@cf/meta/llama-3.1-8b-instruct"),
+  //   messages,
+  // });
+
+  // return result.toAIStreamResponse();
+
+  const response = await openai.chat.completions.create({
     messages,
-    temperature: 0.7,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-    n: 1,
+    model: "@cf/meta/llama-3.1-8b-instruct",
+    stream: true,
   });
 
   // Convert the response into a friendly text-stream
