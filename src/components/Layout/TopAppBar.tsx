@@ -65,8 +65,8 @@ const TopAppBar: React.FC = () => {
     <>
       <HideOnScroll>
         <AppBar sx={{ displayPrint: "none" }}>
-          <Toolbar sx={{ minHeight: 64 }} id="app-toolbar">
-            <Link component={RouterLink} prefetch={false} href="/">
+          <Toolbar id="app-toolbar">
+            <Link component={RouterLink} prefetch={false} href="/" sx={{ textDecoration: "none" }}>
               <Box sx={{ display: "flex" }}>
                 <Image src={logo} alt="Logo" width={32} height={32} priority />
                 <Typography variant="h6" component="h1" sx={{ marginInlineStart: 2, color: "white" }}>Math Editor</Typography>
