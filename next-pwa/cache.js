@@ -6,14 +6,15 @@ module.exports = [
   {
     urlPattern: ({ url: { pathname }, sameOrigin }) => {
       if (!sameOrigin) return false;
-      if (pathname === "/") return true;
-      if (pathname === "/playground") return true;
-      if (pathname === "/tutorial") return true;
-      if (pathname === "/privacy") return true;
-      if (pathname === "/dashboard") return true;
-      if (pathname.startsWith("/new")) return true;
-      if (pathname.startsWith("/edit")) return true;
-      return false;
+      return [
+        "",
+        "playground",
+        "tutorial",
+        "privacy",
+        "dashboard",
+        "new",
+        "edit",
+      ].includes(pathname.split("/")[1]);
     },
     handler: "StaleWhileRevalidate",
     method: "GET",
@@ -57,7 +58,11 @@ module.exports = [
     },
   },
   {
-    urlPattern: () => true,
+    urlPattern: ({ url: { pathname }, sameOrigin }) => {
+      if (!sameOrigin) return false;
+      if (pathname.startsWith("/api")) return false;
+      return true;
+    },
     handler: "NetworkFirst",
     options: {
       cacheName: "others",

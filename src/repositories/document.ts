@@ -144,7 +144,7 @@ const findDocumentsByAuthorId = async (authorId: string) => {
 
   const documentIds = documents.map(document => `'${document.id}'`);
   const revisionSizesQuery = `SELECT id, pg_column_size("Revision".*) as size from "Revision" WHERE "documentId" IN (${documentIds})`;
-  const revisionSizes: { id: string, size: number }[] = await prisma.$queryRawUnsafe(revisionSizesQuery);
+  const revisionSizes: { id: string, size: number }[] = documentIds.length > 0 ? await prisma.$queryRawUnsafe(revisionSizesQuery) : [];
 
   const authoredDocuments = documents.map((document) => {
     const revisions = document.revisions.map(revision => {

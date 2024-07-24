@@ -16,19 +16,6 @@ body:has(.editor-input)>footer {
   outline: 0;
 }
 
-.editor-placeholder {
-  color: #999;
-  overflow: hidden;
-  position: absolute;
-  text-overflow: ellipsis;
-  top: 15px;
-  left: 10px;
-  font-size: 15px;
-  user-select: none;
-  display: inline-block;
-  pointer-events: none;
-}
-
 @media print {
   * {
     overflow: visible !important;

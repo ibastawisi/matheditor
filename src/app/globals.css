@@ -56,7 +56,6 @@ header {
 .editor-container {
   flex: 1;
   margin: 1rem auto;
-  font-size: 15px;
   position: relative;
   overflow: hidden;
 }
