@@ -550,7 +550,7 @@ iframe {
 
 .LexicalTheme__math>.ML__latex {
   user-select: auto;
-  padding: 6px 7px 6px 5px;
+  padding: 2px 3px 2px 1px;
   font-family: inherit;
 }
 
