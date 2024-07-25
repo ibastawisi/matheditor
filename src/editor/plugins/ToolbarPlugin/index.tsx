@@ -31,7 +31,6 @@ import { EditorDialogs, SetDialogsPayload, SET_DIALOGS_COMMAND } from './Dialogs
 import { getSelectedNode } from '@/editor/utils/getSelectedNode';
 import { SPEECH_TO_TEXT_COMMAND, SUPPORT_SPEECH_RECOGNITION } from '../SpeechToTextPlugin';
 import AITools from './Tools/AITools';
-import useOnlineStatus from '@/hooks/useOnlineStatus';
 import FontSelect from './Menus/FontSelect';
 import CodeTools from './Tools/CodeTools';
 
@@ -220,15 +219,12 @@ function ToolbarPlugin() {
     threshold: 100,
   });
 
-  const isOnline = useOnlineStatus();
-
   const showMathTools = $isMathNode(selectedNode);
   const showImageTools = $isImageNode(selectedNode);
   const showCodeTools = $isCodeNode(selectedNode);
   const showTableTools = !!selectedTable;
   const showTextTools = (!showMathTools && !showImageTools) || $isStickyNode(selectedNode);
   const showTextFormatTools = showTextTools && !showCodeTools;
-  const showAITools = !!isOnline;
 
   return (
     <>
@@ -255,7 +251,7 @@ function ToolbarPlugin() {
               {blockType in blockTypeToBlockName && <BlockFormatSelect blockType={blockType} editor={activeEditor} />}
               {showCodeTools && <CodeTools editor={activeEditor} node={selectedNode} />}
               {showTextFormatTools && <FontSelect editor={activeEditor} />}
-              {showAITools && <AITools editor={activeEditor} />}
+              <AITools editor={activeEditor} />
               {showTableTools && <TableTools editor={activeEditor} node={selectedTable} />}
               {showTextFormatTools && <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />}
             </>}

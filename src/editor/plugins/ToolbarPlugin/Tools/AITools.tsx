@@ -15,6 +15,7 @@ import { $isHorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
 import { $findMatchingParent } from "@/editor";
 import { $getTableCellNodeFromLexicalNode, $insertTableColumn__EXPERIMENTAL, $insertTableRow__EXPERIMENTAL, $isTableCellNode, $isTableNode, $isTableRowNode, TableCellHeaderStates } from "@/editor/nodes/TableNode";
 import { throttle } from "@/editor/utils/throttle";
+import useOnlineStatus from "@/hooks/useOnlineStatus";
 
 export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> }): JSX.Element {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -183,7 +184,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
         const shouldEndTable = delta.endsWith("\n\n");
         const shouTrimStartDelta = isEmptyCell || shouldInsertNewCell;
         const isTableRowDivider = /^(-|=)+\n*$/.test(delta.trim()) && !isPossiblyLatex;
-        
+
         if (isTableRowDivider) {
           const lastRow = currentRow?.getPreviousSibling();
           if (!$isTableRowNode(lastRow)) return;
@@ -316,6 +317,8 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
     );
   }, [editor, isLoading, stop]);
 
+  const isOnline = useOnlineStatus();
+
   return (
     <>
       <Button
@@ -333,6 +336,8 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
           width: { xs: 66, md: 'auto' },
           height: 40,
           '& .MuiButton-startIcon': { mr: { xs: 0, md: 1 } },
+          '& .MuiButton-endIcon': { mr: -1, ml: isLoading ? 1 : 0 },
+          '& .MuiButton-endIcon > svg': { fontSize: 24 },
         }}
         disabled={isLoading}
       >
@@ -369,6 +374,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
               else currentTarget.nextElementSibling?.focus();
             }, 0);
           }}
+          disabled={!isOnline || isLoading}
         >
           <TextField
             multiline
@@ -378,7 +384,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
             size="small"
             placeholder="What to do?"
             inputRef={promptRef}
-            autoFocus
+            autoFocus={isOnline}
             autoComplete="off"
             spellCheck="false"
             inputProps={{
@@ -387,31 +393,31 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
             sx={{ flexGrow: 1, '& .MuiInputBase-root': { flexGrow: 1 } }}
           />
         </MenuItem>
-        <MenuItem disabled={isLoading} onClick={handleContinue}>
+        <MenuItem disabled={!isOnline || isLoading} onClick={handleContinue}>
           <ListItemIcon>
             <PlayArrow />
           </ListItemIcon>
           <ListItemText>Continue Writing</ListItemText>
         </MenuItem>
-        <MenuItem disabled={isLoading || isCollapsed} onClick={handleRewrite}>
+        <MenuItem disabled={!isOnline || isLoading || isCollapsed} onClick={handleRewrite}>
           <ListItemIcon>
             <Autorenew />
           </ListItemIcon>
           <ListItemText>Rewrite</ListItemText>
         </MenuItem>
-        <MenuItem disabled={isLoading || isCollapsed} onClick={handleShorter}>
+        <MenuItem disabled={!isOnline || isLoading || isCollapsed} onClick={handleShorter}>
           <ListItemIcon>
             <UnfoldLess />
           </ListItemIcon>
           <ListItemText>Shorter</ListItemText>
         </MenuItem>
-        <MenuItem disabled={isLoading || isCollapsed} onClick={handleLonger}>
+        <MenuItem disabled={!isOnline || isLoading || isCollapsed} onClick={handleLonger}>
           <ListItemIcon>
             <UnfoldMore />
           </ListItemIcon>
           <ListItemText>Longer</ListItemText>
         </MenuItem>
-        <MenuItem disabled={isLoading || !isCollapsed} onClick={handleOCR}>
+        <MenuItem disabled={!isOnline || isLoading || !isCollapsed} onClick={handleOCR}>
           <ListItemIcon>
             <ImageSearch />
           </ListItemIcon>
