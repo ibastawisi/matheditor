@@ -575,6 +575,7 @@ iframe {
   background-color: #eeeeee;
   z-index: 1;
   white-space: nowrap;
+  clear: both;
 }
 
 [type='page-break']::after {
