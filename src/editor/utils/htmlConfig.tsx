@@ -4,7 +4,7 @@ import { $isImageNode } from "../nodes/ImageNode";
 import { $isStickyNode } from '../nodes/StickyNode';
 import { DOMExportOutput, ParagraphNode, isHTMLElement } from "lexical";
 import type { HTMLConfig, Klass, LexicalEditor, LexicalNode } from "lexical";
-
+import { LinkNode } from "@lexical/link";
 
 export const htmlConfig: HTMLConfig = {
   export: new Map<Klass<LexicalNode>, (editor: LexicalEditor, target: LexicalNode) => DOMExportOutput>([
@@ -62,5 +62,20 @@ export const htmlConfig: HTMLConfig = {
         return { element };
       },
     ],
+    [
+      LinkNode,
+      (editor, node) => {
+        const linkNode = node as LinkNode;
+        const output = linkNode.exportDOM(editor);
+        const element = output.element;
+        if (!element || !isHTMLElement(element)) return output;
+        const url = linkNode.getURL();
+        if (url.startsWith('#')) {
+          element.setAttribute('id', url.slice(1));
+          element.setAttribute('target', '_self');
+        }
+        return { element };
+      },
+    ]
   ]),
 };

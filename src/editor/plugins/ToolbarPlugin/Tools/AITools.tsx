@@ -12,7 +12,7 @@ import { Announcement } from "@/types";
 import { $isCodeNode } from "@lexical/code";
 import { $isListNode } from "@lexical/list";
 import { $isHorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
-import { $findMatchingParent } from "@/editor";
+import { $findMatchingParent } from "@lexical/utils";
 import { $getTableCellNodeFromLexicalNode, $insertTableColumn__EXPERIMENTAL, $insertTableRow__EXPERIMENTAL, $isTableCellNode, $isTableNode, $isTableRowNode, TableCellHeaderStates } from "@/editor/nodes/TableNode";
 import { throttle } from "@/editor/utils/throttle";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
