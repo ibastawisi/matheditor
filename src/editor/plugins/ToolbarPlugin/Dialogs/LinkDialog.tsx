@@ -28,9 +28,11 @@ function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkN
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
     if (name === 'rel') {
+      const nodeRel = node?.__rel ?? 'external';
       const defaultUrl = value === 'bookmark' ? getBookmarkUrl() : value === 'tag' ? '' : 'https://';
+      const url = value === nodeRel ? node?.__url ?? defaultUrl : defaultUrl;
       const target = value === 'external' ? '_blank' : '_self';
-      setFormData({ ...formData, [name]: value, url: defaultUrl, target });
+      setFormData({ ...formData, [name]: value, url, target });
     }
   }
 
@@ -78,7 +80,7 @@ function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkN
 
   const getBookmarkUrl = useCallback(() => {
     return editor.getEditorState().read(() => {
-      if (node) return node.getURL();
+      if (node && node.getRel() === 'bookmark') return node.getURL();
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return '#';
       const textContent = selection.isCollapsed() ? selection.focus.getNode().getTextContent() : selection.getTextContent();
