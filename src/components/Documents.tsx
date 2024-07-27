@@ -174,14 +174,14 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
         </Grid>
       </Grid>
       <Collapse timeout={1000} in={!(user && initialized)} unmountOnExit><Box sx={{ mb: 2 }}><UserCard user={user} showActions={!user} /></Box></Collapse>
-      <DocumentsGrid documents={sortedDocuments.length ? sortedDocuments : staticDocuments} initialized={initialized} user={user} />
+      <DocumentsGrid documents={documents.length ? sortedDocuments : staticDocuments} initialized={initialized} user={user} />
     </>
   )
 }
 
 const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initialized: boolean }> = memo(({ documents, user, initialized }) => {
   const dispatch = useDispatch();
-  const showSkeletons = !documents.length;
+  const showSkeletons = !initialized && !documents.length;
   const showEmpty = initialized && !documents.length;
   const pageSize = 12;
   const pages = Math.ceil(documents.length / pageSize);

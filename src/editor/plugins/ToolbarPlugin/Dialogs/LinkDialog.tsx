@@ -4,9 +4,9 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 import { SET_DIALOGS_COMMAND } from './commands';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
-import { Autocomplete, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, InputAdornment, InputLabel, ListItemIcon, ListItemText, MenuItem, Radio, RadioGroup, Select, TextField, useMediaQuery } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, InputAdornment, InputLabel, ListItemIcon, MenuItem, Radio, RadioGroup, Select, TextField, useMediaQuery } from '@mui/material';
 import { sanitizeUrl } from '@/editor/utils/url';
-import { TOGGLE_LINK_COMMAND, type LinkNode, type LinkAttributes } from '@lexical/link';
+import { TOGGLE_LINK_COMMAND, type LinkNode } from '@lexical/link';
 import { LinkOff } from '@mui/icons-material';
 import { $isImageNode } from '@/editor/nodes/ImageNode';
 import { $isMathNode } from '@/editor/nodes/MathNode';
@@ -88,10 +88,6 @@ function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkN
   const images = Object.values(nodeMap).filter($isImageNode);
   const formulas = Object.values(nodeMap).filter($isMathNode);
   const figures = [...images, ...formulas].map(node => node.exportDOM(editor).element).filter(el => el && isHTMLElement(el) && !!el.id) as HTMLElement[];
-
-
-  // const rootElement = editor.getRootElement();
-  // const figures = rootElement ? [...rootElement.querySelectorAll('.LexicalTheme__image, .LexicalTheme__math')].map(el => el.id).filter(Boolean) : [];
 
   const getBookmarkUrl = useCallback(() => {
     return editor.getEditorState().read(() => {

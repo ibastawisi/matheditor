@@ -11,7 +11,7 @@ const UserDocuments: React.FC<{ documents?: UserDocument[] }> = ({ documents }) 
   const showLoading = !documents;
   const showEmpty = !showLoading && !documents.length;
   const pageSize = 12;
-  const pages = Math.ceil(documents?.length ?? 0 / pageSize);
+  const pages = Math.ceil((documents?.length ?? 0) / pageSize);
   const [page, setPage] = useState(1);
   const handlePageChange = (_: any, value: number) => setPage(value);
   const sortedDocuments = sortDocuments(documents ?? [], sort);
