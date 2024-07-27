@@ -152,7 +152,8 @@
 }
 
 @media screen {
-  [theme=dark] .image-control-wrapper>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath) {
+  [theme=dark] .image-control-wrapper>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
+  [theme=dark] .LexicalTheme__image[data-type='graph'] .image-control-wrapper>img {
     filter: invert(93%) hue-rotate(180deg);
-  }  
+  }
 }

@@ -670,8 +670,7 @@ iframe {
   user-select: none;
 }
 
-.headingAnchor__container {
-}
+.headingAnchor__container {}
 
 /* direction */
 
@@ -775,7 +774,8 @@ iframe {
     background-color: rgba(255, 255, 255, 0.08);
   }
 
-  [theme=dark] .LexicalTheme__image>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath) {
+  [theme=dark] .LexicalTheme__image>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
+  [theme=dark] .LexicalTheme__image[data-type='graph']>img {
     filter: invert(93%) hue-rotate(180deg);
   }
 }
