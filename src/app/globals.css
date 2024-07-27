@@ -121,6 +121,20 @@ html:not([theme=dark]) .MuiFab-root.MuiFab-extended {
   color: var(--mui-palette-text-primary);
 }
 
+.editor-container [id] {
+  scroll-margin-top: 1rem;
+}
+
+body:has(#app-toolbar) .editor-container [id] {
+  scroll-margin-top: calc(56px + 1rem);
+}
+
+@media (min-width: 600px) {
+  body:has(#app-toolbar) .editor-container [id] {
+    scroll-margin-top: calc(64px + 1rem);
+  }
+}
+
 @media screen {
   [theme=dark] .editor-toolbar {
     background-color: #121212;
@@ -128,7 +142,7 @@ html:not([theme=dark]) .MuiFab-root.MuiFab-extended {
 
   [theme=dark] .splash-screen {
     background-color: #121212;
-  }  
+  }
 }
 
 @media print {

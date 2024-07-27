@@ -70,7 +70,8 @@ export const htmlConfig: HTMLConfig = {
         const element = output.element;
         if (!element || !isHTMLElement(element)) return output;
         const url = linkNode.getURL();
-        if (url.startsWith('#')) {
+        const rel = linkNode.getRel();
+        if (rel === 'bookmark' || rel === 'tag') {
           element.setAttribute('id', url.slice(1));
           element.setAttribute('target', '_self');
         }

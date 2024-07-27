@@ -3,6 +3,7 @@ import { DecoratorNode, } from 'lexical';
 import { createRef } from 'react';
 import { convertLatexToMarkup, type MathfieldElement } from 'mathlive';
 import MathComponent from './MathComponent';
+import { $isEditorIsNestedEditor } from '@lexical/utils';
 
 export type SerializedMathNode = Spread<{ type: 'math'; value: string; style: string }, SerializedLexicalNode>;
 
@@ -52,7 +53,7 @@ export class MathNode extends DecoratorNode<JSX.Element> {
     return { element };
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
+  createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
     const dom = document.createElement('span');
     const style = this.__style;
     if (style !== '') {
@@ -62,6 +63,11 @@ export class MathNode extends DecoratorNode<JSX.Element> {
     if (className !== undefined) {
       dom.className = className;
     }
+    const nodeMap = Object.fromEntries(editor.getEditorState()._nodeMap);
+    const mathNodes = Object.values(nodeMap).filter($isMathNode);
+    if ($isEditorIsNestedEditor(editor)) return dom;
+    const index = mathNodes.findIndex((node) => node.getKey() === this.getKey());
+    dom.id = `formula-${index + 1}`;
     return dom;
   }
 

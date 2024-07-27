@@ -89,7 +89,7 @@ export class SketchNode extends ImageNode {
   }
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
-    const element = super.createDOM(editor._config);
+    const element = super.createDOM(editor._config, editor);
     if (element && isHTMLElement(element)) {
       const html = decodeURIComponent(this.__src.split(',')[1]);
       element.innerHTML = html.replace(/<!-- payload-start -->\s*(.+?)\s*<!-- payload-end -->/, "");

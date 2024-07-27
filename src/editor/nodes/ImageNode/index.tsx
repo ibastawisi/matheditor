@@ -23,7 +23,6 @@ import {
   SerializedLexicalNode,
   Spread,
   createEditor,
-  isHTMLElement,
 } from 'lexical';
 
 import { DecoratorNode } from 'lexical';
@@ -32,6 +31,7 @@ import { $generateHtmlFromNodes } from "@lexical/html";
 
 import ImageComponent from './ImageComponent';
 import htmr from 'htmr';
+
 export interface ImagePayload {
   altText?: string;
   height: number;
@@ -258,7 +258,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     $setSelection(nodeSelection);
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
+  createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
     const figure = document.createElement('figure');
     const theme = config.theme;
     const className = theme.image;
@@ -268,6 +268,11 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     if (this.__style) {
       figure.style.cssText = this.__style;
     }
+    this.__caption._parentEditor = editor;
+    const nodeMap = Object.fromEntries(editor.getEditorState()._nodeMap);
+    const images = Object.values(nodeMap).filter($isImageNode);
+    const index = images.findIndex((node) => node.getKey() === this.getKey());
+    figure.id = `figure-${index + 1}`;
     return figure;
   }
 

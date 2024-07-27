@@ -85,13 +85,6 @@
 .LexicalTheme__link {
   text-decoration: none;
   outline: none;
-  scroll-margin-top: calc(56px + 1rem);
-}
-
-@media (min-width: 600px) {
-  .LexicalTheme__link {
-    scroll-margin-top: calc(64px + 1rem);
-  }
 }
 
 .LexicalTheme__link:hover {

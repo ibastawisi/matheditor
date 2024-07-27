@@ -108,7 +108,7 @@ export class IFrameNode extends ImageNode {
   }
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
-    const element = super.createDOM(editor._config);
+    const element = super.createDOM(editor._config, editor);
     if (!element) return { element };
     const iframe = document.createElement('iframe');
     iframe.setAttribute('data-lexical-iFrame', this.__src);

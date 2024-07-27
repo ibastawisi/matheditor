@@ -8,6 +8,7 @@
 
 import type {
   DOMExportOutput,
+  EditorConfig,
   LexicalEditor,
   LexicalNode,
   NodeKey,
@@ -103,7 +104,8 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
     return { element };
   };
 
-  createDOM(): HTMLElement {
+  createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
+    this.__editor._parentEditor = editor;
     const div = document.createElement('div');
     div.className = 'sticky-note-wrapper';
     return div;
