@@ -1,35 +1,43 @@
 "use client"
-import { $getSelection, $isRangeSelection, $setSelection, LexicalEditor } from 'lexical';
+import { $getSelection, $isRangeSelection, $setSelection, isHTMLElement, LexicalEditor } from 'lexical';
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { SET_DIALOGS_COMMAND } from './commands';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
-import { Autocomplete, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Radio, RadioGroup, TextField, useMediaQuery } from '@mui/material';
+import { Autocomplete, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, InputAdornment, InputLabel, ListItemIcon, ListItemText, MenuItem, Radio, RadioGroup, Select, TextField, useMediaQuery } from '@mui/material';
 import { sanitizeUrl } from '@/editor/utils/url';
 import { TOGGLE_LINK_COMMAND, type LinkNode, type LinkAttributes } from '@lexical/link';
 import { LinkOff } from '@mui/icons-material';
+import { $isImageNode } from '@/editor/nodes/ImageNode';
+import { $isMathNode } from '@/editor/nodes/MathNode';
 
 function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkNode | null; open: boolean }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const [formData, setFormData] = useState({ url: 'https://', rel: 'external', target:'_blank' });
-  
+  const [formData, setFormData] = useState({ url: '', rel: 'external', target: '_blank' });
+
   useEffect(() => {
     if (!open) return;
     const payload = {
-      url: node?.__url ?? 'https://',
+      url: decodeURIComponent(node?.__url.replace(/^https?:\/\//, '').replace(/^#/, '') ?? ''),
       rel: node?.__rel ?? 'external',
       target: node?.__target ?? '_blank',
     }
     setFormData(payload);
   }, [node, open]);
 
+  const setUrl = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    const url = value.trim().toLowerCase().replace(/\s+/g, '-').replace(/^https?:\/\//, '').replace(/^#/, '');
+    setFormData({ ...formData, url });
+  }
+
   const updateFormData = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
     if (name === 'rel') {
       const nodeRel = node?.__rel ?? 'external';
-      const defaultUrl = value === 'bookmark' ? getBookmarkUrl() : value === 'tag' ? '' : 'https://';
+      const defaultUrl = value === 'bookmark' ? getBookmarkUrl() : value === 'tag' ? '' : '';
       const url = value === nodeRel ? node?.__url ?? defaultUrl : defaultUrl;
       const target = value === 'external' ? '_blank' : '_self';
       setFormData({ ...formData, [name]: value, url, target });
@@ -38,15 +46,16 @@ function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkN
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if (!node) editor.dispatchCommand(TOGGLE_LINK_COMMAND, {
-      url: sanitizeUrl(formData.url),
-      rel: formData.rel,
-      target: formData.target,
-    });
+    const encoded = encodeURIComponent(sanitizeUrl(formData.url));
+    const rel = formData.rel;
+    const url = rel === 'external' ? `https://${encoded}` : `#${encoded}`;
+    const target = formData.target;
+
+    if (!node) editor.dispatchCommand(TOGGLE_LINK_COMMAND, { url, rel, target, });
     else editor.update(() => {
-      node.setURL(sanitizeUrl(formData.url))
-      node.setRel(formData.rel);
-      node.setTarget(formData.target);
+      node.setURL(url);
+      node.setRel(rel);
+      node.setTarget(target);
     });
     closeDialog();
     setTimeout(() => { editor.focus() }, 0);
@@ -75,16 +84,22 @@ function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkN
 
   useFixedBodyScroll(open);
 
-  const rootElement = editor.getRootElement();
-  const figures = rootElement ? [...rootElement.querySelectorAll('.LexicalTheme__image, .LexicalTheme__math')].map(el => el.id).filter(Boolean) : [];
+  const nodeMap = Object.fromEntries(editor.getEditorState()._nodeMap);
+  const images = Object.values(nodeMap).filter($isImageNode);
+  const formulas = Object.values(nodeMap).filter($isMathNode);
+  const figures = [...images, ...formulas].map(node => node.exportDOM(editor).element).filter(el => el && isHTMLElement(el) && !!el.id) as HTMLElement[];
+
+
+  // const rootElement = editor.getRootElement();
+  // const figures = rootElement ? [...rootElement.querySelectorAll('.LexicalTheme__image, .LexicalTheme__math')].map(el => el.id).filter(Boolean) : [];
 
   const getBookmarkUrl = useCallback(() => {
     return editor.getEditorState().read(() => {
-      if (node && node.getRel() === 'bookmark') return node.getURL();
+      if (node && node.getRel() === 'bookmark') return decodeURIComponent(node.getURL().replace(/^https?:\/\//, '').replace(/^#/, ''));
       const selection = $getSelection();
-      if (!$isRangeSelection(selection)) return '#';
+      if (!$isRangeSelection(selection)) return '';
       const textContent = selection.isCollapsed() ? selection.focus.getNode().getTextContent() : selection.getTextContent();
-      return `#${textContent.trim().replace(/\s+/g, '-').toLowerCase()}`;
+      return textContent.trim().toLowerCase().replace(/\s+/g, '-').replace(/^https?:\/\//, '').replace(/^#/, '');
     });
   }, [editor, node]);
 
@@ -99,24 +114,70 @@ function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkN
       Insert Link
     </DialogTitle>
     <DialogContent>
-      <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+      <Box component="form" onSubmit={handleSubmit} noValidate>
         <RadioGroup row aria-label="orientation" name="rel" value={formData.rel} onChange={updateFormData}>
           <FormControlLabel value="external" control={<Radio />} label="External" />
           <FormControlLabel value="bookmark" control={<Radio />} label="Self" />
           <FormControlLabel value="tag" control={<Radio />} label="Figure" />
         </RadioGroup>
-        {formData.rel === "tag" ?
-          <Autocomplete size='small'
-            value={formData.rel === 'tag' ? formData.url.slice(1) : ''}
-            options={figures}
-            renderInput={(params) => <TextField {...params} label="Figure" margin='normal' autoFocus />}
-            onChange={(event, value) => {
-              setFormData({ ...formData, url: value ? `#${value}` : '' });
+        {formData.rel === "tag" &&
+          <FormControl fullWidth margin='normal'>
+            <InputLabel>Figure</InputLabel>
+            <Select
+              size="small"
+              fullWidth
+              value={formData.url}
+              onChange={setUrl as any}
+              label="Figure"
+              name="url"
+              autoFocus
+              startAdornment={<InputAdornment position="start">#</InputAdornment>}
+            >
+              {figures.map((figure) => (
+                <MenuItem key={figure.id} value={figure.id}>
+                  <ListItemIcon
+                    sx={{ '& figure': { flexDirection: 'row', '& img, & svg':{width: 40} }, '& figcaption': { justifyContent: 'center', width: 'auto', padding: 0 },}}
+                    dangerouslySetInnerHTML={{ __html: figure.outerHTML }}
+                  />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        }
+        {formData.rel === "bookmark" &&
+          <TextField
+            margin='normal'
+            size="small"
+            fullWidth
+            value={formData.url}
+            onChange={setUrl}
+            label="URL"
+            name="url"
+            autoFocus
+            autoComplete='off'
+            InputProps={{
+              startAdornment: <InputAdornment position="start">#</InputAdornment>,
             }}
           />
-          :
-          <TextField margin='normal' size="small" fullWidth value={formData.url} onChange={updateFormData} label="URL" name="url" autoFocus />}
-        <Button hidden type="submit" />
+        }
+        {formData.rel === "external" &&
+          <TextField
+            margin='normal'
+            size="small"
+            fullWidth
+            value={formData.url}
+            onChange={setUrl}
+            label="URL"
+            name="url"
+            autoFocus
+            autoComplete='off'
+            prefix='https://'
+            InputProps={{
+              startAdornment: <InputAdornment position="start">https://</InputAdornment>,
+            }}
+          />
+        }
+        <button hidden type="submit">Submit</button>
       </Box>
     </DialogContent>
     <DialogActions>
