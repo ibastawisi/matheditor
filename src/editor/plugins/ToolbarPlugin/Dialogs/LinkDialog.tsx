@@ -12,12 +12,14 @@ import { LinkOff } from '@mui/icons-material';
 function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkNode | null; open: boolean }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const [formData, setFormData] = useState({ url: 'https://', rel: 'external' });
+  const [formData, setFormData] = useState({ url: 'https://', rel: 'external', target:'_blank' });
+  
   useEffect(() => {
     if (!open) return;
     const payload = {
       url: node?.__url ?? 'https://',
-      rel: node?.__rel ?? 'external'
+      rel: node?.__rel ?? 'external',
+      target: node?.__target ?? '_blank',
     }
     setFormData(payload);
   }, [node, open]);
@@ -27,7 +29,8 @@ function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkN
     setFormData({ ...formData, [name]: value });
     if (name === 'rel') {
       const defaultUrl = value === 'bookmark' ? getBookmarkUrl() : value === 'tag' ? '' : 'https://';
-      setFormData({ ...formData, [name]: value, url: defaultUrl });
+      const target = value === 'external' ? '_blank' : '_self';
+      setFormData({ ...formData, [name]: value, url: defaultUrl, target });
     }
   }
 
@@ -36,10 +39,12 @@ function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkN
     if (!node) editor.dispatchCommand(TOGGLE_LINK_COMMAND, {
       url: sanitizeUrl(formData.url),
       rel: formData.rel,
+      target: formData.target,
     });
     else editor.update(() => {
       node.setURL(sanitizeUrl(formData.url))
       node.setRel(formData.rel);
+      node.setTarget(formData.target);
     });
     closeDialog();
     setTimeout(() => { editor.focus() }, 0);
@@ -65,6 +70,7 @@ function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkN
     editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
     closeDialog();
   }
+
   useFixedBodyScroll(open);
 
   const rootElement = editor.getRootElement();

@@ -74,6 +74,8 @@ export const htmlConfig: HTMLConfig = {
         if (rel === 'bookmark' || rel === 'tag') {
           element.setAttribute('id', url.slice(1));
           element.setAttribute('target', '_self');
+        } else {
+          element.setAttribute('target', '_blank');
         }
         return { element };
       },

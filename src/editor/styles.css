@@ -57,3 +57,8 @@ body:has(.excalidraw.excalidraw-modal-container) {
     caret-color: #eee;
   }
 }
+
+.editor-input .LexicalTheme__link:hover {
+  text-decoration: none;
+  cursor: text;
+}
