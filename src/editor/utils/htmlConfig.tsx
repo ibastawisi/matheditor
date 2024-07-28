@@ -71,11 +71,9 @@ export const htmlConfig: HTMLConfig = {
         if (!element || !isHTMLElement(element)) return output;
         const url = linkNode.getURL();
         const rel = linkNode.getRel();
-        if (rel === 'bookmark' || rel === 'tag') {
+        element.setAttribute('target', rel === 'external' ? '_blank': '_self');
+        if (rel === 'bookmark') {
           element.setAttribute('id', url.slice(1));
-          element.setAttribute('target', '_self');
-        } else {
-          element.setAttribute('target', '_blank');
         }
         return { element };
       },

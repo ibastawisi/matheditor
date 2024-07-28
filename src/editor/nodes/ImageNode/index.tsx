@@ -259,21 +259,21 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   }
 
   createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
-    const figure = document.createElement('figure');
+    const element = document.createElement('figure');
     const theme = config.theme;
     const className = theme.image;
     if (className !== undefined) {
-      figure.className = className;
+      element.className = className;
     }
     if (this.__style) {
-      figure.style.cssText = this.__style;
+      element.style.cssText = this.__style;
     }
     this.__caption._parentEditor = editor;
     const nodeMap = Object.fromEntries(editor.getEditorState()._nodeMap);
-    const images = Object.values(nodeMap).filter($isImageNode);
-    const index = images.findIndex((node) => node.getKey() === this.getKey());
-    figure.id = `figure-${index + 1}`;
-    return figure;
+    const nodes = Object.values(nodeMap).filter($isImageNode);
+    const index = nodes.findIndex((node) => node.getKey() === this.getKey());
+    element.id = `figure-${index + 1}`;
+    return element;
   }
 
   updateDOM(prevNode: ImageNode): boolean {

@@ -14,7 +14,7 @@ import type {
   NodeKey,
 } from 'lexical';
 
-import { isHTMLElement } from '@lexical/utils';
+import { isHTMLElement, $isEditorIsNestedEditor } from '@lexical/utils';
 import {
   $applyNodeReplacement,
 } from 'lexical';
@@ -67,7 +67,7 @@ export class TableNode extends LexicalTableNode {
     };
   }
 
-  createDOM(config: EditorConfig, editor?: LexicalEditor): HTMLElement {
+  createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
     const element = super.createDOM(config, editor);
 
     const formatType = this.getFormatType();
@@ -80,6 +80,11 @@ export class TableNode extends LexicalTableNode {
     const float = styles.float;
     element.style.float = float;
 
+    const nodeMap = Object.fromEntries(editor.getEditorState()._nodeMap);
+    const nodes = Object.values(nodeMap).filter($isTableNode);
+    if ($isEditorIsNestedEditor(editor)) return element;
+    const index = nodes.findIndex((node) => node.getKey() === this.getKey());
+    element.id = `table-${index + 1}`;
     return element;
   }
 

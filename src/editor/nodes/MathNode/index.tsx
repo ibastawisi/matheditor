@@ -54,21 +54,21 @@ export class MathNode extends DecoratorNode<JSX.Element> {
   }
 
   createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
-    const dom = document.createElement('span');
+    const element = document.createElement('span');
     const style = this.__style;
     if (style !== '') {
-      dom.style.cssText = style;
+      element.style.cssText = style;
     }
     const className = config.theme.math;
     if (className !== undefined) {
-      dom.className = className;
+      element.className = className;
     }
     const nodeMap = Object.fromEntries(editor.getEditorState()._nodeMap);
-    const mathNodes = Object.values(nodeMap).filter($isMathNode);
-    if ($isEditorIsNestedEditor(editor)) return dom;
-    const index = mathNodes.findIndex((node) => node.getKey() === this.getKey());
-    dom.id = `formula-${index + 1}`;
-    return dom;
+    const nodes = Object.values(nodeMap).filter($isMathNode);
+    if ($isEditorIsNestedEditor(editor)) return element;
+    const index = nodes.findIndex((node) => node.getKey() === this.getKey());
+    element.id = `formula-${index + 1}`;
+    return element;
   }
 
   updateDOM(prevNode: MathNode, dom: HTMLElement): boolean {

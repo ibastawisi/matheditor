@@ -10,6 +10,7 @@ import { TOGGLE_LINK_COMMAND, type LinkNode } from '@lexical/link';
 import { LinkOff } from '@mui/icons-material';
 import { $isImageNode } from '@/editor/nodes/ImageNode';
 import { $isMathNode } from '@/editor/nodes/MathNode';
+import { $isTableNode } from '@/editor/nodes/TableNode';
 
 function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkNode | null; open: boolean }) {
   const theme = useTheme();
@@ -38,7 +39,7 @@ function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkN
     if (name === 'rel') {
       const nodeRel = node?.__rel ?? 'external';
       const defaultUrl = value === 'bookmark' ? getBookmarkUrl() : value === 'tag' ? '' : '';
-      const url = value === nodeRel ? node?.__url ?? defaultUrl : defaultUrl;
+      const url = value === nodeRel ? node?.__url.replace(/^https?:\/\//, '').replace(/^#/, '') ?? defaultUrl : defaultUrl;
       const target = value === 'external' ? '_blank' : '_self';
       setFormData({ ...formData, [name]: value, url, target });
     }
@@ -84,10 +85,13 @@ function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkN
 
   useFixedBodyScroll(open);
 
-  const nodeMap = Object.fromEntries(editor.getEditorState()._nodeMap);
-  const images = Object.values(nodeMap).filter($isImageNode);
-  const formulas = Object.values(nodeMap).filter($isMathNode);
-  const figures = [...images, ...formulas].map(node => node.exportDOM(editor).element).filter(el => el && isHTMLElement(el) && !!el.id) as HTMLElement[];
+  const editorState = editor.getEditorState();
+  const figures = editorState.read(() => {
+    const nodes = Object.values(Object.fromEntries(editorState._nodeMap)).filter(node => $isImageNode(node) || $isMathNode(node) || $isTableNode(node));
+    const figures = nodes.map(node => node.exportDOM(editor).element).filter(el => el && isHTMLElement(el) && !!el.id) as HTMLElement[];
+    const tables = nodes.filter($isTableNode).map(node => editor.getElementByKey(node.getKey())).filter(el => el && isHTMLElement(el) && !!el.id) as HTMLElement[];
+    return figures.map(el => tables.find(table => el.id === table.id)?.cloneNode(true) ?? el) as HTMLElement[];
+  });
 
   const getBookmarkUrl = useCallback(() => {
     return editor.getEditorState().read(() => {
@@ -132,7 +136,16 @@ function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkN
               {figures.map((figure) => (
                 <MenuItem key={figure.id} value={figure.id}>
                   <ListItemIcon
-                    sx={{ '& figure': { flexDirection: 'row', '& img, & svg':{width: 40} }, '& figcaption': { justifyContent: 'center', width: 'auto', padding: 0 },}}
+                    sx={{
+                      '& figure': {
+                        flexDirection: 'row',
+                        '& img, & svg': { width: 40 }
+                      },
+                      '& figcaption': {
+                        justifyContent: 'center', width: 'auto', padding: 0
+                      },
+                      '& table': { tableLayout: 'auto', margin: 0, float: 'none' }
+                    }}
                     dangerouslySetInnerHTML={{ __html: figure.outerHTML }}
                   />
                 </MenuItem>
