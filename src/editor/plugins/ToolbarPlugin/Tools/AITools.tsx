@@ -65,7 +65,6 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
     if (!isSubmit) return;
     e.preventDefault();
     handleClose();
-    editor.focus();
     editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
@@ -82,7 +81,6 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
 
   const handleRewrite = async () => {
     handleClose();
-    editor.focus();
     editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
@@ -93,7 +91,6 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
 
   const handleShorter = async () => {
     handleClose();
-    editor.focus();
     editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
@@ -104,7 +101,6 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
 
   const handleLonger = async () => {
     handleClose();
-    editor.focus();
     editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
@@ -115,7 +111,6 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
 
   const handleContinue = async () => {
     handleClose();
-    editor.focus();
     editor.update(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;

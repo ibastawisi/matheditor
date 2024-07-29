@@ -1,14 +1,13 @@
 "use client"
-import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
+import type { LexicalEditor } from 'lexical';
 import { INSERT_TABLE_COMMAND } from '@/editor/nodes/TableNode';
 import React, { memo, useState } from 'react';
 import { SET_DIALOGS_COMMAND } from './commands';
-import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, IconButton, Switch, TextField, useMediaQuery } from '@mui/material';
 import { Remove, Add } from '@mui/icons-material';
 
-function TableDialog({ editor, open }: { editor: LexicalEditor, open: boolean }) {
+function TableDialog({ editor }: { editor: LexicalEditor }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [formData, setFormData] = useState({ rows: '3', columns: '3', includeHeaders: true });
@@ -34,22 +33,12 @@ function TableDialog({ editor, open }: { editor: LexicalEditor, open: boolean })
     setFormData({ rows: '3', columns: '3', includeHeaders: true });
   }
 
-  const restoreSelection = () => {
-    editor.getEditorState().read(() => {
-      const selection = $getSelection()?.clone() ?? null;
-      editor.update(() => $setSelection(selection));
-    })
-  }
-
   const handleClose = () => {
     closeDialog();
-    restoreSelection();
   }
 
-  useFixedBodyScroll(open);
-
   return <Dialog
-    open={open}
+    open
     fullScreen={fullScreen}
     onClose={handleClose}
     aria-labelledby="table-dialog-title"

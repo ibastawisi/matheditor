@@ -65,7 +65,6 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     (fontSize: number) => {
       setFontSize(fontSize + 'px');
       applyStyleMath({ 'font-size': fontSize + 'px' });
-      // restoreSelection();
     },
     [applyStyleMath],
   );
@@ -86,9 +85,20 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
   }, [applyStyleMath, node]);
 
   const [open, setOpen] = useState(false);
-  const openEditDialog = useCallback(() => {
+  const mathfieldValueRef = useRef<HTMLInputElement>();
+  const openEditDialog = () => {
     setOpen(true);
-  }, []);
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    setTimeout(() => {
+      const textarea = mathfieldValueRef.current;
+      if (!textarea) return;
+      textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    }, 0);
+  }, [open]);
+
   const handleClose = () => {
     setOpen(false);
     setValue(null);
@@ -111,6 +121,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
   }, [node]);
 
   const updateFormData = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    e.target.focus();
     setFormData({ ...formData, [e.target.name]: e.target.value });
     if (mathfieldRef.current) {
       mathfieldRef.current.setValue(e.target.value);
@@ -192,7 +203,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
           <form onSubmit={handleEdit}>
             <DialogTitle>Edit LaTeX</DialogTitle>
             <DialogContent >
-              <TextField margin="normal" size="small" fullWidth multiline id="value" value={formData.value} onChange={updateFormData} label="Latex Value" name="value" autoFocus />
+              <TextField margin="normal" size="small" fullWidth multiline id="value" value={formData.value} onChange={updateFormData} label="Latex Value" name="value" autoFocus inputRef={mathfieldValueRef} />
               <Box sx={{ display: "flex", flexDirection: "column" }}>
                 <Typography variant="button" component="h3" color="text.secondary" sx={{ my: 1 }}>
                   Preview

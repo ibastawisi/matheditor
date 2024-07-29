@@ -1,8 +1,7 @@
-import useFixedBodyScroll from "@/hooks/useFixedBodyScroll";
 import { UploadFile, ContentPaste } from "@mui/icons-material";
 import { Dialog, DialogTitle, DialogContent, Button, TextField, LinearProgress, DialogActions } from "@mui/material";
 import { $createParagraphNode, $createTextNode, $insertNodes, LexicalEditor } from "lexical";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { SET_DIALOGS_COMMAND } from "./commands";
 import { Announcement } from "@/types";
 import { ANNOUNCE_COMMAND } from "@/editor/commands";
@@ -17,14 +16,9 @@ const ACCEPTABLE_IMAGE_TYPES = [
   'image/webp',
 ];
 
-const OCRDialog = ({ open, editor }: { open: boolean, editor: LexicalEditor }) => {
+const OCRDialog = ({ editor }: {  editor: LexicalEditor }) => {
   const [formData, setFormData] = useState({ value: "" });
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!open) return;
-    setFormData({ value: "" });
-  }, [open]);
 
   const updateFormData = async (event: any) => {
     const { name, value } = event.target;
@@ -106,13 +100,10 @@ const OCRDialog = ({ open, editor }: { open: boolean, editor: LexicalEditor }) =
       $insertNodes(nodes)
     })
     closeDialog();
-    setTimeout(() => { editor.focus() }, 0);
   };
 
-  useFixedBodyScroll(open);
-
   return (
-    <Dialog open={open} maxWidth="md" sx={{ '& .MuiDialog-paper': { width: '100%' } }} onClose={closeDialog}>
+    <Dialog open maxWidth="md" sx={{ '& .MuiDialog-paper': { width: '100%' } }} onClose={closeDialog}>
       <DialogTitle>Image to Text</DialogTitle>
       <DialogContent>
         <Button variant="outlined" sx={{ my: 1, mr: 1 }} startIcon={<UploadFile />} component="label" disabled={loading}>

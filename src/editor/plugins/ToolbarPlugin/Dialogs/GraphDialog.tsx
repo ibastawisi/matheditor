@@ -1,16 +1,14 @@
 "use client"
-import { LexicalEditor, $setSelection } from 'lexical';
+import type { LexicalEditor } from 'lexical';
 import { INSERT_GRAPH_COMMAND, InsertGraphPayload } from '@/editor/plugins/GraphPlugin';
 import { GraphNode } from '@/editor/nodes/GraphNode';
 import { memo, useEffect, useId, useRef, useState } from 'react';
-import { $getSelection } from 'lexical';
 import { SET_DIALOGS_COMMAND } from './commands';
 import Script from 'next/script';
 import { getImageDimensions } from '@/editor/nodes/utils';
-import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { Dialog, DialogContent, Box, CircularProgress, DialogActions, Button } from '@mui/material';
 
-function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: GraphNode | null; open: boolean; }) {
+function GraphDialog({ editor, node }: { editor: LexicalEditor, node: GraphNode | null; }) {
   const [loading, setLoading] = useState(true);
   const key = useId();
 
@@ -44,12 +42,10 @@ function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: Grap
     const app = (window as any).ggbApplet;
     const src = await getBase64Src();
     const value = app.getBase64();
-    restoreSelection();
     const dimensions = await getImageDimensions(src);
     const showCaption = node?.getShowCaption() ?? true;
     insertGraph({ src, value, showCaption, ...dimensions });
     closeDialog();
-    setTimeout(() => { editor.focus() }, 0);
   };
 
   const getBase64Src = () => new Promise<string>((resolve, reject) => {
@@ -75,24 +71,13 @@ function GraphDialog({ editor, node, open }: { editor: LexicalEditor, node: Grap
 
   const closeDialog = () => {
     editor.dispatchCommand(SET_DIALOGS_COMMAND, { graph: { open: false } })
-    setLoading(true);
-  }
-
-  const restoreSelection = () => {
-    editor.getEditorState().read(() => {
-      const selection = $getSelection()?.clone() ?? null;
-      editor.update(() => $setSelection(selection));
-    })
   }
 
   const handleClose = () => {
     closeDialog();
-    restoreSelection();
   }
 
-  useFixedBodyScroll(open);
-
-  return <Dialog open={open} fullScreen={true} onClose={handleClose} disableEscapeKeyDown>
+  return <Dialog open fullScreen onClose={handleClose} disableEscapeKeyDown>
     <DialogContent sx={{ p: 0, overflow: "hidden" }}>
       {loading && <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>}
       <GeogebraApplet parameters={parameters} />

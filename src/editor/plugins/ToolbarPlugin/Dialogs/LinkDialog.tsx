@@ -1,8 +1,7 @@
 "use client"
-import { $getSelection, $isRangeSelection, $setSelection, isHTMLElement, LexicalEditor } from 'lexical';
+import { $getSelection, $isRangeSelection, isHTMLElement, LexicalEditor } from 'lexical';
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { SET_DIALOGS_COMMAND } from './commands';
-import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, InputAdornment, InputLabel, ListItemIcon, MenuItem, Radio, RadioGroup, Select, TextField, useMediaQuery } from '@mui/material';
 import { sanitizeUrl } from '@/editor/utils/url';
@@ -12,20 +11,19 @@ import { $isImageNode } from '@/editor/nodes/ImageNode';
 import { $isMathNode } from '@/editor/nodes/MathNode';
 import { $isTableNode } from '@/editor/nodes/TableNode';
 
-function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkNode | null; open: boolean }) {
+function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | null }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [formData, setFormData] = useState({ url: '', rel: 'external', target: '_blank' });
 
   useEffect(() => {
-    if (!open) return;
     const payload = {
       url: decodeURIComponent(node?.__url.replace(/^https?:\/\//, '').replace(/^#/, '') ?? ''),
       rel: node?.__rel ?? 'external',
       target: node?.__target ?? '_blank',
     }
     setFormData(payload);
-  }, [node, open]);
+  }, [node]);
 
   const setUrl = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -66,24 +64,14 @@ function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkN
     editor.dispatchCommand(SET_DIALOGS_COMMAND, { link: { open: false } })
   }
 
-  const restoreSelection = () => {
-    editor.getEditorState().read(() => {
-      const selection = $getSelection()?.clone() ?? null;
-      editor.update(() => $setSelection(selection));
-    })
-  }
-
   const handleClose = () => {
     closeDialog();
-    restoreSelection();
   }
 
   const handleDelete = () => {
     editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
     closeDialog();
   }
-
-  useFixedBodyScroll(open);
 
   const editorState = editor.getEditorState();
   const figures = editorState.read(() => {
@@ -104,7 +92,7 @@ function LinkDialog({ editor, node, open }: { editor: LexicalEditor, node: LinkN
   }, [editor, node]);
 
   return <Dialog
-    open={open}
+    open
     fullScreen={fullScreen}
     onClose={handleClose}
     aria-labelledby="link-dialog-title"

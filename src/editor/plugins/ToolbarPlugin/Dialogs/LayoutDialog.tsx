@@ -1,9 +1,8 @@
 "use client"
-import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
+import type { LexicalEditor } from 'lexical';
 import { INSERT_LAYOUT_COMMAND } from '@/editor/plugins/LayoutPlugin';
 import React, { memo } from 'react';
 import { SET_DIALOGS_COMMAND } from './commands';
-import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, useMediaQuery } from '@mui/material';
 
@@ -15,7 +14,7 @@ const LAYOUTS = [
   { label: '4 columns (equal width)', value: '1fr 1fr 1fr 1fr' },
 ];
 
-function LayoutDialog({ editor, open }: { editor: LexicalEditor, open: boolean }) {
+function LayoutDialog({ editor }: { editor: LexicalEditor }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [formData, setFormData] = React.useState({ layout: LAYOUTS[0].value });
@@ -24,29 +23,18 @@ function LayoutDialog({ editor, open }: { editor: LexicalEditor, open: boolean }
     event.preventDefault();
     editor.dispatchCommand(INSERT_LAYOUT_COMMAND, formData.layout);
     closeDialog();
-    setTimeout(() => { editor.focus() }, 0);
   };
 
   const closeDialog = () => {
     editor.dispatchCommand(SET_DIALOGS_COMMAND, { layout: { open: false } })
   }
 
-  const restoreSelection = () => {
-    editor.getEditorState().read(() => {
-      const selection = $getSelection()?.clone() ?? null;
-      editor.update(() => $setSelection(selection));
-    })
-  }
-
   const handleClose = () => {
     closeDialog();
-    restoreSelection();
   }
 
-  useFixedBodyScroll(open);
-
   return <Dialog
-    open={open}
+    open
     fullScreen={fullScreen}
     onClose={handleClose}
     aria-labelledby="layout-dialog-title"

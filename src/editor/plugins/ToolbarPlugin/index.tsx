@@ -1,5 +1,5 @@
 "use client"
-import { $getSelection, $isNodeSelection, $isRangeSelection, LexicalNode } from 'lexical';
+import { $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, LexicalNode } from 'lexical';
 import { $isCodeNode } from '@lexical/code';
 import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -33,6 +33,7 @@ import { SPEECH_TO_TEXT_COMMAND, SUPPORT_SPEECH_RECOGNITION } from '../SpeechToT
 import AITools from './Tools/AITools';
 import FontSelect from './Menus/FontSelect';
 import CodeTools from './Tools/CodeTools';
+import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -46,9 +47,6 @@ const blockTypeToBlockName = {
   number: 'Numbered List',
   paragraph: 'Normal',
 };
-
-
-
 
 function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
@@ -226,6 +224,19 @@ function ToolbarPlugin() {
   const showTextTools = (!showMathTools && !showImageTools) || $isStickyNode(selectedNode);
   const showTextFormatTools = showTextTools && !showCodeTools;
 
+  const isDialogOpen = Object.values(dialogs).some((dialog) => dialog.open);
+  useFixedBodyScroll(isDialogOpen);
+
+  useEffect(() => {
+    if (isDialogOpen) return;
+    const selection = activeEditor.getEditorState().read($getSelection);
+    if (!selection) return;
+    setTimeout(() => {
+      editor.update(() => { $setSelection(selection.clone()); });
+      activeEditor.getRootElement()?.focus({ preventScroll: true });
+    }, 0);
+  }, [isDialogOpen, activeEditor]);
+
   return (
     <>
       <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}>
@@ -270,14 +281,14 @@ function ToolbarPlugin() {
         </Toolbar >
       </AppBar>
       {toolbarTrigger && <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })} />}
-      <ImageDialog editor={activeEditor} node={$isImageNode(selectedNode) ? selectedNode : null} open={dialogs.image.open} />
-      <GraphDialog editor={activeEditor} node={$isGraphNode(selectedNode) ? selectedNode : null} open={dialogs.graph.open} />
-      <SketchDialog editor={activeEditor} node={$isImageNode(selectedNode) ? selectedNode : null} open={dialogs.sketch.open} />
-      <TableDialog editor={activeEditor} open={dialogs.table.open} />
-      <IFrameDialog editor={activeEditor} node={$isIFrameNode(selectedNode) ? selectedNode : null} open={dialogs.iframe.open} />
-      <LinkDialog editor={activeEditor} node={$isLinkNode(selectedNode) ? selectedNode : null} open={dialogs.link.open} />
-      <LayoutDialog editor={activeEditor} open={dialogs.layout.open} />
-      <OCRDialog editor={activeEditor} open={dialogs.ocr.open} />
+      {dialogs.image.open && <ImageDialog editor={activeEditor} node={$isImageNode(selectedNode) ? selectedNode : null} />}
+      {dialogs.graph.open && <GraphDialog editor={activeEditor} node={$isGraphNode(selectedNode) ? selectedNode : null} />}
+      {dialogs.sketch.open && <SketchDialog editor={activeEditor} node={$isImageNode(selectedNode) ? selectedNode : null} />}
+      {dialogs.table.open && <TableDialog editor={activeEditor} />}
+      {dialogs.iframe.open && <IFrameDialog editor={activeEditor} node={$isIFrameNode(selectedNode) ? selectedNode : null} />}
+      {dialogs.link.open && <LinkDialog editor={activeEditor} node={$isLinkNode(selectedNode) ? selectedNode : null} />}
+      {dialogs.layout.open && <LayoutDialog editor={activeEditor} />}
+      {dialogs.ocr.open && <OCRDialog editor={activeEditor} />}
     </>
   );
 }

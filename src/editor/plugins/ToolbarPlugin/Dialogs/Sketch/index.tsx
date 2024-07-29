@@ -1,5 +1,5 @@
 "use client"
-import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
+import type { LexicalEditor } from 'lexical';
 import { INSERT_SKETCH_COMMAND, InsertSketchPayload } from '@/editor/plugins/SketchPlugin';
 import { Suspense, useEffect, useState, memo, useCallback } from 'react';
 import { $isSketchNode } from '@/editor/nodes/SketchNode';
@@ -7,7 +7,6 @@ import type { ExcalidrawImperativeAPI, ExcalidrawProps, DataURL, LibraryItems, B
 import type { ImportedLibraryData } from '@excalidraw/excalidraw/types/data/types';
 import { SET_DIALOGS_COMMAND } from '../commands';
 import { getImageDimensions } from '@/editor/nodes/utils';
-import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
 import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, debounce } from '@mui/material';
 import dynamic from 'next/dynamic';
@@ -37,17 +36,15 @@ export const useCallbackRefState = () => {
   return [refValue, refCallback] as const;
 };
 
-function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: ImageNode | null; open: boolean; }) {
+function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode | null; }) {
   const [excalidrawAPI, excalidrawAPIRefCallback] = useCallbackRefState();
   const [lastSceneVersion, setLastSceneVersion] = useState(0);
   const theme = useTheme();
 
   useEffect(() => {
     if (!excalidrawAPI) return;
-    if (open) {
-      loadSceneOrLibrary();
-    }
-  }, [excalidrawAPI, open]);
+    loadSceneOrLibrary();
+  }, [excalidrawAPI]);
 
   const insertSketch = (payload: InsertSketchPayload) => {
     if (!$isSketchNode(node)) {
@@ -77,31 +74,21 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
     const altText = node?.getAltText();
     const caption = node?.getCaption();
     insertSketch({ src, showCaption, ...dimensions, altText, caption });
+    clearLocalStorage();
     closeDialog();
-    setTimeout(() => { editor.focus() }, 0);
   };
 
   const closeDialog = () => {
     editor.dispatchCommand(SET_DIALOGS_COMMAND, { sketch: { open: false } })
-    clearLocalStorage();
-  }
-
-  const restoreSelection = () => {
-    editor.getEditorState().read(() => {
-      const selection = $getSelection()?.clone() ?? null;
-      editor.update(() => $setSelection(selection));
-    })
   }
 
   const handleClose = async () => {
     function discard() {
       clearLocalStorage();
       closeDialog();
-      restoreSelection();
     }
     function cancel() {
       closeDialog();
-      restoreSelection();
     }
     const unsavedScene = localStorage.getItem("excalidraw");
     if (unsavedScene) {
@@ -147,7 +134,7 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
         title: "Restore last unsaved Changes",
         content: "You've unsaved changes from last session. Do you want to restore them?",
         actions: [
-          { label: "Cancel", id: uuid() },
+          { label: "Discard", id: uuid() },
           { label: "Restore", id: uuid() },
         ]
       };
@@ -162,7 +149,10 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
         };
         setTimeout(() => { document.addEventListener("click", handler, { once: true }); }, 0);
       });
-      if (!id || id === alert.actions[0].id) tryLoadSceneFromNode();
+      if (!id || id === alert.actions[0].id) {
+        clearLocalStorage();
+        tryLoadSceneFromNode();
+      }
       if (id === alert.actions[1].id) restoreSerializedScene(unsavedScene);
     } else tryLoadSceneFromNode();
   };
@@ -295,20 +285,18 @@ function SketchDialog({ editor, node, open }: { editor: LexicalEditor, node: Ima
     localStorage.removeItem("excalidraw");
   };
 
-  useFixedBodyScroll(open);
-
-  return <Dialog open={open} fullScreen={true} onClose={handleClose} disableEscapeKeyDown>
+  return <Dialog open fullScreen={true} onClose={handleClose} disableEscapeKeyDown>
     <DialogContent sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 0, overflow: "hidden" }}>
       <Suspense fallback={
         <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>
       }>
-        {open && <Excalidraw
+        <Excalidraw
           excalidrawAPI={excalidrawAPIRefCallback}
           theme={theme.palette.mode}
           onLibraryChange={onLibraryChange}
           onChange={saveToLocalStorage}
           langCode='en'
-        />}
+        />
         {excalidrawAPI && <AddLibraries excalidrawAPI={excalidrawAPI} />}
       </Suspense>
     </DialogContent>

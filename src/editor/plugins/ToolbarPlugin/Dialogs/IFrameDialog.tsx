@@ -1,25 +1,23 @@
 "use client"
-import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
+import type { LexicalEditor } from 'lexical';
 import React, { memo, useEffect, useState } from 'react';
 import { SET_DIALOGS_COMMAND } from './commands';
-import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, IconButton, Switch, TextField, useMediaQuery } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Switch, TextField, useMediaQuery } from '@mui/material';
 import { INSERT_IFRAME_COMMAND } from '@/editor/plugins/IFramePlugin';
 import { IFrameNode } from '@/editor/nodes/IFrameNode';
 
-function IFrameDialog({ editor, node, open }: { editor: LexicalEditor, node: IFrameNode | null; open: boolean }) {
+function IFrameDialog({ editor, node }: { editor: LexicalEditor, node: IFrameNode | null }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [formData, setFormData] = useState({ src: '', altText: 'iframe', width: 560, height: 315, showCaption: true });
   useEffect(() => {
-    if (!open) return;
     if (node) {
       setFormData({ src: node.getSrc(), altText: node.getAltText(), width: node.getWidth(), height: node.getHeight(), showCaption: node.getShowCaption() });
     } else {
       setFormData({ src: '', altText: 'iframe', width: 560, height: 315, showCaption: true });
     }
-  }, [node, open]);
+  }, [node]);
 
   const updateFormData = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -40,22 +38,12 @@ function IFrameDialog({ editor, node, open }: { editor: LexicalEditor, node: IFr
     editor.dispatchCommand(SET_DIALOGS_COMMAND, { iframe: { open: false } })
   }
 
-  const restoreSelection = () => {
-    editor.getEditorState().read(() => {
-      const selection = $getSelection()?.clone() ?? null;
-      editor.update(() => $setSelection(selection));
-    })
-  }
-
   const handleClose = () => {
     closeDialog();
-    restoreSelection();
   }
 
-  useFixedBodyScroll(open);
-
   return <Dialog
-    open={open}
+    open
     fullScreen={fullScreen}
     onClose={handleClose}
     aria-labelledby="iFrame-dialog-title"

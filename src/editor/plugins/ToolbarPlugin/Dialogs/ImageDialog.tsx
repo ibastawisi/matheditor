@@ -1,13 +1,11 @@
 "use client"
-import { $getSelection, $setSelection, LexicalEditor } from 'lexical';
+import type { LexicalEditor } from 'lexical';
 import { INSERT_IMAGE_COMMAND, InsertImagePayload } from '@/editor/plugins/ImagePlugin';
 import { useEffect, useState, memo } from 'react';
-
 import { isMimeType, mediaFileReader } from '@lexical/utils';
 import { ImageNode } from '@/editor/nodes/ImageNode';
 import { SET_DIALOGS_COMMAND } from './commands';
 import { getImageDimensions } from '@/editor/nodes/utils';
-import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
 import { useTheme } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Switch, TextField, Typography, useMediaQuery } from '@mui/material';
 import { UploadFile } from '@mui/icons-material';
@@ -21,19 +19,18 @@ const ACCEPTABLE_IMAGE_TYPES = [
   'image/webp',
 ];
 
-function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: ImageNode | null; open: boolean; }) {
+function ImageDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode | null; }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [formData, setFormData] = useState<InsertImagePayload>({ src: '', altText: '', width: 0, height: 0, showCaption: true });
 
   useEffect(() => {
-    if (!open) return;
     if (node) {
       setFormData({ src: node.getSrc(), altText: node.getAltText(), width: node.getWidth(), height: node.getHeight(), showCaption: node.getShowCaption() });
     } else {
       setFormData({ src: '', altText: '', width: 0, height: 0, showCaption: true });
     }
-  }, [node, open]);
+  }, [node]);
 
   const updateFormData = async (event: any) => {
     const { name, value } = event.target;
@@ -82,28 +79,17 @@ function ImageDialog({ editor, node, open }: { editor: LexicalEditor, node: Imag
     editor.dispatchCommand(SET_DIALOGS_COMMAND, { image: { open: false } })
   }
 
-  const restoreSelection = () => {
-    editor.getEditorState().read(() => {
-      const selection = $getSelection()?.clone() ?? null;
-      editor.update(() => $setSelection(selection));
-    })
-  }
-
   const handleSubmit = async () => {
     insertImage(formData);
     closeDialog();
-    setTimeout(() => { editor.focus() }, 0);
   };
 
   const handleClose = () => {
     closeDialog();
-    restoreSelection();
   }
 
-  useFixedBodyScroll(open);
-
   return <Dialog
-    open={!!open}
+    open
     fullScreen={fullScreen}
     onClose={handleClose}
     aria-labelledby="image-dialog-title"
