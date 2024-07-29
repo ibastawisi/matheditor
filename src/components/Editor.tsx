@@ -1,18 +1,21 @@
 "use client"
-import { MutableRefObject, RefCallback } from 'react';
-import { memo } from 'react';
+import { lazy, MutableRefObject, PropsWithChildren, RefCallback, Suspense } from 'react';
 import { EditorDocument } from '@/types';
 import type { EditorState, LexicalEditor } from '@/editor';
 import { COMMAND_PRIORITY_LOW, ANNOUNCE_COMMAND, UPDATE_DOCUMENT_COMMAND, ALERT_COMMAND, mergeRegister } from '@/editor';
 import { actions, useDispatch } from '@/store';
-import Editor from '@/editor/Editor';
+import { NoSsr } from '@mui/material';
+import { EditorSkeleton } from './EditorSkeleton';
+import SplashScreen from './SplashScreen';
 
-const Container: React.FC<{
-  document: EditorDocument,
+const Editor = lazy(() => import('@/editor/Editor'));
+
+const Container: React.FC<PropsWithChildren<{
+  document?: EditorDocument,
   editorRef?: MutableRefObject<LexicalEditor | null> | RefCallback<LexicalEditor>,
   onChange?: (editorState: EditorState, editor: LexicalEditor, tags: Set<string>) => void;
   ignoreHistoryMerge?: boolean;
-}> = ({ document, editorRef, onChange, ignoreHistoryMerge }) => {
+}>> = ({ document, editorRef, onChange, ignoreHistoryMerge, children }) => {
   const dispatch = useDispatch();
   const editorRefCallback = (editor: LexicalEditor) => {
     if (typeof editorRef === 'function') {
@@ -49,9 +52,15 @@ const Container: React.FC<{
     );
   };
 
+  if (!document) return <SplashScreen title="Loading Document" />;
+
   return (
-    <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={onChange} editorRef={editorRefCallback} ignoreHistoryMerge={ignoreHistoryMerge} />
+    <NoSsr>
+      <Suspense fallback={children ? <EditorSkeleton>{children}</EditorSkeleton> : <SplashScreen title="Loading Document" />}>
+        <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={onChange} editorRef={editorRefCallback} ignoreHistoryMerge={ignoreHistoryMerge} />
+      </Suspense>
+    </NoSsr>
   );
 }
 
-export default memo(Container, (prev, next) => prev.document.id === next.document.id);
+export default Container;

@@ -1,17 +1,15 @@
 "use client"
 import { $getRoot, $getSelection, $isDetailsContainerNode, $isDetailsContentNode, $isDetailsSummaryNode, $isListItemNode, $isListNode, $isRangeSelection, COMMAND_PRIORITY_NORMAL, DELETE_CHARACTER_COMMAND, LexicalNode, type EditorState, type LexicalEditor } from "@/editor";
 import { debounce } from "@mui/material";
-import dynamic from "next/dynamic";
 import { useCallback } from "react";
 import { checkpoints } from "./checkpoints";
-import { EditorSkeleton } from "../EditorSkeleton";
 import tutorialTemplate from './tutorial.json';
 import type { EditorDocument } from '@/types';
+import Editor from "../Editor";
 
 const document = tutorialTemplate as unknown as EditorDocument;
 
 const Tutorial: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const Editor = dynamic(() => import("@/components/Editor"), { ssr: false, loading: () => <EditorSkeleton>{children}</EditorSkeleton> });
 
   const onChange = (editorState: EditorState, editor: LexicalEditor, tags: Set<string>) => {
     if (tags.has('checkpoint')) return;
@@ -85,7 +83,9 @@ const Tutorial: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   }, []);
 
-  return <Editor document={document} onChange={debounce(onChange, 300)} ignoreHistoryMerge={false} editorRef={registerListeners} />;
+  return (
+    <Editor document={document} onChange={debounce(onChange, 300)} ignoreHistoryMerge={false} editorRef={registerListeners}>{children}</Editor>
+  );
 }
 
 export default Tutorial;

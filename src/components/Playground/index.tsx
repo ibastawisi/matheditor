@@ -1,14 +1,12 @@
 "use client"
-import dynamic from 'next/dynamic';
-import { EditorSkeleton } from '../EditorSkeleton';
 import playgroundTemplate from './playground.json';
 import type { EditorDocument } from '@/types';
+import Editor from '../Editor';
 
 const document = playgroundTemplate as unknown as EditorDocument;
 
 const Playground: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const Editor = dynamic(() => import("@/components/Editor"), { ssr: false, loading: () => <EditorSkeleton>{children}</EditorSkeleton> });
-  return <Editor document={document} />;
+  return <Editor document={document}>{children}</Editor>
 }
 
 export default Playground;

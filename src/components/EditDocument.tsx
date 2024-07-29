@@ -4,13 +4,14 @@ import SplashScreen from "./SplashScreen";
 import { EditorDocument } from '@/types';
 import { useDispatch, actions, useSelector } from '@/store';
 import { usePathname } from "next/navigation";
-import { EditorState, LexicalEditor } from "@/editor";
+import { EditorState, generateHtml, LexicalEditor } from "@/editor";
 import { v4 as uuidv4 } from 'uuid';
 import dynamic from "next/dynamic";
 import DiffView from "./Diff";
 import { debounce } from "@mui/material";
+import htmr from "htmr";
+import Editor from "./Editor";
 
-const Editor = dynamic(() => import("@/components/Editor"), { ssr: false, loading: () => <SplashScreen title="Loading Editor" /> });
 const EditDocumentInfo = dynamic(() => import('@/components/EditDocumentInfo'), { ssr: false });
 
 const EditDocument: React.FC = () => {
@@ -21,6 +22,7 @@ const EditDocument: React.FC = () => {
   const id = pathname.split('/')[2]?.toLowerCase();
   const editorRef = useRef<LexicalEditor>(null);
   const showDiff = useSelector(state => state.ui.diff.open);
+  const [html, setHtml] = useState<string>('');
 
   const debouncedUpdateLocalDocument = useCallback(debounce((id: string, partial: Partial<EditorDocument>) => {
     dispatch(actions.updateLocalDocument({ id, partial}));
@@ -62,14 +64,24 @@ const EditDocument: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (!document) return;
+    const generateChildren = async () => {
+      const html = await generateHtml(document.data);
+      setHtml(html);
+    }
+    generateChildren();
+  }, [document]);
+
   if (error) return <SplashScreen title={error.title} subtitle={error.subtitle} />;
-  if (!document) return <SplashScreen title="Loading Document" />;
 
   return <>
-    <title>{document.name}</title>
+    {document && <title>{document.name}</title>}
     {showDiff && <DiffView />}
-    <Editor document={document} editorRef={editorRef} onChange={handleChange} />
-    <EditDocumentInfo documentId={document.id} editorRef={editorRef} />
+    <Editor document={document} editorRef={editorRef} onChange={handleChange}>
+      {htmr(html)}
+    </Editor>
+    {document && <EditDocumentInfo documentId={document.id} editorRef={editorRef} />}
   </>;
 }
 
