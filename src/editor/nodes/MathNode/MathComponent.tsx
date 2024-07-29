@@ -112,6 +112,8 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
     }, false);
 
     mathfield.addEventListener("focus", () => {
+      clearSelection();
+      setSelected(true);
       const mathVirtualKeyboard = window.mathVirtualKeyboard;
       mathVirtualKeyboard.show({ animate: true });
       const element = (mathVirtualKeyboard as any).element as HTMLElement;
@@ -127,15 +129,6 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
       const mathVirtualKeyboard = window.mathVirtualKeyboard;
       mathVirtualKeyboard.hide();
     }, true);
-
-    mathfield.addEventListener("click", event => {
-      setTimeout(() => {
-        clearSelection();
-        setSelected(true);
-        mathfield.focus();
-        if (mathfield.selectionIsCollapsed) mathfield.position = mathfield.getOffsetFromPoint(event.clientX, event.clientY);
-      }, 0);
-    });
 
     mathfield.addEventListener("keydown", event => {
       event.stopPropagation();
@@ -189,11 +182,6 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
         :host(:not(:focus)) .ML__contains-caret,
         :host(:not(:focus)) .ML__contains-caret * {
           color: inherit;
-        }
-        @media (hover: none) and (pointer: coarse) {
-          :host(:not(:focus)) .ML__container {
-            pointer-events: none;
-          }
         }
         :host .ML__latex, :host .ML__text { font-family: inherit; }
       `}
