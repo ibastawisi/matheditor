@@ -232,10 +232,10 @@ function ToolbarPlugin() {
     const selection = activeEditor.getEditorState().read($getSelection);
     if (!selection) return;
     setTimeout(() => {
-      editor.update(() => { $setSelection(selection.clone()); });
+      activeEditor.update(() => { $setSelection(selection.clone()); });
       activeEditor.getRootElement()?.focus({ preventScroll: true });
     }, 0);
-  }, [isDialogOpen, activeEditor]);
+  }, [isDialogOpen]);
 
   return (
     <>

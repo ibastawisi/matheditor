@@ -123,6 +123,7 @@ export default function MathComponent({ initialValue, nodeKey, mathfieldRef: ref
       if (!event.isTrusted) return;
       const relatedTarget = event.relatedTarget as HTMLElement | null;
       if (relatedTarget?.tagName === "MATH-FIELD") return;
+      if (relatedTarget?.closest(".editor-toolbar")) return;
       const mathVirtualKeyboard = window.mathVirtualKeyboard;
       mathVirtualKeyboard.hide();
     }, true);
