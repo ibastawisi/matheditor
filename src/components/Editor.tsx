@@ -55,11 +55,11 @@ const Container: React.FC<PropsWithChildren<{
   if (!document) return <SplashScreen title="Loading Document" />;
 
   return (
-    <NoSsr>
-      <Suspense fallback={children ? <EditorSkeleton>{children}</EditorSkeleton> : <SplashScreen title="Loading Document" />}>
+    <Suspense fallback={children ? <EditorSkeleton>{children}</EditorSkeleton> : <SplashScreen title="Loading Document" />}>
+      <NoSsr>
         <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={onChange} editorRef={editorRefCallback} ignoreHistoryMerge={ignoreHistoryMerge} />
-      </Suspense>
-    </NoSsr>
+      </NoSsr>
+    </Suspense>
   );
 }
 
