@@ -102,15 +102,13 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
   const handleClose = () => {
     setOpen(false);
     setValue(null);
-    restoreSelection();
+    restoreFocus();
   };
-  const restoreSelection = () => {
+  const restoreFocus = () => {
     const mathfield = node.getMathfield();
     if (!mathfield) return;
     setTimeout(() => {
       mathfield.focus();
-      const mathVirtualKeyboard = window.mathVirtualKeyboard;
-      mathVirtualKeyboard.show({ animate: true });
     }, 0);
   }
 
@@ -182,7 +180,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     const mathfield = node.getMathfield();
     if (!mathfield) return;
     mathfield.executeCommand(["insert", latex]);
-    setValue(null);
+    handleClose();
   }, [excalidrawAPI, node, ocr]);
 
   const annouunce = useCallback((announcement: Announcement) => {
@@ -253,7 +251,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
         </Collapse>}
         <ColorPicker onColorChange={onColorChange} onClose={handleClose} />
       </ToggleButtonGroup>
-      <FontSizePicker fontSize={fontSize} updateFontSize={updateFontSize} onBlur={restoreSelection} />
+      <FontSizePicker fontSize={fontSize} updateFontSize={updateFontSize} onBlur={restoreFocus} />
       <ToggleButtonGroup size="small" sx={{ position: "relative", ...sx }} exclusive>
         <ToggleButton value="menu"
           onClick={(e) => {
