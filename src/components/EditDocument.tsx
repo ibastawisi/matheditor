@@ -74,14 +74,15 @@ const EditDocument: React.FC = () => {
   }, [document]);
 
   if (error) return <SplashScreen title={error.title} subtitle={error.subtitle} />;
+  if (!document) return <SplashScreen title="Loading Document" />;
 
   return <>
-    {document && <title>{document.name}</title>}
+    <title>{document.name}</title>
     {showDiff && <DiffView />}
     <Editor document={document} editorRef={editorRef} onChange={handleChange}>
-      {htmr(html)}
+      {html && htmr(html)}
     </Editor>
-    {document && <EditDocumentInfo documentId={document.id} editorRef={editorRef} />}
+    <EditDocumentInfo documentId={document.id} editorRef={editorRef} />
   </>;
 }
 

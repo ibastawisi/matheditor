@@ -1,17 +1,16 @@
 "use client"
-import { lazy, MutableRefObject, PropsWithChildren, RefCallback, Suspense } from 'react';
+import { lazy, MutableRefObject, PropsWithChildren, RefCallback, Suspense, useEffect, useState } from 'react';
 import { EditorDocument } from '@/types';
 import type { EditorState, LexicalEditor } from '@/editor';
 import { COMMAND_PRIORITY_LOW, ANNOUNCE_COMMAND, UPDATE_DOCUMENT_COMMAND, ALERT_COMMAND, mergeRegister } from '@/editor';
 import { actions, useDispatch } from '@/store';
-import { NoSsr } from '@mui/material';
 import { EditorSkeleton } from './EditorSkeleton';
 import SplashScreen from './SplashScreen';
 
 const Editor = lazy(() => import('@/editor/Editor'));
 
 const Container: React.FC<PropsWithChildren<{
-  document?: EditorDocument,
+  document: EditorDocument,
   editorRef?: MutableRefObject<LexicalEditor | null> | RefCallback<LexicalEditor>,
   onChange?: (editorState: EditorState, editor: LexicalEditor, tags: Set<string>) => void;
   ignoreHistoryMerge?: boolean;
@@ -52,14 +51,13 @@ const Container: React.FC<PropsWithChildren<{
     );
   };
 
-  if (!document) return <SplashScreen title="Loading Document" />;
+  const isServer = typeof window === 'undefined';
+  const fallback = children ? <EditorSkeleton>{children}</EditorSkeleton> : <SplashScreen title="Loading Document" />;
 
   return (
-    <NoSsr>
-      <Suspense fallback={children ? <EditorSkeleton>{children}</EditorSkeleton> : <SplashScreen title="Loading Document" />}>
-        <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={onChange} editorRef={editorRefCallback} ignoreHistoryMerge={ignoreHistoryMerge} />
-      </Suspense>
-    </NoSsr>
+    <Suspense fallback={fallback}>
+      {isServer ? fallback : <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={onChange} editorRef={editorRefCallback} ignoreHistoryMerge={ignoreHistoryMerge} />}
+    </Suspense>
   );
 }
 
