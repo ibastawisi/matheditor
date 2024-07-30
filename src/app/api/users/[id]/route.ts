@@ -14,7 +14,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
   try {
     const user = await findUser(params.id);
     if (!user) {
-      response.error = { title: "Not Found", subtitle: "User not found" }
+      response.error = { title: "User not found" }
       return NextResponse.json(response, { status: 404 })
     }
     response.data = {

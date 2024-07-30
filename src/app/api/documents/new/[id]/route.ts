@@ -14,7 +14,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const revisionId = searchParams.get("v");
     const cloudDocument = await findUserDocument(params.id, revisionId);
     if (!cloudDocument) {
-      response.error = { title: "Not Found", subtitle: "Document not found"}
+      response.error = { title: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
     const session = await getServerSession(authOptions);
@@ -25,12 +25,12 @@ export async function GET(request: Request, { params }: { params: { id: string }
       return NextResponse.json(response, { status: 403 })
     }
     if (!cloudDocument.head) {
-      response.error = { title: "Not Found", subtitle: "Document not found" }
+      response.error = { title: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
     const revision = await findRevisionById(revisionId ?? cloudDocument.head);
     if (!revision) {
-      response.error = { title: "Not Found", subtitle: "Revision not found" }
+      response.error = { title: "Revision not found" }
       return NextResponse.json(response, { status: 404 })
     }
     response.data = { id: cloudDocument.id, cloud: cloudDocument, data: revision.data };

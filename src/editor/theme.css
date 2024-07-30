@@ -525,8 +525,9 @@ iframe {
 .LexicalTheme__hr {
   width: 100%;
   border: none;
-  padding: 0.5em 0;
+  padding: 8px 0;
   cursor: pointer;
+  clear: both;
 }
 
 .LexicalTheme__hr:after {

@@ -512,10 +512,6 @@ export const appSlice = createSlice({
         if (!userDocument) state.documents.unshift({ id: cloudDocument.id, cloud: cloudDocument });
         else userDocument.cloud = cloudDocument;
       })
-      .addCase(getCloudDocument.rejected, (state, action) => {
-        const message = action.payload as { title: string, subtitle: string };
-        state.ui.announcements.push({ message });
-      })
       .addCase(getCloudRevision.rejected, (state, action) => {
         const message = action.payload as { title: string, subtitle: string };
         state.ui.announcements.push({ message });

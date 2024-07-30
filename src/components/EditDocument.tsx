@@ -58,7 +58,7 @@ const EditDocument: React.FC = () => {
         }
       }
     }
-    id ? loadDocument(id) : setError({ title: "Document Not Found", subtitle: "No document id provided" });
+    id ? loadDocument(id) : setError({ title: "Document Not Found" });
     return () => {
       dispatch(actions.setDiff({ open: false }));
     }
