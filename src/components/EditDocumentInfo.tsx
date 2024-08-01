@@ -37,8 +37,8 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
   const documentRevisions = [...revisions].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const unsavedChanges = !isHeadLocalRevision && !isHeadCloudRevision;
-  if (unsavedChanges) {
-    const unsavedRevision = { id: localDocument?.head, documentId: localDocument?.id, createdAt: localDocument?.updatedAt } as LocalDocumentRevision;
+  if (unsavedChanges && localDocument) {
+    const unsavedRevision = { id: localDocument.head, documentId: localDocument.id, createdAt: localDocument.updatedAt } as LocalDocumentRevision;
     documentRevisions.unshift(unsavedRevision);
   }
 

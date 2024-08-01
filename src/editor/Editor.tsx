@@ -9,7 +9,6 @@ import { MutableRefObject, RefCallback } from "react";
 import { EditorRefPlugin } from '@lexical/react/LexicalEditorRefPlugin';
 import "mathlive";
 import "mathlive/fonts.css";
-import "./styles.css";
 
 export const Editor: React.FC<{
   initialConfig: Partial<InitialConfigType>;

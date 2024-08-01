@@ -16,7 +16,6 @@ import {
   LexicalEditor,
   LexicalNode,
   NodeKey,
-  RangeSelection,
   SerializedElementNode,
   Spread,
 } from 'lexical';

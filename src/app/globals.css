@@ -129,6 +129,59 @@ body:has(#app-toolbar) .editor-container [id] {
   scroll-margin-top: calc(56px + 1rem);
 }
 
+body:has(.editor-input)>footer {
+  visibility: hidden;
+}
+
+.editor-container:has(.editor-input) {
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-input {
+  flex: 1;
+  resize: none;
+  caret-color: #444;
+  position: relative;
+  tab-size: 1;
+  outline: 0;
+}
+
+.excalidraw.excalidraw-modal-container,
+#typeahead-menu {
+  z-index: 1500 !important;
+}
+
+body:has(.excalidraw.excalidraw-modal-container) {
+  position: initial !important;
+  overflow: hidden !important;
+}
+
+.diff-container ins {
+  background-color: rgb(200 255 200 / 50%);
+  text-decoration: none;
+}
+
+.diff-container del {
+  background-color: rgb(255 200 200 / 50%)
+}
+
+.diff-container~.editor-input,
+.diff-container~.MuiAppBar-root {
+  display: none;
+}
+
+@media screen {
+  [theme=dark] .editor-input {
+    caret-color: #eee;
+  }
+}
+
+.editor-input .LexicalTheme__link:hover {
+  text-decoration: none;
+  cursor: text;
+}
+
 @media (min-width: 600px) {
   body:has(#app-toolbar) .editor-container [id] {
     scroll-margin-top: calc(64px + 1rem);
@@ -146,9 +199,17 @@ body:has(#app-toolbar) .editor-container [id] {
 }
 
 @media print {
+
   * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    overflow: visible !important;
+  }
+
+  *,
+  *:before,
+  *:after {
+    filter: unset !important;
   }
 
   body {

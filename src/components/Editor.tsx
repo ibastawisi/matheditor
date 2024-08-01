@@ -51,12 +51,14 @@ const Container: React.FC<PropsWithChildren<{
     );
   };
 
-  const isServer = typeof window === 'undefined';
+  const [isClient, setIsClient] = useState(false)
+  useEffect(() => { setIsClient(true) }, [])
+
   const fallback = children ? <EditorSkeleton>{children}</EditorSkeleton> : <SplashScreen title="Loading Document" />;
 
   return (
     <Suspense fallback={fallback}>
-      {isServer ? fallback : <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={onChange} editorRef={editorRefCallback} ignoreHistoryMerge={ignoreHistoryMerge} />}
+      {!isClient ? fallback : <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={onChange} editorRef={editorRefCallback} ignoreHistoryMerge={ignoreHistoryMerge} />}
     </Suspense>
   );
 }
