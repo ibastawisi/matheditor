@@ -77,7 +77,7 @@ function GraphDialog({ editor, node }: { editor: LexicalEditor, node: GraphNode 
     closeDialog();
   }
 
-  return <Dialog open fullScreen onClose={handleClose} disableEscapeKeyDown>
+  return <Dialog open fullScreen onClose={handleClose} disableEscapeKeyDown className={`fullscreen${loading ? ' loading' : ' loaded'}`}>
     <DialogContent sx={{ p: 0, overflow: "hidden" }}>
       {loading && <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>}
       <GeogebraApplet parameters={parameters} />
@@ -110,7 +110,7 @@ const GeogebraApplet = memo(({ parameters }: { parameters: any }) => {
   }, []);
 
   return <>
-    <div ref={containerRef} />
+    <div ref={containerRef} className='ggb-container' />
     <Script src="/geogebra/deployggb.js" onReady={injectContainer} />
   </>;
 }, (prevProps, nextProps) => prevProps.parameters.key === nextProps.parameters.key);

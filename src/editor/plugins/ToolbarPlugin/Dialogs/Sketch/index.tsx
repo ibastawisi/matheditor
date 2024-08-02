@@ -285,7 +285,9 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
     localStorage.removeItem("excalidraw");
   };
 
-  return <Dialog open fullScreen={true} onClose={handleClose} disableEscapeKeyDown>
+  const loading = !excalidrawAPI;
+
+  return <Dialog open fullScreen={true} onClose={handleClose} disableEscapeKeyDown className={`fullscreen${loading ? ' loading' : ' loaded'}`}>
     <DialogContent sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 0, overflow: "hidden" }}>
       <Suspense fallback={
         <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>

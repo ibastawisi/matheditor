@@ -152,9 +152,13 @@ body:has(.editor-input)>footer {
   z-index: 1500 !important;
 }
 
-body:has(.excalidraw.excalidraw-modal-container) {
+body:has(.MuiDialog-root.fullscreen.loaded) {
   position: initial !important;
   overflow: hidden !important;
+}
+
+.ggb-container>.applet_scaler {
+  transform: none !important;
 }
 
 .diff-container ins {
