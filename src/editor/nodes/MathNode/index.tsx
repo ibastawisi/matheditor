@@ -1,4 +1,4 @@
-import { $createNodeSelection, $setSelection, DOMExportOutput, EditorConfig, LexicalEditor, LexicalNode, NodeKey, SerializedLexicalNode, Spread, isHTMLElement, } from 'lexical';
+import { $createNodeSelection, $setSelection, BaseSelection, DOMExportOutput, EditorConfig, LexicalEditor, LexicalNode, NodeKey, SerializedLexicalNode, Spread, isHTMLElement, } from 'lexical';
 import { DecoratorNode, } from 'lexical';
 import { createRef } from 'react';
 import { convertLatexToMarkup, type MathfieldElement } from 'mathlive';
@@ -122,6 +122,14 @@ export class MathNode extends DecoratorNode<JSX.Element> {
     const nodeSelection = $createNodeSelection();
     nodeSelection.add(this.getKey());
     $setSelection(nodeSelection);
+  }
+
+  isSelected(selection?: null | BaseSelection): boolean {
+    try {
+      return super.isSelected(selection);
+    } catch (e) {
+      return false;
+    }
   }
 
   decorate(): JSX.Element {

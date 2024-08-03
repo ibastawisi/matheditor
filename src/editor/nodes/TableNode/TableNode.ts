@@ -5,6 +5,7 @@ import {
 
 
 import type {
+  BaseSelection,
   DOMConversionMap,
   DOMConversionOutput,
   DOMExportOutput,
@@ -131,7 +132,13 @@ export class TableNode extends LexicalTableNode {
     return self;
   }
 
-
+  isSelected(selection?: null | BaseSelection): boolean {
+    try {
+      return super.isSelected(selection);
+    } catch (e) {
+      return false;
+    }
+  }
 }
 
 export function $convertTableElement(_domNode: Node): DOMConversionOutput {

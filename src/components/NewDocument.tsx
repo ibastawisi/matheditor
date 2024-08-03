@@ -37,6 +37,7 @@ const getEditorData = (title: string) => {
     direction: "ltr",
     format: 'left',
     textFormat: 0,
+    textStyle: '',
     indent: 0,
     type: "paragraph",
     version: 1,

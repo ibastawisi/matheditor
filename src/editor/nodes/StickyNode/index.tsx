@@ -7,6 +7,7 @@
  */
 
 import type {
+  BaseSelection,
   DOMExportOutput,
   EditorConfig,
   LexicalEditor,
@@ -98,7 +99,7 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
     if (element && isHTMLElement(element)) {
       this.__editor.getEditorState().read(() => {
         const html = $generateHtmlFromNodes(this.__editor);
-        element.innerHTML = `<div class="sticky-note-container"><div class="sticky-note ${this.__color}"><div class="nested-contentEditable">${html}</div></div></div>`
+        element.innerHTML = `<div class="sticky-note-container" theme="light"><div class="sticky-note ${this.__color}"><div class="nested-contentEditable">${html}</div></div></div>`
       });
     }
     return { element };
@@ -136,6 +137,15 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
       root.selectStart();
     });
   }
+
+  isSelected(selection?: null | BaseSelection): boolean {
+    try {
+      return super.isSelected(selection);
+    } catch (e) {
+      return false;
+    }
+  }
+
 
   decorate(): JSX.Element {
     const html = this.__editor.getEditorState().read(() => $generateHtmlFromNodes(this.__editor));
