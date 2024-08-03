@@ -1,7 +1,7 @@
 "use client"
 import type { LexicalEditor } from 'lexical';
 import { INSERT_SKETCH_COMMAND, InsertSketchPayload } from '@/editor/plugins/SketchPlugin';
-import { Suspense, useEffect, useState, memo, useCallback } from 'react';
+import { useEffect, useState, memo, useCallback } from 'react';
 import { $isSketchNode } from '@/editor/nodes/SketchNode';
 import type { ExcalidrawImperativeAPI, ExcalidrawProps, DataURL, LibraryItems, BinaryFiles, AppState, BinaryFileData } from '@excalidraw/excalidraw/types/types';
 import type { ImportedLibraryData } from '@excalidraw/excalidraw/types/data/types';
@@ -288,19 +288,16 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
   const loading = !excalidrawAPI;
 
   return <Dialog open fullScreen={true} onClose={handleClose} disableEscapeKeyDown className={`fullscreen${loading ? ' loading' : ' loaded'}`}>
-    <DialogContent sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 0, overflow: "hidden" }}>
-      <Suspense fallback={
-        <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>
-      }>
-        <Excalidraw
-          excalidrawAPI={excalidrawAPIRefCallback}
-          theme={theme.palette.mode}
-          onLibraryChange={onLibraryChange}
-          onChange={saveToLocalStorage}
-          langCode='en'
-        />
-        {excalidrawAPI && <AddLibraries excalidrawAPI={excalidrawAPI} />}
-      </Suspense>
+    <DialogContent sx={{ p: 0, overflow: "hidden" }}>
+      {loading && <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>}
+      <Excalidraw
+        excalidrawAPI={excalidrawAPIRefCallback}
+        theme={theme.palette.mode}
+        onLibraryChange={onLibraryChange}
+        onChange={saveToLocalStorage}
+        langCode='en'
+      />
+      {excalidrawAPI && <AddLibraries excalidrawAPI={excalidrawAPI} />}
     </DialogContent>
     <DialogActions>
       <Button autoFocus onClick={handleClose}>
