@@ -71,7 +71,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
 
   const onColorChange = useCallback((key: string, value: string) => {
     const styleKey = key === 'text' ? 'color' : 'background-color';
-    const mathfield = node.getMathfield();
+    const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
     if (!mathfield) return;
     if (mathfield.selectionIsCollapsed) {
       applyStyleMath({ [styleKey]: value });
@@ -105,7 +105,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     restoreFocus();
   };
   const restoreFocus = () => {
-    const mathfield = node.getMathfield();
+    const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
     if (!mathfield) return;
     setTimeout(() => {
       mathfield.focus();
@@ -128,14 +128,14 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
   const handleEdit = useCallback((e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const { value } = formData;
-    const mathfield = node.getMathfield();
+    const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
     if (!mathfield) return;
     mathfield.setValue(value, { selectionMode: 'after' });
     handleClose();
   }, [editor, formData, handleClose, node]);
 
   const openWolfram = useCallback(() => {
-    const mathfield = node.getMathfield();
+    const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
     if (!mathfield) return;
     const selection = mathfield.selection;
     const value = mathfield.getValue(selection, 'latex-unstyled') || mathfield.getValue('latex-unstyled');
@@ -177,7 +177,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     });
     const latex = await ocr(blob);
     if (!latex) return;
-    const mathfield = node.getMathfield();
+    const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
     if (!mathfield) return;
     mathfield.executeCommand(["insert", latex]);
     handleClose();
@@ -255,7 +255,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
       <ToggleButtonGroup size="small" sx={{ position: "relative", ...sx }} exclusive>
         <ToggleButton value="menu"
           onClick={(e) => {
-            const mathfield = node.getMathfield();
+            const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
             if (!mathfield) return;
             const x = e.currentTarget.getBoundingClientRect().left;
             const y = e.currentTarget.getBoundingClientRect().top + 40;

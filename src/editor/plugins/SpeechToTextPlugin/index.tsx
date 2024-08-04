@@ -25,6 +25,7 @@ import { $isMathNode } from '@/editor/nodes/MathNode';
 import { createPortal } from 'react-dom';
 import { Alert } from '@mui/material';
 import { IS_MOBILE } from '@/shared/environment';
+import type { MathfieldElement } from 'mathlive';
 
 export const SPEECH_TO_TEXT_COMMAND: LexicalCommand<boolean> = createCommand(
   'SPEECH_TO_TEXT_COMMAND',
@@ -102,7 +103,7 @@ function SpeechToTextPlugin() {
             } else if ($isNodeSelection(selection)) {
               const node = selection.getNodes()[0];
               if ($isMathNode(node)) {
-                const mathfield = node.getMathfield();
+                const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
                 if (mathfield) {
                   mathfield.executeCommand(['insert', transcript, {
                     feedback: true,
