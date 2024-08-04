@@ -4,11 +4,9 @@ export default function useFixedBodyScroll(isFixed: boolean) {
   const scrollTop = useRef(0);
   useEffect(() => {
     if (!isFixed) return;
-    setTimeout(() => {
-      scrollTop.current = Math.round(document.documentElement.scrollTop);
-      document.body.style.top = `-${scrollTop.current}px`;
-      document.body.style.position = "fixed";
-    }, 0);
+    scrollTop.current = Math.round(document.documentElement.scrollTop);
+    document.body.style.top = `-${scrollTop.current}px`;
+    document.body.style.position = "fixed";
     return () => {
       document.body.style.position = "";
       document.documentElement.scrollTop = scrollTop.current;

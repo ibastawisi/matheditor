@@ -152,9 +152,9 @@ body:has(.editor-input)>footer {
   z-index: 1500 !important;
 }
 
-body:has(.MuiDialog-root.fullscreen.loaded) {
+body.fullscreen {
   position: initial !important;
-  overflow: hidden !important;
+  overflow-y: hidden !important;
 }
 
 .ggb-container>.applet_scaler {

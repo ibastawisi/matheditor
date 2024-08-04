@@ -70,6 +70,7 @@ function GraphDialog({ editor, node }: { editor: LexicalEditor, node: GraphNode 
   });
 
   const closeDialog = () => {
+    document.body.classList.remove('fullscreen');
     editor.dispatchCommand(SET_DIALOGS_COMMAND, { graph: { open: false } })
   }
 
@@ -77,7 +78,10 @@ function GraphDialog({ editor, node }: { editor: LexicalEditor, node: GraphNode 
     closeDialog();
   }
 
-  return <Dialog open fullScreen onClose={handleClose} disableEscapeKeyDown className={`fullscreen${loading ? ' loading' : ' loaded'}`}>
+  return <Dialog open fullScreen onClose={handleClose} disableEscapeKeyDown
+    TransitionProps={{
+      onEntered() { document.body.classList.add('fullscreen'); },
+    }}>
     <DialogContent sx={{ p: 0, overflow: "hidden" }}>
       {loading && <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>}
       <GeogebraApplet parameters={parameters} />

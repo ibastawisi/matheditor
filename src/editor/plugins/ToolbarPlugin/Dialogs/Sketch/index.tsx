@@ -79,7 +79,8 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
   };
 
   const closeDialog = () => {
-    editor.dispatchCommand(SET_DIALOGS_COMMAND, { sketch: { open: false } })
+    document.body.classList.remove('fullscreen');
+    editor.dispatchCommand(SET_DIALOGS_COMMAND, { sketch: { open: false } });
   }
 
   const handleClose = async () => {
@@ -287,7 +288,10 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
 
   const loading = !excalidrawAPI;
 
-  return <Dialog open fullScreen={true} onClose={handleClose} disableEscapeKeyDown className={`fullscreen${loading ? ' loading' : ' loaded'}`}>
+  return <Dialog open fullScreen={true} onClose={handleClose} disableEscapeKeyDown
+    TransitionProps={{
+      onEntered() { document.body.classList.add('fullscreen') },
+    }}>
     <DialogContent sx={{ p: 0, overflow: "hidden" }}>
       {loading && <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>}
       <Excalidraw
