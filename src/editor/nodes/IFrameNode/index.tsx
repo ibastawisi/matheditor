@@ -156,19 +156,20 @@ export class IFrameNode extends ImageNode {
   }
 
   decorate(): JSX.Element {
-    const matchYoutube = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/.exec(this.__src);
+    const self = this.getLatest();
+    const matchYoutube = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/.exec(self.__src);
     const videoId = matchYoutube ? (matchYoutube?.[2].length === 11 ? matchYoutube[2] : null) : null;
-    const src = videoId ? `https://www.youtube-nocookie.com/embed/${videoId}` : this.__src;
+    const src = videoId ? `https://www.youtube-nocookie.com/embed/${videoId}` : self.__src;
 
     return (
       <ImageComponent
         src={src}
-        altText={this.__altText}
-        width={this.__width}
-        height={this.__height}
-        nodeKey={this.getKey()}
-        showCaption={this.__showCaption}
-        caption={this.__caption}
+        altText={self.__altText}
+        width={self.__width}
+        height={self.__height}
+        nodeKey={self.__key}
+        showCaption={self.__showCaption}
+        caption={self.__caption}
         element='iframe'
       />
     );

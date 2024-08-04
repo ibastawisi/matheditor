@@ -154,18 +154,19 @@ export class SketchNode extends ImageNode {
   }
 
   decorate(): JSX.Element {
-    const html = this.__caption.getEditorState().read(() => $generateHtmlFromNodes(this.__caption));
+    const self = this.getLatest();
+    const html = self.__caption.getEditorState().read(() => $generateHtmlFromNodes(self.__caption));
     const children = htmr(html);
 
     return (
       <ImageComponent
-        width={this.getWidth()}
-        height={this.getHeight()}
-        src={this.getSrc()}
-        altText={this.getAltText()}
-        nodeKey={this.getKey()}
-        showCaption={this.getShowCaption()}
-        caption={this.getCaption()}
+        width={self.__width}
+        height={self.__height}
+        src={self.__src}
+        altText={self.__altText}
+        nodeKey={self.__key}
+        showCaption={self.__showCaption}
+        caption={self.__caption}
         element='svg'
       >
         {children}
