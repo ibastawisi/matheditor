@@ -188,7 +188,7 @@ export default function MathComponent({ initialValue, nodeKey }: MathComponentPr
       mathfield.removeEventListener("move-out", onMoveout);
       mathfield.removeEventListener("contextmenu", onContextmenu, { capture: true });
     };
-  }, []);
+  }, [editor]);
 
   return <math-field key={nodeKey}>
     <style>

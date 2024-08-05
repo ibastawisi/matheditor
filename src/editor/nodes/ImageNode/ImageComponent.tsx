@@ -31,7 +31,6 @@ import {
   DRAGSTART_COMMAND,
   KEY_BACKSPACE_COMMAND,
   KEY_DELETE_COMMAND,
-  SELECTION_CHANGE_COMMAND,
 } from 'lexical';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -65,7 +64,7 @@ export default function ImageComponent({
     useLexicalNodeSelection(nodeKey);
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [editor] = useLexicalComposerContext();
-  const activeEditorRef = useRef<LexicalEditor | null>(null);
+
   const $onEnter = useCallback(
     (event: KeyboardEvent) => {
       const latestSelection = $getSelection();
@@ -89,17 +88,9 @@ export default function ImageComponent({
 
   const $onEscape = useCallback(
     (event: KeyboardEvent) => {
-      if (
-        activeEditorRef.current === caption
-      ) {
-        $setSelection(null);
-        editor.update(() => {
-          setSelected(true);
-          const parentRootElement = editor.getRootElement();
-          if (parentRootElement !== null) {
-            parentRootElement.focus();
-          }
-        });
+      if (event.currentTarget === caption._rootElement) {
+        caption.update(() => { $setSelection(null); });
+        setSelected(true);
         return true;
       }
       return false;
@@ -132,6 +123,9 @@ export default function ImageComponent({
         return true;
       }
       if (imageRef.current && imageRef.current.contains(event.target as Node)) {
+        caption.update(() => {
+          $setSelection(null);
+        });
         if (event.shiftKey) {
           setSelected(!isSelected);
         } else {
@@ -143,19 +137,11 @@ export default function ImageComponent({
 
       return false;
     },
-    [isResizing, isSelected, setSelected, clearSelection],
+    [isResizing, isSelected, setSelected, clearSelection, caption],
   );
 
   useEffect(() => {
     const unregister = mergeRegister(
-      editor.registerCommand(
-        SELECTION_CHANGE_COMMAND,
-        (_, activeEditor) => {
-          activeEditorRef.current = activeEditor;
-          return false;
-        },
-        COMMAND_PRIORITY_LOW,
-      ),
       editor.registerCommand<MouseEvent>(
         CLICK_COMMAND,
         onClick,
@@ -232,8 +218,10 @@ export default function ImageComponent({
     editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) {
+        const scrollTop = Math.round(document.documentElement.scrollTop);
         const rootElement = editor.getRootElement();
         rootElement?.focus();
+        document.documentElement.scrollTop = scrollTop;
         const nativeSelection = window.getSelection();
         nativeSelection?.removeAllRanges();
         const element = imageRef.current;
@@ -319,7 +307,7 @@ export default function ImageComponent({
           />
         )}
       </ImageResizer>
-      {showCaption && <ImageCaption caption={caption} nodeKey={nodeKey}>{children}</ImageCaption>}
+      {showCaption && <ImageCaption editor={caption} nodeKey={nodeKey}>{children}</ImageCaption>}
     </>
   );
 }

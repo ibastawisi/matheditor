@@ -1,36 +1,64 @@
 "use client"
-import type {LexicalEditor,NodeKey} from 'lexical';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $getNodeByKey } from 'lexical';
-import { lazy, memo, Suspense } from 'react';
+import type { LexicalEditor, NodeKey } from 'lexical';
+import { $getNodeByKey, $getSelection, $setSelection, COMMAND_PRIORITY_LOW, SELECTION_CHANGE_COMMAND } from 'lexical';
+import { lazy, memo, Suspense, useEffect } from 'react';
 import { $isImageNode } from '.';
 import { editorConfig } from './config';
 import { Typography } from '@mui/material';
+import { mergeRegister } from '@/editor';
 
 const NestedEditor = lazy(() => import('@/editor/NestedEditor'));
 
 export function ImageCaption({
   nodeKey,
-  caption,
+  editor,
   children,
 }: {
   nodeKey: NodeKey;
-  caption: LexicalEditor;
+  editor: LexicalEditor;
   children?: React.ReactNode;
 }): JSX.Element {
-  const [editor] = useLexicalComposerContext();
+  const parentEditor = editor._parentEditor;
   const onChange = () => {
-    editor.update(() => {
+    if (!parentEditor) return;
+    parentEditor.update(() => {
       const node = $getNodeByKey(nodeKey);
       if ($isImageNode(node)) {
-        node.setCaption(caption);
+        node.setCaption(editor);
       }
     });
-  }
+  };
+  
+  useEffect(() => {
+    const unregister = mergeRegister(
+      editor.registerCommand(
+        SELECTION_CHANGE_COMMAND,
+        () => {
+          if (!parentEditor) return false;
+          const parentSelection = parentEditor.getEditorState().read($getSelection);
+          if (!parentSelection) return false;
+          parentEditor.update(() => {
+            $setSelection(null);
+          })
+          return false;
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
+    );
+
+    return () => {
+      unregister();
+    };
+  }, [
+    editor,
+    nodeKey,
+  ]);
+
+
   return (
     <figcaption>
       <Suspense fallback={children}>
-        <NestedEditor initialEditor={caption} initialNodes={editorConfig.nodes} onChange={onChange}
+        <NestedEditor initialEditor={editor} initialNodes={editorConfig.nodes} onChange={onChange}
           placeholder={<Typography color="text.secondary" className="nested-placeholder">Write a caption</Typography>}
         />
       </Suspense>

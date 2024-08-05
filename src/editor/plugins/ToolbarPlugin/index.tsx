@@ -84,7 +84,7 @@ function ToolbarPlugin() {
   });
   const [isSpeechToText, setIsSpeechToText] = useState(false);
 
-  const updateToolbar = useCallback(() => {
+  const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
     if ($isNodeSelection(selection)) {
       const node = selection.getNodes()[0];
@@ -143,20 +143,26 @@ function ToolbarPlugin() {
       editor.registerCommand(
         SELECTION_CHANGE_COMMAND,
         (_payload, newEditor) => {
-          updateToolbar();
           setActiveEditor(newEditor);
+          $updateToolbar();
           return false;
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
     );
-  }, [editor, updateToolbar]);
+  }, [editor, $updateToolbar]);
+
+  useEffect(() => {
+    activeEditor.getEditorState().read(() => {
+      $updateToolbar();
+    });
+  }, [activeEditor, $updateToolbar]);
 
   useEffect(() => {
     return mergeRegister(
       activeEditor.registerUpdateListener(({ editorState }) => {
         editorState.read(() => {
-          updateToolbar();
+          $updateToolbar();
         });
       }),
       activeEditor.registerCommand<boolean>(
@@ -184,7 +190,7 @@ function ToolbarPlugin() {
         COMMAND_PRIORITY_CRITICAL,
       ),
     );
-  }, [activeEditor, updateToolbar]);
+  }, [activeEditor, $updateToolbar]);
 
   useEffect(() => {
     return activeEditor.registerCommand<SetDialogsPayload>(
