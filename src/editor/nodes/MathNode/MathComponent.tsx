@@ -1,5 +1,5 @@
 "use client"
-import { DOMAttributes } from "react";
+import { DOMAttributes, useRef } from "react";
 import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, BaseSelection, NodeKey, RangeSelection } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey } from 'lexical';
@@ -32,8 +32,7 @@ export type MathComponentProps = { initialValue: string; nodeKey: NodeKey; };
 
 export default function MathComponent({ initialValue, nodeKey }: MathComponentProps): JSX.Element {
   const [editor] = useLexicalComposerContext();
-  const [selection, setSelection] = useState<BaseSelection | null>(null);
-  const [lastRangeSelection, setLastRangeSelection] = useState<RangeSelection | null>(null);
+  const lastRangeSelection = useRef<RangeSelection | null>(null);
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
 
   useEffect(() => {
@@ -48,9 +47,8 @@ export default function MathComponent({ initialValue, nodeKey }: MathComponentPr
     return mergeRegister(
       editor.registerUpdateListener(({ editorState }) => {
         const newSelection = editorState.read(() => $getSelection());
-        setSelection(newSelection);
         if ($isRangeSelection(newSelection)) {
-          setLastRangeSelection(newSelection);
+          lastRangeSelection.current = newSelection;
         }
       }),
     );
@@ -60,14 +58,15 @@ export default function MathComponent({ initialValue, nodeKey }: MathComponentPr
     const mathfield = editor.getElementByKey(nodeKey)?.querySelector("math-field") as MathfieldElement | null;
     if (!mathfield) return;
     // reselect when selection is lost and mathfield is focused
+    const selection = editor.getEditorState().read($getSelection);
     if (!selection && document.activeElement === mathfield) setSelected(true);
     // focus when node selected
     if (isSelected && !mathfield.hasFocus()) {
-      if (!$isNodeSelection(selection)) return;
       editor.getEditorState().read(() => {
+        if (!$isNodeSelection(selection)) return;
         const mathNode = $getNodeByKey(nodeKey);
         if (!mathNode) return;
-        const anchor = lastRangeSelection?.anchor;
+        const anchor = lastRangeSelection.current?.anchor;
         if (!anchor) return;
         const anchorNode = anchor.getNode();
         const anchorOffset = anchor.offset;
