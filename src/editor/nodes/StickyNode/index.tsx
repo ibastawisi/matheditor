@@ -116,22 +116,13 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
     return false;
   }
 
-  getEditor(): LexicalEditor {
-    return this.__editor;
-  }
-
-  setEditor(editor: LexicalEditor): void {
-    const writable = this.getWritable();
-    writable.__editor = editor;
-  }
-
   toggleColor(): void {
     const writable = this.getWritable();
     writable.__color = writable.__color === 'pink' ? 'yellow' : 'pink';
   }
 
   select() {
-    const editor = this.getEditor();
+    const editor = this.__editor;
     editor.update(() => {
       const root = $getRoot();
       root.selectStart();

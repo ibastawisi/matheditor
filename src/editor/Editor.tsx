@@ -1,6 +1,7 @@
 "use client"
 import type { EditorState, LexicalEditor } from "lexical";
 import { LexicalComposer, InitialConfigType } from "@lexical/react/LexicalComposer";
+import { SharedHistoryContext } from "./context/SharedHistoryContext";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import ToolbarPlugin from "./plugins/ToolbarPlugin";
 import { editorConfig } from "./config";
@@ -18,11 +19,11 @@ export const Editor: React.FC<{
 }> = ({ initialConfig, onChange, editorRef, ignoreHistoryMerge }) => {
   return (
     <LexicalComposer initialConfig={{ ...editorConfig, ...initialConfig }}>
-      <>
+      <SharedHistoryContext>
         <ToolbarPlugin />
         <EditorPlugins contentEditable={<ContentEditable className="editor-input" />} onChange={onChange} ignoreHistoryMerge={ignoreHistoryMerge} />
         <EditorRefPlugin editorRef={editorRef} />
-      </>
+      </SharedHistoryContext>
     </LexicalComposer>
   );
 };

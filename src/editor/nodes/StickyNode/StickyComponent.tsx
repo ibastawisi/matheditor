@@ -62,15 +62,6 @@ export default function StickyComponent({ nodeKey, color, stickyEditor, children
     });
   };
 
-  const onChange = () => {
-    editor.update(() => {
-      const node = $getNodeByKey(nodeKey);
-      if (!$isStickyNode(node)) return;
-      node.setEditor(stickyEditor);
-    });
-  }
-
-
   return (
     <div ref={stickyContainerRef} className="sticky-note-container" draggable={isSelected} {...{ theme: 'light' }}>
       <div className='sticky-tools'>
@@ -87,7 +78,7 @@ export default function StickyComponent({ nodeKey, color, stickyEditor, children
       </div>
       <div className={`sticky-note ${color}`}>
         <Suspense fallback={children}>
-          <NestedEditor initialEditor={stickyEditor} initialNodes={editorConfig.nodes} onChange={onChange} />
+          <NestedEditor initialEditor={stickyEditor} initialNodes={editorConfig.nodes} />
         </Suspense>
       </div>
     </div >

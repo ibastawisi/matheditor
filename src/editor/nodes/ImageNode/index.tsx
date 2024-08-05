@@ -231,15 +231,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     writable.__showCaption = showCaption;
   }
 
-  getCaption(): LexicalEditor {
-    return this.__caption;
-  }
-
-  setCaption(caption: LexicalEditor): void {
-    const writable = this.getWritable();
-    writable.__caption = caption;
-  }
-
   update(payload: Partial<ImagePayload>): void {
     const writable = this.getWritable();
     writable.__src = payload.src ?? writable.__src;

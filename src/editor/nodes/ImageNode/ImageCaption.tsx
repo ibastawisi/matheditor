@@ -1,8 +1,7 @@
 "use client"
 import type { LexicalEditor, NodeKey } from 'lexical';
-import { $getNodeByKey, $getSelection, $setSelection, COMMAND_PRIORITY_LOW, SELECTION_CHANGE_COMMAND } from 'lexical';
+import { $getSelection, $setSelection, COMMAND_PRIORITY_LOW, SELECTION_CHANGE_COMMAND } from 'lexical';
 import { lazy, memo, Suspense, useEffect } from 'react';
-import { $isImageNode } from '.';
 import { editorConfig } from './config';
 import { Typography } from '@mui/material';
 import { mergeRegister } from '@/editor';
@@ -19,16 +18,6 @@ export function ImageCaption({
   children?: React.ReactNode;
 }): JSX.Element {
   const parentEditor = editor._parentEditor;
-  const onChange = () => {
-    if (!parentEditor) return;
-    parentEditor.update(() => {
-      const node = $getNodeByKey(nodeKey);
-      if ($isImageNode(node)) {
-        node.setCaption(editor);
-      }
-    });
-  };
-  
   useEffect(() => {
     const unregister = mergeRegister(
       editor.registerCommand(
@@ -58,7 +47,7 @@ export function ImageCaption({
   return (
     <figcaption>
       <Suspense fallback={children}>
-        <NestedEditor initialEditor={editor} initialNodes={editorConfig.nodes} onChange={onChange}
+        <NestedEditor initialEditor={editor} initialNodes={editorConfig.nodes}
           placeholder={<Typography color="text.secondary" className="nested-placeholder">Write a caption</Typography>}
         />
       </Suspense>
