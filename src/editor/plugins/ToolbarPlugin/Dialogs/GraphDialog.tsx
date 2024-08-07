@@ -78,6 +78,12 @@ function GraphDialog({ editor, node }: { editor: LexicalEditor, node: GraphNode 
     closeDialog();
   }
 
+  useEffect(() => {
+    return () => {
+      document.body.classList.remove('fullscreen');
+    }
+  }, []);
+
   return <Dialog open fullScreen onClose={handleClose} disableEscapeKeyDown
     TransitionProps={{
       onEntered() { document.body.classList.add('fullscreen'); },

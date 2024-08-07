@@ -287,6 +287,12 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
 
   const loading = !excalidrawAPI;
 
+  useEffect(() => {
+    return () => {
+      document.body.classList.remove('fullscreen');
+    }
+  }, []);
+
   return <Dialog open fullScreen={true} onClose={handleClose} disableEscapeKeyDown
     TransitionProps={{
       onEntered() { document.body.classList.add('fullscreen') },
