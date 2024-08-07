@@ -33,8 +33,9 @@
   fill: transparent;
 }
 
-.sticky-note-container .image-control-wrapper>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath) {
-  filter: initial;
+.sticky-note-container .image-control-wrapper>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
+.sticky-note-container .LexicalTheme__image[data-type='graph'] .image-control-wrapper>img {
+  filter: initial !important;
 }
 
 .LexicalTheme__image .focused,

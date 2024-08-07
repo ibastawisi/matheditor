@@ -426,8 +426,9 @@ iframe {
   fill: transparent;
 }
 
-.sticky-note-container .LexicalTheme__image>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath) {
-  filter: initial;
+.sticky-note-container .LexicalTheme__image>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
+.sticky-note-container .LexicalTheme__image[data-type='graph']>img {
+  filter: initial !important;
 }
 
 .LexicalTheme__image figcaption {

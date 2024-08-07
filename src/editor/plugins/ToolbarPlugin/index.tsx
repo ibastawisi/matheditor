@@ -1,5 +1,5 @@
 "use client"
-import { $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, LexicalNode } from 'lexical';
+import { $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, CLEAR_HISTORY_COMMAND, FOCUS_COMMAND, LexicalNode } from 'lexical';
 import { $isCodeNode } from '@lexical/code';
 import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -7,7 +7,7 @@ import { $isHeadingNode } from '@lexical/rich-text';
 import { $isParentElementRTL, } from '@lexical/selection';
 import { $getNearestNodeOfType, mergeRegister, } from '@lexical/utils';
 import { CAN_REDO_COMMAND, CAN_UNDO_COMMAND, REDO_COMMAND, SELECTION_CHANGE_COMMAND, UNDO_COMMAND, COMMAND_PRIORITY_CRITICAL, } from 'lexical';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { BlockFormatSelect } from './Menus/BlockFormatSelect';
 import InsertToolMenu from './Menus/InsertToolMenu';
 import TextFormatToggles from './Tools/TextFormatToggles';
@@ -83,6 +83,7 @@ function ToolbarPlugin() {
     },
   });
   const [isSpeechToText, setIsSpeechToText] = useState(false);
+  const isTouched = useRef<boolean>(false);
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -168,7 +169,7 @@ function ToolbarPlugin() {
       activeEditor.registerCommand<boolean>(
         CAN_UNDO_COMMAND,
         (payload) => {
-          setCanUndo(payload);
+          setCanUndo(isTouched.current && payload);
           return false;
         },
         COMMAND_PRIORITY_CRITICAL,
@@ -176,7 +177,7 @@ function ToolbarPlugin() {
       activeEditor.registerCommand<boolean>(
         CAN_REDO_COMMAND,
         (payload) => {
-          setCanRedo(payload);
+          setCanRedo(isTouched.current && payload);
           return false;
         },
         COMMAND_PRIORITY_CRITICAL,
@@ -185,6 +186,17 @@ function ToolbarPlugin() {
         SPEECH_TO_TEXT_COMMAND,
         (payload) => {
           setIsSpeechToText(payload);
+          return false;
+        },
+        COMMAND_PRIORITY_CRITICAL,
+      ),
+      activeEditor.registerCommand(
+        FOCUS_COMMAND,
+        () => {
+          if (!isTouched.current) {
+            isTouched.current = true;
+            editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
+          }
           return false;
         },
         COMMAND_PRIORITY_CRITICAL,
