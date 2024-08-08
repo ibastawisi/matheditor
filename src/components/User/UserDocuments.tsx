@@ -25,12 +25,12 @@ const UserDocuments: React.FC<{ documents?: UserDocument[] }> = ({ documents }) 
           <DocumentSortControl value={sort} setValue={setSort} />
         </Box>
         <Box sx={{ display: 'flex', flexDirection: "column", flex: 1, justifyContent: 'space-between' }}>
-          <Grid container spacing={2}>
+          <Grid container spacing={2} sx={{ mb: 2 }}>
             {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
               <DocumentCard userDocument={document} />
             </Grid>)}
           </Grid>
-          {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3 }} />}
+          {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center" }} />}
         </Box>
       </>}
       {showEmpty && <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>

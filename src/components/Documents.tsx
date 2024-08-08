@@ -191,7 +191,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initiali
   const pageDocuments = documents.slice((page - 1) * pageSize, page * pageSize);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: "column", flex: 1, justifyContent: 'space-between' }}>
+    <Box sx={{ display: 'flex', flexDirection: "column", flex: 1, justifyContent: 'space-between', mb: 2 }}>
       <Grid container spacing={2} sx={{ mb: 2 }}>
         {showSkeletons && Array.from({ length: 6 }).map((_, i) => <Grid item key={i} xs={12} sm={6} md={4}><DocumentCard /></Grid>)}
         {showEmpty && <Grid item xs={12} sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>
@@ -202,7 +202,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initiali
           <DocumentCard userDocument={document} user={user} />
         </Grid>)}
       </Grid>
-      {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3, width: "100%" }} />}
+      {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", width: "100%" }} />}
     </Box>
   );
 });
