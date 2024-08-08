@@ -36,10 +36,10 @@ function GraphDialog({ editor, node }: { editor: LexicalEditor, node: GraphNode 
       setGeogebraAPI(api);
       const container = document.querySelector<HTMLDivElement>('.ggb-container');
       if (!container) return;
-      container.onclick = () => {
+      container.onpointerup = debounce(() => {
         const value = api.getBase64();
-        saveToLocalStorage(value);
-      }
+        localStorage.setItem("geogebra", value);
+      }, 300);
     }
   };
   useEffect(() => {
@@ -76,17 +76,8 @@ function GraphDialog({ editor, node }: { editor: LexicalEditor, node: GraphNode 
     }
   };
 
-  const saveToLocalStorage = debounce(async (value: string) => {
-    localStorage.setItem("geogebra", value);
-  }, 300);
-
   const clearLocalStorage = () => {
     localStorage.removeItem("geogebra");
-  };
-
-  const restoreFromLocalStorage = () => {
-    const value = localStorage.getItem("geogebra");
-    if (value) geogebraAPI.setBase64(value);
   };
 
   useEffect(() => {
