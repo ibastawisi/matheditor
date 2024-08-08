@@ -5,6 +5,7 @@ import useLocalStorage from "../hooks/useLocalStorage";
 import Documents from "./Documents";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { UserDocument } from '@/types';
+import Footer from './Footer';
 
 
 const Home: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocuments }) => {
@@ -34,6 +35,7 @@ const Home: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocuments }
           </DialogActions>
         </Dialog>
       )}
+      <Footer />
     </>
   );
 };

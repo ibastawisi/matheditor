@@ -1,5 +1,5 @@
 import { Cached } from '@mui/icons-material';
-import packageJson from '../../../package.json';
+import packageJson from '../../package.json';
 import { Box, Typography, Link, IconButton } from '@mui/material';
 import RouterLink from "next/link";
 
@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
   const commitHash: string | undefined = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA;
   const href = `https://github.com/ibastawisi/matheditor${commitHash ? '/commit/' + commitHash.substring(0, 7) : '/'}`;
   return (
-    <Box component="footer" sx={{ display: "flex", displayPrint: "none", mt: "auto", p: 1, gap: 1 }}>
+    <Box component="footer" sx={{ display: "flex", displayPrint: "none", mt: "auto", gap: 1, zIndex: 1000 }}>
       <Typography variant="button" component={Link} href={href} target="_blank" sx={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
         v{version} {commitHash?.substring(0, 7)}
       </Typography>

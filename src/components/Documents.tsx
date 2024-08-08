@@ -190,7 +190,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initiali
   const handlePageChange = (_: any, value: number) => dispatch(actions.setPage(value));
   const pageDocuments = documents.slice((page - 1) * pageSize, page * pageSize);
 
-  return <Grid container spacing={2}>
+  return <Grid container spacing={2} sx={{ mb: 2 }}>
     {showSkeletons && Array.from({ length: 6 }).map((_, i) => <Grid item key={i} xs={12} sm={6} md={4}><DocumentCard /></Grid>)}
     {showEmpty && <Grid item xs={12} sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>
       <Pageview sx={{ width: 64, height: 64, fontSize: 64 }} />

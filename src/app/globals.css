@@ -53,19 +53,8 @@ header {
   transform: rotate(3deg) translate(0px, -4px);
 }
 
-.editor-container {
-  flex: 1;
-  margin: 1rem auto;
-  position: relative;
-  overflow: hidden;
-}
-
 .editor-toolbar {
   background-color: #fff;
-}
-
-footer {
-  z-index: 1000;
 }
 
 .splash-screen {
@@ -127,10 +116,6 @@ html:not([theme=dark]) .MuiFab-root.MuiFab-extended {
 
 body:has(#app-toolbar) .editor-container [id] {
   scroll-margin-top: calc(56px + 1rem);
-}
-
-body:has(.editor-input)>footer {
-  visibility: hidden;
 }
 
 .editor-container:has(.editor-input) {
