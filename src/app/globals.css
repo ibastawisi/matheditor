@@ -118,11 +118,6 @@ body:has(#app-toolbar) .editor-container [id] {
   scroll-margin-top: calc(56px + 1rem);
 }
 
-.editor-container:has(.editor-input) {
-  display: flex;
-  flex-direction: column;
-}
-
 .editor-input {
   flex: 1;
   resize: none;

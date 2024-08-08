@@ -190,17 +190,21 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initiali
   const handlePageChange = (_: any, value: number) => dispatch(actions.setPage(value));
   const pageDocuments = documents.slice((page - 1) * pageSize, page * pageSize);
 
-  return <Grid container spacing={2} sx={{ mb: 2 }}>
-    {showSkeletons && Array.from({ length: 6 }).map((_, i) => <Grid item key={i} xs={12} sm={6} md={4}><DocumentCard /></Grid>)}
-    {showEmpty && <Grid item xs={12} sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>
-      <Pageview sx={{ width: 64, height: 64, fontSize: 64 }} />
-      <Typography variant="overline" component="p">No documents found</Typography>
-    </Grid>}
-    {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
-      <DocumentCard userDocument={document} user={user} />
-    </Grid>)}
-    {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3, width: "100%" }} />}
-  </Grid>
+  return (
+    <Box sx={{ display: 'flex', flexDirection: "column", flex: 1, justifyContent: 'space-between' }}>
+      <Grid container spacing={2} sx={{ mb: 2 }}>
+        {showSkeletons && Array.from({ length: 6 }).map((_, i) => <Grid item key={i} xs={12} sm={6} md={4}><DocumentCard /></Grid>)}
+        {showEmpty && <Grid item xs={12} sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>
+          <Pageview sx={{ width: 64, height: 64, fontSize: 64 }} />
+          <Typography variant="overline" component="p">No documents found</Typography>
+        </Grid>}
+        {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
+          <DocumentCard userDocument={document} user={user} />
+        </Grid>)}
+      </Grid>
+      {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", mt: 3, width: "100%" }} />}
+    </Box>
+  );
 });
 
 export default Documents;

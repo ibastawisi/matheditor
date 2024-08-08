@@ -78,7 +78,6 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
   };
 
   const closeDialog = () => {
-    document.body.classList.remove('fullscreen');
     editor.dispatchCommand(SET_DIALOGS_COMMAND, { sketch: { open: false } });
   }
 
@@ -288,9 +287,20 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
   const loading = !excalidrawAPI;
 
   useEffect(() => {
+    const navigation = (window as any).navigation;
+    if (!navigation) return;
+
+    const preventBackNavigation = (event: any) => {
+      if (event.navigationType === 'push') return;
+      event.preventDefault();
+      handleClose();
+    };
+
+    navigation.addEventListener('navigate', preventBackNavigation);
     return () => {
       document.body.classList.remove('fullscreen');
-    }
+      navigation.removeEventListener('navigate', preventBackNavigation);
+    };
   }, []);
 
   return <Dialog open fullScreen={true} onClose={handleClose} disableEscapeKeyDown
