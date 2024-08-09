@@ -273,7 +273,7 @@ export default function ImageComponent({
         onResizeEnd={onResizeEnd}
         showResizers={focused}
       >
-        {element === 'svg' ? (
+        {element === 'svg' && (
           <svg
             ref={imageRef as React.Ref<SVGSVGElement>}
             className={focused ? 'focused' : ''}
@@ -282,7 +282,8 @@ export default function ImageComponent({
             xmlns="http://www.w3.org/2000/svg"
             version="1.1"
           />
-        ) : element === 'iframe' ? (
+        )}
+        {element === 'iframe' && (
           <iframe
             ref={imageRef as React.Ref<HTMLIFrameElement>}
             className={focused ? 'focused' : ''}
@@ -294,18 +295,20 @@ export default function ImageComponent({
             allowFullScreen={true}
             title={altText}
           />
-        ) : (
-          <img
-            className={focused ? `focused draggable` : undefined}
-            src={src}
-            alt={altText}
-            ref={imageRef as React.Ref<HTMLImageElement>}
-            width={width || undefined}
-            height={height || undefined}
-            style={{ aspectRatio: (width / height) || undefined }}
-            draggable={draggable}
-          />
         )}
+        <img
+          className={focused ? `focused draggable` : undefined}
+          src={src}
+          alt={altText}
+          draggable={draggable}
+          ref={element === 'img' ? imageRef as React.Ref<HTMLImageElement> : undefined}
+          width={width || undefined}
+          height={height || undefined}
+          style={element === 'img' ?
+            { aspectRatio: (width / height) || undefined } :
+            { aspectRatio: (width / height) || undefined, position: 'absolute', opacity: 0, pointerEvents: focused ? 'auto' : 'none' }
+          }
+        />
       </ImageResizer>
       {showCaption && <ImageCaption editor={caption} nodeKey={nodeKey}>{children}</ImageCaption>}
     </>

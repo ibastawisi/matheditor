@@ -405,7 +405,6 @@ iframe {
 }
 
 .LexicalTheme__image {
-  cursor: default;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -527,7 +526,6 @@ iframe {
   width: 100%;
   border: none;
   padding: 8px 0;
-  cursor: pointer;
   clear: both;
 }
 

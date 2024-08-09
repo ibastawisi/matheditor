@@ -32,11 +32,11 @@
 }
 
 .LexicalTheme__image .focused.draggable {
-  cursor: grab
+  cursor: grab;
 }
 
 .LexicalTheme__image .focused.draggable:active {
-  cursor: grabbing
+  cursor: grabbing;
 }
 
 .LexicalTheme__image .nested-contentEditable {
