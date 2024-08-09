@@ -415,18 +415,18 @@ iframe {
   vertical-align: middle;
 }
 
-.LexicalTheme__image>img,
-.LexicalTheme__image>svg {
+.LexicalTheme__image img,
+.LexicalTheme__image svg {
   min-width: 40px;
   max-width: 100%;
   height: auto;
 }
 
-.LexicalTheme__image>svg [fill='#ffffff'] {
+.LexicalTheme__image svg [fill='#ffffff'] {
   fill: transparent;
 }
 
-.sticky-note-container .LexicalTheme__image>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
+.sticky-note-container .LexicalTheme__image svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
 .sticky-note-container .LexicalTheme__image[data-type='graph']>img {
   filter: initial !important;
 }
@@ -785,8 +785,8 @@ iframe {
     background-color: rgba(255, 255, 255, 0.08);
   }
 
-  [theme=dark] .LexicalTheme__image>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
-  [theme=dark] .LexicalTheme__image[data-type='graph']>img {
+  [theme=dark] .LexicalTheme__image svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
+  [theme=dark] .LexicalTheme__image[data-type='graph'] img {
     filter: invert(93%) hue-rotate(180deg);
   }
 }

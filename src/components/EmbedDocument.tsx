@@ -13,7 +13,7 @@ const EmbedDocument: React.FC<React.PropsWithChildren> = ({ children }) => {
         position: 'relative',
         overflow: 'hidden',
       }}>
-      {children}
+      <div className="document-container">{children}</div>
     </Container>
   );
 }

@@ -1,21 +1,12 @@
 "use client"
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-import { $createParagraphNode, $insertNodes, $isRootNode, COMMAND_PRIORITY_LOW, KEY_ARROW_DOWN_COMMAND, KEY_ARROW_UP_COMMAND, LexicalCommand, SELECTION_CHANGE_COMMAND } from 'lexical';
-
+import { $createParagraphNode, $insertNodes, $isRootNode, KEY_ARROW_DOWN_COMMAND, KEY_ARROW_UP_COMMAND, LexicalCommand } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { COMMAND_PRIORITY_EDITOR, createCommand } from 'lexical';
 import { useEffect } from 'react';
 import { $wrapNodeInElement, mergeRegister } from '@lexical/utils';
-
 import { $createMathNode, MathNode } from '@/editor/nodes/MathNode';
 import { IS_MOBILE } from '@/shared/environment';
+import "mathlive";
 
 type CommandPayload = {
   value: string;
@@ -112,6 +103,9 @@ export default function MathPlugin(): JSX.Element | null {
     navigation.addEventListener('navigate', preventBackNavigation);
     return () => {
       navigation.removeEventListener('navigate', preventBackNavigation);
+      const mathVirtualKeyboard = window.mathVirtualKeyboard;
+      if (!mathVirtualKeyboard?.visible) return;
+      mathVirtualKeyboard.hide();
     };
   }, []);
 

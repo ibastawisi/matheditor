@@ -18,24 +18,12 @@
 
 .image-control-wrapper>img,
 .image-control-wrapper>svg {
-  min-width: 40px;
-  max-width: 100%;
-  height: auto;
   scroll-margin-top: 88px;
   scroll-margin-bottom: 24px;
 }
 
 .image-control-wrapper>svg {
   user-select: none;
-}
-
-.image-control-wrapper>svg [fill='#ffffff'] {
-  fill: transparent;
-}
-
-.sticky-note-container .image-control-wrapper>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
-.sticky-note-container .LexicalTheme__image[data-type='graph'] .image-control-wrapper>img {
-  filter: initial !important;
 }
 
 .LexicalTheme__image .focused,
@@ -83,7 +71,11 @@
 }
 
 .LexicalTheme__image .image-resizer svg {
-  background-color: unset;
+  min-width: initial;
+}
+
+.LexicalTheme__image .image-resizer svg * {
+  filter: unset !important;
 }
 
 .LexicalTheme__image .image-resizer.image-resizer-n {
@@ -149,12 +141,5 @@
 
   .image-control-wrapper .image-resizer {
     display: none !important;
-  }
-}
-
-@media screen {
-  [theme=dark] .image-control-wrapper>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
-  [theme=dark] .LexicalTheme__image[data-type='graph'] .image-control-wrapper>img {
-    filter: invert(93%) hue-rotate(180deg);
   }
 }

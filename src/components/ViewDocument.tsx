@@ -5,7 +5,7 @@ const ViewDocumentInfo = dynamic(() => import('@/components/ViewDocumentInfo'), 
 
 const ViewDocument: React.FC<React.PropsWithChildren & { cloudDocument: CloudDocument, user?: User }> = ({ cloudDocument, user, children }) => {
   return <>
-    {children}
+    <div className='document-container'>{children}</div>
     <ViewDocumentInfo cloudDocument={cloudDocument} user={user} />
   </>
 }
