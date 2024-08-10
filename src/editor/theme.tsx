@@ -8,6 +8,8 @@
 
 import type { EditorThemeClasses } from 'lexical';
 
+import './theme.css';
+
 const theme: EditorThemeClasses = {
   blockCursor: 'LexicalTheme__blockCursor',
   characterLimit: 'LexicalTheme__characterLimit',
