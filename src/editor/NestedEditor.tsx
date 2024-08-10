@@ -17,7 +17,11 @@ export const NestedEditor: React.FC<{
   };
   return (
     <LexicalNestedComposer initialEditor={initialEditor} initialNodes={initialNodes}>
-      <EditorPlugins contentEditable={<ContentEditable className="nested-contentEditable" />} placeholder={placeholder} onChange={onChange} />
+      <EditorPlugins placeholder={placeholder} onChange={onChange}
+        contentEditable={
+          <ContentEditable className="nested-contentEditable" ariaLabel="editor input" />
+        }
+      />
     </LexicalNestedComposer>
   );
 }

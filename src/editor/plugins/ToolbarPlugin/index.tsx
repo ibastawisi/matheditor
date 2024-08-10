@@ -288,6 +288,7 @@ function ToolbarPlugin() {
             <AlignTextMenu editor={activeEditor} isRTL={isRTL} />
           </Box>
           {(!IS_MOBILE && SUPPORT_SPEECH_RECOGNITION) ? <Fab size='small' color={isSpeechToText ? 'secondary' : 'primary'}
+            aria-label="Speech to Text"
             sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 16, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}
             onClick={() => {
               editor.dispatchCommand(SPEECH_TO_TEXT_COMMAND, !isSpeechToText);

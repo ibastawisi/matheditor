@@ -19,7 +19,11 @@ export const Editor: React.FC<{
     <LexicalComposer initialConfig={{ ...editorConfig, ...initialConfig }}>
       <SharedHistoryContext>
         <ToolbarPlugin />
-        <EditorPlugins contentEditable={<ContentEditable className="editor-input" />} onChange={onChange} ignoreHistoryMerge={ignoreHistoryMerge} />
+        <EditorPlugins onChange={onChange} ignoreHistoryMerge={ignoreHistoryMerge}
+          contentEditable={
+            <ContentEditable className="editor-input" ariaLabel="editor input" />
+          }
+        />
         <EditorRefPlugin editorRef={editorRef} />
       </SharedHistoryContext>
     </LexicalComposer>

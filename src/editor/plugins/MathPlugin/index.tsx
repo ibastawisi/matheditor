@@ -6,7 +6,6 @@ import { useEffect } from 'react';
 import { $wrapNodeInElement, mergeRegister } from '@lexical/utils';
 import { $createMathNode, MathNode } from '@/editor/nodes/MathNode';
 import { IS_MOBILE } from '@/shared/environment';
-import "mathlive";
 
 type CommandPayload = {
   value: string;

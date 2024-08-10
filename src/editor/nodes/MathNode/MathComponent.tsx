@@ -1,16 +1,16 @@
 "use client"
 import { DOMAttributes, useRef } from "react";
-import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, BaseSelection, NodeKey, RangeSelection } from 'lexical';
+import { $createRangeSelection, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, NodeKey, RangeSelection } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey } from 'lexical';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 import type { MathfieldElement, MathfieldElementAttributes, MoveOutEvent } from "mathlive";
-import './index.css';
 import { $isMathNode } from ".";
 import { customizeMathVirtualKeyboard } from "./mathVirtualKeyboard";
 import { IS_MOBILE } from "@/shared/environment";
+import './index.css';
 
 type CustomElement<T> = Partial<T & DOMAttributes<T>>;
 

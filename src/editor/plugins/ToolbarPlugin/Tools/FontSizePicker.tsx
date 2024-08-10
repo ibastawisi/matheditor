@@ -133,7 +133,8 @@ export const FontSizePicker = ({ fontSize, updateFontSize, onBlur }: {
             const menuItem = input.closest("li");
             if (!menuItem) return;
             if (isNavigatingDown) menuItem.focus();
-          }
+          },
+          "aria-label": "font size",
         }}
       />
       <IconButton
