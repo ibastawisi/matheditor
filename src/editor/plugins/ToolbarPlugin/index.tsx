@@ -1,5 +1,5 @@
 "use client"
-import { $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, CLEAR_HISTORY_COMMAND, COMMAND_PRIORITY_HIGH, LexicalNode } from 'lexical';
+import { $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, CLEAR_HISTORY_COMMAND, LexicalNode } from 'lexical';
 import { $isCodeNode } from '@lexical/code';
 import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -12,7 +12,6 @@ import { BlockFormatSelect } from './Menus/BlockFormatSelect';
 import InsertToolMenu from './Menus/InsertToolMenu';
 import TextFormatToggles from './Tools/TextFormatToggles';
 import AlignTextMenu from './Menus/AlignTextMenu';
-import { IS_MOBILE } from '@/shared/environment';
 import { $isMathNode } from '@/editor/nodes/MathNode';
 import MathTools from './Tools/MathTools';
 import { $isImageNode } from '@/editor/nodes/ImageNode';
@@ -20,8 +19,8 @@ import ImageTools from './Tools/ImageTools';
 import { $isGraphNode } from '@/editor/nodes/GraphNode';
 import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog, LinkDialog, LayoutDialog, OCRDialog } from './Dialogs';
 import { $isStickyNode } from '@/editor/nodes/StickyNode';
-import { useScrollTrigger, AppBar, Toolbar, Box, IconButton, Fab } from '@mui/material';
-import { Mic, Redo, Undo } from '@mui/icons-material';
+import { useScrollTrigger, AppBar, Toolbar, Box, IconButton } from '@mui/material';
+import { Redo, Undo } from '@mui/icons-material';
 import { $isIFrameNode } from '@/editor/nodes/IFrameNode';
 import { IS_APPLE, $findMatchingParent } from '@lexical/utils';
 import { $isTableNode, TableNode } from '@/editor/nodes/TableNode';
@@ -29,7 +28,6 @@ import TableTools from './Tools/TableTools';
 import { $isLinkNode } from '@lexical/link';
 import { EditorDialogs, SetDialogsPayload, SET_DIALOGS_COMMAND } from './Dialogs/commands';
 import { getSelectedNode } from '@/editor/utils/getSelectedNode';
-import { SPEECH_TO_TEXT_COMMAND, SUPPORT_SPEECH_RECOGNITION } from '../SpeechToTextPlugin';
 import AITools from './Tools/AITools';
 import FontSelect from './Menus/FontSelect';
 import CodeTools from './Tools/CodeTools';
@@ -82,7 +80,6 @@ function ToolbarPlugin() {
       open: false,
     },
   });
-  const [isSpeechToText, setIsSpeechToText] = useState(false);
   const isTouched = useRef<boolean>(false);
 
   const $updateToolbar = useCallback(() => {
@@ -199,14 +196,6 @@ function ToolbarPlugin() {
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
-      editor.registerCommand<boolean>(
-        SPEECH_TO_TEXT_COMMAND,
-        (payload) => {
-          setIsSpeechToText(payload);
-          return false;
-        },
-        COMMAND_PRIORITY_CRITICAL,
-      ),
     );
   }, [activeEditor, $updateToolbar]);
 
@@ -293,14 +282,6 @@ function ToolbarPlugin() {
             <InsertToolMenu editor={activeEditor} />
             <AlignTextMenu editor={activeEditor} isRTL={isRTL} />
           </Box>
-          {(!IS_MOBILE && SUPPORT_SPEECH_RECOGNITION) ? <Fab size='small' color={isSpeechToText ? 'secondary' : 'primary'}
-            aria-label="Speech to Text"
-            sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 16, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}
-            onClick={() => {
-              editor.dispatchCommand(SPEECH_TO_TEXT_COMMAND, !isSpeechToText);
-            }}>
-            <Mic />
-          </Fab> : null}
         </Toolbar >
       </AppBar>
       {toolbarTrigger && <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })} />}

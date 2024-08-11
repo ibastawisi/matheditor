@@ -38,7 +38,6 @@ import { IFrameNode } from "../nodes/IFrameNode";
 import IFramePlugin from "./IFramePlugin";
 import { LayoutPlugin } from "./LayoutPlugin";
 import { LayoutContainerNode } from "../nodes/LayoutNode";
-import SpeechToTextPlugin from "./SpeechToTextPlugin";
 import DetailsPlugin from "./DetailsPlugin";
 import { DetailsContainerNode } from "../nodes/DetailsNode";
 
@@ -71,7 +70,6 @@ export const EditorPlugins: React.FC<{
       <DragDropPaste />
       <CodeHighlightPlugin />
       <AutoLinkPlugin />
-      <SpeechToTextPlugin />
       {editor.hasNode(TableNode) && <TablePlugin />}
       {editor.hasNode(TableNode) && <TableCellResizer />}
       {editor.hasNode(ImageNode) && <ImagePlugin />}
