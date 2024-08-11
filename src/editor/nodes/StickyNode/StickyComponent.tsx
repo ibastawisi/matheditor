@@ -46,20 +46,26 @@ export default function StickyComponent({ nodeKey, color, stickyEditor, children
   }
 
   const handleDelete = () => {
-    editor.update(() => {
-      const node = $getNodeByKey(nodeKey);
-      if (node) {
+    setSelected(true);
+    setTimeout(() => {
+      editor.update(() => {
+        const node = $getNodeByKey(nodeKey);
+        if (!$isStickyNode(node)) return;
+        node.selectPrevious();
         node.remove();
-      }
-    });
+      });
+    }, 0);
   };
 
   const handleColorChange = () => {
-    editor.update(() => {
-      const node = $getNodeByKey(nodeKey);
-      if (!$isStickyNode(node)) return;
-      node.toggleColor();
-    });
+    setSelected(true);
+    setTimeout(() => {
+      editor.update(() => {
+        const node = $getNodeByKey(nodeKey);
+        if (!$isStickyNode(node)) return;
+        node.toggleColor();
+      });
+    }, 0);
   };
 
   return (

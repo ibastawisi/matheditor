@@ -1,5 +1,5 @@
 "use client"
-import { $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, CLEAR_HISTORY_COMMAND, FOCUS_COMMAND, LexicalNode } from 'lexical';
+import { $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, CLEAR_HISTORY_COMMAND, COMMAND_PRIORITY_HIGH, LexicalNode } from 'lexical';
 import { $isCodeNode } from '@lexical/code';
 import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -146,6 +146,9 @@ function ToolbarPlugin() {
         (_payload, newEditor) => {
           setActiveEditor(newEditor);
           $updateToolbar();
+          if (!isTouched.current) {
+            isTouched.current = true;
+          }
           return false;
         },
         COMMAND_PRIORITY_CRITICAL,
@@ -161,15 +164,25 @@ function ToolbarPlugin() {
 
   useEffect(() => {
     return mergeRegister(
-      activeEditor.registerUpdateListener(({ editorState }) => {
+      activeEditor.registerUpdateListener(({ editorState, tags }) => {
         editorState.read(() => {
           $updateToolbar();
         });
+        try {
+          const revision = JSON.parse(tags.values().next().value);
+          if (revision.id) {
+            isTouched.current = false;
+          }
+        } catch (e) { }
       }),
       activeEditor.registerCommand<boolean>(
         CAN_UNDO_COMMAND,
         (payload) => {
-          setCanUndo(isTouched.current && payload);
+          if (payload && !isTouched.current) {
+            editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
+            return false;
+          }
+          setCanUndo(payload);
           return false;
         },
         COMMAND_PRIORITY_CRITICAL,
@@ -177,7 +190,11 @@ function ToolbarPlugin() {
       activeEditor.registerCommand<boolean>(
         CAN_REDO_COMMAND,
         (payload) => {
-          setCanRedo(isTouched.current && payload);
+          if (payload && !isTouched.current) {
+            editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
+            return false;
+          }
+          setCanRedo(payload);
           return false;
         },
         COMMAND_PRIORITY_CRITICAL,
@@ -186,17 +203,6 @@ function ToolbarPlugin() {
         SPEECH_TO_TEXT_COMMAND,
         (payload) => {
           setIsSpeechToText(payload);
-          return false;
-        },
-        COMMAND_PRIORITY_CRITICAL,
-      ),
-      activeEditor.registerCommand(
-        FOCUS_COMMAND,
-        () => {
-          if (!isTouched.current) {
-            isTouched.current = true;
-            editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
-          }
           return false;
         },
         COMMAND_PRIORITY_CRITICAL,
