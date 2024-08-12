@@ -14,42 +14,33 @@ import type {
   LexicalNode,
   NodeKey,
   SerializedEditor,
-  SerializedEditorState,
   SerializedLexicalNode,
   Spread,
 } from 'lexical';
 
-import { $getRoot, DecoratorNode, createEditor, isHTMLElement } from 'lexical';
+import { $createNodeSelection, $getRoot, $getSelection, $setSelection, DecoratorNode, createEditor, isHTMLElement } from 'lexical';
 import * as React from 'react';
 import { editorConfig } from './config';
 import { $generateHtmlFromNodes } from "@lexical/html";
 import StickyComponent from './StickyComponent';
 import htmr from 'htmr';
 
-type StickyNoteColor = 'pink' | 'yellow';
-
 export interface StickyPayload {
-  color?: StickyNoteColor;
-  /**
-* @deprecated use editor instead
-*/
-  data?: SerializedEditorState;
   editor?: SerializedEditor;
+  style?: string;
 }
 
 export type SerializedStickyNode = Spread<
   {
-    color: StickyNoteColor;
-    data?: SerializedEditorState;
-    editor: SerializedEditor
+    editor: SerializedEditor,
+    style: string,
   },
   SerializedLexicalNode
 >;
 
 export class StickyNode extends DecoratorNode<JSX.Element> {
-  __color: StickyNoteColor;
-  __data?: SerializedEditorState;
   __editor: LexicalEditor;
+  __style: string;
 
   static getType(): string {
     return 'sticky';
@@ -57,17 +48,17 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
 
   static clone(node: StickyNode): StickyNode {
     return new StickyNode(
-      node.__color,
+      node.__style,
       node.__editor,
       node.__key,
     );
   }
   static importJSON(serializedNode: SerializedStickyNode): StickyNode {
-    const { color, data, editor } = serializedNode;
-    const node = $createStickyNode({ color });
+    const { editor, style } = serializedNode;
+    const node = $createStickyNode({ style });
     const nestedEditor = node.__editor;
     try {
-      const editorState = nestedEditor.parseEditorState(editor?.editorState ?? data);
+      const editorState = nestedEditor.parseEditorState(editor?.editorState);
       if (!editorState.isEmpty()) {
         nestedEditor.setEditorState(editorState);
       }
@@ -76,19 +67,19 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
   }
 
   constructor(
-    color: StickyNoteColor,
+    style: string,
     editor?: LexicalEditor,
     key?: NodeKey,
   ) {
     super(key);
+    this.__style = style;
     this.__editor = editor ?? createEditor(editorConfig);
-    this.__color = color;
   }
 
   exportJSON(): SerializedStickyNode {
     return {
       editor: this.__editor.toJSON(),
-      color: this.__color,
+      style: this.__style,
       type: 'sticky',
       version: 1,
     };
@@ -99,7 +90,7 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
     if (element && isHTMLElement(element)) {
       this.__editor.getEditorState().read(() => {
         const html = $generateHtmlFromNodes(this.__editor);
-        element.innerHTML = `<div class="sticky-note-container" theme="light"><div class="sticky-note ${this.__color}"><div class="nested-contentEditable">${html}</div></div></div>`
+        element.innerHTML = html;
       });
     }
     return { element };
@@ -108,22 +99,39 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
   createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
     this.__editor._parentEditor = editor;
     const div = document.createElement('div');
-    div.className = 'sticky-note-wrapper';
+    div.className = 'sticky-note';
+    div.style.cssText = this.__style;
+    div.setAttribute('theme', 'light');
     return div;
   }
 
-  updateDOM(): false {
+  updateDOM(prevNode: StickyNode, dom: HTMLElement): boolean {
+    dom.style.cssText = this.getStyle();
     return false;
   }
 
-  toggleColor(): void {
-    const writable = this.getWritable();
-    writable.__color = writable.__color === 'pink' ? 'yellow' : 'pink';
+  getStyle(): string {
+    const self = this.getLatest();
+    return self.__style;
+  }
+
+  setStyle(style: string): this {
+    const self = this.getWritable();
+    self.__style = style;
+    return self;
   }
 
   select() {
+    const nodeSelection = $createNodeSelection();
+    nodeSelection.add(this.getKey());
+    $setSelection(nodeSelection);
+  }
+
+  focus() {
     const editor = this.__editor;
     editor.update(() => {
+      const selection = $getSelection();
+      if (selection) return editor.focus();
       const root = $getRoot();
       root.selectStart();
     });
@@ -141,9 +149,9 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
   decorate(): JSX.Element {
     const html = this.__editor.getEditorState().read(() => $generateHtmlFromNodes(this.__editor));
     const children = htmr(html);
+
     return (
       <StickyComponent
-        color={this.__color}
         nodeKey={this.getKey()}
         stickyEditor={this.__editor}
       >
@@ -164,8 +172,8 @@ export function $isStickyNode(
 }
 
 export function $createStickyNode(payload?: StickyPayload): StickyNode {
-  const color = payload?.color || 'yellow';
-  const node = new StickyNode(color);
+  const style = payload?.style ?? 'float: right; background-color: #bceac4;';
+  const node = new StickyNode(style);
   if (payload?.editor) {
     const nestedEditor = node.__editor;
     const editorState = nestedEditor.parseEditorState(payload.editor.editorState);

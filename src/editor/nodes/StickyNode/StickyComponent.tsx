@@ -1,92 +1,28 @@
 "use client"
-import {
-  NodeKey,
-  LexicalEditor,
-  SELECTION_CHANGE_COMMAND,
-  COMMAND_PRIORITY_LOW,
-  $getNodeByKey,
-  $setSelection,
-} from 'lexical';
+import { NodeKey, LexicalEditor, } from 'lexical';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
-import { mergeRegister } from '@lexical/utils';
-import './StickyNode.css';
-
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense } from 'react';
 import { editorConfig } from './config';
 import { IconButton } from '@mui/material';
-import { Delete, FormatPaint, DragIndicator } from '@mui/icons-material';
-import { $isStickyNode } from '.';
+import { DragIndicator } from '@mui/icons-material';
+import './StickyNode.css';
 
 const NestedEditor = lazy(() => import('@/editor/NestedEditor'));
 
-export default function StickyComponent({ nodeKey, color, stickyEditor, children }: { nodeKey: NodeKey, color: string, stickyEditor: LexicalEditor, children?: React.ReactNode }) {
-  const [editor] = useLexicalComposerContext();
+export default function StickyComponent({ nodeKey, stickyEditor, children }: { nodeKey: NodeKey, stickyEditor: LexicalEditor, children?: React.ReactNode }) {
   const [isSelected, setSelected] = useLexicalNodeSelection(nodeKey);
 
-  const stickyContainerRef = useRef<null | HTMLDivElement>(null);
-
-  useEffect(() => {
-    return mergeRegister(
-      editor.registerCommand(
-        SELECTION_CHANGE_COMMAND,
-        (_, activeEditor) => {
-          if (activeEditor !== stickyEditor) clearSelection();
-          return true;
-        },
-        COMMAND_PRIORITY_LOW,
-      ),
-    );
-  }, [
-    isSelected
-  ]);
-
-  const clearSelection = () => {
-    stickyEditor.update(() => { $setSelection(null); });
-  }
-
-  const handleDelete = () => {
-    setSelected(true);
-    setTimeout(() => {
-      editor.update(() => {
-        const node = $getNodeByKey(nodeKey);
-        if (!$isStickyNode(node)) return;
-        node.selectPrevious();
-        node.remove();
-      });
-    }, 0);
-  };
-
-  const handleColorChange = () => {
-    setSelected(true);
-    setTimeout(() => {
-      editor.update(() => {
-        const node = $getNodeByKey(nodeKey);
-        if (!$isStickyNode(node)) return;
-        node.toggleColor();
-      });
-    }, 0);
-  };
-
   return (
-    <div ref={stickyContainerRef} className="sticky-note-container" draggable={isSelected} {...{ theme: 'light' }}>
+    <div className="sticky-note-container" draggable={isSelected}>
       <div className='sticky-tools'>
-        <IconButton sx={{ displayPrint: 'none' }} onClick={handleDelete} aria-label="Delete sticky note" title="Delete" color='inherit' size='small'>
-          <Delete fontSize='inherit' />
-        </IconButton>
-        <IconButton sx={{ displayPrint: 'none' }} color='inherit' size='small' aria-label="Change sticky note color" title="Color" onClick={handleColorChange}>
-          <FormatPaint fontSize='inherit' />
-        </IconButton>
         <IconButton className='drag-btn' sx={{ displayPrint: 'none', mr: "auto" }} color='inherit' size='small' aria-label="Drag sticky note" title="Drag"
           onMouseDown={() => setSelected(true)} onMouseUp={() => setSelected(false)}>
           <DragIndicator fontSize='inherit' />
         </IconButton>
       </div>
-      <div className={`sticky-note ${color}`}>
-        <Suspense fallback={children}>
-          <NestedEditor initialEditor={stickyEditor} initialNodes={editorConfig.nodes} />
-        </Suspense>
-      </div>
+      <Suspense fallback={children}>
+        <NestedEditor initialEditor={stickyEditor} initialNodes={editorConfig.nodes} />
+      </Suspense>
     </div >
   );
 }

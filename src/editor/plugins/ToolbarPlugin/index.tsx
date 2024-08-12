@@ -1,5 +1,5 @@
 "use client"
-import { $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, CLEAR_HISTORY_COMMAND, LexicalNode } from 'lexical';
+import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, CLEAR_HISTORY_COMMAND, LexicalNode } from 'lexical';
 import { $isCodeNode } from '@lexical/code';
 import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -18,7 +18,7 @@ import { $isImageNode } from '@/editor/nodes/ImageNode';
 import ImageTools from './Tools/ImageTools';
 import { $isGraphNode } from '@/editor/nodes/GraphNode';
 import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog, LinkDialog, LayoutDialog, OCRDialog } from './Dialogs';
-import { $isStickyNode } from '@/editor/nodes/StickyNode';
+import { $isStickyNode, StickyNode } from '@/editor/nodes/StickyNode';
 import { useScrollTrigger, AppBar, Toolbar, Box, IconButton } from '@mui/material';
 import { Redo, Undo } from '@mui/icons-material';
 import { $isIFrameNode } from '@/editor/nodes/IFrameNode';
@@ -31,6 +31,7 @@ import { getSelectedNode } from '@/editor/utils/getSelectedNode';
 import AITools from './Tools/AITools';
 import FontSelect from './Menus/FontSelect';
 import CodeTools from './Tools/CodeTools';
+import NoteTools from './Tools/NoteTools';
 
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -54,6 +55,7 @@ function ToolbarPlugin() {
   const [canRedo, setCanRedo] = useState(false);
   const [selectedNode, setSelectedNode] = useState<LexicalNode | null>(null);
   const [selectedTable, setSelectedTable] = useState<TableNode | null>(null);
+  const [selectedSticky, setSelectedSticky] = useState<StickyNode | null>(null);
   const [dialogs, setDialogs] = useState<EditorDialogs>({
     image: {
       open: false,
@@ -87,6 +89,7 @@ function ToolbarPlugin() {
     if ($isNodeSelection(selection)) {
       const node = selection.getNodes()[0];
       setSelectedNode(node);
+      if ($isStickyNode(node)) setSelectedSticky(node);
       setBlockType('paragraph');
     } else {
       setSelectedNode(null);
@@ -132,7 +135,21 @@ function ToolbarPlugin() {
           }
         }
       }
+      const parentEditor = activeEditor._parentEditor;
+      if (parentEditor) {
+        const rootElement = activeEditor.getRootElement();
+        parentEditor.getEditorState().read(() => {
+          const keyToDomMap = parentEditor._keyToDOMMap;
+          const parentNodeKey = [...keyToDomMap.keys()].findLast((key) => keyToDomMap.get(key)?.contains(rootElement));
+          if (!parentNodeKey) return setSelectedSticky(null);
+          const parentNode = $getNodeByKey(parentNodeKey);
+          setSelectedSticky($isStickyNode(parentNode) ? parentNode : null);
+        });
+      } else {
+        setSelectedSticky(null);
+      }
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeEditor]);
 
@@ -224,18 +241,13 @@ function ToolbarPlugin() {
     }
   }, [toolbarTrigger]);
 
-  const slideTrigger = useScrollTrigger({
-    disableHysteresis: true,
-    threshold: 100,
-  });
-
   const showMathTools = $isMathNode(selectedNode);
   const showImageTools = $isImageNode(selectedNode);
   const showCodeTools = $isCodeNode(selectedNode);
   const showTableTools = !!selectedTable;
   const showTextTools = (!showMathTools && !showImageTools) || $isStickyNode(selectedNode);
   const showTextFormatTools = showTextTools && !showCodeTools;
-
+  const showNoteTools = !!selectedSticky;
   const isDialogOpen = Object.values(dialogs).some((dialog) => dialog.open);
 
   useEffect(() => {
@@ -250,7 +262,7 @@ function ToolbarPlugin() {
 
   return (
     <>
-      <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}>
+      <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'} sx={{ transition: 'none' }}>
         <Toolbar className="editor-toolbar" sx={{
           position: "relative",
           displayPrint: 'none', px: `${(toolbarTrigger ? 1 : 0)}!important`,
@@ -275,6 +287,7 @@ function ToolbarPlugin() {
               {showTextFormatTools && <FontSelect editor={activeEditor} />}
               <AITools editor={activeEditor} />
               {showTableTools && <TableTools editor={activeEditor} node={selectedTable} />}
+              {showNoteTools && <NoteTools editor={editor} node={selectedSticky} />}
               {showTextFormatTools && <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />}
             </>}
           </Box>
