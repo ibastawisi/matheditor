@@ -22,6 +22,8 @@ jobs:
         # execute commands
         script: |
           cd ~/matheditor
+          echo "Creating a backup of the current build..."
+          cp -r .next temp
           echo "Pulling latest changes..."
           git fetch
           git reset --hard origin/master
