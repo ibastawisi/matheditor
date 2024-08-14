@@ -22,9 +22,20 @@ jobs:
         # execute commands
         script: |
           cd ~/matheditor
+          echo "Pulling latest changes..."
           git fetch
           git reset --hard origin/master
+          echo "Installing dependencies..."
           npm ci
           npx prisma migrate deploy
-          npm run build
-          pm2 reload "matheditor"
+          echo "Building to temp directory..."
+          BUILD_DIR=temp npm run build || exit
+          if [ ! -d "temp" ]; then
+            echo '\033[31m temp Directory not exists!\033[0m'  
+            exit 1;
+          fi
+          echo "Switching live directory..."
+          rm -rf .next
+          mv temp .next
+          pm2 reload matheditor --update-env
+          echo "Deploy done."

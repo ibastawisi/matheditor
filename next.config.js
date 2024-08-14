@@ -23,6 +23,7 @@ const withPWA = require("./next-pwa")({
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: false,
+  distDir: process.env.BUILD_DIR || '.next',
   /** @param { import('webpack').Configuration } config */
   webpack: (config, { isServer }) => {
     if (isServer) {
