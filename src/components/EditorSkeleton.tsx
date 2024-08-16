@@ -24,13 +24,17 @@ export const EditorSkeleton: React.FC<PropsWithChildren> = ({ children }) => {
 
   return (
     <>
-      <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}>
+      <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}
+        sx={{
+          background: 'var(--mui-palette-background-default) !important',
+          transition: 'none'
+        }}>
         <Toolbar className="editor-toolbar" sx={{
           position: "relative",
           displayPrint: 'none', px: `${(toolbarTrigger ? 1 : 0)}!important`,
-          justifyContent: "space-between", alignItems: "start", gap: 0.5, py: 1,
+          justifyContent: "space-between", alignItems: "center", gap: 0.5, py: 1,
         }}>
-          <Box sx={{ display: "flex" }}>
+          <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
             <IconButton aria-label="Undo" disabled>
               <Undo />
             </IconButton>
@@ -195,7 +199,7 @@ export const EditorSkeleton: React.FC<PropsWithChildren> = ({ children }) => {
               </ToggleButton>
             </ToggleButtonGroup>
           </Box>
-          <Box sx={{ display: "flex", gridColumn: "3/-1" }}>
+          <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
             <IconButton aria-label='Insert'>
               <Add />
             </IconButton>

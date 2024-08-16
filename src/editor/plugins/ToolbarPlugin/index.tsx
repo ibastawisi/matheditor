@@ -262,13 +262,17 @@ function ToolbarPlugin() {
 
   return (
     <>
-      <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'} sx={{ transition: 'none' }}>
+      <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}
+        sx={{
+          background: 'var(--mui-palette-background-default) !important',
+          transition: 'none'
+        }}>
         <Toolbar className="editor-toolbar" sx={{
           position: "relative",
           displayPrint: 'none', px: `${(toolbarTrigger ? 1 : 0)}!important`,
-          justifyContent: "space-between", alignItems: "start", gap: 0.5, py: 1,
+          justifyContent: "space-between", alignItems: "center", gap: 0.5, py: 1,
         }}>
-          <Box sx={{ display: "flex" }}>
+          <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
             <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
               onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}>
               <Undo />
@@ -291,7 +295,7 @@ function ToolbarPlugin() {
               {showTextFormatTools && <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />}
             </>}
           </Box>
-          <Box sx={{ display: "flex", gridColumn: "3/-1" }}>
+          <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
             <InsertToolMenu editor={activeEditor} />
             <AlignTextMenu editor={activeEditor} isRTL={isRTL} />
           </Box>

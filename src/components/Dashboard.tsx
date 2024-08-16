@@ -85,16 +85,16 @@ const StorageChart: React.FC = () => {
   ];
 
   return (
-    <Paper sx={{ p: 2 }}>
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Typography variant='overline' gutterBottom sx={{ alignSelf: 'start' }}>Local Storage</Typography>
+    <Grid container spacing={2}>
+      <Grid item xs={12} sm={6}>
+        <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
+          <Typography variant='overline' gutterBottom sx={{ alignSelf: 'start', userSelect: 'none' }}>Local Storage</Typography>
           {isLoading && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <CircularProgress disableShrink />
           </Box>}
           {isLoaded && localStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <Storage sx={{ width: 64, height: 64, fontSize: 64 }} />
-            <Typography variant="overline" component="p">Local storage is empty</Typography>
+            <Typography variant="overline" component="p" sx={{ userSelect: 'none' }}>Local storage is empty</Typography>
           </Box>}
           {isLoaded && !localStorageEmpty && <PieChart
             series={[
@@ -116,20 +116,23 @@ const StorageChart: React.FC = () => {
             width={256}
             height={300}
             slotProps={{ legend: { hidden: true } }}
+            sx={{ mx: 'auto' }}
           />}
-        </Grid>
-        {<Grid item xs={12} sm={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Typography variant='overline' gutterBottom sx={{ alignSelf: 'start' }}>Cloud Storage</Typography>
+        </Paper>
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
+          <Typography variant='overline' gutterBottom sx={{ alignSelf: 'start', userSelect: 'none' }}>Cloud Storage</Typography>
           {isLoading && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <CircularProgress disableShrink />
           </Box>}
           {isLoaded && !user && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <Login sx={{ width: 64, height: 64, fontSize: 64 }} />
-            <Typography variant="overline" component="p">Please login to use cloud storage</Typography>
+            <Typography variant="overline" component="p" sx={{ userSelect: 'none' }}>Please login to use cloud storage</Typography>
           </Box>}
           {isLoaded && user && cloudStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <Cloud sx={{ width: 64, height: 64, fontSize: 64 }} />
-            <Typography variant="overline" component="p">Cloud storage is empty</Typography>
+            <Typography variant="overline" component="p" sx={{ userSelect: 'none' }}>Cloud storage is empty</Typography>
           </Box>}
           {isLoaded && !cloudStorageEmpty && <PieChart
             series={[
@@ -152,8 +155,8 @@ const StorageChart: React.FC = () => {
             height={300}
             slotProps={{ legend: { hidden: true } }}
           />}
-        </Grid>}
+        </Paper>
       </Grid>
-    </Paper>
+    </Grid>
   );
 };

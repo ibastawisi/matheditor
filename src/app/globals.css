@@ -53,17 +53,12 @@ header {
   transform: rotate(3deg) translate(0px, -4px);
 }
 
-.editor-toolbar {
-  background-color: #fff;
-}
-
 .splash-screen {
   position: fixed;
   inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #fff;
   z-index: 1000;
 }
 
@@ -172,15 +167,6 @@ body.fullscreen {
   }
 }
 
-@media screen {
-  [theme=dark] .editor-toolbar {
-    background-color: #121212;
-  }
-
-  [theme=dark] .splash-screen {
-    background-color: #121212;
-  }
-}
 
 @media print {
 

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { MenuItem, ListItemText, ToggleButton, Menu, ListSubheader, ListItemIcon } from '@mui/material';
 import { FormatColorFill, CircleOutlined, FormatClear, FormatColorReset, Circle } from '@mui/icons-material';
 
-const textPalete = [
+const textPalette = [
   "#d7170b",
   "#fe8a2b",
   "#ffc02b",
@@ -20,7 +20,7 @@ const textPalete = [
   "#ffffff",
 ]
 
-const backgroundPalete = [
+const backgroundPalette = [
   "#fbbbb6",
   "#ffe0c2",
   "#fff1c2",
@@ -82,7 +82,7 @@ export default function ColorPicker({ onColorChange, onClose, toggle = "togglebu
 
       >
         <ListSubheader key="text" sx={{ width: "100%" }}>Text</ListSubheader>
-        {textPalete.map((color, index) => (
+        {textPalette.map((color, index) => (
           <MenuItem key={index} onClick={e => { onChange("text", color); }} selected={color === textColor}>
             <CircleOutlined style={{ color }} />
           </MenuItem>
@@ -91,7 +91,7 @@ export default function ColorPicker({ onColorChange, onClose, toggle = "togglebu
           <FormatClear />
         </MenuItem>
         <ListSubheader key="background" sx={{ width: "100%" }}>Background</ListSubheader>
-        {backgroundPalete.map((color, index) => (
+        {backgroundPalette.map((color, index) => (
           <MenuItem key={index} onClick={e => { onChange("background", color); }} selected={color === backgroundColor}>
             <Circle style={{ backgroundColor: color, color: 'transparent' }} />
           </MenuItem>

@@ -437,7 +437,7 @@ iframe {
   min-width: 100%;
   overflow: hidden;
   position: relative;
-  padding: 10px 0;
+  padding: 10px;
   min-height: 44px;
 }
 
