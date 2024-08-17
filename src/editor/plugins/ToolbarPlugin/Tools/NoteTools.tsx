@@ -1,5 +1,5 @@
 "use client"
-import { $getSelection, $setSelection, LexicalEditor, } from "lexical";
+import { LexicalEditor, } from "lexical";
 import { useEffect, useState } from "react";
 import { ToggleButtonGroup, ToggleButton, SvgIcon, Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, Divider } from "@mui/material";
 import { Delete, KeyboardArrowDown, Note } from "@mui/icons-material";
@@ -25,11 +25,11 @@ export default function NoteTools({ editor, node }: { editor: LexicalEditor, nod
 
   useEffect(() => {
     editor.getEditorState().read(() => {
-      const float = $getNodeStyleValueForProperty(node, 'float', 'left');
+      const float = $getNodeStyleValueForProperty(node, 'float');
       setFloat(float);
-      const color = $getNodeStyleValueForProperty(node, 'color', 'inherit');
+      const color = $getNodeStyleValueForProperty(node, 'color');
       setTextColor(color);
-      const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color', '#bceac4');
+      const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color');
       setBackgroundColor(backgroundColor);
     });
   }, [node]);

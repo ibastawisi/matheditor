@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
 import ColorPicker from './ColorPicker';
 import { $isMathNode, MathNode } from '@/editor/nodes/MathNode';
 import { $patchStyle } from '@/editor/nodes/utils';
-
+import { $getSelectionStyleValueForProperty } from '@lexical/selection';
 import { SxProps, Theme } from '@mui/material/styles';
 import { ToggleButtonGroup, ToggleButton, SvgIcon } from '@mui/material';
 import { FormatBold, FormatItalic, FormatUnderlined, Code, FormatStrikethrough, Subscript, Superscript, Link } from '@mui/icons-material';
@@ -21,6 +21,8 @@ const Highlight = () => <SvgIcon viewBox='0 -960 960 960'>
 
 export default function TextFormatToggles({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> | undefined }): JSX.Element {
   const [format, setFormat] = useState<{ [key: string]: boolean }>({});
+  const [textColor, setTextColor] = useState<string>();
+  const [backgroundColor, setBackgroundColor] = useState<string>();
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -38,6 +40,11 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
         highlight: selection.hasFormat('highlight'),
         link: $isLinkNode(parent) || $isLinkNode(node),
       });
+      const color = $getSelectionStyleValueForProperty(selection, 'color');
+      setTextColor(color);
+      const backgroundColor = $getSelectionStyleValueForProperty(selection, 'background-color');
+      setBackgroundColor(backgroundColor);
+
     }
   }, [editor]);
 
@@ -153,6 +160,6 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
     <ToggleButton value="link" title={IS_APPLE ? 'Insert Link (⌘K)' : 'Insert Link (Ctrl+K)'} aria-label={`Insert a link. Shortcut: ${IS_APPLE ? '⌘K' : 'Ctrl+K'}`} onClick={openLinkDialog}>
       <Link />
     </ToggleButton>
-    <ColorPicker onColorChange={onColorChange} />
+    <ColorPicker onColorChange={onColorChange} textColor={textColor} backgroundColor={backgroundColor} />
   </ToggleButtonGroup>)
 }

@@ -1,9 +1,11 @@
 "use client"
 import * as React from 'react';
-import { $getSelection, $setSelection, FORMAT_ELEMENT_COMMAND, INDENT_CONTENT_COMMAND, LexicalEditor, OUTDENT_CONTENT_COMMAND } from 'lexical';
+import { $getSelection, $isElementNode, $isParagraphNode, $isRangeSelection, $isTextNode, $setSelection, COMMAND_PRIORITY_CRITICAL, ElementFormatType, FORMAT_ELEMENT_COMMAND, INDENT_CONTENT_COMMAND, LexicalEditor, OUTDENT_CONTENT_COMMAND, SELECTION_CHANGE_COMMAND } from 'lexical';
 import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Divider } from '@mui/material';
 import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight, FormatAlignJustify, FormatIndentIncrease, FormatIndentDecrease } from '@mui/icons-material';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { getSelectedNode } from '@/editor/utils/getSelectedNode';
+import { mergeRegister, $findMatchingParent } from '@lexical/utils';
 
 export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor, isRTL: boolean }): JSX.Element {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -28,6 +30,37 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
     }, 0);
   }, [editor]);
 
+  const [formatType, setFormatType] = useState<ElementFormatType>('left');
+  const [indentationLevel, setIndentationLevel] = useState<number>(0);
+
+  const $updateToolbar = useCallback(() => {
+    const selection = $getSelection();
+    if (!selection) return;
+    const element = $findMatchingParent($isRangeSelection(selection) ? getSelectedNode(selection) : selection.getNodes()[0], $isElementNode);
+    if (!element) return;
+    setFormatType(element.getFormatType() || 'left');
+    setIndentationLevel(element.getIndent() || 0);
+  }, [editor]);
+
+  useEffect(() => {
+    return mergeRegister(
+      editor.registerCommand(
+        SELECTION_CHANGE_COMMAND,
+        () => {
+          $updateToolbar();
+          return false;
+        },
+        COMMAND_PRIORITY_CRITICAL,
+      ),
+      editor.registerUpdateListener(({ editorState, tags }) => {
+        editorState.read(() => {
+          $updateToolbar();
+        });
+      }),
+    );
+  }, [editor, $updateToolbar]);
+
+
   return (
     <>
       <IconButton
@@ -37,7 +70,10 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
         aria-expanded={open ? 'true' : undefined}
         aria-label='Align Text'
         onClick={handleClick}>
-        <FormatAlignLeft />
+        {formatType === 'left' && <FormatAlignLeft />}
+        {formatType === 'center' && <FormatAlignCenter />}
+        {formatType === 'right' && <FormatAlignRight />}
+        {formatType === 'justify' && <FormatAlignJustify />}
       </IconButton>
       <Menu
         id="align-menu"
@@ -57,36 +93,32 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
           '& .MuiBackdrop-root': { userSelect: 'none' }
         }}
       >
-        <MenuItem onClick={() => {
+        <MenuItem selected={formatType === 'left'} onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'left');
-          handleClose();
         }}>
           <ListItemIcon>
             <FormatAlignLeft fontSize="small" />
           </ListItemIcon>
           <ListItemText>Left Align</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => {
+        <MenuItem selected={formatType === 'center'} onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'center');
-          handleClose();
         }}>
           <ListItemIcon>
             <FormatAlignCenter fontSize="small" />
           </ListItemIcon>
           <ListItemText>Center Align</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => {
+        <MenuItem selected={formatType === 'right'} onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'right');
-          handleClose();
         }}>
           <ListItemIcon>
             <FormatAlignRight fontSize="small" />
           </ListItemIcon>
           <ListItemText>Right Align</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => {
+        <MenuItem selected={formatType === 'justify'} onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'justify');
-          handleClose();
         }}>
           <ListItemIcon>
             <FormatAlignJustify fontSize="small" />
@@ -97,22 +129,20 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
         <Divider />
 
         <MenuItem onClick={() => {
-          editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined);
-          handleClose();
-        }}>
-          <ListItemIcon>
-            {isRTL ? <FormatIndentIncrease fontSize="small" /> : <FormatIndentDecrease fontSize="small" />}
-          </ListItemIcon>
-          <ListItemText>Outdent</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => {
           editor.dispatchCommand(INDENT_CONTENT_COMMAND, undefined);
-          handleClose();
         }}>
           <ListItemIcon>
             {isRTL ? <FormatIndentDecrease fontSize="small" /> : <FormatIndentIncrease fontSize="small" />}
           </ListItemIcon>
           <ListItemText>Indent</ListItemText>
+        </MenuItem>
+        <MenuItem disabled={indentationLevel === 0} onClick={() => {
+          editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined);
+        }}>
+          <ListItemIcon>
+            {isRTL ? <FormatIndentIncrease fontSize="small" /> : <FormatIndentDecrease fontSize="small" />}
+          </ListItemIcon>
+          <ListItemText>Outdent</ListItemText>
         </MenuItem>
       </Menu>
     </>

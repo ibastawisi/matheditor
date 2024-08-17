@@ -42,13 +42,26 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
   const isOnline = useOnlineStatus();
   const [excalidrawAPI, excalidrawAPIRefCallback] = useCallbackRefState();
   const [fontSize, setFontSize] = useState('16px');
-
+  const [textColor, setTextColor] = useState<string>();
+  const [backgroundColor, setBackgroundColor] = useState<string>();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     editor.getEditorState().read(() => {
       const fontSize = $getNodeStyleValueForProperty(node, 'font-size', '16px');
       setFontSize(fontSize);
+      const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
+      if (!mathfield) return;
+      if (mathfield.selectionIsCollapsed) {
+        const color = $getNodeStyleValueForProperty(node, 'color');
+        setTextColor(color);
+        const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color');
+        setBackgroundColor(backgroundColor);
+      } else {
+        // TODO: implement selection color
+        setTextColor('');
+        setBackgroundColor('');
+      }
     });
   }, [node]);
 
@@ -249,7 +262,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
             <LinearProgress sx={{ visibility: loading ? 'visible' : 'hidden', position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 1000 }} />
           </Paper>
         </Collapse>}
-        <ColorPicker onColorChange={onColorChange} onClose={handleClose} />
+        <ColorPicker onColorChange={onColorChange} onClose={handleClose} textColor={textColor} backgroundColor={backgroundColor} />
       </ToggleButtonGroup>
       <FontSizePicker fontSize={fontSize} updateFontSize={updateFontSize} onBlur={restoreFocus} />
       <ToggleButtonGroup size="small" sx={{ position: "relative", ...sx }} exclusive>
