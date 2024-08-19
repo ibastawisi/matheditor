@@ -122,6 +122,12 @@ body:has(#app-toolbar) .editor-container [id] {
   outline: 0;
 }
 
+.document-container {
+  user-select: text;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .excalidraw.excalidraw-modal-container,
 #typeahead-menu {
   z-index: 1500 !important;

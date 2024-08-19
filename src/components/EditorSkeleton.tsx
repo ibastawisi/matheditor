@@ -210,7 +210,7 @@ export const EditorSkeleton: React.FC<PropsWithChildren> = ({ children }) => {
         </Toolbar >
       </AppBar>
       {toolbarTrigger && <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })} />}
-      <div className="editor-input">{children}</div>
+      <div className="document-container">{children}</div>
     </>
   );
 }

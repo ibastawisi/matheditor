@@ -12,6 +12,7 @@ import {
   $createTextNode,
   $getRoot,
   $setSelection,
+  BaseSelection,
   DOMConversionMap,
   DOMConversionOutput,
   DOMExportOutput,
@@ -280,6 +281,14 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 
   getAltText() {
     return this.__altText;
+  }
+
+  isSelected(selection?: null | BaseSelection): boolean {
+    try {
+      return super.isSelected(selection);
+    } catch (e) {
+      return false;
+    }
   }
 
   decorate(): JSX.Element {
