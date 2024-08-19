@@ -29,8 +29,8 @@ export const checkpoints: Array<Array<(node: LexicalNode) => boolean>> = [
     (node) => $isCodeNode(node),
   ],
   [
-    (node) => $isParagraphNode(node) && node.hasFormat('center'),
-    (node) => $isParagraphNode(node) && node.hasFormat('right'),
+    (node) => $isParagraphNode(node) && node.getFormat() === 2,
+    (node) => $isParagraphNode(node) && node.getFormat() === 3,
     (node) => $isParagraphNode(node) && node.getIndent() === 1,
   ],
   [

@@ -706,6 +706,9 @@ iframe {
   background-color: rgba(0, 0, 0, 0.04);
 }
 
+[theme=light] .details__container .details__container li img {
+  filter: invert(1);
+}
 
 @media screen {
   [theme=dark] .LexicalTheme__quote {
