@@ -117,5 +117,5 @@ export async function POST(req: Request) {
   const stream = OpenAIStream(response);
 
   // Respond with the stream
-  return new StreamingTextResponse(stream);
+  return new StreamingTextResponse(stream, { headers: { "content-type": "text/event-stream" } });
 }
