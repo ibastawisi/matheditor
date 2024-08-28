@@ -97,12 +97,10 @@ header {
   z-index: 15000;
 }
 
-.MuiFab-root.MuiFab-extended {
-  color: var(--mui-palette-primary-contrastText);
-}
-
-html:not([theme=dark]) .MuiFab-root.MuiFab-extended {
-  color: var(--mui-palette-text-primary);
+@media screen and (prefers-color-scheme: dark) {
+  .MuiFab-root.MuiFab-extended {
+    color: var(--mui-palette-primary-contrastText);
+  }
 }
 
 .editor-container [id] {
@@ -156,8 +154,8 @@ body.fullscreen {
   display: none;
 }
 
-@media screen {
-  [theme=dark] .editor-input {
+@media screen and (prefers-color-scheme: dark) {
+  .editor-input {
     caret-color: #eee;
   }
 }

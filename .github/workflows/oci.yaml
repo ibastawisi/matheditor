@@ -28,7 +28,7 @@ jobs:
           git fetch
           git reset --hard origin/master
           echo "Installing dependencies..."
-          npm ci
+          npm ci -f
           npx prisma migrate deploy
           echo "Building to temp directory..."
           BUILD_DIR=temp npm run build || exit

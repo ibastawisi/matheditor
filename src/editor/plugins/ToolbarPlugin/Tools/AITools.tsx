@@ -314,111 +314,111 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
 
   const isOnline = useOnlineStatus();
 
-  return (
-    <>
-      <Button
-        id="ai-tools-button"
-        aria-controls={open ? 'ai-tools-menu' : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? 'true' : undefined}
-        variant="outlined"
-        onClick={handleClick}
-        startIcon={<AutoAwesome color={isLoading ? "disabled" : "action"} />}
-        endIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : open ? <ArrowDropUp color={isLoading ? "disabled" : "action"} /> : <ArrowDropDown color={isLoading ? "disabled" : "action"} />}
-        sx={{
-          color: 'text.primary',
-          borderColor: 'divider',
-          width: { xs: 66, md: 'auto' },
-          height: 40,
-          '& .MuiButton-startIcon': { mr: { xs: 0, md: 1 } },
-          '& .MuiButton-endIcon': { mr: -1, ml: isLoading ? 1 : 0 },
-          '& .MuiButton-endIcon > svg': { fontSize: 24 },
+  return (<>
+    <Button
+      id="ai-tools-button"
+      aria-controls={open ? 'ai-tools-menu' : undefined}
+      aria-haspopup="true"
+      aria-expanded={open ? 'true' : undefined}
+      variant="outlined"
+      onClick={handleClick}
+      startIcon={<AutoAwesome color={isLoading ? "disabled" : "action"} />}
+      endIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : open ? <ArrowDropUp color={isLoading ? "disabled" : "action"} /> : <ArrowDropDown color={isLoading ? "disabled" : "action"} />}
+      sx={{
+        color: 'text.primary',
+        borderColor: 'divider',
+        width: { xs: 66, md: 'auto' },
+        height: 40,
+        '& .MuiButton-startIcon': { mr: { xs: 0, md: 1 } },
+        '& .MuiButton-endIcon': { mr: -1, ml: isLoading ? 1 : 0 },
+        '& .MuiButton-endIcon > svg': { fontSize: 24 },
+      }}
+      disabled={isLoading}
+    >
+      <Typography variant="button" sx={{ display: { xs: "none", md: "block" } }}>AI</Typography>
+    </Button>
+    <Menu id="ai-tools-menu" aria-label="Formatting options for ai"
+      anchorEl={anchorEl}
+      open={open}
+      onClose={handleClose}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'center',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'center',
+      }}
+      sx={{
+        '& .MuiList-root': { pt: 0, },
+        '& .MuiBackdrop-root': { userSelect: 'none' },
+      }}>
+      <MenuItem
+        sx={{ p: 0, mb: 1, flexDirection: 'column', backgroundColor: 'transparent !important' }}
+        disableRipple
+        disableTouchRipple
+        onFocusVisible={(e) => {
+          const currentTarget = e.currentTarget;
+          const relatedTarget = e.relatedTarget;
+          setTimeout(() => {
+            const promptInput = promptRef.current;
+            const isPromptFocused = document.activeElement === promptInput;
+            if (isPromptFocused) return;
+            if (relatedTarget !== promptInput) promptInput?.focus();
+            else currentTarget.nextElementSibling?.focus();
+          }, 0);
         }}
-        disabled={isLoading}
+        disabled={!isOnline || isLoading}
       >
-        <Typography variant="button" sx={{ display: { xs: "none", md: "block" } }}>AI</Typography>
-      </Button>
-      <Menu id="ai-tools-menu" aria-label="Formatting options for ai"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
-        sx={{
-          '& .MuiList-root': { pt: 0, },
-          '& .MuiBackdrop-root': { userSelect: 'none' },
-        }}>
-        <MenuItem
-          sx={{ p: 0, mb: 1, flexDirection: 'column', backgroundColor: 'transparent !important' }}
-          disableRipple
-          disableTouchRipple
-          onFocusVisible={(e) => {
-            const currentTarget = e.currentTarget;
-            const relatedTarget = e.relatedTarget;
-            setTimeout(() => {
-              const promptInput = promptRef.current;
-              const isPromptFocused = document.activeElement === promptInput;
-              if (isPromptFocused) return;
-              if (relatedTarget !== promptInput) promptInput?.focus();
-              else currentTarget.nextElementSibling?.focus();
-            }, 0);
-          }}
-          disabled={!isOnline || isLoading}
-        >
-          <TextField
-            multiline
-            hiddenLabel
-            fullWidth
-            variant="filled"
-            size="small"
-            placeholder="What to do?"
-            inputRef={promptRef}
-            autoFocus={isOnline}
-            autoComplete="off"
-            spellCheck="false"
-            inputProps={{
+        <TextField
+          multiline
+          hiddenLabel
+          fullWidth
+          variant="filled"
+          size="small"
+          placeholder="What to do?"
+          inputRef={promptRef}
+          autoFocus={isOnline}
+          autoComplete="off"
+          spellCheck="false"
+          sx={{ flexGrow: 1, '& .MuiInputBase-root': { flexGrow: 1 } }}
+          slotProps={{
+            htmlInput: {
               onKeyDown: handlePrompt
-            }}
-            sx={{ flexGrow: 1, '& .MuiInputBase-root': { flexGrow: 1 } }}
-          />
-        </MenuItem>
-        <MenuItem disabled={!isOnline || isLoading} onClick={handleContinue}>
-          <ListItemIcon>
-            <PlayArrow />
-          </ListItemIcon>
-          <ListItemText>Continue Writing</ListItemText>
-        </MenuItem>
-        <MenuItem disabled={!isOnline || isLoading || isCollapsed} onClick={handleRewrite}>
-          <ListItemIcon>
-            <Autorenew />
-          </ListItemIcon>
-          <ListItemText>Rewrite</ListItemText>
-        </MenuItem>
-        <MenuItem disabled={!isOnline || isLoading || isCollapsed} onClick={handleShorter}>
-          <ListItemIcon>
-            <UnfoldLess />
-          </ListItemIcon>
-          <ListItemText>Shorter</ListItemText>
-        </MenuItem>
-        <MenuItem disabled={!isOnline || isLoading || isCollapsed} onClick={handleLonger}>
-          <ListItemIcon>
-            <UnfoldMore />
-          </ListItemIcon>
-          <ListItemText>Longer</ListItemText>
-        </MenuItem>
-        <MenuItem disabled={!isOnline || isLoading || !isCollapsed} onClick={handleOCR}>
-          <ListItemIcon>
-            <ImageSearch />
-          </ListItemIcon>
-          <ListItemText>Image to Text</ListItemText>
-        </MenuItem>
-      </Menu>
-    </>
-  );
+            }
+          }}
+        />
+      </MenuItem>
+      <MenuItem disabled={!isOnline || isLoading} onClick={handleContinue}>
+        <ListItemIcon>
+          <PlayArrow />
+        </ListItemIcon>
+        <ListItemText>Continue Writing</ListItemText>
+      </MenuItem>
+      <MenuItem disabled={!isOnline || isLoading || isCollapsed} onClick={handleRewrite}>
+        <ListItemIcon>
+          <Autorenew />
+        </ListItemIcon>
+        <ListItemText>Rewrite</ListItemText>
+      </MenuItem>
+      <MenuItem disabled={!isOnline || isLoading || isCollapsed} onClick={handleShorter}>
+        <ListItemIcon>
+          <UnfoldLess />
+        </ListItemIcon>
+        <ListItemText>Shorter</ListItemText>
+      </MenuItem>
+      <MenuItem disabled={!isOnline || isLoading || isCollapsed} onClick={handleLonger}>
+        <ListItemIcon>
+          <UnfoldMore />
+        </ListItemIcon>
+        <ListItemText>Longer</ListItemText>
+      </MenuItem>
+      <MenuItem disabled={!isOnline || isLoading || !isCollapsed} onClick={handleOCR}>
+        <ListItemIcon>
+          <ImageSearch />
+        </ListItemIcon>
+        <ListItemText>Image to Text</ListItemText>
+      </MenuItem>
+    </Menu>
+  </>);
 }

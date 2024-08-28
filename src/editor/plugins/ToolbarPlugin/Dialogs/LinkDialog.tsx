@@ -91,102 +91,108 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
     });
   }, [editor, node]);
 
-  return <Dialog
-    open
-    fullScreen={fullScreen}
-    onClose={handleClose}
-    aria-labelledby="link-dialog-title"
-    disableEscapeKeyDown
-  >
-    <DialogTitle id="link-dialog-title">
-      Insert Link
-    </DialogTitle>
-    <DialogContent>
-      <Box component="form" onSubmit={handleSubmit} noValidate>
-        <RadioGroup row aria-label="orientation" name="rel" value={formData.rel} onChange={updateFormData}>
-          <FormControlLabel value="external" control={<Radio />} label="External" />
-          <FormControlLabel value="bookmark" control={<Radio />} label="Self" />
-          <FormControlLabel value="tag" control={<Radio />} label="Figure" />
-        </RadioGroup>
-        {formData.rel === "tag" &&
-          <FormControl fullWidth margin='normal'>
-            <InputLabel>Figure</InputLabel>
-            <Select
+  return (
+    <Dialog
+      open
+      fullScreen={fullScreen}
+      onClose={handleClose}
+      aria-labelledby="link-dialog-title"
+      disableEscapeKeyDown
+    >
+      <DialogTitle id="link-dialog-title">
+        Insert Link
+      </DialogTitle>
+      <DialogContent>
+        <Box component="form" onSubmit={handleSubmit} noValidate>
+          <RadioGroup row aria-label="orientation" name="rel" value={formData.rel} onChange={updateFormData}>
+            <FormControlLabel value="external" control={<Radio />} label="External" />
+            <FormControlLabel value="bookmark" control={<Radio />} label="Self" />
+            <FormControlLabel value="tag" control={<Radio />} label="Figure" />
+          </RadioGroup>
+          {formData.rel === "tag" &&
+            <FormControl fullWidth margin='normal'>
+              <InputLabel>Figure</InputLabel>
+              <Select
+                size="small"
+                fullWidth
+                value={formData.url}
+                onChange={setUrl as any}
+                label="Figure"
+                name="url"
+                autoFocus
+                startAdornment={<InputAdornment position="start">#</InputAdornment>}
+              >
+                {figures.map((figure) => (
+                  <MenuItem key={figure.id} value={figure.id}>
+                    <ListItemIcon
+                      sx={{
+                        '& figure': {
+                          flexDirection: 'row',
+                          '& img, & svg': { width: 40 }
+                        },
+                        '& figcaption': {
+                          justifyContent: 'center', width: 'auto', padding: 0
+                        },
+                        '& table': { tableLayout: 'auto', margin: 0, float: 'none' }
+                      }}
+                      dangerouslySetInnerHTML={{ __html: figure.outerHTML }}
+                    />
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          }
+          {formData.rel === "bookmark" &&
+            <TextField
+              margin='normal'
               size="small"
               fullWidth
               value={formData.url}
-              onChange={setUrl as any}
-              label="Figure"
+              onChange={setUrl}
+              label="URL"
               name="url"
               autoFocus
-              startAdornment={<InputAdornment position="start">#</InputAdornment>}
-            >
-              {figures.map((figure) => (
-                <MenuItem key={figure.id} value={figure.id}>
-                  <ListItemIcon
-                    sx={{
-                      '& figure': {
-                        flexDirection: 'row',
-                        '& img, & svg': { width: 40 }
-                      },
-                      '& figcaption': {
-                        justifyContent: 'center', width: 'auto', padding: 0
-                      },
-                      '& table': { tableLayout: 'auto', margin: 0, float: 'none' }
-                    }}
-                    dangerouslySetInnerHTML={{ __html: figure.outerHTML }}
-                  />
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        }
-        {formData.rel === "bookmark" &&
-          <TextField
-            margin='normal'
-            size="small"
-            fullWidth
-            value={formData.url}
-            onChange={setUrl}
-            label="URL"
-            name="url"
-            autoFocus
-            autoComplete='off'
-            InputProps={{
-              startAdornment: <InputAdornment position="start">#</InputAdornment>,
-            }}
-          />
-        }
-        {formData.rel === "external" &&
-          <TextField
-            margin='normal'
-            size="small"
-            fullWidth
-            value={formData.url}
-            onChange={setUrl}
-            label="URL"
-            name="url"
-            autoFocus
-            autoComplete='off'
-            prefix='https://'
-            InputProps={{
-              startAdornment: <InputAdornment position="start">https://</InputAdornment>,
-            }}
-          />
-        }
-        <button hidden type="submit">Submit</button>
-      </Box>
-    </DialogContent>
-    <DialogActions>
-      {node && <Button onClick={handleDelete} startIcon={<LinkOff />} color="error" sx={{ mr: 'auto' }}>Unlink</Button>}
-      <Button onClick={handleClose}>
-        Cancel
-      </Button>
-      <Button onClick={handleSubmit} disabled={!formData.url}>
-        Confirm
-      </Button>
-    </DialogActions>
-  </Dialog>;
+              autoComplete='off'
+              slotProps={{
+                input: {
+                  startAdornment: <InputAdornment position="start">#</InputAdornment>,
+                }
+              }}
+            />
+          }
+          {formData.rel === "external" &&
+            <TextField
+              margin='normal'
+              size="small"
+              fullWidth
+              value={formData.url}
+              onChange={setUrl}
+              label="URL"
+              name="url"
+              autoFocus
+              autoComplete='off'
+              prefix='https://'
+              slotProps={{
+                input: {
+                  startAdornment: <InputAdornment position="start">https://</InputAdornment>,
+                }
+              }}
+            />
+          }
+          <button hidden type="submit">Submit</button>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        {node && <Button onClick={handleDelete} startIcon={<LinkOff />} color="error" sx={{ mr: 'auto' }}>Unlink</Button>}
+        <Button onClick={handleClose}>
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit} disabled={!formData.url}>
+          Confirm
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 }
 
 export default memo(LinkDialog);

@@ -8,7 +8,8 @@ import { BackupDocument, User, UserDocument } from '@/types';
 import { validate } from "uuid";
 import UserCard from "./User/UserCard";
 import documentDB, { revisionDB } from '@/indexeddb';
-import { Box, Avatar, Button, Typography, Grid, Card, CardActionArea, CardHeader, Collapse, Pagination } from '@mui/material';
+import Grid from '@mui/material/Grid2';
+import { Box, Avatar, Button, Typography, Card, CardActionArea, CardHeader, Collapse, Pagination } from '@mui/material';
 import { PostAdd, UploadFile, Help, Storage, Science, Pageview } from '@mui/icons-material';
 import DocumentSortControl, { sortDocuments } from './DocumentSortControl';
 import DocumentFilterControl, { filterDocuments } from './DocumentFilterControl';
@@ -158,14 +159,14 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
         <DocumentFilterControl value={filter} setValue={setFilter} />
       </Box>
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={6}>
+        <Grid size={{ xs: 6 }}>
           <Card variant="outlined">
             <CardActionArea component={RouterLink} prefetch={false} scroll={false} href="/playground">
               <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><Science /></Avatar>} />
             </CardActionArea>
           </Card>
         </Grid>
-        <Grid item xs={6}>
+        <Grid size={{ xs: 6 }}>
           <Card variant="outlined">
             <CardActionArea component={RouterLink} prefetch={false} scroll={false} href="/tutorial">
               <CardHeader title="Tutorial" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><Help /></Avatar>} />
@@ -193,12 +194,12 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initiali
   return (
     <Box sx={{ display: 'flex', flexDirection: "column", flex: 1, justifyContent: 'space-between', mb: 2 }}>
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        {showSkeletons && Array.from({ length: 6 }).map((_, i) => <Grid item key={i} xs={12} sm={6} md={4}><DocumentCard /></Grid>)}
-        {showEmpty && <Grid item xs={12} sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>
+        {showSkeletons && Array.from({ length: 6 }).map((_, i) => <Grid key={i} size={{ xs: 12, sm: 6, md: 4 }}><DocumentCard /></Grid>)}
+        {showEmpty && <Grid size={{ xs: 12 }} sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>
           <Pageview sx={{ width: 64, height: 64, fontSize: 64 }} />
           <Typography variant="overline" component="p">No documents found</Typography>
         </Grid>}
-        {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
+        {pageDocuments.map(document => <Grid key={document.id} size={{ xs: 12, sm: 6, md: 4 }}>
           <DocumentCard userDocument={document} user={user} />
         </Grid>)}
       </Grid>

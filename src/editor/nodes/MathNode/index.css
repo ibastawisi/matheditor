@@ -46,8 +46,8 @@ math-field::part(menu-toggle) {
   }
 }
 
-@media screen {
-  [theme=dark] math-field {
+@media screen and (prefers-color-scheme: dark) {
+  math-field {
     --contains-highlight-background-color: rgba(255, 255, 255, 0.1);
     --selection-background-color: rgb(95 183 255 / 50%);
   }

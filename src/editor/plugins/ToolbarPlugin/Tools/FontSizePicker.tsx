@@ -63,7 +63,7 @@ export const FontSizePicker = ({ fontSize, updateFontSize, onBlur }: {
   }, [fontSize, updateFontSize]);
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
+    (<Box sx={{ display: 'flex', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
       <IconButton
         disabled={parseInt(fontSize) <= MIN_ALLOWED_FONT_SIZE}
         onClick={e => {
@@ -120,21 +120,23 @@ export const FontSizePicker = ({ fontSize, updateFontSize, onBlur }: {
           if (inputValue < MIN_ALLOWED_FONT_SIZE) updateFontSize(MIN_ALLOWED_FONT_SIZE);
           if (inputValue > MAX_ALLOWED_FONT_SIZE) updateFontSize(MAX_ALLOWED_FONT_SIZE);
         }}
-        inputProps={{
-          min: MIN_ALLOWED_FONT_SIZE,
-          max: MAX_ALLOWED_FONT_SIZE,
-          onKeyDown: (e) => {
-            const input = e.currentTarget;
-            const isEscaping = e.key === "Escape";
-            if (isEscaping) return onBlur();
-            const isNavigatingUp = e.key === "ArrowUp";
-            const isNavigatingDown = e.key === "ArrowDown";
-            if (!isNavigatingUp && !isNavigatingDown) e.stopPropagation();
-            const menuItem = input.closest("li");
-            if (!menuItem) return;
-            if (isNavigatingDown) menuItem.focus();
-          },
-          "aria-label": "font size",
+        slotProps={{
+          htmlInput: {
+            min: MIN_ALLOWED_FONT_SIZE,
+            max: MAX_ALLOWED_FONT_SIZE,
+            onKeyDown: (e: KeyboardEvent) => {
+              const input = e.currentTarget as HTMLInputElement;
+              const isEscaping = e.key === "Escape";
+              if (isEscaping) return onBlur();
+              const isNavigatingUp = e.key === "ArrowUp";
+              const isNavigatingDown = e.key === "ArrowDown";
+              if (!isNavigatingUp && !isNavigatingDown) e.stopPropagation();
+              const menuItem = input.closest("li");
+              if (!menuItem) return;
+              if (isNavigatingDown) menuItem.focus();
+            },
+            "aria-label": "font size",
+          }
         }}
       />
       <IconButton
@@ -159,6 +161,6 @@ export const FontSizePicker = ({ fontSize, updateFontSize, onBlur }: {
       >
         <TextIncrease fontSize="small" />
       </IconButton>
-    </Box>
+    </Box>)
   );
 };

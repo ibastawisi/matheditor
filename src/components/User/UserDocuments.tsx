@@ -2,7 +2,8 @@
 import { useState } from "react";
 import type { User as UserDocuments, UserDocument } from '@/types';
 import DocumentCard from "../DocumentCard";
-import { Box, Grid, Pagination, Typography } from "@mui/material";
+import Grid from '@mui/material/Grid2';
+import { Box, Pagination, Typography } from "@mui/material";
 import { Pageview } from "@mui/icons-material";
 import DocumentSortControl, { sortDocuments } from "../DocumentSortControl";
 
@@ -26,7 +27,7 @@ const UserDocuments: React.FC<{ documents?: UserDocument[] }> = ({ documents }) 
         </Box>
         <Box sx={{ display: 'flex', flexDirection: "column", flex: 1, justifyContent: 'space-between' }}>
           <Grid container spacing={2} sx={{ mb: 2 }}>
-            {pageDocuments.map(document => <Grid item key={document.id} xs={12} sm={6} md={4}>
+            {pageDocuments.map(document => <Grid key={document.id} size={{ xs: 12, sm: 6, md: 4 }}>
               <DocumentCard userDocument={document} />
             </Grid>)}
           </Grid>

@@ -653,58 +653,58 @@ iframe {
 /* color theme */
 
 .LexicalTheme__textCode,
-[theme=dark] [theme=light] .LexicalTheme__textCode {
+[theme=light] .LexicalTheme__textCode {
   background-color: rgb(225 230 235 / 44%);
 }
 
 .LexicalTheme__quote,
-[theme=dark] [theme=light] .LexicalTheme__quote {
+[theme=light] .LexicalTheme__quote {
   color: rgb(101, 103, 107);
   border-left-color: rgb(206, 208, 212);
 }
 
 .LexicalTheme__link,
-[theme=dark] [theme=light] .LexicalTheme__link {
+[theme=light] .LexicalTheme__link {
   color: rgb(33, 111, 219);
 }
 
 .LexicalTheme__code,
-[theme=dark] [theme=light] .LexicalTheme__code {
+[theme=light] .LexicalTheme__code {
   background-color: rgb(240, 242, 245);
   color: inherit;
 }
 
 .LexicalTheme__code:before,
-[theme=dark] [theme=light] .LexicalTheme__code:before {
+[theme=light] .LexicalTheme__code:before {
   background-color: #eee;
   border-right-color: #ccc;
   color: #777;
 }
 
 .LexicalTheme__code:after,
-[theme=dark] [theme=light] .LexicalTheme__code:after {
+[theme=light] .LexicalTheme__code:after {
   color: rgba(0, 0, 0, 0.5);
 }
 
 .LexicalTheme__tableCell,
-[theme=dark] [theme=light] .LexicalTheme__tableCell {
+[theme=light] .LexicalTheme__tableCell {
   border-color: rgba(0, 0, 0, 0.2);
 }
 
 .LexicalTheme__tableCellHeader,
-[theme=dark] [theme=light] .LexicalTheme__tableCellHeader {
+[theme=light] .LexicalTheme__tableCellHeader {
   background-color: rgba(0, 0, 0, 0.03);
 }
 
 .details__container,
-[theme=dark] [theme=light] .details__container {
+[theme=light] .details__container {
   border-color: rgba(0, 0, 0, 0.12);
 }
 
 .details__summary:hover,
 .details__container[open]>.details__summary,
-[theme=dark] [theme=light] .details__summary:hover,
-[theme=dark] [theme=light] .details__container[open]>.details__summary {
+[theme=light] .details__summary:hover,
+[theme=light] .details__container[open]>.details__summary {
   background-color: rgba(0, 0, 0, 0.04);
 }
 
@@ -712,50 +712,96 @@ iframe {
   filter: invert(1);
 }
 
-@media screen {
-  [theme=dark] .LexicalTheme__quote {
+[theme=dark] .LexicalTheme__quote {
+  color: #a6a6a6;
+  border-left-color: #4d4d4d;
+}
+
+[theme=dark] .LexicalTheme__link {
+  color: #90caf9;
+}
+
+[theme=dark] .LexicalTheme__code {
+  background-color: rgb(30, 30, 30);
+  color: #9cdcfe;
+}
+
+[theme=dark] .LexicalTheme__code:before {
+  background-color: #333;
+  color: #858585;
+  border-right-color: #1e1e1e;
+}
+
+[theme=dark] .LexicalTheme__code:after {
+  color: #858585;
+}
+
+[theme=dark] .LexicalTheme__tableCell {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+[theme=dark] .LexicalTheme__tableCellHeader {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+[theme='dark'] .details__container {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+[theme='dark'] .details__summary:hover,
+[theme='dark'] .details__container[open]>.details__summary {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+[theme=dark] .LexicalTheme__image svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
+[theme=dark] .LexicalTheme__image[data-type='graph'] img {
+  filter: invert(93%) hue-rotate(180deg);
+}
+
+@media screen and (prefers-color-scheme: dark) {
+  .LexicalTheme__quote {
     color: #a6a6a6;
     border-left-color: #4d4d4d;
   }
 
-  [theme=dark] .LexicalTheme__link {
+  .LexicalTheme__link {
     color: #90caf9;
   }
 
-  [theme=dark] .LexicalTheme__code {
+  .LexicalTheme__code {
     background-color: rgb(30, 30, 30);
     color: #9cdcfe;
   }
 
-  [theme=dark] .LexicalTheme__code:before {
+  .LexicalTheme__code:before {
     background-color: #333;
     color: #858585;
     border-right-color: #1e1e1e;
   }
 
-  [theme=dark] .LexicalTheme__code:after {
+  .LexicalTheme__code:after {
     color: #858585;
   }
 
-  [theme=dark] .LexicalTheme__tableCell {
+  .LexicalTheme__tableCell {
     border-color: rgba(255, 255, 255, 0.2);
   }
 
-  [theme=dark] .LexicalTheme__tableCellHeader {
+  .LexicalTheme__tableCellHeader {
     background-color: rgba(255, 255, 255, 0.03);
   }
 
-  [theme='dark'] .details__container {
+  .details__container {
     border-color: rgba(255, 255, 255, 0.12);
   }
 
-  [theme='dark'] .details__summary:hover,
-  [theme='dark'] .details__container[open]>.details__summary {
+  .details__summary:hover,
+  .details__container[open]>.details__summary {
     background-color: rgba(255, 255, 255, 0.08);
   }
 
-  [theme=dark] .LexicalTheme__image svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
-  [theme=dark] .LexicalTheme__image[data-type='graph'] img {
+  .LexicalTheme__image svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
+  .LexicalTheme__image[data-type='graph'] img {
     filter: invert(93%) hue-rotate(180deg);
   }
 }

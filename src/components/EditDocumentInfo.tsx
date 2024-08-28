@@ -1,7 +1,8 @@
 import { LocalDocumentRevision, User, UserDocumentRevision } from '@/types';
 import RevisionCard from './EditRevisionCard';
 import { actions, useDispatch, useSelector } from '@/store';
-import { Avatar, Badge, Box, Button, Chip, Grid, IconButton, Portal, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid2';
+import { Avatar, Badge, Box, Button, Chip, IconButton, Portal, Typography } from '@mui/material';
 import { Close, Compare, History, Print } from '@mui/icons-material';
 import type { LexicalEditor } from '@/editor';
 import { MutableRefObject } from 'react';
@@ -130,14 +131,14 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
           </Box>}
         </Box>
         <Grid container spacing={1}>
-          <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center' }}>
+          <Grid size={{ xs: 12 }} sx={{ display: 'flex', alignItems: 'center' }}>
             <History sx={{ mr: 1 }} />
             <Typography variant="h6">Revisions</Typography>
             <Button sx={{ ml: 'auto' }} onClick={toggleDiffView} endIcon={isDiffViewOpen ? <Close /> : <Compare />}>
               {isDiffViewOpen ? "Exit" : "Compare"}
             </Button>
           </Grid>
-          {documentRevisions.map(revision => <Grid item xs={12} key={revision.id}><RevisionCard revision={revision} editorRef={editorRef} /></Grid>)}
+          {documentRevisions.map(revision => <Grid size={{ xs: 12 }} key={revision.id}><RevisionCard revision={revision} editorRef={editorRef} /></Grid>)}
         </Grid>
       </AppDrawer>
       {showRevisionsBadge && <Portal container={document.querySelector('#document-info')}>

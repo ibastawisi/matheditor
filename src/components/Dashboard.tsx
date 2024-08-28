@@ -1,7 +1,8 @@
 "use client"
 import { useSelector } from '@/store';
 import UserCard from "./User/UserCard";
-import { Box, CircularProgress, Grid, Paper, Typography } from "@mui/material";
+import Grid from '@mui/material/Grid2';
+import { Box, CircularProgress, Paper, Typography } from "@mui/material";
 import { useEffect, useState } from 'react';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { CloudDocument, LocalDocument } from '@/types';
@@ -86,7 +87,7 @@ const StorageChart: React.FC = () => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12} sm={6}>
+      <Grid size={{ xs: 12, sm: 6 }}>
         <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
           <Typography variant='overline' gutterBottom sx={{ alignSelf: 'start', userSelect: 'none' }}>Local Storage</Typography>
           {isLoading && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
@@ -120,7 +121,7 @@ const StorageChart: React.FC = () => {
           />}
         </Paper>
       </Grid>
-      <Grid item xs={12} sm={6}>
+      <Grid size={{ xs: 12, sm: 6 }}>
         <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
           <Typography variant='overline' gutterBottom sx={{ alignSelf: 'start', userSelect: 'none' }}>Cloud Storage</Typography>
           {isLoading && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
