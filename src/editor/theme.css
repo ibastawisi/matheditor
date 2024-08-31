@@ -426,10 +426,6 @@ iframe {
   fill: transparent;
 }
 
-.sticky-note-container .LexicalTheme__image svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
-.sticky-note-container .LexicalTheme__image[data-type='graph']>img {
-  filter: initial !important;
-}
 
 .LexicalTheme__image figcaption {
   display: flex;
@@ -708,6 +704,11 @@ iframe {
   background-color: rgba(0, 0, 0, 0.04);
 }
 
+[theme=light] .LexicalTheme__image svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
+[theme=light] .LexicalTheme__image[data-type='graph'] img {
+  filter: initial !important;
+}
+
 [theme=light] .details__container .details__container li img {
   filter: invert(1);
 }
@@ -756,6 +757,18 @@ iframe {
 [theme=dark] .LexicalTheme__image svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
 [theme=dark] .LexicalTheme__image[data-type='graph'] img {
   filter: invert(93%) hue-rotate(180deg);
+}
+
+@media print {
+  .details__container .details__container li img {
+    filter: invert(1);
+  }
+}
+
+@media screen and (prefers-color-scheme: light) {
+  .details__container .details__container li img {
+    filter: invert(1);
+  }
 }
 
 @media screen and (prefers-color-scheme: dark) {
