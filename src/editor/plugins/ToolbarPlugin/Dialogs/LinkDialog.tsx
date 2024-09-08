@@ -18,7 +18,7 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
 
   useEffect(() => {
     const payload = {
-      url: decodeURIComponent(node?.__url.replace(/^https?:\/\//, '').replace(/^#/, '') ?? ''),
+      url: node?.__url.replace(/^https?:\/\//, '').replace(/^#/, '') ?? '',
       rel: node?.__rel ?? 'external',
       target: node?.__target ?? '_blank',
     }
@@ -45,9 +45,9 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    const encoded = encodeURIComponent(sanitizeUrl(formData.url));
+    const sanitized = sanitizeUrl(formData.url);
     const rel = formData.rel;
-    const url = rel === 'external' ? `https://${encoded}` : `#${encoded}`;
+    const url = rel === 'external' ? `https://${sanitized}` : `#${sanitized}`;
     const target = formData.target;
 
     if (!node) editor.dispatchCommand(TOGGLE_LINK_COMMAND, { url, rel, target, });

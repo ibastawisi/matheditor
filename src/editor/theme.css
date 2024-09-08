@@ -761,7 +761,7 @@ iframe {
 
 @media print {
   .details__container .details__container li img {
-    filter: invert(1);
+    filter: invert(1) !important;
   }
 }
 
