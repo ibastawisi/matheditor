@@ -177,7 +177,6 @@ body.fullscreen {
   * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-    overflow: visible !important;
   }
 
   *,
