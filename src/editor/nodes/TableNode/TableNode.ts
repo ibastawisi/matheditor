@@ -89,18 +89,16 @@ export class TableNode extends LexicalTableNode {
     return element;
   }
 
-  updateDOM(): boolean {
-    const prevNode = arguments[0] as TableNode;
-    const dom = arguments[1] as HTMLElement;
+  updateDOM(prevNode: LexicalTableNode, dom: HTMLElement, config: EditorConfig): boolean {
     if (!isHTMLElement(dom)) {
-      return super.updateDOM();
+      return super.updateDOM(prevNode, dom, config);
     }
     if (this.__style !== prevNode.__style) {
       const styles = getStyleObjectFromRawCSS(this.__style);
       const float = styles.float;
       dom.style.float = float;
     }
-    return super.updateDOM();
+    return super.updateDOM(prevNode, dom, config);
   }
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {

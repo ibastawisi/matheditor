@@ -183,7 +183,7 @@ function ToolbarPlugin() {
           $updateToolbar();
         });
         try {
-          const revision = JSON.parse(tags.values().next().value);
+          const revision = JSON.parse(tags.values().next().value as string);
           if (revision.id) {
             isTouched.current = false;
           }

@@ -76,7 +76,7 @@ export function $patchNodeStyle(
       }
       return styles;
     },
-    { ...prevStyles } || {},
+    { ...prevStyles },
   );
   const newCSSText = getCSSFromStyleObject(newStyles);
   target.setStyle(newCSSText);

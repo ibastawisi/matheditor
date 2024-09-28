@@ -33,7 +33,7 @@ const EditDocument: React.FC = () => {
     const data = editorState.toJSON();
     const updatedDocument: Partial<EditorDocument> = { data, updatedAt: new Date().toISOString(), head: uuidv4() };
     try {
-      const payload = JSON.parse(tags.values().next().value);
+      const payload = JSON.parse(tags.values().next().value as string);
       if (payload.id === document.id) { Object.assign(updatedDocument, payload.partial); }
     } catch (e) { }
     debouncedUpdateLocalDocument(document.id, updatedDocument);
