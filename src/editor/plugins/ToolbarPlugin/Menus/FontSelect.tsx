@@ -146,6 +146,7 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
         onChange={onFontFamilySelect}
         value={fontFamily}
         onClose={handleClose}
+        inputProps={{ 'aria-label': 'font family' }}
       >
         <MenuItem
           disableRipple

@@ -15,7 +15,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const session = await getServerSession(authOptions);
     const userDocument = await findUserDocument(params.id, "all");
     if (!userDocument) {
-      response.error = { title: "Not Found", subtitle: "Document not found" }
+      response.error = { title: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
     const isCollab = userDocument.collab;
@@ -38,7 +38,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     }
     const editorDocument = await findEditorDocument(params.id);
     if (!editorDocument) {
-      response.error = { title: "Not Found", subtitle: "Document not found" }
+      response.error = { title: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
     response.data = { ...editorDocument, cloudDocument: userDocument };
@@ -69,7 +69,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     }
     const userDocument = await findUserDocument(params.id);
     if (!userDocument) {
-      response.error = { title: "Not Found", subtitle: "Document not found" }
+      response.error = { title: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
     if (user.id !== userDocument.author.id) {
@@ -175,7 +175,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     }
     const userDocument = await findUserDocument(params.id);
     if (!userDocument) {
-      response.error = { title: "Not Found", subtitle: "Document not found" }
+      response.error = { title: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
     if (user.id !== userDocument.author.id) {

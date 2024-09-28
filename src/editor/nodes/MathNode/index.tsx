@@ -1,7 +1,6 @@
-import { $createNodeSelection, $setSelection, DOMExportOutput, EditorConfig, LexicalEditor, LexicalNode, NodeKey, SerializedLexicalNode, Spread, isHTMLElement, } from 'lexical';
+import { $createNodeSelection, $setSelection, BaseSelection, DOMExportOutput, EditorConfig, LexicalEditor, LexicalNode, NodeKey, SerializedLexicalNode, Spread, isHTMLElement, } from 'lexical';
 import { DecoratorNode, } from 'lexical';
-import { createRef } from 'react';
-import { convertLatexToMarkup, type MathfieldElement } from 'mathlive';
+import { convertLatexToMarkup } from 'mathlive';
 import MathComponent from './MathComponent';
 import { $isEditorIsNestedEditor } from '@lexical/utils';
 
@@ -10,7 +9,6 @@ export type SerializedMathNode = Spread<{ type: 'math'; value: string; style: st
 export class MathNode extends DecoratorNode<JSX.Element> {
   __value: string;
   __style: string;
-  __mathfieldRef = createRef<MathfieldElement>();
 
   static getType(): string {
     return 'math';
@@ -82,10 +80,6 @@ export class MathNode extends DecoratorNode<JSX.Element> {
     return false;
   }
 
-  getMathfield(): MathfieldElement | null {
-    return this.__mathfieldRef.current;
-  }
-
   getText(): string {
     return `$${this.__value}$`
   }
@@ -124,9 +118,17 @@ export class MathNode extends DecoratorNode<JSX.Element> {
     $setSelection(nodeSelection);
   }
 
+  isSelected(selection?: null | BaseSelection): boolean {
+    try {
+      return super.isSelected(selection);
+    } catch (e) {
+      return false;
+    }
+  }
+
   decorate(): JSX.Element {
     return (
-      <MathComponent initialValue={this.__value} nodeKey={this.__key} mathfieldRef={this.__mathfieldRef} />
+      <MathComponent initialValue={this.__value} nodeKey={this.__key} />
     );
   }
 }

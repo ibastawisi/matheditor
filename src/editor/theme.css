@@ -152,6 +152,7 @@
   width: 100%;
   position: relative;
   z-index: 1;
+  margin: 0 0 1rem 0;
 }
 
 .LexicalTheme__tableSelection *::selection {
@@ -187,37 +188,37 @@
 }
 
 .LexicalTheme__table:is([style*="text-align:center"], [style*="text-align: center"]) {
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
   table-layout: auto;
   width: auto;
 }
 
 .LexicalTheme__table:is([style*="text-align:right"], [style*="text-align: right"]) {
-  margin: 0 0 0 auto;
+  margin-left: auto;
   table-layout: auto;
   width: auto;
 }
 
 .LexicalTheme__table:is([style*="text-align:left"], [style*="text-align: left"]) {
-  margin: 0 auto 0 0;
+  margin-right: auto;
   table-layout: auto;
   width: auto;
 }
 
 .LexicalTheme__table:is([style*='text-align:justify'], [style*='text-align: justify']) {
-  margin: 0;
   table-layout: fixed;
   width: 100%;
 }
 
 .LexicalTheme__table:is([style*="float:left"], [style*="float: left"]) {
-  margin: 0 1em 0 0;
+  margin-right: 1rem;
   table-layout: auto;
   width: auto;
 }
 
 .LexicalTheme__table:is([style*="float:right"], [style*="float: right"]) {
-  margin: 0 0 0 1em;
+  margin-left: 1rem;
   table-layout: auto;
   width: auto;
 }
@@ -405,7 +406,6 @@ iframe {
 }
 
 .LexicalTheme__image {
-  cursor: default;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -415,20 +415,17 @@ iframe {
   vertical-align: middle;
 }
 
-.LexicalTheme__image>img,
-.LexicalTheme__image>svg {
+.LexicalTheme__image img,
+.LexicalTheme__image svg {
   min-width: 40px;
   max-width: 100%;
   height: auto;
 }
 
-.LexicalTheme__image>svg [fill='#ffffff'] {
+.LexicalTheme__image svg [fill='#ffffff'] {
   fill: transparent;
 }
 
-.sticky-note-container .LexicalTheme__image>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath) {
-  filter: initial;
-}
 
 .LexicalTheme__image figcaption {
   display: flex;
@@ -437,22 +434,37 @@ iframe {
   min-width: 100%;
   overflow: hidden;
   position: relative;
-  padding: 10px 0;
+  padding: 10px;
   min-height: 44px;
 }
 
-.sticky-note-wrapper {
-  float: right;
-  margin: 0.5rem 0 0.5rem 0.5rem;
+.sticky-note {
   position: relative;
   z-index: 1;
+  min-width: 200px;
+  max-width: 300px;
+  min-height: 160px;
+  padding: 20px;
+  position: relative;
+  color: rgba(0, 0, 0, 0.87);
+  border-bottom-right-radius: 60px 5px;
+  display: flex;
+  flex-direction: column;
+  margin: 0.5rem 0;
 }
 
-.sticky-note-wrapper .nested-contentEditable {
+.sticky-note:is([style*="float:left"], [style*="float: left"]) {
+  margin-right: 1rem;
+}
+
+.sticky-note:is([style*="float:right"], [style*="float: right"]) {
+  margin-left: 1rem;
+}
+
+.sticky-note .nested-contentEditable {
   flex: 1;
   border: 0;
   resize: none;
-  color: rgba(0, 0, 0, 0.87);
   caret-color: rgb(5, 5, 5);
   display: flow-root;
   position: relative;
@@ -460,7 +472,7 @@ iframe {
   outline: 0;
 }
 
-.sticky-note-wrapper .nested-placeholder {
+.sticky-note .nested-placeholder {
   color: #999;
   overflow: hidden;
   position: absolute;
@@ -474,59 +486,11 @@ iframe {
   pointer-events: none;
 }
 
-.sticky-note-container {
-  min-width: 200px;
-  max-width: 300px;
-  display: inline-block;
-  position: relative;
-}
-
-.sticky-note {
-  min-height: 148px;
-  padding: 20px;
-  position: relative;
-  color: rgba(0, 0, 0, 0.87);
-  border: 1px solid #e8e8e8;
-  border-bottom-right-radius: 60px 5px;
-  display: flex;
-  flex-direction: column;
-}
-
-.sticky-note:after {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  right: -0px;
-  bottom: 20px;
-  width: 194px;
-  height: 25px;
-  box-shadow: 2px 15px 5px rgba(0, 0, 0, 0.4);
-  transform: matrix(-1, -0.1, 0, 1, 0, 0);
-}
-
-.sticky-note.yellow {
-  border-top: 1px solid #fdfd86;
-  background: linear-gradient(135deg,
-      #ffff88 81%,
-      #ffff88 82%,
-      #ffff88 82%,
-      #ffffc6 100%);
-}
-
-.sticky-note.pink {
-  border-top: 1px solid #e7d1e4;
-  background: linear-gradient(135deg,
-      #f7cbe8 81%,
-      #f7cbe8 82%,
-      #f7cbe8 82%,
-      #e7bfe1 100%);
-}
-
 .LexicalTheme__hr {
   width: 100%;
   border: none;
-  padding: 0.5em 0;
-  cursor: pointer;
+  padding: 8px 0;
+  clear: both;
 }
 
 .LexicalTheme__hr:after {
@@ -670,8 +634,6 @@ iframe {
   user-select: none;
 }
 
-.headingAnchor__container {}
-
 /* direction */
 
 .details__summary[dir='rtl'] {
@@ -686,96 +648,173 @@ iframe {
 
 /* color theme */
 
-.LexicalTheme__textCode {
+.LexicalTheme__textCode,
+[theme=light] .LexicalTheme__textCode {
   background-color: rgb(225 230 235 / 44%);
 }
 
-.LexicalTheme__quote {
+.LexicalTheme__quote,
+[theme=light] .LexicalTheme__quote {
   color: rgb(101, 103, 107);
   border-left-color: rgb(206, 208, 212);
 }
 
-.LexicalTheme__link {
+.LexicalTheme__link,
+[theme=light] .LexicalTheme__link {
   color: rgb(33, 111, 219);
 }
 
-.LexicalTheme__code {
+.LexicalTheme__code,
+[theme=light] .LexicalTheme__code {
   background-color: rgb(240, 242, 245);
   color: inherit;
 }
 
-.LexicalTheme__code:before {
+.LexicalTheme__code:before,
+[theme=light] .LexicalTheme__code:before {
   background-color: #eee;
   border-right-color: #ccc;
   color: #777;
 }
 
-.LexicalTheme__code:after {
+.LexicalTheme__code:after,
+[theme=light] .LexicalTheme__code:after {
   color: rgba(0, 0, 0, 0.5);
 }
 
-.LexicalTheme__tableCell {
+.LexicalTheme__tableCell,
+[theme=light] .LexicalTheme__tableCell {
   border-color: rgba(0, 0, 0, 0.2);
 }
 
-.LexicalTheme__tableCellHeader {
+.LexicalTheme__tableCellHeader,
+[theme=light] .LexicalTheme__tableCellHeader {
   background-color: rgba(0, 0, 0, 0.03);
 }
 
-.details__container {
+.details__container,
+[theme=light] .details__container {
   border-color: rgba(0, 0, 0, 0.12);
 }
 
 .details__summary:hover,
-.details__container[open]>.details__summary {
+.details__container[open]>.details__summary,
+[theme=light] .details__summary:hover,
+[theme=light] .details__container[open]>.details__summary {
   background-color: rgba(0, 0, 0, 0.04);
 }
 
+[theme=light] .LexicalTheme__image svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
+[theme=light] .LexicalTheme__image[data-type='graph'] img {
+  filter: initial !important;
+}
 
-@media screen {
-  [theme=dark] .LexicalTheme__quote {
+[theme=light] .details__container .details__container li img {
+  filter: invert(1);
+}
+
+[theme=dark] .LexicalTheme__quote {
+  color: #a6a6a6;
+  border-left-color: #4d4d4d;
+}
+
+[theme=dark] .LexicalTheme__link {
+  color: #90caf9;
+}
+
+[theme=dark] .LexicalTheme__code {
+  background-color: rgb(30, 30, 30);
+  color: #9cdcfe;
+}
+
+[theme=dark] .LexicalTheme__code:before {
+  background-color: #333;
+  color: #858585;
+  border-right-color: #1e1e1e;
+}
+
+[theme=dark] .LexicalTheme__code:after {
+  color: #858585;
+}
+
+[theme=dark] .LexicalTheme__tableCell {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+[theme=dark] .LexicalTheme__tableCellHeader {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+[theme='dark'] .details__container {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+[theme='dark'] .details__summary:hover,
+[theme='dark'] .details__container[open]>.details__summary {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+[theme=dark] .LexicalTheme__image svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
+[theme=dark] .LexicalTheme__image[data-type='graph'] img {
+  filter: invert(93%) hue-rotate(180deg);
+}
+
+@media print {
+  .details__container .details__container li img {
+    filter: invert(1) !important;
+  }
+}
+
+@media screen and (prefers-color-scheme: light) {
+  .details__container .details__container li img {
+    filter: invert(1);
+  }
+}
+
+@media screen and (prefers-color-scheme: dark) {
+  .LexicalTheme__quote {
     color: #a6a6a6;
     border-left-color: #4d4d4d;
   }
 
-  [theme=dark] .LexicalTheme__link {
+  .LexicalTheme__link {
     color: #90caf9;
   }
 
-  [theme=dark] .LexicalTheme__code {
+  .LexicalTheme__code {
     background-color: rgb(30, 30, 30);
     color: #9cdcfe;
   }
 
-  [theme=dark] .LexicalTheme__code:before {
+  .LexicalTheme__code:before {
     background-color: #333;
     color: #858585;
     border-right-color: #1e1e1e;
   }
 
-  [theme=dark] .LexicalTheme__code:after {
+  .LexicalTheme__code:after {
     color: #858585;
   }
 
-  [theme=dark] .LexicalTheme__tableCell {
+  .LexicalTheme__tableCell {
     border-color: rgba(255, 255, 255, 0.2);
   }
 
-  [theme=dark] .LexicalTheme__tableCellHeader {
+  .LexicalTheme__tableCellHeader {
     background-color: rgba(255, 255, 255, 0.03);
   }
 
-  [theme='dark'] .details__container {
+  .details__container {
     border-color: rgba(255, 255, 255, 0.12);
   }
 
-  [theme='dark'] .details__summary:hover,
-  [theme='dark'] .details__container[open]>.details__summary {
+  .details__summary:hover,
+  .details__container[open]>.details__summary {
     background-color: rgba(255, 255, 255, 0.08);
   }
 
-  [theme=dark] .LexicalTheme__image>svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
-  [theme=dark] .LexicalTheme__image[data-type='graph']>img {
+  .LexicalTheme__image svg :is(path, rect, circle, ellipse, polygon, polyline, line, text, tspan, textPath),
+  .LexicalTheme__image[data-type='graph'] img {
     filter: invert(93%) hue-rotate(180deg);
   }
 }

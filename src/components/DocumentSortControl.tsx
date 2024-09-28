@@ -64,8 +64,6 @@ const DocumentSortControl: React.FC<{
         {sortDirection === 'asc' ? <ArrowUpward /> : <ArrowDownward />}
       </ToggleButton>
       <Select
-        labelId="sort-select-label"
-        id="sort-select"
         value={sortKey}
         onChange={handleSortKeyChange}
         sx={theme => ({
@@ -76,6 +74,7 @@ const DocumentSortControl: React.FC<{
           '& .MuiOutlinedInput-notchedOutline': { borderWidth: 1, borderColor: `rgb(from ${theme.vars.palette.primary.main} r g b / 0.5)` },
           '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' }
         })}
+        inputProps={{ 'aria-label': 'sort by' }}
       >
         {sortOptions.map(option => (
           <MenuItem value={option.value} key={option.value}>

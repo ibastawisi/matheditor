@@ -9,8 +9,8 @@ export default function useFixedBodyScroll(isFixed: boolean) {
     document.body.style.position = "fixed";
     return () => {
       document.body.style.position = "";
-      document.body.style.top = "";
       document.documentElement.scrollTop = scrollTop.current;
+      document.body.style.top = "";
       scrollTop.current = 0;
     }
   }, [isFixed]);

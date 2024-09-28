@@ -13,12 +13,12 @@ export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
-      response.error = { title: "Unauthorized", subtitle: "Please sign in to save your revision to the cloud"}
+      response.error = { title: "Unauthorized", subtitle: "Please sign in to save your revision to the cloud" }
       return NextResponse.json(response, { status: 401 })
     }
     const { user } = session;
     if (user.disabled) {
-      response.error = { title: "Account Disabled", subtitle: "Account is disabled for violating terms of service"}
+      response.error = { title: "Account Disabled", subtitle: "Account is disabled for violating terms of service" }
       return NextResponse.json(response, { status: 403 })
     }
     const body = await request.json() as EditorDocumentRevision;
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
 
     const cloudDocument = await findUserDocument(body.documentId);
     if (!cloudDocument) {
-      response.error = { title: "Not Found", subtitle: "Document not found" }
+      response.error = { title: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
     const isAuthor = user.id === cloudDocument.author.id;

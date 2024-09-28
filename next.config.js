@@ -23,6 +23,7 @@ const withPWA = require("./next-pwa")({
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: false,
+  distDir: process.env.BUILD_DIR || '.next',
   /** @param { import('webpack').Configuration } config */
   webpack: (config, { isServer }) => {
     if (isServer) {
@@ -31,6 +32,10 @@ const config = {
     if (IS_VERCEL) {
       config.externals.push('puppeteer');
     }
+    config.module.rules.push({
+      test: /\.(woff|woff2|eot|ttf|otf)$/i,
+      type: "asset/resource",
+    });
     return config
   },
 };

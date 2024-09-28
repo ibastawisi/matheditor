@@ -1,5 +1,5 @@
 "use client"
-import { $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, LexicalNode } from 'lexical';
+import { $getNodeByKey, $getSelection, $isNodeSelection, $isRangeSelection, $setSelection, CLEAR_HISTORY_COMMAND, LexicalNode } from 'lexical';
 import { $isCodeNode } from '@lexical/code';
 import { $isListNode, ListNode, } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -7,21 +7,20 @@ import { $isHeadingNode } from '@lexical/rich-text';
 import { $isParentElementRTL, } from '@lexical/selection';
 import { $getNearestNodeOfType, mergeRegister, } from '@lexical/utils';
 import { CAN_REDO_COMMAND, CAN_UNDO_COMMAND, REDO_COMMAND, SELECTION_CHANGE_COMMAND, UNDO_COMMAND, COMMAND_PRIORITY_CRITICAL, } from 'lexical';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { BlockFormatSelect } from './Menus/BlockFormatSelect';
 import InsertToolMenu from './Menus/InsertToolMenu';
 import TextFormatToggles from './Tools/TextFormatToggles';
 import AlignTextMenu from './Menus/AlignTextMenu';
-import { IS_MOBILE } from '@/shared/environment';
 import { $isMathNode } from '@/editor/nodes/MathNode';
 import MathTools from './Tools/MathTools';
 import { $isImageNode } from '@/editor/nodes/ImageNode';
 import ImageTools from './Tools/ImageTools';
 import { $isGraphNode } from '@/editor/nodes/GraphNode';
 import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog, LinkDialog, LayoutDialog, OCRDialog } from './Dialogs';
-import { $isStickyNode } from '@/editor/nodes/StickyNode';
-import { useScrollTrigger, AppBar, Toolbar, Box, IconButton, Fab } from '@mui/material';
-import { Mic, Redo, Undo } from '@mui/icons-material';
+import { $isStickyNode, StickyNode } from '@/editor/nodes/StickyNode';
+import { useScrollTrigger, AppBar, Toolbar, Box, IconButton } from '@mui/material';
+import { Redo, Undo } from '@mui/icons-material';
 import { $isIFrameNode } from '@/editor/nodes/IFrameNode';
 import { IS_APPLE, $findMatchingParent } from '@lexical/utils';
 import { $isTableNode, TableNode } from '@/editor/nodes/TableNode';
@@ -29,11 +28,10 @@ import TableTools from './Tools/TableTools';
 import { $isLinkNode } from '@lexical/link';
 import { EditorDialogs, SetDialogsPayload, SET_DIALOGS_COMMAND } from './Dialogs/commands';
 import { getSelectedNode } from '@/editor/utils/getSelectedNode';
-import { SPEECH_TO_TEXT_COMMAND, SUPPORT_SPEECH_RECOGNITION } from '../SpeechToTextPlugin';
 import AITools from './Tools/AITools';
 import FontSelect from './Menus/FontSelect';
 import CodeTools from './Tools/CodeTools';
-import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
+import NoteTools from './Tools/NoteTools';
 
 const blockTypeToBlockName = {
   bullet: 'Bulleted List',
@@ -57,6 +55,7 @@ function ToolbarPlugin() {
   const [canRedo, setCanRedo] = useState(false);
   const [selectedNode, setSelectedNode] = useState<LexicalNode | null>(null);
   const [selectedTable, setSelectedTable] = useState<TableNode | null>(null);
+  const [selectedSticky, setSelectedSticky] = useState<StickyNode | null>(null);
   const [dialogs, setDialogs] = useState<EditorDialogs>({
     image: {
       open: false,
@@ -83,13 +82,14 @@ function ToolbarPlugin() {
       open: false,
     },
   });
-  const [isSpeechToText, setIsSpeechToText] = useState(false);
+  const isTouched = useRef<boolean>(false);
 
-  const updateToolbar = useCallback(() => {
+  const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
     if ($isNodeSelection(selection)) {
       const node = selection.getNodes()[0];
       setSelectedNode(node);
+      if ($isStickyNode(node)) setSelectedSticky(node);
       setBlockType('paragraph');
     } else {
       setSelectedNode(null);
@@ -135,7 +135,21 @@ function ToolbarPlugin() {
           }
         }
       }
+      const parentEditor = activeEditor._parentEditor;
+      if (parentEditor) {
+        const rootElement = activeEditor.getRootElement();
+        parentEditor.getEditorState().read(() => {
+          const keyToDomMap = parentEditor._keyToDOMMap;
+          const parentNodeKey = [...keyToDomMap.keys()].findLast((key) => keyToDomMap.get(key)?.contains(rootElement));
+          if (!parentNodeKey) return setSelectedSticky(null);
+          const parentNode = $getNodeByKey(parentNodeKey);
+          setSelectedSticky($isStickyNode(parentNode) ? parentNode : null);
+        });
+      } else {
+        setSelectedSticky(null);
+      }
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeEditor]);
 
@@ -144,25 +158,44 @@ function ToolbarPlugin() {
       editor.registerCommand(
         SELECTION_CHANGE_COMMAND,
         (_payload, newEditor) => {
-          updateToolbar();
           setActiveEditor(newEditor);
+          $updateToolbar();
+          if (!isTouched.current) {
+            isTouched.current = true;
+          }
           return false;
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
     );
-  }, [editor, updateToolbar]);
+  }, [editor, $updateToolbar]);
+
+  useEffect(() => {
+    activeEditor.getEditorState().read(() => {
+      $updateToolbar();
+    });
+  }, [activeEditor, $updateToolbar]);
 
   useEffect(() => {
     return mergeRegister(
-      activeEditor.registerUpdateListener(({ editorState }) => {
+      activeEditor.registerUpdateListener(({ editorState, tags }) => {
         editorState.read(() => {
-          updateToolbar();
+          $updateToolbar();
         });
+        try {
+          const revision = JSON.parse(tags.values().next().value as string);
+          if (revision.id) {
+            isTouched.current = false;
+          }
+        } catch (e) { }
       }),
       activeEditor.registerCommand<boolean>(
         CAN_UNDO_COMMAND,
         (payload) => {
+          if (payload && !isTouched.current) {
+            editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
+            return false;
+          }
           setCanUndo(payload);
           return false;
         },
@@ -171,21 +204,17 @@ function ToolbarPlugin() {
       activeEditor.registerCommand<boolean>(
         CAN_REDO_COMMAND,
         (payload) => {
+          if (payload && !isTouched.current) {
+            editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
+            return false;
+          }
           setCanRedo(payload);
           return false;
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
-      editor.registerCommand<boolean>(
-        SPEECH_TO_TEXT_COMMAND,
-        (payload) => {
-          setIsSpeechToText(payload);
-          return false;
-        },
-        COMMAND_PRIORITY_CRITICAL,
-      ),
     );
-  }, [activeEditor, updateToolbar]);
+  }, [activeEditor, $updateToolbar]);
 
   useEffect(() => {
     return activeEditor.registerCommand<SetDialogsPayload>(
@@ -212,20 +241,14 @@ function ToolbarPlugin() {
     }
   }, [toolbarTrigger]);
 
-  const slideTrigger = useScrollTrigger({
-    disableHysteresis: true,
-    threshold: 100,
-  });
-
   const showMathTools = $isMathNode(selectedNode);
   const showImageTools = $isImageNode(selectedNode);
   const showCodeTools = $isCodeNode(selectedNode);
   const showTableTools = !!selectedTable;
   const showTextTools = (!showMathTools && !showImageTools) || $isStickyNode(selectedNode);
   const showTextFormatTools = showTextTools && !showCodeTools;
-
+  const showNoteTools = !!selectedSticky;
   const isDialogOpen = Object.values(dialogs).some((dialog) => dialog.open);
-  useFixedBodyScroll(isDialogOpen);
 
   useEffect(() => {
     if (isDialogOpen) return;
@@ -239,13 +262,17 @@ function ToolbarPlugin() {
 
   return (
     <>
-      <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}>
+      <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}
+        sx={{
+          background: 'var(--mui-palette-background-default) !important',
+          transition: 'none'
+        }}>
         <Toolbar className="editor-toolbar" sx={{
           position: "relative",
           displayPrint: 'none', px: `${(toolbarTrigger ? 1 : 0)}!important`,
-          justifyContent: "space-between", alignItems: "start", gap: 0.5, py: 1,
+          justifyContent: "space-between", alignItems: "center", gap: 0.5, py: 1,
         }}>
-          <Box sx={{ display: "flex" }}>
+          <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
             <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
               onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}>
               <Undo />
@@ -264,20 +291,14 @@ function ToolbarPlugin() {
               {showTextFormatTools && <FontSelect editor={activeEditor} />}
               <AITools editor={activeEditor} />
               {showTableTools && <TableTools editor={activeEditor} node={selectedTable} />}
+              {showNoteTools && <NoteTools editor={editor} node={selectedSticky} />}
               {showTextFormatTools && <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />}
             </>}
           </Box>
-          <Box sx={{ display: "flex", gridColumn: "3/-1" }}>
+          <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
             <InsertToolMenu editor={activeEditor} />
             <AlignTextMenu editor={activeEditor} isRTL={isRTL} />
           </Box>
-          {(!IS_MOBILE && SUPPORT_SPEECH_RECOGNITION) ? <Fab size='small' color={isSpeechToText ? 'secondary' : 'primary'}
-            sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 16, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}
-            onClick={() => {
-              editor.dispatchCommand(SPEECH_TO_TEXT_COMMAND, !isSpeechToText);
-            }}>
-            <Mic />
-          </Fab> : null}
         </Toolbar >
       </AppBar>
       {toolbarTrigger && <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })} />}

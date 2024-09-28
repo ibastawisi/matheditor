@@ -1,5 +1,5 @@
 "use client"
-import { $createParagraphNode, $getRoot, $getSelection, $isElementNode, $isParagraphNode, $isRangeSelection, $isTextNode, $setSelection, ElementFormatType, ElementNode, LexicalEditor, } from "lexical";
+import { $createParagraphNode, $getSelection, $isElementNode, $isParagraphNode, $isRangeSelection, $isTextNode, $setSelection, ElementFormatType, ElementNode, LexicalEditor, } from "lexical";
 import { useCallback, useEffect, useState } from "react";
 import { ToggleButtonGroup, ToggleButton, SvgIcon, Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, Divider } from "@mui/material";
 import { ViewHeadline, Delete, KeyboardArrowDown, TableChart } from "@mui/icons-material";
@@ -208,7 +208,8 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
   const [tableCellStyle, setTableCellStyle] = useState<Record<string, string> | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-
+  const textColor = tableCellStyle?.color;
+  const backgroundColor = tableCellStyle?.['background-color'];
 
   useEffect(() => {
     return editor.registerUpdateListener(() => {
@@ -676,6 +677,8 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
           onColorChange={updateCellColor}
           toggle="menuitem"
           label='Cell color'
+          textColor={textColor}
+          backgroundColor={backgroundColor}
         />
         <MenuItem onClick={() => toggleTableRowIsHeader()}>
           <ListItemIcon>

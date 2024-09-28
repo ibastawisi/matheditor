@@ -45,7 +45,7 @@ export default function StickyPlugin(): JSX.Element | null {
           if ($isRootNode(stickyNode.getParentOrThrow())) {
             $wrapNodeInElement(stickyNode, $createParagraphNode)
           }
-          stickyNode.select();
+          stickyNode.focus();
           return true;
         },
         COMMAND_PRIORITY_EDITOR,
@@ -96,7 +96,7 @@ function onDragStart(event: DragEvent): boolean {
     'application/x-lexical-drag',
     JSON.stringify({
       data: {
-        color: node.__color,
+        style: node.__style,
         editor: node.__editor,
         key: node.getKey(),
       },

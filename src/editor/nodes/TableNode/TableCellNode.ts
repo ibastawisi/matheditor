@@ -146,17 +146,18 @@ export class TableCellNode extends LexicalTableCellNode {
     return this.getLatest().__style;
   }
 
-  setStyle(newStyle: string): void {
+  setStyle(style: string): this {
     const self = this.getWritable();
-    self.__style = newStyle;
+    self.__style = style;
     // set the background color from the style for selection highlight in base lexical node
-    const styles = getStyleObjectFromRawCSS(newStyle);
+    const styles = getStyleObjectFromRawCSS(style);
     const backgroundColor = styles['background-color'];
     if (backgroundColor) {
       self.__backgroundColor = backgroundColor;
     }
+    return self;
   }
-
+  
   updateDOM(prevNode: TableCellNode): boolean {
     return (
       super.updateDOM(prevNode) ||

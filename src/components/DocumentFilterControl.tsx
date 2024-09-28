@@ -113,7 +113,7 @@ const DocumentFilterControl: FC<{
           '& .MuiTab-label': {
             display: { xs: value === 0 ? "block" : "none", sm: "block" }
           },
-          '& .MuiTab-iconWrapper': {
+          "& .MuiTab-icon": {
             marginRight: { xs: value === 0 ? 1 : 0, sm: 1 }
           }
         }}
@@ -132,7 +132,7 @@ const DocumentFilterControl: FC<{
               '& .MuiTab-label': {
                 display: { xs: value & (1 << option.key) ? "block" : "none", sm: "block" }
               },
-              '& .MuiTab-iconWrapper': {
+              "& .MuiTab-icon": {
                 marginRight: { xs: value & (1 << option.key) ? 1 : 0, sm: 1 }
               }
             }}

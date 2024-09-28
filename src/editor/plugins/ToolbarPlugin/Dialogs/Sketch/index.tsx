@@ -1,7 +1,7 @@
 "use client"
 import type { LexicalEditor } from 'lexical';
 import { INSERT_SKETCH_COMMAND, InsertSketchPayload } from '@/editor/plugins/SketchPlugin';
-import { Suspense, useEffect, useState, memo, useCallback } from 'react';
+import { useEffect, useState, memo, useCallback } from 'react';
 import { $isSketchNode } from '@/editor/nodes/SketchNode';
 import type { ExcalidrawImperativeAPI, ExcalidrawProps, DataURL, LibraryItems, BinaryFiles, AppState, BinaryFileData } from '@excalidraw/excalidraw/types/types';
 import type { ImportedLibraryData } from '@excalidraw/excalidraw/types/data/types';
@@ -72,14 +72,13 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
     const dimensions = await getImageDimensions(src);
     const showCaption = node?.getShowCaption() ?? true;
     const altText = node?.getAltText();
-    const caption = node?.getCaption();
-    insertSketch({ src, showCaption, ...dimensions, altText, caption });
+    insertSketch({ src, showCaption, ...dimensions, altText });
     clearLocalStorage();
     closeDialog();
   };
 
   const closeDialog = () => {
-    editor.dispatchCommand(SET_DIALOGS_COMMAND, { sketch: { open: false } })
+    editor.dispatchCommand(SET_DIALOGS_COMMAND, { sketch: { open: false } });
   }
 
   const handleClose = async () => {
@@ -285,20 +284,39 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
     localStorage.removeItem("excalidraw");
   };
 
-  return <Dialog open fullScreen={true} onClose={handleClose} disableEscapeKeyDown>
-    <DialogContent sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 0, overflow: "hidden" }}>
-      <Suspense fallback={
-        <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>
-      }>
-        <Excalidraw
-          excalidrawAPI={excalidrawAPIRefCallback}
-          theme={theme.palette.mode}
-          onLibraryChange={onLibraryChange}
-          onChange={saveToLocalStorage}
-          langCode='en'
-        />
-        {excalidrawAPI && <AddLibraries excalidrawAPI={excalidrawAPI} />}
-      </Suspense>
+  const loading = !excalidrawAPI;
+
+  useEffect(() => {
+    const navigation = (window as any).navigation;
+    if (!navigation) return;
+
+    const preventBackNavigation = (event: any) => {
+      if (event.navigationType === 'push') return;
+      event.preventDefault();
+      handleClose();
+    };
+
+    navigation.addEventListener('navigate', preventBackNavigation);
+    return () => {
+      document.body.classList.remove('fullscreen');
+      navigation.removeEventListener('navigate', preventBackNavigation);
+    };
+  }, []);
+
+  return <Dialog open fullScreen={true} onClose={handleClose} disableEscapeKeyDown
+    TransitionProps={{
+      onEntered() { document.body.classList.add('fullscreen') },
+    }}>
+    <DialogContent sx={{ p: 0, overflow: "hidden" }}>
+      {loading && <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>}
+      <Excalidraw
+        excalidrawAPI={excalidrawAPIRefCallback}
+        theme={theme.palette.mode}
+        onLibraryChange={onLibraryChange}
+        onChange={saveToLocalStorage}
+        langCode='en'
+      />
+      {excalidrawAPI && <AddLibraries excalidrawAPI={excalidrawAPI} />}
     </DialogContent>
     <DialogActions>
       <Button autoFocus onClick={handleClose}>

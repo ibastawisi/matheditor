@@ -12,6 +12,7 @@ import {
   $createTextNode,
   $getRoot,
   $setSelection,
+  BaseSelection,
   DOMConversionMap,
   DOMConversionOutput,
   DOMExportOutput,
@@ -231,15 +232,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     writable.__showCaption = showCaption;
   }
 
-  getCaption(): LexicalEditor {
-    return this.__caption;
-  }
-
-  setCaption(caption: LexicalEditor): void {
-    const writable = this.getWritable();
-    writable.__caption = caption;
-  }
-
   update(payload: Partial<ImagePayload>): void {
     const writable = this.getWritable();
     writable.__src = payload.src ?? writable.__src;
@@ -276,8 +268,11 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return element;
   }
 
-  updateDOM(prevNode: ImageNode): boolean {
-    return prevNode.__src !== this.__src || prevNode.__style !== this.__style;
+  updateDOM(prevNode: ImageNode, dom: HTMLElement): boolean {
+    if (prevNode.__style !== this.__style) {
+      dom.style.cssText = (this.__style ?? '');
+    }
+    return false;
   }
 
   getSrc(): string {
@@ -288,19 +283,28 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return this.__altText;
   }
 
+  isSelected(selection?: null | BaseSelection): boolean {
+    try {
+      return super.isSelected(selection);
+    } catch (e) {
+      return false;
+    }
+  }
+
   decorate(): JSX.Element {
-    const html = this.__caption.getEditorState().read(() => $generateHtmlFromNodes(this.__caption));
+    const self = this.getLatest();
+    const html = self.__caption.getEditorState().read(() => $generateHtmlFromNodes(self.__caption));
     const children = htmr(html);
 
     return (
       <ImageComponent
-        src={this.__src}
-        altText={this.__altText}
-        width={this.__width}
-        height={this.__height}
-        nodeKey={this.getKey()}
-        showCaption={this.__showCaption}
-        caption={this.__caption}
+        src={self.__src}
+        altText={self.__altText}
+        width={self.__width}
+        height={self.__height}
+        nodeKey={self.__key}
+        showCaption={self.__showCaption}
+        caption={self.__caption}
       >
         {children}
       </ImageComponent>

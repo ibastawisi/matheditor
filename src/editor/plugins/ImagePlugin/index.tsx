@@ -26,6 +26,12 @@ import {
 import { useEffect } from 'react';
 
 import { $createImageNode, $isImageNode, ImageNode, ImagePayload, } from '@/editor/nodes/ImageNode';
+import { INSERT_GRAPH_COMMAND } from '../GraphPlugin';
+import { INSERT_IFRAME_COMMAND } from '../IFramePlugin';
+import { INSERT_SKETCH_COMMAND } from '../SketchPlugin';
+import { GraphNode } from '@/editor/nodes/GraphNode';
+import { SketchNode } from '@/editor/nodes/SketchNode';
+import { IFrameNode } from '@/editor/nodes/IFrameNode';
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 
@@ -115,16 +121,17 @@ function onDragStart(event: DragEvent): boolean {
     'application/x-lexical-drag',
     JSON.stringify({
       data: {
-        altText: node.__altText,
-        height: node.__height,
         key: node.getKey(),
         src: node.__src,
         width: node.__width,
+        height: node.__height,
+        value: (node as any).__value,
+        altText: node.__altText,
         style: node.__style,
         showCaption: node.__showCaption,
         caption: node.__caption,
       },
-      type: 'image',
+      type: node.__type,
     }),
   );
 
@@ -147,7 +154,11 @@ function onDrop(event: DragEvent, editor: LexicalEditor): boolean {
   if (!node) {
     return false;
   }
-  const data = getDragImageData(event);
+  const dragData = event.dataTransfer?.getData('application/x-lexical-drag');
+  if (!dragData) {
+    return false;
+  }
+  const { type, data } = JSON.parse(dragData);
   if (!data) {
     return false;
   }
@@ -160,12 +171,24 @@ function onDrop(event: DragEvent, editor: LexicalEditor): boolean {
       rangeSelection.applyDOMRange(range);
     }
     $setSelection(rangeSelection);
-    editor.dispatchCommand(INSERT_IMAGE_COMMAND, data);
+    switch (type) {
+      case 'graph':
+        editor.dispatchCommand(INSERT_GRAPH_COMMAND, data);
+        break;
+      case 'sketch':
+        editor.dispatchCommand(INSERT_SKETCH_COMMAND, data);
+        break;
+      case 'iframe':
+        editor.dispatchCommand(INSERT_IFRAME_COMMAND, data);
+        break;
+      default:
+        editor.dispatchCommand(INSERT_IMAGE_COMMAND, data);
+    }
   }
   return true;
 }
 
-function getImageNodeInSelection(): ImageNode | null {
+function getImageNodeInSelection(): ImageNode | GraphNode | SketchNode | IFrameNode | null {
   const selection = $getSelection();
   if (!$isNodeSelection(selection)) {
     return null;
@@ -173,19 +196,6 @@ function getImageNodeInSelection(): ImageNode | null {
   const nodes = selection.getNodes();
   const node = nodes[0];
   return $isImageNode(node) ? node : null;
-}
-
-function getDragImageData(event: DragEvent): null | InsertImagePayload {
-  const dragData = event.dataTransfer?.getData('application/x-lexical-drag');
-  if (!dragData) {
-    return null;
-  }
-  const { type, data } = JSON.parse(dragData);
-  if (type !== 'image') {
-    return null;
-  }
-
-  return data;
 }
 
 declare global {

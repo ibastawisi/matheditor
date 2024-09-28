@@ -11,7 +11,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
   try {
     const revision = await findRevisionById(params.id);
     if (!revision) {
-      response.error = { title: "Not Found", subtitle: "Document Revision not found" }
+      response.error = { title: "Document Revision not found" }
       return NextResponse.json(response, { status: 404 })
     }
     response.data = revision;
@@ -28,7 +28,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
-      response.error = { title: "Unauthenticated", subtitle: "Please sign in to delete this revision"}
+      response.error = { title: "Unauthenticated", subtitle: "Please sign in to delete this revision" }
       return NextResponse.json(response, { status: 401 })
     }
     const { user } = session;

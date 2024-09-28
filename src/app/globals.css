@@ -53,28 +53,12 @@ header {
   transform: rotate(3deg) translate(0px, -4px);
 }
 
-.editor-container {
-  flex: 1;
-  margin: 1rem auto;
-  position: relative;
-  overflow: hidden;
-}
-
-.editor-toolbar {
-  background-color: #fff;
-}
-
-footer {
-  z-index: 1000;
-}
-
 .splash-screen {
   position: fixed;
   inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #fff;
   z-index: 1000;
 }
 
@@ -113,12 +97,10 @@ footer {
   z-index: 15000;
 }
 
-.MuiFab-root.MuiFab-extended {
-  color: var(--mui-palette-primary-contrastText);
-}
-
-html:not([theme=dark]) .MuiFab-root.MuiFab-extended {
-  color: var(--mui-palette-text-primary);
+@media screen and (prefers-color-scheme: dark) {
+  .MuiFab-root.MuiFab-extended {
+    color: var(--mui-palette-primary-contrastText);
+  }
 }
 
 .editor-container [id] {
@@ -129,26 +111,78 @@ body:has(#app-toolbar) .editor-container [id] {
   scroll-margin-top: calc(56px + 1rem);
 }
 
+.editor-input {
+  flex: 1;
+  resize: none;
+  caret-color: #444;
+  position: relative;
+  tab-size: 1;
+  outline: 0;
+}
+
+.document-container {
+  user-select: text;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.excalidraw.excalidraw-modal-container,
+#typeahead-menu {
+  z-index: 1500 !important;
+}
+
+body.fullscreen {
+  position: initial !important;
+  overflow-y: hidden !important;
+}
+
+.ggb-container>.applet_scaler {
+  transform: none !important;
+}
+
+.diff-container ins {
+  background-color: rgb(200 255 200 / 50%);
+  text-decoration: none;
+}
+
+.diff-container del {
+  background-color: rgb(255 200 200 / 50%)
+}
+
+.diff-container~.editor-input,
+.diff-container~.MuiAppBar-root {
+  display: none;
+}
+
+@media screen and (prefers-color-scheme: dark) {
+  .editor-input {
+    caret-color: #eee;
+  }
+}
+
+.editor-input .LexicalTheme__link:hover {
+  text-decoration: none;
+  cursor: text;
+}
+
 @media (min-width: 600px) {
   body:has(#app-toolbar) .editor-container [id] {
     scroll-margin-top: calc(64px + 1rem);
   }
 }
 
-@media screen {
-  [theme=dark] .editor-toolbar {
-    background-color: #121212;
-  }
-
-  [theme=dark] .splash-screen {
-    background-color: #121212;
-  }
-}
 
 @media print {
+
   * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  *,
+  *:before,
+  *:after {
+    filter: unset !important;
   }
 
   body {

@@ -146,7 +146,7 @@ export function BlockFormatSelect({ editor, blockType }: {
   }, [editor]);
 
   return (
-    <Select value={blockType} aria-label="Formatting options for text style" size='small'
+    <Select value={blockType} size='small'
       onClose={handleClose} sx={{
         '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', py: 0.5 },
         '& .MuiListItemIcon-root': { mr: { md: 0.5 }, minWidth: 20 },
@@ -158,7 +158,9 @@ export function BlockFormatSelect({ editor, blockType }: {
         slotProps: {
           root: { sx: { '& .MuiBackdrop-root': { userSelect: 'none' } } },
         }
-      }}>
+      }}
+      inputProps={{ 'aria-label': 'block type' }}
+    >
       <MenuItem value='paragraph' onClick={formatParagraph}>
         <ListItemIcon>
           <ViewHeadline fontSize="small" />

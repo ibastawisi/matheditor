@@ -1,6 +1,7 @@
 "use client"
 import { CloudDocument, User } from '@/types';
-import { Avatar, Badge, Box, Chip, Fab, Grid, IconButton, Portal, Typography, useScrollTrigger } from '@mui/material';
+import Grid from '@mui/material/Grid2';
+import { Avatar, Badge, Box, Chip, Fab, IconButton, Portal, Typography, useScrollTrigger } from '@mui/material';
 import { Edit, FileCopy, Print, History } from '@mui/icons-material';
 import RouterLink from "next/link";
 import ShareDocument from './DocumentActions/Share';
@@ -90,11 +91,11 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
           </Box>
         </Box>
         <Grid container spacing={1}>
-          <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center' }}>
+          <Grid sx={{ display: 'flex', alignItems: 'center' }} size={{ xs: 12 }}>
             <History sx={{ mr: 1 }} />
             <Typography variant="h6">Revisions</Typography>
           </Grid>
-          {cloudDocument.revisions.map(revision => <Grid item xs={12} key={revision.id}><ViewRevisionCard cloudDocument={cloudDocument} revision={revision} /></Grid>)}
+          {cloudDocument.revisions.map(revision => <Grid size={{ xs: 12 }} key={revision.id}><ViewRevisionCard cloudDocument={cloudDocument} revision={revision} /></Grid>)}
         </Grid>
       </AppDrawer>
       {showFork && <Fab variant="extended" size='medium' component={RouterLink} prefetch={false} href={href}

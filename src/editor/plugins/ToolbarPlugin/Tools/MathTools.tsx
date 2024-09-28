@@ -42,13 +42,26 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
   const isOnline = useOnlineStatus();
   const [excalidrawAPI, excalidrawAPIRefCallback] = useCallbackRefState();
   const [fontSize, setFontSize] = useState('16px');
-
+  const [textColor, setTextColor] = useState<string>();
+  const [backgroundColor, setBackgroundColor] = useState<string>();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     editor.getEditorState().read(() => {
       const fontSize = $getNodeStyleValueForProperty(node, 'font-size', '16px');
       setFontSize(fontSize);
+      const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
+      if (!mathfield) return;
+      if (mathfield.selectionIsCollapsed) {
+        const color = $getNodeStyleValueForProperty(node, 'color');
+        setTextColor(color);
+        const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color');
+        setBackgroundColor(backgroundColor);
+      } else {
+        // TODO: implement selection color
+        setTextColor('');
+        setBackgroundColor('');
+      }
     });
   }, [node]);
 
@@ -71,7 +84,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
 
   const onColorChange = useCallback((key: string, value: string) => {
     const styleKey = key === 'text' ? 'color' : 'background-color';
-    const mathfield = node.getMathfield();
+    const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
     if (!mathfield) return;
     if (mathfield.selectionIsCollapsed) {
       applyStyleMath({ [styleKey]: value });
@@ -105,7 +118,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     restoreFocus();
   };
   const restoreFocus = () => {
-    const mathfield = node.getMathfield();
+    const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
     if (!mathfield) return;
     setTimeout(() => {
       mathfield.focus();
@@ -128,14 +141,14 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
   const handleEdit = useCallback((e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const { value } = formData;
-    const mathfield = node.getMathfield();
+    const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
     if (!mathfield) return;
     mathfield.setValue(value, { selectionMode: 'after' });
     handleClose();
   }, [editor, formData, handleClose, node]);
 
   const openWolfram = useCallback(() => {
-    const mathfield = node.getMathfield();
+    const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
     if (!mathfield) return;
     const selection = mathfield.selection;
     const value = mathfield.getValue(selection, 'latex-unstyled') || mathfield.getValue('latex-unstyled');
@@ -177,7 +190,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     });
     const latex = await ocr(blob);
     if (!latex) return;
-    const mathfield = node.getMathfield();
+    const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
     if (!mathfield) return;
     mathfield.executeCommand(["insert", latex]);
     handleClose();
@@ -249,13 +262,13 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
             <LinearProgress sx={{ visibility: loading ? 'visible' : 'hidden', position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 1000 }} />
           </Paper>
         </Collapse>}
-        <ColorPicker onColorChange={onColorChange} onClose={handleClose} />
+        <ColorPicker onColorChange={onColorChange} onClose={handleClose} textColor={textColor} backgroundColor={backgroundColor} />
       </ToggleButtonGroup>
       <FontSizePicker fontSize={fontSize} updateFontSize={updateFontSize} onBlur={restoreFocus} />
       <ToggleButtonGroup size="small" sx={{ position: "relative", ...sx }} exclusive>
         <ToggleButton value="menu"
           onClick={(e) => {
-            const mathfield = node.getMathfield();
+            const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
             if (!mathfield) return;
             const x = e.currentTarget.getBoundingClientRect().left;
             const y = e.currentTarget.getBoundingClientRect().top + 40;

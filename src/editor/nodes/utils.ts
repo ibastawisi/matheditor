@@ -41,7 +41,7 @@ export function getCSSFromStyleObject(styles: Record<string, string>): string {
 export function $getNodeStyleValueForProperty(
   node: LexicalNode,
   styleProperty: string,
-  defaultValue: string,
+  defaultValue: string = '',
 ): string {
   if (!isStylableNode(node)) return defaultValue;
   const css = node.getStyle();
@@ -76,7 +76,7 @@ export function $patchNodeStyle(
       }
       return styles;
     },
-    { ...prevStyles } || {},
+    { ...prevStyles },
   );
   const newCSSText = getCSSFromStyleObject(newStyles);
   target.setStyle(newCSSText);

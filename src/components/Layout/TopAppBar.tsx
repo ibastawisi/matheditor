@@ -49,7 +49,7 @@ function ScrollTop() {
 const TopAppBar: React.FC = () => {
   const dispatch = useDispatch();
   const pathname = usePathname();
-  const showPrintButton = !!['/edit', '/view', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
+  const showPrintButton = !!['/edit', '/view', '/playground'].find(path => pathname.startsWith(path));
   const showDrawerButton = !!['/edit', '/view'].find(path => pathname.startsWith(path));
   const initialized = useSelector(state => state.ui.initialized);
   const user = useSelector(state => state.user);

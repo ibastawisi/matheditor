@@ -11,7 +11,6 @@
 import {
   $isRangeSelection,
   $setSelection,
-  BaseSelection,
   KEY_ENTER_COMMAND,
   KEY_ESCAPE_COMMAND,
   LexicalEditor,
@@ -32,48 +31,12 @@ import {
   DRAGSTART_COMMAND,
   KEY_BACKSPACE_COMMAND,
   KEY_DELETE_COMMAND,
-  SELECTION_CHANGE_COMMAND,
 } from 'lexical';
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import ImageResizer from './ImageResizer';
+import ImageCaption from './ImageCaption';
 import { $isImageNode } from '.';
-
-import { editorConfig } from './config';
-import { Typography } from '@mui/material';
-
-const NestedEditor = lazy(() => import('@/editor/NestedEditor'));
-
-function LazyImage({
-  altText,
-  className,
-  imageRef,
-  src,
-  width,
-  height,
-  draggable,
-}: {
-  altText: string;
-  className: string | null;
-  height: number;
-  imageRef: React.Ref<HTMLImageElement>;
-  src: string;
-  width: number;
-  draggable: boolean
-}): JSX.Element {
-  return (
-    <img
-      className={className || undefined}
-      src={src}
-      alt={altText}
-      ref={imageRef}
-      width={width || undefined}
-      height={height || undefined}
-      style={{ aspectRatio: (width / height) || undefined }}
-      draggable={draggable}
-    />
-  );
-}
 
 export default function ImageComponent({
   src,
@@ -101,8 +64,6 @@ export default function ImageComponent({
     useLexicalNodeSelection(nodeKey);
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [editor] = useLexicalComposerContext();
-  const [selection, setSelection] = useState<BaseSelection | null>(null);
-  const activeEditorRef = useRef<LexicalEditor | null>(null);
 
   const $onEnter = useCallback(
     (event: KeyboardEvent) => {
@@ -127,17 +88,9 @@ export default function ImageComponent({
 
   const $onEscape = useCallback(
     (event: KeyboardEvent) => {
-      if (
-        activeEditorRef.current === caption
-      ) {
-        $setSelection(null);
-        editor.update(() => {
-          setSelected(true);
-          const parentRootElement = editor.getRootElement();
-          if (parentRootElement !== null) {
-            parentRootElement.focus();
-          }
-        });
+      if (event.currentTarget === caption._rootElement) {
+        caption.update(() => { $setSelection(null); });
+        setSelected(true);
         return true;
       }
       return false;
@@ -170,6 +123,9 @@ export default function ImageComponent({
         return true;
       }
       if (imageRef.current && imageRef.current.contains(event.target as Node)) {
+        caption.update(() => {
+          $setSelection(null);
+        });
         if (event.shiftKey) {
           setSelected(!isSelected);
         } else {
@@ -181,25 +137,11 @@ export default function ImageComponent({
 
       return false;
     },
-    [isResizing, isSelected, setSelected, clearSelection],
+    [isResizing, isSelected, setSelected, clearSelection, caption],
   );
 
   useEffect(() => {
-    let isMounted = true;
     const unregister = mergeRegister(
-      editor.registerUpdateListener(({ editorState }) => {
-        if (isMounted) {
-          setSelection(editorState.read(() => $getSelection()));
-        }
-      }),
-      editor.registerCommand(
-        SELECTION_CHANGE_COMMAND,
-        (_, activeEditor) => {
-          activeEditorRef.current = activeEditor;
-          return false;
-        },
-        COMMAND_PRIORITY_LOW,
-      ),
       editor.registerCommand<MouseEvent>(
         CLICK_COMMAND,
         onClick,
@@ -237,7 +179,6 @@ export default function ImageComponent({
     );
 
     return () => {
-      isMounted = false;
       unregister();
     };
   }, [
@@ -277,8 +218,10 @@ export default function ImageComponent({
     editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) {
+        const scrollTop = Math.round(document.documentElement.scrollTop);
         const rootElement = editor.getRootElement();
         rootElement?.focus();
+        document.documentElement.scrollTop = scrollTop;
         const nativeSelection = window.getSelection();
         nativeSelection?.removeAllRanges();
         const element = imageRef.current;
@@ -287,21 +230,19 @@ export default function ImageComponent({
     });
   }
 
+  const [draggable, setDraggable] = useState(false);
+  const [focused, setFocused] = useState(false);
+
   useEffect(() => {
     isSelected && onLoad();
-  }, [isSelected, imageRef]);
-
-  const onChange = () => {
-    editor.update(() => {
-      const node = $getNodeByKey(nodeKey);
-      if ($isImageNode(node)) {
-        node.setCaption(caption);
-      }
-    });
-  }
-
-  const draggable = isSelected && $isNodeSelection(selection) && !isResizing;
-  const isFocused = $isNodeSelection(selection) && (isSelected || isResizing);
+    editor.getEditorState().read(() => {
+      const selection = $getSelection();
+      const isDraggable = isSelected && $isNodeSelection(selection) && !isResizing;
+      const isFocused = $isNodeSelection(selection) && (isSelected || isResizing);
+      setDraggable(isDraggable);
+      setFocused(isFocused);
+    })
+  }, [isSelected]);
 
   useEffect(() => {
     if (!imageRef.current) return;
@@ -320,7 +261,7 @@ export default function ImageComponent({
       if (!height && svgHeight) imageRef.current.setAttribute('height', svgHeight);
       imageRef.current.innerHTML = svg.innerHTML;
     }
-  }, [imageRef]);
+  }, [imageRef, src]);
 
 
   return (
@@ -330,21 +271,22 @@ export default function ImageComponent({
         imageRef={imageRef}
         onResizeStart={onResizeStart}
         onResizeEnd={onResizeEnd}
-        showResizers={isFocused}
+        showResizers={focused}
       >
-        {element === 'svg' ? (
+        {element === 'svg' && (
           <svg
             ref={imageRef as React.Ref<SVGSVGElement>}
-            className={isFocused ? 'focused' : ''}
+            className={focused ? 'focused' : ''}
             width={width || undefined}
             height={height || undefined}
             xmlns="http://www.w3.org/2000/svg"
             version="1.1"
           />
-        ) : element === 'iframe' ? (
+        )}
+        {element === 'iframe' && (
           <iframe
             ref={imageRef as React.Ref<HTMLIFrameElement>}
-            className={isFocused ? 'focused' : ''}
+            className={focused ? 'focused' : ''}
             width={width}
             height={height}
             src={src}
@@ -353,27 +295,22 @@ export default function ImageComponent({
             allowFullScreen={true}
             title={altText}
           />
-        ) : (
-          <LazyImage
-            className={isFocused ? `focused ${$isNodeSelection(selection) ? 'draggable' : ''}` : null}
-            src={src}
-            altText={altText}
-            imageRef={imageRef as React.Ref<HTMLImageElement>}
-            width={width}
-            height={height}
-            draggable={draggable}
-          />
         )}
+        <img
+          className={focused ? `focused draggable` : undefined}
+          src={src}
+          alt={altText}
+          draggable={draggable}
+          ref={element === 'img' ? imageRef as React.Ref<HTMLImageElement> : undefined}
+          width={width || undefined}
+          height={height || undefined}
+          style={element === 'img' ?
+            { aspectRatio: (width / height) || undefined } :
+            { aspectRatio: (width / height) || undefined, position: 'absolute', opacity: 0, pointerEvents: focused ? 'auto' : 'none' }
+          }
+        />
       </ImageResizer>
-      {showCaption && (
-        <figcaption>
-          <Suspense fallback={children}>
-            <NestedEditor initialEditor={caption} initialNodes={editorConfig.nodes} onChange={onChange}
-              placeholder={<Typography color="text.secondary" className="nested-placeholder">Write a caption</Typography>}
-            />
-          </Suspense>
-        </figcaption>
-      )}
+      {showCaption && <ImageCaption editor={caption} nodeKey={nodeKey}>{children}</ImageCaption>}
     </>
   );
 }

@@ -167,19 +167,20 @@ export class GraphNode extends ImageNode {
   }
 
   decorate(): JSX.Element {
-    const html = this.__caption.getEditorState().read(() => $generateHtmlFromNodes(this.__caption));
+    const self = this.getLatest();
+    const html = self.__caption.getEditorState().read(() => $generateHtmlFromNodes(self.__caption));
     const children = htmr(html);
 
     return (
       <ImageComponent
-        src={this.__src}
-        altText={this.__altText}
-        width={this.__width}
-        height={this.__height}
-        nodeKey={this.getKey()}
-        showCaption={this.__showCaption}
-        caption={this.__caption}
-        element={this.__src.startsWith('data:image/svg+xml') ? 'svg' : 'img'}
+        src={self.__src}
+        altText={self.__altText}
+        width={self.__width}
+        height={self.__height}
+        nodeKey={self.__key}
+        showCaption={self.__showCaption}
+        caption={self.__caption}
+        element={self.__src.startsWith('data:image/svg+xml') ? 'svg' : 'img'}
       >
         {children}
       </ImageComponent>
