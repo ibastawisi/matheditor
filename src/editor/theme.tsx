@@ -99,6 +99,7 @@ const theme: EditorThemeClasses = {
   tableCellPrimarySelected: 'LexicalTheme__tableCellPrimarySelected',
   tableCellResizer: 'LexicalTheme__tableCellResizer',
   tableCellSelected: 'LexicalTheme__tableCellSelected',
+  tableRowStriping: 'LexicalTheme__tableRowStriping',
   tableCellSortedIndicator: 'LexicalTheme__tableCellSortedIndicator',
   tableResizeRuler: 'LexicalTheme__tableCellResizeRuler',
   tableSelected: 'LexicalTheme__tableSelected',

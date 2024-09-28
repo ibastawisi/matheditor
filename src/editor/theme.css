@@ -155,6 +155,10 @@
   margin: 0 0 1rem 0;
 }
 
+.LexicalTheme__tableRowStriping tr:nth-of-type(odd) {
+  background-color: rgb(120 132 157 / 10%);
+}
+
 .LexicalTheme__tableSelection *::selection {
   background-color: transparent;
 }

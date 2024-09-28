@@ -52,6 +52,8 @@ export class TableNode extends LexicalTableNode {
     node.setFormat(_serializedNode.format);
     node.setDirection(_serializedNode.direction);
     node.setStyle(_serializedNode.style);
+    node.setRowStriping(_serializedNode.rowStriping || false);
+    // if (_serializedNode.colWidths) node.setColWidths(_serializedNode.colWidths);
     return node;
   }
 

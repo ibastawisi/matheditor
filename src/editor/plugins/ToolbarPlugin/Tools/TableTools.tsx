@@ -2,11 +2,10 @@
 import { $createParagraphNode, $getSelection, $isElementNode, $isParagraphNode, $isRangeSelection, $isTextNode, $setSelection, ElementFormatType, ElementNode, LexicalEditor, } from "lexical";
 import { useCallback, useEffect, useState } from "react";
 import { ToggleButtonGroup, ToggleButton, SvgIcon, Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, Divider } from "@mui/material";
-import { ViewHeadline, Delete, KeyboardArrowDown, TableChart } from "@mui/icons-material";
-import { $deleteTableColumn__EXPERIMENTAL, $deleteTableRow__EXPERIMENTAL, $getNodeTriplet, $getTableCellNodeFromLexicalNode, $getTableColumnIndexFromTableCellNode, $getTableRowIndexFromTableCellNode, $insertTableColumn__EXPERIMENTAL, $insertTableRow__EXPERIMENTAL, $isTableCellNode, $isTableRowNode, $isTableSelection, $unmergeCell, getTableObserverFromTableElement, HTMLTableElementWithWithTableSelectionState, TableCellHeaderStates, TableCellNode, TableNode, TableRowNode, TableSelection } from "@/editor/nodes/TableNode";
+import { ViewHeadline, Delete, KeyboardArrowDown, TableChart, Texture } from "@mui/icons-material";
+import { $deleteTableColumn__EXPERIMENTAL, $deleteTableRow__EXPERIMENTAL, $getNodeTriplet, $getTableCellNodeFromLexicalNode, $getTableColumnIndexFromTableCellNode, $getTableNodeFromLexicalNodeOrThrow, $getTableRowIndexFromTableCellNode, $insertTableColumn__EXPERIMENTAL, $insertTableRow__EXPERIMENTAL, $isTableCellNode, $isTableRowNode, $isTableSelection, $unmergeCell, getTableObserverFromTableElement, HTMLTableElementWithWithTableSelectionState, TableCellHeaderStates, TableCellNode, TableNode, TableRowNode, TableSelection } from "@/editor/nodes/TableNode";
 import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight } from '@mui/icons-material';
 import { $getNodeStyleValueForProperty, $patchStyle, getStyleObjectFromCSS } from "@/editor/nodes/utils";
-import invariant from "@/shared/invariant";
 import ColorPicker from "./ColorPicker";
 
 function computeSelectionCount(selection: TableSelection): {
@@ -18,48 +17,6 @@ function computeSelectionCount(selection: TableSelection): {
     columns: selectionShape.toX - selectionShape.fromX + 1,
     rows: selectionShape.toY - selectionShape.fromY + 1,
   };
-}
-
-// This is important when merging cells as there is no good way to re-merge weird shapes (a result
-// of selecting merged cells and non-merged)
-function isTableSelectionRectangular(selection: TableSelection): boolean {
-  const nodes = selection.getNodes();
-  const currentRows: Array<number> = [];
-  let currentRow = null;
-  let expectedColumns = null;
-  let currentColumns = 0;
-  for (let i = 0; i < nodes.length; i++) {
-    const node = nodes[i];
-    if ($isTableCellNode(node)) {
-      const row = node.getParentOrThrow();
-      invariant(
-        $isTableRowNode(row),
-        'Expected CellNode to have a RowNode parent',
-      );
-      if (currentRow !== row) {
-        if (expectedColumns !== null && currentColumns !== expectedColumns) {
-          return false;
-        }
-        if (currentRow !== null) {
-          expectedColumns = currentColumns;
-        }
-        currentRow = row;
-        currentColumns = 0;
-      }
-      const colSpan = node.__colSpan;
-      for (let j = 0; j < colSpan; j++) {
-        if (currentRows[currentColumns + j] === undefined) {
-          currentRows[currentColumns + j] = 0;
-        }
-        currentRows[currentColumns + j] += node.__rowSpan;
-      }
-      currentColumns += colSpan;
-    }
-  }
-  return (
-    (expectedColumns === null || currentColumns === expectedColumns) &&
-    currentRows.every((v) => v === currentRows[0])
-  );
 }
 
 function $canUnmerge(): boolean {
@@ -204,7 +161,7 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
   const [selectionCounts, setSelectionCounts] = useState({ columns: 1, rows: 1, });
   const [canMergeCells, setCanMergeCells] = useState(false);
   const [canUnmergeCell, setCanUnmergeCell] = useState(false);
-  const [cellNode, setCellNode] = useState<TableCellNode | null>(null);
+  const [tableCellNode, setTableCellNode] = useState<TableCellNode | null>(null);
   const [tableCellStyle, setTableCellStyle] = useState<Record<string, string> | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -215,26 +172,26 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
     return editor.registerUpdateListener(() => {
       editor.getEditorState().read(() => {
         const tableCell = $getSelectedTableCell(editor);
-        setCellNode(tableCell);
+        setTableCellNode(tableCell);
       });
     });
   }, [editor]);
 
   useEffect(() => {
-    if (cellNode === null) return;
+    if (tableCellNode === null) return;
     return editor.registerMutationListener(TableCellNode, (nodeMutations) => {
       const nodeUpdated =
-        nodeMutations.get(cellNode.getKey()) === 'updated';
+        nodeMutations.get(tableCellNode.getKey()) === 'updated';
 
       if (nodeUpdated) {
         editor.getEditorState().read(() => {
-          setCellNode(cellNode.getLatest());
+          setTableCellNode(tableCellNode.getLatest());
         });
         const cellStyle = getCellStyle();
         setTableCellStyle(cellStyle);
       }
     });
-  }, [editor, cellNode]);
+  }, [editor, tableCellNode]);
 
   useEffect(() => {
     if (!open) return;
@@ -245,9 +202,7 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
         const currentSelectionCounts = computeSelectionCount(selection);
         setSelectionCounts(currentSelectionCounts);
         setCanMergeCells(
-          isTableSelectionRectangular(selection) &&
-          (currentSelectionCounts.columns > 1 ||
-            currentSelectionCounts.rows > 1),
+          currentSelectionCounts.columns > 1 || currentSelectionCounts.rows > 1,
         );
       } else {
         setSelectionCounts({ columns: 1, rows: 1 });
@@ -256,12 +211,12 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
       // Unmerge cell
       setCanUnmergeCell($canUnmerge());
     });
-  }, [editor, open, cellNode]);
+  }, [editor, open, tableCellNode]);
 
   const clearTableSelection = useCallback(() => {
-    if (cellNode === null) return;
+    if (tableCellNode === null) return;
     editor.update(() => {
-      if (cellNode.isAttached()) {
+      if (tableCellNode.isAttached()) {
         const tableElement = editor.getElementByKey(
           node.getKey(),
         ) as HTMLTableElementWithWithTableSelectionState;
@@ -270,17 +225,17 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
           throw new Error('Expected to find tableElement in DOM');
         }
 
-        const tableSelection = getTableObserverFromTableElement(tableElement);
-        if (tableSelection) {
-          tableSelection.clearHighlight();
+        const tableObserver = getTableObserverFromTableElement(tableElement);
+        if (tableObserver !== null) {
+          tableObserver.clearHighlight();
         }
 
         node.markDirty();
-        setCellNode(cellNode.getLatest());
+        setTableCellNode(tableCellNode.getLatest());
       }
 
     });
-  }, [editor, node, cellNode]);
+  }, [editor, node, tableCellNode]);
 
   const mergeTableCellsAtSelection = () => {
     editor.update(() => {
@@ -364,13 +319,13 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
   }, [editor]);
 
   const deleteTableAtSelection = useCallback(() => {
-    if (cellNode === null) return;
+    if (tableCellNode === null) return;
     editor.update(() => {
       node.selectPrevious();
       node.remove();
       handleClose();
     });
-  }, [editor, node, cellNode]);
+  }, [editor, node, tableCellNode]);
 
   const deleteTableColumnAtSelection = useCallback(() => {
     editor.update(() => {
@@ -380,22 +335,23 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
   }, [editor]);
 
   const getTableRowHeaderState = useCallback(() => {
-    if (cellNode === null) return TableCellHeaderStates.NO_STATUS;
-    return cellNode.__headerState & TableCellHeaderStates.ROW;
-  }, [cellNode]);
+    if (tableCellNode === null) return TableCellHeaderStates.NO_STATUS;
+    return tableCellNode.__headerState & TableCellHeaderStates.ROW;
+  }, [tableCellNode]);
 
   const getTableColumnHeaderState = useCallback(() => {
-    if (cellNode === null) return TableCellHeaderStates.NO_STATUS;
-    return cellNode.__headerState & TableCellHeaderStates.COLUMN;
-  }, [cellNode]);
+    if (tableCellNode === null) return TableCellHeaderStates.NO_STATUS;
+    return tableCellNode.__headerState & TableCellHeaderStates.COLUMN;
+  }, [tableCellNode]);
 
   const toggleTableRowIsHeader = useCallback(() => {
-    if (cellNode === null) return;
+    if (tableCellNode === null) return;
     editor.update(() => {
+      const tableNode = $getTableNodeFromLexicalNodeOrThrow(tableCellNode);
 
-      const tableRowIndex = $getTableRowIndexFromTableCellNode(cellNode);
+      const tableRowIndex = $getTableRowIndexFromTableCellNode(tableCellNode);
 
-      const tableRows = node.getChildren();
+      const tableRows = tableNode.getChildren();
 
       if (tableRowIndex >= tableRows.length || tableRowIndex < 0) {
         throw new Error('Expected table cell to be inside of table row.');
@@ -407,25 +363,28 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
         throw new Error('Expected table row');
       }
 
+      const newStyle =
+        tableCellNode.getHeaderStyles() ^ TableCellHeaderStates.ROW;
       tableRow.getChildren().forEach((tableCell) => {
         if (!$isTableCellNode(tableCell)) {
           throw new Error('Expected table cell');
         }
 
-        tableCell.toggleHeaderStyle(TableCellHeaderStates.ROW);
+        tableCell.setHeaderStyles(newStyle, TableCellHeaderStates.ROW);
       });
 
     });
-  }, [editor, node, cellNode]);
+  }, [editor, node, tableCellNode]);
 
   const toggleTableColumnIsHeader = useCallback(() => {
-    if (cellNode === null) return;
+    if (tableCellNode === null) return;
     editor.update(() => {
+      const tableNode = $getTableNodeFromLexicalNodeOrThrow(tableCellNode);
 
       const tableColumnIndex =
-        $getTableColumnIndexFromTableCellNode(cellNode);
+        $getTableColumnIndexFromTableCellNode(tableCellNode);
 
-      const tableRows = node.getChildren<TableRowNode>();
+      const tableRows = tableNode.getChildren<TableRowNode>();
       const maxRowsLength = Math.max(
         ...tableRows.map((row) => row.getChildren().length),
       );
@@ -434,6 +393,8 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
         throw new Error('Expected table cell to be inside of table row.');
       }
 
+      const newStyle =
+        tableCellNode.getHeaderStyles() ^ TableCellHeaderStates.COLUMN;
       for (let r = 0; r < tableRows.length; r++) {
         const tableRow = tableRows[r];
 
@@ -453,10 +414,22 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
           throw new Error('Expected table cell');
         }
 
-        tableCell.toggleHeaderStyle(TableCellHeaderStates.COLUMN);
+        tableCell.setHeaderStyles(newStyle, TableCellHeaderStates.COLUMN);
       }
     });
-  }, [editor, node, cellNode]);
+  }, [editor, node, tableCellNode]);
+
+  const toggleRowStriping = useCallback(() => {
+    if (tableCellNode === null) return
+    editor.update(() => {
+      if (tableCellNode.isAttached()) {
+        const tableNode = $getTableNodeFromLexicalNodeOrThrow(tableCellNode);
+        if (tableNode) {
+          tableNode.setRowStriping(!tableNode.getRowStriping());
+        }
+      }
+    });
+  }, [editor, node, tableCellNode]);
 
   const applyCellStyle = useCallback(
     (styles: Record<string, string>) => {
@@ -532,10 +505,10 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
   }
 
   useEffect(() => {
-    if (cellNode === null) return;
+    if (tableCellNode === null) return;
     const cellStyle = getCellStyle();
     setTableCellStyle(cellStyle);
-  }, [cellNode]);
+  }, [tableCellNode]);
 
   function updateFloat(newFloat: 'left' | 'right' | 'none') {
     setFloat(newFloat);
@@ -557,7 +530,7 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
     setAnchorEl(event.currentTarget);
     editor.getEditorState().read(() => {
       const tableCell = $getSelectedTableCell(editor);
-      setCellNode(tableCell);
+      setTableCellNode(tableCell);
     });
   };
 
@@ -704,6 +677,14 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
               ? 'Remove'
               : 'Add'}{' '}
             column header
+          </ListItemText>
+        </MenuItem>
+        <MenuItem onClick={toggleRowStriping}>
+          <ListItemIcon>
+            <Texture />
+          </ListItemIcon>
+          <ListItemText>
+            Toggle row striping
           </ListItemText>
         </MenuItem>
         <Divider />
