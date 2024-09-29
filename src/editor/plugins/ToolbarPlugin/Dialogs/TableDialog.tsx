@@ -7,10 +7,12 @@ import { useTheme } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, IconButton, Switch, TextField, useMediaQuery } from '@mui/material';
 import { Remove, Add } from '@mui/icons-material';
 
+const initialFormData = { rows: '3', columns: '3', includeHeaders: true };
+
 function TableDialog({ editor }: { editor: LexicalEditor }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const [formData, setFormData] = useState({ rows: '3', columns: '3', includeHeaders: true });
+  const [formData, setFormData] = useState(initialFormData);
 
   const setRows = (rows: number) => {
     setFormData({ ...formData, rows: Math.max(1, rows).toString() });
@@ -30,7 +32,7 @@ function TableDialog({ editor }: { editor: LexicalEditor }) {
 
   const closeDialog = () => {
     editor.dispatchCommand(SET_DIALOGS_COMMAND, { table: { open: false } })
-    setFormData({ rows: '3', columns: '3', includeHeaders: true });
+    setFormData(initialFormData);
   }
 
   const handleClose = () => {
@@ -59,7 +61,7 @@ function TableDialog({ editor }: { editor: LexicalEditor }) {
           <TextField type="number" size="small" sx={{ mx: 1 }} value={formData.columns} onChange={e => setColumns(+e.target.value)} label="Columns" name="columns" autoComplete="columns" autoFocus />
           <IconButton onClick={() => setColumns(+formData.columns + 1)}><Add /></IconButton>
         </FormControl>
-        <FormControlLabel sx={{ display: 'flex', justifyContent: 'center', my: 2 }} control={<Switch checked={formData.includeHeaders} onChange={setIncludeHeaders} />} label="Include Headers" />
+        <FormControlLabel sx={{ display: 'flex', mb: 1 }} control={<Switch checked={formData.includeHeaders} onChange={setIncludeHeaders} />} label="Include Headers" />
       </Box>
     </DialogContent>
     <DialogActions>

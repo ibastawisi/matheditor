@@ -106,11 +106,11 @@ const RemoveColumnHeader = () => <SvgIcon viewBox='0 -960 960 960' sx={{ transfo
   <path d="M120-280v-400h720v400H120Zm80-80h560v-240H200v240Zm0 0v-240 240Z" />
 </SvgIcon>;
 
-const AddRowHeader = () => <SvgIcon viewBox='0 -960 960 960'>
+const AddRowHeader = () => <SvgIcon viewBox='0 -960 960 960' sx={{ transform: 'rotate(45deg)' }}>
   <path d="m272-104-38-38-42 42q-19 19-46.5 19.5T100-100q-19-19-19-46t19-46l42-42-38-40 554-554q12-12 29-12t29 12l112 112q12 12 12 29t-12 29L272-104Zm172-396L216-274l58 58 226-228-56-56Z" />
 </SvgIcon>;
 
-const AddColumnHeader = () => <SvgIcon viewBox='0 -960 960 960'>
+const AddColumnHeader = () => <SvgIcon viewBox='0 -960 960 960' sx={{ transform: 'rotate(-45deg)' }}>
   <path d="m272-104-38-38-42 42q-19 19-46.5 19.5T100-100q-19-19-19-46t19-46l42-42-38-40 554-554q12-12 29-12t29 12l112 112q12 12 12 29t-12 29L272-104Zm172-396L216-274l58 58 226-228-56-56Z" />
 </SvgIcon>;
 
@@ -343,6 +343,15 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
     if (tableCellNode === null) return TableCellHeaderStates.NO_STATUS;
     return tableCellNode.__headerState & TableCellHeaderStates.COLUMN;
   }, [tableCellNode]);
+
+  const getTableRowStriping = useCallback(() => {
+    return editor.getEditorState().read(() => {
+      if (node.isAttached()) {
+        return node.getRowStriping();
+      }
+      return node.__rowStriping;
+    });
+  }, [node]);
 
   const toggleTableRowIsHeader = useCallback(() => {
     if (tableCellNode === null) return;
@@ -580,6 +589,7 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
           horizontal: 'center',
         }}
         sx={{
+          '& .MuiMenu-paper': { minWidth: 240 },
           '& .MuiBackdrop-root': { userSelect: 'none' },
         }}
       >
@@ -681,10 +691,10 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
         </MenuItem>
         <MenuItem onClick={toggleRowStriping}>
           <ListItemIcon>
-            <Texture />
+            <Texture sx={{ transform: 'rotate(45deg)' }} />
           </ListItemIcon>
           <ListItemText>
-            Toggle row striping
+            {getTableRowStriping() ? 'Remove' : 'Add'} row striping
           </ListItemText>
         </MenuItem>
         <Divider />

@@ -148,6 +148,11 @@ function ToolbarPlugin() {
       } else {
         setSelectedSticky(null);
       }
+    } else if (selection === null) {
+      setBlockType('paragraph');
+      setSelectedNode(null);
+      setSelectedSticky(null);
+      setSelectedTable(null);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
