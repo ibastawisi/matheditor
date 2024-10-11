@@ -202,12 +202,6 @@ const NewDocument: React.FC = () => {
             <FormHelperText>
               Private documents are only accessible to authors and coauthors.
             </FormHelperText>
-            <FormControlLabel label="Published"
-              control={<Checkbox checked={input.published} disabled={!isOnline || input.private} onChange={() => updateInput({ published: !input.published })} />}
-            />
-            <FormHelperText>
-              Published documents are showcased on the homepage, can be forked by anyone, and can be found by search engines.
-            </FormHelperText>
             <FormControlLabel label="Collab"
               control={<Checkbox checked={input.collab} disabled={!isOnline || input.private} onChange={() => updateInput({ collab: !input.collab })} />}
             />
