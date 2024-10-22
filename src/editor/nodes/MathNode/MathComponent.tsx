@@ -92,7 +92,6 @@ export default function MathComponent({ initialValue, nodeKey }: MathComponentPr
       { key: '[Return]', ifMode: 'math', command: 'addRowAfter' },
       { key: '[Enter]', ifMode: 'math', command: 'addRowAfter' },
     ];
-    // @ts-expect-error
     mathfield.registers.arraystretch = 1.5;
     // focus newly created mathfield
     if (isSelected && !mathfield.hasFocus()) {
