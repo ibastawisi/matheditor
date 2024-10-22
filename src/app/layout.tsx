@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import ThemeProvider from '@/components/Layout/ThemeProvider';
-import RobotoLatin400 from '@fontsource/roboto/files/roboto-latin-400-normal.woff2';
-import RobotoLatin500 from '@fontsource/roboto/files/roboto-latin-500-normal.woff2';
-import RobotoLatin700 from '@fontsource/roboto/files/roboto-latin-700-normal.woff2';
+import RobotoLatin400 from '@fontsource/roboto/files/roboto-latin-400-normal.woff2?url';
+import RobotoLatin500 from '@fontsource/roboto/files/roboto-latin-500-normal.woff2?url';
+import RobotoLatin700 from '@fontsource/roboto/files/roboto-latin-700-normal.woff2?url';
 import 'mathlive/static.css';
 import '@/editor/theme.css';
 import './globals.css';
