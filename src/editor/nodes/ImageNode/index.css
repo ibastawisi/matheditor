@@ -26,16 +26,17 @@
   user-select: none;
 }
 
-.LexicalTheme__image .focused,
+.LexicalTheme__image .image-control-wrapper--active,
+.LexicalTheme__image .image-control-wrapper:active ,
 .LexicalTheme__image:focus-within {
   outline: 2px solid rgb(95 183 255 / 75%);
 }
 
-.LexicalTheme__image .focused.draggable {
+.image-control-wrapper--active .draggable {
   cursor: grab;
 }
 
-.LexicalTheme__image .focused.draggable:active {
+.image-control-wrapper--active .draggable:active {
   cursor: grabbing;
 }
 
@@ -135,7 +136,7 @@
 }
 
 @media print {
-  .LexicalTheme__image .focused {
+  .LexicalTheme__image .image-control-wrapper--active {
     outline: none !important;
   }
 

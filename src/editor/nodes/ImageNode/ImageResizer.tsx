@@ -250,7 +250,7 @@ export default function ImageResizer({
     }
   };
   return (
-    <div ref={controlWrapperRef} className="image-control-wrapper">
+    <div ref={controlWrapperRef} className={`image-control-wrapper${showResizers ? ' image-control-wrapper--active' : ''}`}>
       {children}
       {showResizers && (
         <>

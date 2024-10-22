@@ -276,7 +276,6 @@ export default function ImageComponent({
         {element === 'svg' && (
           <svg
             ref={imageRef as React.Ref<SVGSVGElement>}
-            className={focused ? 'focused' : ''}
             width={width || undefined}
             height={height || undefined}
             xmlns="http://www.w3.org/2000/svg"
@@ -286,7 +285,6 @@ export default function ImageComponent({
         {element === 'iframe' && (
           <iframe
             ref={imageRef as React.Ref<HTMLIFrameElement>}
-            className={focused ? 'focused' : ''}
             width={width}
             height={height}
             src={src}
@@ -297,7 +295,7 @@ export default function ImageComponent({
           />
         )}
         <img
-          className={focused ? `focused draggable` : undefined}
+          className={focused ? `draggable` : undefined}
           src={src}
           alt={altText}
           draggable={draggable}
