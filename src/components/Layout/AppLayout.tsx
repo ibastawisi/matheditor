@@ -25,7 +25,6 @@ const AppLayout = ({ children }: { children: React.ReactNode; }) => {
             my: 2,
             flex: 1,
             position: 'relative',
-            overflow: 'hidden',
           }}>
           {children}
         </Container>

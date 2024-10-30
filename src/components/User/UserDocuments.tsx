@@ -19,19 +19,19 @@ const UserDocuments: React.FC<{ documents?: UserDocument[] }> = ({ documents }) 
   const pageDocuments = sortedDocuments.slice((page - 1) * pageSize, page * pageSize);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: "column", flex: 1, mt: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: "column", flex: 1 }}>
       {!showLoading && !showEmpty && <>
-        <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, mb: 1, minHeight: 40 }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, minHeight: 40, position: "sticky", top: { 'xs': 56, 'sm': 64 }, backgroundColor: 'var(--mui-palette-background-default)', zIndex: 2, py: 1 }}>
           <Typography variant="h6" component="h2" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Published Documents</Typography>
           <DocumentSortControl value={sort} setValue={setSort} />
         </Box>
         <Box sx={{ display: 'flex', flexDirection: "column", flex: 1, justifyContent: 'space-between' }}>
-          <Grid container spacing={2} sx={{ mb: 2 }}>
+          <Grid container spacing={2}>
             {pageDocuments.map(document => <Grid key={document.id} size={{ xs: 12, sm: 6, md: 4 }}>
               <DocumentCard userDocument={document} />
             </Grid>)}
           </Grid>
-          {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center" }} />}
+          {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", position: "sticky", bottom: 0, backgroundColor: 'var(--mui-palette-background-default)', zIndex: 2, py: 2 }} />}
         </Box>
       </>}
       {showEmpty && <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>

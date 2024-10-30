@@ -124,6 +124,7 @@ body:has(#app-toolbar) .editor-container [id] {
   user-select: text;
   white-space: pre-wrap;
   word-break: break-word;
+  overflow: hidden;
 }
 
 .excalidraw.excalidraw-modal-container,

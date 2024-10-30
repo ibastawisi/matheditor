@@ -142,10 +142,9 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
         <Avatar sx={{ my: 2, bgcolor: 'primary.main' }}><PostAdd /></Avatar>
         <Button variant="outlined" component={RouterLink} prefetch={false} scroll={false} href="/new">New document</Button>
       </Box>
-      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", gap: 1, mb: 1 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", position: "sticky", top: { 'xs': 56, 'sm': 64 }, backgroundColor: 'var(--mui-palette-background-default)', zIndex: 2, py: 1 }}>
         <Typography variant="h6" component="h2" sx={{ display: { xs: 'none', sm: 'block' } }}>Documents</Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
-          <DocumentSortControl value={sort} setValue={setSort} />
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center" }}>
             <Button variant="outlined" startIcon={<UploadFile />} component="label">
               Import
@@ -155,6 +154,7 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
               Backup
             </Button>
           </Box>
+          <DocumentSortControl value={sort} setValue={setSort} />
         </Box>
         <DocumentFilterControl value={filter} setValue={setFilter} />
       </Box>
@@ -193,7 +193,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initiali
 
   return (
     <Box sx={{ display: 'flex', flexDirection: "column", flex: 1, justifyContent: 'space-between', mb: 2 }}>
-      <Grid container spacing={2} sx={{ mb: 2 }}>
+      <Grid container spacing={2}>
         {showSkeletons && Array.from({ length: 6 }).map((_, i) => <Grid key={i} size={{ xs: 12, sm: 6, md: 4 }}><DocumentCard /></Grid>)}
         {showEmpty && <Grid size={{ xs: 12 }} sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>
           <Pageview sx={{ width: 64, height: 64, fontSize: 64 }} />
@@ -203,7 +203,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initiali
           <DocumentCard userDocument={document} user={user} />
         </Grid>)}
       </Grid>
-      {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", width: "100%" }} />}
+      {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", width: "100%", position: "sticky", bottom: 0, backgroundColor: 'var(--mui-palette-background-default)', zIndex: 2, py: 2 }} />}
     </Box>
   );
 });
