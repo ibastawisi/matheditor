@@ -108,7 +108,7 @@ export async function POST(req: Request) {
 
   const response = await openai.chat.completions.create({
     messages,
-    model: "@cf/meta/llama-3.1-8b-instruct",
+    model: "@cf/meta/llama-3.1-8b-instruct-fast",
     stream: true,
     max_tokens: 2048,
   });
