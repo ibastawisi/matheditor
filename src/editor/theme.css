@@ -506,7 +506,7 @@ iframe {
 }
 
 .LexicalTheme__hr.selected {
-  outline: 2px solid rgb(60, 132, 244);
+  background-color: rgb(95 183 255 / 50%);
   user-select: none;
 }
 
@@ -536,14 +536,18 @@ iframe {
   position: relative;
   display: block;
   overflow: unset;
-  margin: 28px 0;
-  border: none;
-  border-top: 1px dashed #eeeeee;
-  border-bottom: 1px dashed #eeeeee;
-  background-color: #eeeeee;
+  padding: 1rem 0;
+  margin: 0.5rem 0;
   z-index: 1;
-  white-space: nowrap;
   clear: both;
+}
+
+[type='page-break']::before {
+  content: '';
+  display: block;
+  height: 2px;
+  background-color: #ccc;
+  line-height: 2px;
 }
 
 [type='page-break']::after {

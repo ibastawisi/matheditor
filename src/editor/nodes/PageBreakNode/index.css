@@ -1,5 +1,5 @@
 .selected[type='page-break'] {
-  border-color: var(--editor-color-primary, #4766cb);
+  background-color: rgb(95 183 255 / 50%);
 }
 
 .selected[type='page-break']::before {
