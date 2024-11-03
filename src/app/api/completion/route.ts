@@ -12,7 +12,7 @@ export const runtime = "edge";
 
 const openai = new OpenAI({
   apiKey: process.env.CLOUDFLARE_API_KEY,
-  baseURL: `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/v1`,
+  baseURL: `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/matheditor/workers-ai/v1/`,
 });
 
 export async function POST(req: Request) {
