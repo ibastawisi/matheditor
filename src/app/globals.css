@@ -194,6 +194,10 @@ body.fullscreen {
   body>*:not(.editor-container) {
     display: none !important;
   }
+
+  .document-container {
+    overflow: visible !important;
+  }
 }
 
 @font-face {
