@@ -120,11 +120,11 @@ body:has(#app-toolbar) .editor-container [id] {
   outline: 0;
 }
 
-.document-container {
+.document-container,
+.diff-container {
   user-select: text;
   white-space: pre-wrap;
   word-break: break-word;
-  overflow: hidden;
 }
 
 .excalidraw.excalidraw-modal-container,
@@ -195,9 +195,6 @@ body.fullscreen {
     display: none !important;
   }
 
-  .document-container {
-    overflow: visible !important;
-  }
 }
 
 @font-face {
