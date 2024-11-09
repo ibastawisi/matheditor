@@ -21,7 +21,7 @@ const UserDocuments: React.FC<{ documents?: UserDocument[] }> = ({ documents }) 
   return (
     <Box sx={{ display: 'flex', flexDirection: "column", flex: 1 }}>
       {!showLoading && !showEmpty && <>
-        <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, minHeight: 40, position: "sticky", top: { 'xs': 56, 'sm': 64 }, backgroundColor: 'var(--mui-palette-background-default)', zIndex: 2, py: 1 }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, minHeight: 40, position: "sticky", top: { 'xs': 55.99, 'sm': 63.99 }, backgroundColor: 'var(--mui-palette-background-default)', zIndex: 2, py: 1 }}>
           <Typography variant="h6" component="h2" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Published Documents</Typography>
           <DocumentSortControl value={sort} setValue={setSort} />
         </Box>
@@ -31,7 +31,7 @@ const UserDocuments: React.FC<{ documents?: UserDocument[] }> = ({ documents }) 
               <DocumentCard userDocument={document} />
             </Grid>)}
           </Grid>
-          {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", width: "100%", position: "sticky", bottom: 0, zIndex: 2, '& .MuiPagination-ul': { backgroundColor: 'var(--mui-palette-SpeedDialAction-fabHoverBg)', p: 1, my: 1.5, borderRadius: 6 } }} />}
+          {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", width: "100%", position: "sticky", bottom: 0, zIndex: 2, '& .MuiPagination-ul': { backgroundColor: 'var(--mui-palette-AppBar-defaultBg)', p: 1, my: 1.5, borderRadius: 6 } }} />}
         </Box>
       </>}
       {showEmpty && <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>

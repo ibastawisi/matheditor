@@ -142,7 +142,7 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
         <Avatar sx={{ my: 2, bgcolor: 'primary.main' }}><PostAdd /></Avatar>
         <Button variant="outlined" component={RouterLink} prefetch={false} scroll={false} href="/new">New document</Button>
       </Box>
-      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", position: "sticky", top: { 'xs': 56, 'sm': 64 }, backgroundColor: 'var(--mui-palette-background-default)', zIndex: 2, py: 1 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", position: "sticky", top: { 'xs': 55.99, 'sm': 63.99 }, backgroundColor: 'var(--mui-palette-background-default)', zIndex: 2, py: 1 }}>
         <Typography variant="h6" component="h2" sx={{ display: { xs: 'none', sm: 'block' } }}>Documents</Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center" }}>
@@ -203,7 +203,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initiali
           <DocumentCard userDocument={document} user={user} />
         </Grid>)}
       </Grid>
-      {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", width: "100%", position: "sticky", bottom: 0, zIndex: 2, '& .MuiPagination-ul': { backgroundColor: 'var(--mui-palette-SpeedDialAction-fabHoverBg)', p: 1, my: 1.5, borderRadius: 6 }}} />}
+      {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", width: "100%", position: "sticky", bottom: 0, zIndex: 2, '& .MuiPagination-ul': { backgroundColor: 'var(--mui-palette-AppBar-defaultBg)', p: 1, my: 1.5, borderRadius: 6 }}} />}
     </Box>
   );
 });
