@@ -203,7 +203,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initiali
           <DocumentCard userDocument={document} user={user} />
         </Grid>)}
       </Grid>
-      {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", width: "100%", position: "sticky", bottom: 0, zIndex: 2, '& .MuiPagination-ul': { backgroundColor: 'var(--mui-palette-AppBar-defaultBg)', p: 1, my: 1.5, borderRadius: 6 }}} />}
+      {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ position: "sticky", bottom: 0, mx: 'auto', '& .MuiPagination-ul': { backgroundColor: 'var(--mui-palette-AppBar-defaultBg)', p: 1, my: 1.5, borderRadius: 6 }}} />}
     </Box>
   );
 });

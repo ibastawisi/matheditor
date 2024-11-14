@@ -31,7 +31,7 @@ const UserDocuments: React.FC<{ documents?: UserDocument[] }> = ({ documents }) 
               <DocumentCard userDocument={document} />
             </Grid>)}
           </Grid>
-          {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ display: "flex", justifyContent: "center", width: "100%", position: "sticky", bottom: 0, zIndex: 2, '& .MuiPagination-ul': { backgroundColor: 'var(--mui-palette-AppBar-defaultBg)', p: 1, my: 1.5, borderRadius: 6 } }} />}
+          {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ position: "sticky", bottom: 0, mx: 'auto', '& .MuiPagination-ul': { backgroundColor: 'var(--mui-palette-AppBar-defaultBg)', p: 1, my: 1.5, borderRadius: 6 } }} />}
         </Box>
       </>}
       {showEmpty && <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>
