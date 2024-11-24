@@ -521,11 +521,6 @@ iframe {
 .LexicalTheme__math>.ML__latex {
   user-select: auto;
   padding: 2px 3px 2px 1px;
-  font-family: inherit;
-}
-
-.LexicalTheme__math .ML__text {
-  font-family: inherit;
 }
 
 .LexicalTheme__math:hover {

@@ -12,6 +12,16 @@ math-field {
   --selection-color: nope;
 }
 
+math-field::part(container) {
+  padding: 0;
+  pointer-events: inherit;
+  --_text-font-family: inherit;
+}
+
+math-field::part(content) {
+  padding: 2px 3px 2px 1px;
+}
+
 math-field::part(virtual-keyboard-toggle),
 math-field::part(menu-toggle) {
   display: none;

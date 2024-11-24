@@ -192,15 +192,13 @@ export default function MathComponent({ initialValue, nodeKey }: MathComponentPr
   return <math-field key={nodeKey}>
     <style>
       {`
-        :host .ML__container {
-          pointer-events: inherit; 
-          padding: 0;
+        :host(:not(:focus)) .ML__caret {
+          display: none;
         }
         :host(:not(:focus)) .ML__contains-caret,
         :host(:not(:focus)) .ML__contains-caret * {
           color: inherit;
         }
-        :host .ML__latex, :host .ML__text { font-family: inherit; }
       `}
     </style>
   </math-field>;

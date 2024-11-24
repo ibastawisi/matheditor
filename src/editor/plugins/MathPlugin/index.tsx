@@ -1,5 +1,5 @@
 "use client"
-import { $createParagraphNode, $insertNodes, $isRootNode, KEY_ARROW_DOWN_COMMAND, KEY_ARROW_UP_COMMAND, LexicalCommand } from 'lexical';
+import { $createParagraphNode, $getSelection, $insertNodes, $isRangeSelection, $isRootNode, KEY_ARROW_DOWN_COMMAND, KEY_ARROW_UP_COMMAND, LexicalCommand } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { COMMAND_PRIORITY_EDITOR, createCommand } from 'lexical';
 import { useEffect } from 'react';
@@ -29,7 +29,9 @@ export default function MathPlugin(): JSX.Element | null {
         INSERT_MATH_COMMAND,
         (payload) => {
           const { value } = payload;
-          const mathNode = $createMathNode(value);
+          const selection = $getSelection();
+          const style = $isRangeSelection(selection)? selection.anchor.getNode().getStyle() : '';
+          const mathNode = $createMathNode(value, style);
           $insertNodes([mathNode]);
           if ($isRootNode(mathNode.getParentOrThrow())) {
             $wrapNodeInElement(mathNode, $createParagraphNode);

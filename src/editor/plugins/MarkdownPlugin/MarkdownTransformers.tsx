@@ -569,7 +569,8 @@ export const MATH: TextMatchTransformer = {
   regExp: /\$+(.*?)\$+|\\\((.*?)\\\)/,
   replace: (textNode, match) => {
     const value = match[1] || match[2];
-    const mathNode = $createMathNode(value);
+    const style = textNode.getStyle();
+    const mathNode = $createMathNode(value, style);
     textNode.replace(mathNode);
     if (!value) mathNode.select();
   },

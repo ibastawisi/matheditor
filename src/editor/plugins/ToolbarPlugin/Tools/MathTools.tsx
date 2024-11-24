@@ -48,10 +48,12 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
 
   useEffect(() => {
     editor.getEditorState().read(() => {
-      const fontSize = $getNodeStyleValueForProperty(node, 'font-size', '16px');
-      setFontSize(fontSize);
       const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
       if (!mathfield) return;
+      const computedStyle = window.getComputedStyle(mathfield);
+      const currentFontSize = computedStyle.getPropertyValue('font-size');
+      const fontSize = $getNodeStyleValueForProperty(node, 'font-size', currentFontSize);
+      setFontSize(fontSize);
       if (mathfield.selectionIsCollapsed) {
         const color = $getNodeStyleValueForProperty(node, 'color');
         setTextColor(color);

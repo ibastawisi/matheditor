@@ -17,23 +17,26 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.E
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
+    const domSelection = window.getSelection();
+    if (!domSelection) return false;
+    const focusNode = domSelection.focusNode;
+    if (!focusNode) return false;
+    const isTextNode = focusNode.nodeType === Node.TEXT_NODE;
+    const domElement = isTextNode ? focusNode.parentElement : focusNode as HTMLElement;
+    if (!domElement) return false;
+    const computedStyle = window.getComputedStyle(domElement);
+    const currentFontSize = computedStyle.getPropertyValue('font-size');
+    const currentFontFamily = computedStyle.getPropertyValue('font-family').split(',')[0].trim().replace(/['"]+/g, '');
     if ($isRangeSelection(selection)) {
       const nextFontSize = $getSelectionStyleValueForProperty(selection, 'font-size');
       const nextFontFamily = $getSelectionStyleValueForProperty(selection, 'font-family');
       setFontSize(nextFontSize);
       setFontFamily(nextFontFamily);
-      const domSelection = window.getSelection();
-      if (!domSelection) return false;
-      const focusNode = domSelection.focusNode;
-      if (!focusNode) return false;
-      const isTextNode = focusNode.nodeType === Node.TEXT_NODE;
-      const domElement = isTextNode ? focusNode.parentElement : focusNode as HTMLElement;
-      if (!domElement) return false;
-      const computedStyle = window.getComputedStyle(domElement);
-      const currentFontSize = computedStyle.getPropertyValue('font-size');
-      const currentFontFamily = computedStyle.getPropertyValue('font-family').split(',')[0].trim().replace(/['"]+/g, '');
       if (!nextFontSize) setFontSize(currentFontSize);
       if (!nextFontFamily) setFontFamily(currentFontFamily);
+    } else {
+      setFontSize(currentFontSize);
+      setFontFamily(currentFontFamily);
     }
     return false;
 
