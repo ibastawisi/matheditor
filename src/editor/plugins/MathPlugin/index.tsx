@@ -30,7 +30,7 @@ export default function MathPlugin(): JSX.Element | null {
         (payload) => {
           const { value } = payload;
           const selection = $getSelection();
-          const style = $isRangeSelection(selection)? selection.anchor.getNode().getStyle() : '';
+          const style = $isRangeSelection(selection)? selection.style : '';
           const mathNode = $createMathNode(value, style);
           $insertNodes([mathNode]);
           if ($isRootNode(mathNode.getParentOrThrow())) {

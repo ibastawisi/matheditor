@@ -18,6 +18,12 @@ math-field::part(container) {
   --_text-font-family: inherit;
 }
 
+@media (hover: none) and (pointer: coarse) {
+  math-field:not(:focus)::part(container) {
+    pointer-events: none;
+  }
+}
+
 math-field::part(content) {
   padding: 2px 3px 2px 1px;
 }
