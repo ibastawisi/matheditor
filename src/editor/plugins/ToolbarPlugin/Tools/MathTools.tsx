@@ -236,14 +236,16 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
         {value === "draw" && <Collapse in={value === "draw"}>
           <Paper sx={{
             position: "absolute",
-            top: 52,
-            left: 0,
+            top: 56,
+            left: "50%",
+            transform: "translateX(-50%)",
             width: "100%",
-            height: 160,
+            height: 180,
+            maxWidth: 1000,
             border: "1px solid",
             borderColor: theme.palette.divider,
             zIndex: 1000,
-            '& .layer-ui__wrapper, .App-top-bar, .App-bottom-bar, .popover': { display: 'none !important' },
+            '& .layer-ui__wrapper, .App-toolbar .Stack > :not(:nth-child(7),:nth-child(10)), .mobile-misc-tools-container, .App-bottom-bar, .popover, .LaserToolOverlay': { display: 'none !important' },
             '& canvas': { borderRadius: 1 },
           }}>
             <Excalidraw
