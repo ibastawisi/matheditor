@@ -95,7 +95,7 @@ export class TableCellNode extends LexicalTableCellNode {
     this.__style = '';
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
+  createDOM(config: EditorConfig): HTMLTableCellElement {
     const element = super.createDOM(config);
     const styles = getStyleObjectFromRawCSS(this.__style);
     const color = styles.color;

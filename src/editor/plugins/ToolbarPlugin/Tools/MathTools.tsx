@@ -100,7 +100,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
   }, [applyStyleMath, node]);
 
   const [open, setOpen] = useState(false);
-  const mathfieldValueRef = useRef<HTMLInputElement>();
+  const mathfieldValueRef = useRef<HTMLInputElement | null>(null);
   const openEditDialog = () => {
     setOpen(true);
   };

@@ -319,6 +319,6 @@ function ToolbarPlugin() {
   );
 }
 
-export default function useToolbarPlugin(): null | JSX.Element {
+export default function useToolbarPlugin() {
   return <ToolbarPlugin />
 }
