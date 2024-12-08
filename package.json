@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.7.0",
   "scripts": {
+    "postinstall": "patch-package",
     "dev": "next dev",
     "prebuild": "npx prisma generate",
     "build": "next build",
@@ -38,6 +39,7 @@
     "next-auth": "^4.24.11",
     "nprogress": "^0.2.0",
     "openai": "^4.76.0",
+    "patch-package": "^8.0.0",
     "puppeteer": "^23.10.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",

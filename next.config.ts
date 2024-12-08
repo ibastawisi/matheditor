@@ -23,17 +23,9 @@ const withPWAConfig = {
   },
 };
 
-
-
 const nextConfig: NextConfig = {
   reactStrictMode: false,
   distDir: process.env.BUILD_DIR || '.next',
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals.push('canvas');
