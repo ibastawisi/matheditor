@@ -11,7 +11,7 @@ import { Settings } from '@mui/icons-material';
 import { validate } from 'uuid';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
 
-function UserActionMenu({ user }: { user: User }): JSX.Element {
+function UserActionMenu({ user }: { user: User }) {
   const dispatch = useDispatch();
   const isOnline = useOnlineStatus();
   const router = useRouter();

@@ -86,7 +86,7 @@ export default async function Page(
         if (!isCollab) document.revisions = [revision];
       }
     }
-    const response = await fetch(`${PUBLIC_URL}/api/embed/${revisionId}`);
+    const response = await fetch(`${PUBLIC_URL}/api/embed/${revisionId}`, { cache: 'force-cache' });
     if (!response.ok) {
       const { error } = await response.json();
       return <SplashScreen title={error.title} subtitle={error.subtitle} />;

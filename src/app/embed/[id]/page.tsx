@@ -55,9 +55,9 @@ export default async function Page(
     const document = await getCachedUserDocument(params.id);
     if (!document) return <SplashScreen title="Document not found" />;
     if (document.private) return <SplashScreen title="This document is private" />;
-    const revision = searchParams.v ?? document.head;
-    if (!validate(revision)) return <SplashScreen title="Revision not found" />;
-    const response = await fetch(`${PUBLIC_URL}/api/embed/${revision}`);
+    const revisionId = searchParams.v ?? document.head;
+    if (!validate(revisionId)) return <SplashScreen title="Revision not found" />;
+    const response = await fetch(`${PUBLIC_URL}/api/embed/${revisionId}`, { cache: 'force-cache' });
     if (!response.ok) {
       const { error } = await response.json();
       return <SplashScreen title={error.title} subtitle={error.subtitle} />;
