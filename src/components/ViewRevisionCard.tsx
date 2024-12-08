@@ -27,7 +27,7 @@ const ViewRevisionCard: React.FC<{
         maxWidth: "100%",
         ...sx
       }}>
-      <CardActionArea component={RouterLink} prefetch={false} scroll={false} href={href} sx={{ flexGrow: 1 }}>
+      <CardActionArea component={RouterLink} prefetch={true} scroll={false} href={href} sx={{ flexGrow: 1 }}>
         <CardHeader sx={{ alignItems: "start", '& .MuiCardHeader-content': { overflow: "hidden", textOverflow: "ellipsis" } }}
           title={new Date(revision.createdAt).toLocaleString()}
           subheader={revision.author.name}
