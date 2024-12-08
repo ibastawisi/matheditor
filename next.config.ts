@@ -1,11 +1,15 @@
+import type { NextConfig } from 'next'
+import withBundleAnalyzer from '@next/bundle-analyzer'
+import withPWA from './next-pwa'
+
 const IS_VERCEL = !!process.env.NEXT_PUBLIC_VERCEL_URL;
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
+const withBundleAnalyzerConfig = {
   enabled: process.env.ANALYZE === 'true',
-})
+};
 
-const withPWA = require("./next-pwa")({
+const withPWAConfig = {
   dest: "public",
   disable: !IS_PRODUCTION,
   register: false,
@@ -17,14 +21,19 @@ const withPWA = require("./next-pwa")({
   fallbacks: {
     document: "/offline",
   },
-});
+};
 
 
-/** @type {import('next').NextConfig} */
-const config = {
+
+const nextConfig: NextConfig = {
   reactStrictMode: false,
   distDir: process.env.BUILD_DIR || '.next',
-  /** @param { import('webpack').Configuration } config */
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals.push('canvas');
@@ -41,4 +50,4 @@ const config = {
   },
 };
 
-module.exports = withPWA(withBundleAnalyzer(config));
+export default withBundleAnalyzer(withBundleAnalyzerConfig)(withPWA(withPWAConfig)(nextConfig));

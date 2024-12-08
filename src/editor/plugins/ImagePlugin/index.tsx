@@ -36,7 +36,7 @@ import { IFrameNode } from '@/editor/nodes/IFrameNode';
 export type InsertImagePayload = Readonly<ImagePayload>;
 
 export const INSERT_IMAGE_COMMAND: LexicalCommand<InsertImagePayload> = createCommand();
-export default function ImagesPlugin(): JSX.Element | null {
+export default function ImagesPlugin() {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {

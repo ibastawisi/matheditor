@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { getSelectedNode } from '@/editor/utils/getSelectedNode';
 import { mergeRegister, $findMatchingParent } from '@lexical/utils';
 
-export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor, isRTL: boolean }): JSX.Element {
+export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor, isRTL: boolean }) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {

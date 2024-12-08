@@ -17,7 +17,7 @@ import { $getTableCellNodeFromLexicalNode, $insertTableColumn__EXPERIMENTAL, $in
 import { throttle } from "@/editor/utils/throttle";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
 
-export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> }): JSX.Element {
+export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -42,6 +42,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
 
   const { completion, complete, isLoading, stop } = useCompletion({
     api: '/api/completion',
+    streamProtocol: "text",
     onError(error) {
       annouunce({ message: { title: "Something went wrong", subtitle: "Please try again later" } });
     }

@@ -14,7 +14,7 @@ type CommandPayload = {
 export const INSERT_MATH_COMMAND: LexicalCommand<CommandPayload> =
   createCommand();
 
-export default function MathPlugin(): JSX.Element | null {
+export default function MathPlugin() {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function MathPlugin(): JSX.Element | null {
         (payload) => {
           const { value } = payload;
           const selection = $getSelection();
-          const style = $isRangeSelection(selection)? selection.style : '';
+          const style = $isRangeSelection(selection) ? selection.style : '';
           const mathNode = $createMathNode(value, style);
           $insertNodes([mathNode]);
           if ($isRootNode(mathNode.getParentOrThrow())) {

@@ -3,6 +3,7 @@ import { DecoratorNode, } from 'lexical';
 import { convertLatexToMarkup } from 'mathlive';
 import MathComponent from './MathComponent';
 import { $isEditorIsNestedEditor } from '@lexical/utils';
+import { JSX } from "react";
 
 export type SerializedMathNode = Spread<{ type: 'math'; value: string; style: string }, SerializedLexicalNode>;
 

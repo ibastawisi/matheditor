@@ -1,5 +1,6 @@
 "use client"
 import type { EditorState, LexicalEditor } from "lexical";
+import { JSX } from "react";
 import { useSharedHistoryContext } from "../context/SharedHistoryContext";
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";

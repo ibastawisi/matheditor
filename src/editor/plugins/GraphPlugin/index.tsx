@@ -15,7 +15,7 @@ export type InsertGraphPayload = Readonly<GraphPayload>;
 
 export const INSERT_GRAPH_COMMAND: LexicalCommand<InsertGraphPayload> = createCommand();
 
-export default function GraphPlugin(): JSX.Element | null {
+export default function GraphPlugin() {
   const [editor] = useLexicalComposerContext();
   useEffect(() => {
     if (!editor.hasNodes([GraphNode])) {

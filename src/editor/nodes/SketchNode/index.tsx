@@ -14,6 +14,7 @@ import { $generateHtmlFromNodes } from "@lexical/html";
 
 import ImageComponent from '../ImageNode/ImageComponent';
 import htmr from 'htmr';
+import { JSX } from "react";
 
 export type SketchPayload = Spread<{
   /**

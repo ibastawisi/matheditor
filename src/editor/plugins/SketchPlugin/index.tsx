@@ -15,7 +15,7 @@ export type InsertSketchPayload = Readonly<SketchPayload>;
 
 export const INSERT_SKETCH_COMMAND: LexicalCommand<InsertSketchPayload> = createCommand();
 
-export default function SketchPlugin(): JSX.Element | null {
+export default function SketchPlugin() {
   const [editor] = useLexicalComposerContext();
   useEffect(() => {
     if (!editor.hasNodes([SketchNode])) {

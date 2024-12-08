@@ -6,7 +6,8 @@ import { NextResponse } from "next/server"
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const response: GetRevisionResponse = {};
   try {
     const revision = await findRevisionById(params.id);
@@ -23,7 +24,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const response: DeleteRevisionResponse = {};
   try {
     const session = await getServerSession(authOptions);

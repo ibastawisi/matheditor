@@ -3,7 +3,8 @@ import EditDocument from "@/components/EditDocument";
 import { findUserDocument } from "@/repositories/document";
 import type { Metadata } from "next";
 
-export async function generateMetadata({ params }: { params: { id?: string[] } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ id?: string[] }> }): Promise<Metadata> {
+  const params = await props.params;
   if (!(params.id && params.id[0])) return {
     title: "Math Editor",
     description: "Edit a document on Math Editor",

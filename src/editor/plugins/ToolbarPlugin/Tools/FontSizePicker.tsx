@@ -9,7 +9,7 @@ export const FontSizePicker = ({ fontSize, updateFontSize, onBlur }: {
   fontSize: string,
   updateFontSize: (fontSize: number) => void,
   onBlur: () => void,
-}): JSX.Element => {
+}) => {
   const increaseFontSize = useCallback(() => {
     const currentFontSize = parseInt(fontSize);
     let updatedFontSize = currentFontSize;

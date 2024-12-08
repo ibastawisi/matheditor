@@ -3,7 +3,11 @@ import type { OgMetadata } from "@/app/api/og/route";
 import { findUserDocument } from "@/repositories/document";
 import type { Metadata } from "next";
 
-export async function generateMetadata({ params, searchParams }: { params: { id: string }, searchParams: { v?: string } }): Promise<Metadata> {
+export async function generateMetadata(
+  props: { params: Promise<{ id: string }>, searchParams: Promise<{ v?: string }> }
+): Promise<Metadata> {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   if (!(params.id && params.id[0])) return {
     title: "New Document",
     description: "Create a new document on Math Editor",

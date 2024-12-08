@@ -16,7 +16,7 @@ export function ImageCaption({
   nodeKey: NodeKey;
   editor: LexicalEditor;
   children?: React.ReactNode;
-}): JSX.Element {
+}) {
   const parentEditor = editor._parentEditor;
   useEffect(() => {
     const unregister = mergeRegister(

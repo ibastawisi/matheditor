@@ -9,7 +9,8 @@ import { validateHandle } from "../utils";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const response: GetUserResponse = {};
   try {
     const user = await findUser(params.id);
@@ -32,7 +33,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const response: PatchUserResponse = {};
   try {
     if (!validate(params.id)) {
@@ -87,7 +89,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const response: DeleteUserResponse = {};
   try {
     if (!validate(params.id)) {

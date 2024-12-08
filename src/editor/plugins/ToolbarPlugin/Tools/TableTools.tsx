@@ -155,7 +155,7 @@ const $getSelectedTableCell = (editor: LexicalEditor): TableCellNode | null => {
 };
 
 
-export default function TableTools({ editor, node }: { editor: LexicalEditor, node: TableNode }): JSX.Element {
+export default function TableTools({ editor, node }: { editor: LexicalEditor, node: TableNode }) {
   const [formatType, setFormatType] = useState<ElementFormatType>();
   const [float, setFloat] = useState<string>();
   const [selectionCounts, setSelectionCounts] = useState({ columns: 1, rows: 1, });
@@ -227,7 +227,7 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
 
         const tableObserver = getTableObserverFromTableElement(tableElement);
         if (tableObserver !== null) {
-          tableObserver.clearHighlight();
+          tableObserver.$clearHighlight();
         }
 
         node.markDirty();
@@ -358,7 +358,7 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
     editor.update(() => {
       const tableNode = $getTableNodeFromLexicalNodeOrThrow(tableCellNode);
 
-      const tableRowIndex = $getTableRowIndexFromTableCellNode(tableCellNode);
+      const tableRowIndex = $getTableRowIndexFromTableCellNode(tableCellNode as any);
 
       const tableRows = tableNode.getChildren();
 
@@ -391,7 +391,7 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
       const tableNode = $getTableNodeFromLexicalNodeOrThrow(tableCellNode);
 
       const tableColumnIndex =
-        $getTableColumnIndexFromTableCellNode(tableCellNode);
+        $getTableColumnIndexFromTableCellNode(tableCellNode as any);
 
       const tableRows = tableNode.getChildren<TableRowNode>();
       const maxRowsLength = Math.max(

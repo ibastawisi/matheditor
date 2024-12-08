@@ -14,7 +14,7 @@ import './index.css';
 
 type CustomElement<T> = Partial<T & DOMAttributes<T>>;
 
-declare global {
+declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
       ["math-field"]: CustomElement<MathfieldElementAttributes>;
@@ -30,7 +30,7 @@ if (typeof window !== 'undefined') {
 
 export type MathComponentProps = { initialValue: string; nodeKey: NodeKey; };
 
-export default function MathComponent({ initialValue, nodeKey }: MathComponentProps): JSX.Element {
+export default function MathComponent({ initialValue, nodeKey }: MathComponentProps) {
   const [editor] = useLexicalComposerContext();
   const lastRangeSelection = useRef<RangeSelection | null>(null);
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);

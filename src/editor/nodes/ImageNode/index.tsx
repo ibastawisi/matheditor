@@ -32,6 +32,7 @@ import { $generateHtmlFromNodes } from "@lexical/html";
 
 import ImageComponent from './ImageComponent';
 import htmr from 'htmr';
+import { JSX } from "react";
 
 export interface ImagePayload {
   altText?: string;

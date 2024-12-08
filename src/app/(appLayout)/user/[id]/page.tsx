@@ -14,7 +14,8 @@ async function delay<T>(fn: () => Promise<T>, delayMs: number): Promise<T> {
 
 const getCachedUser = cache(async (id: string) => await findUser(id));
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const metadata: OgMetadata = { id: params.id, title: 'Math Editor' };
   const user = await getCachedUser(params.id);
   if (user) {
@@ -51,7 +52,8 @@ const UserDocumentsWrapper = async ({ id }: { id: string }) => {
   return <UserDocuments documents={documents} />;
 }
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   return (
     <>
       <Suspense fallback={<UserCard />}>

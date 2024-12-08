@@ -29,7 +29,7 @@ import {
   FORMAT_ELEMENT_COMMAND,
   TextNode,
 } from 'lexical';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, JSX } from 'react';
 import * as ReactDOM from 'react-dom';
 
 import { INSERT_MATH_COMMAND } from '../MathPlugin';
@@ -143,7 +143,7 @@ class ComponentPickerOption extends MenuOption {
   }
 }
 
-export default function ComponentPickerMenuPlugin(): JSX.Element {
+export default function ComponentPickerMenuPlugin() {
   const [editor] = useLexicalComposerContext();
   const [queryString, setQueryString] = useState<string | null>(null);
   const openImageDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ image: { open: true } }));

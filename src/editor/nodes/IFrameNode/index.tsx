@@ -16,7 +16,7 @@ import type {
   Spread,
 } from 'lexical';
 
-import * as React from 'react';
+import { JSX } from "react";
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
 import { $generateHtmlFromNodes } from "@lexical/html";
 import ImageComponent from '../ImageNode/ImageComponent';

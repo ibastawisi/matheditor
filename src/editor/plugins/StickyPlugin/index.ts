@@ -30,7 +30,7 @@ export type InsertStickyPayload = Readonly<StickyPayload>;
 
 export const INSERT_STICKY_COMMAND: LexicalCommand<InsertStickyPayload | undefined> = createCommand();
 
-export default function StickyPlugin(): JSX.Element | null {
+export default function StickyPlugin() {
   const [editor] = useLexicalComposerContext();
   useEffect(() => {
     if (!editor.hasNodes([StickyNode])) {

@@ -4,11 +4,12 @@ import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { EditorPlugins } from "./plugins";
 import { LexicalNestedComposer } from "@lexical/react/LexicalNestedComposer";
 import { UPDATE_DOCUMENT_COMMAND } from "./commands";
+import { JSX } from "react";
 
 export const NestedEditor: React.FC<{
   initialEditor: LexicalEditor;
   initialNodes?: ReadonlyArray<Klass<LexicalNode> | LexicalNodeReplacement>
-  placeholder?: JSX.Element | ((isEditable: boolean) => JSX.Element | null) | null;
+  placeholder?: JSX.Element | ((isEditable: boolean) => JSX.Element | null);
 }> = ({ initialEditor, initialNodes, placeholder }) => {
   const parentEditor = initialEditor._parentEditor;
   const onChange = () => {

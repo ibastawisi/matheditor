@@ -8,7 +8,7 @@ import { useTheme } from '@mui/material/styles';
 import { mergeRegister } from "@lexical/utils";
 import { FontSizePicker } from "../Tools/FontSizePicker";
 
-export default function FontSelect({ editor }: { editor: LexicalEditor }): JSX.Element {
+export default function FontSelect({ editor }: { editor: LexicalEditor }) {
   const [fontSize, setFontSize] = useState<string>('16px');
   const [fontFamily, setFontFamily] = useState<string>('Roboto');
   const theme = useTheme();

@@ -12,7 +12,11 @@ const PUBLIC_URL = process.env.PUBLIC_URL;
 const getCachedUserDocument = cache(async (id: string, revisions?: string) => await findUserDocument(id, revisions));
 const getCachedSession = cache(async () => await getServerSession(authOptions));
 
-export async function generateMetadata({ params, searchParams }: { params: { id: string }, searchParams: { v?: string } }): Promise<Metadata> {
+export async function generateMetadata(
+  props: { params: Promise<{ id: string }>, searchParams: Promise<{ v?: string }> }
+): Promise<Metadata> {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   if (!params.id) return {
     title: "View Document",
     description: "View a document on Math Editor",
@@ -55,7 +59,11 @@ export async function generateMetadata({ params, searchParams }: { params: { id:
   }
 }
 
-export default async function Page({ params, searchParams }: { params: { id: string }, searchParams: { v?: string } }) {
+export default async function Page(
+  props: { params: Promise<{ id: string }>, searchParams: Promise<{ v?: string }> }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   try {
     const document = await getCachedUserDocument(params.id, "all");
     if (!document) return <SplashScreen title="Document not found" />;

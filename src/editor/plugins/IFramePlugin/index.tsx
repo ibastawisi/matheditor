@@ -17,7 +17,7 @@ export const INSERT_IFRAME_COMMAND: LexicalCommand<IFramePayload> = createComman
   'INSERT_IFRAME_COMMAND',
 );
 
-export default function IFramePlugin(): JSX.Element | null {
+export default function IFramePlugin() {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {

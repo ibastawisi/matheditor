@@ -1,3 +1,4 @@
+"use client"
 import { CloudDocument, User } from '@/types';
 import dynamic from "next/dynamic";
 

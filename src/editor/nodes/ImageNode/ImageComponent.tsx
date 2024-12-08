@@ -58,7 +58,7 @@ export default function ImageComponent({
   caption: LexicalEditor;
   element?: "img" | "iframe" | "svg";
   children?: React.ReactNode;
-}): JSX.Element {
+}) {
   const imageRef = useRef<HTMLImageElement | HTMLIFrameElement | SVGSVGElement>(null);
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);

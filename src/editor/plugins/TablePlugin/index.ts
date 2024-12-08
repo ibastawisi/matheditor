@@ -37,7 +37,7 @@ export function TablePlugin({
   hasTabHandler = true,
 }: {
   hasTabHandler?: boolean;
-}): JSX.Element | null {
+}) {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {

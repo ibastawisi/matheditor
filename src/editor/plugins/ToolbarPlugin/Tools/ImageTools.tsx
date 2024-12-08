@@ -20,7 +20,7 @@ const FormatImageLeft = () => <SvgIcon viewBox='0 -960 960 960'>
 </SvgIcon>;
 
 
-export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor, node: ImageNode | GraphNode | SketchNode | IFrameNode, sx?: SxProps<Theme> | undefined }): JSX.Element {
+export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor, node: ImageNode | GraphNode | SketchNode | IFrameNode, sx?: SxProps<Theme> | undefined }) {
   const openImageDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ image: { open: true } }));
   const openGraphDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ graph: { open: true } }));
   const openSketchDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ sketch: { open: true } }));

@@ -16,7 +16,7 @@ const FormatImageLeft = () => <SvgIcon viewBox='0 -960 960 960'>
 </SvgIcon>;
 
 
-export default function NoteTools({ editor, node }: { editor: LexicalEditor, node: StickyNode }): JSX.Element {
+export default function NoteTools({ editor, node }: { editor: LexicalEditor, node: StickyNode }) {
   const [float, setFloat] = useState<string>();
   const [textColor, setTextColor] = useState<string>();
   const [backgroundColor, setBackgroundColor] = useState<string>();

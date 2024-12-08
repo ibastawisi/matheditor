@@ -24,6 +24,7 @@ import { editorConfig } from './config';
 import { $generateHtmlFromNodes } from "@lexical/html";
 import StickyComponent from './StickyComponent';
 import htmr from 'htmr';
+import { JSX } from "react";
 
 export interface StickyPayload {
   editor?: SerializedEditor;

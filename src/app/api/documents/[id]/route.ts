@@ -9,7 +9,8 @@ import { validateHandle } from "../utils";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const response: GetDocumentResponse = {};
   try {
     const session = await getServerSession(authOptions);
@@ -50,7 +51,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const response: PatchDocumentResponse = {};
   try {
     if (!validate(params.id)) {
@@ -156,7 +158,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const response: DeleteDocumentResponse = {};
   try {
     if (!validate(params.id)) {

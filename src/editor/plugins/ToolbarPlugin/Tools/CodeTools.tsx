@@ -22,7 +22,7 @@ function getCodeLanguageOptions(): [string, string][] {
 
 const CODE_LANGUAGE_OPTIONS = getCodeLanguageOptions();
 
-export default function CodeTools({ editor, node }: { editor: LexicalEditor, node: CodeNode }): JSX.Element {
+export default function CodeTools({ editor, node }: { editor: LexicalEditor, node: CodeNode }) {
 
   const [codeLanguage, setCodeLanguage] = useState<string>('');
 

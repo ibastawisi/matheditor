@@ -1,18 +1,13 @@
-import { StreamingTextResponse, OpenAIStream } from 'ai';
-import OpenAI from 'openai';
+import { CoreMessage, streamText } from 'ai';
+import { createOpenAICompatible } from './openai-compatible';
 import { match } from "ts-pattern";
-import { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
 export const runtime = "edge";
 
-// const openai = createOpenAI({
-//   apiKey: process.env.CLOUDFLARE_API_KEY,
-//   baseURL: `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/v1`,
-// });
-
-const openai = new OpenAI({
-  apiKey: process.env.CLOUDFLARE_API_KEY,
+const openai = createOpenAICompatible({
+  name: "cloudflare-workers-ai",
   baseURL: `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/matheditor/workers-ai/v1/`,
+  headers: { Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY}` },
 });
 
 export async function POST(req: Request) {
@@ -97,25 +92,20 @@ export async function POST(req: Request) {
         content: `${command}${prompt ? `\n${prompt}` : ""}`,
       },
     ])
-    .run() as ChatCompletionMessageParam[];
+    .run() as CoreMessage[];
 
-  // const result = await streamText({
-  //   model: openai("@cf/meta/llama-3.1-8b-instruct"),
-  //   messages,
-  // });
-
-  // return result.toAIStreamResponse();
-
-  const response = await openai.chat.completions.create({
+  const result = streamText({
+    model: openai("@cf/meta/llama-3.1-8b-instruct-fast"),
     messages,
-    model: "@cf/meta/llama-3.1-8b-instruct-fast",
-    stream: true,
-    max_tokens: 2048,
+    maxTokens: 2048,
   });
 
-  // Convert the response into a friendly text-stream
-  const stream = OpenAIStream(response);
-
-  // Respond with the stream
-  return new StreamingTextResponse(stream, { headers: { "content-type": "text/event-stream" } });
+  return result.toTextStreamResponse({
+    status: 200,
+    headers: {
+      "Content-Type": "text/x-unknown",
+      "content-encoding": "identity",
+      "transfer-encoding": "chunked",
+    },
+  });
 }

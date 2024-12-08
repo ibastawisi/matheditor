@@ -120,7 +120,7 @@ function $runTextFormatTransformers(
   return false;
 }
 
-export default function MarkdownAutoImportPlugin(): JSX.Element | null {
+export default function MarkdownAutoImportPlugin() {
   const [editor] = useLexicalComposerContext();
   const elementTransformers = TRANSFORMERS.filter(
     (transformer): transformer is ElementTransformer =>

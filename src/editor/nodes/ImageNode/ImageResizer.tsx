@@ -34,13 +34,13 @@ export default function ImageResizer({
   showResizers
 }: {
   editor: LexicalEditor;
-  imageRef: React.RefObject<HTMLImageElement | HTMLIFrameElement | SVGSVGElement>;
+  imageRef: React.RefObject<HTMLImageElement | HTMLIFrameElement | SVGSVGElement | null>;
   maxWidth?: number;
   onResizeEnd: (width: number, height: number) => void;
   onResizeStart: () => void;
   children: React.ReactNode;
   showResizers: boolean;
-}): JSX.Element {
+}) {
   const controlWrapperRef = useRef<HTMLDivElement>(null);
   const userSelect = useRef({
     priority: '',

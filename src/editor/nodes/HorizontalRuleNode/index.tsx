@@ -20,8 +20,7 @@ import {
   createCommand,
   DecoratorNode,
 } from 'lexical';
-import * as React from 'react';
-import { lazy } from 'react';
+import { lazy, JSX } from 'react';
 const HorizontalRuleComponent = lazy(() => import('./HorizontalRuleComponent'));
 
 export type SerializedHorizontalRuleNode = SerializedLexicalNode;
@@ -81,7 +80,7 @@ export class HorizontalRuleNode extends DecoratorNode<JSX.Element> {
     return false;
   }
 
-  decorate(): JSX.Element {
+  decorate() {
     return <HorizontalRuleComponent nodeKey={this.__key} />;
   }
 }

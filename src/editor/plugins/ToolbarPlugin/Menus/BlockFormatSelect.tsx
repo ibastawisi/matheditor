@@ -40,7 +40,7 @@ const blockTypeToBlockName = {
 export function BlockFormatSelect({ editor, blockType }: {
   blockType: keyof typeof blockTypeToBlockName;
   editor: LexicalEditor;
-}): JSX.Element {
+}) {
   const formatParagraph = () => {
     editor.update(() => {
       const selection = $getSelection();

@@ -145,7 +145,7 @@ function FloatingToolbar({ editor, anchorElem }: { editor: LexicalEditor; anchor
 function useFloatingToolbar(
   editor: LexicalEditor,
   anchorElem: HTMLElement,
-): JSX.Element | null {
+) {
   const [isText, setIsText] = useState(false);
 
   const updatePopup = useCallback(() => {
@@ -222,7 +222,7 @@ export default function FloatingTextFormatToolbarPlugin({
   anchorElem = document.body,
 }: {
   anchorElem?: HTMLElement;
-}): JSX.Element | null {
+}) {
   const [editor] = useLexicalComposerContext();
   return useFloatingToolbar(editor, anchorElem);
 }

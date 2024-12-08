@@ -45,7 +45,7 @@ export default function ColorPicker({ onColorChange, onClose, toggle = "togglebu
     label?: string,
     textColor?: string,
     backgroundColor?: string
-  }): JSX.Element {
+  }) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
