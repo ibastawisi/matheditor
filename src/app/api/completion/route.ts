@@ -1,5 +1,5 @@
 import { CoreMessage, streamText } from 'ai';
-import { createOpenAICompatible } from './openai-compatible';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { match } from "ts-pattern";
 
 export const runtime = "edge";
