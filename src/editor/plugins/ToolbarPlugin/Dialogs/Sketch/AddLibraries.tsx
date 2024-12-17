@@ -1,4 +1,4 @@
-import { useHandleLibrary } from "@excalidraw/excalidraw/dist/excalidraw.production.min.js";
+import { useHandleLibrary } from "@excalidraw/excalidraw";
 import type { ExcalidrawImperativeAPI, LibraryItems_anyVersion } from "@excalidraw/excalidraw/types/types";
 import { ImportedDataState } from "@excalidraw/excalidraw/types/data/types";
 

@@ -15,7 +15,7 @@ import type { ExcalidrawElement, ExcalidrawImageElement, FileId } from '@excalid
 import { ALERT_COMMAND } from '@/editor/commands';
 import { v4 as uuid } from 'uuid';
 
-const Excalidraw = dynamic<ExcalidrawProps>(() => import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => ({ default: module.Excalidraw })), { ssr: false });
+const Excalidraw = dynamic<ExcalidrawProps>(() => import('@excalidraw/excalidraw').then((module) => ({ default: module.Excalidraw })), { ssr: false });
 const AddLibraries = dynamic(() => import('./AddLibraries'), { ssr: false });
 
 export type ExcalidrawElementFragment = { isDeleted?: boolean; };
@@ -56,7 +56,7 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
   const handleSubmit = async () => {
     const elements = excalidrawAPI?.getSceneElements();
     const files = excalidrawAPI?.getFiles();
-    const exportToSvg = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.exportToSvg).catch(console.error);
+    const exportToSvg = await import('@excalidraw/excalidraw').then((module) => module.exportToSvg).catch(console.error);
     if (!elements || !files || !exportToSvg) return;
     const element: SVGElement = await exportToSvg({
       appState: {
@@ -118,7 +118,7 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
     const scene = JSON.parse(serialized);
     const files = Object.values(scene.files) as BinaryFileData[];
     if (files.length) excalidrawAPI?.addFiles(files);
-    const { getNonDeletedElements, isLinearElement } = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js')
+    const { getNonDeletedElements, isLinearElement } = await import('@excalidraw/excalidraw')
       .then((module) => ({ getNonDeletedElements: module.getNonDeletedElements, isLinearElement: module.isLinearElement }));
     const elements = getNonDeletedElements(scene.elements).map((element: ExcalidrawElement) =>
       isLinearElement(element) ? { ...element, lastCommittedPoint: null } : element,
@@ -161,9 +161,9 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
     if (!src) return;
     const blob = await (await fetch(src)).blob();
     try {
-      const loadSceneOrLibraryFromBlob = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.loadSceneOrLibraryFromBlob);
-      const MIME_TYPES = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.MIME_TYPES);
-      const getSceneVersion = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.getSceneVersion);
+      const loadSceneOrLibraryFromBlob = await import('@excalidraw/excalidraw').then((module) => module.loadSceneOrLibraryFromBlob);
+      const MIME_TYPES = await import('@excalidraw/excalidraw').then((module) => module.MIME_TYPES);
+      const getSceneVersion = await import('@excalidraw/excalidraw').then((module) => module.getSceneVersion);
       if ($isSketchNode(node)) {
         const elements = node.getValue();
         if (elements) {
@@ -198,7 +198,7 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
       dimensions.width = size.width;
       dimensions.height = size.height;
     }
-    const getSceneVersion = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.getSceneVersion);
+    const getSceneVersion = await import('@excalidraw/excalidraw').then((module) => module.getSceneVersion);
     fetch(src).then((res) => res.blob()).then((blob) => {
       const mimeType = blob.type;
       const reader = new FileReader();
@@ -272,7 +272,7 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
   const saveToLocalStorage = debounce(async (elements: readonly ExcalidrawElement[], appState: AppState, files: BinaryFiles) => {
     if (elements.length === 0) return;
     const scene = { elements, files };
-    const getSceneVersion = await import('@excalidraw/excalidraw/dist/excalidraw.production.min.js').then((module) => module.getSceneVersion);
+    const getSceneVersion = await import('@excalidraw/excalidraw').then((module) => module.getSceneVersion);
     const sceneVersion = getSceneVersion(elements);
     if (lastSceneVersion && sceneVersion === lastSceneVersion) return;
     setLastSceneVersion(sceneVersion);
