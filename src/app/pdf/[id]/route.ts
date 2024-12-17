@@ -21,8 +21,13 @@ export async function GET(request: Request) {
     if (url.hostname === 'localhost') url.protocol = 'http:';
     const response = await fetch(url.toString(), { cache: 'force-cache' });
     if (!response.ok) throw new Error("Couldn't generate PDF");
-    response.headers.set("Content-Disposition", `inline; filename="${encodeURIComponent(document.name)}.pdf"`);
-    return response;
+    return new Response(response.body, {
+      status: response.status,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `inline; filename="${encodeURIComponent(document.name)}.pdf"`
+      }
+    });
   } catch (error) {
     console.error(error);
     const url = new URL(request.url);

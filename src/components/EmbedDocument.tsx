@@ -10,8 +10,7 @@ const EmbedDocument: React.FC<React.PropsWithChildren> = ({ children }) => {
         mx: 'auto',
         my: 2,
         flex: 1,
-        position: 'relative',
-        overflow: 'hidden',
+        position: 'relative'
       }}>
       <div className="document-container">{children}</div>
     </Container>
