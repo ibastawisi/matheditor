@@ -42,7 +42,6 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
 
   const { completion, complete, isLoading, stop } = useCompletion({
     api: '/api/completion',
-    streamProtocol: "text",
     onError(error) {
       annouunce({ message: { title: "Something went wrong", subtitle: "Please try again later" } });
     }

@@ -100,7 +100,7 @@ export async function POST(req: Request) {
     maxTokens: 2048,
   });
 
-  return result.toTextStreamResponse({
+  return result.toDataStreamResponse({
     status: 200,
     headers: {
       "Content-Type": "text/x-unknown",
