@@ -17,7 +17,7 @@ const Footer: React.FC = () => {
         <Cached />
       </IconButton>
       <Typography variant="button">
-        <Link component={RouterLink} prefetch={true} href="/privacy" sx={{ textDecoration: "none" }}>Privacy Policy</Link>
+        <Link component={RouterLink} prefetch={false} href="/privacy" sx={{ textDecoration: "none" }}>Privacy Policy</Link>
       </Typography>
     </Box>
   )

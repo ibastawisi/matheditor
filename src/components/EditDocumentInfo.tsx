@@ -86,7 +86,7 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
             </Typography>}
           </>}
           {cloudDocument && <>
-            <Typography variant="subtitle2">Author <Chip clickable component={RouterLink} prefetch={true}
+            <Typography variant="subtitle2">Author <Chip clickable component={RouterLink} prefetch={false}
               href={`/user/${cloudDocument.author.handle || cloudDocument.author.id}`}
               avatar={<Avatar alt={cloudDocument.author.name} src={cloudDocument.author.image || undefined} />}
               label={cloudDocument.author.name}
@@ -97,7 +97,7 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
               <Typography component="h3" variant="subtitle2">Coauthors</Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                 {cloudDocument.coauthors.map(coauthor => (
-                  <Chip clickable component={RouterLink} prefetch={true}
+                  <Chip clickable component={RouterLink} prefetch={false}
                     href={`/user/${coauthor.handle || coauthor.id}`}
                     key={coauthor.id}
                     avatar={<Avatar alt={coauthor.name} src={coauthor.image || undefined} />}
@@ -111,7 +111,7 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
               <Typography component="h3" variant="subtitle2">Collaborators</Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                 {collaborators.map(user => (
-                  <Chip clickable component={RouterLink} prefetch={true}
+                  <Chip clickable component={RouterLink} prefetch={false}
                     href={`/user/${user.handle || user.id}`}
                     key={user.id}
                     avatar={<Avatar alt={user.name} src={user.image || undefined} />}

@@ -33,7 +33,8 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
 
   const document = isCloudOnly ? cloudDocument : localDocument;
   const handle = cloudDocument?.handle ?? localDocument?.handle ?? document?.id;
-  const href = (isAuthor || isCoauthor || isCollab) ? `/edit/${handle}` : `/view/${handle}`;
+  const isEditable = isAuthor || isCoauthor || isCollab;
+  const href = isEditable ? `/edit/${handle}` : `/view/${handle}`;
   const authorName = cloudDocument?.author.name ?? user?.name ?? 'Local User';
 
   const localDocumentRevisions = localDocument?.revisions ?? [];
@@ -52,7 +53,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
 
   return (
     <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%", maxWidth: "100%", ...sx }}>
-      <CardActionArea component={RouterLink} prefetch={true} scroll={false} href={document ? href : "/"} sx={{ flexGrow: 1 }}>
+      <CardActionArea component={RouterLink} prefetch={!isEditable} scroll={!isEditable} href={document ? href : "/"} sx={{ flexGrow: 1 }}>
         <CardHeader sx={{ alignItems: "start", '& .MuiCardHeader-content': { overflow: "hidden", textOverflow: "ellipsis" } }}
           title={document ? document.name : <Skeleton variant="text" width={190} />}
           subheader={

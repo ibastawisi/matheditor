@@ -34,7 +34,7 @@ const UserCard: React.FC<{ user?: User, showActions?: boolean }> = memo(({ user,
   return (
     <Card variant='outlined' sx={{ display: 'flex', justifyContent: 'space-between', height: '100%' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', width: 0, flex: 1 }}>
-        <CardActionArea component={RouterLink} prefetch={true} scroll={false} href={href} sx={{ flex: '1 0 auto' }}>
+        <CardActionArea component={RouterLink} prefetch={true} href={href} sx={{ flex: '1 0 auto' }}>
           <CardContent>
             <Typography component="span" variant="h6" sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {user ? user.name : <Skeleton variant="text" width={190} />}
@@ -55,7 +55,7 @@ const UserCard: React.FC<{ user?: User, showActions?: boolean }> = memo(({ user,
           </Box>
         </CardActions>
       </Box>
-      <CardActionArea component={RouterLink} prefetch={true} href={href} sx={{ display: 'flex', width: 'auto' }}>
+      <CardActionArea component={RouterLink} prefetch={false} href={href} sx={{ display: 'flex', width: 'auto' }}>
         {user ?
           <Avatar
             sx={{ width: 112, height: 112, m: 2, alignSelf: 'center', flexShrink: 0 }}

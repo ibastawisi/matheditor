@@ -12,7 +12,7 @@ function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname();
   const shouldHide = !!['/edit', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
   const trigger = useScrollTrigger({
-    disableHysteresis: true,
+    disableHysteresis: false,
     threshold: 32,
   });
   if (!shouldHide) return children;
@@ -23,7 +23,7 @@ function HideOnScroll({ children }: { children: React.ReactElement }) {
 
 function ScrollTop() {
   const trigger = useScrollTrigger({
-    disableHysteresis: true,
+    disableHysteresis: false,
   });
 
   const handleClick = () => {
@@ -66,14 +66,14 @@ const TopAppBar: React.FC = () => {
       <HideOnScroll>
         <AppBar sx={{ displayPrint: "none" }}>
           <Toolbar id="app-toolbar">
-            <Link component={RouterLink} prefetch={true} href="/" sx={{ textDecoration: "none" }}>
+            <Link component={RouterLink} prefetch={false} href="/" sx={{ textDecoration: "none" }}>
               <Box sx={{ display: "flex" }}>
                 <Image src={logo} alt="Logo" width={32} height={32} priority />
                 <Typography variant="h6" component="h1" sx={{ marginInlineStart: 2, color: "white" }}>Math Editor</Typography>
               </Box>
             </Link>
             <Box sx={{ flexGrow: 1 }} />
-            <IconButton component={RouterLink} prefetch={true} href="/dashboard" aria-label="Dashboard">
+            <IconButton component={RouterLink} prefetch={false} href="/dashboard" aria-label="Dashboard">
               <Avatar alt={user?.name} src={user?.image ?? undefined} sx={{ width: 30, height: 30 }} />
             </IconButton>
             {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={handlePrint}>

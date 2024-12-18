@@ -140,7 +140,7 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
     <>
       <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5 }}>
         <Avatar sx={{ my: 2, bgcolor: 'primary.main' }}><PostAdd /></Avatar>
-        <Button variant="outlined" component={RouterLink} prefetch={true} scroll={false} href="/new">New document</Button>
+        <Button variant="outlined" component={RouterLink} prefetch={false} href="/new">New document</Button>
       </Box>
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", position: "sticky", top: { 'xs': 55.99, 'sm': 63.99 }, backgroundColor: 'var(--mui-palette-background-default)', zIndex: 2, py: 1 }}>
         <Typography variant="h6" component="h2" sx={{ display: { xs: 'none', sm: 'block' } }}>Documents</Typography>
@@ -161,14 +161,14 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 6 }}>
           <Card variant="outlined">
-            <CardActionArea component={RouterLink} prefetch={true} scroll={false} href="/playground">
+            <CardActionArea component={RouterLink} prefetch={false} href="/playground">
               <CardHeader title="Playground" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><Science /></Avatar>} />
             </CardActionArea>
           </Card>
         </Grid>
         <Grid size={{ xs: 6 }}>
           <Card variant="outlined">
-            <CardActionArea component={RouterLink} prefetch={true} scroll={false} href="/tutorial">
+            <CardActionArea component={RouterLink} prefetch={false} href="/tutorial">
               <CardHeader title="Tutorial" avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><Help /></Avatar>} />
             </CardActionArea>
           </Card>
