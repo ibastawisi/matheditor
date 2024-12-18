@@ -1,0 +1,28 @@
+diff --git a/node_modules/@lexical/html/LexicalHtml.dev.js b/node_modules/@lexical/html/LexicalHtml.dev.js
+index 22b52eb..3b3868e 100644
+--- a/node_modules/@lexical/html/LexicalHtml.dev.js
++++ b/node_modules/@lexical/html/LexicalHtml.dev.js
+@@ -43,9 +43,6 @@ function $generateNodesFromDOM(editor, dom) {
+   return lexicalNodes;
+ }
+ function $generateHtmlFromNodes(editor, selection) {
+-  if (typeof document === 'undefined' || typeof window === 'undefined' && typeof global.window === 'undefined') {
+-    throw new Error('To use $generateHtmlFromNodes in headless mode please initialize a headless browser implementation such as JSDom before calling this function.');
+-  }
+   const container = document.createElement('div');
+   const root = lexical.$getRoot();
+   const topLevelChildren = root.getChildren();
+diff --git a/node_modules/@lexical/html/LexicalHtml.dev.mjs b/node_modules/@lexical/html/LexicalHtml.dev.mjs
+index 8f9b547..94a041b 100644
+--- a/node_modules/@lexical/html/LexicalHtml.dev.mjs
++++ b/node_modules/@lexical/html/LexicalHtml.dev.mjs
+@@ -41,9 +41,6 @@ function $generateNodesFromDOM(editor, dom) {
+   return lexicalNodes;
+ }
+ function $generateHtmlFromNodes(editor, selection) {
+-  if (typeof document === 'undefined' || typeof window === 'undefined' && typeof global.window === 'undefined') {
+-    throw new Error('To use $generateHtmlFromNodes in headless mode please initialize a headless browser implementation such as JSDom before calling this function.');
+-  }
+   const container = document.createElement('div');
+   const root = $getRoot();
+   const topLevelChildren = root.getChildren();
