@@ -32,6 +32,7 @@
     "@types/react": "19.0.1",
     "@types/react-dom": "19.0.2",
     "ai": "^4.0.20",
+    "docx": "^9.1.0",
     "htmr": "^1.0.2",
     "lexical": "^0.21.0",
     "linkedom": "^0.18.6",
