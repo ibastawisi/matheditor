@@ -1,39 +1,42 @@
-import { AlignmentType, convertInchesToTwip, Document, FileChild, IImageOptions, ImageRun, IParagraphOptions, Math, MathRun, Packer, Paragraph, ParagraphChild, TextRun } from "docx";
-import { promises as fs } from 'fs';
-import { LexicalEditor, $getRoot, LexicalNode, $isElementNode, $isTextNode, $isParagraphNode } from "lexical";
+import { convertInchesToTwip, Document, FileChild, ImageRun, IParagraphOptions, Math, MathRun, Packer, Paragraph, ParagraphChild, TextRun } from "docx";
+import { $getRoot, LexicalNode, $isElementNode, $isTextNode, $isParagraphNode } from "lexical";
 import { $getNodeStyleValueForProperty } from "../nodes/utils";
 import { $isHeadingNode, $isImageNode, $isMathNode } from "..";
-import RobotoLatin500 from '@fontsource/roboto/files/roboto-latin-500-normal.woff2?url';
-import Virgil from '@public/excalidraw-assets/Virgil.woff2?url';
 
-// Define the function to export a Lexical node to a DOCX element
-function $exportNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | null {
+export function $getDocxFileChildren() {
+  const root = $getRoot();
+  const topLevelChildren = root.getChildren();
+  const children: FileChild[] = [];
+  for (let i = 0; i < topLevelChildren.length; i++) {
+    const topLevelNode = topLevelChildren[i];
+    const child = $exportNodeToDocx(topLevelNode) as FileChild;
+    if (child) children.push(child);
+  }
+  return children;
+}
+
+function $exportNodeToDocx(node: LexicalNode,) {
+  const element = $mapNodeToDocx(node);
+  if (!element) return false;
+  if (element instanceof Paragraph) {
+    const childNodes = $isElementNode(node) ? node.getChildren() : [];
+    for (let i = 0; i < childNodes.length; i++) {
+      const childNode = childNodes[i];
+      const children = $mapNodeToDocx(childNode);
+      if (!children) continue;
+      if (Array.isArray(children)) children.forEach((child) => element.addChildElement(child as any));
+      else element.addChildElement(children as any);
+    }
+  }
+  return element;
+}
+
+// Define the function to map a Lexical node to a DOCX element
+function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | ParagraphChild[] | null {
   // debugger;
-  if ($isHeadingNode(node)) {
-    const heading = node.getTag().replace('h', 'Heading') as IParagraphOptions['heading'];
-    const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
-
-    return new Paragraph({
-      heading,
-      alignment,
-      spacing: { after: convertInchesToTwip(0.1) }
-    });
-
-  }
-  if ($isParagraphNode(node)) {
-    const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
-    const indent = node.getIndent();
-    return new Paragraph({
-      alignment,
-      indent: { left: convertInchesToTwip(indent / 2) },
-      spacing: { after: 6 }
-    });
-  }
-
   if ($isTextNode(node)) {
     const textContent = node.getTextContent();
     const parent = node.getParent();
-    const isParagraphText = $isParagraphNode(parent);
     const isHeadingText = $isHeadingNode(parent);
     const fontsizeInPx = parseInt($getNodeStyleValueForProperty(node, 'font-size'));
     const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color');
@@ -57,7 +60,23 @@ function $exportNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | null
 
     return textRun;
   }
-
+  if ($isParagraphNode(node)) {
+    const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
+    const indent = node.getIndent();
+    return new Paragraph({
+      alignment,
+      indent: { left: convertInchesToTwip(indent / 2) },
+      spacing: { after: 6 }
+    });
+  }
+  if ($isHeadingNode(node)) {
+    const heading = node.getTag().replace('h', 'Heading') as IParagraphOptions['heading'];
+    const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
+    return new Paragraph({
+      heading,
+      alignment,
+    });
+  }
   if ($isMathNode(node)) {
     const value = node.getValue();
     return new Math({ children: [new MathRun(value)] });
@@ -75,7 +94,7 @@ function $exportNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | null
     const newWidth = global.Math.min(width, 600);
     const newHeight = newWidth * aspect;
 
-    return new ImageRun({
+    const imageRun = new ImageRun({
       type,
       data,
       altText: { title: altText, description: altText, name: altText },
@@ -88,30 +107,19 @@ function $exportNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | null
         data,
       },
     });
-
+    const showCaption = node.getShowCaption();
+    const caption = node.__caption;
+    if (!showCaption || !caption) return imageRun;
+    const captionChildren = caption.getEditorState().read($getDocxFileChildren);
+    return [imageRun, ...captionChildren];
   }
   // Return null if the node type is unsupported
   return null;
 }
 
 // Generate DOCX from nodes
-export async function $generateDocxFromNodes(
-  editor: LexicalEditor,
-): Promise<Blob> {
-  const root = $getRoot();
-  const topLevelChildren = root.getChildren();
-  const children: FileChild[] = [];
-
-  for (let i = 0; i < topLevelChildren.length; i++) {
-    const topLevelNode = topLevelChildren[i];
-    const child = $appendNodesToDocx(editor, topLevelNode) as FileChild;
-    if (child) children.push(child);
-  }
-  // const RobotoBuffer = await fs.readFile(process.cwd() + "/.next" + RobotoLatin500);
-  // const VirgilBuffer = await fs.readFile(process.cwd() + "/.next" + Virgil);
-  // debugger;
+export async function generateDocxBlob(children: FileChild[]): Promise<Blob> {
   const doc = new Document({
-
     styles: {
       default: {
         heading1: {
@@ -198,43 +206,8 @@ export async function $generateDocxFromNodes(
         children: children,
       },
     ],
-    // fonts: [
-    //   {
-    //     name: 'Roboto',
-    //     data: RobotoBuffer,
-    //     characterSet: '00'
-    //   },
-    //   {
-    //     name: 'Virgil',
-    //     data: VirgilBuffer,
-    //     characterSet: '00'
-    //   },
-    // ],
   });
 
   const buffer = await Packer.toBuffer(doc);
   return new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
-}
-
-// Modify the $appendNodesToDocx function to use $exportNodeToDocx
-function $appendNodesToDocx(
-  editor: LexicalEditor,
-  node: LexicalNode,
-) {
-  const element = $exportNodeToDocx(node);
-
-  if (!element) return false;
-  // debugger;
-  if (element instanceof Paragraph) {
-    const children = $isElementNode(node) ? node.getChildren() : [];
-
-    for (let i = 0; i < children.length; i++) {
-      const childNode = children[i];
-      const child = $appendNodesToDocx(editor, childNode) as any;
-      if (child) element.addChildElement(child);
-    }
-  }
-
-
-  return element;
 }
