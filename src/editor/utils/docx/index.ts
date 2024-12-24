@@ -1,8 +1,9 @@
 import { AlignmentType, convertInchesToTwip, Document, FileChild, ILevelsOptions, ImageRun, IParagraphOptions, LevelFormat, Packer, PageBreak, Paragraph, ParagraphChild, TextRun } from "docx";
 import { $getRoot, LexicalNode, $isElementNode, $isTextNode, $isParagraphNode, $isLineBreakNode } from "lexical";
 import { $getNodeStyleValueForProperty } from "../../nodes/utils";
-import { $isHeadingNode, $isHorizontalRuleNode, $isImageNode, $isListItemNode, $isListNode, $isMathNode, $isPageBreakNode, $isQuoteNode, ListNode } from "../..";
+import { $isCodeHighlightNode, $isCodeNode, $isHeadingNode, $isHorizontalRuleNode, $isImageNode, $isListItemNode, $isListNode, $isMathNode, $isPageBreakNode, $isQuoteNode, ListNode } from "../..";
 import { convertMathNode } from "./math";
+import { convertCodeHighlightNode, convertCodeNode } from "./code";
 
 export function $getDocxFileChildren() {
   const root = $getRoot();
@@ -21,34 +22,6 @@ function $exportNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Para
 }
 
 function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | ParagraphChild[] | null {
-  if ($isTextNode(node)) {
-    const textContent = node.getTextContent();
-    const parent = node.getParent();
-    const isHeadingText = $isHeadingNode(parent);
-    const isCheckedText = $isListItemNode(parent) && parent.getChecked();
-    const isQuoteText = $isQuoteNode(parent);
-    const fontsizeInPx = parseInt($getNodeStyleValueForProperty(node, 'font-size'));
-    const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color');
-    const textRun = new TextRun({
-      text: textContent,
-      bold: node.hasFormat('bold') || isHeadingText,
-      italics: node.hasFormat('italic'),
-      strike: node.hasFormat('strikethrough') || isCheckedText,
-      underline: node.hasFormat('underline') ? { type: "single" } : undefined,
-      color: isQuoteText ? '#65676b' : $getNodeStyleValueForProperty(node, 'color'),
-      highlight: node.hasFormat('highlight') ? 'yellow' : undefined,
-      subScript: node.hasFormat('subscript'),
-      superScript: node.hasFormat('superscript'),
-      font: node.hasFormat('code') ? 'Monospace' : $getNodeStyleValueForProperty(node, 'font-family'),
-      size: fontsizeInPx ? `${fontsizeInPx * 0.75}pt` : undefined,
-      shading: backgroundColor || node.hasFormat('code') ? ({
-        type: 'solid',
-        color: node.hasFormat('code') ? '#F2F4F6' : backgroundColor
-      }) : undefined,
-    });
-
-    return textRun;
-  }
   if ($isParagraphNode(node)) {
     const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
     const indent = node.getIndent();
@@ -155,6 +128,43 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
       },
       indent: { left: 30 * 15 },
     });
+  }
+
+  if ($isCodeNode(node)) {
+    return convertCodeNode(node);
+  }
+
+  if ($isCodeHighlightNode(node)) {
+    return convertCodeHighlightNode(node);
+  }
+
+  if ($isTextNode(node)) {
+    const textContent = node.getTextContent();
+    const parent = node.getParent();
+    const isHeadingText = $isHeadingNode(parent);
+    const isCheckedText = $isListItemNode(parent) && parent.getChecked();
+    const isQuoteText = $isQuoteNode(parent);
+    const fontsizeInPx = parseInt($getNodeStyleValueForProperty(node, 'font-size'));
+    const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color');
+    const textRun = new TextRun({
+      text: textContent,
+      bold: node.hasFormat('bold') || isHeadingText,
+      italics: node.hasFormat('italic'),
+      strike: node.hasFormat('strikethrough') || isCheckedText,
+      underline: node.hasFormat('underline') ? { type: "single" } : undefined,
+      color: isQuoteText ? '#65676b' : $getNodeStyleValueForProperty(node, 'color'),
+      highlight: node.hasFormat('highlight') ? 'yellow' : undefined,
+      subScript: node.hasFormat('subscript'),
+      superScript: node.hasFormat('superscript'),
+      font: node.hasFormat('code') ? 'Consolas' : $getNodeStyleValueForProperty(node, 'font-family'),
+      size: fontsizeInPx ? `${fontsizeInPx * 0.75}pt` : undefined,
+      shading: backgroundColor || node.hasFormat('code') ? ({
+        type: 'solid',
+        color: node.hasFormat('code') ? '#F2F4F6' : backgroundColor
+      }) : undefined,
+    });
+
+    return textRun;
   }
 
   return null;
