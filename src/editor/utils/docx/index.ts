@@ -1,7 +1,8 @@
-import { AlignmentType, convertInchesToTwip, Document, FileChild, ILevelsOptions, ImageRun, IParagraphOptions, LevelFormat, Math, MathRun, Packer, Paragraph, ParagraphChild, TextRun } from "docx";
+import { AlignmentType, convertInchesToTwip, Document, FileChild, ILevelsOptions, ImageRun, IParagraphOptions, LevelFormat, Packer, PageBreak, Paragraph, ParagraphChild, TextRun } from "docx";
 import { $getRoot, LexicalNode, $isElementNode, $isTextNode, $isParagraphNode, $isLineBreakNode } from "lexical";
-import { $getNodeStyleValueForProperty } from "../nodes/utils";
-import { $isHeadingNode, $isHorizontalRuleNode, $isImageNode, $isListItemNode, $isListNode, $isMathNode, ListNode } from "..";
+import { $getNodeStyleValueForProperty } from "../../nodes/utils";
+import { $isHeadingNode, $isHorizontalRuleNode, $isImageNode, $isListItemNode, $isListNode, $isMathNode, $isPageBreakNode, $isQuoteNode, ListNode } from "../..";
+import { convertMathNode } from "./math";
 
 export function $getDocxFileChildren() {
   const root = $getRoot();
@@ -25,6 +26,7 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
     const parent = node.getParent();
     const isHeadingText = $isHeadingNode(parent);
     const isCheckedText = $isListItemNode(parent) && parent.getChecked();
+    const isQuoteText = $isQuoteNode(parent);
     const fontsizeInPx = parseInt($getNodeStyleValueForProperty(node, 'font-size'));
     const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color');
     const textRun = new TextRun({
@@ -33,7 +35,7 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
       italics: node.hasFormat('italic'),
       strike: node.hasFormat('strikethrough') || isCheckedText,
       underline: node.hasFormat('underline') ? { type: "single" } : undefined,
-      color: $getNodeStyleValueForProperty(node, 'color'),
+      color: isQuoteText ? '#65676b' : $getNodeStyleValueForProperty(node, 'color'),
       highlight: node.hasFormat('highlight') ? 'yellow' : undefined,
       subScript: node.hasFormat('subscript'),
       superScript: node.hasFormat('superscript'),
@@ -64,8 +66,7 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
     });
   }
   if ($isMathNode(node)) {
-    const value = node.getValue();
-    return new Math({ children: [new MathRun(value)] });
+    return convertMathNode(node);
   }
 
   if ($isImageNode(node)) {
@@ -137,6 +138,25 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
       },
     });
   }
+
+  if ($isPageBreakNode(node)) {
+    return new Paragraph({
+      children: [new PageBreak()],
+    });
+  }
+
+  if ($isQuoteNode(node)) {
+    return new Paragraph({
+      spacing: { after: 10 * 15 },
+      border: {
+        left: { size: 30, color: '#ced0d4', space: 8, style: 'single' },
+        top: { space: 4, style: 'none' },
+        bottom: { space: 2, style: 'none' },
+      },
+      indent: { left: 30 * 15 },
+    });
+  }
+
   return null;
 }
 
@@ -171,7 +191,7 @@ function basicIndentStyle(indent: number): Pick<ILevelsOptions, 'style' | 'align
 }
 
 const numbered = Array(3)
-  .fill([LevelFormat.DECIMAL,LevelFormat.UPPER_LETTER, LevelFormat.LOWER_LETTER])
+  .fill([LevelFormat.DECIMAL, LevelFormat.UPPER_LETTER, LevelFormat.LOWER_LETTER])
   .flat()
   .map((format, level) => ({
     level,
@@ -236,7 +256,6 @@ export async function $generateDocxBlobFromEditor(): Promise<Blob> {
     },
     sections: [
       {
-        properties: {},
         children: children,
       },
     ],
