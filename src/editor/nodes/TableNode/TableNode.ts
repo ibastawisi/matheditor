@@ -91,7 +91,7 @@ export class TableNode extends LexicalTableNode {
     return element;
   }
 
-  updateDOM(prevNode: LexicalTableNode, dom: HTMLElement, config: EditorConfig): boolean {
+  updateDOM(prevNode: this, dom: HTMLElement, config: EditorConfig): boolean {
     if (!isHTMLElement(dom)) {
       return super.updateDOM(prevNode, dom, config);
     }

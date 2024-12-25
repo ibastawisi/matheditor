@@ -191,6 +191,22 @@
   text-align: start;
 }
 
+.LexicalTheme__tableCellSelected {
+  caret-color: transparent;
+}
+
+.LexicalTheme__tableCellSelected::after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background-color: #5fb7ff80;
+  mix-blend-mode: multiply;
+  content: '';
+  pointer-events: none;
+}
+
 .LexicalTheme__table:is([style*="text-align:center"], [style*="text-align: center"]) {
   margin-left: auto;
   margin-right: auto;

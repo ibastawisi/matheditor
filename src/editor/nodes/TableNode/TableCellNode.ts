@@ -80,7 +80,7 @@ export class TableCellNode extends LexicalTableCellNode {
     const styles = getStyleObjectFromRawCSS(cellNode.__style);
     const backgroundColor = styles['background-color'];
     if (backgroundColor) {
-     cellNode.__backgroundColor = backgroundColor;
+      cellNode.__backgroundColor = backgroundColor;
     }
     return cellNode;
   }
@@ -158,7 +158,7 @@ export class TableCellNode extends LexicalTableCellNode {
     return self;
   }
   
-  updateDOM(prevNode: TableCellNode): boolean {
+  updateDOM(prevNode: this): boolean {
     return (
       super.updateDOM(prevNode) ||
       prevNode.__style !== this.__style
