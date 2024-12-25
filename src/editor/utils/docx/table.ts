@@ -1,6 +1,6 @@
 import { TableCellHeaderStates, TableCellNode, TableNode, TableRowNode } from "@/editor";
 import { Table, TableCell, TableRow } from "docx";
-import { $exportNodeToDocx } from ".";
+import { $convertNodeToDocx } from ".";
 import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
 
 export function $convertTableNode(node: TableNode) {
@@ -38,7 +38,7 @@ function $convertTableRowNode(node: TableRowNode) {
 function $convertTableCellNode(node: TableCellNode) {
   const rowNode = node.getParent<TableRowNode>()!;
   const colCount = rowNode.getChildren().length;
-  const children = node.getChildren().map($exportNodeToDocx);
+  const children = node.getChildren().map($convertNodeToDocx);
   const colSpan = node.getColSpan();
   const rowSpan = node.getRowSpan();
   const width = node.getWidth();
