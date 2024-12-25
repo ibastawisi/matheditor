@@ -1,9 +1,10 @@
 import { AlignmentType, convertInchesToTwip, Document, FileChild, ILevelsOptions, ImageRun, IParagraphOptions, LevelFormat, Packer, PageBreak, Paragraph, ParagraphChild, TextRun } from "docx";
 import { $getRoot, LexicalNode, $isElementNode, $isTextNode, $isParagraphNode, $isLineBreakNode } from "lexical";
-import { $getNodeStyleValueForProperty } from "../../nodes/utils";
-import { $isCodeHighlightNode, $isCodeNode, $isHeadingNode, $isHorizontalRuleNode, $isImageNode, $isListItemNode, $isListNode, $isMathNode, $isPageBreakNode, $isQuoteNode, ListNode } from "../..";
-import { convertMathNode } from "./math";
-import { convertCodeHighlightNode, convertCodeNode } from "./code";
+import { $isCodeHighlightNode, $isCodeNode, $isHeadingNode, $isHorizontalRuleNode, $isImageNode, $isListItemNode, $isListNode, $isMathNode, $isPageBreakNode, $isQuoteNode, $isTableNode, ListNode } from "../..";
+import { $convertMathNode } from "./math";
+import { $convertCodeHighlightNode, $convertCodeNode } from "./code";
+import { $convertTableNode } from "./table";
+import { $convertTextNode } from "./text";
 
 export function $getDocxFileChildren() {
   const root = $getRoot();
@@ -11,8 +12,10 @@ export function $getDocxFileChildren() {
   return elements as FileChild[];
 }
 
-function $exportNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | ParagraphChild[] | null {
+export function $exportNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | ParagraphChild[] | null {
   const element = $mapNodeToDocx(node);
+  const shouldSkipChildren = $isTableNode(node);
+  if (shouldSkipChildren) return element;
   const childNodes = $isElementNode(node) ? node.getChildren() : [];
   if (childNodes.length === 0) return element;
   const children = childNodes.map($exportNodeToDocx).filter(Boolean).flat() as FileChild[];
@@ -39,7 +42,7 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
     });
   }
   if ($isMathNode(node)) {
-    return convertMathNode(node);
+    return $convertMathNode(node);
   }
 
   if ($isImageNode(node)) {
@@ -131,40 +134,27 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
   }
 
   if ($isCodeNode(node)) {
-    return convertCodeNode(node);
+    return $convertCodeNode(node);
   }
 
   if ($isCodeHighlightNode(node)) {
-    return convertCodeHighlightNode(node);
+    return $convertCodeHighlightNode(node);
   }
 
-  if ($isTextNode(node)) {
-    const textContent = node.getTextContent();
-    const parent = node.getParent();
-    const isHeadingText = $isHeadingNode(parent);
-    const isCheckedText = $isListItemNode(parent) && parent.getChecked();
-    const isQuoteText = $isQuoteNode(parent);
-    const fontsizeInPx = parseInt($getNodeStyleValueForProperty(node, 'font-size'));
-    const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color');
-    const textRun = new TextRun({
-      text: textContent,
-      bold: node.hasFormat('bold') || isHeadingText,
-      italics: node.hasFormat('italic'),
-      strike: node.hasFormat('strikethrough') || isCheckedText,
-      underline: node.hasFormat('underline') ? { type: "single" } : undefined,
-      color: isQuoteText ? '#65676b' : $getNodeStyleValueForProperty(node, 'color'),
-      highlight: node.hasFormat('highlight') ? 'yellow' : undefined,
-      subScript: node.hasFormat('subscript'),
-      superScript: node.hasFormat('superscript'),
-      font: node.hasFormat('code') ? 'Consolas' : $getNodeStyleValueForProperty(node, 'font-family'),
-      size: fontsizeInPx ? `${fontsizeInPx * 0.75}pt` : undefined,
-      shading: backgroundColor || node.hasFormat('code') ? ({
-        type: 'solid',
-        color: node.hasFormat('code') ? '#F2F4F6' : backgroundColor
-      }) : undefined,
-    });
+  if ($isTableNode(node)) {
+    return $convertTableNode(node);
+  }
 
-    return textRun;
+  // if ($isTableRowNode(node)) {
+  //   return $convertTableRowNode(node);
+  // }
+
+  // if ($isTableCellNode(node)) {
+  //   return $convertTableCellNode(node);
+  // }
+
+  if ($isTextNode(node)) {
+    return $convertTextNode(node);
   }
 
   return null;

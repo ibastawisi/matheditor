@@ -4,7 +4,7 @@ import { convertLatexToMathMl } from "mathlive";
 import { mml2omml } from "mathml2omml";
 import { DOMParser } from "linkedom";
 
-export function convertMathNode(node: MathNode) {
+export function $convertMathNode(node: MathNode) {
   const value = node.getValue();
   const mathml = convertLatexToMathMl(value);
   const ommlString = mml2omml(`<math xmlns="http://www.w3.org/1998/Math/MathML">${mathml}</math>`);

@@ -1,7 +1,7 @@
 import { CodeHighlightNode, CodeNode } from "@/editor";
 import { IRunOptions, Paragraph, TextRun } from "docx";
 
-export function convertCodeNode(node: CodeNode) {
+export function $convertCodeNode(node: CodeNode) {
   return new Paragraph({
     shading: {
       type: 'solid',
@@ -9,7 +9,7 @@ export function convertCodeNode(node: CodeNode) {
     },
     border: {
       top: { space: 10, style: 'none' },
-      bottom: { space: 10, style: 'none' },  
+      bottom: { space: 10, style: 'none' },
       left: { space: 10, style: 'none' },
       right: { space: 10, style: 'none' },
     },
@@ -50,7 +50,7 @@ const colorMap: Record<string, string> = {
   variable: "#ee9900",
 };
 
-export function convertCodeHighlightNode(node: CodeHighlightNode) {
+export function $convertCodeHighlightNode(node: CodeHighlightNode) {
   const highlightType = node.getHighlightType();
   const options: IRunOptions = {
     text: node.getTextContent(),
@@ -59,6 +59,6 @@ export function convertCodeHighlightNode(node: CodeHighlightNode) {
     color: colorMap[highlightType as string],
   };
 
-  
+
   return new TextRun(options);
 }
