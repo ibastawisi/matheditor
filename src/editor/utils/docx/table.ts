@@ -1,5 +1,5 @@
 import { TableCellHeaderStates, TableCellNode, TableNode, TableRowNode } from "@/editor";
-import { Bookmark, Paragraph, Table, TableCell, TableRow } from "docx";
+import { BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, Table, TableCell, TableRow } from "docx";
 import { $convertNodeToDocx } from ".";
 import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
 import { editor } from "../generateDocx";
@@ -8,13 +8,15 @@ export function $convertTableNode(node: TableNode) {
   const rows = node.getChildren<TableRowNode>().map($convertTableRowNode);
   const { element } = node.exportDOM(editor);
   const id = (element as HTMLElement).id;
+  const linkId = bookmarkUniqueNumericIdGen()();
   return [
+    new BookmarkStart(id, linkId),
     new Table({
       rows: rows,
       width: { size: 100, type: 'pct', },
       margins: { top: 8 * 15, right: 8 * 15, bottom: 0, left: 8 * 15, },
     }),
-    new Paragraph({ children: [new Bookmark({ id, children: [] })], spacing: { after: 8 * 15, line: 0, }, }),
+    new BookmarkEnd(linkId),
   ];
 }
 

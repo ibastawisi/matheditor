@@ -1,4 +1,4 @@
-import { convertInchesToTwip, Document, FileChild, IParagraphOptions, Packer, PageBreak, Paragraph, ParagraphChild, TextRun } from "docx";
+import { convertInchesToTwip, Document, FileChild, IParagraphOptions, Packer, PageBreak, Paragraph, ParagraphChild, Table, TableCell, TableRow, TextRun } from "docx";
 import { $getRoot, LexicalNode, $isElementNode, $isTextNode, $isParagraphNode, $isLineBreakNode } from "lexical";
 import { $isCodeHighlightNode, $isCodeNode, $isHeadingNode, $isHorizontalRuleNode, $isImageNode, $isLinkNode, $isListItemNode, $isMathNode, $isPageBreakNode, $isQuoteNode, $isTableNode } from "../..";
 import { $convertMathNode } from "./math";
@@ -8,7 +8,7 @@ import { $convertTextNode } from "./text";
 import { $convertImageNode } from "./image";
 import { $convertListItemNode, bullets, checked, numbered, unchecked } from "./list";
 import { $convertHeadingNode, heading } from "./heading";
-import { $addBookmark, $convertLinkNode, $hasBookmarkChildren } from "./link";
+import { $convertLinkNode, $hasBookmarkedChildren } from "./link";
 
 export function $convertEditortoDocx() {
   const root = $getRoot();
@@ -18,7 +18,7 @@ export function $convertEditortoDocx() {
 
 export function $convertNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | ParagraphChild[] | null {
   const element = $mapNodeToDocx(node);
-  const shouldSkipChildren = $isTableNode(node) || $isLinkNode(node) || $hasBookmarkChildren(node);
+  const shouldSkipChildren = $isTableNode(node) || $isLinkNode(node) || $hasBookmarkedChildren(node);
   if (shouldSkipChildren) return element;
   const childNodes = $isElementNode(node) ? node.getChildren() : [];
   if (childNodes.length === 0) return element;
@@ -31,9 +31,10 @@ export function $convertNodeToDocx(node: LexicalNode): FileChild | ParagraphChil
 function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | ParagraphChild[] | null {
   const children = [] as ParagraphChild[];
   // docx does not support adding bookmarks dynamically
-  const hasBookmark = $isElementNode(node) && $hasBookmarkChildren(node);
+  const hasBookmark = $isElementNode(node) && $hasBookmarkedChildren(node);
   if (hasBookmark) {
-    children.push(...node.getChildren().map($addBookmark));
+    const childNodes = $isElementNode(node) ? node.getChildren() : [];
+    children.push(...childNodes.map($convertNodeToDocx).filter(Boolean).flat() as ParagraphChild[]);
   }
   if ($isParagraphNode(node)) {
     if ($isParagraphNode(node.getParent())) return null;

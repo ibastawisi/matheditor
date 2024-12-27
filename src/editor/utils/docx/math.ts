@@ -1,8 +1,10 @@
 import { MathNode } from "@/editor/nodes/MathNode";
-import { Math, MathComponent, MathRun, MathFraction, MathSubScript, MathSuperScript, MathSubSuperScript, MathRadical, MathLimitUpper, MathLimitLower, MathSum, MathIntegral } from "docx";
+import { Math, MathComponent, MathRun, MathFraction, MathSubScript, MathSuperScript, MathSubSuperScript, MathRadical, MathLimitUpper, MathLimitLower, MathSum, MathIntegral, Bookmark } from "docx";
 import { convertLatexToMathMl } from "mathlive";
 import { mml2omml } from "mathml2omml";
 import { DOMParser } from "linkedom";
+import { editor } from "../generateDocx";
+import { isHTMLElement } from "lexical";
 
 export function $convertMathNode(node: MathNode) {
   const value = node.getValue();
@@ -12,8 +14,10 @@ export function $convertMathNode(node: MathNode) {
   const doc = parser.parseFromString(ommlString, 'text/xml');
   const mathElement = doc.getElementsByTagName('m:oMath')[0];
   const children = convertChildren(mathElement.children);
+  const { element } = node.exportDOM(editor);
+  const id = (isHTMLElement(element) && element.id) || '';
 
-  return new Math({ children });
+  return new Bookmark({ id, children: [new Math({ children })] });
 
 }
 

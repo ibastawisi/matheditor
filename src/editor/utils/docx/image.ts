@@ -1,6 +1,7 @@
-import { ImageNode } from "@/editor";
-import { ImageRun } from "docx";
+import { ImageNode, isHTMLElement } from "@/editor";
+import { BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, ImageRun, TextRun } from "docx";
 import { $convertEditortoDocx } from ".";
+import { editor } from "../generateDocx";
 
 export function $convertImageNode(node: ImageNode) {
   const dataURI = node.getSrc();
@@ -29,7 +30,9 @@ export function $convertImageNode(node: ImageNode) {
   });
   const showCaption = node.getShowCaption();
   const caption = node.__caption;
-  if (!showCaption || !caption) return imageRun;
-  const captionChildren = caption.getEditorState().read($convertEditortoDocx);
-  return [imageRun, ...captionChildren];
+  const captionChildren = showCaption? caption.getEditorState().read($convertEditortoDocx) : [];
+  const { element } = node.exportDOM(editor);
+  const id = (isHTMLElement(element) && element.id) || '';
+  const linkId = bookmarkUniqueNumericIdGen()();
+  return [new BookmarkStart(id, linkId), imageRun, new BookmarkEnd(linkId), new TextRun({ text: '', break: 1, vanish: !showCaption }), ...captionChildren];
 }
