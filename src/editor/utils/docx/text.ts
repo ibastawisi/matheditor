@@ -1,4 +1,4 @@
-import { $findMatchingParent, $isHeadingNode, $isListItemNode, $isQuoteNode, $isTableCellNode } from "@/editor";
+import { $findMatchingParent, $isHeadingNode, $isLinkNode, $isListItemNode, $isQuoteNode, $isTableCellNode } from "@/editor";
 import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
 import { TextRun } from "docx";
 import { TextNode } from "lexical";
@@ -9,6 +9,7 @@ export function $convertTextNode(node: TextNode) {
   const isHeadingText = $isHeadingNode(parent);
   const isCheckedText = $isListItemNode(parent) && parent.getChecked();
   const isQuoteText = $isQuoteNode(parent);
+  const isLinkText = $isLinkNode(parent); 
   const nearestTableCell = $findMatchingParent(node, $isTableCellNode);
   const tableCellColor = nearestTableCell ? $getNodeStyleValueForProperty(nearestTableCell, 'color').replace('inherit', '') : undefined;
   const fontsizeInPx = parseInt($getNodeStyleValueForProperty(node, 'font-size'));
@@ -29,6 +30,7 @@ export function $convertTextNode(node: TextNode) {
       type: 'solid',
       color: node.hasFormat('code') ? '#F2F4F6' : backgroundColor
     }) : undefined,
+    style: isLinkText ? 'Hyperlink' : undefined,
   });
 
   return textRun;

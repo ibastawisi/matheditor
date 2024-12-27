@@ -1,10 +1,10 @@
 import { HeadingNode } from "@/editor";
-import { IParagraphOptions, Paragraph } from "docx";
+import { IParagraphOptions, Paragraph, ParagraphChild } from "docx";
 
-export function $convertHeadingNode(node: HeadingNode) {
+export function $convertHeadingNode(node: HeadingNode, children: ParagraphChild[]) {
     const heading = node.getTag().replace('h', 'Heading') as IParagraphOptions['heading'];
     const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
-    return new Paragraph({ heading, alignment, });
+    return new Paragraph({ heading, alignment, children});
 }
 type Index = 1 | 2 | 3 | 4 | 5 | 6;
 type HeadingMap = Record<Index, number>;

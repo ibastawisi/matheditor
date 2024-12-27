@@ -1,6 +1,6 @@
 import { convertInchesToTwip, Document, FileChild, IParagraphOptions, Packer, PageBreak, Paragraph, ParagraphChild, TextRun } from "docx";
 import { $getRoot, LexicalNode, $isElementNode, $isTextNode, $isParagraphNode, $isLineBreakNode } from "lexical";
-import { $isCodeHighlightNode, $isCodeNode, $isHeadingNode, $isHorizontalRuleNode, $isImageNode, $isListItemNode, $isMathNode, $isPageBreakNode, $isQuoteNode, $isTableNode } from "../..";
+import { $isCodeHighlightNode, $isCodeNode, $isHeadingNode, $isHorizontalRuleNode, $isImageNode, $isLinkNode, $isListItemNode, $isMathNode, $isPageBreakNode, $isQuoteNode, $isTableNode } from "../..";
 import { $convertMathNode } from "./math";
 import { $convertCodeHighlightNode, $convertCodeNode } from "./code";
 import { $convertTableNode } from "./table";
@@ -8,6 +8,7 @@ import { $convertTextNode } from "./text";
 import { $convertImageNode } from "./image";
 import { $convertListItemNode, bullets, checked, numbered, unchecked } from "./list";
 import { $convertHeadingNode, heading } from "./heading";
+import { $addBookmark, $convertLinkNode, $hasBookmarkChildren } from "./link";
 
 export function $convertEditortoDocx() {
   const root = $getRoot();
@@ -17,24 +18,31 @@ export function $convertEditortoDocx() {
 
 export function $convertNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | ParagraphChild[] | null {
   const element = $mapNodeToDocx(node);
-  const shouldSkipChildren = $isTableNode(node);
+  const shouldSkipChildren = $isTableNode(node) || $isLinkNode(node) || $hasBookmarkChildren(node);
   if (shouldSkipChildren) return element;
   const childNodes = $isElementNode(node) ? node.getChildren() : [];
   if (childNodes.length === 0) return element;
   const children = childNodes.map($convertNodeToDocx).filter(Boolean).flat() as FileChild[];
-  if (!element) return children
+  if (!element) return children;
   if (element instanceof FileChild) children.forEach((child) => element.addChildElement(child));
   return element;
 }
 
 function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | ParagraphChild[] | null {
+  const children = [] as ParagraphChild[];
+  // docx does not support adding bookmarks dynamically
+  const hasBookmark = $isElementNode(node) && $hasBookmarkChildren(node);
+  if (hasBookmark) {
+    children.push(...node.getChildren().map($addBookmark));
+  }
   if ($isParagraphNode(node)) {
+    if ($isParagraphNode(node.getParent())) return null;
     const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
     const indent = node.getIndent();
-    return new Paragraph({ alignment, indent: { left: convertInchesToTwip(indent / 2) }, });
+    return new Paragraph({ alignment, indent: { left: convertInchesToTwip(indent / 2) }, children });
   }
   if ($isHeadingNode(node)) {
-    return $convertHeadingNode(node);
+    return $convertHeadingNode(node, children);
   }
   if ($isMathNode(node)) {
     return $convertMathNode(node);
@@ -87,6 +95,10 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
 
   if ($isTableNode(node)) {
     return $convertTableNode(node);
+  }
+
+  if ($isLinkNode(node)) {
+    return $convertLinkNode(node);
   }
 
   if ($isTextNode(node)) {

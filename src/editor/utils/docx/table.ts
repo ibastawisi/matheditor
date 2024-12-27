@@ -1,24 +1,21 @@
 import { TableCellHeaderStates, TableCellNode, TableNode, TableRowNode } from "@/editor";
-import { Table, TableCell, TableRow } from "docx";
+import { Bookmark, Paragraph, Table, TableCell, TableRow } from "docx";
 import { $convertNodeToDocx } from ".";
 import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
+import { editor } from "../generateDocx";
 
 export function $convertTableNode(node: TableNode) {
   const rows = node.getChildren<TableRowNode>().map($convertTableRowNode);
-
-  return new Table({
-    rows: rows,
-    width: {
-      size: 100,
-      type: 'pct',
-    },
-    margins: {
-      top: 8 * 15,
-      right: 8 * 15,
-      bottom: 0,
-      left: 8 * 15,
-    },
-  });
+  const { element } = node.exportDOM(editor);
+  const id = (element as HTMLElement).id;
+  return [
+    new Table({
+      rows: rows,
+      width: { size: 100, type: 'pct', },
+      margins: { top: 8 * 15, right: 8 * 15, bottom: 0, left: 8 * 15, },
+    }),
+    new Paragraph({ children: [new Bookmark({ id, children: [] })], spacing: { after: 8 * 15, line: 0, }, }),
+  ];
 }
 
 function $convertTableRowNode(node: TableRowNode) {
