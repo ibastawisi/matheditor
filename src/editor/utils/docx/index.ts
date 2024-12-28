@@ -1,6 +1,6 @@
 import { convertInchesToTwip, Document, FileChild, IParagraphOptions, Packer, PageBreak, Paragraph, ParagraphChild, Table, TableCell, TableRow, TextRun } from "docx";
 import { $getRoot, LexicalNode, $isElementNode, $isTextNode, $isParagraphNode, $isLineBreakNode } from "lexical";
-import { $isCodeHighlightNode, $isCodeNode, $isHeadingNode, $isHorizontalRuleNode, $isImageNode, $isLinkNode, $isListItemNode, $isMathNode, $isPageBreakNode, $isQuoteNode, $isTableNode } from "../..";
+import { $isCodeHighlightNode, $isCodeNode, $isHeadingNode, $isHorizontalRuleNode, $isImageNode, $isLayoutContainerNode, $isLinkNode, $isListItemNode, $isMathNode, $isPageBreakNode, $isQuoteNode, $isTableNode } from "../..";
 import { $convertMathNode } from "./math";
 import { $convertCodeHighlightNode, $convertCodeNode } from "./code";
 import { $convertTableNode } from "./table";
@@ -9,6 +9,7 @@ import { $convertImageNode } from "./image";
 import { $convertListItemNode, bullets, checked, numbered, unchecked } from "./list";
 import { $convertHeadingNode, heading } from "./heading";
 import { $convertLinkNode, $hasBookmarkedChildren } from "./link";
+import { $convertLayoutNode } from "./layout";
 
 export function $convertEditortoDocx() {
   const root = $getRoot();
@@ -18,7 +19,7 @@ export function $convertEditortoDocx() {
 
 export function $convertNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | ParagraphChild[] | null {
   const element = $mapNodeToDocx(node);
-  const shouldSkipChildren = $isTableNode(node) || $isLinkNode(node) || $hasBookmarkedChildren(node);
+  const shouldSkipChildren = $isTableNode(node) || $isLinkNode(node) || $hasBookmarkedChildren(node) || $isLayoutContainerNode(node);
   if (shouldSkipChildren) return element;
   const childNodes = $isElementNode(node) ? node.getChildren() : [];
   if (childNodes.length === 0) return element;
@@ -102,6 +103,10 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
 
   if ($isLinkNode(node)) {
     return $convertLinkNode(node);
+  }
+
+  if ($isLayoutContainerNode(node)) {
+    return $convertLayoutNode(node);
   }
 
   if ($isTextNode(node)) {

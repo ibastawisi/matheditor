@@ -24,7 +24,7 @@ function basicIndentStyle(indent: number): Pick<ILevelsOptions, 'style' | 'align
     alignment: AlignmentType.START,
     style: {
       paragraph: {
-        indent: { left: convertInchesToTwip(indent), hanging: convertInchesToTwip(0.18) },
+        indent: { left: convertInchesToTwip(indent/2), hanging: convertInchesToTwip(0.18) },
       },
     },
   };
