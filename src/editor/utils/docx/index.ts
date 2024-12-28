@@ -52,7 +52,7 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
     return $convertImageNode(node);
   }
   if ($isListItemNode(node)) {
-    return $convertListItemNode(node);
+    return $convertListItemNode(node, children);
   }
 
   if ($isLineBreakNode(node)) {
@@ -71,6 +71,7 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
   if ($isPageBreakNode(node)) {
     return new Paragraph({
       children: [new PageBreak()],
+      spacing: { after: 0 },
     });
   }
 
@@ -83,6 +84,7 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
         bottom: { space: 2, style: 'none' },
       },
       indent: { left: 30 * 15 },
+      children,
     });
   }
 
@@ -120,6 +122,9 @@ export async function $generateDocxBlob(): Promise<Blob> {
         heading4: heading(4),
         heading5: heading(5),
         heading6: heading(6),
+        hyperlink: {
+          run: { color: '#216fdb', underline: undefined, },
+        },
         document: {
           run: { size: "12pt", font: "Roboto", },
           paragraph: {

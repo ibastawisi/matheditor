@@ -1,7 +1,7 @@
 import { $isListNode, ListNode, ListItemNode } from "@/editor";
-import { AlignmentType, convertInchesToTwip, ILevelsOptions, IParagraphOptions, LevelFormat, Paragraph } from "docx";
+import { AlignmentType, convertInchesToTwip, ILevelsOptions, IParagraphOptions, LevelFormat, Paragraph, ParagraphChild } from "docx";
 
-export function $convertListItemNode(node: ListItemNode) {
+export function $convertListItemNode(node: ListItemNode, children: ParagraphChild[]) {
   const firstChild = node.getFirstChild();
   if ($isListNode(firstChild)) return null;
   const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
@@ -15,6 +15,7 @@ export function $convertListItemNode(node: ListItemNode) {
       reference: `${listType}-list${listType === 'check' && checked ? '-checked' : ''}`,
       level: indent,
     },
+    children,
   });
 }
 
