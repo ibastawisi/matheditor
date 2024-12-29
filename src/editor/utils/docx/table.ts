@@ -42,15 +42,14 @@ function $convertTableCellNode(node: TableCellNode) {
   const rowSpan = node.getRowSpan();
   const width = node.getWidth();
   const writingMode = $getNodeStyleValueForProperty(node, 'writing-mode');
-  const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color').replace('inherit', '');
+  const color = $getNodeStyleValueForProperty(node, 'color').replace('inherit', '') || undefined;
+  const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color').replace('inherit', '') || undefined;
 
   return new TableCell({
     columnSpan: colSpan,
     rowSpan: rowSpan,
     width: width ? { size: width * 15, type: 'dxa' } : { size: 100 / colCount, type: 'pct' },
-    shading: {
-      fill: backgroundColor ? backgroundColor : undefined,
-    },
+    shading: { fill: backgroundColor, color },
     textDirection: writingMode === 'vertical-rl' ? 'tbRl' : undefined,
     verticalAlign: 'center',
     children: children as any,

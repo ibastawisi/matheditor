@@ -1,4 +1,4 @@
-import { $isElementNode, $isImageNode, $isLinkNode, $isMathNode, LexicalNode, LinkNode } from "@/editor";
+import { $isImageNode, $isLinkNode, $isMathNode, ElementNode, LexicalNode, LinkNode } from "@/editor";
 import { Bookmark, ExternalHyperlink, ParagraphChild } from "docx";
 import { $convertNodeToDocx } from ".";
 
@@ -15,7 +15,6 @@ export function $hasBookmark(node: LexicalNode): boolean {
   return $isLinkNode(node) && node.getRel() === 'bookmark' || $isMathNode(node) || $isImageNode(node);
 }
 
-export function $hasBookmarkedChildren(node: LexicalNode): boolean {
-  if (!$isElementNode(node)) return false;
+export function $hasBookmarkedChildren(node: ElementNode): boolean {
   return node.getChildren().some($hasBookmark);
 }
