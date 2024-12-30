@@ -1,12 +1,12 @@
-import { $isStickyNode, ElementNode, StickyNode } from "@/editor";
-import { Paragraph, ParagraphChild, Table, TableCell, TableRow } from "docx";
+import { $isStickyNode, ElementNode, ParagraphNode, StickyNode } from "@/editor";
+import { convertInchesToTwip, IParagraphOptions, Paragraph, ParagraphChild, Table, TableCell, TableRow } from "docx";
 import { $convertEditortoDocx, $convertNodeToDocx } from ".";
 import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
 
 export function $convertStickyNode(node: StickyNode) {
   const nestedEditor = node.__editor;
-  const children = nestedEditor.getEditorState().read($convertEditortoDocx);  
-  const color = $getNodeStyleValueForProperty(node, 'color').replace('inherit', '');
+  const children = nestedEditor.getEditorState().read($convertEditortoDocx);
+  const color = $getNodeStyleValueForProperty(node, 'color').replace('inherit', '') || undefined;
   const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color', '#bceac4').replace('inherit', '');
   const float = $getNodeStyleValueForProperty(node, 'float', 'right');
   return new Table({
@@ -44,34 +44,24 @@ export function $hasStickyChildren(node: ElementNode): boolean {
   return node.getChildren().some($isStickyNode);
 }
 
-export function $convertStickyContainerNode(node: ElementNode) {
+export function $convertContainerNode(node: ParagraphNode) {
   const children = node.getChildren().map($convertNodeToDocx).filter(Boolean).flat() as (ParagraphChild | Table)[];
   const tableIndices = children.map((child, index) => child instanceof Table ? index : -1).filter(index => index !== -1);
   const grouppedChildren = Array.from({ length: tableIndices.length + 2 }, (_, index) => {
     if (index % 2 === 1) return children[tableIndices[Math.floor(index / 2)]];
     const prevTableIndex = tableIndices[Math.floor((index - 1) / 2)];
     const nextTableIndex = tableIndices[Math.ceil(index - 1 / 2)];
-    return children.slice(prevTableIndex + 1, nextTableIndex);
+    const slice = children.slice(prevTableIndex + 1, nextTableIndex);
+    return slice.length > 0 ? slice : null;
   }).filter(Boolean) as (ParagraphChild[] | Table)[];
 
-  const cellChildren = grouppedChildren.map((children) => {
+  const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
+  const indent = node.getIndent();
+
+  const rootChildren = grouppedChildren.map((children) => {
     if (children instanceof Table) return children;
-    return new Paragraph({ children, spacing: { after: 0 } });
+    return new Paragraph({ children, spacing: { after: 0 }, alignment, indent: { left: convertInchesToTwip(indent / 2) } });
   });
 
-  return new Table({
-    rows: [
-      new TableRow({
-        children: [
-          new TableCell({
-            children: cellChildren,
-            borders: { top: { size: 1, style: 'none' }, bottom: { size: 1, style: 'none' }, left: { size: 1, style: 'none' }, right: { size: 1, style: 'none' } },
-          }),
-        ],
-      })
-    ],
-    width: { size: 100, type: 'pct' },
-    borders: { top: { style: 'none' }, bottom: { style: 'none' }, left: { style: 'none' }, right: { style: 'none' } },
-    layout: 'fixed',
-  });
+  return rootChildren;
 }

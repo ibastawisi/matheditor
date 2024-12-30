@@ -5,13 +5,13 @@ import { $convertMathNode } from "./math";
 import { $convertCodeHighlightNode, $convertCodeNode } from "./code";
 import { $convertTableNode } from "./table";
 import { $convertTextNode } from "./text";
-import { $convertImageNode } from "./image";
+import { $convertImageNode, $hasImageChildren } from "./image";
 import { $convertListItemNode, bullets, checked, numbered, unchecked } from "./list";
 import { $convertHeadingNode, heading } from "./heading";
 import { $convertLinkNode, $hasBookmarkedChildren } from "./link";
 import { $convertLayoutNode } from "./layout";
 import { $convertIFrameNode } from "./iframe";
-import { $convertStickyContainerNode, $convertStickyNode, $hasStickyChildren } from "./sticky";
+import { $convertContainerNode, $convertStickyNode, $hasStickyChildren } from "./sticky";
 
 export function $convertEditortoDocx() {
   const root = $getRoot();
@@ -23,7 +23,14 @@ export function $convertNodeToDocx(node: LexicalNode): FileChild | ParagraphChil
   const element = $mapNodeToDocx(node);
   if (!$isElementNode(node)) return element;
   const childNodes = node.getChildren();
-  const shouldSkipChildren = $isTableNode(node) || $isLinkNode(node) || $hasBookmarkedChildren(node) || $isLayoutContainerNode(node) || $hasStickyChildren(node);
+  const shouldSkipChildren = (
+    $isTableNode(node) ||
+    $isLinkNode(node) ||
+    $hasBookmarkedChildren(node) ||
+    $isLayoutContainerNode(node) ||
+    $hasStickyChildren(node) ||
+    $hasImageChildren(node)
+  );
   if (shouldSkipChildren) return element;
   if (childNodes.length === 0) return element;
   const children = childNodes.map($convertNodeToDocx).filter(Boolean).flat() as FileChild[];
@@ -40,13 +47,11 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
     const childNodes = $isElementNode(node) ? node.getChildren() : [];
     children.push(...childNodes.map($convertNodeToDocx).filter(Boolean).flat() as ParagraphChild[]);
   }
-  const hasSticky = $isElementNode(node) && $hasStickyChildren(node);
-  if (hasSticky) {
-    return $convertStickyContainerNode(node);
-  }
-
   if ($isParagraphNode(node)) {
     if ($isParagraphNode(node.getFirstChild())) return null;
+    const hasSticky = $hasStickyChildren(node);
+    const hasImage = $hasImageChildren(node);
+    if (hasSticky || hasImage) return $convertContainerNode(node);
     const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
     const indent = node.getIndent();
     return new Paragraph({ alignment, indent: { left: convertInchesToTwip(indent / 2) }, children });
@@ -75,7 +80,7 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
     return new Paragraph({
       spacing: { after: 8 * 15, line: 2 * 15, },
       border: {
-        top: { color: 'auto', space: 1, size: 6, style: 'single', },
+        top: { color: '#cccccc', space: 1, size: 6, style: 'single', },
       },
     });
   }

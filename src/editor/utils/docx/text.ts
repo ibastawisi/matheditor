@@ -5,10 +5,10 @@ import { TextNode } from "lexical";
 
 export function $convertTextNode(node: TextNode) {
   const textContent = node.getTextContent();
-  const parent = node.getParent();
-  const isHeadingText = $isHeadingNode(parent);
-  const isCheckedText = $isListItemNode(parent) && parent.getChecked();
-  const isLinkText = $isLinkNode(parent);
+  const isHeadingText = !!($findMatchingParent(node, $isHeadingNode));
+  const nearestListItem = $findMatchingParent(node, $isListItemNode);
+  const isCheckedText = !!(nearestListItem?.getChecked());
+  const isLinkText = $findMatchingParent(node, $isLinkNode);
   const nearestTableCell = $findMatchingParent(node, $isTableCellNode);
   const tableCellColor = nearestTableCell ? $getNodeStyleValueForProperty(nearestTableCell, 'color').replace('inherit', '') : undefined;
   const fontsizeInPx = parseInt($getNodeStyleValueForProperty(node, 'font-size'));

@@ -15,6 +15,7 @@ export function $convertTableNode(node: TableNode) {
       rows: rows,
       width: { size: 100, type: 'pct', },
       margins: { top: 8 * 15, right: 8 * 15, bottom: 0, left: 8 * 15, },
+      borders: { top: { color: '#cccccc', style: 'single' }, bottom: { color: '#cccccc', style: 'single' }, left: { color: '#cccccc', style: 'single' }, right: { color: '#cccccc', style: 'single' } },
     }),
     new BookmarkEnd(linkId),
   ];
@@ -52,6 +53,7 @@ function $convertTableCellNode(node: TableCellNode) {
     shading: { fill: backgroundColor, color },
     textDirection: writingMode === 'vertical-rl' ? 'tbRl' : undefined,
     verticalAlign: 'center',
+    borders: { top: { color: '#cccccc', style: 'single' }, bottom: { color: '#cccccc', style: 'single' }, left: { color: '#cccccc', style: 'single' }, right: { color: '#cccccc', style: 'single' } },
     children: children as any,
   });
 }
