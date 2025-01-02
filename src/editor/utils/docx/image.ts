@@ -1,5 +1,5 @@
 import { $isImageNode, ElementNode, ImageNode, isHTMLElement, ParagraphNode } from "@/editor";
-import { Bookmark, convertInchesToTwip, ImageRun, IParagraphOptions, Paragraph, Table, TableCell, TableRow } from "docx";
+import { Bookmark, convertInchesToTwip, ImageRun, IParagraphOptions, Paragraph, Table, TableBorders, TableCell, TableRow, TextRun } from "docx";
 import { $convertEditortoDocx } from ".";
 import { editor } from "../generateDocx";
 
@@ -32,6 +32,7 @@ export function $convertImageNode(node: ImageNode) {
   const alignment = parent.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
   const indent = parent.getIndent();
 
+  if (!showCaption) return new Bookmark({ id, children: [imageRun] });
 
   return new Table({
     rows: [
@@ -43,7 +44,6 @@ export function $convertImageNode(node: ImageNode) {
                 children: [new Bookmark({ id, children: [imageRun] })],
                 alignment, indent: { left: convertInchesToTwip(indent / 2) },
               })],
-            borders: { top: { size: 1, style: 'none' }, bottom: { size: 1, style: 'none' }, left: { size: 1, style: 'none' }, right: { size: 1, style: 'none' } },
           }),
         ],
       }),
@@ -51,12 +51,11 @@ export function $convertImageNode(node: ImageNode) {
         children: [
           new TableCell({
             children: captionChildren,
-            borders: { top: { size: 1, style: 'none' }, bottom: { size: 1, style: 'none' }, left: { size: 1, style: 'none' }, right: { size: 1, style: 'none' } },
           })
         ],
       }),
     ],
-    borders: { top: { style: 'none' }, bottom: { style: 'none' }, left: { style: 'none' }, right: { style: 'none' } },
+    borders: TableBorders.NONE,
     layout: 'fixed',
     width: { size: 100, type: 'pct' },
   });

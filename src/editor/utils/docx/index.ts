@@ -11,7 +11,8 @@ import { $convertHeadingNode, heading } from "./heading";
 import { $convertLinkNode, $hasBookmarkedChildren } from "./link";
 import { $convertLayoutNode } from "./layout";
 import { $convertIFrameNode } from "./iframe";
-import { $convertContainerNode, $convertStickyNode, $hasStickyChildren } from "./sticky";
+import { $convertStickyNode, $hasStickyChildren } from "./sticky";
+import { $spreadChildrenOut } from "./div";
 
 export function $convertEditortoDocx() {
   const root = $getRoot();
@@ -51,7 +52,7 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
     if ($isParagraphNode(node.getFirstChild())) return null;
     const hasSticky = $hasStickyChildren(node);
     const hasImage = $hasImageChildren(node);
-    if (hasSticky || hasImage) return $convertContainerNode(node);
+    if (hasSticky || hasImage) return $spreadChildrenOut(node);
     const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
     const indent = node.getIndent();
     return new Paragraph({ alignment, indent: { left: convertInchesToTwip(indent / 2) }, children });

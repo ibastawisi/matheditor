@@ -65,15 +65,15 @@
   },
   "overrides": {
     "@excalidraw/excalidraw": {
-      "react": "19.0.0",
-      "react-dom": "19.0.0"
+      "react": "^19.0.0",
+      "react-dom": "^19.0.0"
     },
     "react-redux": {
-      "react": "19.0.0",
-      "@types/react": "19.0.1"
+      "react": "^19.0.0",
+      "@types/react": "^19.0.0"
     },
     "@reduxjs/toolkit": {
-      "react": "19.0.0"
+      "react": "^19.0.0"
     }
   }
 }
