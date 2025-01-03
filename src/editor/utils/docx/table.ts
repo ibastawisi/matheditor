@@ -9,16 +9,29 @@ export function $convertTableNode(node: TableNode) {
   const { element } = node.exportDOM(editor);
   const id = (element as HTMLElement).id;
   const linkId = bookmarkUniqueNumericIdGen()();
+  const float = $getNodeStyleValueForProperty(node, 'float').replace('none', '');
   return [
     new BookmarkStart(id, linkId),
     new Table({
       rows: rows,
-      width: { size: 100, type: 'pct', },
-      margins: { top: 8 * 15, right: 8 * 15, bottom: 0, left: 8 * 15, },
+      width: float ? undefined : { size: 100, type: 'pct', },
+      margins: { top: 8 * 15, right: 8 * 15, bottom: 8 * 15, left: 8 * 15, },
       borders: { top: { color: '#cccccc', style: 'single' }, bottom: { color: '#cccccc', style: 'single' }, left: { color: '#cccccc', style: 'single' }, right: { color: '#cccccc', style: 'single' } },
+      float: float ? {
+        horizontalAnchor: 'text',
+        verticalAnchor: 'text',
+        relativeHorizontalPosition: float === 'left' ? 'left' : 'right',
+        relativeVerticalPosition: 'bottom',
+        overlap: 'never',
+        leftFromText: float === 'right' ? 16 * 15 : 0,
+        rightFromText: float === 'left' ? 16 * 15 : 0,
+        topFromText: 0,
+        bottomFromText: 8 * 15,
+      } : undefined,
+      layout: float ? 'autofit' : 'fixed',
     }),
     new BookmarkEnd(linkId),
-    new Paragraph({ spacing: { after: 0, line: 120 } }),
+    new Paragraph({ spacing: { before: float ? 0 : 8 * 15, after: 0, line: 0 } }),
   ];
 }
 

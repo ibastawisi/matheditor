@@ -1,8 +1,9 @@
-import { ImageNode, isHTMLElement, ParagraphNode } from "@/editor";
-import { Bookmark, BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, convertInchesToTwip, ImageRun, IParagraphOptions, Paragraph, Table, TableBorders, TableCell, TableRow, TextRun } from "docx";
+import { $findMatchingParent, $isLayoutContainerNode, $isLayoutItemNode, ImageNode, isHTMLElement, ParagraphNode } from "@/editor";
+import { Bookmark, BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, convertInchesToTwip, ImageRun, IParagraphOptions, Paragraph, Table, TableBorders, TableCell, TableRow, TextRun, TextWrappingType } from "docx";
 import { $convertEditortoDocx } from ".";
 import { editor } from "../generateDocx";
 import sizeOf from 'image-size';
+import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
 
 export function $convertImageNode(node: ImageNode) {
   const dataURI = node.getSrc();
@@ -14,17 +15,31 @@ export function $convertImageNode(node: ImageNode) {
   const width = node.getWidth() || dimensions.width as number;
   const height = node.getHeight() || dimensions.height as number;
   const aspect = height / width;
-  const newWidth = Math.min(width, 600);
+  const float = $getNodeStyleValueForProperty(node, 'float');
+  const nearesttLayoutContainer = $findMatchingParent(node, $isLayoutContainerNode);
+  const layoutTemplate = nearesttLayoutContainer?.getTemplateColumns().split(' ').map(parseFloat);
+  const LayoutItemNodeIndex = $findMatchingParent(node, $isLayoutItemNode)?.getIndexWithinParent();
+  const maxLayoutItemWidth = layoutTemplate ? 600 * layoutTemplate[LayoutItemNodeIndex || 0] / layoutTemplate.reduce((a, b) => a + b, 0) : 600;
+  const maxWidth = float ? maxLayoutItemWidth / 2 : maxLayoutItemWidth;
+  const newWidth = Math.min(width, maxWidth);
   const newHeight = newWidth * aspect;
-  
+  const showCaption = node.getShowCaption();
+
   const imageRun = new ImageRun({
     type,
     data,
     altText: { title: altText, description: altText, name: altText },
     transformation: { width: newWidth, height: newHeight, },
     fallback: { type: 'png', data, },
+    floating: float && !showCaption ? {
+      horizontalPosition: { relative: 'margin', align: float === 'left' ? 'left' : 'right' },
+      verticalPosition: { relative: 'paragraph', align: 'top' },
+      allowOverlap: false,
+      wrap: { type: TextWrappingType.SQUARE, side: float === 'left' ? 'right' : 'left' },
+      margins: { top: 0, bottom: 0, left: float === 'right' ? 100720 : 0, right: float === 'left' ? 100720 : 0 },
+    } : undefined,
   });
-  const showCaption = node.getShowCaption();
+
   const caption = node.__caption;
   const captionChildren = showCaption ? caption.getEditorState().read($convertEditortoDocx) : [];
   const { element } = node.exportDOM(editor);
@@ -59,6 +74,17 @@ export function $convertImageNode(node: ImageNode) {
     ],
     borders: TableBorders.NONE,
     layout: 'fixed',
-    width: { size: 100, type: 'pct' },
+    width: { size: float ? 50 : 100, type: 'pct' },
+    float: float ? {
+      horizontalAnchor: 'text',
+      verticalAnchor: 'text',
+      relativeHorizontalPosition: float === 'left' ? 'left' : 'right',
+      relativeVerticalPosition: 'bottom',
+      overlap: 'never',
+      leftFromText: float === 'right' ? 16 * 15 : 0,
+      rightFromText: float === 'left' ? 16 * 15 : 0,
+      topFromText: 0,
+      bottomFromText: 0,
+    } : undefined,
   });
 }
