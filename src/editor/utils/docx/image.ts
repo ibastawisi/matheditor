@@ -74,7 +74,8 @@ export function $convertImageNode(node: ImageNode) {
     ],
     borders: TableBorders.NONE,
     layout: 'fixed',
-    width: { size: float ? 50 : 100, type: 'pct' },
+    alignment: alignment,
+    width: (float || alignment !== 'both') ? { size: newWidth * 15, type: 'dxa' } : { size: 100, type: 'pct', },
     float: float ? {
       horizontalAnchor: 'text',
       verticalAnchor: 'text',

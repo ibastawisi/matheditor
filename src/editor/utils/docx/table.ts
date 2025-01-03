@@ -1,5 +1,5 @@
 import { TableCellHeaderStates, TableCellNode, TableNode, TableRowNode } from "@/editor";
-import { BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, Paragraph, Table, TableCell, TableRow } from "docx";
+import { BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, IParagraphOptions, Paragraph, Table, TableCell, TableRow } from "docx";
 import { $convertNodeToDocx } from ".";
 import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
 import { editor } from "../generateDocx";
@@ -10,11 +10,13 @@ export function $convertTableNode(node: TableNode) {
   const id = (element as HTMLElement).id;
   const linkId = bookmarkUniqueNumericIdGen()();
   const float = $getNodeStyleValueForProperty(node, 'float').replace('none', '');
+  const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
+
   return [
     new BookmarkStart(id, linkId),
     new Table({
       rows: rows,
-      width: float ? undefined : { size: 100, type: 'pct', },
+      width: (float || alignment !== 'both') ? undefined : { size: 100, type: 'pct', },
       margins: { top: 8 * 15, right: 8 * 15, bottom: 8 * 15, left: 8 * 15, },
       borders: { top: { color: '#cccccc', style: 'single' }, bottom: { color: '#cccccc', style: 'single' }, left: { color: '#cccccc', style: 'single' }, right: { color: '#cccccc', style: 'single' } },
       float: float ? {
@@ -28,7 +30,8 @@ export function $convertTableNode(node: TableNode) {
         topFromText: 0,
         bottomFromText: 8 * 15,
       } : undefined,
-      layout: float ? 'autofit' : 'fixed',
+      layout: (float || alignment !== 'both') ? 'autofit' : 'fixed',
+      alignment,
     }),
     new BookmarkEnd(linkId),
     new Paragraph({ spacing: { before: float ? 0 : 8 * 15, after: 0, line: 0 } }),
@@ -51,7 +54,7 @@ function $convertTableRowNode(node: TableRowNode) {
 
 function $convertTableCellNode(node: TableCellNode) {
   const rowNode = node.getParent<TableRowNode>()!;
-  const colCount = rowNode.getChildren().length;
+  const TableNode = rowNode.getParent<TableNode>()!;
   const children = node.getChildren().map($convertNodeToDocx).filter(Boolean).flat();
   const colSpan = node.getColSpan();
   const rowSpan = node.getRowSpan();
@@ -60,11 +63,15 @@ function $convertTableCellNode(node: TableCellNode) {
   const color = $getNodeStyleValueForProperty(node, 'color').replace('inherit', '') || undefined;
   const isHeader = node.getHeaderStyles() !== TableCellHeaderStates.NO_STATUS;
   const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color', isHeader ? '#f5f5f5' : '').replace('inherit', '') || undefined;
+  const float = $getNodeStyleValueForProperty(TableNode, 'float').replace('none', '');
+  const alignment = TableNode.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
+  const cellCount = rowNode.getChildrenSize();
+  const cellWidth = width ? width * 15 : (float || alignment !== 'both') ? 75 * 15 : undefined;
 
   return new TableCell({
     columnSpan: colSpan,
     rowSpan: rowSpan,
-    width: width ? { size: width * 15, type: 'dxa' } : { size: 100 / colCount, type: 'pct' },
+    width: cellWidth ? { size: cellWidth, type: 'dxa' } : { size: 100 / cellCount, type: 'pct' },
     shading: { fill: backgroundColor, color },
     textDirection: writingMode === 'vertical-rl' ? 'tbRl' : undefined,
     verticalAlign: 'center',
