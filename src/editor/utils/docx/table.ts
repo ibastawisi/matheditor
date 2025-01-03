@@ -1,5 +1,5 @@
 import { TableCellHeaderStates, TableCellNode, TableNode, TableRowNode } from "@/editor";
-import { BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, Table, TableCell, TableRow } from "docx";
+import { BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, Paragraph, Table, TableCell, TableRow } from "docx";
 import { $convertNodeToDocx } from ".";
 import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
 import { editor } from "../generateDocx";
@@ -18,6 +18,7 @@ export function $convertTableNode(node: TableNode) {
       borders: { top: { color: '#cccccc', style: 'single' }, bottom: { color: '#cccccc', style: 'single' }, left: { color: '#cccccc', style: 'single' }, right: { color: '#cccccc', style: 'single' } },
     }),
     new BookmarkEnd(linkId),
+    new Paragraph({ spacing: { after: 0, line: 120 } }),
   ];
 }
 
@@ -38,13 +39,14 @@ function $convertTableRowNode(node: TableRowNode) {
 function $convertTableCellNode(node: TableCellNode) {
   const rowNode = node.getParent<TableRowNode>()!;
   const colCount = rowNode.getChildren().length;
-  const children = node.getChildren().map($convertNodeToDocx);
+  const children = node.getChildren().map($convertNodeToDocx).filter(Boolean).flat();
   const colSpan = node.getColSpan();
   const rowSpan = node.getRowSpan();
   const width = node.getWidth();
   const writingMode = $getNodeStyleValueForProperty(node, 'writing-mode');
   const color = $getNodeStyleValueForProperty(node, 'color').replace('inherit', '') || undefined;
-  const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color').replace('inherit', '') || undefined;
+  const isHeader = node.getHeaderStyles() !== TableCellHeaderStates.NO_STATUS;
+  const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color', isHeader ? '#f5f5f5' : '').replace('inherit', '') || undefined;
 
   return new TableCell({
     columnSpan: colSpan,

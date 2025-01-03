@@ -1,5 +1,5 @@
 import { MathNode } from "@/editor/nodes/MathNode";
-import { Math, MathComponent, MathRun, MathFraction, MathSubScript, MathSuperScript, MathSubSuperScript, MathRadical, MathLimitUpper, MathLimitLower, MathSum, MathIntegral, Bookmark } from "docx";
+import { Math, MathComponent, MathRun, MathFraction, MathSubScript, MathSuperScript, MathSubSuperScript, MathRadical, MathLimitUpper, MathLimitLower, MathSum, MathIntegral, Bookmark, BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen } from "docx";
 import { convertLatexToMathMl } from "mathlive";
 import { mml2omml } from "mathml2omml";
 import { DOMParser } from "linkedom";
@@ -16,9 +16,9 @@ export function $convertMathNode(node: MathNode) {
   const children = convertChildren(mathElement.children);
   const { element } = node.exportDOM(editor);
   const id = (isHTMLElement(element) && element.id) || '';
+  const linkId = bookmarkUniqueNumericIdGen()();
 
-  return new Bookmark({ id, children: [new Math({ children })] });
-
+  return [new BookmarkStart(id, linkId), new Math({ children }), new BookmarkEnd(linkId)];
 }
 
 function convertChildren(children: HTMLCollection): MathComponent[] {

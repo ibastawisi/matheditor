@@ -1,10 +1,11 @@
 import { HeadingNode } from "@/editor";
-import { IParagraphOptions, Paragraph, ParagraphChild } from "docx";
+import { convertInchesToTwip, IParagraphOptions, Paragraph } from "docx";
 
-export function $convertHeadingNode(node: HeadingNode, children: ParagraphChild[]) {
-    const heading = node.getTag().replace('h', 'Heading') as IParagraphOptions['heading'];
-    const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
-    return new Paragraph({ heading, alignment, children});
+export function $convertHeadingNode(node: HeadingNode) {
+  const heading = node.getTag().replace('h', 'Heading') as IParagraphOptions['heading'];
+  const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
+  const indent = node.getIndent() || 0;
+  return new Paragraph({ heading, alignment, indent: { left: convertInchesToTwip(indent / 2) } });
 }
 type Index = 1 | 2 | 3 | 4 | 5 | 6;
 type HeadingMap = Record<Index, number>;
@@ -17,8 +18,8 @@ export const heading = (level: Index) => ({
   },
   paragraph: {
     spacing: {
-      after: headingSpacing[level],
       before: headingSpacing[level],
+      after: headingSpacing[level],
     },
   },
 });

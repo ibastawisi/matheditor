@@ -1,4 +1,4 @@
-import { $isStickyNode, ElementNode, StickyNode } from "@/editor";
+import { StickyNode } from "@/editor";
 import { Table, TableBorders, TableCell, TableRow } from "docx";
 import { $convertEditortoDocx } from ".";
 import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
@@ -38,8 +38,3 @@ export function $convertStickyNode(node: StickyNode) {
     margins: { top: 20 * 15, right: 20 * 15, bottom: 20 * 15, left: 20 * 15 },
   });
 }
-
-export function $hasStickyChildren(node: ElementNode): boolean {
-  return node.getChildren().some($isStickyNode);
-}
-

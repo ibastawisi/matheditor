@@ -1,18 +1,18 @@
-import { convertInchesToTwip, Document, FileChild, IParagraphOptions, Packer, PageBreak, Paragraph, ParagraphChild, TextRun } from "docx";
+import { convertInchesToTwip, Document, FileChild, IParagraphOptions, Packer, PageBreak, Paragraph, ParagraphChild, Table, TextRun } from "docx";
 import { $getRoot, LexicalNode, $isElementNode, $isTextNode, $isParagraphNode, $isLineBreakNode } from "lexical";
-import { $isCodeHighlightNode, $isCodeNode, $isHeadingNode, $isHorizontalRuleNode, $isIFrameNode, $isImageNode, $isLayoutContainerNode, $isLinkNode, $isListItemNode, $isMathNode, $isPageBreakNode, $isQuoteNode, $isStickyNode, $isTableNode } from "../..";
+import { $isCodeHighlightNode, $isCodeNode, $isDetailsContainerNode, $isHeadingNode, $isHorizontalRuleNode, $isIFrameNode, $isImageNode, $isLayoutContainerNode, $isLinkNode, $isListItemNode, $isMathNode, $isPageBreakNode, $isQuoteNode, $isStickyNode, $isTableNode } from "../..";
 import { $convertMathNode } from "./math";
 import { $convertCodeHighlightNode, $convertCodeNode } from "./code";
 import { $convertTableNode } from "./table";
 import { $convertTextNode } from "./text";
-import { $convertImageNode, $hasImageChildren } from "./image";
+import { $convertImageNode } from "./image";
 import { $convertListItemNode, bullets, checked, numbered, unchecked } from "./list";
 import { $convertHeadingNode, heading } from "./heading";
-import { $convertLinkNode, $hasBookmarkedChildren } from "./link";
+import { $convertLinkNode } from "./link";
 import { $convertLayoutNode } from "./layout";
 import { $convertIFrameNode } from "./iframe";
-import { $convertStickyNode, $hasStickyChildren } from "./sticky";
-import { $spreadChildrenOut } from "./div";
+import { $convertStickyNode } from "./sticky";
+import { $convertDetailsNode } from "./details";
 
 export function $convertEditortoDocx() {
   const root = $getRoot();
@@ -25,40 +25,32 @@ export function $convertNodeToDocx(node: LexicalNode): FileChild | ParagraphChil
   if (!$isElementNode(node)) return element;
   const childNodes = node.getChildren();
   const shouldSkipChildren = (
-    $isTableNode(node) ||
     $isLinkNode(node) ||
-    $hasBookmarkedChildren(node) ||
+    $isTableNode(node) ||
     $isLayoutContainerNode(node) ||
-    $hasStickyChildren(node) ||
-    $hasImageChildren(node)
+    $isDetailsContainerNode(node)
   );
   if (shouldSkipChildren) return element;
   if (childNodes.length === 0) return element;
   const children = childNodes.map($convertNodeToDocx).filter(Boolean).flat() as FileChild[];
   if (!element) return children;
-  if (element instanceof FileChild) children.forEach((child) => element.addChildElement(child));
-  return element;
+  const tableChildren = children.filter((child) => child instanceof Table) as Table[];
+  const nonTableChildren = children.filter((child) => !(child instanceof Table));
+  if (element instanceof FileChild) nonTableChildren.forEach((child) => element.addChildElement(child));
+  if (Array.isArray(element)) { return [...tableChildren, ...element]; }
+  if (tableChildren.length && !nonTableChildren.length) return tableChildren;
+  return [...tableChildren, element];
 }
 
 function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | ParagraphChild[] | null {
-  const children = [] as ParagraphChild[];
-  // docx does not support adding bookmarks dynamically
-  const hasBookmark = $isElementNode(node) && $hasBookmarkedChildren(node);
-  if (hasBookmark) {
-    const childNodes = $isElementNode(node) ? node.getChildren() : [];
-    children.push(...childNodes.map($convertNodeToDocx).filter(Boolean).flat() as ParagraphChild[]);
-  }
   if ($isParagraphNode(node)) {
-    if ($isParagraphNode(node.getFirstChild())) return null;
-    const hasSticky = $hasStickyChildren(node);
-    const hasImage = $hasImageChildren(node);
-    if (hasSticky || hasImage) return $spreadChildrenOut(node);
+    // if ($isParagraphNode(node.getFirstChild())) return null;
     const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
-    const indent = node.getIndent();
-    return new Paragraph({ alignment, indent: { left: convertInchesToTwip(indent / 2) }, children });
+    const indent = node.getIndent() || 0;
+    return new Paragraph({ alignment, indent: { left: convertInchesToTwip(indent / 2) } });
   }
   if ($isHeadingNode(node)) {
-    return $convertHeadingNode(node, children);
+    return $convertHeadingNode(node);
   }
   if ($isMathNode(node)) {
     return $convertMathNode(node);
@@ -70,7 +62,7 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
     return $convertImageNode(node);
   }
   if ($isListItemNode(node)) {
-    return $convertListItemNode(node, children);
+    return $convertListItemNode(node);
   }
 
   if ($isLineBreakNode(node)) {
@@ -94,14 +86,17 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
   }
 
   if ($isQuoteNode(node)) {
+    const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
+    const indent = node.getIndent() || 0;
     return new Paragraph({
       style: 'Quote',
+      alignment,
+      indent: { left: convertInchesToTwip(indent / 2) },
       border: {
         left: { size: 30, color: '#ced0d4', space: 8, style: 'single' },
         top: { space: 4, style: 'none' },
         bottom: { space: 2, style: 'none' },
       },
-      children,
     });
   }
 
@@ -127,6 +122,10 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
 
   if ($isStickyNode(node)) {
     return $convertStickyNode(node);
+  }
+
+  if ($isDetailsContainerNode(node)) {
+    return $convertDetailsNode(node);
   }
 
   if ($isTextNode(node)) {

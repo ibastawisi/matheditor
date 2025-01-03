@@ -1,7 +1,8 @@
-import { $isImageNode, ElementNode, ImageNode, isHTMLElement, ParagraphNode } from "@/editor";
-import { Bookmark, convertInchesToTwip, ImageRun, IParagraphOptions, Paragraph, Table, TableBorders, TableCell, TableRow, TextRun } from "docx";
+import { ImageNode, isHTMLElement, ParagraphNode } from "@/editor";
+import { Bookmark, BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, convertInchesToTwip, ImageRun, IParagraphOptions, Paragraph, Table, TableBorders, TableCell, TableRow, TextRun } from "docx";
 import { $convertEditortoDocx } from ".";
 import { editor } from "../generateDocx";
+import sizeOf from 'image-size';
 
 export function $convertImageNode(node: ImageNode) {
   const dataURI = node.getSrc();
@@ -9,12 +10,13 @@ export function $convertImageNode(node: ImageNode) {
   const src = dataURI.split(",")[1];
   const data = type === 'svg' ? Buffer.from(decodeURIComponent(src), 'utf-8') : Buffer.from(src, 'base64');
   const altText = node.getAltText();
-  const width = node.getWidth();
-  const height = node.getHeight();
+  const dimensions = sizeOf(data);
+  const width = node.getWidth() || dimensions.width as number;
+  const height = node.getHeight() || dimensions.height as number;
   const aspect = height / width;
   const newWidth = Math.min(width, 600);
   const newHeight = newWidth * aspect;
-
+  
   const imageRun = new ImageRun({
     type,
     data,
@@ -31,8 +33,8 @@ export function $convertImageNode(node: ImageNode) {
   const parent = node.getParent() as ParagraphNode;
   const alignment = parent.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
   const indent = parent.getIndent();
-
-  if (!showCaption) return new Bookmark({ id, children: [imageRun] });
+  const linkId = bookmarkUniqueNumericIdGen()();
+  if (!showCaption) return [new BookmarkStart(id, linkId), imageRun, new BookmarkEnd(linkId), new TextRun({ text: '', break: 1, vanish: !showCaption }), ...captionChildren];
 
   return new Table({
     rows: [
@@ -59,8 +61,4 @@ export function $convertImageNode(node: ImageNode) {
     layout: 'fixed',
     width: { size: 100, type: 'pct' },
   });
-}
-
-export function $hasImageChildren(node: ElementNode): boolean {
-  return node.getChildren().some($isImageNode);
 }

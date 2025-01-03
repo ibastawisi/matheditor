@@ -1,20 +1,13 @@
-import { $isImageNode, $isLinkNode, $isMathNode, ElementNode, LexicalNode, LinkNode } from "@/editor";
-import { Bookmark, ExternalHyperlink, ParagraphChild } from "docx";
+import { LinkNode } from "@/editor";
+import { BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, ExternalHyperlink, ParagraphChild } from "docx";
 import { $convertNodeToDocx } from ".";
 
 export function $convertLinkNode(node: LinkNode): any {
   const url = node.getURL();
-  const children = node.getChildren().map($convertNodeToDocx) as ParagraphChild[];
+  const children = node.getChildren().map($convertNodeToDocx).filter(Boolean).flat() as ParagraphChild[];
   const shouldAddBookmark = node.getRel() === 'bookmark';
   const link = new ExternalHyperlink({ link: url, children });
   if (!shouldAddBookmark) return link;
-  return new Bookmark({ id: url.slice(1), children: [link] });
-}
-
-export function $hasBookmark(node: LexicalNode): boolean {
-  return $isLinkNode(node) && node.getRel() === 'bookmark' || $isMathNode(node) || $isImageNode(node);
-}
-
-export function $hasBookmarkedChildren(node: ElementNode): boolean {
-  return node.getChildren().some($hasBookmark);
+  const linkId = bookmarkUniqueNumericIdGen()();
+  return [new BookmarkStart(url.slice(1), linkId), link, new BookmarkEnd(linkId)];
 }
