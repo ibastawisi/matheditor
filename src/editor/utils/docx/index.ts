@@ -34,17 +34,16 @@ export function $convertNodeToDocx(node: LexicalNode): FileChild | ParagraphChil
   if (childNodes.length === 0) return element;
   const children = childNodes.map($convertNodeToDocx).filter(Boolean).flat() as FileChild[];
   if (!element) return children;
-  const tableChildren = children.filter((child) => child instanceof Table) as Table[];
-  const nonTableChildren = children.filter((child) => !(child instanceof Table));
-  if (element instanceof FileChild) nonTableChildren.forEach((child) => element.addChildElement(child));
-  if (Array.isArray(element)) { return [...tableChildren, ...element]; }
-  if (tableChildren.length && !nonTableChildren.length) return tableChildren;
-  return [...tableChildren, element];
+  const rootChildren = children.filter((child) => child instanceof Table || child instanceof Paragraph);
+  const paragraphChildren = children.filter((child) => !(child instanceof Table) && !(child instanceof Paragraph));
+  if (element instanceof FileChild) paragraphChildren.forEach((child) => element.addChildElement(child));
+  if (Array.isArray(element)) { return [...rootChildren, ...element]; }
+  if (rootChildren.length && !paragraphChildren.length) return rootChildren;
+  return [...rootChildren, element];
 }
 
 function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | ParagraphChild[] | null {
   if ($isParagraphNode(node)) {
-    // if ($isParagraphNode(node.getFirstChild())) return null;
     const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
     const indent = node.getIndent() || 0;
     return new Paragraph({ alignment, indent: { left: convertInchesToTwip(indent / 2) } });
