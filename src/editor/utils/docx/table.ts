@@ -2,12 +2,10 @@ import { TableCellHeaderStates, TableCellNode, TableNode, TableRowNode } from "@
 import { BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, IParagraphOptions, Paragraph, Table, TableCell, TableRow } from "docx";
 import { $convertNodeToDocx } from ".";
 import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
-import { editor } from "../generateDocx";
 
-export function $convertTableNode(node: TableNode) {
+export function $convertTableNode(node: TableNode, index: number) {
   const rows = node.getChildren<TableRowNode>().map($convertTableRowNode);
-  const { element } = node.exportDOM(editor);
-  const id = (element as HTMLElement).id;
+  const id = `table-${index}`;
   const linkId = bookmarkUniqueNumericIdGen()();
   const float = $getNodeStyleValueForProperty(node, 'float').replace('none', '');
   const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];

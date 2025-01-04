@@ -10,6 +10,7 @@ import { LinkOff } from '@mui/icons-material';
 import { $isImageNode } from '@/editor/nodes/ImageNode';
 import { $isMathNode } from '@/editor/nodes/MathNode';
 import { $isTableNode } from '@/editor/nodes/TableNode';
+import { getEditorNodes } from '@/editor/utils/getEditorNodes';
 
 function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | null }) {
   const theme = useTheme();
@@ -75,7 +76,7 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
 
   const editorState = editor.getEditorState();
   const figures = editorState.read(() => {
-    const nodes = Object.values(Object.fromEntries(editorState._nodeMap)).filter(node => $isImageNode(node) || $isMathNode(node) || $isTableNode(node));
+    const nodes = getEditorNodes(editor).filter(node => $isImageNode(node) || $isMathNode(node) || $isTableNode(node));
     const figures = nodes.map(node => node.exportDOM(editor).element).filter(el => el && isHTMLElement(el) && !!el.id) as HTMLElement[];
     const tables = nodes.filter($isTableNode).map(node => editor.getElementByKey(node.getKey())).filter(el => el && isHTMLElement(el) && !!el.id) as HTMLElement[];
     return figures.map(el => tables.find(table => el.id === table.id)?.cloneNode(true) ?? el) as HTMLElement[];

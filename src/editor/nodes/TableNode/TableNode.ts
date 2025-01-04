@@ -20,6 +20,7 @@ import {
   $applyNodeReplacement,
 } from 'lexical';
 import { getStyleObjectFromRawCSS } from '../utils';
+import { getEditorNodes } from '@/editor/utils/getEditorNodes';
 
 export type SerializedTableNode = LexicalSerializedTableNode & {
   style: string;
@@ -83,9 +84,7 @@ export class TableNode extends LexicalTableNode {
     const float = styles.float;
     element.style.float = float;
 
-    const nodeMap = Object.fromEntries(editor.getEditorState()._nodeMap);
-    const nodes = Object.values(nodeMap).filter($isTableNode);
-    if ($isEditorIsNestedEditor(editor)) return element;
+    const nodes = getEditorNodes(editor).filter($isTableNode);
     const index = nodes.findIndex((node) => node.getKey() === this.getKey());
     element.id = `table-${index + 1}`;
     return element;

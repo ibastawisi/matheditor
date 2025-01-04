@@ -4,6 +4,7 @@ import { convertLatexToMarkup } from 'mathlive';
 import MathComponent from './MathComponent';
 import { $isEditorIsNestedEditor } from '@lexical/utils';
 import { JSX } from "react";
+import { getEditorNodes } from '@/editor/utils/getEditorNodes';
 
 export type SerializedMathNode = Spread<{ type: 'math'; value: string; style: string }, SerializedLexicalNode>;
 
@@ -62,9 +63,7 @@ export class MathNode extends DecoratorNode<JSX.Element> {
     if (className !== undefined) {
       element.className = className;
     }
-    const nodeMap = Object.fromEntries(editor.getEditorState()._nodeMap);
-    const nodes = Object.values(nodeMap).filter($isMathNode);
-    if ($isEditorIsNestedEditor(editor)) return element;
+    const nodes = getEditorNodes(editor).filter($isMathNode);
     const index = nodes.findIndex((node) => node.getKey() === this.getKey());
     element.id = `formula-${index + 1}`;
     return element;

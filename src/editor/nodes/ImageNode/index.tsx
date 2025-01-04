@@ -33,6 +33,7 @@ import { $generateHtmlFromNodes } from "@lexical/html";
 import ImageComponent from './ImageComponent';
 import htmr from 'htmr';
 import { JSX } from "react";
+import { getEditorNodes } from '@/editor/utils/getEditorNodes';
 
 export interface ImagePayload {
   altText?: string;
@@ -262,8 +263,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       element.style.cssText = this.__style;
     }
     this.__caption._parentEditor = editor;
-    const nodeMap = Object.fromEntries(editor.getEditorState()._nodeMap);
-    const nodes = Object.values(nodeMap).filter($isImageNode);
+    const nodes = getEditorNodes(editor).filter($isImageNode);
     const index = nodes.findIndex((node) => node.getKey() === this.getKey());
     element.id = `figure-${index + 1}`;
     return element;

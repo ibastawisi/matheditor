@@ -1,11 +1,10 @@
 import { $findMatchingParent, $isLayoutContainerNode, $isLayoutItemNode, ImageNode, isHTMLElement, ParagraphNode } from "@/editor";
 import { Bookmark, BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, convertInchesToTwip, ImageRun, IParagraphOptions, Paragraph, Table, TableBorders, TableCell, TableRow, TextRun, TextWrappingType } from "docx";
 import { $convertEditortoDocx } from ".";
-import { editor } from "../generateDocx";
 import sizeOf from 'image-size';
 import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
 
-export function $convertImageNode(node: ImageNode) {
+export function $convertImageNode(node: ImageNode, index: number) {
   const dataURI = node.getSrc();
   const type = dataURI.split(",")[0].split(";")[0].split("/")[1].split("+")[0] as any;
   const src = dataURI.split(",")[1];
@@ -42,8 +41,7 @@ export function $convertImageNode(node: ImageNode) {
 
   const caption = node.__caption;
   const captionChildren = showCaption ? caption.getEditorState().read($convertEditortoDocx) : [];
-  const { element } = node.exportDOM(editor);
-  const id = (isHTMLElement(element) && element.id) || '';
+  const id = `figure-${index}`;
 
   const parent = node.getParent() as ParagraphNode;
   const alignment = parent.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];

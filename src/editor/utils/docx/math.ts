@@ -1,12 +1,10 @@
 import { MathNode } from "@/editor/nodes/MathNode";
-import { Math, MathComponent, MathRun, MathFraction, MathSubScript, MathSuperScript, MathSubSuperScript, MathRadical, MathLimitUpper, MathLimitLower, MathSum, MathIntegral, Bookmark, BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen } from "docx";
+import { Math, MathComponent, MathRun, MathFraction, MathSubScript, MathSuperScript, MathSubSuperScript, MathRadical, MathLimitUpper, MathLimitLower, MathSum, MathIntegral, BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen } from "docx";
 import { convertLatexToMathMl } from "mathlive";
 import { mml2omml } from "mathml2omml";
 import { DOMParser } from "linkedom";
-import { editor } from "../generateDocx";
-import { isHTMLElement } from "lexical";
 
-export function $convertMathNode(node: MathNode) {
+export function $convertMathNode(node: MathNode, index: number) {
   const value = node.getValue();
   const mathml = convertLatexToMathMl(value);
   const ommlString = mml2omml(`<math xmlns="http://www.w3.org/1998/Math/MathML">${mathml}</math>`);
@@ -14,8 +12,7 @@ export function $convertMathNode(node: MathNode) {
   const doc = parser.parseFromString(ommlString, 'text/xml');
   const mathElement = doc.getElementsByTagName('m:oMath')[0];
   const children = convertChildren(mathElement.children);
-  const { element } = node.exportDOM(editor);
-  const id = (isHTMLElement(element) && element.id) || '';
+  const id = `formula-${index}`;
   const linkId = bookmarkUniqueNumericIdGen()();
 
   return [new BookmarkStart(id, linkId), new Math({ children }), new BookmarkEnd(linkId)];

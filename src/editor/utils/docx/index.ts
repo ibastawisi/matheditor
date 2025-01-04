@@ -1,6 +1,6 @@
 import { convertInchesToTwip, Document, FileChild, IParagraphOptions, Packer, PageBreak, Paragraph, ParagraphChild, Table, TextRun } from "docx";
 import { $getRoot, LexicalNode, $isElementNode, $isTextNode, $isParagraphNode, $isLineBreakNode } from "lexical";
-import { $isCodeHighlightNode, $isCodeNode, $isDetailsContainerNode, $isHeadingNode, $isHorizontalRuleNode, $isIFrameNode, $isImageNode, $isLayoutContainerNode, $isLinkNode, $isListItemNode, $isListNode, $isMathNode, $isPageBreakNode, $isQuoteNode, $isStickyNode, $isTableNode } from "../..";
+import { $isCodeHighlightNode, $isCodeNode, $isDetailsContainerNode, $isHeadingNode, $isHorizontalRuleNode, $isIFrameNode, $isImageNode, $isLayoutContainerNode, $isLinkNode, $isListItemNode, $isListNode, $isMathNode, $isPageBreakNode, $isQuoteNode, $isStickyNode, $isTableNode, ListNode } from "../..";
 import { $convertMathNode } from "./math";
 import { $convertCodeHighlightNode, $convertCodeNode } from "./code";
 import { $convertTableNode } from "./table";
@@ -14,7 +14,7 @@ import { $convertIFrameNode } from "./iframe";
 import { $convertStickyNode } from "./sticky";
 import { $convertDetailsNode } from "./details";
 
-const listNumbering: Map<string, { type: string, start?: number }> = new Map();
+const nodeMap = new Map<string, LexicalNode>();
 
 export function $convertEditortoDocx() {
   const root = $getRoot();
@@ -23,6 +23,7 @@ export function $convertEditortoDocx() {
 }
 
 export function $convertNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | ParagraphChild[] | null {
+  nodeMap.set(node.getKey(), node);
   const element = $mapNodeToDocx(node);
   if (!$isElementNode(node)) return element;
   const childNodes = node.getChildren();
@@ -54,21 +55,15 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
     return $convertHeadingNode(node);
   }
   if ($isMathNode(node)) {
-    return $convertMathNode(node);
+    const index = [...nodeMap.values()].filter($isMathNode).findIndex((mathNode) => mathNode.getKey() === node.getKey());
+    return $convertMathNode(node, index + 1);
   }
   if ($isIFrameNode(node)) {
     return $convertIFrameNode(node);
   }
   if ($isImageNode(node)) {
-    return $convertImageNode(node);
-  }
-  if ($isListNode(node)) {
-    if (node.getType() === 'check') return null;
-    listNumbering.set(node.getKey(), {
-      type: node.getListType(),
-      start: node.getStart(),
-    });
-    return null;
+    const index = [...nodeMap.values()].filter($isImageNode).findIndex((imageNode) => imageNode.getKey() === node.getKey());
+    return $convertImageNode(node, index + 1);
   }
   if ($isListItemNode(node)) {
     return $convertListItemNode(node);
@@ -118,7 +113,8 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
   }
 
   if ($isTableNode(node)) {
-    return $convertTableNode(node);
+    const index = [...nodeMap.values()].filter($isTableNode).findIndex((tableNode) => tableNode.getKey() === node.getKey());
+    return $convertTableNode(node, index + 1);
   }
 
   if ($isLinkNode(node)) {
@@ -145,8 +141,10 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
 }
 
 export async function $generateDocxBlob(): Promise<Blob> {
-  listNumbering.clear();
   const children = $convertEditortoDocx();
+  const listNodes = [...nodeMap.values()].filter($isListNode).filter(node => node.getType() !== 'check');
+  nodeMap.clear();
+
   const doc = new Document({
     styles: {
       default: {
@@ -179,12 +177,12 @@ export async function $generateDocxBlob(): Promise<Blob> {
     },
     sections: [{ children }],
     numbering: {
-      config: [...listNumbering.entries()].map(([key, { type, start }]) => (
+      config: [...listNodes].map(node => (
         {
-          reference: key,
-          levels: (type === 'number' ? numbered : bullets).map(level => ({
+          reference: node.getKey(),
+          levels: (node.getListType() === 'number' ? numbered : bullets).map(level => ({
             ...level,
-            start,
+            start: node.getStart(),
           }))
         }
       )),
