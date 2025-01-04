@@ -1,18 +1,20 @@
 import { convertInchesToTwip, Document, FileChild, IParagraphOptions, Packer, PageBreak, Paragraph, ParagraphChild, Table, TextRun } from "docx";
 import { $getRoot, LexicalNode, $isElementNode, $isTextNode, $isParagraphNode, $isLineBreakNode } from "lexical";
-import { $isCodeHighlightNode, $isCodeNode, $isDetailsContainerNode, $isHeadingNode, $isHorizontalRuleNode, $isIFrameNode, $isImageNode, $isLayoutContainerNode, $isLinkNode, $isListItemNode, $isMathNode, $isPageBreakNode, $isQuoteNode, $isStickyNode, $isTableNode } from "../..";
+import { $isCodeHighlightNode, $isCodeNode, $isDetailsContainerNode, $isHeadingNode, $isHorizontalRuleNode, $isIFrameNode, $isImageNode, $isLayoutContainerNode, $isLinkNode, $isListItemNode, $isListNode, $isMathNode, $isPageBreakNode, $isQuoteNode, $isStickyNode, $isTableNode } from "../..";
 import { $convertMathNode } from "./math";
 import { $convertCodeHighlightNode, $convertCodeNode } from "./code";
 import { $convertTableNode } from "./table";
 import { $convertTextNode } from "./text";
 import { $convertImageNode } from "./image";
-import { $convertListItemNode, bullets, checked, numbered, unchecked } from "./list";
+import { $convertListItemNode, bullets, numbered } from "./list";
 import { $convertHeadingNode, heading } from "./heading";
 import { $convertLinkNode } from "./link";
 import { $convertLayoutNode } from "./layout";
 import { $convertIFrameNode } from "./iframe";
 import { $convertStickyNode } from "./sticky";
 import { $convertDetailsNode } from "./details";
+
+const listNumbering: Map<string, { type: string, start?: number }> = new Map();
 
 export function $convertEditortoDocx() {
   const root = $getRoot();
@@ -59,6 +61,14 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
   }
   if ($isImageNode(node)) {
     return $convertImageNode(node);
+  }
+  if ($isListNode(node)) {
+    if (node.getType() === 'check') return null;
+    listNumbering.set(node.getKey(), {
+      type: node.getListType(),
+      start: node.getStart(),
+    });
+    return null;
   }
   if ($isListItemNode(node)) {
     return $convertListItemNode(node);
@@ -135,6 +145,7 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
 }
 
 export async function $generateDocxBlob(): Promise<Blob> {
+  listNumbering.clear();
   const children = $convertEditortoDocx();
   const doc = new Document({
     styles: {
@@ -168,12 +179,16 @@ export async function $generateDocxBlob(): Promise<Blob> {
     },
     sections: [{ children }],
     numbering: {
-      config: [
-        { reference: 'number-list', levels: numbered, },
-        { reference: 'bullet-list', levels: bullets, },
-        { reference: 'check-list', levels: unchecked, },
-        { reference: 'check-list-checked', levels: checked, },
-      ]
+      config: [...listNumbering.entries()].map(([key, { type, start }]) => (
+        {
+          reference: key,
+          levels: (type === 'number' ? numbered : bullets).map(level => ({
+            ...level,
+            start,
+          }))
+        }
+      )),
+
     }
   });
 
