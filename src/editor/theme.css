@@ -202,7 +202,6 @@
   bottom: 0;
   top: 0;
   background-color: #5fb7ff80;
-  mix-blend-mode: multiply;
   content: '';
   pointer-events: none;
 }
@@ -433,6 +432,11 @@ iframe {
   z-index: 1;
   margin: 0;
   vertical-align: middle;
+}
+
+[style*='text-align:justify'] .LexicalTheme__image,
+[style*='text-align: justify'] .LexicalTheme__image {
+  width: 100%;
 }
 
 .LexicalTheme__image img,

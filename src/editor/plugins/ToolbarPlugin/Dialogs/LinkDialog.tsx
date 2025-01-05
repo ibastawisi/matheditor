@@ -127,12 +127,13 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
                   <MenuItem key={figure.id} value={figure.id}>
                     <ListItemIcon
                       sx={{
+                        display: 'block',
+                        width: '100%',
                         '& figure': {
-                          flexDirection: 'row',
                           '& img, & svg': { width: 40 }
                         },
                         '& figcaption': {
-                          justifyContent: 'center', width: 'auto', padding: 0
+                          display: 'none'
                         },
                         '& table': { tableLayout: 'auto', margin: 0, float: 'none' }
                       }}
