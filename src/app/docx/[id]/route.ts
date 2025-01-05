@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     if (url.hostname === 'localhost') url.protocol = 'http:';
     url.pathname = url.pathname.replace('/docx', '/embed').split(".docx")[0];
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), { cache: 'force-cache' });
     const html = await response.text();
     return new Response(html, { status: response.status, headers: { "Content-Type": "text/html" } });
   }

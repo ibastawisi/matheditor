@@ -24,7 +24,7 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
   const name = cloudDocument?.name ?? localDocument?.name ?? "Untitled Document";
   const handle = cloudDocument?.handle ?? localDocument?.handle ?? null;
 
-  const formats = ['view', 'embed', 'pdf'];
+  const formats = ['view', 'embed', 'pdf', 'docx'];
   if (isAuthor || isCollab) formats.push('edit');
   const [format, setFormat] = useState("view");
   const [revision, setRevision] = useState(cloudDocument?.head ?? null);
@@ -59,6 +59,7 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
       landscape !== "false" && url.searchParams.append("landscape", landscape);
       format !== "a4" && url.searchParams.append("format", format);
     }
+    if (format === "docx") url.pathname += ".docx";
     return url;
   }
 
@@ -131,7 +132,7 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
       <ListItemIcon><Share /></ListItemIcon>
       <ListItemText>Share</ListItemText>
     </MenuItem> : <IconButton aria-label="Share Document" onClick={openShareDialog} size="small"><Share /></IconButton>}
-    <Dialog open={shareDialogOpen} onClose={closeShareDialog} fullWidth maxWidth="xs" fullScreen={fullScreen}>
+    <Dialog open={shareDialogOpen} onClose={closeShareDialog} fullWidth maxWidth="sm" fullScreen={fullScreen}>
       <Box component="form" onSubmit={handleShare} ref={shareFormRef} sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
         <DialogTitle>Share Document</DialogTitle>
         <DialogContent>
@@ -225,6 +226,22 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
                 </RadioGroup>
               </FormControl>
             </Box>}
+            {formats.includes("docx") && format === "docx" && <Box sx={{ p: 2 }}>
+              <FormControl fullWidth sx={{ gap: 1, mb: 2 }} disabled={isPrivate}>
+                <FormLabel>Revision</FormLabel>
+                <Select size="small" value={revision} onChange={e => setRevision(e.target.value)}>
+                  {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString()}</MenuItem>)}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth disabled={!isAuthor}>
+                <FormLabel>Permissions</FormLabel>
+                <FormControlLabel
+                  control={<Switch checked={!isPrivate} onChange={togglePrivate} />}
+                  label={!isPrivate ? "Anyone with the link" : "Only author and coauthors"}
+                />
+                {isPrivate && <FormHelperText>Private documents can not be shared as DOCx</FormHelperText>}
+              </FormControl>
+            </Box>}
             {formats.includes("edit") && format === "edit" && <Box sx={{ p: 2 }}>
               <FormControl fullWidth sx={{ gap: 1, mb: 2 }} disabled={!isAuthor}>
                 <FormLabel sx={{ mb: 0.5 }}>Permissions</FormLabel>
@@ -239,14 +256,14 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
               <Button
                 startIcon={<ContentCopy />}
                 variant="outlined"
-                disabled={!cloudDocument || (isPrivate && format === "embed") || (isPrivate && format === "pdf")}
+                disabled={!cloudDocument || (isPrivate && (format === "embed" || format === "pdf" || format === "docx"))}
                 onClick={copyLink} fullWidth>Copy Link</Button>
             </Box>}
           </>}
         </DialogContent>
         <DialogActions>
           <Button onClick={closeShareDialog}>Cancel</Button>
-          <Button type='submit' disabled={!cloudDocument || (isPrivate && format === "embed") || (isPrivate && format === "pdf")}>Share</Button>
+          <Button type='submit' disabled={!cloudDocument || (isPrivate && (format === "embed" || format === "pdf" || format === "docx"))}>Share</Button>
         </DialogActions>
       </Box>
     </Dialog>
