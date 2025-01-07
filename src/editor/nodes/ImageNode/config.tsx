@@ -7,6 +7,7 @@ import { MathNode } from "../MathNode";
 import theme from "@/editor/theme";
 import type { InitialConfigType } from "@lexical/react/LexicalComposer";
 import type { CreateEditorArgs } from "lexical";
+import { htmlConfig } from "@/editor/utils/htmlConfig";
 
 export const editorConfig = {
   namespace: "matheditor",
@@ -28,5 +29,6 @@ export const editorConfig = {
     LinkNode,
     HorizontalRuleNode,
     MathNode,
-  ]
+  ],
+  html: htmlConfig,
 } satisfies InitialConfigType & CreateEditorArgs;

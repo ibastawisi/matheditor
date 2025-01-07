@@ -59,7 +59,7 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
       const nodeRel = node?.__rel ?? 'external';
       const defaultUrl = value === 'bookmark' ? getBookmarkUrl() : 'https://';
       const url = value === nodeRel ? node?.__url ?? defaultUrl : defaultUrl;
-      const target = value === 'external' ? '_blank' : '_self';
+      const target = value === 'external' ? '_blank' : figureKey === 'self' ? '_self' : '';
       setFormData({ ...formData, [name]: value, url, target });
     }
   }

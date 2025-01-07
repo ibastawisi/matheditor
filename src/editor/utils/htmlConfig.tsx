@@ -1,7 +1,5 @@
 import { QuoteNode } from "@lexical/rich-text";
 import { ListItemNode, ListNode } from "@lexical/list";
-import { $isImageNode } from "../nodes/ImageNode";
-import { $isStickyNode } from '../nodes/StickyNode';
 import { DOMExportOutput, ParagraphNode, isHTMLElement } from "lexical";
 import type { HTMLConfig, Klass, LexicalEditor, LexicalNode } from "lexical";
 import { LinkNode } from "@lexical/link";
@@ -14,7 +12,7 @@ export const htmlConfig: HTMLConfig = {
         const paragraphNode = node as ParagraphNode;
         const output = paragraphNode.exportDOM(editor);
         const children = paragraphNode.getChildren();
-        const hasDivs = children.some((child) => $isImageNode(child) || $isStickyNode(child));
+        const hasDivs = children.some((child: any) => child.__caption || child.__editor);
         if (!hasDivs) return output;
         const element = output.element;
         if (!element || !isHTMLElement(element)) return output;
@@ -71,10 +69,10 @@ export const htmlConfig: HTMLConfig = {
         if (!element || !isHTMLElement(element)) return output;
         const url = linkNode.getURL();
         const rel = linkNode.getRel();
-        element.setAttribute('target', rel === 'external' ? '_blank': '_self');
-        if (rel === 'bookmark') {
-          element.setAttribute('id', url.slice(1));
-        }
+        if (rel) element.setAttribute('rel', rel);
+        const target = linkNode.getTarget();
+        if (target) element.setAttribute('target', target);
+        if (target === '_self') element.setAttribute('id', url.slice(1));
         return { element };
       },
     ]

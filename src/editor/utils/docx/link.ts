@@ -5,7 +5,7 @@ import { $convertNodeToDocx } from ".";
 export function $convertLinkNode(node: LinkNode): any {
   const url = node.getURL();
   const children = node.getChildren().map($convertNodeToDocx).filter(Boolean).flat() as ParagraphChild[];
-  const shouldAddBookmark = node.getRel() === 'bookmark';
+  const shouldAddBookmark = node.getRel() === 'bookmark' && node.getTarget() === '_self';
   const link = new ExternalHyperlink({ link: url, children });
   if (!shouldAddBookmark) return link;
   const linkId = bookmarkUniqueNumericIdGen()();
