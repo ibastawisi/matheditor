@@ -1,6 +1,6 @@
 "use client"
 import { $getNodeByKey, $getSelection, $isRangeSelection, isHTMLElement, LexicalEditor } from 'lexical';
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { SET_DIALOGS_COMMAND } from './commands';
 import { useTheme } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, InputLabel, ListItemIcon, MenuItem, Radio, RadioGroup, Select, TextField, useMediaQuery } from '@mui/material';
@@ -17,18 +17,19 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [formData, setFormData] = useState({ url: 'https://', rel: 'external', target: '_blank' });
   const [figureKey, setFigureKey] = useState<string>('self');
-
-  const editorState = editor.getEditorState();
-  const figures = editorState.read(() => {
-    const nodes = getEditorNodes(editor).filter(node => $isImageNode(node) || $isMathNode(node) || $isTableNode(node));
-    const nodeDomMap = nodes.reduce((map, node) => {
-      const element = $isTableNode(node) ? editor.getElementByKey(node.getKey()) : node.exportDOM(editor).element;
+  const figures = useMemo(() => {
+    const editorState = editor.getEditorState();
+    const nodes = editorState.read(() => getEditorNodes(editor).filter(node => $isImageNode(node) || $isMathNode(node) || $isTableNode(node)));
+    const editors = [...document.querySelectorAll<any>('[contenteditable="true"]')].map(el => el.__lexicalEditor).filter(Boolean) as LexicalEditor[];
+    return nodes.reduce((map, node) => {
+      const ownerEditor = editors.find(editor => editor._editorState._nodeMap.has(node.getKey()));
+      if (!ownerEditor) return map;
+      const element = $isTableNode(node) ? ownerEditor.getElementByKey(node.getKey()) : node.exportDOM(ownerEditor).element;
       if (!isHTMLElement(element)) return map;
       map.set(node.getKey(), element);
       return map;
     }, new Map());
-    return nodeDomMap;
-  });
+  }, []);
 
   useEffect(() => {
     const payload = {
