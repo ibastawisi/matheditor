@@ -44,6 +44,8 @@ export default function DragDropPaste(): null {
                 altText: file.name.replace(/\.[^/.]+$/, ""),
                 showCaption: true,
                 ...dimensions,
+                id: '',
+                style: '',
               });
             } else {
               editor.dispatchCommand(ANNOUNCE_COMMAND, { message: { title: "Uploading image failed", subtitle: "Unsupported file type" } });

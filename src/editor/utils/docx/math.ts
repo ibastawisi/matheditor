@@ -4,7 +4,7 @@ import { convertLatexToMathMl } from "mathlive";
 import { mml2omml } from "mathml2omml";
 import { DOMParser } from "linkedom";
 
-export function $convertMathNode(node: MathNode, index: number) {
+export function $convertMathNode(node: MathNode) {
   const value = node.getValue();
   const mathml = convertLatexToMathMl(value);
   const ommlString = mml2omml(`<math xmlns="http://www.w3.org/1998/Math/MathML">${mathml}</math>`);
@@ -12,10 +12,11 @@ export function $convertMathNode(node: MathNode, index: number) {
   const doc = parser.parseFromString(ommlString, 'text/xml');
   const mathElement = doc.getElementsByTagName('m:oMath')[0];
   const children = convertChildren(mathElement.children);
-  const id = `formula-${index}`;
+  const mathRun = new Math({ children });
+  const id = node.getId();
+  if (!id) return mathRun;
   const linkId = bookmarkUniqueNumericIdGen()();
-
-  return [new BookmarkStart(id, linkId), new Math({ children }), new BookmarkEnd(linkId)];
+  return [new BookmarkStart(id, linkId), mathRun, new BookmarkEnd(linkId)];
 }
 
 function convertChildren(children: HTMLCollection): MathComponent[] {

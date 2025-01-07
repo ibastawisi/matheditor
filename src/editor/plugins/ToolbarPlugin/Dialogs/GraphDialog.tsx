@@ -95,7 +95,9 @@ function GraphDialog({ editor, node }: { editor: LexicalEditor, node: GraphNode 
     const value = app.getBase64();
     const dimensions = await getImageDimensions(src);
     const showCaption = node?.getShowCaption() ?? true;
-    insertGraph({ src, value, showCaption, ...dimensions });
+    const id = node?.getId() ?? "";
+    const style = node?.getStyle() ?? "";
+    insertGraph({ src, value, showCaption, ...dimensions, id, style });
     clearLocalStorage();
     closeDialog();
   };

@@ -15,20 +15,21 @@ import type {
   NodeKey,
 } from 'lexical';
 
-import { isHTMLElement, $isEditorIsNestedEditor } from '@lexical/utils';
+import { isHTMLElement } from '@lexical/utils';
 import {
   $applyNodeReplacement,
 } from 'lexical';
 import { getStyleObjectFromRawCSS } from '../utils';
-import { getEditorNodes } from '@/editor/utils/getEditorNodes';
 
 export type SerializedTableNode = LexicalSerializedTableNode & {
   style: string;
+  id: string;
 };
 
 /** @noInheritDoc */
 export class TableNode extends LexicalTableNode {
   __style: string;
+  __id: string;
   static getType(): string {
     return 'matheditor-table';
   }
@@ -36,6 +37,7 @@ export class TableNode extends LexicalTableNode {
   static clone(node: TableNode): TableNode {
     const tableNode = new TableNode(node.__key);
     tableNode.__style = node.__style;
+    tableNode.__id = node.__id;
     return tableNode;
   }
 
@@ -53,6 +55,7 @@ export class TableNode extends LexicalTableNode {
     node.setFormat(_serializedNode.format);
     node.setDirection(_serializedNode.direction);
     node.setStyle(_serializedNode.style);
+    node.setId(_serializedNode.id);
     node.setRowStriping(_serializedNode.rowStriping || false);
     // if (_serializedNode.colWidths) node.setColWidths(_serializedNode.colWidths);
     return node;
@@ -61,12 +64,14 @@ export class TableNode extends LexicalTableNode {
   constructor(key?: NodeKey) {
     super(key);
     this.__style = '';
+    this.__id = '';
   }
 
   exportJSON(): SerializedTableNode {
     return {
       ...super.exportJSON(),
       style: this.__style,
+      id: this.__id,
       type: TableNode.getType(),
     };
   }
@@ -77,16 +82,11 @@ export class TableNode extends LexicalTableNode {
     const formatType = this.getFormatType();
     element.style.textAlign = formatType;
     const direction = this.getDirection();
-    if (direction) {
-      element.dir = direction;
-    }
+    if (direction) element.dir = direction;
     const styles = getStyleObjectFromRawCSS(this.__style);
     const float = styles.float;
     element.style.float = float;
-
-    const nodes = getEditorNodes(editor).filter($isTableNode);
-    const index = nodes.findIndex((node) => node.getKey() === this.getKey());
-    element.id = `table-${index + 1}`;
+    if (this.__id) element.id = this.__id
     return element;
   }
 
@@ -98,6 +98,9 @@ export class TableNode extends LexicalTableNode {
       const styles = getStyleObjectFromRawCSS(this.__style);
       const float = styles.float;
       dom.style.float = float;
+    }
+    if (this.__id !== prevNode.__id) {
+      dom.id = this.__id;
     }
     return super.updateDOM(prevNode, dom, config);
   }
@@ -116,6 +119,7 @@ export class TableNode extends LexicalTableNode {
       if (direction) {
         element.dir = direction;
       }
+      element.id = this.__id;
     }
     return output;
   }
@@ -128,6 +132,17 @@ export class TableNode extends LexicalTableNode {
   setStyle(style: string): this {
     const self = this.getWritable();
     self.__style = style;
+    return self;
+  }
+
+  getId(): string {
+    const self = this.getLatest();
+    return self.__id;
+  }
+
+  setId(id: string): this {
+    const self = this.getWritable();
+    self.__id = id;
     return self;
   }
 
@@ -144,6 +159,7 @@ export function $convertTableElement(_domNode: Node): DOMConversionOutput {
   const domNode = _domNode as HTMLTableElement;
   const tableNode = $createTableNode();
   tableNode.__style = domNode.style.cssText;
+  tableNode.__id = domNode.id;
   return { node: tableNode };
 }
 

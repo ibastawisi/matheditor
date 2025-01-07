@@ -2,34 +2,35 @@ import { $createNodeSelection, $setSelection, BaseSelection, DOMExportOutput, Ed
 import { DecoratorNode, } from 'lexical';
 import { convertLatexToMarkup } from 'mathlive';
 import MathComponent from './MathComponent';
-import { $isEditorIsNestedEditor } from '@lexical/utils';
 import { JSX } from "react";
-import { getEditorNodes } from '@/editor/utils/getEditorNodes';
 
-export type SerializedMathNode = Spread<{ type: 'math'; value: string; style: string }, SerializedLexicalNode>;
+export type SerializedMathNode = Spread<{ type: 'math'; value: string; style: string; id: string }, SerializedLexicalNode>;
 
 export class MathNode extends DecoratorNode<JSX.Element> {
   __value: string;
   __style: string;
+  __id: string;
 
   static getType(): string {
     return 'math';
   }
 
   static clone(node: MathNode): MathNode {
-    return new MathNode(node.__value, node.__style, node.__key);
+    return new MathNode(node.__value, node.__style, node.__id, node.__key);
   }
 
-  constructor(value: string, style: string, key?: NodeKey) {
+  constructor(value: string, style: string, id: string, key?: NodeKey) {
     super(key);
     this.__value = value;
     this.__style = style;
+    this.__id = id;
   }
 
   static importJSON(serializedNode: SerializedMathNode): MathNode {
     const node = $createMathNode(
       serializedNode.value,
       serializedNode.style,
+      serializedNode.id,
     );
     return node;
   }
@@ -38,6 +39,7 @@ export class MathNode extends DecoratorNode<JSX.Element> {
     return {
       value: this.getValue(),
       style: this.getStyle(),
+      id: this.getId(),
       type: 'math',
       version: 1,
     };
@@ -55,17 +57,12 @@ export class MathNode extends DecoratorNode<JSX.Element> {
 
   createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
     const element = document.createElement('span');
-    const style = this.__style;
-    if (style !== '') {
-      element.style.cssText = style;
-    }
     const className = config.theme.math;
     if (className !== undefined) {
       element.className = className;
     }
-    const nodes = getEditorNodes(editor).filter($isMathNode);
-    const index = nodes.findIndex((node) => node.getKey() === this.getKey());
-    element.id = `formula-${index + 1}`;
+    if (this.__style) element.style.cssText = this.__style;
+    if (this.__id) element.id = this.__id;
     return element;
   }
 
@@ -74,8 +71,9 @@ export class MathNode extends DecoratorNode<JSX.Element> {
     const nextStyle = this.__style;
     if (prevStyle !== nextStyle) {
       dom.style.cssText = nextStyle;
-      dom.style.display = 'inline-flex';
-      dom.style.maxWidth = '100%';
+    }
+    if (prevNode.__id !== this.__id) {
+      dom.id = this.__id;
     }
     return false;
   }
@@ -112,6 +110,17 @@ export class MathNode extends DecoratorNode<JSX.Element> {
     return self;
   }
 
+  getId(): string {
+    const self = this.getLatest();
+    return self.__id;
+  }
+
+  setId(id: string): this {
+    const self = this.getWritable();
+    self.__id = id;
+    return self;
+  }
+
   select() {
     const nodeSelection = $createNodeSelection();
     nodeSelection.add(this.getKey());
@@ -133,8 +142,8 @@ export class MathNode extends DecoratorNode<JSX.Element> {
   }
 }
 
-export function $createMathNode(value = '', style = ''): MathNode {
-  const mathNode = new MathNode(value, style);
+export function $createMathNode(value = '', style = '', id = ''): MathNode {
+  const mathNode = new MathNode(value, style, id);
   return mathNode;
 }
 

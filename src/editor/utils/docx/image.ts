@@ -4,7 +4,7 @@ import { $convertEditortoDocx } from ".";
 import sizeOf from 'image-size';
 import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
 
-export function $convertImageNode(node: ImageNode, index: number) {
+export function $convertImageNode(node: ImageNode) {
   const dataURI = node.getSrc();
   const type = dataURI.split(",")[0].split(";")[0].split("/")[1].split("+")[0] as any;
   const src = dataURI.split(",")[1];
@@ -41,13 +41,14 @@ export function $convertImageNode(node: ImageNode, index: number) {
 
   const caption = node.__caption;
   const captionChildren = showCaption ? caption.getEditorState().read($convertEditortoDocx) : [];
-  const id = `figure-${index}`;
+  const id = node.getId();
 
+  if (!showCaption && !id) return [imageRun];
+  const linkId = bookmarkUniqueNumericIdGen()();
+  if (!showCaption) return [new BookmarkStart(id, linkId), imageRun, new BookmarkEnd(linkId), new TextRun({ text: '', break: 1, vanish: !showCaption }), ...captionChildren];
   const parent = node.getParent() as ParagraphNode;
   const alignment = parent.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
   const indent = parent.getIndent();
-  const linkId = bookmarkUniqueNumericIdGen()();
-  if (!showCaption) return [new BookmarkStart(id, linkId), imageRun, new BookmarkEnd(linkId), new TextRun({ text: '', break: 1, vanish: !showCaption }), ...captionChildren];
 
   return new Table({
     rows: [
@@ -56,7 +57,7 @@ export function $convertImageNode(node: ImageNode, index: number) {
           new TableCell({
             children: [
               new Paragraph({
-                children: [new Bookmark({ id, children: [imageRun] })],
+                children: [id ? new Bookmark({ id, children: [imageRun] }) : imageRun],
                 alignment, indent: { left: convertInchesToTwip(indent / 2) },
               })],
           }),

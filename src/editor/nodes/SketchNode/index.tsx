@@ -26,10 +26,10 @@ export type SketchPayload = Spread<{
 
 function convertSketchElement(domNode: Node): null | DOMConversionOutput {
   if (domNode instanceof HTMLImageElement) {
-    const { alt: altText, src, width, height } = domNode;
+    const { alt: altText, src, width, height, id } = domNode;
     const style = domNode.style.cssText;
     const value: NonDeleted<ExcalidrawElement>[] = domNode.dataset.value ? JSON.parse(domNode.dataset.value) : [];
-    const node = $createSketchNode({ src, altText, value, style, width, height });
+    const node = $createSketchNode({ src, altText, value, style, width, height, id });
     return { node };
   }
   return null;
@@ -57,8 +57,9 @@ export class SketchNode extends ImageNode {
       node.__altText,
       node.__width,
       node.__height,
-      node.__value,
       node.__style,
+      node.__id,
+      node.__value,
       node.__showCaption,
       node.__caption,
       node.__key,
@@ -66,7 +67,7 @@ export class SketchNode extends ImageNode {
   }
 
   static importJSON(serializedNode: SerializedSketchNode): SketchNode {
-    const { width, height, src, value, style, showCaption, caption, altText } =
+    const { width, height, src, value, style, id, showCaption, caption, altText } =
       serializedNode;
     const node = $createSketchNode({
       src,
@@ -74,6 +75,7 @@ export class SketchNode extends ImageNode {
       width,
       height,
       style,
+      id,
       showCaption,
       altText,
     });
@@ -123,13 +125,14 @@ export class SketchNode extends ImageNode {
     altText: string,
     width: number,
     height: number,
+    style: string,
+    id: string,
     value?: NonDeleted<ExcalidrawElement>[],
-    style?: string,
     showCaption?: boolean,
     caption?: LexicalEditor,
     key?: NodeKey,
   ) {
-    super(src, altText, width, height, style, showCaption, caption, key);
+    super(src, altText, width, height, style, id, showCaption, caption, key);
     this.__value = value;
   }
 
@@ -184,6 +187,7 @@ export function $createSketchNode({
   width,
   height,
   style,
+  id,
   showCaption,
   caption,
 }: SketchPayload): SketchNode {
@@ -192,8 +196,9 @@ export function $createSketchNode({
     altText,
     width,
     height,
-    value,
     style,
+    id,
+    value,
     showCaption,
     caption,
     key,

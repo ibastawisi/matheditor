@@ -72,7 +72,9 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
     const dimensions = await getImageDimensions(src);
     const showCaption = node?.getShowCaption() ?? true;
     const altText = node?.getAltText();
-    insertSketch({ src, showCaption, ...dimensions, altText });
+    const id = node?.getId() ?? "";
+    const style = node?.getStyle() ?? "";
+    insertSketch({ src, showCaption, ...dimensions, altText, style, id });
     clearLocalStorage();
     closeDialog();
   };

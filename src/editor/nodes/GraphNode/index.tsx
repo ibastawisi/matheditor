@@ -22,10 +22,10 @@ export type GraphPayload = Spread<{
 
 function convertGraphElement(domNode: Node): null | DOMConversionOutput {
   if (domNode instanceof HTMLImageElement) {
-    const { alt: altText, src, width, height } = domNode;
+    const { alt: altText, src, width, height, id } = domNode;
     const style = domNode.style.cssText;
     const value = domNode.dataset.value as string;
-    const node = $createGraphNode({ src, altText, value, style, width, height });
+    const node = $createGraphNode({ src, altText, value, style, id, width, height });
     return { node };
   }
   return null;
@@ -55,6 +55,7 @@ export class GraphNode extends ImageNode {
       node.__width,
       node.__height,
       node.__style,
+      node.__id,
       node.__showCaption,
       node.__caption,
       node.__key,
@@ -62,7 +63,7 @@ export class GraphNode extends ImageNode {
   }
 
   static importJSON(serializedNode: SerializedGraphNode): GraphNode {
-    const { width, height, src, value, style, showCaption, caption, altText } =
+    const { width, height, src, value, style, id, showCaption, caption, altText } =
       serializedNode;
     const node = $createGraphNode({
       src,
@@ -70,6 +71,7 @@ export class GraphNode extends ImageNode {
       width,
       height,
       style,
+      id,
       showCaption,
       altText
     });
@@ -138,12 +140,13 @@ export class GraphNode extends ImageNode {
     value: string,
     width: number,
     height: number,
-    style?: string,
+    style: string,
+    id: string,
     showCaption?: boolean,
     caption?: LexicalEditor,
     key?: NodeKey,
   ) {
-    super(src, altText, width, height, style, showCaption, caption, key);
+    super(src, altText, width, height, style, id, showCaption, caption, key);
     this.__value = value;
   }
 
@@ -197,6 +200,7 @@ export function $createGraphNode({
   width,
   height,
   style,
+  id,
   showCaption,
   caption,
   altText = 'Graph',
@@ -208,6 +212,7 @@ export function $createGraphNode({
     width,
     height,
     style,
+    id,
     showCaption,
     caption,
     key,

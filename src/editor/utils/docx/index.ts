@@ -14,7 +14,7 @@ import { $convertIFrameNode } from "./iframe";
 import { $convertStickyNode } from "./sticky";
 import { $convertDetailsNode } from "./details";
 
-const nodeMap = new Map<string, LexicalNode>();
+const listNodes = new Map<string, ListNode>();
 
 export function $convertEditortoDocx() {
   const root = $getRoot();
@@ -23,7 +23,6 @@ export function $convertEditortoDocx() {
 }
 
 export function $convertNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | ParagraphChild[] | null {
-  nodeMap.set(node.getKey(), node);
   const element = $mapNodeToDocx(node);
   if (!$isElementNode(node)) return element;
   const childNodes = node.getChildren();
@@ -55,15 +54,18 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
     return $convertHeadingNode(node);
   }
   if ($isMathNode(node)) {
-    const index = [...nodeMap.values()].filter($isMathNode).findIndex((mathNode) => mathNode.getKey() === node.getKey());
-    return $convertMathNode(node, index + 1);
+    return $convertMathNode(node);
   }
   if ($isIFrameNode(node)) {
     return $convertIFrameNode(node);
   }
   if ($isImageNode(node)) {
-    const index = [...nodeMap.values()].filter($isImageNode).findIndex((imageNode) => imageNode.getKey() === node.getKey());
-    return $convertImageNode(node, index + 1);
+    return $convertImageNode(node);
+  }
+  if ($isListNode(node)) {
+    if (node.getType() === 'check') return null;
+    listNodes.set(node.getKey(), node);
+    return null;
   }
   if ($isListItemNode(node)) {
     return $convertListItemNode(node);
@@ -113,8 +115,7 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
   }
 
   if ($isTableNode(node)) {
-    const index = [...nodeMap.values()].filter($isTableNode).findIndex((tableNode) => tableNode.getKey() === node.getKey());
-    return $convertTableNode(node, index + 1);
+    return $convertTableNode(node);
   }
 
   if ($isLinkNode(node)) {
@@ -141,9 +142,8 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
 }
 
 export async function $generateDocxBlob(): Promise<Blob> {
+  listNodes.clear();
   const children = $convertEditortoDocx();
-  const listNodes = [...nodeMap.values()].filter($isListNode).filter(node => node.getType() !== 'check');
-  nodeMap.clear();
 
   const doc = new Document({
     styles: {
@@ -177,9 +177,9 @@ export async function $generateDocxBlob(): Promise<Blob> {
     },
     sections: [{ children }],
     numbering: {
-      config: [...listNodes].map(node => (
+      config: [...listNodes.entries()].map(([key, node]) => (
         {
-          reference: node.getKey(),
+          reference: key,
           levels: (node.getListType() === 'number' ? numbered : bullets).map(level => ({
             ...level,
             start: node.getStart(),

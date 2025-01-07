@@ -10,12 +10,21 @@ import { IFrameNode } from '@/editor/nodes/IFrameNode';
 function IFrameDialog({ editor, node }: { editor: LexicalEditor, node: IFrameNode | null }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const [formData, setFormData] = useState({ src: '', altText: 'iframe', width: 560, height: 315, showCaption: true });
+  const [formData, setFormData] = useState({ src: '', altText: 'iframe', width: 560, height: 315, showCaption: true, id: '', style: '' });
   useEffect(() => {
     if (node) {
-      setFormData({ src: node.getSrc(), altText: node.getAltText(), width: node.getWidth(), height: node.getHeight(), showCaption: node.getShowCaption() });
+      const serializedNode = node?.exportJSON();
+      setFormData({
+        src: serializedNode.src,
+        altText: serializedNode.altText,
+        width: serializedNode.width,
+        height: serializedNode.height,
+        showCaption: serializedNode.showCaption,
+        id: serializedNode.id,
+        style: serializedNode.style
+      });
     } else {
-      setFormData({ src: '', altText: 'iframe', width: 560, height: 315, showCaption: true });
+      setFormData({ src: '', altText: 'iframe', width: 560, height: 315, showCaption: true, id: '', style: '' });
     }
   }, [node]);
 

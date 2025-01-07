@@ -33,7 +33,6 @@ import { $generateHtmlFromNodes } from "@lexical/html";
 import ImageComponent from './ImageComponent';
 import htmr from 'htmr';
 import { JSX } from "react";
-import { getEditorNodes } from '@/editor/utils/getEditorNodes';
 
 export interface ImagePayload {
   altText?: string;
@@ -41,7 +40,8 @@ export interface ImagePayload {
   key?: NodeKey;
   src: string;
   width: number;
-  style?: string;
+  style: string;
+  id: string;
   showCaption?: boolean;
   caption?: LexicalEditor;
 }
@@ -51,8 +51,9 @@ function convertImageElement(domNode: Node): null | DOMConversionOutput {
   if (img.src.startsWith('file:///')) {
     return null;
   }
-  const { alt: altText, src, width, height } = img;
-  const node = $createImageNode({ altText, height, src, width });
+  const { alt: altText, src, width, height, id,  } = img;
+  const style = '';
+  const node = $createImageNode({ altText, height, src, width, id, style });
   return { node };
 }
 
@@ -62,7 +63,8 @@ export type SerializedImageNode = Spread<
     height: number;
     src: string;
     width: number;
-    style?: string;
+    style: string;
+    id: string;
     showCaption: boolean;
     caption: SerializedEditor;
   },
@@ -74,7 +76,8 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   __altText: string;
   __width: number;
   __height: number;
-  __style?: string;
+  __style: string;
+  __id: string;
   __showCaption: boolean;
   __caption: LexicalEditor;
 
@@ -89,6 +92,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       node.__width,
       node.__height,
       node.__style,
+      node.__id,
       node.__showCaption,
       node.__caption,
       node.__key,
@@ -96,7 +100,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   }
 
   static importJSON(serializedNode: SerializedImageNode): ImageNode {
-    const { altText, height, width, src, style, caption, showCaption } =
+    const { altText, height, width, src, style, caption, showCaption, id } =
       serializedNode;
     const node = $createImageNode({
       altText,
@@ -104,7 +108,8 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       src,
       width,
       style,
-      showCaption
+      id,
+      showCaption,
     });
     try {
       if (caption) {
@@ -151,7 +156,8 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     altText: string,
     width: number,
     height: number,
-    style?: string,
+    style: string,
+    id: string,
     showCaption?: boolean,
     caption?: LexicalEditor,
     key?: NodeKey,
@@ -162,7 +168,8 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     this.__width = width;
     this.__height = height;
     this.__style = style;
-    this.__showCaption = showCaption || false;
+    this.__id = id;
+    this.__showCaption = !!showCaption;
     if (caption) this.__caption = caption
     else {
       const editor = createEditor(editorConfig);
@@ -182,12 +189,22 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       height: this.__height,
       src: this.getSrc(),
       style: this.__style,
+      id: this.__id,
       type: 'image',
       version: 1,
       width: this.__width,
       showCaption: this.__showCaption,
       caption: this.__caption.toJSON(),
     };
+  }
+
+  getId(): string {
+    return this.__id;
+  }
+
+  setId(id: string): void {
+    const writable = this.getWritable();
+    writable.__id = id;
   }
 
   getWidth(): number {
@@ -214,7 +231,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     writable.__src = src;
   }
 
-  getStyle(): string | undefined {
+  getStyle(): string {
     const self = this.getLatest();
     return self.__style;
   }
@@ -241,6 +258,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     writable.__width = payload.width ?? writable.__width;
     writable.__height = payload.height ?? writable.__height;
     writable.__style = payload.style ?? writable.__style;
+    writable.__id = payload.id ?? writable.__id;
     writable.__showCaption = payload.showCaption ?? writable.__showCaption;
     writable.__caption = payload.caption ?? writable.__caption;
   }
@@ -256,22 +274,19 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     const element = document.createElement('figure');
     const theme = config.theme;
     const className = theme.image;
-    if (className !== undefined) {
-      element.className = className;
-    }
-    if (this.__style) {
-      element.style.cssText = this.__style;
-    }
+    if (className) element.className = className;
+    if (this.__style) element.style.cssText = this.__style;
+    if (this.__id) element.id = this.__id;
     this.__caption._parentEditor = editor;
-    const nodes = getEditorNodes(editor).filter($isImageNode);
-    const index = nodes.findIndex((node) => node.getKey() === this.getKey());
-    element.id = `figure-${index + 1}`;
     return element;
   }
 
   updateDOM(prevNode: ImageNode, dom: HTMLElement): boolean {
     if (prevNode.__style !== this.__style) {
       dom.style.cssText = (this.__style ?? '');
+    }
+    if (prevNode.__id !== this.__id) {
+      dom.id = this.__id;
     }
     return false;
   }
@@ -319,6 +334,7 @@ export function $createImageNode({
   src,
   width,
   style,
+  id,
   showCaption,
   caption,
   key,
@@ -329,6 +345,7 @@ export function $createImageNode({
     width,
     height,
     style,
+    id,
     showCaption,
     caption,
     key,

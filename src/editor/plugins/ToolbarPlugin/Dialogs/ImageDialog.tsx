@@ -22,13 +22,22 @@ const ACCEPTABLE_IMAGE_TYPES = [
 function ImageDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode | null; }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const [formData, setFormData] = useState<InsertImagePayload>({ src: '', altText: '', width: 0, height: 0, showCaption: true });
+  const [formData, setFormData] = useState<InsertImagePayload>({ src: '', altText: '', width: 0, height: 0, showCaption: true, id: '', style: '' });
 
   useEffect(() => {
     if (node) {
-      setFormData({ src: node.getSrc(), altText: node.getAltText(), width: node.getWidth(), height: node.getHeight(), showCaption: node.getShowCaption() });
+      const serializedNode = node?.exportJSON();
+      setFormData({
+        src: serializedNode.src,
+        altText: serializedNode.altText,
+        width: serializedNode.width,
+        height: serializedNode.height,
+        showCaption: serializedNode.showCaption,
+        id: serializedNode.id,
+        style: serializedNode.style
+      });
     } else {
-      setFormData({ src: '', altText: '', width: 0, height: 0, showCaption: true });
+      setFormData({ src: '', altText: '', width: 0, height: 0, showCaption: true, id: '', style: '' });
     }
   }, [node]);
 
@@ -58,9 +67,9 @@ function ImageDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode 
       if (isMimeType(file, ACCEPTABLE_IMAGE_TYPES)) {
         try {
           const dimensions = await getImageDimensions(result);
-          setFormData({ src: result, altText: files![0].name.replace(/\.[^/.]+$/, ""), ...dimensions, showCaption: true });
+          setFormData({ ...formData, src: result, altText: files![0].name.replace(/\.[^/.]+$/, ""), ...dimensions });
         } catch (e) {
-          setFormData({ ...formData, src: result, altText: files![0].name.replace(/\.[^/.]+$/, ""), showCaption: true });
+          setFormData({ ...formData, src: result, altText: files![0].name.replace(/\.[^/.]+$/, "") });
         }
       } else {
         editor.dispatchCommand(ANNOUNCE_COMMAND, { message: { title: "Uploading image failed", subtitle: "Unsupported file type" } });

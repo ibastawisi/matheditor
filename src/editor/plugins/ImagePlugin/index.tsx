@@ -128,6 +128,7 @@ function onDragStart(event: DragEvent): boolean {
         value: (node as any).__value,
         altText: node.__altText,
         style: node.__style,
+        id: node.__id,
         showCaption: node.__showCaption,
         caption: node.__caption,
       },

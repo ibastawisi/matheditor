@@ -28,7 +28,8 @@ function convertIFrameElement(domNode: HTMLElement,): null | DOMConversionOutput
     const height = +(domNode.getAttribute('height') || '315');
     const style = domNode.style.cssText;
     const altText = domNode.title;
-    const node = $createIFrameNode({ src, width, height, style, altText });
+    const id = domNode.id;
+    const node = $createIFrameNode({ src, width, height, style, id, altText });
     return { node };
   }
   return null;
@@ -56,6 +57,7 @@ export class IFrameNode extends ImageNode {
       node.__width,
       node.__height,
       node.__style,
+      node.__id,
       node.__showCaption,
       node.__caption,
       node.__key,
@@ -64,13 +66,14 @@ export class IFrameNode extends ImageNode {
   }
 
   static importJSON(serializedNode: SerializedIFrameNode): IFrameNode {
-    const { width, height, src, style, showCaption, caption, altText } =
+    const { width, height, src, style, id, showCaption, caption, altText } =
       serializedNode;
     const node = $createIFrameNode({
       src,
       width,
       height,
       style,
+      id,
       showCaption,
       altText
     });
@@ -99,12 +102,13 @@ export class IFrameNode extends ImageNode {
     altText: string,
     width: number,
     height: number,
-    style?: string,
+    style: string,
+    id: string,
     showCaption?: boolean,
     caption?: LexicalEditor,
     key?: NodeKey,
   ) {
-    super(src, altText, width, height, style, showCaption, caption, key);
+    super(src, altText, width, height, style, id, showCaption, caption, key);
   }
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
@@ -177,8 +181,8 @@ export class IFrameNode extends ImageNode {
 }
 
 export function $createIFrameNode(payload: IFramePayload): IFrameNode {
-  const { src, altText = "iframe", width, height, style, showCaption, caption, key } = payload;
-  return new IFrameNode(src, altText, width, height, style, showCaption, caption, key);
+  const { src, altText = "iframe", width, height, style, id, showCaption, caption, key } = payload;
+  return new IFrameNode(src, altText, width, height, style, id, showCaption, caption, key);
 }
 
 export function $isIFrameNode(
