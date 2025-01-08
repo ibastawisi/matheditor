@@ -55,7 +55,7 @@ export function $convertCodeHighlightNode(node: CodeHighlightNode) {
   const options: IRunOptions = {
     text: node.getTextContent(),
     font: 'Consolas',
-    size: '10pt',
+    size: 10 * 2,
     color: colorMap[highlightType as string],
   };
 

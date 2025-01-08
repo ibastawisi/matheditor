@@ -24,7 +24,7 @@ export function $convertTextNode(node: TextNode) {
     subScript: node.hasFormat('subscript'),
     superScript: node.hasFormat('superscript'),
     font: node.hasFormat('code') ? 'Consolas' : $getNodeStyleValueForProperty(node, 'font-family'),
-    size: fontsizeInPx ? `${fontsizeInPx * 0.75}pt` : undefined,
+    size: fontsizeInPx ? fontsizeInPx * 1.5 : undefined,
     shading: backgroundColor || node.hasFormat('code') ? ({
       fill: node.hasFormat('code') ? '#F2F4F6' : backgroundColor,
     }) : undefined,

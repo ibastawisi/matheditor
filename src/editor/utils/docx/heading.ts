@@ -9,7 +9,7 @@ export function $convertHeadingNode(node: HeadingNode) {
 }
 type Index = 1 | 2 | 3 | 4 | 5 | 6;
 type HeadingMap = Record<Index, number>;
-const headingSize: HeadingMap = { 1: 32 * 4 / 3, 2: 24 * 4 / 3, 3: 18.72 * 4 / 3, 4: 16 * 4 / 3, 5: 13.28 * 4 / 3, 6: 10.72 * 4 / 3 };
+const headingSize: HeadingMap = { 1: 32 * 1.5, 2: 24 * 1.5, 3: 18.72 * 1.5, 4: 16 * 1.5, 5: 13.28 * 1.5, 6: 10.72 * 1.5 };
 const headingSpacing: HeadingMap = { 1: 21.44 * 15, 2: 19.92 * 15, 3: 18.72 * 15, 4: 21.28 * 15, 5: 22.178 * 15, 6: 24.978 * 15 };
 export const heading = (level: Index) => ({
   run: {

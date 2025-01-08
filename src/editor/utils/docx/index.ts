@@ -158,7 +158,7 @@ export async function $generateDocxBlob(): Promise<Blob> {
           run: { color: '#216fdb', underline: undefined, },
         },
         document: {
-          run: { size: "12pt", font: "Roboto", },
+          run: { size: 12 * 2, font: "Roboto", },
           paragraph: {
             spacing: { line: 20 * 15, after: 8 * 15, },
           },
