@@ -68,11 +68,10 @@ export const htmlConfig: HTMLConfig = {
         const element = output.element;
         if (!element || !isHTMLElement(element)) return output;
         const url = linkNode.getURL();
-        const rel = linkNode.getRel();
-        if (rel) element.setAttribute('rel', rel);
         const target = linkNode.getTarget();
-        if (target) element.setAttribute('target', target);
         if (target === '_self') element.setAttribute('id', url.slice(1));
+        if (target !== '_blank') element.removeAttribute('target');
+        element.removeAttribute('rel');
         return { element };
       },
     ]

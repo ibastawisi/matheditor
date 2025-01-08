@@ -3,8 +3,7 @@ import { $getNodeByKey, $getSelection, $isRangeSelection, isHTMLElement, Lexical
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { SET_DIALOGS_COMMAND } from './commands';
 import { useTheme } from '@mui/material/styles';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, InputLabel, ListItemIcon, MenuItem, Radio, RadioGroup, Select, TextField, useMediaQuery } from '@mui/material';
-import { sanitizeUrl } from '@/editor/utils/url';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, InputLabel, ListItemIcon, MenuItem, Radio, RadioGroup, Select, SelectChangeEvent, TextField, useMediaQuery } from '@mui/material';
 import { TOGGLE_LINK_COMMAND, type LinkNode } from '@lexical/link';
 import { LinkOff } from '@mui/icons-material';
 import { $isImageNode } from '@/editor/nodes/ImageNode';
@@ -15,8 +14,11 @@ import { getEditorNodes } from '@/editor/utils/getEditorNodes';
 function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | null }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const [formData, setFormData] = useState({ url: 'https://', rel: 'external', target: '_blank' });
-  const [figureKey, setFigureKey] = useState<string>('self');
+  const [url, setUrl] = useState<string>('https://');
+  const [rel, setRel] = useState<string>('external');
+  const [target, setTarget] = useState<string>('_blank');
+  const [figure, setFigure] = useState<string>('self');
+
   const figures = useMemo(() => {
     const editorState = editor.getEditorState();
     const nodes = editorState.read(() => getEditorNodes(editor).filter(node => $isImageNode(node) || $isMathNode(node) || $isTableNode(node)));
@@ -32,44 +34,45 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
   }, []);
 
   useEffect(() => {
-    const payload = {
-      url: node?.__url ?? 'https://',
-      rel: node?.__rel ?? 'external',
-      target: node?.__target ?? '_blank',
-    }
-    setFormData(payload);
-    if (node && node.__rel === 'bookmark') {
+    setUrl(node?.__url ?? 'https://');
+    setRel(node?.__rel ?? 'external');
+    setTarget(node?.__target ?? '_blank');
+    if (node?.__rel === 'bookmark') {
       const id = node.__url.slice(1);
       const figureKey = [...figures.entries()].find(([key, element]) => element.id === id)?.[0];
-      setFigureKey(figureKey || 'self');
+      const target = node.__target;
+      setFigure(figureKey ?? target === '_self' ? 'self' : 'none');
     }
   }, [node]);
 
-  const setUrl = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const updateUrl = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.toLowerCase().replace(/\s+/g, '-');
-    const rel = formData.rel;
     const url = rel === 'bookmark' ? value.padStart(1, '#') : value;
-    setFormData({ ...formData, url });
+    setUrl(url);
   }
 
-  const updateFormData = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormData({ ...formData, [name]: value });
-    if (name === 'rel') {
-      const nodeRel = node?.__rel ?? 'external';
-      const defaultUrl = value === 'bookmark' ? getBookmarkUrl() : 'https://';
-      const url = value === nodeRel ? node?.__url ?? defaultUrl : defaultUrl;
-      const target = value === 'external' ? '_blank' : figureKey === 'self' ? '_self' : '';
-      setFormData({ ...formData, [name]: value, url, target });
-    }
+  const updateRel = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setRel(value);
+    const nodeRel = node?.__rel ?? 'external';
+    const defaultUrl = value === 'bookmark' ? getBookmarkUrl() : 'https://';
+    const nodeUrl = node?.__url ?? defaultUrl;
+    const url = value === nodeRel ? nodeUrl : defaultUrl;
+    setUrl(url);
+    const target = value === 'external' ? '_blank' : figure === 'self' ? '_self' : '';
+    setTarget(target);
+  }
+
+  const updateFigure = (event: SelectChangeEvent) => {
+    const value = event.target.value;
+    setFigure(value);
+    if (value === 'self') setTarget('_self');
+    if (value === 'none') setTarget('');
   }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    const url = sanitizeUrl(formData.url);
-    const rel = formData.rel;
-    const target = formData.target;
-    if (rel === 'bookmark' && figureKey) setNodeId(figureKey, url.slice(1));
+    if (rel === 'bookmark' && figure) setNodeId(figure, url.slice(1));
     if (!node) editor.dispatchCommand(TOGGLE_LINK_COMMAND, { url, rel, target, });
     else editor.update(() => {
       node.setURL(url);
@@ -137,7 +140,7 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
       </DialogTitle>
       <DialogContent>
         <Box component="form" onSubmit={handleSubmit} noValidate>
-          <RadioGroup row aria-label="orientation" name="rel" value={formData.rel} onChange={updateFormData}>
+          <RadioGroup row aria-label="orientation" value={rel} onChange={updateRel}>
             <FormControlLabel value="external" control={<Radio />} label="External" />
             <FormControlLabel value="bookmark" control={<Radio />} label="Internal" />
           </RadioGroup>
@@ -145,24 +148,24 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
             margin='normal'
             size="small"
             fullWidth
-            value={formData.url}
-            onChange={setUrl}
+            value={url}
+            onChange={updateUrl}
             label="URL"
-            name="url"
             autoFocus
             autoComplete='off'
           />
-          {formData.rel === "bookmark" &&
+          {rel === "bookmark" &&
             <FormControl fullWidth margin='normal'>
               <InputLabel>Figure</InputLabel>
               <Select
                 size="small"
                 fullWidth
-                value={figureKey}
-                onChange={e => setFigureKey(e.target.value)}
+                value={figure}
+                onChange={updateFigure}
                 label="Figure"
               >
                 <MenuItem value="self">Self</MenuItem>
+                <MenuItem value="none">None</MenuItem>
                 {[...figures.keys()].map(key => (
                   <MenuItem key={key} value={key}>
                     <ListItemIcon
@@ -192,7 +195,7 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
         <Button onClick={handleClose}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit} disabled={!formData.url}>
+        <Button onClick={handleSubmit} disabled={!url}>
           Confirm
         </Button>
       </DialogActions>
