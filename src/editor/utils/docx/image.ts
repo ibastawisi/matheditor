@@ -1,4 +1,4 @@
-import { $findMatchingParent, $isLayoutContainerNode, $isLayoutItemNode, ImageNode, isHTMLElement, ParagraphNode } from "@/editor";
+import { $findMatchingParent, $isLayoutContainerNode, $isLayoutItemNode, ImageNode, ParagraphNode } from "@/editor";
 import { Bookmark, BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, convertInchesToTwip, ImageRun, IParagraphOptions, Paragraph, Table, TableBorders, TableCell, TableRow, TextRun, TextWrappingType } from "docx";
 import { $convertEditortoDocx } from ".";
 import sizeOf from 'image-size';
@@ -8,7 +8,7 @@ export function $convertImageNode(node: ImageNode) {
   const dataURI = node.getSrc();
   const type = dataURI.split(",")[0].split(";")[0].split("/")[1].split("+")[0] as any;
   const src = dataURI.split(",")[1];
-  const data = type === 'svg' ? Buffer.from(decodeURIComponent(src), 'utf-8') : Buffer.from(src, 'base64');
+  const data = type === 'svg' ? svgToBuffer(src) : Buffer.from(src, 'base64');
   const altText = node.getAltText();
   const dimensions = sizeOf(data);
   const width = node.getWidth() || dimensions.width as number;
@@ -73,6 +73,7 @@ export function $convertImageNode(node: ImageNode) {
     ],
     borders: TableBorders.NONE,
     layout: 'fixed',
+    columnWidths: [newWidth * 15],
     alignment: alignment,
     width: (float || alignment !== 'both') ? { size: newWidth * 15, type: 'dxa' } : { size: 100, type: 'pct', },
     float: float ? {
@@ -87,4 +88,10 @@ export function $convertImageNode(node: ImageNode) {
       bottomFromText: 0,
     } : undefined,
   });
+}
+
+function svgToBuffer(svg: string) {
+  const html = decodeURIComponent(svg);
+  const payloadless = html.replace(/<!-- payload-start -->\s*(.+?)\s*<!-- payload-end -->/, "");
+  return Buffer.from(payloadless);
 }

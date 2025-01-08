@@ -24,6 +24,7 @@ export function $convertStickyNode(node: StickyNode) {
     width: { size: 300 * 15, type: 'dxa' },
     borders: TableBorders.NONE,
     layout: 'fixed',
+    columnWidths: [300 * 15],
     float: {
       horizontalAnchor: 'text',
       verticalAnchor: 'text',

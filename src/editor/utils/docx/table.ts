@@ -5,13 +5,23 @@ import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
 
 export function $convertTableNode(node: TableNode) {
   const rows = node.getChildren<TableRowNode>().map($convertTableRowNode);
+  const columnCount = node.getColumnCount();
+  const columnWidths = node.getColWidths();
   const float = $getNodeStyleValueForProperty(node, 'float').replace('none', '');
-  const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
+  const alignment = (node.getFormatType().replace('justify', 'both') || 'both') as IParagraphOptions['alignment'];
+  const columnWidth = (float || alignment !== 'both') ? 75 * 15 : 600 * 15 / columnCount;
+
   const table = new Table({
     rows: rows,
     width: (float || alignment !== 'both') ? undefined : { size: 100, type: 'pct', },
+    columnWidths: columnWidths ? columnWidths.map((width) => width * 15) : Array(columnCount).fill(columnWidth),
     margins: { top: 8 * 15, right: 8 * 15, bottom: 8 * 15, left: 8 * 15, },
-    borders: { top: { color: '#cccccc', style: 'single' }, bottom: { color: '#cccccc', style: 'single' }, left: { color: '#cccccc', style: 'single' }, right: { color: '#cccccc', style: 'single' } },
+    borders: {
+      top: { color: '#cccccc', style: 'single', size: 1, },
+      bottom: { color: '#cccccc', style: 'single', size: 1, },
+      left: { color: '#cccccc', style: 'single', size: 1, },
+      right: { color: '#cccccc', style: 'single', size: 1, },
+    },
     float: float ? {
       horizontalAnchor: 'text',
       verticalAnchor: 'text',
@@ -75,7 +85,12 @@ function $convertTableCellNode(node: TableCellNode) {
     shading: { fill: backgroundColor, color },
     textDirection: writingMode === 'vertical-rl' ? 'tbRl' : undefined,
     verticalAlign: 'center',
-    borders: { top: { color: '#cccccc', style: 'single' }, bottom: { color: '#cccccc', style: 'single' }, left: { color: '#cccccc', style: 'single' }, right: { color: '#cccccc', style: 'single' } },
+    borders: {
+      top: { color: '#cccccc', style: 'single', size: 1, },
+      bottom: { color: '#cccccc', style: 'single', size: 1, },
+      left: { color: '#cccccc', style: 'single', size: 1, },
+      right: { color: '#cccccc', style: 'single', size: 1, },
+    },
     children: children as any,
   });
 }
