@@ -161,12 +161,13 @@ export class SketchNode extends ImageNode {
     const self = this.getLatest();
     const html = self.__caption.getEditorState().read(() => $generateHtmlFromNodes(self.__caption));
     const children = htmr(html);
-
+    const decoded = decodeURIComponent(self.__src.split(',')[1]).replace(/<!-- payload-start -->\s*(.+?)\s*<!-- payload-end -->/, "").replaceAll('//dist/','/');
+    const src = `data:image/svg+xml,${encodeURIComponent(decoded)}`;
     return (
       <ImageComponent
         width={self.__width}
         height={self.__height}
-        src={self.__src}
+        src={src}
         altText={self.__altText}
         nodeKey={self.__key}
         showCaption={self.__showCaption}
