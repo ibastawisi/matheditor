@@ -91,7 +91,6 @@ export function $convertImageNode(node: ImageNode) {
 }
 
 function svgToBuffer(svg: string) {
-  const html = decodeURIComponent(svg);
-  const payloadless = html.replace(/<!-- payload-start -->\s*(.+?)\s*<!-- payload-end -->/, "");
-  return Buffer.from(payloadless);
+  const html = decodeURIComponent(svg).replace(/<!-- payload-start -->\s*(.+?)\s*<!-- payload-end -->/, "").replaceAll("//dist", "");
+  return Buffer.from(html);
 }
