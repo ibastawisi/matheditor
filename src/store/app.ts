@@ -22,6 +22,7 @@ import {
 } from '../types';
 import { GetDocumentsResponse, PostDocumentsResponse, DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from '@/types';
 import { validate } from 'uuid';
+import { generateHtml } from '@/editor';
 
 const initialState: AppState = {
   documents: [],
@@ -74,7 +75,7 @@ export const loadLocalDocuments = createAsyncThunk('app/loadLocalDocuments', asy
   try {
     const documents = await documentDB.getAll();
     const revisions = await revisionDB.getAll();
-    const localDocuments: LocalDocument[] = documents.map(document => {
+    const localDocuments: LocalDocument[] = await Promise.all(documents.map(async (document) => {
       const { data, ...rest } = document;
       const backupDocument: BackupDocument = { ...document, revisions: revisions.filter(revision => revision.documentId === document.id) };
       const backupDocumentSize = new Blob([JSON.stringify(backupDocument)]).size;
@@ -84,13 +85,15 @@ export const loadLocalDocuments = createAsyncThunk('app/loadLocalDocuments', asy
         const localRevision: LocalDocumentRevision = { ...rest, size: revisionSize };
         return localRevision;
       });
+      const thumbnail = await generateHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 10) } });
       const localDocument: LocalDocument = {
         ...rest,
         revisions: localRevisions,
-        size: backupDocumentSize
+        size: backupDocumentSize,
+        thumbnail
       };
       return localDocument;
-    });
+    }));
     return thunkAPI.fulfillWithValue(localDocuments);
   } catch (error: any) {
     console.error(error);
@@ -233,7 +236,8 @@ export const createLocalDocument = createAsyncThunk('app/createLocalDocument', a
     });
     const backupDocument: BackupDocument = { ...document, revisions: revisions ?? [] };
     const backupDocumentSize = new Blob([JSON.stringify(backupDocument)]).size;
-    const localDocument: LocalDocument = { ...rest, revisions: localDocumentRevisions, size: backupDocumentSize };
+    const thumbnail = await generateHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 10) } });
+    const localDocument: LocalDocument = { ...rest, revisions: localDocumentRevisions, size: backupDocumentSize, thumbnail };
     return thunkAPI.fulfillWithValue(localDocument);
   } catch (error: any) {
     console.error(error);

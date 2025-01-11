@@ -1,5 +1,7 @@
+import { generateServerHtml } from "@/editor/utils/generateServerHtml";
 import { Prisma, prisma } from "@/lib/prisma";
 import { EditorDocumentRevision } from "@/types";
+import { unstable_cache } from "next/cache";
 
 const findRevisionById = async (id: string) => {
   const revision = await prisma.revision.findUnique({
@@ -46,8 +48,20 @@ const deleteRevision = async (id: string) => {
   });
 }
 
+
+const getRevisionThumbnail = async (id: string) => {
+  const revision = await findRevisionById(id);
+  if (!revision) return null;
+  const data = revision.data;
+  const thumbnail = await generateServerHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 10) } });
+  return thumbnail;
+}
+
+const findRevisionThumbnail = unstable_cache(getRevisionThumbnail, [], { tags: ["thumbnail"] });
+
 export {
   findRevisionById,
+  findRevisionThumbnail,
   findRevisionAuthorId,
   createRevision,
   updateRevision,

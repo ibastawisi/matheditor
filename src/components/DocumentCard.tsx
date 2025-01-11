@@ -7,6 +7,7 @@ import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, Badge, NoSsr, IconButton } from '@mui/material';
 import { Article, MobileFriendly, Cloud, Public, Workspaces, Security, CloudDone, CloudSync, MoreVert, Share } from '@mui/icons-material';
 import dynamic from "next/dynamic";
+import htmr from 'htmr';
 const DocumentActionMenu = dynamic(() => import('@/components/DocumentActions/ActionMenu'),
   {
     ssr: false,
@@ -76,7 +77,9 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
           }
           avatar={
             <Badge badgeContent={revisionsBadgeContent} color="secondary">
-              <Avatar sx={{ bgcolor: 'primary.main' }}><Article /></Avatar>
+              {document?.thumbnail ? <div className='document-thumbnail' suppressHydrationWarning>
+                {htmr(document.thumbnail.replaceAll('<a', '<span').replaceAll('</a', '</span'))}
+              </div> : <Avatar sx={{ bgcolor: 'primary.main' }}><Article /></Avatar>}
             </Badge>
           }
         />

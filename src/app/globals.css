@@ -133,6 +133,21 @@ body:has(#app-toolbar) .editor-container [id] {
   outline: 0;
 }
 
+.document-thumbnail {
+  width: 224px;
+  height: 224px;
+  overflow: hidden;
+  zoom: 0.5;
+  user-select: none;
+  white-space: pre-wrap;
+  word-break: break-word;
+  text-align: left;
+  flex: 1;
+  position: relative;
+  tab-size: 1;
+  outline: 0;
+}
+
 .excalidraw.excalidraw-modal-container,
 #typeahead-menu {
   z-index: 1500 !important;

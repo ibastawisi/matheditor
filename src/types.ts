@@ -43,6 +43,7 @@ export interface EditorDocument {
 
 export type LocalDocument = Omit<EditorDocument, "data"> & {
   revisions: LocalDocumentRevision[],
+  thumbnail: string | null;
   size: number;
 };
 export type CloudDocument = Omit<EditorDocument, "data"> & {
@@ -52,7 +53,8 @@ export type CloudDocument = Omit<EditorDocument, "data"> & {
   published?: boolean;
   collab?: boolean;
   private?: boolean;
-  size?: number;
+  thumbnail: string | null;
+  size: number;
 }
 export type UserDocument = { id: string; local?: LocalDocument; cloud?: CloudDocument; };
 export type BackupDocument = EditorDocument & { revisions: EditorDocumentRevision[]; };
