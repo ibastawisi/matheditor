@@ -7,7 +7,7 @@ import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, Badge, NoSsr, IconButton } from '@mui/material';
 import { Article, MobileFriendly, Cloud, Public, Workspaces, Security, CloudDone, CloudSync, MoreVert, Share } from '@mui/icons-material';
 import dynamic from "next/dynamic";
-import htmr from 'htmr';
+
 const DocumentActionMenu = dynamic(() => import('@/components/DocumentActions/ActionMenu'),
   {
     ssr: false,
@@ -36,7 +36,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
   const handle = cloudDocument?.handle ?? localDocument?.handle ?? document?.id;
   const isEditable = isAuthor || isCoauthor || isCollab;
   const href = isEditable ? `/edit/${handle}` : `/view/${handle}`;
-  const authorName = cloudDocument?.author.name ?? user?.name ?? 'Local User';
+  const author = cloudDocument?.author ?? user;
 
   const localDocumentRevisions = localDocument?.revisions ?? [];
   const cloudDocumentRevisions = cloudDocument?.revisions ?? [];
@@ -59,27 +59,30 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
           title={document ? document.name : <Skeleton variant="text" width={190} />}
           subheader={
             <>
-              <Typography component="span" variant="subtitle2" color="text.secondary"
-                sx={{ display: "block", lineHeight: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
-              >
-                {document ? authorName : <Skeleton variant="text" width={100} />}
-              </Typography>
+              <Chip size='small' sx={{ my: 1 }} avatar={
+                document ? <Avatar alt={author?.name ?? "Local User"} src={author?.image ?? undefined} />
+                  : <Skeleton variant="circular" width={24} height={24} />}
+                label={document ? author?.name ?? "Local User" : <Skeleton variant="text" width={100} />} />
               <Typography variant="overline" color="text.secondary"
                 sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {document ? <NoSsr fallback={<Skeleton variant="text" width={150} />}>Created: {new Date(document.createdAt).toLocaleString()}</NoSsr> : <Skeleton variant="text" width={150} />}
+                {document ? <NoSsr fallback={<Skeleton variant="text" width={150} />}>
+                  Created: {new Date(document.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })
+                  }</NoSsr> : <Skeleton variant="text" width={150} />}
               </Typography>
               <Typography variant="overline" color="text.secondary"
                 sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
               >
-                {document ? <NoSsr fallback={<Skeleton variant="text" width={160} />}>Updated: {new Date(document.updatedAt).toLocaleString()}</NoSsr> : <Skeleton variant="text" width={160} />}
+                {document ? <NoSsr fallback={<Skeleton variant="text" width={160} />}>
+                  Updated: {new Date(document.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })
+                  }</NoSsr> : <Skeleton variant="text" width={160} />}
               </Typography>
             </>
           }
           avatar={
             <Badge badgeContent={revisionsBadgeContent} color="secondary">
-              {document?.thumbnail ? <div className='document-thumbnail' suppressHydrationWarning>
-                {htmr(document.thumbnail.replaceAll('<a', '<span').replaceAll('</a', '</span'))}
-              </div> : <Avatar sx={{ bgcolor: 'primary.main' }}><Article /></Avatar>}
+              {document?.thumbnail ? <div className='document-thumbnail'
+                dangerouslySetInnerHTML={{ __html: document.thumbnail.replaceAll('<a', '<span').replaceAll('</a', '</span') }} /> :
+                <Avatar sx={{ bgcolor: 'primary.main' }}><Article /></Avatar>}
             </Badge>
           }
         />

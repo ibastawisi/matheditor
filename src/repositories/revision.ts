@@ -53,7 +53,7 @@ const getRevisionThumbnail = async (id: string) => {
   const revision = await findRevisionById(id);
   if (!revision) return null;
   const data = revision.data;
-  const thumbnail = await generateServerHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 10) } });
+  const thumbnail = await generateServerHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 5) } });
   return thumbnail;
 }
 

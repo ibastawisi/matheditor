@@ -85,7 +85,7 @@ export const loadLocalDocuments = createAsyncThunk('app/loadLocalDocuments', asy
         const localRevision: LocalDocumentRevision = { ...rest, size: revisionSize };
         return localRevision;
       });
-      const thumbnail = await generateHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 10) } });
+      const thumbnail = await generateHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 5) } });
       const localDocument: LocalDocument = {
         ...rest,
         revisions: localRevisions,
@@ -236,7 +236,7 @@ export const createLocalDocument = createAsyncThunk('app/createLocalDocument', a
     });
     const backupDocument: BackupDocument = { ...document, revisions: revisions ?? [] };
     const backupDocumentSize = new Blob([JSON.stringify(backupDocument)]).size;
-    const thumbnail = await generateHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 10) } });
+    const thumbnail = await generateHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 5) } });
     const localDocument: LocalDocument = { ...rest, revisions: localDocumentRevisions, size: backupDocumentSize, thumbnail };
     return thunkAPI.fulfillWithValue(localDocument);
   } catch (error: any) {
