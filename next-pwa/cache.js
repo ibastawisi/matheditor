@@ -42,6 +42,21 @@ module.exports = [
   {
     urlPattern: ({ url: { pathname }, sameOrigin }) => {
       if (!sameOrigin) return false;
+      return pathname.startsWith("/api/thumbnails");
+    },
+    handler: "CacheFirst",
+    method: "GET",
+    options: {
+      cacheName: "thumbnails",
+      expiration: {
+        maxEntries: 64,
+        maxAgeSeconds: 24 * 60 * 60 * 30,
+      },
+    },
+  },
+  {
+    urlPattern: ({ url: { pathname }, sameOrigin }) => {
+      if (!sameOrigin) return false;
       if (pathname === "/api/auth/session") return true;
       if (pathname === "/api/documents") return true;
       if (pathname === "/api/usage") return true;

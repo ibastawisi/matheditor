@@ -24,7 +24,8 @@ import {
   getLocalDocumentRevisions,
   alert,
   getLocalStorageUsage,
-  getCloudStorageUsage
+  getCloudStorageUsage,
+  getCloudDocumentThumbnail
 } from "./app";
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 
@@ -60,6 +61,7 @@ export const actions = {
 
   getLocalStorageUsage,
   getCloudStorageUsage,
+  getCloudDocumentThumbnail,
 };
 
 export const store = configureStore({ reducer: appSlice.reducer });

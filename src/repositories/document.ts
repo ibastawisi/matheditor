@@ -1,7 +1,7 @@
 import { Prisma, prisma } from "@/lib/prisma";
 import { CloudDocument, EditorDocument } from "@/types";
 import { validate } from "uuid";
-import { findRevisionById, findRevisionThumbnail } from "./revision";
+import { findRevisionById } from "./revision";
 
 const findPublishedDocuments = async () => {
   const documents = await prisma.document.findMany({
@@ -67,17 +67,15 @@ const findPublishedDocuments = async () => {
     }
   });
 
-  const cloudDocuments = await Promise.all(documents.map(async (document) => {
+  const cloudDocuments = documents.map((document) => {
     const revisions = document.collab ? document.revisions : document.revisions.filter((revision) => revision.id === document.head);
-    const thumbnail = await findRevisionThumbnail(document.head);
     const cloudDocument: CloudDocument = {
       ...document,
       coauthors: document.coauthors.map((coauthor) => coauthor.user),
       revisions,
-      thumbnail,
     };
     return cloudDocument;
-  }));
+  });
   return cloudDocuments;
 }
 
@@ -145,15 +143,13 @@ const findDocumentsByAuthorId = async (authorId: string) => {
     }
   });
 
-  const authoredDocuments = await Promise.all(documents.map(async (document) => {
-    const thumbnail = await findRevisionThumbnail(document.head);
+  const authoredDocuments = documents.map((document) => {
     const cloudDocument: CloudDocument = {
       ...document,
       coauthors: document.coauthors.map((coauthor) => coauthor.user),
-      thumbnail,
     };
     return cloudDocument;
-  }));
+  });
   const coauthoredDocuments = await findDocumentsByCoauthorId(authorId);
   const collaboratorDocuments = await findDocumentsByCollaboratorId(authorId);
   const publishedDocuments = await findPublishedDocuments();
@@ -252,17 +248,15 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
     }
   });
 
-  const cloudDocuments = await Promise.all(documents.map(async (document) => {
+  const cloudDocuments = documents.map((document) => {
     const revisions = document.collab ? document.revisions : document.revisions.filter((revision) => revision.id === document.head);
-    const thumbnail = await findRevisionThumbnail(document.head);
     const cloudDocument: CloudDocument = {
       ...document,
       coauthors: document.coauthors.map((coauthor) => coauthor.user),
       revisions,
-      thumbnail,
     };
     return cloudDocument;
-  }));
+  });
 
   return cloudDocuments;
 }
@@ -340,15 +334,13 @@ const findDocumentsByCoauthorId = async (authorId: string) => {
   });
   if (!user) return [];
 
-  const cloudDocuments = await Promise.all(user.coauthored.map(async ({ document }) => {
-    const thumbnail = await findRevisionThumbnail(document.head);
+  const cloudDocuments = user.coauthored.map(({ document }) => {
     const cloudDocument: CloudDocument = {
       ...document,
       coauthors: document.coauthors.map((coauthor) => coauthor.user),
-      thumbnail,
     };
     return cloudDocument;
-  }));
+  });
   return cloudDocuments;
 }
 
@@ -417,15 +409,13 @@ const findDocumentsByCollaboratorId = async (authorId: string) => {
     },
   });
 
-  const cloudDocuments = await Promise.all(revisions.map(async ({ document }) => {
-    const thumbnail = await findRevisionThumbnail(document.head);
+  const cloudDocuments = revisions.map(({ document }) => {
     const cloudDocument: CloudDocument = {
       ...document,
       coauthors: document.coauthors.map((coauthor) => coauthor.user),
-      thumbnail,
     };
     return cloudDocument;
-  }));
+  });
 
   return cloudDocuments;
 }
@@ -523,11 +513,9 @@ const findUserDocument = async (handle: string, revisions?: "all" | string | nul
 
   if (!document) return null;
 
-  const thumbnail = await findRevisionThumbnail(document.head);
   const cloudDocument: CloudDocument = {
     ...document,
     coauthors: document.coauthors.map((coauthor) => coauthor.user),
-    thumbnail,
   };
   if (revisions !== "all") {
     const revisionId = revisions ?? document.head;

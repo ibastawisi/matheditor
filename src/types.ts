@@ -49,7 +49,6 @@ export interface EditorDocument {
 
 export type LocalDocument = Omit<EditorDocument, "data"> & {
   revisions: LocalDocumentRevision[],
-  thumbnail: string | null;
 };
 export type CloudDocument = Omit<EditorDocument, "data"> & {
   author: User;
@@ -58,8 +57,7 @@ export type CloudDocument = Omit<EditorDocument, "data"> & {
   published?: boolean;
   collab?: boolean;
   private?: boolean;
-  thumbnail: string | null;
-}
+};
 export type UserDocument = { id: string; local?: LocalDocument; cloud?: CloudDocument; };
 export type BackupDocument = EditorDocument & { revisions: EditorDocumentRevision[]; };
 
@@ -144,6 +142,11 @@ export interface GetPublishedDocumentsResponse {
 
 export interface GetDocumentResponse {
   data?: EditorDocument & { cloudDocument: CloudDocument };
+  error?: { title: string, subtitle?: string }
+}
+
+export interface GetDocumentThumbnailResponse {
+  data?: string | null;
   error?: { title: string, subtitle?: string }
 }
 

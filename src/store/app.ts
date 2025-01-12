@@ -19,11 +19,13 @@ import {
   BackupDocument,
   CloudDocument,
   DocumentStorageUsage,
-  GetDocumentStorageUsageResponse
+  GetDocumentStorageUsageResponse,
+  GetDocumentThumbnailResponse
 } from '../types';
 import { GetDocumentsResponse, PostDocumentsResponse, DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from '@/types';
 import { validate } from 'uuid';
 import { generateHtml } from '@/editor';
+import exp from 'constants';
 
 const initialState: AppState = {
   documents: [],
@@ -80,11 +82,9 @@ export const loadLocalDocuments = createAsyncThunk('app/loadLocalDocuments', asy
       const { data, ...rest } = document;
       const backupDocument: BackupDocument = { ...document, revisions: revisions.filter(revision => revision.documentId === document.id) };
       const localRevisions = backupDocument.revisions.map(({ data, ...rest }) => rest);
-      const thumbnail = await generateHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 5) } });
       const localDocument: LocalDocument = {
         ...rest,
         revisions: localRevisions,
-        thumbnail
       };
       return localDocument;
     }));
@@ -135,6 +135,19 @@ export const getCloudStorageUsage = createAsyncThunk('app/getCloudStorageUsage',
     const { data, error } = await response.json() as GetDocumentStorageUsageResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to get cloud storage usage" });
+    return thunkAPI.fulfillWithValue(data);
+  } catch (error: any) {
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
+  }
+});
+
+export const getCloudDocumentThumbnail = createAsyncThunk('app/getCloudDocumentThumbnail', async (id: string, thunkAPI) => {
+  try {
+    const response = await fetch(`/api/thumbnails/${id}`);
+    const { data, error } = await response.json() as GetDocumentThumbnailResponse;
+    if (error) return thunkAPI.rejectWithValue(error);
+    if (!data) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "thumbnail not found" });
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     console.error(error);
@@ -253,8 +266,7 @@ export const createLocalDocument = createAsyncThunk('app/createLocalDocument', a
     const { data, ...rest } = document;
     if (revisions) await revisionDB.addMany(revisions)
     const localDocumentRevisions = (revisions ?? []).map(({ data, ...rest }) => rest);
-    const thumbnail = await generateHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 5) } });
-    const localDocument: LocalDocument = { ...rest, revisions: localDocumentRevisions, thumbnail };
+    const localDocument: LocalDocument = { ...rest, revisions: localDocumentRevisions };
     return thunkAPI.fulfillWithValue(localDocument);
   } catch (error: any) {
     console.error(error);
