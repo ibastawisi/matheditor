@@ -2,7 +2,7 @@
 import { actions, useDispatch, useSelector } from '@/store';
 import UserCard from "./User/UserCard";
 import Grid from '@mui/material/Grid2';
-import { Box, CircularProgress, LinearProgress, Paper, Typography } from "@mui/material";
+import { Box, CircularProgress, Paper, Typography } from "@mui/material";
 import { useEffect, useState } from 'react';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { Cloud, Login, Storage } from '@mui/icons-material';
@@ -38,9 +38,6 @@ const StorageChart: React.FC = () => {
   const [localStorageUsage, setLocalStorageUsage] = useState<storageUsage>({ loading: true, usage: 0, details: [] });
   const [cloudStorageUsage, setCloudStorageUsage] = useState<storageUsage>({ loading: true, usage: 0, details: [] });
 
-  const localStorageEmpty = !localStorageUsage.loading && !localStorageUsage.usage;
-  const cloudStorageEmpty = !cloudStorageUsage.loading && !cloudStorageUsage.usage;
-
   useEffect(() => {
     dispatch(actions.getLocalStorageUsage()).then(response => {
       if (response.type === actions.getLocalStorageUsage.fulfilled.type) {
@@ -69,12 +66,18 @@ const StorageChart: React.FC = () => {
       <Grid size={{ xs: 12, sm: 6 }}>
         <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
           <Typography variant='overline' gutterBottom sx={{ alignSelf: 'start', userSelect: 'none' }}>Local Storage</Typography>
-          {localStorageUsage.loading && <LinearProgress sx={{ width: '100%' }} />}
-          {localStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
-            <Storage sx={{ width: 64, height: 64, fontSize: 64 }} />
-            <Typography variant="overline" component="p" sx={{ userSelect: 'none' }}>Local storage is empty</Typography>
-          </Box>}
-          {!localStorageEmpty && <PieChart
+          {localStorageUsage.loading && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+              <CircularProgress disableShrink />
+            </Box>
+          )}
+          {!localStorageUsage.loading && !localStorageUsage.usage && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+              <Storage sx={{ width: 64, height: 64, fontSize: 64 }} />
+              <Typography variant="overline" component="p" sx={{ userSelect: 'none' }}>Local storage is empty</Typography>
+            </Box>
+          )}
+          {!!localStorageUsage.usage && <PieChart
             series={[
               {
                 innerRadius: 0,
@@ -101,16 +104,24 @@ const StorageChart: React.FC = () => {
       <Grid size={{ xs: 12, sm: 6 }}>
         <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
           <Typography variant='overline' gutterBottom sx={{ alignSelf: 'start', userSelect: 'none' }}>Cloud Storage</Typography>
-          {cloudStorageUsage.loading && <LinearProgress sx={{ width: '100%' }} />}
-          {initialized && !user && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
-            <Login sx={{ width: 64, height: 64, fontSize: 64 }} />
-            <Typography variant="overline" component="p" sx={{ userSelect: 'none' }}>Please login to use cloud storage</Typography>
-          </Box>}
-          {user && cloudStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
-            <Cloud sx={{ width: 64, height: 64, fontSize: 64 }} />
-            <Typography variant="overline" component="p" sx={{ userSelect: 'none' }}>Cloud storage is empty</Typography>
-          </Box>}
-          {!cloudStorageEmpty && <PieChart
+          {cloudStorageUsage.loading && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+              <CircularProgress disableShrink />
+            </Box>
+          )}
+          {initialized && !user && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+              <Login sx={{ width: 64, height: 64, fontSize: 64 }} />
+              <Typography variant="overline" component="p" sx={{ userSelect: 'none' }}>Please login to use cloud storage</Typography>
+            </Box>
+          )}
+          {user && !cloudStorageUsage.loading && !cloudStorageUsage.usage && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+              <Cloud sx={{ width: 64, height: 64, fontSize: 64 }} />
+              <Typography variant="overline" component="p" sx={{ userSelect: 'none' }}>Cloud storage is empty</Typography>
+            </Box>
+          )}
+          {!!cloudStorageUsage.usage && <PieChart
             series={[
               {
                 innerRadius: 0,
