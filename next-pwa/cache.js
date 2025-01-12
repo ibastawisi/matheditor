@@ -49,7 +49,6 @@ module.exports = [
     options: {
       cacheName: "thumbnails",
       expiration: {
-        maxEntries: 64,
         maxAgeSeconds: 24 * 60 * 60 * 30,
       },
     },
@@ -67,7 +66,6 @@ module.exports = [
     options: {
       cacheName: "apis",
       expiration: {
-        maxEntries: 16,
         maxAgeSeconds: 24 * 60 * 60 * 30,
       },
       networkTimeoutSeconds: 10,

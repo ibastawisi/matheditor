@@ -1,9 +1,9 @@
 import { authOptions } from "@/lib/auth";
 import { findUserDocument } from "@/repositories/document";
-import { findRevisionThumbnail } from "@/repositories/revision";
 import { GetDocumentThumbnailResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server"
+import { findRevisionThumbnail } from "../../utils";
 
 export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;

@@ -134,8 +134,6 @@ body:has(#app-toolbar) .editor-container [id] {
 }
 
 .document-thumbnail {
-  display: flex;
-  flex-direction: column;
   width: 224px;
   height: 224px;
   overflow: hidden;

@@ -6,8 +6,8 @@ import SplashScreen from '@/components/SplashScreen';
 import { cache } from 'react';
 import type { Metadata } from "next";
 import { validate } from "uuid";
+import { findRevisionHtml } from "@/app/api/utils";
 
-const PUBLIC_URL = process.env.PUBLIC_URL;
 const getCachedUserDocument = cache(async (id: string, revisions?: string) => await findUserDocument(id, revisions));
 
 export async function generateMetadata(
@@ -57,12 +57,7 @@ export default async function Page(
     if (document.private) return <SplashScreen title="This document is private" />;
     const revisionId = searchParams.v ?? document.head;
     if (!validate(revisionId)) return <SplashScreen title="Revision not found" />;
-    const response = await fetch(`${PUBLIC_URL}/api/embed/${revisionId}`, { cache: 'force-cache' });
-    if (!response.ok) {
-      const { error } = await response.json();
-      return <SplashScreen title={error.title} subtitle={error.subtitle} />;
-    }
-    const html = await response.text();
+    const html = await findRevisionHtml(revisionId);
     return <EmbedDocument>{htmr(html)}</EmbedDocument>
   } catch (error) {
     console.error(error);

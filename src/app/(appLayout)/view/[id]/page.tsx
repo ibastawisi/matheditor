@@ -7,8 +7,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import SplashScreen from "@/components/SplashScreen";
 import { cache } from "react";
+import { findRevisionHtml } from "@/app/api/utils";
 
-const PUBLIC_URL = process.env.PUBLIC_URL;
 const getCachedUserDocument = cache(async (id: string, revisions?: string) => await findUserDocument(id, revisions));
 const getCachedSession = cache(async () => await getServerSession(authOptions));
 
@@ -86,12 +86,7 @@ export default async function Page(
         if (!isCollab) document.revisions = [revision];
       }
     }
-    const response = await fetch(`${PUBLIC_URL}/api/embed/${revisionId}`, { cache: 'force-cache' });
-    if (!response.ok) {
-      const { error } = await response.json();
-      return <SplashScreen title={error.title} subtitle={error.subtitle} />;
-    }
-    const html = await response.text();
+    const html = await findRevisionHtml(revisionId);
     return <ViewDocument cloudDocument={document} user={session?.user}>{htmr(html)}</ViewDocument>;
   } catch (error) {
     console.error(error);
