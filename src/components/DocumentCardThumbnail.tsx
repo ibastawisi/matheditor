@@ -5,16 +5,16 @@ import { Box, Skeleton } from '@mui/material';
 import { actions, useDispatch } from '@/store';
 import { generateHtml } from '@/editor';
 
-const DocumentCardThumbnail: React.FC<{ documetId?: string, revisionId?: string }> = memo(({ documetId, revisionId }) => {
+const DocumentCardThumbnail: React.FC<{ documetId?: string }> = memo(({ documetId }) => {
   const dispatch = useDispatch();
   const [thumbnail, setThumbnail] = React.useState<string | null>(null);
 
   const getDocumentThumbnail = async () => {
-    if (!documetId || !revisionId) return null;
-    const localResponse = await dispatch(actions.getLocalRevision(revisionId));
-    if (localResponse.type === actions.getLocalRevision.fulfilled.type) {
-      const editorDocumentRevision = localResponse.payload as ReturnType<typeof actions.getLocalRevision.fulfilled>['payload'];
-      const data = editorDocumentRevision.data;
+    if (!documetId) return null;
+    const localResponse = await dispatch(actions.getLocalDocument(documetId));
+    if (localResponse.type === actions.getLocalDocument.fulfilled.type) {
+      const editorDocument = localResponse.payload as ReturnType<typeof actions.getLocalDocument.fulfilled>['payload'];
+      const data = editorDocument.data;
       const thumbnail = await generateHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 5) } });
       return thumbnail;
     } else {

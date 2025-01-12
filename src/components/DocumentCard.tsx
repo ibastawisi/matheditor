@@ -81,7 +81,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
           }
           avatar={
             <Badge badgeContent={revisionsBadgeContent} color="secondary">
-              <DocumentCardThumbnail documetId={document?.id} revisionId={document?.head} />
+              <DocumentCardThumbnail documetId={document?.id} />
             </Badge>
           }
         />

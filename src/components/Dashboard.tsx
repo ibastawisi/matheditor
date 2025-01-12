@@ -104,12 +104,12 @@ const StorageChart: React.FC = () => {
       <Grid size={{ xs: 12, sm: 6 }}>
         <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
           <Typography variant='overline' gutterBottom sx={{ alignSelf: 'start', userSelect: 'none' }}>Cloud Storage</Typography>
-          {cloudStorageUsage.loading && (
+          {(cloudStorageUsage.loading || (!initialized && !cloudStorageUsage.usage)) && (
             <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
               <CircularProgress disableShrink />
             </Box>
           )}
-          {initialized && !user && (
+          {initialized && !user && !cloudStorageUsage.loading && (
             <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
               <Login sx={{ width: 64, height: 64, fontSize: 64 }} />
               <Typography variant="overline" component="p" sx={{ userSelect: 'none' }}>Please login to use cloud storage</Typography>
