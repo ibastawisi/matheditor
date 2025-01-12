@@ -1,5 +1,5 @@
 "use client"
-import { useSelector } from '@/store';
+import { actions, useDispatch, useSelector } from '@/store';
 import UserCard from "./User/UserCard";
 import Grid from '@mui/material/Grid2';
 import { Box, CircularProgress, Paper, Typography } from "@mui/material";
@@ -21,69 +21,54 @@ const Dashboard: React.FC = () => {
 
 export default Dashboard;
 
-const StorageChart: React.FC = () => {
-  const user = useSelector(state => state.user);
-  const documents = useSelector(state => state.documents);
-  const initialized = useSelector(state => state.ui.initialized);
-  const localDocuments = documents.filter(document => !!document.local).map(document => document.local) as LocalDocument[];
-  const cloudDocuments = documents.filter(document => !!document.cloud && document.cloud.author.id === user?.id).map(document => document.cloud) as CloudDocument[];
-  const [storageUsage, setStorageUsage] = useState({
-    local: {
-      usage: 0,
-      usageDetails: [] as {
-        value: number;
-        label?: string;
-        color?: string;
-      }[]
-    },
-    cloud: {
-      usage: 0,
-      usageDetails: [] as {
-        value: number;
-        label?: string;
-        color?: string;
-      }[]
-    }
-  });
+type storageUsage = {
+  usage: number;
+  details: {
+    value: number;
+    label?: string;
+    color?: string;
+  }[];
+};
 
-  const localStorageEmpty = initialized && !storageUsage.local.usage;
-  const cloudStorageEmpty = initialized && !storageUsage.cloud.usage;
-  const isLoading = !initialized || !!((localDocuments.length && !storageUsage.local.usage) || (cloudDocuments.length && !storageUsage.cloud.usage));
+const StorageChart: React.FC = () => {
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.user);
+  const initialized = useSelector(state => state.ui.initialized);
+  const [isLoading, setLoading] = useState(true);
+  const [localStorageUsage, setLocalStorageUsage] = useState<storageUsage>({ usage: 0, details: [] });
+  const [cloudStorageUsage, setCloudStorageUsage] = useState<storageUsage>({ usage: 0, details: [] });
+
+  const localStorageEmpty = initialized && !isLoading && !localStorageUsage.usage;
+  const cloudStorageEmpty = initialized && !isLoading && !cloudStorageUsage.usage;
   const isLoaded = initialized && !isLoading;
 
   useEffect(() => {
     const calculateStorageUsage = async () => {
-      const localUsage = localDocuments.reduce((acc, document) => acc + document.size, 0) / 1024 / 1024;
-      const localUsageDetails = localDocuments.map(document => {
-        return { value: document.size / 1024 / 1024, label: document.name };
-      });
-      const cloudUsage = cloudDocuments.reduce((acc, document) => acc + (document.size ?? 0), 0) / 1024 / 1024;
-      const cloudUsageDetails = cloudDocuments.map(document => {
-        return { value: (document.size ?? 0) / 1024 / 1024, label: document.name };
-      });
-
-      setStorageUsage({
-        local: {
-          usage: localUsage,
-          usageDetails: localUsageDetails,
-        },
-        cloud: {
-          usage: cloudUsage,
-          usageDetails: cloudUsageDetails,
-        }
-      });
+      const [localStorageUsageResponse, cloudStorageUsageResponse] = await Promise.all([
+        dispatch(actions.getLocalStorageUsage()),
+        dispatch(actions.getCloudStorageUsage())
+      ]);
+      if (localStorageUsageResponse.type === actions.getLocalStorageUsage.fulfilled.type) {
+        const localStorageUsage = localStorageUsageResponse.payload as ReturnType<typeof actions.getLocalStorageUsage.fulfilled>['payload'];
+        const localUsage = localStorageUsage.reduce((acc, document) => acc + document.size, 0) / 1024 / 1024;
+        const localUsageDetails = localStorageUsage.map(document => {
+          return { value: document.size / 1024 / 1024, label: document.name };
+        });
+        setLocalStorageUsage({ usage: localUsage, details: localUsageDetails });
+      }
+      if (cloudStorageUsageResponse.type === actions.getCloudStorageUsage.fulfilled.type) {
+        const cloudStorageUsage = cloudStorageUsageResponse.payload as ReturnType<typeof actions.getCloudStorageUsage.fulfilled>['payload'];
+        const cloudUsage = cloudStorageUsage.reduce((acc, document) => acc + (parseInt(document.size.toString()) ?? 0), 0) / 1024 / 1024;
+        const cloudUsageDetails = cloudStorageUsage.map(document => {
+          return { value: (document.size ?? 0) / 1024 / 1024, label: document.name };
+        });
+        setCloudStorageUsage({ usage: cloudUsage, details: cloudUsageDetails });
+      }
+      setLoading(false);
     }
 
     calculateStorageUsage();
-  }, [initialized]);
-
-  const data1 = [
-    { id: 'local', label: 'Local', value: storageUsage.local.usage, color: '#72CCFF' },
-  ];
-
-  const data2 = [
-    { id: 'cloud', label: 'Cloud', value: storageUsage.cloud.usage, color: '#FFBB28' }
-  ];
+  }, []);
 
   return (
     <Grid container spacing={2}>
@@ -103,14 +88,14 @@ const StorageChart: React.FC = () => {
                 innerRadius: 0,
                 outerRadius: 80,
                 cx: 125,
-                data: data1,
+                data: [{ id: 'local', label: 'Local', value: localStorageUsage.usage, color: '#72CCFF' }],
                 valueFormatter: item => `${(item.value).toFixed(2)} MB`,
               },
               {
                 innerRadius: 100,
                 outerRadius: 120,
                 cx: 125,
-                data: storageUsage.local.usageDetails,
+                data: localStorageUsage.details,
                 valueFormatter: item => `${(item.value).toFixed(2)} MB`,
               },
             ]}
@@ -141,14 +126,14 @@ const StorageChart: React.FC = () => {
                 innerRadius: 0,
                 outerRadius: 80,
                 cx: 125,
-                data: data2,
+                data: [{ id: 'cloud', label: 'Cloud', value: cloudStorageUsage.usage, color: '#FFBB28' }],
                 valueFormatter: item => `${(item.value).toFixed(2)} MB`,
               },
               {
                 innerRadius: 100,
                 outerRadius: 120,
                 cx: 125,
-                data: storageUsage.cloud.usageDetails,
+                data: cloudStorageUsage.details,
                 valueFormatter: item => `${(item.value).toFixed(2)} MB`,
               },
             ]}

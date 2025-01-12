@@ -17,8 +17,9 @@ import {
   PostRevisionResponse,
   DocumentCreateInput,
   BackupDocument,
-  LocalDocumentRevision,
-  CloudDocument
+  CloudDocument,
+  DocumentStorageUsage,
+  GetDocumentStorageUsageResponse
 } from '../types';
 import { GetDocumentsResponse, PostDocumentsResponse, DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from '@/types';
 import { validate } from 'uuid';
@@ -40,7 +41,7 @@ const initialState: AppState = {
     diff: {
       open: false,
     }
-  }
+  },
 };
 
 export const load = createAsyncThunk('app/load', async (_, thunkAPI) => {
@@ -78,18 +79,11 @@ export const loadLocalDocuments = createAsyncThunk('app/loadLocalDocuments', asy
     const localDocuments: LocalDocument[] = await Promise.all(documents.map(async (document) => {
       const { data, ...rest } = document;
       const backupDocument: BackupDocument = { ...document, revisions: revisions.filter(revision => revision.documentId === document.id) };
-      const backupDocumentSize = new Blob([JSON.stringify(backupDocument)]).size;
-      const localRevisions = backupDocument.revisions.map(revision => {
-        const { data, ...rest } = revision;
-        const revisionSize = new Blob([JSON.stringify(revision)]).size;
-        const localRevision: LocalDocumentRevision = { ...rest, size: revisionSize };
-        return localRevision;
-      });
+      const localRevisions = backupDocument.revisions.map(({ data, ...rest }) => rest);
       const thumbnail = await generateHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 5) } });
       const localDocument: LocalDocument = {
         ...rest,
         revisions: localRevisions,
-        size: backupDocumentSize,
         thumbnail
       };
       return localDocument;
@@ -109,6 +103,39 @@ export const loadCloudDocuments = createAsyncThunk('app/loadCloudDocuments', asy
     const { data, error } = await response.json() as GetDocumentsResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.fulfillWithValue([]);
+    return thunkAPI.fulfillWithValue(data);
+  } catch (error: any) {
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
+  } finally {
+    NProgress.done();
+  }
+});
+
+export const getLocalStorageUsage = createAsyncThunk('app/getLocalStorageUsage', async (_, thunkAPI) => {
+  try {
+    const documents = await documentDB.getAll();
+    const revisions = await revisionDB.getAll();
+    const localStorageUsage: DocumentStorageUsage[] = [];
+    documents.map(document => {
+      const backupDocument: BackupDocument = { ...document, revisions: revisions.filter(revision => revision.documentId === document.id) };
+      const backupDocumentSize = new Blob([JSON.stringify(backupDocument)]).size;
+      localStorageUsage.push({ id: document.id, name: document.name , size: backupDocumentSize });
+    });
+    return thunkAPI.fulfillWithValue(localStorageUsage);
+  } catch (error: any) {
+    console.error(error);
+    return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
+  }
+});
+
+export const getCloudStorageUsage = createAsyncThunk('app/getCloudStorageUsage', async (_, thunkAPI) => {
+  try {
+    NProgress.start();
+    const response = await fetch('/api/documents/usage');
+    const { data, error } = await response.json() as GetDocumentStorageUsageResponse;
+    if (error) return thunkAPI.rejectWithValue(error);
+    if (!data) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to get cloud storage usage" });
     return thunkAPI.fulfillWithValue(data);
   } catch (error: any) {
     console.error(error);
@@ -228,16 +255,9 @@ export const createLocalDocument = createAsyncThunk('app/createLocalDocument', a
     if (!id) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to create document" });
     const { data, ...rest } = document;
     if (revisions) await revisionDB.addMany(revisions)
-    const localDocumentRevisions = (revisions ?? []).map(revision => {
-      const { data, ...rest } = revision;
-      const revisionSize = new Blob([JSON.stringify(revision)]).size;
-      const localRevision: LocalDocumentRevision = { ...rest, size: revisionSize };
-      return localRevision;
-    });
-    const backupDocument: BackupDocument = { ...document, revisions: revisions ?? [] };
-    const backupDocumentSize = new Blob([JSON.stringify(backupDocument)]).size;
+    const localDocumentRevisions = (revisions ?? []).map(({ data, ...rest }) => rest);
     const thumbnail = await generateHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 5) } });
-    const localDocument: LocalDocument = { ...rest, revisions: localDocumentRevisions, size: backupDocumentSize, thumbnail };
+    const localDocument: LocalDocument = { ...rest, revisions: localDocumentRevisions, thumbnail };
     return thunkAPI.fulfillWithValue(localDocument);
   } catch (error: any) {
     console.error(error);
@@ -250,9 +270,7 @@ export const createLocalRevision = createAsyncThunk('app/createLocalRevision', a
     const id = await revisionDB.add(revision);
     if (!id) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to create revision" });
     const { data, ...rest } = revision;
-    const revisionSize = new Blob([JSON.stringify(revision)]).size;
-    const localRevision: LocalDocumentRevision = { ...rest, size: revisionSize };
-    return thunkAPI.fulfillWithValue(localRevision);
+    return thunkAPI.fulfillWithValue(rest);
   } catch (error: any) {
     console.error(error);
     return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
@@ -308,19 +326,9 @@ export const updateLocalDocument = createAsyncThunk('app/updateLocalDocument', a
     const payload: { id: string, partial: Partial<LocalDocument> } = { id, partial: { ...document } };
     if (revisions) {
       await revisionDB.addMany(revisions);
-      const localDocumentRevisions = (revisions ?? []).map(revision => {
-        const { data, ...rest } = revision;
-        const revisionSize = new Blob([JSON.stringify(revision)]).size;
-        const localRevision: LocalDocumentRevision = { ...rest, size: revisionSize };
-        return localRevision;
-      });
+      const localDocumentRevisions = (revisions ?? []).map(({ data, ...rest }) => rest);
       payload.partial.revisions = localDocumentRevisions;
     }
-    const editorDocument = await documentDB.getByID(id);
-    const editorDocumentRevisions = await revisionDB.getManyByKey("documentId", id);
-    const backupDocument: BackupDocument = { ...editorDocument, revisions: editorDocumentRevisions };
-    const backupDocumentSize = new Blob([JSON.stringify(backupDocument)]).size;
-    payload.partial.size = backupDocumentSize;
 
     return thunkAPI.fulfillWithValue(payload);
   } catch (error: any) {
@@ -475,7 +483,7 @@ export const appSlice = createSlice({
     },
     setDiff: (state, action: PayloadAction<Partial<AppState["ui"]["diff"]>>) => {
       state.ui.diff = { ...state.ui.diff, ...action.payload };
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -537,7 +545,6 @@ export const appSlice = createSlice({
         const localDocument = userDocument.local;
         if (!localDocument) return;
         localDocument.revisions.unshift(revision);
-        localDocument.size += revision.size;
       })
       .addCase(createCloudDocument.fulfilled, (state, action) => {
         const document = action.payload;
@@ -592,7 +599,6 @@ export const appSlice = createSlice({
         if (!localDocument) return;
         const revision = localDocument.revisions.find(revision => revision.id === id);
         if (!revision) return;
-        localDocument.size -= revision.size;
         localDocument.revisions = localDocument.revisions.filter(revision => revision.id !== id);
       })
       .addCase(deleteCloudDocument.fulfilled, (state, action) => {
@@ -616,8 +622,6 @@ export const appSlice = createSlice({
         const revision = cloudDocument.revisions.find(revision => revision.id === id);
         if (!revision) return;
         cloudDocument.revisions = cloudDocument.revisions.filter(revision => revision.id !== id);
-        if (!cloudDocument.size || !revision.size) return;
-        cloudDocument.size -= revision.size;
       })
       .addCase(deleteCloudRevision.rejected, (state, action) => {
         const message = action.payload as { title: string, subtitle: string };

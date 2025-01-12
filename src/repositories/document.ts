@@ -67,22 +67,13 @@ const findPublishedDocuments = async () => {
     }
   });
 
-  const documentIds = documents.map(document => `'${document.id}'`);
-  const revisionSizesQuery = `SELECT id, pg_column_size("Revision".*) as size from "Revision" WHERE "documentId" IN (${documentIds})`;
-  const revisionSizes: { id: string, size: number }[] = documentIds.length > 0 ? await prisma.$queryRawUnsafe(revisionSizesQuery) : [];
-
   const cloudDocuments = await Promise.all(documents.map(async (document) => {
-    const revisions = document.revisions.map(revision => {
-      const size = revisionSizes.find((revisionSize) => revisionSize.id === revision.id)?.size ?? 0;
-      return { ...revision, size };
-    });
-    const size = new Blob([JSON.stringify(document)]).size + revisions.reduce((acc, revision) => acc + revision.size, 0);
+    const revisions = document.collab ? document.revisions : document.revisions.filter((revision) => revision.id === document.head);
     const thumbnail = await findRevisionThumbnail(document.head);
     const cloudDocument: CloudDocument = {
       ...document,
       coauthors: document.coauthors.map((coauthor) => coauthor.user),
-      revisions: document.collab ? revisions : revisions.filter((revision) => revision.id === document.head),
-      size,
+      revisions,
       thumbnail,
     };
     return cloudDocument;
@@ -154,22 +145,11 @@ const findDocumentsByAuthorId = async (authorId: string) => {
     }
   });
 
-  const documentIds = documents.map(document => `'${document.id}'`);
-  const revisionSizesQuery = `SELECT id, pg_column_size("Revision".*) as size from "Revision" WHERE "documentId" IN (${documentIds})`;
-  const revisionSizes: { id: string, size: number }[] = documentIds.length > 0 ? await prisma.$queryRawUnsafe(revisionSizesQuery) : [];
-
   const authoredDocuments = await Promise.all(documents.map(async (document) => {
-    const revisions = document.revisions.map(revision => {
-      const size = revisionSizes.find((revisionSize) => revisionSize.id === revision.id)?.size ?? 0;
-      return { ...revision, size };
-    });
-    const size = new Blob([JSON.stringify(document)]).size + revisions.reduce((acc, revision) => acc + revision.size, 0);
     const thumbnail = await findRevisionThumbnail(document.head);
     const cloudDocument: CloudDocument = {
       ...document,
       coauthors: document.coauthors.map((coauthor) => coauthor.user),
-      revisions,
-      size,
       thumbnail,
     };
     return cloudDocument;
@@ -183,6 +163,29 @@ const findDocumentsByAuthorId = async (authorId: string) => {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
 
+}
+
+const findCloudStorageUsageByAuthorId = async (authorId: string) => {
+  const documentSizesQuery = `
+    SELECT
+      d.id,
+      d.name,
+      COALESCE(CAST(pg_column_size(d.*) + SUM(pg_column_size(r.*)) AS NUMERIC), 0) AS size
+    FROM
+      "Document" d
+    LEFT JOIN
+      "Revision" r
+    ON
+      d.id = r."documentId"
+    WHERE
+      d."authorId" = '${authorId}' 
+    GROUP BY 
+      d.id
+    ORDER BY 
+      d."updatedAt" DESC;
+  `;
+  const documentSizes: { id: string, name: string, size: number }[] = await prisma.$queryRawUnsafe(documentSizesQuery);
+  return documentSizes;
 }
 
 const findPublishedDocumentsByAuthorId = async (authorId: string) => {
@@ -249,22 +252,13 @@ const findPublishedDocumentsByAuthorId = async (authorId: string) => {
     }
   });
 
-  const documentIds = documents.map(document => `'${document.id}'`);
-  const revisionSizesQuery = `SELECT id, pg_column_size("Revision".*) as size from "Revision" WHERE "documentId" IN (${documentIds})`;
-  const revisionSizes: { id: string, size: number }[] = documentIds.length > 0 ? await prisma.$queryRawUnsafe(revisionSizesQuery) : [];
-
   const cloudDocuments = await Promise.all(documents.map(async (document) => {
-    const revisions = document.revisions.map(revision => {
-      const size = revisionSizes.find((revisionSize) => revisionSize.id === revision.id)?.size ?? 0;
-      return { ...revision, size };
-    });
-
+    const revisions = document.collab ? document.revisions : document.revisions.filter((revision) => revision.id === document.head);
     const thumbnail = await findRevisionThumbnail(document.head);
     const cloudDocument: CloudDocument = {
       ...document,
       coauthors: document.coauthors.map((coauthor) => coauthor.user),
-      revisions: document.collab ? revisions : revisions.filter((revision) => revision.id === document.head),
-      size: new Blob([JSON.stringify(document)]).size + revisions.reduce((acc, revision) => acc + revision.size, 0),
+      revisions,
       thumbnail,
     };
     return cloudDocument;
@@ -346,22 +340,11 @@ const findDocumentsByCoauthorId = async (authorId: string) => {
   });
   if (!user) return [];
 
-  const documentIds = user.coauthored.map(({ document }) => `'${document.id}'`);
-  const revisionSizesQuery = `SELECT id, pg_column_size("Revision".*) as size from "Revision" WHERE "documentId" IN (${documentIds})`;
-  const revisionSizes: { id: string, size: number }[] = documentIds.length > 0 ? await prisma.$queryRawUnsafe(revisionSizesQuery) : [];
-
   const cloudDocuments = await Promise.all(user.coauthored.map(async ({ document }) => {
-    const revisions = document.revisions.map(revision => {
-      const size = revisionSizes.find((revisionSize) => revisionSize.id === revision.id)?.size ?? 0;
-      return { ...revision, size };
-    });
-    const size = new Blob([JSON.stringify(document)]).size + revisions.reduce((acc, revision) => acc + revision.size, 0);
     const thumbnail = await findRevisionThumbnail(document.head);
     const cloudDocument: CloudDocument = {
       ...document,
       coauthors: document.coauthors.map((coauthor) => coauthor.user),
-      revisions,
-      size,
       thumbnail,
     };
     return cloudDocument;
@@ -434,22 +417,11 @@ const findDocumentsByCollaboratorId = async (authorId: string) => {
     },
   });
 
-  const documentIds = revisions.map(({ document }) => `'${document.id}'`);
-  const revisionSizesQuery = `SELECT id, pg_column_size("Revision".*) as size from "Revision" WHERE "documentId" IN (${documentIds})`;
-  const revisionSizes: { id: string, size: number }[] = documentIds.length > 0 ? await prisma.$queryRawUnsafe(revisionSizesQuery) : [];
-
   const cloudDocuments = await Promise.all(revisions.map(async ({ document }) => {
-    const revisions = document.revisions.map(revision => {
-      const size = revisionSizes.find((revisionSize) => revisionSize.id === revision.id)?.size ?? 0;
-      return { ...revision, size };
-    });
-    const size = new Blob([JSON.stringify(document)]).size + revisions.reduce((acc, revision) => acc + revision.size, 0);
     const thumbnail = await findRevisionThumbnail(document.head);
     const cloudDocument: CloudDocument = {
       ...document,
       coauthors: document.coauthors.map((coauthor) => coauthor.user),
-      revisions,
-      size,
       thumbnail,
     };
     return cloudDocument;
@@ -551,18 +523,10 @@ const findUserDocument = async (handle: string, revisions?: "all" | string | nul
 
   if (!document) return null;
 
-  const revisionSizesQuery = `SELECT id, pg_column_size("Revision".*) as size from "Revision" WHERE "documentId" = '${document.id}'`;
-  const revisionSizes: { id: string, size: number }[] = await prisma.$queryRawUnsafe(revisionSizesQuery);
-  const size = new Blob([JSON.stringify(document)]).size + revisionSizes.reduce((acc, revision) => acc + revision.size, 0);
   const thumbnail = await findRevisionThumbnail(document.head);
   const cloudDocument: CloudDocument = {
     ...document,
     coauthors: document.coauthors.map((coauthor) => coauthor.user),
-    revisions: document.revisions.map(revision => {
-      const size = revisionSizes.find((revisionSize) => revisionSize.id === revision.id)?.size ?? 0;
-      return { ...revision, size };
-    }),
-    size,
     thumbnail,
   };
   if (revisions !== "all") {
@@ -598,6 +562,7 @@ const deleteDocument = async (handle: string) => {
 export {
   findPublishedDocuments,
   findDocumentsByAuthorId,
+  findCloudStorageUsageByAuthorId,
   findDocumentsByCoauthorId,
   findPublishedDocumentsByAuthorId,
   findUserDocument,

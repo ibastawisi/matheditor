@@ -27,7 +27,13 @@ export interface AppState {
     filter: number;
     sort: { key: string, direction: "asc" | "desc" };
     diff: { open: boolean; old?: string; new?: string; };
-  }
+  },
+}
+
+export interface DocumentStorageUsage {
+  id: string;
+  name: string;
+  size: number;
 }
 
 export interface EditorDocument {
@@ -44,7 +50,6 @@ export interface EditorDocument {
 export type LocalDocument = Omit<EditorDocument, "data"> & {
   revisions: LocalDocumentRevision[],
   thumbnail: string | null;
-  size: number;
 };
 export type CloudDocument = Omit<EditorDocument, "data"> & {
   author: User;
@@ -54,7 +59,6 @@ export type CloudDocument = Omit<EditorDocument, "data"> & {
   collab?: boolean;
   private?: boolean;
   thumbnail: string | null;
-  size: number;
 }
 export type UserDocument = { id: string; local?: LocalDocument; cloud?: CloudDocument; };
 export type BackupDocument = EditorDocument & { revisions: EditorDocumentRevision[]; };
@@ -84,8 +88,8 @@ export interface EditorDocumentRevision {
   createdAt: string | Date;
 }
 
-export type LocalDocumentRevision = Omit<EditorDocumentRevision, "data"> & { size: number; };
-export type CloudDocumentRevision = Omit<EditorDocumentRevision, "data"> & { author: User; size?: number; };
+export type LocalDocumentRevision = Omit<EditorDocumentRevision, "data">;
+export type CloudDocumentRevision = Omit<EditorDocumentRevision, "data"> & { author: User; };
 export type UserDocumentRevision = LocalDocumentRevision | CloudDocumentRevision;
 
 export interface User {
@@ -124,6 +128,10 @@ export interface GetDocumentsResponse {
   error?: { title: string, subtitle?: string }
 }
 
+export interface GetDocumentStorageUsageResponse {
+  data?: DocumentStorageUsage[];
+  error?: { title: string, subtitle?: string }
+}
 export interface PostDocumentsResponse {
   data?: CloudDocument | null;
   error?: { title: string, subtitle?: string }
