@@ -117,7 +117,14 @@ export const getLocalStorageUsage = createAsyncThunk('app/getLocalStorageUsage',
     const documents = await documentDB.getAll();
     const revisions = await revisionDB.getAll();
     const localStorageUsage: DocumentStorageUsage[] = [];
-    documents.map(document => {
+    documents.sort((a, b) => {
+      const first = a.updatedAt;
+      const second = b.updatedAt;
+      if (!first && !second) return 0;
+      if (!first) return 1;
+      if (!second) return -1;
+      return new Date(second).getTime() - new Date(first).getTime();
+    }).map(document => {
       const backupDocument: BackupDocument = { ...document, revisions: revisions.filter(revision => revision.documentId === document.id) };
       const backupDocumentSize = new Blob([JSON.stringify(backupDocument)]).size;
       localStorageUsage.push({ id: document.id, name: document.name , size: backupDocumentSize });
