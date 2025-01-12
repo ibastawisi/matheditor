@@ -131,8 +131,7 @@ export const getLocalStorageUsage = createAsyncThunk('app/getLocalStorageUsage',
 
 export const getCloudStorageUsage = createAsyncThunk('app/getCloudStorageUsage', async (_, thunkAPI) => {
   try {
-    NProgress.start();
-    const response = await fetch('/api/documents/usage');
+    const response = await fetch('/api/usage');
     const { data, error } = await response.json() as GetDocumentStorageUsageResponse;
     if (error) return thunkAPI.rejectWithValue(error);
     if (!data) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "failed to get cloud storage usage" });
@@ -140,8 +139,6 @@ export const getCloudStorageUsage = createAsyncThunk('app/getCloudStorageUsage',
   } catch (error: any) {
     console.error(error);
     return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: error.message });
-  } finally {
-    NProgress.done();
   }
 });
 

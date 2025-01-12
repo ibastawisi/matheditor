@@ -44,6 +44,7 @@ module.exports = [
       if (!sameOrigin) return false;
       if (pathname === "/api/auth/session") return true;
       if (pathname === "/api/documents") return true;
+      if (pathname === "/api/usage") return true;
       return false;
     },
     handler: "NetworkFirst",

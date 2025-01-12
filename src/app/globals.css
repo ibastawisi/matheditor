@@ -148,6 +148,14 @@ body:has(#app-toolbar) .editor-container [id] {
   outline: 0;
 }
 
+.document-thumbnail .LexicalTheme__tableCell {
+  width: auto !important;
+}
+
+.document-thumbnail .LexicalTheme__tableCell span {
+  white-space: nowrap !important;
+}
+
 .excalidraw.excalidraw-modal-container,
 #typeahead-menu {
   z-index: 1500 !important;

@@ -2,10 +2,9 @@
 import { actions, useDispatch, useSelector } from '@/store';
 import UserCard from "./User/UserCard";
 import Grid from '@mui/material/Grid2';
-import { Box, CircularProgress, Paper, Typography } from "@mui/material";
+import { Box, CircularProgress, LinearProgress, Paper, Typography } from "@mui/material";
 import { useEffect, useState } from 'react';
 import { PieChart } from '@mui/x-charts/PieChart';
-import { CloudDocument, LocalDocument } from '@/types';
 import { Cloud, Login, Storage } from '@mui/icons-material';
 
 const Dashboard: React.FC = () => {
@@ -22,6 +21,7 @@ const Dashboard: React.FC = () => {
 export default Dashboard;
 
 type storageUsage = {
+  loading: boolean;
   usage: number;
   details: {
     value: number;
@@ -34,40 +34,34 @@ const StorageChart: React.FC = () => {
   const dispatch = useDispatch();
   const user = useSelector(state => state.user);
   const initialized = useSelector(state => state.ui.initialized);
-  const [isLoading, setLoading] = useState(true);
-  const [localStorageUsage, setLocalStorageUsage] = useState<storageUsage>({ usage: 0, details: [] });
-  const [cloudStorageUsage, setCloudStorageUsage] = useState<storageUsage>({ usage: 0, details: [] });
 
-  const localStorageEmpty = initialized && !isLoading && !localStorageUsage.usage;
-  const cloudStorageEmpty = initialized && !isLoading && !cloudStorageUsage.usage;
-  const isLoaded = initialized && !isLoading;
+  const [localStorageUsage, setLocalStorageUsage] = useState<storageUsage>({ loading: true, usage: 0, details: [] });
+  const [cloudStorageUsage, setCloudStorageUsage] = useState<storageUsage>({ loading: true, usage: 0, details: [] });
+
+  const localStorageEmpty = !localStorageUsage.loading && !localStorageUsage.usage;
+  const cloudStorageEmpty = !cloudStorageUsage.loading && !cloudStorageUsage.usage;
 
   useEffect(() => {
-    const calculateStorageUsage = async () => {
-      const [localStorageUsageResponse, cloudStorageUsageResponse] = await Promise.all([
-        dispatch(actions.getLocalStorageUsage()),
-        dispatch(actions.getCloudStorageUsage())
-      ]);
-      if (localStorageUsageResponse.type === actions.getLocalStorageUsage.fulfilled.type) {
-        const localStorageUsage = localStorageUsageResponse.payload as ReturnType<typeof actions.getLocalStorageUsage.fulfilled>['payload'];
+    dispatch(actions.getLocalStorageUsage()).then(response => {
+      if (response.type === actions.getLocalStorageUsage.fulfilled.type) {
+        const localStorageUsage = response.payload as ReturnType<typeof actions.getLocalStorageUsage.fulfilled>['payload'];
         const localUsage = localStorageUsage.reduce((acc, document) => acc + document.size, 0) / 1024 / 1024;
         const localUsageDetails = localStorageUsage.map(document => {
           return { value: document.size / 1024 / 1024, label: document.name };
         });
-        setLocalStorageUsage({ usage: localUsage, details: localUsageDetails });
+        setLocalStorageUsage({ loading: false, usage: localUsage, details: localUsageDetails });
       }
-      if (cloudStorageUsageResponse.type === actions.getCloudStorageUsage.fulfilled.type) {
-        const cloudStorageUsage = cloudStorageUsageResponse.payload as ReturnType<typeof actions.getCloudStorageUsage.fulfilled>['payload'];
+    });
+    dispatch(actions.getCloudStorageUsage()).then(response => {
+      if (response.type === actions.getCloudStorageUsage.fulfilled.type) {
+        const cloudStorageUsage = response.payload as ReturnType<typeof actions.getCloudStorageUsage.fulfilled>['payload'];
         const cloudUsage = cloudStorageUsage.reduce((acc, document) => acc + (parseInt(document.size.toString()) ?? 0), 0) / 1024 / 1024;
         const cloudUsageDetails = cloudStorageUsage.map(document => {
           return { value: (document.size ?? 0) / 1024 / 1024, label: document.name };
         });
-        setCloudStorageUsage({ usage: cloudUsage, details: cloudUsageDetails });
+        setCloudStorageUsage({ loading: false, usage: cloudUsage, details: cloudUsageDetails });
       }
-      setLoading(false);
-    }
-
-    calculateStorageUsage();
+    });
   }, []);
 
   return (
@@ -75,14 +69,12 @@ const StorageChart: React.FC = () => {
       <Grid size={{ xs: 12, sm: 6 }}>
         <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
           <Typography variant='overline' gutterBottom sx={{ alignSelf: 'start', userSelect: 'none' }}>Local Storage</Typography>
-          {isLoading && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
-            <CircularProgress disableShrink />
-          </Box>}
-          {isLoaded && localStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+          {localStorageUsage.loading && <LinearProgress sx={{ width: '100%' }} />}
+          {localStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <Storage sx={{ width: 64, height: 64, fontSize: 64 }} />
             <Typography variant="overline" component="p" sx={{ userSelect: 'none' }}>Local storage is empty</Typography>
           </Box>}
-          {isLoaded && !localStorageEmpty && <PieChart
+          {!localStorageEmpty && <PieChart
             series={[
               {
                 innerRadius: 0,
@@ -109,18 +101,16 @@ const StorageChart: React.FC = () => {
       <Grid size={{ xs: 12, sm: 6 }}>
         <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
           <Typography variant='overline' gutterBottom sx={{ alignSelf: 'start', userSelect: 'none' }}>Cloud Storage</Typography>
-          {isLoading && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
-            <CircularProgress disableShrink />
-          </Box>}
-          {isLoaded && !user && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+          {cloudStorageUsage.loading && <LinearProgress sx={{ width: '100%' }} />}
+          {initialized && !user && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <Login sx={{ width: 64, height: 64, fontSize: 64 }} />
             <Typography variant="overline" component="p" sx={{ userSelect: 'none' }}>Please login to use cloud storage</Typography>
           </Box>}
-          {isLoaded && user && cloudStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
+          {user && cloudStorageEmpty && <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
             <Cloud sx={{ width: 64, height: 64, fontSize: 64 }} />
             <Typography variant="overline" component="p" sx={{ userSelect: 'none' }}>Cloud storage is empty</Typography>
           </Box>}
-          {isLoaded && !cloudStorageEmpty && <PieChart
+          {!cloudStorageEmpty && <PieChart
             series={[
               {
                 innerRadius: 0,
