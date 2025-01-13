@@ -29,9 +29,9 @@ const DocumentCardThumbnail: React.FC<{ documentId?: string, head?: string }> = 
   const [thumbnail, setThumbnail] = useState(head ? thumbnailCache.get(head) : null);
 
   useEffect(() => {
-    if (!documentId || !head || thumbnail) return;
+    if (!documentId || !head) return;
     getDocumentThumbnail(documentId, head).then(setThumbnail);
-  }, [thumbnail]);
+  }, [documentId, head]);
 
   if (thumbnail) return <Box className='document-thumbnail' dangerouslySetInnerHTML={{ __html: thumbnail.replaceAll('<a', '<span').replaceAll('</a', '</span') }} />;
   return (

@@ -76,8 +76,7 @@ const NewDocument: React.FC = () => {
       if (localResponse.type === actions.forkLocalDocument.fulfilled.type) {
         const editorDocument = localResponse.payload as ReturnType<typeof actions.forkLocalDocument.fulfilled>["payload"];
         const { data, ...rest } = editorDocument;
-        const editorDocumentSize = new Blob([JSON.stringify(editorDocument)]).size;
-        const localDocument = { ...rest, revisions: [], size: editorDocumentSize, thumbnail: null };
+        const localDocument = { ...rest, revisions: [] };
         setBase({ id: editorDocument.id, local: localDocument });
         setInput({ ...input, data, baseId: editorDocument.id });
       } else {
@@ -162,7 +161,7 @@ const NewDocument: React.FC = () => {
         <Typography component="h1" variant="h5">{baseId ? "Fork a document" : "Create a new document"}</Typography>
         {baseId && <>
           <Typography variant="overline" sx={{ color: 'text.secondary', my: 1 }}>Based on</Typography>
-          <DocumentCard userDocument={base} sx={{ width: 396 }} />
+          <DocumentCard userDocument={base} user={user} sx={{ width: 396 }} />
         </>}
         <Box component="form" onSubmit={handleSubmit} noValidate autoComplete="off" spellCheck="false" sx={{ mt: 1 }}>
           <TextField margin="normal" size="small" fullWidth autoFocus

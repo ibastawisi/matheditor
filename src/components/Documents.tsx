@@ -142,7 +142,7 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
         <Avatar sx={{ my: 2, bgcolor: 'primary.main' }}><PostAdd /></Avatar>
         <Button variant="outlined" component={RouterLink} prefetch={false} href="/new">New document</Button>
       </Box>
-      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", position: "sticky", top: { 'xs': 55.99, 'sm': 63.99 }, backgroundColor: 'var(--mui-palette-background-default)', zIndex: 2, py: 1 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", position: "sticky", top: { 'xs': 55.99, 'sm': 63.99 }, backgroundColor: 'var(--mui-palette-background-default)', zIndex: 5, py: 1 }}>
         <Typography variant="h6" component="h2" sx={{ display: { xs: 'none', sm: 'block' } }}>Documents</Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center" }}>

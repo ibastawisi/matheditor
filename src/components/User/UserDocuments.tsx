@@ -21,7 +21,7 @@ const UserDocuments: React.FC<{ documents?: UserDocument[] }> = ({ documents }) 
   return (
     <Box sx={{ display: 'flex', flexDirection: "column", flex: 1 }}>
       {!showLoading && !showEmpty && <>
-        <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, minHeight: 40, position: "sticky", top: { 'xs': 55.99, 'sm': 63.99 }, backgroundColor: 'var(--mui-palette-background-default)', zIndex: 2, py: 1 }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: 'space-between', alignItems: "center", gap: 1, minHeight: 40, position: "sticky", top: { 'xs': 55.99, 'sm': 63.99 }, backgroundColor: 'var(--mui-palette-background-default)', zIndex: 5, py: 1 }}>
           <Typography variant="h6" component="h2" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Published Documents</Typography>
           <DocumentSortControl value={sort} setValue={setSort} />
         </Box>
