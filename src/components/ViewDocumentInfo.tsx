@@ -12,11 +12,7 @@ import ViewRevisionCard from './ViewRevisionCard';
 import { useSearchParams } from 'next/navigation';
 
 export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocument: CloudDocument, user?: User }) {
-  const slideTrigger = useScrollTrigger({
-    disableHysteresis: true,
-    threshold: 100,
-  });
-
+  const slideTrigger = useScrollTrigger({ disableHysteresis: true });
   const handle = cloudDocument.handle || cloudDocument.id;
   const isAuthor = cloudDocument.author.id === user?.id;
   const isCoauthor = cloudDocument.coauthors.some(u => u.id === user?.id);

@@ -11,10 +11,7 @@ import { Print, KeyboardArrowUp, Info } from '@mui/icons-material';
 function HideOnScroll({ children }: { children: React.ReactElement }) {
   const pathname = usePathname();
   const shouldHide = !!['/edit', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
-  const trigger = useScrollTrigger({
-    disableHysteresis: false,
-    threshold: 32,
-  });
+  const trigger = useScrollTrigger({ threshold: 32 });
   if (!shouldHide) return children;
   return (
     <Slide appear={false} direction="down" in={!trigger}>{children}</Slide>
@@ -22,9 +19,7 @@ function HideOnScroll({ children }: { children: React.ReactElement }) {
 }
 
 function ScrollTop() {
-  const trigger = useScrollTrigger({
-    disableHysteresis: false,
-  });
+  const trigger = useScrollTrigger({ disableHysteresis: true });
 
   const handleClick = () => {
     const anchor = document.querySelector('#back-to-top-anchor');
