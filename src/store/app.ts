@@ -24,8 +24,6 @@ import {
 } from '../types';
 import { GetDocumentsResponse, PostDocumentsResponse, DeleteDocumentResponse, GetDocumentResponse, PatchDocumentResponse } from '@/types';
 import { validate } from 'uuid';
-import { generateHtml } from '@/editor';
-import exp from 'constants';
 
 const initialState: AppState = {
   documents: [],

@@ -1,35 +1,37 @@
 "use client"
 import * as React from 'react';
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { Box, Skeleton } from '@mui/material';
-import { actions, useDispatch } from '@/store';
 import { generateHtml } from '@/editor';
+import documentDB from '@/indexeddb';
+import { GetDocumentThumbnailResponse } from '@/types';
 
-const DocumentCardThumbnail: React.FC<{ documetId?: string }> = memo(({ documetId }) => {
-  const dispatch = useDispatch();
-  const [thumbnail, setThumbnail] = React.useState<string | null>(null);
+const thumbnailCache = new Map<string, string>();
 
-  const getDocumentThumbnail = async () => {
-    if (!documetId) return null;
-    const localResponse = await dispatch(actions.getLocalDocument(documetId));
-    if (localResponse.type === actions.getLocalDocument.fulfilled.type) {
-      const editorDocument = localResponse.payload as ReturnType<typeof actions.getLocalDocument.fulfilled>['payload'];
-      const data = editorDocument.data;
-      const thumbnail = await generateHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 5) } });
-      return thumbnail;
-    } else {
-      const cloudResponse = await dispatch(actions.getCloudDocumentThumbnail(documetId));
-      if (cloudResponse.type === actions.getCloudDocumentThumbnail.fulfilled.type) {
-        const thumbnail = cloudResponse.payload as ReturnType<typeof actions.getCloudDocumentThumbnail.fulfilled>['payload'];
-        return thumbnail;
-      }
-    }
-    return null;
+const getDocumentThumbnail = async (id: string, head: string) => {
+  const cachedThumbnail = thumbnailCache.get(id);
+  if (cachedThumbnail) return cachedThumbnail;
+  const document = await documentDB.getByID(id);
+  if (document) {
+    const data = document.data;
+    const thumbnail = await generateHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 5) } });
+    thumbnailCache.set(head, thumbnail);
+    return thumbnail;
+  } else {
+    const response = await fetch(`/api/thumbnails/${id}`);
+    const { data } = await response.json() as GetDocumentThumbnailResponse;
+    if (data) thumbnailCache.set(head, data);
+    return data;
   }
+}
+
+const DocumentCardThumbnail: React.FC<{ documentId?: string, head?: string }> = memo(({ documentId, head }) => {
+  const [thumbnail, setThumbnail] = useState(head ? thumbnailCache.get(head) : null);
 
   useEffect(() => {
-    getDocumentThumbnail().then(setThumbnail);
-  }, []);
+    if (!documentId || !head || thumbnail) return;
+    getDocumentThumbnail(documentId, head).then(setThumbnail);
+  }, [thumbnail]);
 
   if (thumbnail) return <Box className='document-thumbnail' dangerouslySetInnerHTML={{ __html: thumbnail.replaceAll('<a', '<span').replaceAll('</a', '</span') }} />;
   return (

@@ -5,7 +5,7 @@ import { LocalDocumentRevision, User, UserDocument } from '@/types';
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, Badge, NoSsr, IconButton } from '@mui/material';
-import { Article, MobileFriendly, Cloud, Public, Workspaces, Security, CloudDone, CloudSync, MoreVert, Share } from '@mui/icons-material';
+import { MobileFriendly, Cloud, Public, Workspaces, Security, CloudDone, CloudSync, MoreVert, Share } from '@mui/icons-material';
 import dynamic from "next/dynamic";
 import DocumentCardThumbnail from './DocumentCardThumbnail';
 
@@ -81,7 +81,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
           }
           avatar={
             <Badge badgeContent={revisionsBadgeContent} color="secondary">
-              <DocumentCardThumbnail documetId={document?.id} />
+              <DocumentCardThumbnail documentId={document?.id} head={document?.head} />
             </Badge>
           }
         />
