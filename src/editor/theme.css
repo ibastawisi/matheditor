@@ -29,12 +29,8 @@
 
 .LexicalTheme__quote {
   margin: 0;
-  margin-left: 20px;
   margin-bottom: 10px;
   font-size: 15px;
-  border-left-width: 4px;
-  border-left-style: solid;
-  padding-left: 16px;
 }
 
 .LexicalTheme__indent {
@@ -658,6 +654,17 @@ iframe {
 }
 
 /* direction */
+.LexicalTheme__quote[dir='ltr'] {
+  padding-left: 16px;
+  border-left-style: solid;
+  border-left-width: 4px;
+}
+
+.LexicalTheme__quote[dir='rtl'] {
+  padding-right: 16px;
+  border-right-style: solid;
+  border-right-width: 4px;
+}
 
 .details__summary[dir='rtl'] {
   padding-left: 32px;
@@ -680,6 +687,7 @@ iframe {
 [theme=light] .LexicalTheme__quote {
   color: rgb(101, 103, 107);
   border-left-color: rgb(206, 208, 212);
+  border-right-color: rgb(206, 208, 212);
 }
 
 .LexicalTheme__link,
@@ -739,6 +747,7 @@ iframe {
 [theme=dark] .LexicalTheme__quote {
   color: #a6a6a6;
   border-left-color: #4d4d4d;
+  border-right-color: #4d4d4d;
 }
 
 [theme=dark] .LexicalTheme__link {
@@ -798,6 +807,7 @@ iframe {
   .LexicalTheme__quote {
     color: #a6a6a6;
     border-left-color: #4d4d4d;
+    border-right-color: #4d4d4d;
   }
 
   .LexicalTheme__link {

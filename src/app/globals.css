@@ -126,7 +126,6 @@ body:has(#app-toolbar) .editor-container [id] {
   user-select: text;
   white-space: pre-wrap;
   word-break: break-word;
-  text-align: left;
   flex: 1 1;
   position: relative;
   tab-size: 1;
@@ -141,7 +140,6 @@ body:has(#app-toolbar) .editor-container [id] {
   user-select: none;
   white-space: pre-wrap;
   word-break: break-word;
-  text-align: left;
   flex: 1;
   position: relative;
   tab-size: 1;
