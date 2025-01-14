@@ -232,8 +232,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   }
 
   getStyle(): string {
-    const self = this.getLatest();
-    return self.__style;
+    return this.__style;
   }
 
   setStyle(style: string): this {
