@@ -5,7 +5,8 @@ export function $convertHeadingNode(node: HeadingNode) {
   const heading = node.getTag().replace('h', 'Heading') as IParagraphOptions['heading'];
   const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
   const indent = node.getIndent() || 0;
-  return new Paragraph({ heading, alignment, indent: { left: convertInchesToTwip(indent / 2) } });
+  const dir = node.getDirection();
+  return new Paragraph({ heading, alignment, indent: { left: convertInchesToTwip(indent / 2) }, bidirectional: dir === 'rtl' });
 }
 type Index = 1 | 2 | 3 | 4 | 5 | 6;
 type HeadingMap = Record<Index, number>;

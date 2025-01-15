@@ -10,9 +10,11 @@ export function $convertTableNode(node: TableNode) {
   const float = $getNodeStyleValueForProperty(node, 'float').replace('none', '');
   const alignment = (node.getFormatType().replace('justify', 'both') || 'both') as IParagraphOptions['alignment'];
   const columnWidth = (float || alignment !== 'both') ? 75 * 15 : 600 * 15 / columnCount;
+  const dir = node.getDirection();
 
   const table = new Table({
     rows: rows,
+    visuallyRightToLeft: dir === 'rtl',
     width: (float || alignment !== 'both') ? undefined : { size: 100, type: 'pct', },
     columnWidths: columnWidths ? columnWidths.map((width) => width * 15) : Array(columnCount).fill(columnWidth),
     margins: { top: 8 * 15, right: 8 * 15, bottom: 8 * 15, left: 8 * 15, },

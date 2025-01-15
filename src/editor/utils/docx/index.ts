@@ -48,7 +48,8 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
   if ($isParagraphNode(node)) {
     const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
     const indent = node.getIndent() || 0;
-    return new Paragraph({ alignment, indent: { left: convertInchesToTwip(indent / 2) } });
+    const dir = node.getDirection();
+    return new Paragraph({ alignment, indent: { left: convertInchesToTwip(indent / 2), }, bidirectional: dir === 'rtl' });
   }
   if ($isHeadingNode(node)) {
     return $convertHeadingNode(node);
@@ -94,12 +95,18 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
   if ($isQuoteNode(node)) {
     const alignment = node.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
     const indent = node.getIndent() || 0;
+    const dir = node.getDirection();
     return new Paragraph({
       style: 'Quote',
       alignment,
-      indent: { left: convertInchesToTwip(indent / 2) },
+      indent: { 
+        // start: 15 * 15 * (indent + 1),
+        hanging: 14 * 15
+       },
+      bidirectional: dir === 'rtl',
       border: {
-        left: { size: 30, color: '#ced0d4', space: 8, style: 'single' },
+        left: dir === 'rtl' ? undefined : { size: 30, color: '#ced0d4', style: 'single', space: 8 },
+        right: dir === 'rtl' ? { size: 30, color: '#ced0d4', style: 'single', space: 8 } : undefined,
         top: { space: 4, style: 'none' },
         bottom: { space: 2, style: 'none' },
       },

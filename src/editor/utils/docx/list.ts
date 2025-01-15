@@ -11,30 +11,30 @@ export function $convertListItemNode(node: ListItemNode) {
   const listType = ListNode.getListType();
   const value = listType === 'number' ? node.getValue().toString() : '1';
   const checked = node.getChecked();
+  const dir = node.getDirection();
+
   if (listType === 'check') {
     return new Paragraph({
       alignment,
-      indent: { left: convertInchesToTwip(indent / 4), hanging: convertInchesToTwip(0.1) },
+      indent: {
+        start: 22 * 15 * (indent + 1),
+        hanging: 24 * 15,
+      },
+      bidirectional: dir === 'rtl',
       children: [new CheckBox({ checked }), new TextRun({ text: ' ', })],
     });
   }
   return new Paragraph({
     alignment,
     numbering: { reference: listKey, level: indent, },
-    indent: { hanging: convertInchesToTwip(0.1 + value.length * 0.1) },
+    indent: {
+      start: 22 * 15 * (indent + 1),
+      hanging: 24 * 15,
+    },
+    bidirectional: dir === 'rtl',
   });
 }
 
-function basicIndentStyle(indent: number): Pick<ILevelsOptions, 'style' | 'alignment'> {
-  return {
-    alignment: AlignmentType.START,
-    style: {
-      paragraph: {
-        indent: { left: convertInchesToTwip(indent / 2), hanging: convertInchesToTwip(0.2) },
-      },
-    },
-  };
-}
 
 export const numbered = Array(3)
   .fill([LevelFormat.DECIMAL, LevelFormat.UPPER_LETTER, LevelFormat.LOWER_LETTER])
@@ -43,7 +43,6 @@ export const numbered = Array(3)
     level,
     format,
     text: `%${level + 1}.`,
-    ...basicIndentStyle((level + 1) / 4),
   }));
 
 export const bullets = Array(3)
@@ -53,5 +52,4 @@ export const bullets = Array(3)
     level,
     format: LevelFormat.BULLET,
     text,
-    ...basicIndentStyle((level + 1) / 4),
   }));

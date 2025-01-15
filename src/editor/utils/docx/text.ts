@@ -1,7 +1,7 @@
 import { $findMatchingParent, $isHeadingNode, $isLinkNode, $isListItemNode, $isTableCellNode } from "@/editor";
 import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
 import { TextRun } from "docx";
-import { TextNode } from "lexical";
+import { ElementNode, TextNode } from "lexical";
 
 export function $convertTextNode(node: TextNode) {
   const textContent = node.getTextContent();
@@ -13,6 +13,9 @@ export function $convertTextNode(node: TextNode) {
   const tableCellColor = nearestTableCell ? $getNodeStyleValueForProperty(nearestTableCell, 'color').replace('inherit', '') : undefined;
   const fontsizeInPx = parseInt($getNodeStyleValueForProperty(node, 'font-size'));
   const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color').replace('inherit', '') || undefined;
+  const parent = node.getParent<ElementNode>();
+  const direction = parent?.getDirection();
+
   const textRun = new TextRun({
     text: textContent,
     bold: node.hasFormat('bold') || isHeadingText,
@@ -29,6 +32,7 @@ export function $convertTextNode(node: TextNode) {
       fill: node.hasFormat('code') ? '#F2F4F6' : backgroundColor,
     }) : undefined,
     style: isLinkText ? 'Hyperlink' : undefined,
+    rightToLeft: direction === 'rtl',
   });
 
   return textRun;
