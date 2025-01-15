@@ -17,8 +17,8 @@ export function $convertListItemNode(node: ListItemNode) {
     return new Paragraph({
       alignment,
       indent: {
-        start: 16 * 15 * (indent + 1),
-        hanging: 16 * 15,
+        start: 20 * 15 * (indent + 1),
+        hanging: 20 * 15,
       },
       bidirectional: dir === 'rtl',
       children: [new CheckBox({ checked }), new TextRun({ text: ' ', })],
@@ -28,8 +28,8 @@ export function $convertListItemNode(node: ListItemNode) {
     alignment,
     numbering: { reference: listKey, level: indent, },
     indent: {
-      start: 8 * 15 * (indent + 1) + value.length * 8 * 15,
-      hanging: 8 * 15 + value.length * 8 * 15,
+      start: 12 * 15 * (indent + 1) + value.length * 8 * 15,
+      hanging: 12 * 15 + value.length * 8 * 15,
     },
     bidirectional: dir === 'rtl',
   });

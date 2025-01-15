@@ -8,12 +8,12 @@ export function $convertCodeNode(node: CodeNode) {
       color: '#f0f2f5',
     },
     border: {
-      top: { space: 10, style: 'none' },
-      bottom: { space: 10, style: 'none' },
-      left: { space: 10, style: 'none' },
-      right: { space: 10, style: 'none' },
+      top: { space: 8, style: 'none' },
+      bottom: { space: 8, style: 'none' },
+      left: { space: 8, style: 'none' },
+      right: { space: 8, style: 'none' },
     },
-    indent: { left: 10 * 15, right: 10 * 15 },
+    indent: { left: 12 * 15, right: 12 * 15 },
 
   })
 }
