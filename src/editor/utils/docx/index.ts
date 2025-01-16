@@ -100,13 +100,12 @@ function $mapNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | Paragra
       style: 'Quote',
       alignment,
       indent: { 
-        // start: 15 * 15 * (indent + 1),
-        hanging: 14 * 15
+        start: 24 * 15 * (indent + 1),
        },
       bidirectional: dir === 'rtl',
       border: {
-        left: dir === 'rtl' ? undefined : { size: 30, color: '#ced0d4', style: 'single', space: 8 },
-        right: dir === 'rtl' ? { size: 30, color: '#ced0d4', style: 'single', space: 8 } : undefined,
+        left: dir === 'rtl' ? undefined : { size: 30, color: '#ced0d4', style: 'single', space: 12 + 24 * 0.75 * indent },
+        right: dir === 'rtl' ? { size: 30, color: '#ced0d4', style: 'single', space: 12 + 24 * 0.75 * indent } : undefined,
         top: { space: 4, style: 'none' },
         bottom: { space: 2, style: 'none' },
       },
@@ -177,7 +176,6 @@ export async function $generateDocxBlob(): Promise<Blob> {
           run: { color: '#65676b', },
           paragraph: {
             spacing: { after: 10 * 15 },
-            indent: { left: 30 * 15 },
           },
         },
       ],
