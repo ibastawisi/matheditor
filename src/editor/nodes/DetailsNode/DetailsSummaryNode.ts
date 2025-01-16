@@ -117,6 +117,18 @@ export class DetailsSummaryNode extends ElementNode {
     return true;
   }
 
+  static transform(): (node: LexicalNode) => void {
+    return (node: LexicalNode) => {
+      invariant(
+        $isDetailsSummaryNode(node),
+        'node is not a DetailsSummaryNode',
+      );
+      if (node.isEmpty()) {
+        node.remove();
+      }
+    };
+  }
+
   insertNewAfter(_: RangeSelection, restoreSelection = true): ElementNode {
     const containerNode = this.getParentOrThrow();
 

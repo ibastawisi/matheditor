@@ -241,45 +241,44 @@
 .LexicalTheme__ol1 {
   padding: 0;
   margin: 0;
-  list-style-position: outside;
+  list-style-position: inside;
 }
 
 .LexicalTheme__ol2 {
   padding: 0;
   margin: 0;
   list-style-type: upper-alpha;
-  list-style-position: outside;
+  list-style-position: inside;
 }
 
 .LexicalTheme__ol3 {
   padding: 0;
   margin: 0;
   list-style-type: lower-alpha;
-  list-style-position: outside;
+  list-style-position: inside;
 }
 
 .LexicalTheme__ol4 {
   padding: 0;
   margin: 0;
   list-style-type: upper-roman;
-  list-style-position: outside;
+  list-style-position: inside;
 }
 
 .LexicalTheme__ol5 {
   padding: 0;
   margin: 0;
   list-style-type: lower-roman;
-  list-style-position: outside;
+  list-style-position: inside;
 }
 
 .LexicalTheme__ul {
   padding: 0;
   margin: 0;
-  list-style-position: outside;
+  list-style-position: inside;
 }
 
 .LexicalTheme__listItem {
-  margin: 8px 16px;
   text-align: start;
 }
 
@@ -347,6 +346,7 @@
 }
 
 .LexicalTheme__nestedListItem {
+  margin: 8px 16px;
   list-style-type: none;
 }
 

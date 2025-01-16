@@ -26,7 +26,6 @@ import {
   KEY_ARROW_RIGHT_COMMAND,
   KEY_ARROW_UP_COMMAND,
   LexicalNode,
-  NodeKey,
 } from 'lexical';
 import { useEffect } from 'react';
 
@@ -42,10 +41,9 @@ import {
   DetailsSummaryNode,
 } from '@/editor/nodes/DetailsNode';
 
-export const INSERT_Details_COMMAND = createCommand<void>();
-export const TOGGLE_Details_COMMAND = createCommand<NodeKey>();
+export const INSERT_DETAILS_COMMAND = createCommand<void>();
 
-export default function DetailsPlugin(): null {
+export default function CollapsiblePlugin(): null {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
@@ -256,7 +254,7 @@ export default function DetailsPlugin(): null {
         COMMAND_PRIORITY_LOW,
       ),
       editor.registerCommand(
-        INSERT_Details_COMMAND,
+        INSERT_DETAILS_COMMAND,
         () => {
           editor.update(() => {
             const title = $createDetailsSummaryNode();
