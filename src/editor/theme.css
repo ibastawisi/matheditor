@@ -279,6 +279,8 @@
 }
 
 .LexicalTheme__listItem {
+  margin-top: 8px;
+  margin-bottom: 8px;
   text-align: start;
 }
 
@@ -346,7 +348,8 @@
 }
 
 .LexicalTheme__nestedListItem {
-  margin: 8px 16px;
+  margin-left: 16px;
+  margin-right: 16px;
   list-style-type: none;
 }
 
