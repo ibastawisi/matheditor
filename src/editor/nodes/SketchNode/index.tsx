@@ -6,7 +6,7 @@
  *
  */
 
-import { DOMConversionMap, DOMConversionOutput, DOMExportOutput, isHTMLElement, LexicalEditor, LexicalNode, NodeKey, Spread, } from 'lexical';
+import { DOMExportOutput, isHTMLElement, LexicalEditor, LexicalNode, NodeKey, Spread, } from 'lexical';
 import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
 
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
@@ -23,17 +23,6 @@ export type SketchPayload = Spread<{
   value?: NonDeleted<ExcalidrawElement>[]
 }, ImagePayload>
 
-
-function convertSketchElement(domNode: Node): null | DOMConversionOutput {
-  if (domNode instanceof HTMLImageElement) {
-    const { alt: altText, src, width, height, id } = domNode;
-    const style = domNode.style.cssText;
-    const value: NonDeleted<ExcalidrawElement>[] = domNode.dataset.value ? JSON.parse(domNode.dataset.value) : [];
-    const node = $createSketchNode({ src, altText, value, style, width, height, id });
-    return { node };
-  }
-  return null;
-}
 
 export type SerializedSketchNode = Spread<
   {
@@ -109,15 +98,6 @@ export class SketchNode extends ImageNode {
       element.appendChild(caption);
     }
     return { element };
-  }
-
-  static importDOM(): DOMConversionMap | null {
-    return {
-      img: (node: Node) => ({
-        conversion: convertSketchElement,
-        priority: 0,
-      }),
-    };
   }
 
   constructor(

@@ -55,6 +55,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
   };
 
   const isImageNode = !$isGraphNode(node) && !$isSketchNode(node) && !$isIFrameNode(node);
+  debugger;
 
   return (
     <>

@@ -6,7 +6,7 @@
  *
  */
 
-import { DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, isHTMLElement, LexicalEditor, LexicalNode, NodeKey, Spread, } from 'lexical';
+import { DOMExportOutput, isHTMLElement, LexicalEditor, LexicalNode, NodeKey, Spread, } from 'lexical';
 
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
 
@@ -19,17 +19,6 @@ import { JSX } from "react";
 export type GraphPayload = Spread<{
   value: string;
 }, ImagePayload>
-
-function convertGraphElement(domNode: Node): null | DOMConversionOutput {
-  if (domNode instanceof HTMLImageElement) {
-    const { alt: altText, src, width, height, id } = domNode;
-    const style = domNode.style.cssText;
-    const value = domNode.dataset.value as string;
-    const node = $createGraphNode({ src, altText, value, style, id, width, height });
-    return { node };
-  }
-  return null;
-}
 
 export type SerializedGraphNode = Spread<
   {
@@ -111,15 +100,6 @@ export class GraphNode extends ImageNode {
       element.appendChild(caption);
     }
     return { element };
-  }
-
-  static importDOM(): DOMConversionMap | null {
-    return {
-      img: (node: Node) => ({
-        conversion: convertGraphElement,
-        priority: 0,
-      }),
-    };
   }
 
   constructor(
