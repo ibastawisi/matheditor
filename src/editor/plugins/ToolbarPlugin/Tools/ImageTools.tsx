@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { SET_DIALOGS_COMMAND } from '../Dialogs/commands';
 import { SxProps, Theme } from '@mui/material/styles';
 import { ToggleButtonGroup, ToggleButton, SvgIcon } from "@mui/material";
-import { Edit, ClosedCaptionDisabled, ClosedCaption, ViewHeadline, Delete, Draw } from "@mui/icons-material";
+import { Edit, ClosedCaptionDisabled, ClosedCaption, ViewHeadline, Delete, Draw, FilterBAndW } from "@mui/icons-material";
 import { $isIFrameNode, IFrameNode } from "@/editor/nodes/IFrameNode";
 
 const FormatImageRight = () => <SvgIcon viewBox='0 -960 960 960'>
@@ -71,6 +71,12 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
           onClick={toggleShowCaption}>
           {node.getShowCaption() ? <ClosedCaption /> : <ClosedCaptionDisabled />}
         </ToggleButton>
+        <ToggleButton value="filter-toggle" key="filter-toggle" selected={!style || style.filter !== "none"}
+          onClick={() => {
+            updateStyle({ "filter": style?.filter === "none" ? "" : "none" });
+          }}>
+          <FilterBAndW />
+        </ToggleButton>
         <ToggleButton value="delete"
           onClick={() => {
             editor.update(() => {
@@ -88,7 +94,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
           }}>
           <FormatImageLeft />
         </ToggleButton>
-        <ToggleButton value="float-none" key="float-none" selected={!style || style?.float === "none"}
+        <ToggleButton value="float-none" key="float-none" selected={!style?.float || style?.float === "none"}
           onClick={() => {
             updateStyle({ "float": "none", "margin": "0", "max-width": "100%" });
           }}>

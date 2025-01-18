@@ -87,21 +87,9 @@ export class GraphNode extends ImageNode {
     return node;
   }
 
-  createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
-    const element = super.createDOM(config, editor);
-    element.dataset.type = 'graph';
-    return element;
-  }
-
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const isSVG = this.__src.startsWith('data:image/svg+xml');
-    if (!isSVG) {
-      const { element } = super.exportDOM(editor);
-      if (element && isHTMLElement(element)) {
-        element.dataset.type = 'graph';
-      }
-      return { element };
-    }
+    if (!isSVG) return super.exportDOM(editor);
     const element = this.createDOM(editor._config, editor);
     if (element && isHTMLElement(element)) {
       const html = decodeURIComponent(this.__src.split(',')[1]);

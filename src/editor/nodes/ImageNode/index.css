@@ -27,7 +27,6 @@
 }
 
 .LexicalTheme__image .image-control-wrapper--active,
-.LexicalTheme__image .image-control-wrapper:active ,
 .LexicalTheme__image:focus-within {
   outline: 2px solid rgb(95 183 255 / 75%);
 }
