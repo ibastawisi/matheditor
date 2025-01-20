@@ -6,6 +6,7 @@ module.exports = [
   {
     urlPattern: ({ url: { pathname }, sameOrigin }) => {
       if (!sameOrigin) return false;
+      if (navigator.onLine && pathname.match(/\/new\/\w+/)) return false;
       return [
         "",
         "playground",
