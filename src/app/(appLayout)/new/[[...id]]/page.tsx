@@ -16,15 +16,14 @@ export async function generateMetadata(
   const document = await findUserDocument(params.id[0], searchParams.v);
   if (document) {
     if (document.collab || document.published) {
-      metadata.title = document.name;
+      metadata.title = `Fork ${document.name}`;
       metadata.subtitle = `Last updated: ${new Date(document.updatedAt).toLocaleString()}`;
       metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
     } else {
-      metadata.title = 'Private Document';
-      metadata.subtitle = 'if you have access, please sign in to fork it';
+      metadata.title = 'Fork a Document';
     }
   } else {
-    metadata.subtitle = 'Document not found';
+    metadata.title = 'Fork a Document';
   }
   const { title, subtitle, description } = metadata;
   const image = `/api/og?metadata=${encodeURIComponent(JSON.stringify(metadata))}`;
