@@ -275,7 +275,15 @@
 .LexicalTheme__ul {
   padding: 0;
   margin: 0;
-  list-style-position: inside;
+  list-style-position: outside;
+}
+
+.LexicalTheme__ul .LexicalTheme__listItem {
+  margin-inline-start: 18px;
+}
+
+.LexicalTheme__checklist>.LexicalTheme__listItem {
+  margin-inline-start: 0;
 }
 
 .LexicalTheme__listItem {
