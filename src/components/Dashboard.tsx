@@ -52,7 +52,7 @@ const StorageChart: React.FC = () => {
     dispatch(actions.getCloudStorageUsage()).then(response => {
       if (response.type === actions.getCloudStorageUsage.fulfilled.type) {
         const cloudStorageUsage = response.payload as ReturnType<typeof actions.getCloudStorageUsage.fulfilled>['payload'];
-        const cloudUsage = cloudStorageUsage.reduce((acc, document) => acc + (parseInt(document.size.toString()) ?? 0), 0) / 1024 / 1024;
+        const cloudUsage = cloudStorageUsage.reduce((acc, document) => acc + document.size, 0) / 1024 / 1024;
         const cloudUsageDetails = cloudStorageUsage.map(document => {
           return { value: (document.size ?? 0) / 1024 / 1024, label: document.name };
         });

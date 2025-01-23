@@ -162,11 +162,11 @@ const findDocumentsByAuthorId = async (authorId: string) => {
 }
 
 const findCloudStorageUsageByAuthorId = async (authorId: string) => {
-  const documentSizesQuery = `
+  const documentSizes = await prisma.$queryRaw<{ id: string, name: string, size: number }[]>`
     SELECT
       d.id,
       d.name,
-      COALESCE(CAST(pg_column_size(d.*) + SUM(pg_column_size(r.*)) AS NUMERIC), 0) AS size
+      (pg_column_size(d.*) + SUM(pg_column_size(r.*)))::float AS size
     FROM
       "Document" d
     LEFT JOIN
@@ -174,13 +174,13 @@ const findCloudStorageUsageByAuthorId = async (authorId: string) => {
     ON
       d.id = r."documentId"
     WHERE
-      d."authorId" = '${authorId}' 
+      d."authorId" = ${authorId}::uuid
     GROUP BY 
       d.id
     ORDER BY 
       d."updatedAt" DESC;
   `;
-  const documentSizes: { id: string, name: string, size: number }[] = await prisma.$queryRawUnsafe(documentSizesQuery);
+
   return documentSizes;
 }
 
