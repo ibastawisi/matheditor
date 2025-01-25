@@ -57,7 +57,7 @@ export class TableNode extends LexicalTableNode {
     node.setStyle(_serializedNode.style);
     node.setId(_serializedNode.id);
     node.setRowStriping(_serializedNode.rowStriping || false);
-    // if (_serializedNode.colWidths) node.setColWidths(_serializedNode.colWidths);
+    node.setColWidths(_serializedNode.colWidths);
     return node;
   }
 
@@ -86,7 +86,7 @@ export class TableNode extends LexicalTableNode {
     const styles = getStyleObjectFromRawCSS(this.__style);
     const float = styles.float;
     element.style.float = float;
-    if (this.__id) element.id = this.__id
+    if (this.__id) element.id = this.__id;
     return element;
   }
 
@@ -109,17 +109,14 @@ export class TableNode extends LexicalTableNode {
     const output = super.exportDOM(editor);
     const element = output.element;
     if (element && isHTMLElement(element)) {
-      const style = this.getStyle();
-      if (style) {
-        element.style.cssText = style;
-      }
       const formatType = this.getFormatType();
       element.style.textAlign = formatType;
       const direction = this.getDirection();
-      if (direction) {
-        element.dir = direction;
-      }
-      element.id = this.__id;
+      if (direction) element.dir = direction;
+      const styles = getStyleObjectFromRawCSS(this.__style);
+      const float = styles.float;
+      element.style.float = float;
+      if (this.__id) element.id = this.__id;
     }
     return output;
   }

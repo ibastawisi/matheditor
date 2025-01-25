@@ -111,6 +111,10 @@ export class TableCellNode extends LexicalTableCellNode {
     const element = this.createDOM(editor._config);
 
     if (element && isHTMLElement(element)) {
+      element.setAttribute(
+        'data-temporary-table-cell-lexical-key',
+        this.getKey(),
+      );
       const styles = getStyleObjectFromRawCSS(this.__style);
       const color = styles.color;
       const backgroundColor = styles['background-color'];
@@ -240,7 +244,7 @@ export function $convertTableCellNodeElement(
 }
 
 export function $createTableCellNode(
-  headerState: TableCellHeaderState,
+  headerState: TableCellHeaderState = TableCellHeaderStates.NO_STATUS,
   colSpan = 1,
   width?: number,
 ): TableCellNode {

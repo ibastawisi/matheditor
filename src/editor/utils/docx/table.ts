@@ -6,10 +6,10 @@ import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
 export function $convertTableNode(node: TableNode) {
   const rows = node.getChildren<TableRowNode>().map($convertTableRowNode);
   const columnCount = node.getColumnCount();
-  const columnWidths = node.getColWidths();
   const float = $getNodeStyleValueForProperty(node, 'float').replace('none', '');
   const alignment = (node.getFormatType().replace('justify', 'both') || 'both') as IParagraphOptions['alignment'];
   const columnWidth = (float || alignment !== 'both') ? 75 * 15 : 600 * 15 / columnCount;
+  const columnWidths = node.getColWidths()?.map(width => !width ? columnWidth : width);
   const dir = node.getDirection();
 
   const table = new Table({

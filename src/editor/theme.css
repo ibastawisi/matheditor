@@ -230,12 +230,14 @@
   margin-right: 1rem;
   table-layout: auto;
   width: auto;
+  max-width: 50%;
 }
 
 .LexicalTheme__table:is([style*="float:right"], [style*="float: right"]) {
   margin-left: 1rem;
   table-layout: auto;
   width: auto;
+  max-width: 50%;
 }
 
 .LexicalTheme__ol1 {

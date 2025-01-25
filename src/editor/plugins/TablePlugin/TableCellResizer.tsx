@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type { TableCellNode, TableDOMCell, TableMapValueType, TableMapType } from '@lexical/table';
+import type { TableCellNode, TableDOMCell, TableMapType } from '@lexical/table';
 import type { LexicalEditor } from 'lexical';
+import type { JSX } from 'react';
 
 import './index.css';
 
@@ -19,9 +20,10 @@ import {
   $isTableCellNode,
   $isTableRowNode,
   getDOMCellFromTarget,
+  getTableElement,
 } from '@lexical/table';
 import { calculateZoomLevel } from '@lexical/utils';
-import { $getNearestNodeFromDOMNode } from 'lexical';
+import { $getNearestNodeFromDOMNode, isHTMLElement } from 'lexical';
 import * as React from 'react';
 import {
   MouseEventHandler,
@@ -33,7 +35,7 @@ import {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { TableNode } from '@/editor/nodes/TableNode';
+import { LexicalTableRowNode, TableNode } from '@/editor/nodes/TableNode';
 
 type MousePosition = {
   x: number;
@@ -45,7 +47,7 @@ type MouseDraggingDirection = 'right' | 'bottom';
 const MIN_ROW_HEIGHT = 33;
 const MIN_COLUMN_WIDTH = 75;
 
-function TableCellResizer({ editor }: { editor: LexicalEditor }) {
+function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
   const targetRef = useRef<HTMLElement | null>(null);
   const resizerRef = useRef<HTMLDivElement | null>(null);
   const tableRectRef = useRef<ClientRect | null>(null);
@@ -71,43 +73,50 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }) {
     return (event.buttons & 1) === 1;
   };
 
-  // useEffect(() => {
-  //   return editor.registerNodeTransform(TableNode, (tableNode) => {
-  //     if (tableNode.getColWidths()) {
-  //       return tableNode;
-  //     }
+  useEffect(() => {
+    return editor.registerNodeTransform(TableNode, (tableNode) => {
+      if (tableNode.getColWidths()) {
+        return tableNode;
+      }
 
-  //     const numColumns = tableNode.getColumnCount();
-  //     const columnWidth = MIN_COLUMN_WIDTH;
+      const firstRow = tableNode.getChildren<LexicalTableRowNode>()[0];
+      const colWidths = firstRow.getChildren<TableCellNode>().map(cell => {
+        const colSpan = cell.getColSpan();
+        const width = cell.getWidth() || 0;
+        return Array(colSpan).fill(width / colSpan);
+      }).flat();
 
-  //     tableNode.setColWidths(Array(numColumns).fill(columnWidth));
-  //     return tableNode;
-  //   });
-  // }, [editor]);
+      tableNode.setColWidths(colWidths);
+      return tableNode;
+    });
+  }, [editor]);
 
   useEffect(() => {
     const onMouseMove = (event: MouseEvent) => {
-      setTimeout(() => {
-        const target = event.target;
+      const target = event.target;
+      if (!isHTMLElement(target)) {
+        return;
+      }
 
-        if (draggingDirection) {
-          updateMouseCurrentPos({
-            x: event.clientX,
-            y: event.clientY,
-          });
-          return;
-        }
-        updateIsMouseDown(isMouseDownOnEvent(event));
-        if (resizerRef.current && resizerRef.current.contains(target as Node)) {
-          return;
-        }
+      if (draggingDirection) {
+        updateMouseCurrentPos({
+          x: event.clientX,
+          y: event.clientY,
+        });
+        return;
+      }
+      updateIsMouseDown(isMouseDownOnEvent(event));
+      if (resizerRef.current && resizerRef.current.contains(target)) {
+        return;
+      }
 
-        if (targetRef.current !== target) {
-          targetRef.current = target as HTMLElement;
-          const cell = getDOMCellFromTarget(target as HTMLElement);
+      if (targetRef.current !== target) {
+        targetRef.current = target;
+        const cell = getDOMCellFromTarget(target);
 
-          if (cell && activeCell !== cell) {
-            editor.update(() => {
+        if (cell && activeCell !== cell) {
+          editor.getEditorState().read(
+            () => {
               const tableCellNode = $getNearestNodeFromDOMNode(cell.elem);
               if (!tableCellNode) {
                 throw new Error('TableCellResizer: Table cell node not found.');
@@ -115,7 +124,10 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }) {
 
               const tableNode =
                 $getTableNodeFromLexicalNodeOrThrow(tableCellNode);
-              const tableElement = editor.getElementByKey(tableNode.getKey());
+              const tableElement = getTableElement(
+                tableNode,
+                editor.getElementByKey(tableNode.getKey()),
+              );
 
               if (!tableElement) {
                 throw new Error('TableCellResizer: Table element not found.');
@@ -124,24 +136,21 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }) {
               targetRef.current = target as HTMLElement;
               tableRectRef.current = tableElement.getBoundingClientRect();
               updateActiveCell(cell);
-            });
-          } else if (cell == null) {
-            resetState();
-          }
+            },
+            { editor },
+          );
+        } else if (cell == null) {
+          resetState();
         }
-      }, 0);
+      }
     };
 
     const onMouseDown = (event: MouseEvent) => {
-      setTimeout(() => {
-        updateIsMouseDown(true);
-      }, 0);
+      updateIsMouseDown(true);
     };
 
     const onMouseUp = (event: MouseEvent) => {
-      setTimeout(() => {
-        updateIsMouseDown(false);
-      }, 0);
+      updateIsMouseDown(false);
     };
 
     const removeRootListener = editor.registerRootListener(
@@ -231,12 +240,7 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }) {
     if (domCellNode == null) {
       return undefined;
     }
-    const computedStyle = getComputedStyle(domCellNode);
-    return (
-      domCellNode.clientWidth -
-      parseFloat(computedStyle.paddingLeft) -
-      parseFloat(computedStyle.paddingRight)
-    );
+    return domCellNode.clientWidth;
   };
 
   const getCellNodeHeight = (
@@ -285,25 +289,9 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }) {
 
           const colWidths = tableNode.getColWidths();
           if (!colWidths) {
-            for (let row = 0; row < tableMap.length; row++) {
-              const cell: TableMapValueType = tableMap[row][columnIndex];
-              if (
-                cell.startRow === row &&
-                (columnIndex === tableMap[row].length - 1 ||
-                  tableMap[row][columnIndex].cell !==
-                  tableMap[row][columnIndex + 1].cell)
-              ) {
-                const width = getCellNodeWidth(cell.cell, editor);
-                if (width === undefined) {
-                  continue;
-                }
-                const newWidth = Math.max(width + widthChange, MIN_COLUMN_WIDTH);
-                cell.cell.setWidth(newWidth);
-              }
-            }
             return;
           }
-          const width = colWidths[columnIndex];
+          const width = colWidths[columnIndex] || getCellNodeWidth(tableCellNode, editor);
           if (width === undefined) {
             return;
           }

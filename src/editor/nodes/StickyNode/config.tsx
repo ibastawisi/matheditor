@@ -15,10 +15,10 @@ import type { InitialConfigType } from "@lexical/react/LexicalComposer";
 import type { CreateEditorArgs } from "lexical";
 import { htmlConfig } from "@/editor/utils/htmlConfig";
 import {
-  TableCellNode as LexicalTableCellNode,
-  TableNode as LexicalTableNode,
-  TableRowNode as LexicalTableRowNode,
-} from "@lexical/table";
+  LexicalTableCellNode,
+  LexicalTableNode,
+  LexicalTableRowNode,
+} from "@/editor/nodes/TableNode";
 import { DetailsContainerNode, DetailsContentNode , DetailsSummaryNode } from "../DetailsNode";
 
 export const editorConfig = {
