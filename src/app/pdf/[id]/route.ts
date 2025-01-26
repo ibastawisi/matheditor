@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     }
     else url.pathname = `/api/pdf/${handle}`;
     if (url.hostname === 'localhost') url.protocol = 'http:';
-    const response = await fetch(url.toString(), { cache: 'force-cache' });
+    const response = await fetch(url.toString(), { cache: 'force-cache', next: { tags: ['pdf'] } });
     if (!response.ok) throw new Error("Couldn't generate PDF");
     return new Response(response.body, {
       status: response.status,
