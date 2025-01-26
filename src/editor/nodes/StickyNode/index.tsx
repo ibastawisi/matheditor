@@ -25,6 +25,7 @@ import { $generateHtmlFromNodes } from "@lexical/html";
 import StickyComponent from './StickyComponent';
 import htmr from 'htmr';
 import { JSX } from "react";
+import { getStyleObjectFromRawCSS, floatWrapperElement } from '../utils';
 
 export interface StickyPayload {
   editor?: SerializedEditor;
@@ -99,15 +100,30 @@ export class StickyNode extends DecoratorNode<JSX.Element> {
 
   createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
     this.__editor._parentEditor = editor;
-    const div = document.createElement('div');
-    div.className = 'sticky-note';
-    div.style.cssText = this.__style;
-    div.setAttribute('theme', 'light');
-    return div;
+    const dom = document.createElement('div');
+    dom.className = 'sticky-note';
+    dom.setAttribute('theme', 'light');
+    const style = getStyleObjectFromRawCSS(this.__style);
+    const color = style.color;
+    const backgroundColor = style['background-color'];
+    const float = style.float;
+    dom.style.color = color;
+    dom.style.backgroundColor = backgroundColor;
+    floatWrapperElement(dom, config, float);
+    return dom;
   }
 
-  updateDOM(prevNode: StickyNode, dom: HTMLElement): boolean {
-    dom.style.cssText = this.getStyle();
+  updateDOM(prevNode: StickyNode, dom: HTMLElement, config: EditorConfig): boolean {
+    if (this.__style !== prevNode.__style) {
+      const style = getStyleObjectFromRawCSS(this.__style);
+      const color = style.color;
+      const backgroundColor = style['background-color'];
+      const float = style.float;
+      dom.style.color = color;
+      dom.style.backgroundColor = backgroundColor;
+      floatWrapperElement(dom, config, float);
+    }
+
     return false;
   }
 

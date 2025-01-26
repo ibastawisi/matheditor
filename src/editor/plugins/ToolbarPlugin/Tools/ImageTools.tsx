@@ -90,19 +90,19 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
       <ToggleButtonGroup size="small" sx={{ ...sx }} >
         <ToggleButton value="float-left" key="float-left" selected={style?.float === "left"}
           onClick={() => {
-            updateStyle({ "float": "left", "margin": "0 1em 0 0", "max-width": "50%" });
+            updateStyle({ "float": "left" });
           }}>
           <FormatImageLeft />
         </ToggleButton>
         <ToggleButton value="float-none" key="float-none" selected={!style?.float || style?.float === "none"}
           onClick={() => {
-            updateStyle({ "float": "none", "margin": "0", "max-width": "100%" });
+            updateStyle({ "float": "none" });
           }}>
           <ViewHeadline />
         </ToggleButton>,
         <ToggleButton value="float-right" key="float-right" selected={style?.float === "right"}
           onClick={() => {
-            updateStyle({ "float": "right", "margin": "0 0 0 1em", "max-width": "50%" });
+            updateStyle({ "float": "right" });
           }}>
           <FormatImageRight />
         </ToggleButton>

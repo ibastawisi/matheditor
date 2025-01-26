@@ -241,21 +241,6 @@
   pointer-events: none;
 }
 
-.LexicalTheme__floatLeft,
-.LexicalTheme__floatRight {
-  max-width: 50%;
-}
-
-.LexicalTheme__floatLeft {
-  float: left;
-  margin-right: 1rem;
-}
-
-.LexicalTheme__floatRight {
-  float: right;
-  margin-left: 1rem;
-}
-
 .LexicalTheme__ol1 {
   padding: 0;
   margin: 0;
@@ -502,14 +487,6 @@ iframe {
   margin: 0.5rem 0;
 }
 
-.sticky-note:is([style*="float:left"], [style*="float: left"]) {
-  margin-right: 1rem;
-}
-
-.sticky-note:is([style*="float:right"], [style*="float: right"]) {
-  margin-left: 1rem;
-}
-
 .sticky-note .nested-contentEditable {
   flex: 1;
   border: 0;
@@ -680,6 +657,17 @@ iframe {
 .details__container:not([open])>.details__content {
   display: none;
   user-select: none;
+}
+
+/* float */
+.LexicalTheme__floatLeft {
+  float: left;
+  margin-right: 1rem;
+}
+
+.LexicalTheme__floatRight {
+  float: right;
+  margin-left: 1rem;
 }
 
 /* direction */

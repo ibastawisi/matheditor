@@ -33,6 +33,7 @@ import { $generateHtmlFromNodes } from "@lexical/html";
 import ImageComponent from './ImageComponent';
 import htmr from 'htmr';
 import { JSX } from "react";
+import { floatWrapperElement, getStyleObjectFromRawCSS } from '../utils';
 
 export interface ImagePayload {
   altText?: string;
@@ -51,7 +52,7 @@ function convertImageElement(domNode: Node): null | DOMConversionOutput {
   if (img.src.startsWith('file:///')) {
     return null;
   }
-  const { alt: altText, src, width, height, id,  } = img;
+  const { alt: altText, src, width, height, id, } = img;
   const style = '';
   const node = $createImageNode({ altText, height, src, width, id, style });
   return { node };
@@ -274,15 +275,19 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     const theme = config.theme;
     const className = theme.image;
     if (className) element.className = className;
-    if (this.__style) element.style.cssText = this.__style;
+    const style = getStyleObjectFromRawCSS(this.__style);
+    const float = style.float;
+    floatWrapperElement(element, config, float);
     if (this.__id) element.id = this.__id;
     this.__caption._parentEditor = editor;
     return element;
   }
 
-  updateDOM(prevNode: ImageNode, dom: HTMLElement): boolean {
-    if (prevNode.__style !== this.__style) {
-      dom.style.cssText = (this.__style ?? '');
+  updateDOM(prevNode: ImageNode, dom: HTMLElement, config: EditorConfig): boolean {
+    if (this.__style !== prevNode.__style) {
+      const style = getStyleObjectFromRawCSS(this.__style);
+      const float = style.float;
+      floatWrapperElement(dom, config, float);
     }
     if (prevNode.__id !== this.__id) {
       dom.id = this.__id;
