@@ -45,6 +45,9 @@ export const htmlConfig: HTMLConfig = {
         if (!element || !isHTMLElement(element)) return output;
         const direction = listItemNode.getDirection();
         if (direction) { element.dir = direction; }
+        // linkedom doesn't support value attribute
+        const value = listItemNode.getValue();
+        if (value) { element.setAttribute('value', value.toString()); }
         return { element };
       },
     ],
