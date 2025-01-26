@@ -278,6 +278,8 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     const style = getStyleObjectFromRawCSS(this.__style);
     const float = style.float;
     floatWrapperElement(element, config, float);
+    const filter = style.filter;
+    element.classList.toggle(config.theme.imageUnfiltered, filter === 'none');
     if (this.__id) element.id = this.__id;
     this.__caption._parentEditor = editor;
     return element;
@@ -288,6 +290,8 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       const style = getStyleObjectFromRawCSS(this.__style);
       const float = style.float;
       floatWrapperElement(dom, config, float);
+      const filter = style.filter;
+      dom.classList.toggle(config.theme.imageUnfiltered, filter === 'none');
     }
     if (prevNode.__id !== this.__id) {
       dom.id = this.__id;
