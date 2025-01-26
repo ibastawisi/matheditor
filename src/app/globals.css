@@ -146,8 +146,14 @@ body:has(#app-toolbar) .editor-container [id] {
   outline: 0;
 }
 
+.document-thumbnail .LexicalTheme__table {
+  table-layout: fixed !important;
+  min-width: auto !important;
+  width: 100% !important;
+}
+
 .document-thumbnail .LexicalTheme__tableCell {
-  width: auto !important;
+  width: 75px !important;
 }
 
 .document-thumbnail .LexicalTheme__tableCell span {

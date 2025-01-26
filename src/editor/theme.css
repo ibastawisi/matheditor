@@ -139,16 +139,51 @@
   height: 20px;
 }
 
+.LexicalTheme__tableScrollableWrapper {
+  overflow-x: auto;
+  margin: 0 0 1rem 0;
+}
+
+@media print {
+  .LexicalTheme__tableScrollableWrapper {
+    overflow-x: hidden;
+  }
+}
+
 .LexicalTheme__table {
   border-collapse: collapse;
   border-spacing: 0;
-  max-width: 100%;
   overflow-y: scroll;
-  table-layout: fixed;
+  overflow-x: scroll;
   width: 100%;
   position: relative;
   z-index: 1;
-  margin: 0 0 1rem 0;
+  margin-bottom: 1rem;
+}
+
+.LexicalTheme__tableScrollableWrapper>.LexicalTheme__table {
+  margin-bottom: 0;
+}
+
+.LexicalTheme__tableAlignmentLeft {
+  width: max-content;
+  margin-right: auto;
+}
+
+.LexicalTheme__tableAlignmentCenter {
+  width: max-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.LexicalTheme__tableAlignmentRight {
+  width: max-content;
+  margin-left: auto;
+}
+
+.LexicalTheme__floatLeft>.LexicalTheme__table,
+.LexicalTheme__floatRight>.LexicalTheme__table {
+  width: max-content;
 }
 
 .LexicalTheme__tableRowStriping tr:nth-of-type(odd) {
@@ -174,13 +209,17 @@
 }
 
 @media screen and (max-width: 768px) {
-  .LexicalTheme__tableCell {
-    width: auto !important;
+  .LexicalTheme__table {
+    min-width: max-content;
   }
+}
 
-  .LexicalTheme__tableCell span {
-    white-space: nowrap !important;
-  }
+/*
+  A firefox workaround to allow scrolling of overflowing table cell
+  ref: https://bugzilla.mozilla.org/show_bug.cgi?id=1904159
+*/
+.LexicalTheme__tableCell>* {
+  overflow: inherit;
 }
 
 .LexicalTheme__tableCellHeader {
@@ -202,42 +241,19 @@
   pointer-events: none;
 }
 
-.LexicalTheme__table:is([style*="text-align:center"], [style*="text-align: center"]) {
-  margin-left: auto;
-  margin-right: auto;
-  table-layout: auto;
-  width: auto;
+.LexicalTheme__floatLeft,
+.LexicalTheme__floatRight {
+  max-width: 50%;
 }
 
-.LexicalTheme__table:is([style*="text-align:right"], [style*="text-align: right"]) {
-  margin-left: auto;
-  table-layout: auto;
-  width: auto;
-}
-
-.LexicalTheme__table:is([style*="text-align:left"], [style*="text-align: left"]) {
-  margin-right: auto;
-  table-layout: auto;
-  width: auto;
-}
-
-.LexicalTheme__table:is([style*='text-align:justify'], [style*='text-align: justify']) {
-  table-layout: fixed;
-  width: 100%;
-}
-
-.LexicalTheme__table:is([style*="float:left"], [style*="float: left"]) {
+.LexicalTheme__floatLeft {
+  float: left;
   margin-right: 1rem;
-  table-layout: auto;
-  width: auto;
-  max-width: 50%;
 }
 
-.LexicalTheme__table:is([style*="float:right"], [style*="float: right"]) {
+.LexicalTheme__floatRight {
+  float: right;
   margin-left: 1rem;
-  table-layout: auto;
-  width: auto;
-  max-width: 50%;
 }
 
 .LexicalTheme__ol1 {

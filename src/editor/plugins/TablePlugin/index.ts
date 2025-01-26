@@ -10,35 +10,10 @@ import type { JSX } from 'react';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
-  registerTableCellUnmergeTransform,
   registerTablePlugin,
   registerTableSelectionObserver,
 } from './LexicalTablePluginHelpers';
-import {
-  TableCellNode,
-  setScrollableTablesActive,
-} from '@/editor/nodes/TableNode';
 import { useEffect } from 'react';
-
-export interface TablePluginProps {
-  /**
-   * When `false` (default `true`), merged cell support (colspan and rowspan) will be disabled and all
-   * tables will be forced into a regular grid with 1x1 table cells.
-   */
-  hasCellMerge?: boolean;
-  /**
-   * When `false` (default `true`), the background color of TableCellNode will always be removed.
-   */
-  hasCellBackgroundColor?: boolean;
-  /**
-   * When `true` (default `true`), the tab key can be used to navigate table cells.
-   */
-  hasTabHandler?: boolean;
-  /**
-   * When `true` (default `false`), tables will be wrapped in a `<div>` to enable horizontal scrolling
-   */
-  hasHorizontalScroll?: boolean;
-}
 
 /**
  * A plugin to enable all of the features of Lexical's TableNode.
@@ -46,43 +21,12 @@ export interface TablePluginProps {
  * @param props - See type for documentation
  * @returns An element to render in your LexicalComposer
  */
-export function TablePlugin({
-  hasCellMerge = true,
-  hasCellBackgroundColor = true,
-  hasTabHandler = true,
-  hasHorizontalScroll = false,
-}: TablePluginProps): JSX.Element | null {
+export function TablePlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
-
-  useEffect(() => {
-    setScrollableTablesActive(editor, hasHorizontalScroll);
-  }, [editor, hasHorizontalScroll]);
 
   useEffect(() => registerTablePlugin(editor), [editor]);
 
-  useEffect(
-    () => registerTableSelectionObserver(editor, hasTabHandler),
-    [editor, hasTabHandler],
-  );
-
-  // Unmerge cells when the feature isn't enabled
-  useEffect(() => {
-    if (!hasCellMerge) {
-      return registerTableCellUnmergeTransform(editor);
-    }
-  }, [editor, hasCellMerge]);
-
-  // Remove cell background color when feature is disabled
-  useEffect(() => {
-    if (hasCellBackgroundColor) {
-      return;
-    }
-    return editor.registerNodeTransform(TableCellNode, (node) => {
-      if (node.getBackgroundColor() !== null) {
-        node.setBackgroundColor(null);
-      }
-    });
-  }, [editor, hasCellBackgroundColor, hasCellMerge]);
+  useEffect(() => registerTableSelectionObserver(editor, true), [editor],);
 
   return null;
 }

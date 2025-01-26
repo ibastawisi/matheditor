@@ -10,21 +10,51 @@ import type {
   DOMConversionOutput,
   DOMExportOutput,
   EditorConfig,
+  ElementFormatType,
   LexicalEditor,
   LexicalNode,
   NodeKey,
 } from 'lexical';
 
-import { isHTMLElement } from '@lexical/utils';
+import { addClassNamesToElement, isHTMLElement, removeClassNamesFromElement } from '@lexical/utils';
 import {
   $applyNodeReplacement,
 } from 'lexical';
-import { getStyleObjectFromRawCSS } from '../utils';
+import { floatWrapperElement, getStyleObjectFromRawCSS } from '../utils';
 
 export type SerializedTableNode = LexicalSerializedTableNode & {
   style: string;
   id: string;
 };
+
+function alignTableElement(
+  dom: HTMLElement,
+  config: EditorConfig,
+  formatType: ElementFormatType,
+): void {
+  if (!config.theme.tableAlignment) {
+    return;
+  }
+  const removeClasses: string[] = [];
+  const addClasses: string[] = [];
+  for (const format of ['left', 'center', 'right'] as const) {
+    const classes = config.theme.tableAlignment[format];
+    if (!classes) {
+      continue;
+    }
+    (format === formatType ? addClasses : removeClasses).push(classes);
+  }
+  removeClassNamesFromElement(dom, ...removeClasses);
+  addClassNamesToElement(dom, ...addClasses);
+}
+
+function wrapTableElement(element: HTMLElement, config: EditorConfig, clone?: boolean): HTMLElement {
+  const wrapperElement = document.createElement('div');
+  const classes = config.theme.tableScrollableWrapper;
+  addClassNamesToElement(wrapperElement, classes);
+  wrapperElement.appendChild(clone ? element.cloneNode(true) : element);
+  return wrapperElement;
+}
 
 /** @noInheritDoc */
 export class TableNode extends LexicalTableNode {
@@ -78,47 +108,67 @@ export class TableNode extends LexicalTableNode {
 
   createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
     const element = super.createDOM(config, editor);
-
-    const formatType = this.getFormatType();
-    element.style.textAlign = formatType;
     const direction = this.getDirection();
     if (direction) element.dir = direction;
-    const styles = getStyleObjectFromRawCSS(this.__style);
-    const float = styles.float;
-    element.style.float = float;
     if (this.__id) element.id = this.__id;
-    return element;
+    alignTableElement(element, config, this.getFormatType());
+    const wrapperElement = wrapTableElement(element, config);
+    const float = getStyleObjectFromRawCSS(this.__style).float;
+    floatWrapperElement(wrapperElement, config, float);
+    return wrapperElement;
   }
 
   updateDOM(prevNode: this, dom: HTMLElement, config: EditorConfig): boolean {
+    super.updateDOM(prevNode, dom, config);
     if (!isHTMLElement(dom)) {
-      return super.updateDOM(prevNode, dom, config);
+      return false;
+    }
+    const float = getStyleObjectFromRawCSS(this.__style).float;
+    const colWidthsChanged = this.__colWidths !== prevNode.__colWidths;
+    if (float && float !== 'none' && colWidthsChanged) {
+      return true;
     }
     if (this.__style !== prevNode.__style) {
-      const styles = getStyleObjectFromRawCSS(this.__style);
-      const float = styles.float;
-      dom.style.float = float;
+      floatWrapperElement(dom, config, float);
     }
     if (this.__id !== prevNode.__id) {
       dom.id = this.__id;
     }
+    alignTableElement(
+      this.getDOMSlot(dom).element,
+      config,
+      this.getFormatType(),
+    );
     return super.updateDOM(prevNode, dom, config);
   }
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const output = super.exportDOM(editor);
     const element = output.element;
-    if (element && isHTMLElement(element)) {
-      const formatType = this.getFormatType();
-      element.style.textAlign = formatType;
-      const direction = this.getDirection();
-      if (direction) element.dir = direction;
-      const styles = getStyleObjectFromRawCSS(this.__style);
-      const float = styles.float;
-      element.style.float = float;
-      if (this.__id) element.id = this.__id;
+    if (!isHTMLElement(element)) {
+      return output;
     }
-    return output;
+    const config = editor._config;
+    const direction = this.getDirection();
+    if (direction) element.dir = direction;
+    if (this.__id) element.id = this.__id;
+    alignTableElement(element, config, this.getFormatType());
+
+    return {
+      after: (element) => {
+        if (output.after) {
+          element = output.after(element);
+          if (!isHTMLElement(element)) {
+            return null;
+          }
+          const wrapperElement = wrapTableElement(element, config, true);
+          const float = getStyleObjectFromRawCSS(this.__style).float;
+          floatWrapperElement(wrapperElement, config, float);
+          return wrapperElement;
+        }
+      },
+      element,
+    }
   }
 
   getStyle(): string {

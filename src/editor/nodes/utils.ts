@@ -1,4 +1,5 @@
-import { $isElementNode, LexicalNode } from "lexical";
+import { LexicalNode, type EditorConfig } from "lexical";
+import { removeClassNamesFromElement, addClassNamesToElement } from "@lexical/utils";
 
 export const CSS_TO_STYLES: Map<string, Record<string, string>> = new Map();
 
@@ -113,4 +114,20 @@ export function getImageDimensions(src: string): Promise<{ width: number; height
     img.onerror = reject;
     img.src = src;
   });
+}
+export function floatWrapperElement(dom: HTMLElement, config: EditorConfig, float: string): void {
+  if (!config.theme.float) {
+    return;
+  }
+  const removeClasses: string[] = [];
+  const addClasses: string[] = [];
+  for (const format of ['left', 'right'] as const) {
+    const classes = config.theme.float[format];
+    if (!classes) {
+      continue;
+    }
+    (format === float ? addClasses : removeClasses).push(classes);
+  }
+  removeClassNamesFromElement(dom, ...removeClasses);
+  addClassNamesToElement(dom, ...addClasses);
 }
