@@ -71,10 +71,8 @@
 
 .LexicalTheme__image .image-resizer svg {
   min-width: initial;
-}
-
-.LexicalTheme__image .image-resizer svg * {
-  filter: unset !important;
+  filter: none;
+  background-color: unset;
 }
 
 .LexicalTheme__image .image-resizer.image-resizer-n {
