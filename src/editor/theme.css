@@ -142,6 +142,8 @@
 .LexicalTheme__tableScrollableWrapper {
   overflow-x: auto;
   margin: 0 0 1rem 0;
+  min-width: 0;
+  max-width: 100%;
 }
 
 @media print {
@@ -201,6 +203,7 @@
 .LexicalTheme__tableCell {
   border: 1px solid rgba(0, 0, 0, 0.3);
   min-width: 75px;
+  max-width: 200px;
   padding: 8px;
   position: relative;
   outline: none;
@@ -599,6 +602,11 @@ iframe {
   display: grid;
   gap: 0.25rem;
   margin-bottom: 0.5rem;
+}
+
+.LexicalTheme__layoutItem {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .LexicalTheme__layoutItem:not(:last-child) {
