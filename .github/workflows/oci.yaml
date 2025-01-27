@@ -22,18 +22,18 @@ jobs:
         # execute commands
         script: |
           cd ~/matheditor
-          echo "Creating a backup of the current build..."
-          cp -r .next temp
           echo "Pulling latest changes..."
           git fetch
           git reset --hard origin/master
           echo "Installing dependencies..."
           npm ci -f
           npx prisma migrate deploy
+          echo "Copying cache..."
+          mkdir -p temp && cp -r .next/cache temp
           echo "Building to temp directory..."
           BUILD_DIR=temp npm run build || exit
-          if [ ! -d "temp" ]; then
-            echo '\033[31m temp Directory not exists!\033[0m'  
+          if [ ! -f "temp/BUILD_ID" ]; then
+            echo '\033[31m Build failed!\033[0m'
             exit 1;
           fi
           echo "Switching live directory..."

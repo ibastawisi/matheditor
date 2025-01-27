@@ -205,6 +205,7 @@
   min-width: 75px;
   max-width: 200px;
   padding: 8px;
+  text-align: start;
   position: relative;
   outline: none;
   height: inherit;
@@ -223,10 +224,6 @@
 */
 .LexicalTheme__tableCell>* {
   overflow: inherit;
-}
-
-.LexicalTheme__tableCellHeader {
-  text-align: start;
 }
 
 .LexicalTheme__tableCellSelected {
