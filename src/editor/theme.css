@@ -469,11 +469,6 @@ iframe {
   height: auto;
 }
 
-.LexicalTheme__image svg [fill='#ffffff'] {
-  fill: transparent;
-}
-
-
 .LexicalTheme__image figcaption {
   display: flex;
   flex-direction: column;
@@ -774,10 +769,6 @@ iframe {
   filter: none !important;
 }
 
-[theme=light] .details__container .details__container li img {
-  filter: invert(1);
-}
-
 [theme=dark] .LexicalTheme__quote {
   color: #a6a6a6;
   border-left-color: #4d4d4d;
@@ -822,12 +813,6 @@ iframe {
 
 [theme=dark] .LexicalTheme__image:not(.LexicalTheme__imageUnfiltered) :is(img, svg) {
   filter: invert(93%) hue-rotate(180deg);
-}
-
-@media print {
-  .details__container .details__container li img {
-    filter: invert(1) !important;
-  }
 }
 
 @media screen and (prefers-color-scheme: light) {
@@ -882,4 +867,15 @@ iframe {
   .LexicalTheme__image:not(.LexicalTheme__imageUnfiltered) :is(img, svg) {
     filter: invert(93%) hue-rotate(180deg);
   }
+
+  .details__container .details__container li img {
+    filter: none;
+  }
 }
+
+@media print {
+  .details__container .details__container li img {
+    filter: invert(1) !important;
+  }
+}
+

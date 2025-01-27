@@ -1,6 +1,5 @@
 "use client"
-import { $getRoot, $getSelection, $isDetailsContainerNode, $isDetailsContentNode, $isDetailsSummaryNode, $isListItemNode, $isListNode, $isRangeSelection, COMMAND_PRIORITY_NORMAL, DELETE_CHARACTER_COMMAND, LexicalNode, type EditorState, type LexicalEditor } from "@/editor";
-import { debounce } from "@mui/material";
+import { $addUpdateTag, $getRoot, $getSelection, $isDetailsContainerNode, $isDetailsContentNode, $isDetailsSummaryNode, $isListItemNode, $isListNode, $isRangeSelection, COMMAND_PRIORITY_NORMAL, DELETE_CHARACTER_COMMAND, LexicalNode, type EditorState, type LexicalEditor } from "@/editor";
 import { useCallback } from "react";
 import { checkpoints } from "./checkpoints";
 import tutorialTemplate from './tutorial.json';
@@ -38,8 +37,7 @@ const Tutorial: React.FC<React.PropsWithChildren> = ({ children }) => {
           if (!$isListItemNode(checkListItem)) continue;
           const checked = checkpoints[i][j](nextSibling);
           checkListItem.setChecked(checked);
-          if (checked) task.setOpen(false);
-          editor.update(() => { }, { tag: 'history-merge' });
+          $addUpdateTag('history-merge');
         };
       }
     }, { discrete: true, tag: 'checkpoint' })
@@ -84,7 +82,7 @@ const Tutorial: React.FC<React.PropsWithChildren> = ({ children }) => {
   }, []);
 
   return (
-    <Editor document={document} onChange={debounce(onChange, 300)} ignoreHistoryMerge={false} editorRef={registerListeners}>{children}</Editor>
+    <Editor document={document} onChange={onChange} ignoreHistoryMerge={false} editorRef={registerListeners}>{children}</Editor>
   );
 }
 
