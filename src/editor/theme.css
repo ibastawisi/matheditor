@@ -466,6 +466,10 @@ iframe {
   height: auto;
 }
 
+.LexicalTheme__image svg [fill='#ffffff'] {
+  fill: transparent;
+}
+
 .LexicalTheme__image figcaption {
   display: flex;
   flex-direction: column;
