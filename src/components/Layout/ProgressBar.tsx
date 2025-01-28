@@ -1,4 +1,4 @@
-'use client';
+"use client"
 
 import NProgress from 'nprogress';
 import { usePathname, useSearchParams } from 'next/navigation';

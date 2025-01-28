@@ -6,11 +6,8 @@ import { findUser } from "@/repositories/user";
 import { cache, Suspense } from "react";
 import UserCard from "@/components/User/UserCard";
 import UserDocuments from "@/components/User/UserDocuments";
-
-async function delay<T>(fn: () => Promise<T>, delayMs: number): Promise<T> {
-  await new Promise(resolve => setTimeout(resolve, delayMs));
-  return await fn();
-}
+import { findRevisionThumbnail } from "@/app/api/utils";
+import { ThumbnailProvider } from "@/app/context/ThumbnailContext";
 
 const getCachedUser = cache(async (id: string) => await findUser(id));
 
@@ -49,7 +46,15 @@ const UserDocumentsWrapper = async ({ id }: { id: string }) => {
   if (!user) notFound();
   const documentsResponse = await findPublishedDocumentsByAuthorId(user.id);
   const documents = documentsResponse.map(document => ({ id: document.id, cloud: document }));
-  return <UserDocuments documents={documents} />;
+  const thumbnails = documentsResponse.reduce((acc, document) => {
+    acc[document.head] = findRevisionThumbnail(document.head);
+    return acc;
+  }, {} as Record<string, Promise<string>>);
+  return (
+    <ThumbnailProvider thumbnails={thumbnails}>
+      <UserDocuments documents={documents} />
+    </ThumbnailProvider>
+  );
 }
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {

@@ -2,6 +2,8 @@ import Home from "@/components/Home";
 import { findPublishedDocuments } from "@/repositories/document";
 import { UserDocument } from "@/types";
 import type { Metadata } from "next";
+import { findRevisionThumbnail } from "../api/utils";
+import { ThumbnailProvider } from "@/app/context/ThumbnailContext";
 
 export const metadata: Metadata = {
   title: 'Math Editor',
@@ -14,7 +16,15 @@ const page = async () => {
     id: document.id,
     cloud: document,
   }));
-  return <Home staticDocuments={staticDocuments} />
+  const staticThumbnails = publishedDocuments.reduce((acc, document) => {
+    acc[document.head] = findRevisionThumbnail(document.head);
+    return acc;
+  }, {} as Record<string, Promise<string>>);
+  return (
+    <ThumbnailProvider thumbnails={staticThumbnails}>
+      <Home staticDocuments={staticDocuments} />
+    </ThumbnailProvider>
+  );
 }
 
 export default page;

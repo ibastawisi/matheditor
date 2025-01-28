@@ -6,17 +6,8 @@ import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, Badge, NoSsr, IconButton } from '@mui/material';
 import { MobileFriendly, Cloud, Public, Workspaces, Security, CloudDone, CloudSync, MoreVert, Share } from '@mui/icons-material';
-import dynamic from "next/dynamic";
-import DocumentCardThumbnail from './DocumentCardThumbnail';
-
-const DocumentActionMenu = dynamic(() => import('@/components/DocumentActions/ActionMenu'),
-  {
-    ssr: false,
-    loading: () => <>
-      <IconButton aria-label="Share Document" size="small"><Share /></IconButton>
-      <IconButton aria-label='Document Actions' size="small"><MoreVert /></IconButton>
-    </>
-  });
+import DocumentActionMenu from './DocumentActionMenu';
+import DocumentThumbnail from './DocumentThumbnail';
 
 const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: SxProps<Theme> | undefined }> = memo(({ userDocument, user, sx }) => {
   const localDocument = userDocument?.local;
@@ -81,7 +72,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
           }
           avatar={
             <Badge badgeContent={revisionsBadgeContent} color="secondary">
-              <DocumentCardThumbnail documentId={document?.id} head={document?.head} />
+              <DocumentThumbnail userDocument={userDocument} />
             </Badge>
           }
         />
