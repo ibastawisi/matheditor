@@ -2,7 +2,7 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { v4 as uuidv4, validate } from "uuid";
 import * as React from 'react';
-import { CheckHandleResponse, DocumentCreateInput, User, UserDocument } from '@/types';
+import { CheckHandleResponse, CloudDocument, DocumentCreateInput, User, UserDocument } from '@/types';
 import type { SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "@/editor";
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, actions, useSelector } from '@/store';
@@ -53,12 +53,11 @@ const getEditorData = (title: string) => {
   return ({ root });
 }
 
-const NewDocument: React.FC = () => {
+const NewDocument: React.FC<{ cloudDocument?: CloudDocument }> = ({ cloudDocument }) => {
   const initialized = useSelector(state => state.ui.initialized);
   const user = useSelector(state => state.user);
   const unauthenticated = initialized && !user;
   const isOnline = useOnlineStatus();
-  const [base, setBase] = useState<UserDocument>();
   const [input, setInput] = useState<Partial<DocumentCreateInput>>({});
   const [validating, setValidating] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -69,6 +68,7 @@ const NewDocument: React.FC = () => {
   const baseId = pathname.split('/')[2]?.toLowerCase();
   const searchParams = useSearchParams();
   const revisionId = searchParams.get('v');
+  const [base, setBase] = useState<UserDocument | undefined>(cloudDocument ? { id: cloudDocument.id, cloud: cloudDocument } : undefined);
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
@@ -77,7 +77,7 @@ const NewDocument: React.FC = () => {
         const editorDocument = localResponse.payload as ReturnType<typeof actions.forkLocalDocument.fulfilled>["payload"];
         const { data, ...rest } = editorDocument;
         const localDocument = { ...rest, revisions: [] };
-        setBase({ id: editorDocument.id, local: localDocument });
+        setBase({ ...base, id: editorDocument.id, local: localDocument });
         setInput({ ...input, data, baseId: editorDocument.id });
       } else {
         const cloudResponse = await dispatch(actions.forkCloudDocument({ id, revisionId }));

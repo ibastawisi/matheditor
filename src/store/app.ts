@@ -125,7 +125,7 @@ export const getLocalStorageUsage = createAsyncThunk('app/getLocalStorageUsage',
     }).map(document => {
       const backupDocument: BackupDocument = { ...document, revisions: revisions.filter(revision => revision.documentId === document.id) };
       const backupDocumentSize = new Blob([JSON.stringify(backupDocument)]).size;
-      localStorageUsage.push({ id: document.id, name: document.name , size: backupDocumentSize });
+      localStorageUsage.push({ id: document.id, name: document.name, size: backupDocumentSize });
     });
     return thunkAPI.fulfillWithValue(localStorageUsage);
   } catch (error: any) {
@@ -232,13 +232,12 @@ export const forkLocalDocument = createAsyncThunk('app/forkLocalDocument', async
     const isValidId = validate(id);
     const document = isValidId ? await documentDB.getByID(id) : await documentDB.getOneByKey("handle", id);
     if (!document) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "document not found" });
-    if (revisionId) {
-      const revision = await revisionDB.getByID(revisionId);
-      if (!revision) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "revision not found" });
-      document.head = revision.id;
-      document.updatedAt = revision.createdAt;
-      document.data = revision.data;
-    }
+    if (!revisionId || revisionId === document.head) return thunkAPI.fulfillWithValue(document);
+    const revision = await revisionDB.getByID(revisionId);
+    if (!revision) return thunkAPI.rejectWithValue({ title: "Something went wrong", subtitle: "revision not found" });
+    document.head = revision.id;
+    document.updatedAt = revision.createdAt;
+    document.data = revision.data;
     return thunkAPI.fulfillWithValue(document);
   } catch (error: any) {
     console.error(error);

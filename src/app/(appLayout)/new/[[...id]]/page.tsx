@@ -2,6 +2,11 @@ import NewDocument from "@/components/NewDocument";
 import type { OgMetadata } from "@/app/api/og/route";
 import { findUserDocument } from "@/repositories/document";
 import type { Metadata } from "next";
+import { cache } from "react";
+import { ThumbnailProvider } from "@/app/context/ThumbnailContext";
+import { findRevisionThumbnail } from "@/app/api/utils";
+
+const getCachedUserDocument = cache(async (id: string, revisions?: string) => await findUserDocument(id, revisions));
 
 export async function generateMetadata(
   props: { params: Promise<{ id: string }>, searchParams: Promise<{ v?: string }> }
@@ -13,7 +18,7 @@ export async function generateMetadata(
     description: "Create a new document on Math Editor",
   };
   const metadata: OgMetadata = { id: params.id[0], title: 'Math Editor' };
-  const document = await findUserDocument(params.id[0], searchParams.v);
+  const document = await getCachedUserDocument(params.id[0], searchParams.v);
   if (document) {
     if (document.collab || document.published) {
       metadata.title = `Fork ${document.name}`;
@@ -37,6 +42,22 @@ export async function generateMetadata(
   }
 }
 
-const page = () => <NewDocument />;
-
-export default page;
+export default async function Page(
+  props: { params: Promise<{ id?: string }>, searchParams: Promise<{ v?: string }> }
+) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
+  const documentId = params.id?.[0];
+  if (!documentId) return <NewDocument />;
+  const userDocument = await getCachedUserDocument(documentId, searchParams.v);
+  if (!userDocument) return <NewDocument />;
+  const revisionId = searchParams.v || userDocument.head;
+  const thumbnails = {
+    [revisionId]: findRevisionThumbnail(revisionId),
+  };
+  return (
+    <ThumbnailProvider thumbnails={thumbnails}>
+      <NewDocument cloudDocument={userDocument} />
+    </ThumbnailProvider>
+  );
+} 
