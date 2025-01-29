@@ -1,7 +1,6 @@
 "use client"
 import { UserDocument } from "@/types";
-import { memo, Suspense, use } from "react";
-import ThumbnailSkeleton from "./ThumbnailSkeleton";
+import { memo, use } from "react";
 import { useThumbnailContext } from "../../app/context/ThumbnailContext";
 import { Box } from "@mui/material";
 import LocalDocumentThumbnail from "./LocalDocumentThumbnail";
@@ -19,9 +18,7 @@ const DocumentThumbnail: React.FC<{ userDocument?: UserDocument }> = memo(({ use
   if (!thumbnailPromise) return <LocalDocumentThumbnail documentId={document?.id} revisionId={document?.head} />;
   const thumbnail = use(thumbnailPromise);
   return (
-    <Suspense fallback={<ThumbnailSkeleton />}>
-      <Box className='document-thumbnail' dangerouslySetInnerHTML={{ __html: thumbnail.replaceAll('<a', '<span').replaceAll('</a', '</span') }} />
-    </Suspense>
+    <Box className='document-thumbnail' dangerouslySetInnerHTML={{ __html: thumbnail.replaceAll('<a', '<span').replaceAll('</a', '</span') }} />
   );
 });
 

@@ -13,7 +13,7 @@ const UploadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem
   const isLocal = !!localDocument;
   const isCloud = !!cloudDocument;
   const isUploaded = isLocal && isCloud;
-  const isUpToDate = isUploaded && localDocument.updatedAt === cloudDocument.updatedAt;
+  const isUpToDate = isUploaded && localDocument.head === cloudDocument.head;
   const id = userDocument.id;
   const localDocumentRevisions = localDocument?.revisions ?? [];
   const cloudDocumentRevisions = cloudDocument?.revisions ?? [];

@@ -2,12 +2,13 @@
 import * as React from 'react';
 import RouterLink from 'next/link'
 import { LocalDocumentRevision, User, UserDocument } from '@/types';
-import { memo } from 'react';
+import { memo, Suspense } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, Badge, NoSsr, IconButton } from '@mui/material';
 import { MobileFriendly, Cloud, Public, Workspaces, Security, CloudDone, CloudSync, MoreVert, Share } from '@mui/icons-material';
 import DocumentActionMenu from './DocumentActionMenu';
 import DocumentThumbnail from './DocumentThumbnail';
+import ThumbnailSkeleton from './ThumbnailSkeleton';
 
 const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: SxProps<Theme> | undefined }> = memo(({ userDocument, user, sx }) => {
   const localDocument = userDocument?.local;
@@ -17,7 +18,7 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
   const isLocalOnly = isLocal && !isCloud;
   const isCloudOnly = !isLocal && isCloud;
   const isUploaded = isLocal && isCloud;
-  const isUpToDate = isUploaded && localDocument.updatedAt === cloudDocument.updatedAt;
+  const isUpToDate = isUploaded && localDocument.head === cloudDocument.head;
   const isPublished = isCloud && cloudDocument.published;
   const isCollab = isCloud && cloudDocument.collab;
   const isPrivate = isCloud && cloudDocument.private;
@@ -72,7 +73,9 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
           }
           avatar={
             <Badge badgeContent={revisionsBadgeContent} color="secondary">
-              <DocumentThumbnail userDocument={userDocument} />
+              <Suspense fallback={<ThumbnailSkeleton />}>
+                <DocumentThumbnail userDocument={userDocument} />
+              </Suspense>
             </Badge>
           }
         />

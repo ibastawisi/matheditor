@@ -26,7 +26,7 @@ function DocumentActionMenu({ userDocument, user }: { userDocument: UserDocument
   const isLocal = !!localDocument;
   const isCloud = !!cloudDocument;
   const isUploaded = isLocal && isCloud;
-  const isUpToDate = isUploaded && localDocument.updatedAt === cloudDocument.updatedAt;
+  const isUpToDate = isUploaded && localDocument.head === cloudDocument.head;
   const isAuthor = isCloud ? cloudDocument.author.id === user?.id : true
   const isCoauthor = isCloud ? cloudDocument.coauthors.some(u => u.id === user?.id) : false;
   const isCollab = isCloud ? cloudDocument.collab : false;
