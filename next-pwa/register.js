@@ -21,6 +21,32 @@ if (
     scope: __PWA_SCOPE__,
   });
 
+  window.workbox.addEventListener("controlling", async () => {
+    const origin = location.origin;
+    const urlsToCache = [
+      [`${origin}/`, { headers: { "update": "1" } }],
+      [`${origin}/?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
+      [`${origin}/playground`, { headers: { "update": "1" } }],
+      [`${origin}/playground?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
+      [`${origin}/tutorial`, { headers: { "update": "1" } }],
+      [`${origin}/tutorial?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
+      [`${origin}/new`, { headers: { "update": "1" } }],
+      [`${origin}/new?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
+      [`${origin}/edit`, { headers: { "update": "1" } }],
+      [`${origin}/edit?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
+      [`${origin}/dashboard`, { headers: { "update": "1" } }],
+      [`${origin}/dashboard?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
+      [`${origin}/privacy`, { headers: { "update": "1" } }],
+      [`${origin}/privacy?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
+    ]
+    const cache = await caches.open("pages");
+    urlsToCache.forEach(([url, options]) => {
+      fetch(url, options).then((response) => {
+        cache.put(url, response);
+      });
+    });
+  });
+
   if (__PWA_START_URL__) {
     window.workbox.addEventListener("installed", async ({ isUpdate }) => {
       if (!isUpdate) {

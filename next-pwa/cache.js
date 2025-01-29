@@ -4,7 +4,8 @@
 /** @type {import('workbox-build').RuntimeCaching[]} */
 module.exports = [
   {
-    urlPattern: ({ url: { pathname }, sameOrigin }) => {
+    urlPattern: ({ request, url: { pathname }, sameOrigin }) => {
+      if (request.headers.get("update")) return false;
       if (!sameOrigin) return false;
       if (navigator.onLine && pathname.match(/\/new\/\w+/)) return false;
       return [
@@ -17,7 +18,7 @@ module.exports = [
         "edit",
       ].includes(pathname.split("/")[1]);
     },
-    handler: "StaleWhileRevalidate",
+    handler: "CacheFirst",
     method: "GET",
     options: {
       cacheName: "pages",
@@ -31,12 +32,6 @@ module.exports = [
             return `/${page}${rsc ? `?_rsc` : ""}`;
           }
         },
-        {
-          cacheWillUpdate: async ({ request, response }) => {
-            if (!request.headers.get("update")) return;
-            return response;
-          }
-        }
       ]
     },
   },

@@ -23,37 +23,18 @@ const PwaUpdater = () => {
         wb.messageSkipWaiting();
       });
       wb.addEventListener("controlling", (event) => {
-        const origin = location.origin;
-        const urlsToCache = [
-          [`${origin}/`, { headers: { "update": "1" } }],
-          [`${origin}/?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
-          [`${origin}/playground`, { headers: { "update": "1" } }],
-          [`${origin}/playground?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
-          [`${origin}/tutorial`, { headers: { "update": "1" } }],
-          [`${origin}/tutorial?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
-          [`${origin}/new`, { headers: { "update": "1" } }],
-          [`${origin}/new?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
-          [`${origin}/edit`, { headers: { "update": "1" } }],
-          [`${origin}/edit?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
-          [`${origin}/dashboard`, { headers: { "update": "1" } }],
-          [`${origin}/dashboard?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
-          [`${origin}/privacy`, { headers: { "update": "1" } }],
-          [`${origin}/privacy?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
-        ]
-        wb.messageSW({ type: "CACHE_URLS", payload: { urlsToCache } }).then(() => {
-          dispatch(actions.announce({
-            message:
-            {
-              title: event.isUpdate ? "Update Complete" : "App Installed",
-              subtitle: "Please refresh to use the latest version"
-            },
-            timeout: 6000,
-            action: {
-              label: "Refresh",
-              onClick: "window.location.reload()"
-            }
-          }));
-        });
+        dispatch(actions.announce({
+          message:
+          {
+            title: event.isUpdate ? "Update Complete" : "App Installed",
+            subtitle: "Please refresh to use the latest version"
+          },
+          timeout: 6000,
+          action: {
+            label: "Refresh",
+            onClick: "window.location.reload()"
+          }
+        }));
       });
 
       wb.register().then((registration) => {
