@@ -58,11 +58,11 @@ const UserCard: React.FC<{ user?: User, showActions?: boolean }> = memo(({ user,
       <CardActionArea component={RouterLink} prefetch={false} href={href} sx={{ display: 'flex', width: 'auto' }}>
         {user ?
           <Avatar
-            sx={{ width: 112, height: 112, m: 2, alignSelf: 'center', flexShrink: 0 }}
+            sx={{ width: 96, height: 96, m: 3, alignSelf: 'center', flexShrink: 0 }}
             src={user.image ?? undefined}
             alt={user.name}
           /> :
-          <Skeleton variant="circular" width={112} height={112} sx={{ m: 2, alignSelf: 'center', flexShrink: 0 }} />
+          <Skeleton variant="circular" width={96} height={96} sx={{ m: 3, alignSelf: 'center', flexShrink: 0 }} />
         }
       </CardActionArea>
     </Card>

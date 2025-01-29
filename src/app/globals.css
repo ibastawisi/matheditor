@@ -133,8 +133,8 @@ body:has(#app-toolbar) .editor-container [id] {
 }
 
 .document-thumbnail {
-  width: 224px;
-  height: 224px;
+  width: 192px;
+  height: 192px;
   overflow: hidden;
   zoom: 0.5;
   user-select: none;
