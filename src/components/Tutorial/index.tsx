@@ -1,10 +1,12 @@
 "use client"
-import { $addUpdateTag, $getRoot, $getSelection, $isDetailsContainerNode, $isDetailsContentNode, $isDetailsSummaryNode, $isListItemNode, $isListNode, $isRangeSelection, COMMAND_PRIORITY_NORMAL, DELETE_CHARACTER_COMMAND, LexicalNode, type EditorState, type LexicalEditor } from "@/editor";
 import { useCallback } from "react";
 import { checkpoints } from "./checkpoints";
 import tutorialTemplate from './tutorial.json';
 import type { EditorDocument } from '@/types';
 import Editor from "../Editor";
+import { $addUpdateTag, $getRoot, $getSelection, $isRangeSelection, COMMAND_PRIORITY_NORMAL, DELETE_CHARACTER_COMMAND, EditorState, LexicalEditor, LexicalNode } from "lexical";
+import { $isDetailsContainerNode, $isDetailsContentNode, $isDetailsSummaryNode } from "@/editor/nodes/DetailsNode";
+import { $isListNode, $isListItemNode } from "@lexical/list";
 
 const document = tutorialTemplate as unknown as EditorDocument;
 

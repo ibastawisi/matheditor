@@ -4,7 +4,8 @@ import SplashScreen from "./SplashScreen";
 import { EditorDocument } from '@/types';
 import { useDispatch, actions, useSelector } from '@/store';
 import { usePathname } from "next/navigation";
-import { EditorState, generateHtml, LexicalEditor } from "@/editor";
+import type { EditorState, LexicalEditor } from "lexical";
+import { generateHtml } from "@/editor/utils/generateHtml";
 import { v4 as uuidv4 } from 'uuid';
 import dynamic from "next/dynamic";
 import DiffView from "./Diff";
@@ -25,7 +26,7 @@ const EditDocument: React.FC = () => {
   const [html, setHtml] = useState<string>('');
 
   const debouncedUpdateLocalDocument = useCallback(debounce((id: string, partial: Partial<EditorDocument>) => {
-    dispatch(actions.updateLocalDocument({ id, partial}));
+    dispatch(actions.updateLocalDocument({ id, partial }));
   }, 300), [document]);
 
   function handleChange(editorState: EditorState, editor: LexicalEditor, tags: Set<string>) {

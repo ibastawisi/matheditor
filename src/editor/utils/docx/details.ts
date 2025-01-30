@@ -1,4 +1,4 @@
-import { $isDetailsSummaryNode, DetailsContainerNode, DetailsContentNode, DetailsSummaryNode } from "@/editor";
+import { $isDetailsSummaryNode, DetailsContainerNode, DetailsContentNode, DetailsSummaryNode } from "@/editor/nodes/DetailsNode";
 import { Table, TableCell, TableRow } from "docx";
 import { $convertNodeToDocx } from ".";
 

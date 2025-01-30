@@ -1,4 +1,4 @@
-import { LinkNode } from "@/editor";
+import { LinkNode } from "@lexical/link";
 import { BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, ExternalHyperlink, ParagraphChild } from "docx";
 import { $convertNodeToDocx } from ".";
 

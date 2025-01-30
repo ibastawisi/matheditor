@@ -1,8 +1,11 @@
-import { $findMatchingParent, $isLayoutContainerNode, $isLayoutItemNode, ImageNode, ParagraphNode } from "@/editor";
+import { ParagraphNode } from "lexical";
+import { $findMatchingParent } from "@lexical/utils";
 import { Bookmark, BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, convertInchesToTwip, ImageRun, IParagraphOptions, Paragraph, Table, TableBorders, TableCell, TableRow, TextRun, TextWrappingType } from "docx";
 import { $convertEditortoDocx } from ".";
 import sizeOf from 'image-size';
 import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
+import { $isLayoutContainerNode, $isLayoutItemNode } from "@/editor/nodes/LayoutNode";
+import { ImageNode } from "@/editor/nodes/ImageNode";
 
 export function $convertImageNode(node: ImageNode) {
   const dataURI = node.getSrc();

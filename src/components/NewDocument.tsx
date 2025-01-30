@@ -3,7 +3,6 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { v4 as uuidv4, validate } from "uuid";
 import * as React from 'react';
 import { CheckHandleResponse, CloudDocument, DocumentCreateInput, User, UserDocument } from '@/types';
-import type { SerializedHeadingNode, SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "@/editor";
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, actions, useSelector } from '@/store';
 import DocumentCard from './DocumentCard';
@@ -12,6 +11,8 @@ import { Article, Add } from '@mui/icons-material';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
 import UsersAutocomplete from './User/UsersAutocomplete';
 import { debounce } from '@mui/material/utils';
+import type { SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "lexical";
+import type { SerializedHeadingNode } from "@lexical/rich-text";
 
 const getEditorData = (title: string) => {
   const headingText: SerializedTextNode = {

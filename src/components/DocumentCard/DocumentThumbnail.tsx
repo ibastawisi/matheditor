@@ -3,7 +3,16 @@ import { UserDocument } from "@/types";
 import { memo, use } from "react";
 import { useThumbnailContext } from "../../app/context/ThumbnailContext";
 import { Box } from "@mui/material";
-import LocalDocumentThumbnail from "./LocalDocumentThumbnail";
+import dynamic from "next/dynamic";
+import ThumbnailSkeleton from "./ThumbnailSkeleton";
+
+const LocalDocumentThumbnail = dynamic(
+  () => import('./LocalDocumentThumbnail'),
+  {
+    ssr: false,
+    loading: () => <ThumbnailSkeleton />
+  }
+);
 
 const DocumentThumbnail: React.FC<{ userDocument?: UserDocument }> = memo(({ userDocument }) => {
   const localDocument = userDocument?.local;

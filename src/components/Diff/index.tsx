@@ -2,7 +2,7 @@
 import HtmlDiff from './Diff';
 import { useEffect, useState } from 'react';
 import { actions, useDispatch, useSelector } from '@/store';
-import { generateHtml } from '@/editor';
+import { generateHtml } from '@/editor/utils/generateHtml';
 import htmr from 'htmr';
 import NProgress from 'nprogress';
 
@@ -50,7 +50,7 @@ const DiffView = () => {
 
   if (!diff.open) return null;
   if (!html) return null;
-  
+
   return (
     <div className='diff-container'>{htmr(html)}</div>
   );

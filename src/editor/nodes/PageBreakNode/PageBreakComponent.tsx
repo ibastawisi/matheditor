@@ -12,7 +12,7 @@ import {
 import { useCallback, useEffect } from 'react';
 import { $isPageBreakNode } from '.';
 
-export function PageBreakComponent({ nodeKey }: { nodeKey: NodeKey; }) {
+function PageBreakComponent({ nodeKey }: { nodeKey: NodeKey; }) {
   const [editor] = useLexicalComposerContext();
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
 
@@ -72,3 +72,5 @@ export function PageBreakComponent({ nodeKey }: { nodeKey: NodeKey; }) {
 
   return null;
 }
+
+export default PageBreakComponent;

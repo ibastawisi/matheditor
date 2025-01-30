@@ -1,4 +1,4 @@
-import { IFrameNode } from "@/editor";
+import { IFrameNode } from "@/editor/nodes/IFrameNode";
 import { ExternalHyperlink, TextRun } from "docx";
 
 export function $convertIFrameNode(node: IFrameNode) {

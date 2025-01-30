@@ -16,7 +16,7 @@ import {
   SerializedLexicalNode,
 } from 'lexical';
 import { JSX } from "react";
-import { PageBreakComponent } from './PageBreakComponent';
+import PageBreakComponent from './PageBreakComponent';
 
 export type SerializedPageBreakNode = SerializedLexicalNode;
 

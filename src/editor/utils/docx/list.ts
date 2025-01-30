@@ -1,5 +1,5 @@
-import { $isListNode, ListNode, ListItemNode } from "@/editor";
-import { AlignmentType, CheckBox, convertInchesToTwip, ILevelsOptions, IParagraphOptions, LevelFormat, Paragraph, SpaceType, TextRun } from "docx";
+import { $isListNode, ListNode, ListItemNode } from "@lexical/list";
+import { CheckBox, IParagraphOptions, LevelFormat, Paragraph, TextRun } from "docx";
 
 export function $convertListItemNode(node: ListItemNode) {
   const firstChild = node.getFirstChild();

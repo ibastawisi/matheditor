@@ -1,4 +1,4 @@
-import { LayoutContainerNode, LayoutItemNode } from "@/editor";
+import { LayoutContainerNode, LayoutItemNode } from "@/editor/nodes/LayoutNode";
 import { Table, TableBorders, TableCell, TableRow } from "docx";
 import { $convertNodeToDocx } from ".";
 

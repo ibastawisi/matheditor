@@ -1,7 +1,5 @@
-import { generateServerHtml } from "@/editor/utils/generateServerHtml";
 import { Prisma, prisma } from "@/lib/prisma";
 import { EditorDocumentRevision } from "@/types";
-import { unstable_cache } from "next/cache";
 
 const findRevisionById = async (id: string) => {
   const revision = await prisma.revision.findUnique({

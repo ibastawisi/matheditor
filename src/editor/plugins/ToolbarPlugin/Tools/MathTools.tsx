@@ -10,7 +10,7 @@ import { SxProps, Theme } from '@mui/material/styles';
 import { Box, Button, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, LinearProgress, MenuItem, Paper, Select, SelectChangeEvent, SvgIcon, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { Delete, Draw, Edit, Menu, Save } from "@mui/icons-material";
 import { useTheme } from '@mui/material/styles';
-import { ANNOUNCE_COMMAND } from "@/editor";
+import { ANNOUNCE_COMMAND } from "@/editor/commands";
 import { Announcement } from "@/types";
 
 import dynamic from "next/dynamic";

@@ -1,4 +1,4 @@
-import { CodeHighlightNode, CodeNode } from "@/editor";
+import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { IRunOptions, Paragraph, TextRun } from "docx";
 
 export function $convertCodeNode(node: CodeNode) {

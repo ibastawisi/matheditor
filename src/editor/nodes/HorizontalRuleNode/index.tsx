@@ -21,7 +21,7 @@ import {
   DecoratorNode,
 } from 'lexical';
 import { lazy, JSX } from 'react';
-const HorizontalRuleComponent = lazy(() => import('./HorizontalRuleComponent'));
+import HorizontalRuleComponent from './HorizontalRuleComponent';
 
 export type SerializedHorizontalRuleNode = SerializedLexicalNode;
 

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { memo, useEffect, useState } from 'react';
 import { Box } from '@mui/material';
-import { generateHtml } from '@/editor';
+import { generateHtml } from '@/editor/utils/generateHtml';
 import documentDB from '@/indexeddb';
 import { GetDocumentThumbnailResponse } from '@/types';
 import ThumbnailSkeleton from './ThumbnailSkeleton';

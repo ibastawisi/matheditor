@@ -6,14 +6,14 @@ import { SxProps, Theme } from '@mui/material/styles';
 import { Card, CardActionArea, CardHeader, Avatar, CardActions, Chip, IconButton } from '@mui/material';
 import { Cloud, CloudSync, CloudUpload, Delete, DeleteForever, History, MobileFriendly, Update } from '@mui/icons-material';
 import { actions, useDispatch, useSelector } from '@/store';
-import { CLEAR_HISTORY_COMMAND, type LexicalEditor } from '@/editor';
+import { CLEAR_HISTORY_COMMAND, type LexicalEditor } from 'lexical';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
 import NProgress from 'nprogress';
 import { v4 as uuid } from 'uuid';
 
 const RevisionCard: React.FC<{
   revision: UserDocumentRevision,
-  editorRef: React.MutableRefObject<LexicalEditor | null>,
+  editorRef: React.RefObject<LexicalEditor | null>,
   sx?: SxProps<Theme> | undefined
 }> = memo(({ revision, editorRef, sx }) => {
   const dispatch = useDispatch();
@@ -187,7 +187,7 @@ const RevisionCard: React.FC<{
         {showLocal && <Chip color={isLocalHead ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<MobileFriendly />} label="Local" />}
         {showCloud && <Chip color={isCloudHead ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Cloud />} label="Cloud" />}
         {showDiff && <Chip color={isOld ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<History />} label="Old" onClick={setAsOld} disabled={!isOnline && !isLocalRevision} />}
-        {showDiff && <Chip color={isNew ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Update />} label="New" onClick={setAsNew} disabled={!isOnline && !isLocalRevision}/>}
+        {showDiff && <Chip color={isNew ? "primary" : "default"} sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<Update />} label="New" onClick={setAsNew} disabled={!isOnline && !isLocalRevision} />}
         {showCreate && <Chip variant='outlined' clickable sx={{ width: 0, flex: 1, maxWidth: "fit-content" }} icon={<CloudUpload />} label="Save to Cloud" onClick={createRevision} />}
         {showUpdate && <IconButton aria-label="Update Cloud Head" size="small" onClick={updateCloudHead}><CloudSync /></IconButton>}
         {showDelete && <IconButton aria-label="Delete Revision" size="small" onClick={deleteRevision}>{isLastCopy ? <DeleteForever /> : <Delete />}</IconButton>}

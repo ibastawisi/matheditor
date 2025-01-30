@@ -4,7 +4,7 @@ import { $getSelection, $setSelection, COMMAND_PRIORITY_LOW, SELECTION_CHANGE_CO
 import { lazy, memo, Suspense, useEffect } from 'react';
 import { editorConfig } from './config';
 import { Typography } from '@mui/material';
-import { mergeRegister } from '@/editor';
+import { mergeRegister } from '@lexical/utils';
 
 const NestedEditor = lazy(() => import('@/editor/NestedEditor'));
 

@@ -1,4 +1,4 @@
-import { StickyNode } from "@/editor";
+import { StickyNode } from "@/editor/nodes/StickyNode";
 import { Table, TableBorders, TableCell, TableRow } from "docx";
 import { $convertEditortoDocx } from ".";
 import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";

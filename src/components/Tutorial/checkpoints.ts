@@ -1,8 +1,16 @@
-import { $isCodeNode, $isGraphNode, $isHeadingNode, $isHorizontalRuleNode, $isListNode, $isMathNode, $isQuoteNode, $isSketchNode, $isStickyNode, $isTableNode, ImageNode } from "@/editor";
 import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
 import { $isLinkNode } from "@lexical/link";
 import { LexicalNode, $isParagraphNode, $isTextNode } from "lexical";
-
+import { ImageNode } from "@/editor/nodes/ImageNode";
+import { $isCodeNode } from "@lexical/code";
+import { $isGraphNode } from "@/editor/nodes/GraphNode";
+import { $isHeadingNode, $isQuoteNode } from "@lexical/rich-text";
+import { $isHorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
+import { $isMathNode } from "@/editor/nodes/MathNode";
+import { $isSketchNode } from "@/editor/nodes/SketchNode";
+import { $isStickyNode } from "@/editor/nodes/StickyNode";
+import { $isTableNode } from "@/editor/nodes/TableNode";
+import { $isListNode } from "@lexical/list";
 
 export const checkpoints: Array<Array<(node: LexicalNode) => boolean>> = [
   [

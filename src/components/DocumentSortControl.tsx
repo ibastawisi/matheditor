@@ -1,6 +1,6 @@
-import { UserDocument } from "@/types";
+import type { UserDocument } from "@/types";
 import { ArrowUpward, ArrowDownward } from "@mui/icons-material";
-import { Box, ToggleButton, alpha, Select, MenuItem, ListItemText, SelectChangeEvent } from "@mui/material";
+import { Box, ToggleButton, Select, MenuItem, ListItemText, SelectChangeEvent } from "@mui/material";
 import type { } from '@mui/material/themeCssVarsAugmentation';
 
 function compareObjectsByKey(key: string, ascending = true) {

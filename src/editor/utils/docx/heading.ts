@@ -1,4 +1,4 @@
-import { HeadingNode } from "@/editor";
+import { HeadingNode } from "@lexical/rich-text";
 import { convertInchesToTwip, IParagraphOptions, Paragraph } from "docx";
 
 export function $convertHeadingNode(node: HeadingNode) {

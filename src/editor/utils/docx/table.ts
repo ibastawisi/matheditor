@@ -1,4 +1,4 @@
-import { TableCellHeaderStates, TableCellNode, TableNode, TableRowNode } from "@/editor";
+import { TableCellHeaderStates, TableCellNode, TableNode, TableRowNode } from "@/editor/nodes/TableNode";
 import { BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, IParagraphOptions, Paragraph, Table, TableCell, TableRow } from "docx";
 import { $convertNodeToDocx } from ".";
 import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
