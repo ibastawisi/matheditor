@@ -58,6 +58,7 @@ export default async function Page(
     const revisionId = searchParams.v ?? document.head;
     if (!validate(revisionId)) return <SplashScreen title="Revision not found" />;
     const html = await findRevisionHtml(revisionId);
+    if (html === null) return <SplashScreen title="Something went wrong" subtitle="Please try again later" />;
     return <EmbedDocument>{htmr(html)}</EmbedDocument>
   } catch (error) {
     console.error(error);

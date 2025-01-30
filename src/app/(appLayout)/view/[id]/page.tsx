@@ -87,6 +87,7 @@ export default async function Page(
       }
     }
     const html = await findRevisionHtml(revisionId);
+    if (html === null) return <SplashScreen title="Something went wrong" subtitle="Please try again later" />;
     return <ViewDocument cloudDocument={document} user={session?.user}>{htmr(html)}</ViewDocument>;
   } catch (error) {
     console.error(error);
