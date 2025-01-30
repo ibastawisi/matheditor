@@ -2,17 +2,17 @@
 import { useRouter } from 'next/navigation';
 import RouterLink from 'next/link'
 import { useDispatch, useSelector, actions } from '@/store';
-import DocumentCard from "./DocumentCard";
+import DocumentCard from "../DocumentCard";
 import { memo, useEffect } from "react";
 import { BackupDocument, User, UserDocument } from '@/types';
 import { validate } from "uuid";
-import UserCard from "./User/UserCard";
+import UserCard from "../User/UserCard";
 import documentDB, { revisionDB } from '@/indexeddb';
 import Grid from '@mui/material/Grid2';
 import { Box, Avatar, Button, Typography, Card, CardActionArea, CardHeader, Collapse, Pagination } from '@mui/material';
 import { PostAdd, UploadFile, Help, Storage, Science, Pageview } from '@mui/icons-material';
-import DocumentSortControl, { sortDocuments } from './DocumentSortControl';
-import DocumentFilterControl, { filterDocuments } from './DocumentFilterControl';
+import DocumentSortControl, { sortDocuments } from '../DocumentSortControl';
+import DocumentFilterControl, { filterDocuments } from '../DocumentFilterControl';
 import { v4 as uuid } from 'uuid';
 
 const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocuments }) => {

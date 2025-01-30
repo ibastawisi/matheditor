@@ -1,12 +1,12 @@
 "use client"
 import { useRouter } from 'next/navigation';
 import { useEffect } from "react";
-import useLocalStorage from "../hooks/useLocalStorage";
+import useLocalStorage from "@/hooks/useLocalStorage";
 import Documents from "./Documents";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { UserDocument } from '@/types';
 import Footer from './Footer';
-
+import PwaUpdater from './PwaUpdater';
 
 const Home: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocuments }) => {
   const [welcomed, setWelcomed] = useLocalStorage("welcomed", false);
@@ -36,6 +36,7 @@ const Home: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocuments }
         </Dialog>
       )}
       <Footer />
+      <PwaUpdater />
     </>
   );
 };

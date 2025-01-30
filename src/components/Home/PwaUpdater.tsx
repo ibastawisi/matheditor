@@ -20,7 +20,7 @@ const PwaUpdater = () => {
     ) {
       const wb = window.workbox;
       wb.addEventListener("waiting", () => {
-        wb.messageSkipWaiting();
+        wb.messageSkipWaiting()
       });
       wb.addEventListener("controlling", (event) => {
         dispatch(actions.announce({

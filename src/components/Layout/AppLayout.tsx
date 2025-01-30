@@ -3,7 +3,6 @@ import StoreProvider from "@/store/StoreProvider";
 import TopAppBar from './TopAppBar';
 import AlertDialog from "./Alert";
 import Announcer from "./Announcer";
-import PwaUpdater from "./PwaUpdater";
 import ProgressBar from "./ProgressBar";
 import { Container } from "@mui/material";
 import { Suspense } from "react";
@@ -30,7 +29,6 @@ const AppLayout = ({ children }: { children: React.ReactNode; }) => {
         </Container>
         <AlertDialog />
         <Announcer />
-        <PwaUpdater />
       </StoreProvider>
     </>
   );
