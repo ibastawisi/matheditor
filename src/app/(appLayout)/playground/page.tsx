@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
 import Playground from "@/components/Playground";
 import htmr from "htmr";
-import playgroundTemplate from '@/components/Playground/playground.json';
-import type { EditorDocument } from '@/types';
-import { generateServerHtml } from "@/editor/utils/generateServerHtml";
+import { findUserDocument } from "@/repositories/document";
+import SplashScreen from "@/components/SplashScreen";
+import { findRevisionHtml } from "@/app/api/utils";
 
 export const metadata: Metadata = {
   title: "Playground",
   description: 'Test drive the editor',
 }
 
-const document = playgroundTemplate as unknown as EditorDocument;
-
 const page = async () => {
-  const html = await generateServerHtml(document.data);
+  const document = await findUserDocument("playground");
+  if (!document) return <SplashScreen title="Something went wrong" subtitle="Please try again later" />;
+  const revisionId = document.head;
+  const html = await findRevisionHtml(revisionId);
+  if (html === null) return <SplashScreen title="Something went wrong" subtitle="Please try again later" />;
   return <Playground>{htmr(html)}</Playground>
 }
 

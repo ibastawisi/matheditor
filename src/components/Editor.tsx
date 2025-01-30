@@ -1,13 +1,12 @@
 "use client"
-import { lazy, MutableRefObject, PropsWithChildren, RefCallback, Suspense, useEffect, useState } from 'react';
+import { MutableRefObject, PropsWithChildren, RefCallback, useEffect, useState } from 'react';
 import { EditorDocument } from '@/types';
 import type { EditorState, LexicalEditor } from '@/editor';
 import { COMMAND_PRIORITY_LOW, ANNOUNCE_COMMAND, UPDATE_DOCUMENT_COMMAND, ALERT_COMMAND, mergeRegister } from '@/editor';
 import { actions, useDispatch } from '@/store';
 import { EditorSkeleton } from './EditorSkeleton';
 import SplashScreen from './SplashScreen';
-
-const Editor = lazy(() => import('@/editor/Editor'));
+import dynamic from 'next/dynamic';
 
 const Container: React.FC<PropsWithChildren<{
   document: EditorDocument,
@@ -55,11 +54,10 @@ const Container: React.FC<PropsWithChildren<{
   useEffect(() => { setIsClient(true) }, [])
 
   const fallback = children ? <EditorSkeleton>{children}</EditorSkeleton> : <SplashScreen title="Loading Document" />;
-
+  if (!isClient) return fallback;
+  const Editor = dynamic(() => import('@/editor/Editor'), { ssr: false, loading: () => fallback });
   return (
-    <Suspense fallback={fallback}>
-      {!isClient ? fallback : <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={onChange} editorRef={editorRefCallback} ignoreHistoryMerge={ignoreHistoryMerge} />}
-    </Suspense>
+    <Editor initialConfig={{ editorState: JSON.stringify(document.data) }} onChange={onChange} editorRef={editorRefCallback} ignoreHistoryMerge={ignoreHistoryMerge} />
   );
 }
 
