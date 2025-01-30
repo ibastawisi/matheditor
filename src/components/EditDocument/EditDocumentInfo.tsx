@@ -7,11 +7,11 @@ import { Close, Compare, History, Print } from '@mui/icons-material';
 import type { LexicalEditor } from 'lexical';
 import { RefObject } from 'react';
 import RouterLink from "next/link";
-import ShareDocument from './DocumentActions/Share';
-import DownloadDocument from './DocumentActions/Download';
-import ForkDocument from './DocumentActions/Fork';
-import EditDocument from './DocumentActions/Edit';
-import AppDrawer from './AppDrawer';
+import ShareDocument from '../DocumentActions/Share';
+import DownloadDocument from '../DocumentActions/Download';
+import ForkDocument from '../DocumentActions/Fork';
+import EditDocument from '../DocumentActions/Edit';
+import AppDrawer from '../AppDrawer';
 
 export default function EditDocumentInfo({ editorRef, documentId }: { editorRef: RefObject<LexicalEditor | null>, documentId: string }) {
   const dispatch = useDispatch();

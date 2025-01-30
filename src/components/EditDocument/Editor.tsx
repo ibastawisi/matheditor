@@ -1,21 +1,19 @@
 "use client"
 import { useEffect, useState, useRef, useCallback } from "react";
-import SplashScreen from "./SplashScreen";
+import SplashScreen from "../SplashScreen";
 import { EditorDocument } from '@/types';
 import { useDispatch, actions, useSelector } from '@/store';
 import { usePathname } from "next/navigation";
 import type { EditorState, LexicalEditor } from "lexical";
-import { generateHtml } from "@/editor/utils/generateHtml";
 import { v4 as uuidv4 } from 'uuid';
 import dynamic from "next/dynamic";
-import DiffView from "./Diff";
+import DiffView from "../Diff";
 import { debounce } from "@mui/material";
-import htmr from "htmr";
-import Editor from "./Editor";
+import Editor from "../Editor";
 
-const EditDocumentInfo = dynamic(() => import('@/components/EditDocumentInfo'), { ssr: false });
+const EditDocumentInfo = dynamic(() => import('@/components/EditDocument/EditDocumentInfo'), { ssr: false });
 
-const EditDocument: React.FC = () => {
+const DocumentEditor: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [document, setDocument] = useState<EditorDocument>();
   const [error, setError] = useState<{ title: string, subtitle?: string }>();
   const dispatch = useDispatch();
@@ -23,7 +21,6 @@ const EditDocument: React.FC = () => {
   const id = pathname.split('/')[2]?.toLowerCase();
   const editorRef = useRef<LexicalEditor>(null);
   const showDiff = useSelector(state => state.ui.diff.open);
-  const [html, setHtml] = useState<string>('');
 
   const debouncedUpdateLocalDocument = useCallback(debounce((id: string, partial: Partial<EditorDocument>) => {
     dispatch(actions.updateLocalDocument({ id, partial }));
@@ -65,26 +62,15 @@ const EditDocument: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    if (!document) return;
-    const generateChildren = async () => {
-      const html = await generateHtml(document.data);
-      setHtml(html);
-    }
-    generateChildren();
-  }, [document]);
-
   if (error) return <SplashScreen title={error.title} subtitle={error.subtitle} />;
   if (!document) return <SplashScreen title="Loading Document" />;
 
   return <>
     <title>{document.name}</title>
     {showDiff && <DiffView />}
-    <Editor document={document} editorRef={editorRef} onChange={handleChange}>
-      {html && htmr(html)}
-    </Editor>
+    <Editor document={document} editorRef={editorRef} onChange={handleChange} />
     <EditDocumentInfo documentId={document.id} editorRef={editorRef} />
   </>;
 }
 
-export default EditDocument;
+export default DocumentEditor;
