@@ -61,18 +61,22 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
                 label={document ? author?.name ?? "Local User" : <Skeleton variant="text" width={100} />} />
               <Typography variant="overline" color="text.secondary"
                 sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {document ? <time dateTime={new Date(document.createdAt).toISOString()} suppressHydrationWarning key={hydrated? 'local' : 'utc'}>
-                  Created: {new Date(document.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
-                  {hydrated ? '' : ' UTC'}
-                </time> : <Skeleton variant="text" width={150} />}
+                {document ? <Suspense key={hydrated ? 'local' : 'utc'}>
+                  <time dateTime={new Date(document.createdAt).toISOString()}>
+                    Created: {new Date(document.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
+                    {hydrated ? '' : ' (UTC)'}
+                  </time>
+                </Suspense> : <Skeleton variant="text" width={150} />}
               </Typography>
               <Typography variant="overline" color="text.secondary"
                 sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
               >
-                {document ? <time dateTime={new Date(document.updatedAt).toISOString()} suppressHydrationWarning key={hydrated? 'local' : 'utc'}>
-                  Updated: {new Date(document.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
-                  {hydrated ? '' : ' UTC'}
-                </time> : <Skeleton variant="text" width={150} />}
+                {document ? <Suspense key={hydrated ? 'local' : 'utc'}>
+                  <time dateTime={new Date(document.updatedAt).toISOString()}>
+                    Updated: {new Date(document.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
+                    {hydrated ? '' : ' (UTC)'}
+                  </time>
+                </Suspense> : <Skeleton variant="text" width={150} />}
               </Typography>
             </>
           }
