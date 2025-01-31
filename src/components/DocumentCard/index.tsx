@@ -4,11 +4,12 @@ import RouterLink from 'next/link'
 import { LocalDocumentRevision, User, UserDocument } from '@/types';
 import { memo, Suspense } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
-import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, Badge, NoSsr, IconButton } from '@mui/material';
+import { Card, CardActionArea, CardHeader, Skeleton, Typography, Avatar, CardActions, Chip, Badge, IconButton } from '@mui/material';
 import { MobileFriendly, Cloud, Public, Workspaces, Security, CloudDone, CloudSync, MoreVert, Share } from '@mui/icons-material';
 import DocumentActionMenu from './DocumentActionMenu';
 import DocumentThumbnail from './DocumentThumbnail';
 import ThumbnailSkeleton from './ThumbnailSkeleton';
+import { useHydration } from '@/hooks/useHydration';
 
 const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: SxProps<Theme> | undefined }> = memo(({ userDocument, user, sx }) => {
   const localDocument = userDocument?.local;
@@ -45,6 +46,8 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
   let revisionsBadgeContent = localOnlyRevisions.length;
   if (isAuthor && isCollab && cloudHeadIndex > 0) revisionsBadgeContent++;
 
+  const hydrated = useHydration();
+
   return (
     <Card variant="outlined" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%", maxWidth: "100%", ...sx }}>
       <CardActionArea component={RouterLink} prefetch={false} href={document ? href : "/"} sx={{ flexGrow: 1 }}>
@@ -58,16 +61,18 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
                 label={document ? author?.name ?? "Local User" : <Skeleton variant="text" width={100} />} />
               <Typography variant="overline" color="text.secondary"
                 sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {document ? <NoSsr fallback={<Skeleton variant="text" width={150} />}>
-                  Created: {new Date(document.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })
-                  }</NoSsr> : <Skeleton variant="text" width={150} />}
+                {document ? <time dateTime={new Date(document.createdAt).toISOString()} suppressHydrationWarning key={hydrated? 'local' : 'utc'}>
+                  Created: {new Date(document.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
+                  {hydrated ? '' : ' UTC'}
+                </time> : <Skeleton variant="text" width={150} />}
               </Typography>
               <Typography variant="overline" color="text.secondary"
                 sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
               >
-                {document ? <NoSsr fallback={<Skeleton variant="text" width={160} />}>
-                  Updated: {new Date(document.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })
-                  }</NoSsr> : <Skeleton variant="text" width={160} />}
+                {document ? <time dateTime={new Date(document.updatedAt).toISOString()} suppressHydrationWarning key={hydrated? 'local' : 'utc'}>
+                  Updated: {new Date(document.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
+                  {hydrated ? '' : ' UTC'}
+                </time> : <Skeleton variant="text" width={150} />}
               </Typography>
             </>
           }
