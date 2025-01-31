@@ -28,7 +28,7 @@ export async function generateMetadata(
       metadata.title = 'Private Document';
     } else {
       metadata.title = document.name;
-      metadata.subtitle = revision ? `Last updated: ${new Date(revision.createdAt).toLocaleString()}` : 'Revision not Found'
+      metadata.subtitle = revision ? `Last updated: ${new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })} (UTC)` : 'Revision not Found'
       metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
     }
   } else {

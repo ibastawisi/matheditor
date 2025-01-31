@@ -155,7 +155,7 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
               <FormControl fullWidth sx={{ gap: 1, mb: 2 }}>
                 <FormLabel>Revision</FormLabel>
                 <Select size="small" value={revision} onChange={e => setRevision(e.target.value)}>
-                  {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString()}</MenuItem>)}
+                  {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</MenuItem>)}
                 </Select>
               </FormControl>
               <FormControl fullWidth disabled={!isAuthor}>
@@ -170,7 +170,7 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
               <FormControl fullWidth sx={{ gap: 1, mb: 2 }} disabled={isPrivate}>
                 <FormLabel>Revision</FormLabel>
                 <Select size="small" value={revision} onChange={e => setRevision(e.target.value)}>
-                  {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString()}</MenuItem>)}
+                  {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</MenuItem>)}
                 </Select>
               </FormControl>
               <FormControl fullWidth disabled={!isAuthor}>
@@ -186,7 +186,7 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
               <FormControl fullWidth sx={{ gap: 1, mb: 2 }} disabled={isPrivate}>
                 <FormLabel>Revision</FormLabel>
                 <Select size="small" value={revision} onChange={e => setRevision(e.target.value)}>
-                  {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString()}</MenuItem>)}
+                  {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</MenuItem>)}
                 </Select>
               </FormControl>
               <FormControl fullWidth disabled={!isAuthor}>
@@ -230,7 +230,7 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
               <FormControl fullWidth sx={{ gap: 1, mb: 2 }} disabled={isPrivate}>
                 <FormLabel>Revision</FormLabel>
                 <Select size="small" value={revision} onChange={e => setRevision(e.target.value)}>
-                  {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString()}</MenuItem>)}
+                  {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</MenuItem>)}
                 </Select>
               </FormControl>
               <FormControl fullWidth disabled={!isAuthor}>

@@ -22,7 +22,7 @@ export async function generateMetadata(
   if (document) {
     if (document.collab || document.published) {
       metadata.title = `Fork ${document.name}`;
-      metadata.subtitle = `Last updated: ${new Date(document.updatedAt).toLocaleString()}`;
+      metadata.subtitle = `Last updated: ${new Date(document.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })} (UTC)`;
       metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
     } else {
       metadata.title = 'Fork a Document';

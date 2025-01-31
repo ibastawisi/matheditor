@@ -17,7 +17,7 @@ export async function generateMetadata(props: { params: Promise<{ id?: string[] 
       metadata.subtitle = 'if you have access, please sign in to edit it';
     } else {
       metadata.title = document.name;
-      metadata.subtitle = `Last updated: ${new Date(document.updatedAt).toLocaleString()}`;
+      metadata.subtitle = `Last updated: ${new Date(document.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })} (UTC)`;
       metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
     }
   } else {

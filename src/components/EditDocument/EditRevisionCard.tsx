@@ -178,7 +178,7 @@ const RevisionCard: React.FC<{
       }}>
       <CardActionArea sx={{ flexGrow: 1 }} onClick={viewRevision}>
         <CardHeader sx={{ alignItems: "start", '& .MuiCardHeader-content': { overflow: "hidden", textOverflow: "ellipsis" } }}
-          title={new Date(revision.createdAt).toLocaleString()}
+          title={new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
           subheader={(cloudRevision?.author ?? user)?.name ?? "Local User"}
           avatar={<Avatar sx={{ bgcolor: 'primary.main' }} src={(cloudRevision?.author ?? user)?.image ?? undefined} alt={(cloudRevision?.author ?? user)?.name}></Avatar>}
         />

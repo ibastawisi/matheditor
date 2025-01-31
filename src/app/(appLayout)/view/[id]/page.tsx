@@ -33,7 +33,7 @@ export async function generateMetadata(
       const isCoauthor = user && document.coauthors.some(coauthor => coauthor.id === user.id);
       if (isAuthor || isCoauthor) {
         metadata.title = document.name;
-        metadata.subtitle = revision ? `Last updated: ${new Date(revision.createdAt).toLocaleString()}` : 'Revision not Found'
+        metadata.subtitle = revision ? `Last updated: ${new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })} (UTC)` : 'Revision not Found'
         metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
       } else {
         metadata.title = 'Private Document';
@@ -41,7 +41,7 @@ export async function generateMetadata(
       }
     } else {
       metadata.title = document.name;
-      metadata.subtitle = revision ? `Last updated: ${new Date(revision.createdAt).toLocaleString()}` : 'Revision not Found'
+      metadata.subtitle = revision ? `Last updated: ${new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })} (UTC)` : 'Revision not Found'
       metadata.user = { name: document.author.name, image: document.author.image!, email: document.author.email };
     }
   } else {

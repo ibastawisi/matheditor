@@ -11,7 +11,7 @@ import AppDrawer from './AppDrawer';
 import ViewRevisionCard from './ViewRevisionCard';
 import { useSearchParams } from 'next/navigation';
 
-export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocument: CloudDocument, user?: User }) {
+export default function ViewDocumentInfo({ cloudDocument, user }: { cloudDocument: CloudDocument, user?: User }) {
   const slideTrigger = useScrollTrigger({ disableHysteresis: true });
   const handle = cloudDocument.handle || cloudDocument.id;
   const isAuthor = cloudDocument.author.id === user?.id;
@@ -41,8 +41,8 @@ export default function EditDocumentInfo({ cloudDocument, user }: { cloudDocumen
       <AppDrawer title="Document Info">
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: "start", justifyContent: "start", gap: 1, my: 3 }}>
           <Typography component="h2" variant="h6">{cloudDocument.name}</Typography>
-          <Typography variant="subtitle2" color="text.secondary">Created: {new Date(cloudDocument.createdAt).toLocaleString()}</Typography>
-          <Typography variant="subtitle2" color="text.secondary" gutterBottom>Updated: {new Date(cloudDocument.updatedAt).toLocaleString()}</Typography>
+          <Typography variant="subtitle2" color="text.secondary">Created: {new Date(cloudDocument.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</Typography>
+          <Typography variant="subtitle2" color="text.secondary" gutterBottom>Updated: {new Date(cloudDocument.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</Typography>
           <Typography variant="subtitle2">Author <Chip clickable component={RouterLink} prefetch={false}
             href={`/user/${cloudDocument.author.handle || cloudDocument.author.id}`}
             avatar={<Avatar alt={cloudDocument.author.name} src={cloudDocument.author.image || undefined} />}

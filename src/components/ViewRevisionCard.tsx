@@ -29,7 +29,7 @@ const ViewRevisionCard: React.FC<{
       }}>
       <CardActionArea component={RouterLink} prefetch={false} scroll={false} href={href} sx={{ flexGrow: 1 }}>
         <CardHeader sx={{ alignItems: "start", '& .MuiCardHeader-content': { overflow: "hidden", textOverflow: "ellipsis" } }}
-          title={new Date(revision.createdAt).toLocaleString()}
+          title={new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
           subheader={revision.author.name}
           avatar={<Avatar sx={{ bgcolor: 'primary.main' }} src={revision.author.image ?? undefined} alt={revision.author.name}></Avatar>}
         />
