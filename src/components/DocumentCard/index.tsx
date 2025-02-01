@@ -64,7 +64,6 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
                 {document ? <Suspense key={hydrated ? 'local' : 'utc'}>
                   <time dateTime={new Date(document.createdAt).toISOString()}>
                     Created: {new Date(document.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
-                    {hydrated ? '' : ' (UTC)'}
                   </time>
                 </Suspense> : <Skeleton variant="text" width={150} />}
               </Typography>
@@ -74,7 +73,6 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
                 {document ? <Suspense key={hydrated ? 'local' : 'utc'}>
                   <time dateTime={new Date(document.updatedAt).toISOString()}>
                     Updated: {new Date(document.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
-                    {hydrated ? '' : ' (UTC)'}
                   </time>
                 </Suspense> : <Skeleton variant="text" width={150} />}
               </Typography>
