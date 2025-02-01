@@ -23,7 +23,7 @@ const getRevisionThumbnail = async (id: string) => {
   return findRevisionById(id).then((revision) => {
     if (!revision) return '';
     const data = revision.data;
-    const thumbnailData = { ...data, root: { ...data.root, children: data.root.children.slice(0, 5) } };
+    const thumbnailData = { ...data, root: { ...data.root, children: data.root.children.slice(0, 3) } };
     const thumbnail = fetch(`${PUBLIC_URL}/api/embed`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

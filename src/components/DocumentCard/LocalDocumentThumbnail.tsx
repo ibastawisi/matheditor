@@ -15,7 +15,7 @@ const getDocumentThumbnail = async (documentId: string, revisionId: string) => {
   const document = await documentDB.getByID(documentId);
   if (document) {
     const data = document.data;
-    const thumbnail = await generateHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 5) } });
+    const thumbnail = await generateHtml({ ...data, root: { ...data.root, children: data.root.children.slice(0, 3) } });
     thumbnailCache.set(revisionId, thumbnail);
     return thumbnail;
   } else {
