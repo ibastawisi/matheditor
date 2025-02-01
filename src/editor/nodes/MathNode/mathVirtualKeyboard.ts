@@ -100,5 +100,10 @@ export const customizeMathVirtualKeyboard = () => {
     },
   ];
 
+  // @ts-expect-error
+  mathVirtualKeyboardLayout[3].layers[0].rows[3].shift();
+  // @ts-expect-error
+  mathVirtualKeyboardLayout[3].layers[0].rows[3].splice(3, 0, mathVirtualKeyboardLayout[2].layers[0].rows[3][3]);
+
   window.mathVirtualKeyboard.layouts = mathVirtualKeyboardLayout;
 }

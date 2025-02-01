@@ -34,7 +34,8 @@ math-field::part(menu-toggle) {
 }
 
 .ML__keyboard {
-  --keycap-height: 52px !important;
+  --keycap-height: 48px;
+  --keycap-gap: 6px;
   --_keyboard-height: 295px !important;
   --keyboard-zindex: 10000;
 }
@@ -46,10 +47,11 @@ math-field::part(menu-toggle) {
 
 .MLK__rows {
   margin: auto 0 !important;
+  gap: calc(2 * var(--keycap-gap)) !important;
 }
 
-.MLK__rows>.MLK__row .MLK__keycap {
-  height: var(--keycap-height) !important;
+.MLK__rows>.MLK__row :is(.MLK__keycap, .action, .separator) {
+  border-radius: 8px;
 }
 
 .MLK__variant-panel {
