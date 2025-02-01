@@ -10,17 +10,15 @@ const Footer: React.FC = () => {
   return (
     <Box component="footer" sx={{ display: "flex", displayPrint: "none", mt: "auto", gap: 1, zIndex: 1000 }}>
       <Typography variant="button" component={Link} href={href} target="_blank" sx={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
-        {version} {commitHash?.substring(0, 7)}
+        v{version} {commitHash?.substring(0, 7)}
       </Typography>
       <IconButton size="small" sx={{ width: 24, height: 24 }} aria-label="Check for updates">
         <script
-          dangerouslySetInnerHTML={{ __html: `
-            document.currentScript.parentElement.onclick  = () => {
-              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(registrations => {
-                  return Promise.all(registrations.map(registration => registration.update()))
-                })
-              }
+          dangerouslySetInnerHTML={{
+            __html: `document.currentScript.parentElement.onclick  = () => {
+              navigator.serviceWorker.getRegistrations().then(registrations => {
+                return Promise.all(registrations.map(registration => registration.update()))
+              })
             }`
           }} />
         <Cached />
