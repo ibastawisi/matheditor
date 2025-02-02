@@ -16,9 +16,10 @@ const Footer: React.FC = () => {
         <script
           dangerouslySetInnerHTML={{
             __html: `document.currentScript.parentElement.onclick  = () => {
+              if (!navigator.isOnline) return;
               navigator.serviceWorker.getRegistrations().then(registrations => {
-                return Promise.all(registrations.map(registration => registration.update()))
-              })
+                return Promise.all(registrations.map(registration => registration.unregister()))
+              }).then(() => window.location.reload())
             }`
           }} />
         <Cached />
