@@ -1,25 +1,6 @@
-import type { UserDocument } from "@/types";
 import { ArrowUpward, ArrowDownward } from "@mui/icons-material";
 import { Box, ToggleButton, Select, MenuItem, ListItemText, SelectChangeEvent } from "@mui/material";
 import type { } from '@mui/material/themeCssVarsAugmentation';
-
-function compareObjectsByKey(key: string, ascending = true) {
-  return function innerSort(objectA: any, objectB: any) {
-    const valueA = key.split('.').reduce((o: any, i) => o[i], objectA);
-    const valueB = key.split('.').reduce((o: any, i) => o[i], objectB);
-    const sortValue = valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
-    return ascending ? sortValue : -1 * sortValue;
-  };
-}
-
-export const sortDocuments = (documents: UserDocument[], sort: { key: string, direction: "asc" | "desc" }) => {
-  const { key, direction } = sort;
-  const data = documents.map(d => (d.local ?? d.cloud)!);
-  const sortedData = [...data].sort(compareObjectsByKey(key, direction === 'asc'));
-  const sortedDocuments = sortedData.map(localDocument => documents.find(d => d.id === localDocument.id)!);
-  return sortedDocuments;
-};
-
 
 const DocumentSortControl: React.FC<{
   value: { key: string, direction: "asc" | "desc" },

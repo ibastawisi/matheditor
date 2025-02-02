@@ -11,8 +11,9 @@ import documentDB, { revisionDB } from '@/indexeddb';
 import Grid from '@mui/material/Grid2';
 import { Box, Avatar, Button, Typography, Card, CardActionArea, CardHeader, Collapse, Pagination } from '@mui/material';
 import { PostAdd, UploadFile, Help, Storage, Science, Pageview } from '@mui/icons-material';
-import DocumentSortControl, { sortDocuments } from '../DocumentSortControl';
-import DocumentFilterControl, { filterDocuments } from '../DocumentFilterControl';
+import DocumentSortControl from '../DocumentControls/SortControl';
+import { sortDocuments } from "../DocumentControls/sortDocuments";
+import DocumentFilterControl, { filterDocuments } from '../DocumentControls/FilterControl';
 import { v4 as uuid } from 'uuid';
 
 const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocuments }) => {
@@ -134,7 +135,7 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
   const setFilter = (value: number) => dispatch(actions.setFilter(value));
 
   const filteredDocuments = filterDocuments(documents, user, filter);
-  const sortedDocuments = sortDocuments(filteredDocuments, sort);
+  const sortedDocuments = sortDocuments(filteredDocuments, sort.key, sort.direction);
 
   return (
     <>
