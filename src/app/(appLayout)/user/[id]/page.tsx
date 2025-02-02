@@ -56,7 +56,7 @@ const UserDocumentsWrapper = async ({ id, page, sortKey, sortDirection }: { id: 
   const thumbnails = pageDocuments.reduce((acc, document) => {
     acc[document.cloud!.head] = findRevisionThumbnail(document.cloud!.head);
     return acc;
-  }, {} as Record<string, Promise<string>>);
+  }, {} as Record<string, Promise<string | null>>);
 
   return (
     <ThumbnailProvider thumbnails={thumbnails}>

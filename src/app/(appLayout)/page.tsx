@@ -19,7 +19,7 @@ const page = async () => {
   const staticThumbnails = publishedDocuments.reduce((acc, document) => {
     acc[document.head] = findRevisionThumbnail(document.head);
     return acc;
-  }, {} as Record<string, Promise<string>>);
+  }, {} as Record<string, Promise<string | null>>);
   return (
     <ThumbnailProvider thumbnails={staticThumbnails}>
       <Home staticDocuments={staticDocuments} />

@@ -1,5 +1,5 @@
 import { generateDocx } from "@/editor/utils/generateDocx";
-import { findRevisionById } from "@/repositories/revision";
+import { getCachedRevision } from "@/repositories/revision";
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   const revisionId = search.get('v')!;
 
   try {
-    const revision = await findRevisionById(revisionId);
+    const revision = await getCachedRevision(revisionId);
     if (!revision) {
       return NextResponse.json({ error: { title: "Something went wrong", subtitle: "Revision not found" } }, { status: 404 })
     }

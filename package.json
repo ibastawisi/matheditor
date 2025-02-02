@@ -5,7 +5,6 @@
   "scripts": {
     "postinstall": "patch-package",
     "dev": "next dev --turbo",
-    "prebuild": "npx prisma generate",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

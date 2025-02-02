@@ -3,7 +3,7 @@ import { findUserDocument } from "@/repositories/document";
 import { ForkDocumentResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server"
-import { findRevisionById } from "@/repositories/revision";
+import { getCachedRevision } from "@/repositories/revision";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +29,7 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
       response.error = { title: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
-    const revision = await findRevisionById(revisionId ?? cloudDocument.head);
+    const revision = await getCachedRevision(revisionId ?? cloudDocument.head);
     if (!revision) {
       response.error = { title: "Revision not found" }
       return NextResponse.json(response, { status: 404 })

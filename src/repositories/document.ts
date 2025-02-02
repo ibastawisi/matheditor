@@ -1,7 +1,7 @@
 import { Prisma, prisma } from "@/lib/prisma";
 import { CloudDocument, EditorDocument } from "@/types";
 import { validate } from "uuid";
-import { findRevisionById } from "./revision";
+import { getCachedRevision } from "./revision";
 
 const findPublishedDocuments = async () => {
   const documents = await prisma.document.findMany({
@@ -438,7 +438,7 @@ const findEditorDocument = async (handle: string) => {
   });
 
   if (!document) return null;
-  const revision = await findRevisionById(document.head);
+  const revision = await getCachedRevision(document.head);
   if (!revision) return null;
 
   const editorDocument: EditorDocument = {

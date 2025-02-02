@@ -1,5 +1,6 @@
 import { Prisma, prisma } from "@/lib/prisma";
 import { EditorDocumentRevision } from "@/types";
+import { unstable_cache } from "next/cache";
 
 const findRevisionById = async (id: string) => {
   const revision = await prisma.revision.findUnique({
@@ -18,6 +19,8 @@ const findRevisionById = async (id: string) => {
   };
   return DocumentRevision as EditorDocumentRevision;
 }
+
+const getCachedRevision = unstable_cache(findRevisionById, [], { tags: ["revision"] });
 
 const findRevisionAuthorId = async (id: string) => {
   const revision = await prisma.revision.findUnique({
@@ -47,7 +50,7 @@ const deleteRevision = async (id: string) => {
 }
 
 export {
-  findRevisionById,
+  getCachedRevision,
   findRevisionAuthorId,
   createRevision,
   updateRevision,

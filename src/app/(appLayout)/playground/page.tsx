@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Playground from "@/components/Playground";
 import htmr from "htmr";
 import { findUserDocument } from "@/repositories/document";
-import SplashScreen from "@/components/SplashScreen";
 import { findRevisionHtml } from "@/app/api/utils";
 
 export const metadata: Metadata = {
@@ -12,10 +11,10 @@ export const metadata: Metadata = {
 
 const page = async () => {
   const document = await findUserDocument("playground");
-  if (!document) return <SplashScreen title="Something went wrong" subtitle="Please try again later" />;
+  if (!document) return <Playground />;
   const revisionId = document.head;
   const html = await findRevisionHtml(revisionId);
-  if (html === null) return <SplashScreen title="Something went wrong" subtitle="Please try again later" />;
+  if (html === null) return <Playground />;
   return <Playground>{htmr(html)}</Playground>
 }
 

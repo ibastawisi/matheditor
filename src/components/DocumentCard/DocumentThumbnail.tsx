@@ -26,6 +26,7 @@ const DocumentThumbnail: React.FC<{ userDocument?: UserDocument }> = memo(({ use
   const thumbnailPromise = thumbnailContext[document?.head ?? ''];
   if (!thumbnailPromise) return <LocalDocumentThumbnail documentId={document?.id} revisionId={document?.head} />;
   const thumbnail = use(thumbnailPromise);
+  if (!thumbnail) return <LocalDocumentThumbnail documentId={document?.id} revisionId={document?.head} />;
   return (
     <Box className='document-thumbnail' dangerouslySetInnerHTML={{ __html: thumbnail.replaceAll('<a', '<span').replaceAll('</a', '</span') }} />
   );

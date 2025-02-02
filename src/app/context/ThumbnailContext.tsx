@@ -2,14 +2,14 @@
 
 import { createContext, useContext } from "react"
 
-export const ThumbnailContext = createContext<Record<string, Promise<string>> | null>(null)
+export const ThumbnailContext = createContext<Record<string, Promise<string | null>> | null>(null)
 
 export function ThumbnailProvider({
   children,
   thumbnails,
 }: {
   children: React.ReactNode
-  thumbnails: Record<string, Promise<string>>
+  thumbnails: Record<string, Promise<string | null>>
 }) {
   return (
     <ThumbnailContext.Provider value={thumbnails}>{children}</ThumbnailContext.Provider>
