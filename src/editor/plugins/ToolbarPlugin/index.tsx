@@ -19,7 +19,7 @@ import ImageTools from './Tools/ImageTools';
 import { $isGraphNode } from '@/editor/nodes/GraphNode';
 import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog, LinkDialog, LayoutDialog, OCRDialog } from './Dialogs';
 import { $isStickyNode, StickyNode } from '@/editor/nodes/StickyNode';
-import { useScrollTrigger, AppBar, Toolbar, Box, IconButton } from '@mui/material';
+import { useScrollTrigger, AppBar, Toolbar, Box, IconButton, Container } from '@mui/material';
 import { Redo, Undo } from '@mui/icons-material';
 import { $isIFrameNode } from '@/editor/nodes/IFrameNode';
 import { IS_APPLE, $findMatchingParent } from '@lexical/utils';
@@ -273,37 +273,38 @@ function ToolbarPlugin() {
           transition: 'none'
         }}>
         <Toolbar className="editor-toolbar" sx={{
-          position: "relative",
-          displayPrint: 'none', px: `${(toolbarTrigger ? 1 : 0)}!important`,
-          justifyContent: "space-between", alignItems: "center", gap: 0.5, py: 1,
+          position: "relative", displayPrint: 'none', alignItems: "center",
+          px: '0 !important', py: 1,
         }}>
-          <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
-            <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
-              onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}>
-              <Undo />
-            </IconButton>
-            <IconButton title={IS_APPLE ? 'Redo (⌘Y)' : 'Redo (Ctrl+Y)'} aria-label="Redo" disabled={!canRedo}
-              onClick={() => { activeEditor.dispatchCommand(REDO_COMMAND, undefined); }}>
-              <Redo />
-            </IconButton>
-          </Box>
-          <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', flexWrap: "wrap", justifyContent: "center" }}>
-            {showMathTools && <MathTools editor={activeEditor} node={selectedNode} />}
-            {showImageTools && <ImageTools editor={activeEditor} node={selectedNode} />}
-            {showTextTools && <>
-              {blockType in blockTypeToBlockName && <BlockFormatSelect blockType={blockType} editor={activeEditor} />}
-              {showCodeTools && <CodeTools editor={activeEditor} node={selectedNode} />}
-              {showTextFormatTools && <FontSelect editor={activeEditor} />}
-              <AITools editor={activeEditor} />
-              {showTableTools && <TableTools editor={activeEditor} node={selectedTable} />}
-              {showNoteTools && <NoteTools editor={editor} node={selectedSticky} />}
-              {showTextFormatTools && <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />}
-            </>}
-          </Box>
-          <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
-            <InsertToolMenu editor={activeEditor} />
-            <AlignTextMenu editor={activeEditor} isRTL={isRTL} />
-          </Box>
+          <Container sx={{ display: "flex", gap: 0.5, justifyContent: "space-between", alignItems: "center", px: toolbarTrigger ? '' : '0 !important', }}>
+            <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
+              <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
+                onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}>
+                <Undo />
+              </IconButton>
+              <IconButton title={IS_APPLE ? 'Redo (⌘Y)' : 'Redo (Ctrl+Y)'} aria-label="Redo" disabled={!canRedo}
+                onClick={() => { activeEditor.dispatchCommand(REDO_COMMAND, undefined); }}>
+                <Redo />
+              </IconButton>
+            </Box>
+            <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', flexWrap: "wrap", justifyContent: "center" }}>
+              {showMathTools && <MathTools editor={activeEditor} node={selectedNode} />}
+              {showImageTools && <ImageTools editor={activeEditor} node={selectedNode} />}
+              {showTextTools && <>
+                {blockType in blockTypeToBlockName && <BlockFormatSelect blockType={blockType} editor={activeEditor} />}
+                {showCodeTools && <CodeTools editor={activeEditor} node={selectedNode} />}
+                {showTextFormatTools && <FontSelect editor={activeEditor} />}
+                <AITools editor={activeEditor} />
+                {showTableTools && <TableTools editor={activeEditor} node={selectedTable} />}
+                {showNoteTools && <NoteTools editor={editor} node={selectedSticky} />}
+                {showTextFormatTools && <TextFormatToggles editor={activeEditor} sx={{ display: { xs: "none", sm: "none", md: "none", lg: "flex" } }} />}
+              </>}
+            </Box>
+            <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
+              <InsertToolMenu editor={activeEditor} />
+              <AlignTextMenu editor={activeEditor} isRTL={isRTL} />
+            </Box>
+          </Container>
         </Toolbar >
       </AppBar>
       {toolbarTrigger && <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })} />}
