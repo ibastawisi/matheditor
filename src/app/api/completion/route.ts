@@ -1,9 +1,11 @@
 import { CoreMessage, streamText } from 'ai';
+import { ollama } from 'ollama-ai-provider';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { match } from "ts-pattern";
 
 export const runtime = "edge";
 
+const OLLAMA_API_URL = process.env.OLLAMA_API_URL;
 const openai = createOpenAICompatible({
   name: "cloudflare-workers-ai",
   baseURL: `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/matheditor/workers-ai/v1/`,
@@ -95,7 +97,7 @@ export async function POST(req: Request) {
     .run() as CoreMessage[];
 
   const result = streamText({
-    model: openai("@cf/meta/llama-3.1-8b-instruct-fast"),
+    model: OLLAMA_API_URL ? ollama("llama3.2") : openai("@cf/meta/llama-3.1-8b-instruct-fast"),
     messages,
     maxTokens: 2048,
   });
