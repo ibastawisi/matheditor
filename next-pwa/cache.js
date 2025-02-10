@@ -6,6 +6,7 @@ module.exports = [
   {
     urlPattern: ({ request, url: { pathname }, sameOrigin }) => {
       if (request.headers.get("update")) return false;
+      if (request.cache === "reload") return false;
       if (!sameOrigin) return false;
       if (navigator.onLine && pathname.match(/\/new\/\w+/)) return false;
       return [

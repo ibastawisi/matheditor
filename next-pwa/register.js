@@ -24,20 +24,20 @@ if (
   window.workbox.addEventListener("controlling", async () => {
     const origin = location.origin;
     const urlsToCache = [
-      [`${origin}/`, { headers: { "update": "1" } }],
-      [`${origin}/?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
-      [`${origin}/playground`, { headers: { "update": "1" } }],
-      [`${origin}/playground?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
-      [`${origin}/tutorial`, { headers: { "update": "1" } }],
-      [`${origin}/tutorial?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
-      [`${origin}/new`, { headers: { "update": "1" } }],
-      [`${origin}/new?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
-      [`${origin}/edit`, { headers: { "update": "1" } }],
-      [`${origin}/edit?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
-      [`${origin}/dashboard`, { headers: { "update": "1" } }],
-      [`${origin}/dashboard?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
-      [`${origin}/privacy`, { headers: { "update": "1" } }],
-      [`${origin}/privacy?_rsc`, { headers: { "update": "1", "RSC": "1" } }],
+      [`${origin}/`, { cache: "reload" }],
+      [`${origin}/?_rsc`, { headers: { "RSC": "1" }, cache: "reload" }],
+      [`${origin}/playground`, { cache: "reload" }],
+      [`${origin}/playground?_rsc`, { headers: { "RSC": "1" }, cache: "reload" }],
+      [`${origin}/tutorial`, { cache: "reload" }],
+      [`${origin}/tutorial?_rsc`, { headers: { "RSC": "1" }, cache: "reload" }],
+      [`${origin}/new`, { cache: "reload" }],
+      [`${origin}/new?_rsc`, { headers: { "RSC": "1" }, cache: "reload" }],
+      [`${origin}/edit`, { cache: "reload" }],
+      [`${origin}/edit?_rsc`, { headers: { "RSC": "1" }, cache: "reload" }],
+      [`${origin}/dashboard`, { cache: "reload" }],
+      [`${origin}/dashboard?_rsc`, { headers: { "RSC": "1" }, cache: "reload" }],
+      [`${origin}/privacy`, { cache: "reload" }],
+      [`${origin}/privacy?_rsc`, { headers: { "RSC": "1" }, cache: "reload" }],
     ]
     const cache = await caches.open("pages");
     urlsToCache.forEach(([url, options]) => {
