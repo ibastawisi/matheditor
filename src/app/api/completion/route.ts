@@ -97,7 +97,7 @@ export async function POST(req: Request) {
     .run() as CoreMessage[];
 
   const result = streamText({
-    model: OLLAMA_API_URL ? ollama("llama3.2") : openai("@cf/meta/llama-3.1-8b-instruct-fast"),
+    model: OLLAMA_API_URL ? ollama("llama3.2") : openai("@cf/meta/llama-3.3-70b-instruct-fp8-fast"),
     messages,
     maxTokens: 2048,
   });
