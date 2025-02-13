@@ -2,8 +2,8 @@
 import { $createParagraphNode, $createTextNode, $getSelection, $isRangeSelection, $setSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, TextNode, } from "lexical";
 import { mergeRegister } from "@lexical/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, TextField, CircularProgress } from "@mui/material";
-import { AutoAwesome, UnfoldMore, UnfoldLess, PlayArrow, ImageSearch, Autorenew, ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
+import { Menu, Button, MenuItem, ListItemText, Typography, TextField, CircularProgress, IconButton, ListItemIcon } from "@mui/material";
+import { AutoAwesome, UnfoldMore, UnfoldLess, PlayArrow, ImageSearch, Autorenew, ArrowDropDown, ArrowDropUp, Send, Settings } from "@mui/icons-material";
 import { SxProps, Theme } from '@mui/material/styles';
 import { useCompletion } from "ai/react";
 import { SET_DIALOGS_COMMAND } from "../Dialogs/commands";
@@ -15,7 +15,19 @@ import { $isHorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
 import { $findMatchingParent } from "@lexical/utils";
 import { $getTableCellNodeFromLexicalNode, $insertTableColumn__EXPERIMENTAL, $insertTableRow__EXPERIMENTAL, $isTableCellNode, $isTableNode, $isTableRowNode, TableCellHeaderStates } from "@/editor/nodes/TableNode";
 import { throttle } from "@/editor/utils/throttle";
-import useOnlineStatus from "@/hooks/useOnlineStatus";
+
+const getLlmConfig = () => {
+  const initialValue = { provider: 'cloudflare', model: '@cf/meta/llama-3.1-8b-instruct-fast' };
+  try {
+    const item = window.localStorage.getItem('llm');
+    // Parse stored json or if none return initialValue
+    return item ? JSON.parse(item) : initialValue;
+  } catch (error) {
+    // If error also return initialValue
+    console.log(error);
+    return initialValue;
+  }
+}
 
 export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -54,7 +66,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
   const [isCollapsed, setIsCollapsed] = useState(true);
   const offset = useRef(0);
 
-  const handlePrompt = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handlePrompt = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget;
     const isNavigatingUp = textarea.selectionStart === 0 && e.key === "ArrowUp";
     const isNavigatingDown = textarea.selectionStart === textarea.value.length && e.key === "ArrowDown";
@@ -64,6 +76,12 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
     const isSubmit = e.key === "Enter" && !e.shiftKey && command.trim().length > 0;
     if (!isSubmit) return;
     e.preventDefault();
+    handleSubmit();
+  }
+
+  const handleSubmit = () => {
+    const command = promptRef.current?.value;
+    if (!command) return;
     handleClose();
     editor.getEditorState().read(() => {
       const selection = $getSelection();
@@ -75,41 +93,45 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
         textContent = currentNode.getTextContent() + "\n\n" + textContent;
         currentNode = currentNode.getPreviousSibling() || currentNode.getParent()?.getPreviousSibling();
       }
-      complete(textContent, { body: { option: "zap", command } });
+      const { provider, model } = getLlmConfig();
+      complete(textContent, { body: { option: "zap", command, provider, model } });
     });
   }
 
-  const handleRewrite = async () => {
+  const handleRewrite = () => {
     handleClose();
     editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
       const textContent = selection.getTextContent();
-      complete(textContent, { body: { option: "improve" } });
+      const { provider, model } = getLlmConfig();
+      complete(textContent, { body: { option: "improve", provider, model } });
     });
   }
 
-  const handleShorter = async () => {
+  const handleShorter = () => {
     handleClose();
     editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
       const textContent = selection.getTextContent();
-      complete(textContent, { body: { option: "shorter" } });
+      const { provider, model } = getLlmConfig();
+      complete(textContent, { body: { option: "shorter", provider, model } });
     });
   }
 
-  const handleLonger = async () => {
+  const handleLonger = () => {
     handleClose();
     editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
       const textContent = selection.getTextContent();
-      complete(textContent, { body: { option: "longer" } });
+      const { provider, model } = getLlmConfig();
+      complete(textContent, { body: { option: "longer", provider, model } });
     });
   }
 
-  const handleContinue = async () => {
+  const handleContinue = () => {
     handleClose();
     editor.update(() => {
       const selection = $getSelection();
@@ -123,11 +145,12 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       }
       const isCollapsed = selection.isCollapsed();
       if (!isCollapsed) (selection.isBackward() ? selection.anchor : selection.focus).getNode().selectEnd();
-      complete(textContent, { body: { option: "continue" } });
+      const { provider, model } = getLlmConfig();
+      complete(textContent, { body: { option: "continue", provider, model } });
     });
   }
 
-  const handleOCR = async () => {
+  const handleOCR = () => {
     handleClose();
     editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ ocr: { open: true } }));
   }
@@ -312,7 +335,9 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
     );
   }, [editor, isLoading, stop]);
 
-  const isOnline = useOnlineStatus();
+  const openAiSettings = () => {
+    editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ ai: { open: true } }));
+  }
 
   return (<>
     <Button
@@ -368,52 +393,60 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
             else currentTarget.nextElementSibling?.focus();
           }, 0);
         }}
-        disabled={!isOnline || isLoading}
+        disabled={isLoading}
       >
         <TextField
           multiline
           hiddenLabel
-          fullWidth
           variant="filled"
           size="small"
           placeholder="What to do?"
           inputRef={promptRef}
-          autoFocus={isOnline}
+          autoFocus
           autoComplete="off"
           spellCheck="false"
-          sx={{ flexGrow: 1, '& .MuiInputBase-root': { flexGrow: 1 } }}
+          sx={{ flexGrow: 1, width: 256, "& .MuiInputBase-root": { paddingRight: 9, flexGrow: 1 } }}
           slotProps={{
             htmlInput: {
-              onKeyDown: handlePrompt
-            }
+              onKeyDown: handlePrompt,
+
+            },
           }}
         />
+        <ListItemIcon sx={{ position: 'absolute', right: 2, bottom: 6 }}>
+          <IconButton onClick={handleSubmit} disabled={isLoading} size="small">
+            <Send />
+          </IconButton>
+          <IconButton onClick={openAiSettings} disabled={isLoading} size="small">
+            <Settings />
+          </IconButton>
+        </ListItemIcon>
       </MenuItem>
-      <MenuItem disabled={!isOnline || isLoading} onClick={handleContinue}>
+      <MenuItem disabled={isLoading} onClick={handleContinue}>
         <ListItemIcon>
           <PlayArrow />
         </ListItemIcon>
         <ListItemText>Continue Writing</ListItemText>
       </MenuItem>
-      <MenuItem disabled={!isOnline || isLoading || isCollapsed} onClick={handleRewrite}>
+      <MenuItem disabled={isLoading || isCollapsed} onClick={handleRewrite}>
         <ListItemIcon>
           <Autorenew />
         </ListItemIcon>
         <ListItemText>Rewrite</ListItemText>
       </MenuItem>
-      <MenuItem disabled={!isOnline || isLoading || isCollapsed} onClick={handleShorter}>
+      <MenuItem disabled={isLoading || isCollapsed} onClick={handleShorter}>
         <ListItemIcon>
           <UnfoldLess />
         </ListItemIcon>
         <ListItemText>Shorter</ListItemText>
       </MenuItem>
-      <MenuItem disabled={!isOnline || isLoading || isCollapsed} onClick={handleLonger}>
+      <MenuItem disabled={isLoading || isCollapsed} onClick={handleLonger}>
         <ListItemIcon>
           <UnfoldMore />
         </ListItemIcon>
         <ListItemText>Longer</ListItemText>
       </MenuItem>
-      <MenuItem disabled={!isOnline || isLoading || !isCollapsed} onClick={handleOCR}>
+      <MenuItem disabled={isLoading || !isCollapsed} onClick={handleOCR}>
         <ListItemIcon>
           <ImageSearch />
         </ListItemIcon>
@@ -421,4 +454,6 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       </MenuItem>
     </Menu>
   </>);
+
+
 }

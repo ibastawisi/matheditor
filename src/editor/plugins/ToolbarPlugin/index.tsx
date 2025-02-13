@@ -17,7 +17,7 @@ import MathTools from './Tools/MathTools';
 import { $isImageNode } from '@/editor/nodes/ImageNode';
 import ImageTools from './Tools/ImageTools';
 import { $isGraphNode } from '@/editor/nodes/GraphNode';
-import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog, LinkDialog, LayoutDialog, OCRDialog } from './Dialogs';
+import { ImageDialog, GraphDialog, SketchDialog, TableDialog, IFrameDialog, LinkDialog, LayoutDialog, OCRDialog, AIDialog } from './Dialogs';
 import { $isStickyNode, StickyNode } from '@/editor/nodes/StickyNode';
 import { useScrollTrigger, AppBar, Toolbar, Box, IconButton, Container } from '@mui/material';
 import { Redo, Undo } from '@mui/icons-material';
@@ -56,32 +56,7 @@ function ToolbarPlugin() {
   const [selectedNode, setSelectedNode] = useState<LexicalNode | null>(null);
   const [selectedTable, setSelectedTable] = useState<TableNode | null>(null);
   const [selectedSticky, setSelectedSticky] = useState<StickyNode | null>(null);
-  const [dialogs, setDialogs] = useState<EditorDialogs>({
-    image: {
-      open: false,
-    },
-    graph: {
-      open: false,
-    },
-    sketch: {
-      open: false,
-    },
-    table: {
-      open: false,
-    },
-    iframe: {
-      open: false,
-    },
-    link: {
-      open: false,
-    },
-    layout: {
-      open: false,
-    },
-    ocr: {
-      open: false,
-    },
-  });
+  const [dialogs, setDialogs] = useState<EditorDialogs>({});
   const isTouched = useRef<boolean>(false);
 
   const $updateToolbar = useCallback(() => {
@@ -253,7 +228,7 @@ function ToolbarPlugin() {
   const showTextTools = (!showMathTools && !showImageTools) || $isStickyNode(selectedNode);
   const showTextFormatTools = showTextTools && !showCodeTools;
   const showNoteTools = !!selectedSticky;
-  const isDialogOpen = Object.values(dialogs).some((dialog) => dialog.open);
+  const isDialogOpen = Object.values(dialogs).some((dialog) => dialog?.open);
 
   useEffect(() => {
     if (isDialogOpen) return;
@@ -308,14 +283,15 @@ function ToolbarPlugin() {
         </Toolbar >
       </AppBar>
       {toolbarTrigger && <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })} />}
-      {dialogs.image.open && <ImageDialog editor={activeEditor} node={$isImageNode(selectedNode) ? selectedNode : null} />}
-      {dialogs.graph.open && <GraphDialog editor={activeEditor} node={$isGraphNode(selectedNode) ? selectedNode : null} />}
-      {dialogs.sketch.open && <SketchDialog editor={activeEditor} node={$isImageNode(selectedNode) ? selectedNode : null} />}
-      {dialogs.table.open && <TableDialog editor={activeEditor} />}
-      {dialogs.iframe.open && <IFrameDialog editor={activeEditor} node={$isIFrameNode(selectedNode) ? selectedNode : null} />}
-      {dialogs.link.open && <LinkDialog editor={activeEditor} node={$isLinkNode(selectedNode) ? selectedNode : null} />}
-      {dialogs.layout.open && <LayoutDialog editor={activeEditor} />}
-      {dialogs.ocr.open && <OCRDialog editor={activeEditor} />}
+      {dialogs.image?.open && <ImageDialog editor={activeEditor} node={$isImageNode(selectedNode) ? selectedNode : null} />}
+      {dialogs.graph?.open && <GraphDialog editor={activeEditor} node={$isGraphNode(selectedNode) ? selectedNode : null} />}
+      {dialogs.sketch?.open && <SketchDialog editor={activeEditor} node={$isImageNode(selectedNode) ? selectedNode : null} />}
+      {dialogs.table?.open && <TableDialog editor={activeEditor} />}
+      {dialogs.iframe?.open && <IFrameDialog editor={activeEditor} node={$isIFrameNode(selectedNode) ? selectedNode : null} />}
+      {dialogs.link?.open && <LinkDialog editor={activeEditor} node={$isLinkNode(selectedNode) ? selectedNode : null} />}
+      {dialogs.layout?.open && <LayoutDialog editor={activeEditor} />}
+      {dialogs.ocr?.open && <OCRDialog editor={activeEditor} />}
+      {dialogs.ai?.open && <AIDialog editor={activeEditor} />}
     </>
   );
 }

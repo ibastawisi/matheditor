@@ -16,7 +16,7 @@ const ACCEPTABLE_IMAGE_TYPES = [
   'image/webp',
 ];
 
-const OCRDialog = ({ editor }: {  editor: LexicalEditor }) => {
+const OCRDialog: React.FC<{  editor: LexicalEditor }> = ({ editor }) => {
   const [formData, setFormData] = useState({ value: "" });
   const [loading, setLoading] = useState(false);
 

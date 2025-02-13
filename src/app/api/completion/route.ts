@@ -5,7 +5,6 @@ import { match } from "ts-pattern";
 
 export const runtime = "edge";
 
-const OLLAMA_API_URL = process.env.OLLAMA_API_URL;
 const openai = createOpenAICompatible({
   name: "cloudflare-workers-ai",
   baseURL: `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/matheditor/workers-ai/v1/`,
@@ -14,7 +13,7 @@ const openai = createOpenAICompatible({
 
 export async function POST(req: Request) {
 
-  const { prompt, option, command } = await req.json();
+  const { prompt, option, command, provider, model } = await req.json();
 
   const messages = match(option)
     .with("continue", () => [
@@ -97,7 +96,7 @@ export async function POST(req: Request) {
     .run() as CoreMessage[];
 
   const result = streamText({
-    model: OLLAMA_API_URL ? ollama("llama3.2") : openai("@cf/meta/llama-3.1-8b-instruct-fast"),
+    model: provider === "ollama" ? ollama(model || "llama3.2") : openai(model || "@cf/meta/llama-3.1-8b-instruct-fast"),
     messages,
     maxTokens: 2048,
   });

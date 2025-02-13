@@ -2,28 +2,31 @@
 import { LexicalCommand, createCommand } from 'lexical';
 
 export interface EditorDialogs {
-  image: {
+  image?: {
     open: boolean;
   };
-  graph: {
+  graph?: {
     open: boolean;
   };
-  sketch: {
+  sketch?: {
     open: boolean;
   };
-  table: {
+  table?: {
     open: boolean;
   };
-  iframe: {
+  iframe?: {
     open: boolean;
   },
-  link: {
+  link?: {
     open: boolean;
   },
-  layout: {
+  layout?: {
     open: boolean;
   },
-  ocr: {
+  ocr?: {
+    open: boolean;
+  },
+  ai?: {
     open: boolean;
   },
 };

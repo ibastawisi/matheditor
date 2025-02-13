@@ -7,6 +7,7 @@ import IFrameDialog from "./IFrameDialog";
 import LinkDialog from "./LinkDialog";
 import LayoutDialog from "./LayoutDialog";
 import OCRDialog from "./OCRDialog";
+import AIDialog from "./AIDialog";
 
 export {
   GraphDialog,
@@ -17,4 +18,5 @@ export {
   LinkDialog,
   LayoutDialog,
   OCRDialog,
+  AIDialog,
 };
