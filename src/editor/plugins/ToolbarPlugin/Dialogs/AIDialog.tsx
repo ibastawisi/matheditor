@@ -8,11 +8,9 @@ import { ViewHeadline } from '@mui/icons-material';
 
 const CLOUDFLARE_MODELS = [
   { label: 'Meta Llama 3.1 8B', value: '@cf/meta/llama-3.1-8b-instruct-fast', fast: true, reason: false },
-  { label: 'DeepSeek R1 32B', value: '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b', fast: true, reason: true },
 ];
 
 const OLLAMA_MODELS = [
-  { label: 'Meta Llama 3.2 1B', value: 'llama3.2:1b', fast: false, reason: false },
   { label: 'DeepScaleR 1.5B', value: 'deepscaler', fast: false, reason: true },
 ];
 
@@ -43,7 +41,7 @@ function AIDialog({ editor }: { editor: LexicalEditor }) {
     disableEscapeKeyDown
   >
     <DialogTitle id="ai-dialog-title">
-      Configure Ai Models
+      Configure AI Models
     </DialogTitle>
     <DialogContent>
       <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>

@@ -1,5 +1,5 @@
 import { CoreMessage, streamText } from 'ai';
-import { ollama } from 'ollama-ai-provider';
+import { createOllama } from 'ollama-ai-provider';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { match } from "ts-pattern";
 
@@ -10,6 +10,8 @@ const openai = createOpenAICompatible({
   baseURL: `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/matheditor/workers-ai/v1/`,
   headers: { Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY}` },
 });
+
+const ollama = createOllama({ baseURL: process.env.OLLAMA_API_URL });
 
 export async function POST(req: Request) {
 

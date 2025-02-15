@@ -20,10 +20,8 @@ const getLlmConfig = () => {
   const initialValue = { provider: 'cloudflare', model: '@cf/meta/llama-3.1-8b-instruct-fast' };
   try {
     const item = window.localStorage.getItem('llm');
-    // Parse stored json or if none return initialValue
     return item ? JSON.parse(item) : initialValue;
   } catch (error) {
-    // If error also return initialValue
     console.log(error);
     return initialValue;
   }
