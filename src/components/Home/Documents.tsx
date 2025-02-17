@@ -6,10 +6,9 @@ import DocumentCard from "../DocumentCard";
 import { memo, Suspense, useEffect } from "react";
 import { BackupDocument, User, UserDocument } from '@/types';
 import { validate } from "uuid";
-import UserCard from "../User/UserCard";
 import documentDB, { revisionDB } from '@/indexeddb';
 import Grid from '@mui/material/Grid2';
-import { Box, Avatar, Button, Typography, Card, CardActionArea, CardHeader, Collapse, Pagination } from '@mui/material';
+import { Box, Avatar, Button, Typography, Card, CardActionArea, CardHeader, Pagination } from '@mui/material';
 import { PostAdd, UploadFile, Help, Storage, Science, Pageview } from '@mui/icons-material';
 import DocumentSortControl from '../DocumentControls/SortControl';
 import { sortDocuments } from "../DocumentControls/sortDocuments";
@@ -181,7 +180,6 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
           </Card>
         </Grid>
       </Grid>
-      <Collapse timeout={1000} in={!(user && initialized)} unmountOnExit><Box sx={{ mb: 2 }}><UserCard user={user} showActions={!user} /></Box></Collapse>
       <DocumentsGrid documents={documents.length ? sortedDocuments : staticDocuments} initialized={initialized} user={user} />
     </>
   )
