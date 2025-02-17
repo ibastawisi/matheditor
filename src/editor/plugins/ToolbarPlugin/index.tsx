@@ -226,9 +226,9 @@ function ToolbarPlugin() {
   useEffect(() => {
     if (!hash) return;
     const scrollIntoView = (behavior?: ScrollBehavior) => {
-      const target = document.querySelector(hash);
+      const target = document.getElementById(hash.slice(1));
       if (target) return target.scrollIntoView({ block: 'start', behavior });
-      const anchor = document.querySelector(`[href="${hash}"]`);
+      const anchor = document.querySelector(`[href="${hash}"][target="_self"]`);
       anchor?.scrollIntoView({ block: 'start', behavior });
     };
     scrollIntoView();

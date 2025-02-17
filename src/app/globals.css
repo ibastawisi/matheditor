@@ -200,7 +200,7 @@ body.fullscreen {
 }
 
 @media (min-width: 600px) {
-  body:has(#app-toolbar) .editor-container [id] {
+  body:has(#app-toolbar) .editor-container :is([id], [target=_self]) {
     scroll-margin-top: calc(64px + 1rem);
   }
 }
