@@ -12,7 +12,7 @@ const UserDocuments: React.FC<{ documents?: UserDocument[], pages?: number }> = 
   const searchParams = useSearchParams();
   const page = parseInt(searchParams.get('page') || '1');
   const sortKey = searchParams.get('sortKey') || 'updatedAt';
-  const sortDirection = (searchParams.get('sortDirection') || 'desc') as "asc" | "desc";
+  const sortDirection = searchParams.get('sortDirection') || 'desc';
   const showLoading = !documents;
   const showEmpty = !showLoading && !documents.length;
 
@@ -23,7 +23,7 @@ const UserDocuments: React.FC<{ documents?: UserDocument[], pages?: number }> = 
     router.push(`?${params.toString()}`);
   };
 
-  const handleSortChange = (sort: { key: string, direction: "asc" | "desc" }) => {
+  const handleSortChange = (sort: { key: string, direction: string }) => {
     const params = new URLSearchParams(searchParams.toString());
     if (sort.key === 'updatedAt') params.delete('sortKey');
     else params.set('sortKey', sort.key);

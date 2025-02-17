@@ -33,11 +33,6 @@ const initialState: AppState = {
     initialized: false,
     drawer: false,
     page: 1,
-    filter: 0,
-    sort: {
-      key: "updatedAt",
-      direction: "desc"
-    },
     diff: {
       open: false,
     }
@@ -487,12 +482,6 @@ export const appSlice = createSlice({
     },
     setPage: (state, action: PayloadAction<number>) => {
       state.ui.page = action.payload;
-    },
-    setFilter: (state, action: PayloadAction<number>) => {
-      state.ui.filter = action.payload;
-    },
-    setSort: (state, action: PayloadAction<Partial<{ key: string, direction: "asc" | "desc" }>>) => {
-      state.ui.sort = { ...state.ui.sort, ...action.payload };
     },
     setDiff: (state, action: PayloadAction<Partial<AppState["ui"]["diff"]>>) => {
       state.ui.diff = { ...state.ui.diff, ...action.payload };

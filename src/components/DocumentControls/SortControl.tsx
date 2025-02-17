@@ -3,8 +3,8 @@ import { Box, ToggleButton, Select, MenuItem, ListItemText, SelectChangeEvent } 
 import type { } from '@mui/material/themeCssVarsAugmentation';
 
 const DocumentSortControl: React.FC<{
-  value: { key: string, direction: "asc" | "desc" },
-  setValue: (value: { key: string, direction: "asc" | "desc" }) => void,
+  value: { key: string, direction: string },
+  setValue: (value: { key: string, direction: string }) => void,
 }> = ({ value, setValue }) => {
   const { key: sortKey, direction: sortDirection } = value;
 

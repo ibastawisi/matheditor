@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import RouterLink from 'next/link'
 import { useDispatch, useSelector, actions } from '@/store';
 import DocumentCard from "../DocumentCard";
-import { memo, useEffect } from "react";
+import { memo, Suspense, useEffect } from "react";
 import { BackupDocument, User, UserDocument } from '@/types';
 import { validate } from "uuid";
 import UserCard from "../User/UserCard";
@@ -15,6 +15,8 @@ import DocumentSortControl from '../DocumentControls/SortControl';
 import { sortDocuments } from "../DocumentControls/sortDocuments";
 import DocumentFilterControl, { filterDocuments } from '../DocumentControls/FilterControl';
 import { v4 as uuid } from 'uuid';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import { useHydration } from '@/hooks/useHydration';
 
 const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocuments }) => {
   const user = useSelector(state => state.user);
@@ -129,13 +131,13 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
     };
   };
 
-  const sort = useSelector(state => state.ui.sort);
-  const setSort = (payload: Partial<{ key: string, direction: "asc" | "desc" }>) => dispatch(actions.setSort(payload));
-  const filter = useSelector(state => state.ui.filter);
-  const setFilter = (value: number) => dispatch(actions.setFilter(value));
+  const [sort, setSort] = useLocalStorage("sort", { key: "updatedAt", direction: "desc" });
+  const [filter, setFilter] = useLocalStorage("filter", 0);
 
   const filteredDocuments = filterDocuments(documents, user, filter);
   const sortedDocuments = sortDocuments(filteredDocuments, sort.key, sort.direction);
+
+  const hydrated = useHydration();
 
   return (
     <>
@@ -155,9 +157,13 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
               Backup
             </Button>
           </Box>
-          <DocumentSortControl value={sort} setValue={setSort} />
+          <Suspense key={hydrated ? 'local' : 'cloud'}>
+            <DocumentSortControl value={sort} setValue={setSort} />
+          </Suspense>
         </Box>
-        <DocumentFilterControl value={filter} setValue={setFilter} />
+        <Suspense key={hydrated ? 'local' : 'cloud'}>
+          <DocumentFilterControl value={filter} setValue={setFilter} />
+        </Suspense>
       </Box>
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid size={{ xs: 6 }}>

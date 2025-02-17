@@ -9,7 +9,7 @@ function compareObjectsByKey(key: string, ascending = true) {
   };
 }
 
-export const sortDocuments = (documents: UserDocument[], sortkey: string, sortDirection: "asc" | "desc") => {
+export const sortDocuments = (documents: UserDocument[], sortkey: string, sortDirection: string) => {
   const data = documents.map(d => (d.local ?? d.cloud)!);
   const sortedData = [...data].sort(compareObjectsByKey(sortkey, sortDirection === 'asc'));
   const sortedDocuments = sortedData.map(localDocument => documents.find(d => d.id === localDocument.id)!);
