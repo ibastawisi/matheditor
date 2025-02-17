@@ -41,7 +41,8 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
       const id = node.__url.slice(1);
       const figureKey = [...figures.entries()].find(([key, element]) => element.id === id)?.[0];
       const target = node.__target;
-      setFigure(figureKey ?? target === '_self' ? 'self' : 'none');
+      const figure = figureKey ? figureKey : target === '_self' ? 'self' : 'none';
+      setFigure(figure);
     }
   }, [node]);
 

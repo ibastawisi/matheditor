@@ -3,7 +3,7 @@ import { CloudDocument, EditorDocument } from "@/types";
 import { validate } from "uuid";
 import { getCachedRevision } from "./revision";
 
-const findPublishedDocuments = async () => {
+const findPublishedDocuments = async (limit?: number) => {
   const documents = await prisma.document.findMany({
     where: { published: true },
     select: {
@@ -64,7 +64,8 @@ const findPublishedDocuments = async () => {
     },
     orderBy: {
       updatedAt: 'desc'
-    }
+    },
+    take: limit
   });
 
   const cloudDocuments = documents.map((document) => {

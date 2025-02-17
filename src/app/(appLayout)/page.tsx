@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 }
 
 const page = async () => {
-  const publishedDocuments = await findPublishedDocuments();
+  const publishedDocuments = await findPublishedDocuments(12);
   const staticDocuments: UserDocument[] = publishedDocuments.map(document => ({
     id: document.id,
     cloud: document,
