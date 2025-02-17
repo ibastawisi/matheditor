@@ -546,6 +546,7 @@ iframe {
   max-width: 100%;
   position: relative;
   z-index: 2;
+  overflow: clip;
 }
 
 .LexicalTheme__math>.ML__latex {
