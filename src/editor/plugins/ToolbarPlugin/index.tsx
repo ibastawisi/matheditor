@@ -7,6 +7,7 @@ import { $isHeadingNode } from '@lexical/rich-text';
 import { $isParentElementRTL, } from '@lexical/selection';
 import { $getNearestNodeOfType, mergeRegister, } from '@lexical/utils';
 import { CAN_REDO_COMMAND, CAN_UNDO_COMMAND, REDO_COMMAND, SELECTION_CHANGE_COMMAND, UNDO_COMMAND, COMMAND_PRIORITY_CRITICAL, } from 'lexical';
+import { useHash } from 'react-use';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { BlockFormatSelect } from './Menus/BlockFormatSelect';
 import InsertToolMenu from './Menus/InsertToolMenu';
@@ -58,6 +59,7 @@ function ToolbarPlugin() {
   const [selectedSticky, setSelectedSticky] = useState<StickyNode | null>(null);
   const [dialogs, setDialogs] = useState<EditorDialogs>({});
   const isTouched = useRef<boolean>(false);
+  const [hash] = useHash();
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -220,6 +222,18 @@ function ToolbarPlugin() {
       darkThemeMeta.setAttribute('content', toolbarTrigger ? '#121212' : '#272727');
     }
   }, [toolbarTrigger]);
+
+  useEffect(() => {
+    if (!hash) return;
+    const scrollIntoView = (behavior?: ScrollBehavior) => {
+      const target = document.querySelector(hash);
+      if (target) return target.scrollIntoView({ block: 'start', behavior });
+      const anchor = document.querySelector(`[href="${hash}"]`);
+      anchor?.scrollIntoView({ block: 'start', behavior });
+    };
+    scrollIntoView();
+    setTimeout(() => scrollIntoView('smooth'), 0);
+  }, [hash]);
 
   const showMathTools = $isMathNode(selectedNode);
   const showImageTools = $isImageNode(selectedNode);

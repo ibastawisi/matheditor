@@ -15,8 +15,8 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [url, setUrl] = useState<string>('https://');
-  const [rel, setRel] = useState<string>('external');
-  const [target, setTarget] = useState<string>('_blank');
+  const [rel, setRel] = useState<string | null>('external');
+  const [target, setTarget] = useState<string | null>('_blank');
   const [figure, setFigure] = useState<string>('self');
 
   const figures = useMemo(() => {
@@ -59,7 +59,7 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
     const nodeUrl = node?.__url ?? defaultUrl;
     const url = value === nodeRel ? nodeUrl : defaultUrl;
     setUrl(url);
-    const target = value === 'external' ? '_blank' : figure === 'self' ? '_self' : '';
+    const target = value === 'external' ? '_blank' : figure === 'self' ? '_self' : null;
     setTarget(target);
   }
 
@@ -67,7 +67,7 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
     const value = event.target.value;
     setFigure(value);
     if (value === 'self') setTarget('_self');
-    if (value === 'none') setTarget('');
+    else setTarget(null);
   }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
@@ -101,7 +101,7 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
     return editor.getEditorState().read(() => {
       if (node && node.getRel() === 'bookmark') return decodeURIComponent(node.getURL());
       const selection = $getSelection();
-      if (!$isRangeSelection(selection)) return '';
+      if (!$isRangeSelection(selection)) return '#';
       const textContent = selection.isCollapsed() ? selection.focus.getNode().getTextContent() : selection.getTextContent();
       return `#${textContent.trim().toLowerCase().replace(/\s+/g, '-')}`;
     });

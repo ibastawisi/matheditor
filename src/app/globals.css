@@ -104,11 +104,11 @@ header {
   }
 }
 
-.editor-container [id] {
+.editor-container :is([id], [target=_self]) {
   scroll-margin-top: 1rem;
 }
 
-body:has(#app-toolbar) .editor-container [id] {
+body:has(#app-toolbar) .editor-container :is([id], [target=_self]) {
   scroll-margin-top: calc(56px + 1rem);
 }
 

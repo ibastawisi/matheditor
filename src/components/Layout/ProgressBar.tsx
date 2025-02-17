@@ -19,9 +19,8 @@ export default memo(function ProgressBar() {
       const targetElement = event.currentTarget as HTMLAnchorElement;
       if (window.location.origin !== targetElement.origin) return;
       if (window.location.href === targetElement.href) return;
-      if (targetElement.target) return;
-      const editorRoot = document.querySelector('.editor-input');
-      if (editorRoot && editorRoot.contains(targetElement)) return;
+      if (targetElement.target === '_blank') return;
+      if (targetElement.hash) return;
       NProgress.start();
     };
 

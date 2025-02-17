@@ -5,18 +5,8 @@ import { useEffect } from 'react';
 import logo from "@public/logo.svg";
 import Image from 'next/image';
 import { useDispatch, actions, useSelector } from '@/store';
-import { useScrollTrigger, Slide, Zoom, Box, AppBar, Toolbar, Typography, IconButton, Avatar, Fab, Link } from '@mui/material';
+import { useScrollTrigger, Zoom, Box, AppBar, Toolbar, Typography, IconButton, Avatar, Fab, Link } from '@mui/material';
 import { Print, KeyboardArrowUp, Info } from '@mui/icons-material';
-
-function HideOnScroll({ children }: { children: React.ReactElement }) {
-  const pathname = usePathname();
-  const shouldHide = !!['/edit', '/playground', '/tutorial'].find(path => pathname.startsWith(path));
-  const trigger = useScrollTrigger({ threshold: 32 });
-  if (!shouldHide) return children;
-  return (
-    <Slide appear={false} direction="down" in={!trigger}>{children}</Slide>
-  );
-}
 
 function ScrollTop() {
   const trigger = useScrollTrigger({ disableHysteresis: true });
@@ -58,7 +48,6 @@ const TopAppBar: React.FC = () => {
 
   return (
     <>
-      <HideOnScroll>
         <AppBar sx={{ displayPrint: "none" }}>
           <Toolbar id="app-toolbar">
             <Link component={RouterLink} prefetch={false} href="/" sx={{ textDecoration: "none" }}>
@@ -78,7 +67,6 @@ const TopAppBar: React.FC = () => {
               sx={{ '& >.MuiBadge-root': { height: '1em', userSelect: 'none', zIndex: -1 } }} ><Info /></IconButton>}
           </Toolbar>
         </AppBar>
-      </HideOnScroll >
       <Toolbar id="back-to-top-anchor" sx={{ displayPrint: "none" }} />
       <ScrollTop />
     </>

@@ -1,5 +1,5 @@
 "use client"
-import { RefObject, PropsWithChildren, RefCallback } from 'react';
+import { RefObject, RefCallback } from 'react';
 import { COMMAND_PRIORITY_LOW } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
 import type { EditorDocument } from '@/types';

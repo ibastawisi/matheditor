@@ -3,7 +3,7 @@ import RevisionCard from './EditRevisionCard';
 import { actions, useDispatch, useSelector } from '@/store';
 import Grid from '@mui/material/Grid2';
 import { Avatar, Badge, Box, Button, Chip, IconButton, Portal, Typography } from '@mui/material';
-import { Close, Compare, History, Print } from '@mui/icons-material';
+import { Close, Compare, History, Preview, Print } from '@mui/icons-material';
 import type { LexicalEditor } from 'lexical';
 import { RefObject } from 'react';
 import RouterLink from "next/link";
@@ -48,11 +48,17 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
 
   const isDiffViewOpen = useSelector(state => state.ui.diff.open);
   const toggleDiffView = async () => {
-    if (unsavedChanges) await createLocalRevision();
     const newRevisionId = documentRevisions[0]?.id;
     const oldRevisionId = documentRevisions[1]?.id ?? newRevisionId;
     dispatch(actions.setDiff({ open: !isDiffViewOpen, old: oldRevisionId, new: newRevisionId }));
   }
+
+  const viewLocalDocument = async () => {
+    if (isDiffViewOpen) return dispatch(actions.setDiff({ open: false }));
+    if (unsavedChanges) await createLocalRevision();
+    dispatch(actions.setDiff({ open: true, old: localDocument?.head, new: localDocument?.head }));
+  }
+
   const getLocalEditorData = () => editorRef.current?.getEditorState().toJSON();
 
   const createLocalRevision = async () => {
@@ -123,7 +129,12 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
             </>}
           </>}
           {userDocument && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2, alignSelf: "flex-end" }}>
-            <IconButton aria-label="Print" color="inherit" onClick={() => { window.print(); }}><Print /></IconButton>
+            <IconButton aria-label="Print" onClick={() => { window.print(); }}><Print /></IconButton>
+            <IconButton aria-label="View" onClick={viewLocalDocument} sx={isDiffViewOpen ? {
+              color: "primary.contrastText",
+              backgroundColor: "primary.main",
+              '&:hover': { backgroundColor: "primary.dark" }
+            } : undefined}><Preview /></IconButton>
             <ShareDocument userDocument={userDocument} />
             <ForkDocument userDocument={userDocument} />
             <DownloadDocument userDocument={userDocument} />
