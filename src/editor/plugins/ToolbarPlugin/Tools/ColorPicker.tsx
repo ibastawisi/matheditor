@@ -1,6 +1,6 @@
 "use client"
 import * as React from 'react';
-import { MenuItem, ListItemText, ToggleButton, Menu, ListSubheader, ListItemIcon } from '@mui/material';
+import { MenuItem, ListItemText, ToggleButton, Menu, ListItemIcon } from '@mui/material';
 import { FormatColorFill, CircleOutlined, FormatClear, FormatColorReset, Circle } from '@mui/icons-material';
 
 const textPalette = [
@@ -81,7 +81,6 @@ export default function ColorPicker({ onColorChange, onClose, toggle = "togglebu
         }}
 
       >
-        <ListSubheader key="text" sx={{ width: "100%" }}>Text</ListSubheader>
         {textPalette.map((color, index) => (
           <MenuItem key={index} onClick={e => { onChange("text", color); }} selected={color === textColor}>
             <CircleOutlined style={{ color }} />
@@ -90,7 +89,6 @@ export default function ColorPicker({ onColorChange, onClose, toggle = "togglebu
         <MenuItem key="clear-color" onClick={e => { onChange("text", 'inherit'); }} selected={textColor === 'inherit'}>
           <FormatClear />
         </MenuItem>
-        <ListSubheader key="background" sx={{ width: "100%" }}>Background</ListSubheader>
         {backgroundPalette.map((color, index) => (
           <MenuItem key={index} onClick={e => { onChange("background", color); }} selected={color === backgroundColor}>
             <Circle style={{ backgroundColor: color, color: 'transparent' }} />

@@ -119,7 +119,23 @@ export default function MathComponent({ initialValue, nodeKey }: MathComponentPr
       mathVirtualKeyboard.show({ animate: true });
       const element = (mathVirtualKeyboard as any).element as HTMLElement;
       if (!element) return;
-      element.ontransitionend = () => mathfield.executeCommand("scrollIntoView");
+      element.ontransitionend = (event) => {
+        if (event.propertyName !== "transform") return;
+        mathfield.executeCommand("scrollIntoView");
+        const mathTools = document.getElementById("math-tools");
+        const virtualKeyboard = window.mathVirtualKeyboard;
+        const container = (virtualKeyboard as any)?.element?.firstElementChild as HTMLElement;
+        if (!container || !mathTools) return;
+        mathTools.style.bottom = container.clientHeight + 1 + "px";
+        if (getComputedStyle(mathTools).position === "fixed") {
+          const mathToolsBounds = mathTools.getBoundingClientRect();
+          const mathfieldBounds = mathfield.getBoundingClientRect();
+          const kbdBounds = container.getBoundingClientRect();
+          if (mathfieldBounds.bottom > kbdBounds.top - mathToolsBounds.height) {
+            scrollBy(0, mathfieldBounds.bottom - kbdBounds.top + mathToolsBounds.height + 8);
+          }
+        }
+      };
     };
 
     const onBlur = (event: FocusEvent) => {
@@ -129,6 +145,9 @@ export default function MathComponent({ initialValue, nodeKey }: MathComponentPr
       if (relatedTarget?.closest(".editor-toolbar")) return;
       const mathVirtualKeyboard = window.mathVirtualKeyboard;
       mathVirtualKeyboard.hide();
+      const mathTools = document.getElementById("math-tools");
+      if (!mathTools) return;
+      mathTools.style.bottom = "0";
     }
 
     function onKeydown(event: KeyboardEvent) {

@@ -67,16 +67,6 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
           onClick={openSketchDialog}>
           <Draw />
         </ToggleButton>}
-        <ToggleButton value="caption" key="caption" selected={node.getShowCaption()}
-          onClick={toggleShowCaption}>
-          {node.getShowCaption() ? <ClosedCaption /> : <ClosedCaptionDisabled />}
-        </ToggleButton>
-        <ToggleButton value="filter-toggle" key="filter-toggle" selected={!style || style.filter !== "none"}
-          onClick={() => {
-            updateStyle({ "filter": style?.filter === "none" ? "" : "none" });
-          }}>
-          <FilterBAndW />
-        </ToggleButton>
         <ToggleButton value="delete"
           onClick={() => {
             editor.update(() => {
@@ -87,7 +77,26 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
           <Delete />
         </ToggleButton>
       </ToggleButtonGroup>
-      <ToggleButtonGroup size="small" sx={{ ...sx }} >
+      <ToggleButtonGroup size="small" sx={{
+        ...sx,
+        display: 'flex',
+        position: ['fixed', 'static'],
+        justifyContent: ['center', 'start'],
+        inset: 0,
+        top: 'auto',
+        zIndex: 1000,
+        backgroundColor: 'inherit'
+      }}>
+        <ToggleButton value="caption" key="caption" selected={node.getShowCaption()}
+          onClick={toggleShowCaption}>
+          {node.getShowCaption() ? <ClosedCaption /> : <ClosedCaptionDisabled />}
+        </ToggleButton>
+        <ToggleButton value="filter-toggle" key="filter-toggle" selected={!style || style.filter !== "none"}
+          onClick={() => {
+            updateStyle({ "filter": style?.filter === "none" ? "" : "none" });
+          }}>
+          <FilterBAndW />
+        </ToggleButton>
         <ToggleButton value="float-left" key="float-left" selected={style?.float === "left"}
           onClick={() => {
             updateStyle({ "float": "left" });
@@ -99,7 +108,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
             updateStyle({ "float": "none" });
           }}>
           <ViewHeadline />
-        </ToggleButton>,
+        </ToggleButton>
         <ToggleButton value="float-right" key="float-right" selected={style?.float === "right"}
           onClick={() => {
             updateStyle({ "float": "right" });

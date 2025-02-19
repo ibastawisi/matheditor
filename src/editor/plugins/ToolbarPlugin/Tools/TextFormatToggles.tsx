@@ -1,6 +1,6 @@
 "use client"
 import * as React from 'react';
-import { $getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND, LexicalEditor, COMMAND_PRIORITY_CRITICAL, SELECTION_CHANGE_COMMAND, TextFormatType, KEY_MODIFIER_COMMAND, COMMAND_PRIORITY_NORMAL, } from "lexical";
+import { $getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND, LexicalEditor, COMMAND_PRIORITY_CRITICAL, SELECTION_CHANGE_COMMAND, TextFormatType, KEY_MODIFIER_COMMAND, COMMAND_PRIORITY_NORMAL, $setSelection, } from "lexical";
 import { $patchStyleText, } from '@lexical/selection';
 import { mergeRegister, IS_APPLE } from '@lexical/utils';
 import { $isLinkNode } from '@lexical/link';
@@ -128,11 +128,18 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
     );
   }, [editor]);
 
+  const restoreFocus = useCallback(() => {
+    editor.update(() => {
+      const selection = $getSelection();
+      if (!selection) return;
+      $setSelection(selection.clone());
+    }, { discrete: true, onUpdate() { setTimeout(() => editor.focus(), 0); } });
+  }, [editor]);
 
 
   const openLinkDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ link: { open: true } }));
 
-  return (<ToggleButtonGroup size="small" sx={{ ...sx }} value={formatKeys} onChange={handleFormat} aria-label="text formatting">
+  return (<ToggleButtonGroup size="small" sx={{ ...sx }} value={formatKeys} onChange={handleFormat} aria-label="text formatting" id="text-format-toggles">
     <ToggleButton value="bold" title={IS_APPLE ? 'Bold (⌘B)' : 'Bold (Ctrl+B)'} aria-label={`Format text as bold. Shortcut: ${IS_APPLE ? '⌘B' : 'Ctrl+B'}`}>
       <FormatBold />
     </ToggleButton>
@@ -160,6 +167,6 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
     <ToggleButton value="link" title={IS_APPLE ? 'Insert Link (⌘K)' : 'Insert Link (Ctrl+K)'} aria-label={`Insert a link. Shortcut: ${IS_APPLE ? '⌘K' : 'Ctrl+K'}`} onClick={openLinkDialog}>
       <Link />
     </ToggleButton>
-    <ColorPicker onColorChange={onColorChange} textColor={textColor} backgroundColor={backgroundColor} />
+    <ColorPicker onColorChange={onColorChange} textColor={textColor} backgroundColor={backgroundColor} onClose={restoreFocus} />
   </ToggleButtonGroup>)
 }

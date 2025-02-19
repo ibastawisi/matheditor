@@ -64,6 +64,19 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
         setTextColor('');
         setBackgroundColor('');
       }
+      const mathTools = document.getElementById("math-tools");
+      const virtualKeyboard = window.mathVirtualKeyboard;
+      const container = (virtualKeyboard as any)?.element?.firstElementChild as HTMLElement;
+      if (!container || !mathTools) return;
+      mathTools.style.bottom = container.clientHeight + 1 + "px";
+      if (getComputedStyle(mathTools).position === "fixed") {
+        const mathToolsBounds = mathTools.getBoundingClientRect();
+        const mathfieldBounds = mathfield.getBoundingClientRect();
+        const kbdBounds = container.getBoundingClientRect();
+        if (mathfieldBounds.bottom > kbdBounds.top - mathToolsBounds.height) {
+          scrollBy(0, mathfieldBounds.bottom - kbdBounds.top + mathToolsBounds.height + 8);
+        }
+      }
     });
   }, [node]);
 
@@ -116,21 +129,21 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
 
   const handleClose = () => {
     setOpen(false);
-    setValue(null);
-    restoreFocus();
+    if (value === "draw") setTimeout(() => window.mathVirtualKeyboard.hide(), 0);
+    else restoreFocus();
   };
   const restoreFocus = () => {
+    window.mathVirtualKeyboard.show();
     const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
     if (!mathfield) return;
-    setTimeout(() => {
-      mathfield.focus();
-    }, 0);
+    setTimeout(() => mathfield.focus(), 0);
   }
 
   const mathfieldRef = useRef<MathfieldElement>(null);
   const [formData, setFormData] = useState({ value: node.getValue() });
   useEffect(() => {
     setFormData({ value: node.getValue() });
+    if (value === "draw") setTimeout(() => window.mathVirtualKeyboard.hide(), 0);
   }, [node]);
 
   const updateFormData = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -203,13 +216,15 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     editor.dispatchCommand(ANNOUNCE_COMMAND, announcement);
   }, [editor]);
 
+  const handleToggle = (event: React.MouseEvent<HTMLElement>, value: string | null) => {
+    setValue(value);
+    if (value === "draw") setTimeout(() => window.mathVirtualKeyboard.hide(), 0);
+    if (value === null) restoreFocus();
+  }
 
   return (
     <>
-      <ToggleButtonGroup size="small" sx={{ ...sx }} exclusive value={value} onChange={(e, newValue) => setValue(newValue)}>
-        <ToggleButton value="wolfram" onClick={openWolfram} disabled={!isOnline} sx={{ color: isOnline ? "#f96932" : undefined }}>
-          <WolframIcon />
-        </ToggleButton>
+      <ToggleButtonGroup size="small" sx={{ position: "relative", ...sx }} exclusive>
         <ToggleButton value="edit" onClick={openEditDialog}>
           <Edit />
         </ToggleButton>
@@ -231,17 +246,43 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
             </DialogActions>
           </form>
         </Dialog>
+        <ToggleButton value="delete"
+          onClick={() => {
+            editor.update(() => {
+              node.selectPrevious();
+              node.remove();
+            });
+          }}>
+          <Delete />
+        </ToggleButton>
+      </ToggleButtonGroup>
+      <ToggleButtonGroup size="small" exclusive value={value} onChange={handleToggle} id="math-tools" sx={{
+        ...sx,
+        display: 'flex',
+        position: ['fixed', 'static'],
+        justifyContent: ['center', 'start'],
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 'auto',
+        zIndex: 1000,
+        backgroundColor: 'inherit',
+        transition: 'bottom 0.3s'
+      }}>
+        <ToggleButton value="wolfram" onClick={openWolfram} disabled={!isOnline} sx={{ color: isOnline ? "#f96932" : undefined }}>
+          <WolframIcon />
+        </ToggleButton>
         <ToggleButton component="label" value="draw" disabled={!isOnline}>
           <Draw />
         </ToggleButton>
         {value === "draw" && <Collapse in={value === "draw"}>
           <Paper sx={{
             position: "absolute",
-            top: 56,
+            top: ['100%', 56],
             left: "50%",
             transform: "translateX(-50%)",
             width: "100%",
-            height: 180,
+            height: 295,
             maxWidth: 1000,
             border: "1px solid",
             borderColor: theme.palette.divider,
@@ -268,9 +309,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
           </Paper>
         </Collapse>}
         <ColorPicker onColorChange={onColorChange} onClose={handleClose} textColor={textColor} backgroundColor={backgroundColor} />
-      </ToggleButtonGroup>
-      <FontSizePicker fontSize={fontSize} updateFontSize={updateFontSize} onBlur={restoreFocus} />
-      <ToggleButtonGroup size="small" sx={{ position: "relative", ...sx }} exclusive>
+        <FontSizePicker fontSize={fontSize} updateFontSize={updateFontSize} onBlur={restoreFocus} />
         <ToggleButton value="menu"
           onClick={(e) => {
             const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
@@ -281,15 +320,6 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
             setTimeout(() => { setValue(null); }, 0);
           }}>
           <Menu />
-        </ToggleButton>
-        <ToggleButton value="delete"
-          onClick={() => {
-            editor.update(() => {
-              node.selectPrevious();
-              node.remove();
-            });
-          }}>
-          <Delete />
         </ToggleButton>
       </ToggleButtonGroup>
     </>

@@ -24,7 +24,10 @@ function ScrollTop() {
   return (
     <Zoom in={trigger}>
       <Fab color="secondary" size="small" aria-label="scroll back to top" onClick={handleClick}
-        sx={{ position: 'fixed', bottom: 16, right: 16, displayPrint: "none" }}>
+        sx={{
+          position: 'fixed', bottom: 16, right: 16, displayPrint: "none", transition: 'bottom 0.3s',
+          '&:has(~.editor-container>.editor-input)': { bottom: [48, 16] }
+        }}>
         <KeyboardArrowUp />
       </Fab>
     </Zoom >
@@ -48,25 +51,25 @@ const TopAppBar: React.FC = () => {
 
   return (
     <>
-        <AppBar sx={{ displayPrint: "none" }}>
-          <Toolbar id="app-toolbar">
-            <Link component={RouterLink} prefetch={false} href="/" sx={{ textDecoration: "none" }}>
-              <Box sx={{ display: "flex" }}>
-                <Image src={logo} alt="Logo" width={32} height={32} priority />
-                <Typography variant="h6" component="h1" sx={{ marginInlineStart: 2, color: "white" }}>Math Editor</Typography>
-              </Box>
-            </Link>
-            <Box sx={{ flexGrow: 1 }} />
-            <IconButton component={RouterLink} prefetch={false} href="/dashboard" aria-label="Dashboard">
-              <Avatar alt={user?.name} src={user?.image ?? undefined} sx={{ width: 30, height: 30 }} />
-            </IconButton>
-            {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={handlePrint}>
-              <Print />
-            </IconButton>}
-            {showDrawerButton && <IconButton id="document-info" aria-label="Document Info" color='inherit' onClick={toggleDrawer}
-              sx={{ '& >.MuiBadge-root': { height: '1em', userSelect: 'none', zIndex: -1 } }} ><Info /></IconButton>}
-          </Toolbar>
-        </AppBar>
+      <AppBar sx={{ displayPrint: "none", }}>
+        <Toolbar id="app-toolbar">
+          <Link component={RouterLink} prefetch={false} href="/" sx={{ textDecoration: "none" }}>
+            <Box sx={{ display: "flex" }}>
+              <Image src={logo} alt="Logo" width={32} height={32} priority />
+              <Typography variant="h6" component="h1" sx={{ marginInlineStart: 2, color: "white" }}>Math Editor</Typography>
+            </Box>
+          </Link>
+          <Box sx={{ flexGrow: 1 }} />
+          <IconButton component={RouterLink} prefetch={false} href="/dashboard" aria-label="Dashboard">
+            <Avatar alt={user?.name} src={user?.image ?? undefined} sx={{ width: 30, height: 30 }} />
+          </IconButton>
+          {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={handlePrint}>
+            <Print />
+          </IconButton>}
+          {showDrawerButton && <IconButton id="document-info" aria-label="Document Info" color='inherit' onClick={toggleDrawer}
+            sx={{ '& >.MuiBadge-root': { height: '1em', userSelect: 'none', zIndex: -1 } }} ><Info /></IconButton>}
+        </Toolbar>
+      </AppBar>
       <Toolbar id="back-to-top-anchor" sx={{ displayPrint: "none" }} />
       <ScrollTop />
     </>
