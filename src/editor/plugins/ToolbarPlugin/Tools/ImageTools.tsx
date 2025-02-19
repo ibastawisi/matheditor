@@ -84,6 +84,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
         justifyContent: ['center', 'start'],
         inset: 0,
         top: 'auto',
+        bottom: 0.5,
         zIndex: 1000,
         backgroundColor: 'inherit'
       }}>

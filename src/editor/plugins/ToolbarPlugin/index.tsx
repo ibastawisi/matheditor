@@ -290,7 +290,7 @@ function ToolbarPlugin() {
                   display: { xs: "flex", sm: "none", md: "none", lg: "flex" },
                   position: ['fixed', 'static'],
                   justifyContent: ['center', 'start'],
-                  bottom: 0, left: 0, right: 0, top: 'auto', zIndex: 1000,
+                  bottom: 0.5, left: 0, right: 0, top: 'auto', zIndex: 1000,
                   backgroundColor: 'inherit',
                 }} />}
               </>}

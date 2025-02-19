@@ -147,7 +147,7 @@ export default function MathComponent({ initialValue, nodeKey }: MathComponentPr
       mathVirtualKeyboard.hide();
       const mathTools = document.getElementById("math-tools");
       if (!mathTools) return;
-      mathTools.style.bottom = "0";
+      mathTools.style.bottom = "1px";
     }
 
     function onKeydown(event: KeyboardEvent) {
