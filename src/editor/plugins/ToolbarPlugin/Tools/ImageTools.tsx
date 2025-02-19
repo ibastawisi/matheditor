@@ -7,7 +7,7 @@ import { $patchStyle, getStyleObjectFromCSS } from '@/editor/nodes/utils';
 import { useEffect, useState } from "react";
 import { SET_DIALOGS_COMMAND } from '../Dialogs/commands';
 import { SxProps, Theme } from '@mui/material/styles';
-import { ToggleButtonGroup, ToggleButton, SvgIcon } from "@mui/material";
+import { ToggleButtonGroup, ToggleButton, SvgIcon, Box } from "@mui/material";
 import { Edit, ClosedCaptionDisabled, ClosedCaption, ViewHeadline, Delete, Draw, FilterBAndW } from "@mui/icons-material";
 import { $isIFrameNode, IFrameNode } from "@/editor/nodes/IFrameNode";
 
@@ -58,7 +58,9 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
 
   return (
     <>
-      <ToggleButtonGroup size="small" sx={{ ...sx }} >
+      <ToggleButtonGroup size="small" sx={{
+        ...sx, bgcolor: 'background.default',
+      }} >
         <ToggleButton value="edit" key="edit"
           onClick={openDialog}>
           <Edit />
@@ -77,17 +79,16 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
           <Delete />
         </ToggleButton>
       </ToggleButtonGroup>
-      <ToggleButtonGroup size="small" sx={{
-        ...sx,
+      <Box sx={{
         display: 'flex',
-        position: ['fixed', 'static'],
-        justifyContent: ['center', 'start'],
-        inset: 0,
-        top: 'auto',
-        bottom: 0.5,
-        zIndex: 1000,
-        backgroundColor: 'inherit'
+      flexWrap: 'wrap',
+      gap: 0.5,
+      position: ['fixed', 'static'],
+      justifyContent: ['center', 'start'],
+      inset: 'auto auto 4px',
+      zIndex: 1000,
       }}>
+        <ToggleButtonGroup size="small" sx={{ bgcolor: 'background.default' }}>
         <ToggleButton value="caption" key="caption" selected={node.getShowCaption()}
           onClick={toggleShowCaption}>
           {node.getShowCaption() ? <ClosedCaption /> : <ClosedCaptionDisabled />}
@@ -98,6 +99,8 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
           }}>
           <FilterBAndW />
         </ToggleButton>
+      </ToggleButtonGroup>
+      <ToggleButtonGroup size="small" sx={{ bgcolor: 'background.default' }}>
         <ToggleButton value="float-left" key="float-left" selected={style?.float === "left"}
           onClick={() => {
             updateStyle({ "float": "left" });
@@ -117,6 +120,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
           <FormatImageRight />
         </ToggleButton>
       </ToggleButtonGroup>
+    </Box >
     </>
   )
 }

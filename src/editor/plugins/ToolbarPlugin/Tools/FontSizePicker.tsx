@@ -63,7 +63,7 @@ export const FontSizePicker = ({ fontSize, updateFontSize, onBlur }: {
   }, [fontSize, updateFontSize]);
 
   return (
-    (<Box sx={{ display: 'flex', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
+    (<Box sx={{ display: 'flex', alignItems: 'center', bgcolor: 'background.default' }} onClick={(e) => e.stopPropagation()}>
       <IconButton
         disabled={parseInt(fontSize) <= MIN_ALLOWED_FONT_SIZE}
         onClick={e => {

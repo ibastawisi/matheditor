@@ -68,7 +68,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
       const virtualKeyboard = window.mathVirtualKeyboard;
       const container = (virtualKeyboard as any)?.element?.firstElementChild as HTMLElement;
       if (!container || !mathTools) return;
-      mathTools.style.bottom = container.clientHeight + 1 + "px";
+      mathTools.style.bottom = container.clientHeight + 4 + "px";
       if (getComputedStyle(mathTools).position === "fixed") {
         const mathToolsBounds = mathTools.getBoundingClientRect();
         const mathfieldBounds = mathfield.getBoundingClientRect();
@@ -256,72 +256,74 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
           <Delete />
         </ToggleButton>
       </ToggleButtonGroup>
-      <ToggleButtonGroup size="small" exclusive value={value} onChange={handleToggle} id="math-tools" sx={{
+      <Box id="math-tools" sx={{
         ...sx,
         display: 'flex',
+        gap: 0.5,
         position: ['fixed', 'static'],
         justifyContent: ['center', 'start'],
-        bottom: 1,
-        left: 0,
-        right: 0,
-        top: 'auto',
+        inset: 'auto auto 4px',
         zIndex: 1000,
-        backgroundColor: 'inherit',
         transition: 'bottom 0.3s'
       }}>
-        <ToggleButton value="wolfram" onClick={openWolfram} disabled={!isOnline} sx={{ color: isOnline ? "#f96932" : undefined }}>
-          <WolframIcon />
-        </ToggleButton>
-        <ToggleButton component="label" value="draw" disabled={!isOnline}>
-          <Draw />
-        </ToggleButton>
-        {value === "draw" && <Collapse in={value === "draw"}>
-          <Paper sx={{
-            position: "absolute",
-            top: ['100%', 56],
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "calc(100% - 2px)",
-            height: 294.5,
-            maxWidth: 1000,
-            border: "1px solid",
-            borderColor: theme.palette.divider,
-            zIndex: 1000,
-            '& .layer-ui__wrapper, .App-toolbar .Stack > :not(:nth-child(7),:nth-child(10)), .mobile-misc-tools-container, .App-bottom-bar, .popover, .LaserToolOverlay': { display: 'none !important' },
-            '& canvas': { borderRadius: 1 },
-          }}>
-            <Excalidraw
-              excalidrawAPI={excalidrawAPIRefCallback}
-              initialData={{
-                elements: [],
-                appState: {
-                  activeTool: { type: "freedraw", lastActiveTool: null, customType: null, locked: true },
-                  currentItemStrokeWidth: 0.5,
-                },
-              }}
-              theme={theme.palette.mode}
-              langCode='en'
-            />
-            <IconButton onClick={handleFreeHand} sx={{ position: "absolute", bottom: 8, right: 8, zIndex: 1000 }} disabled={loading}>
-              <Save />
-            </IconButton>
-            <LinearProgress sx={{ visibility: loading ? 'visible' : 'hidden', position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 1000 }} />
-          </Paper>
-        </Collapse>}
-        <ColorPicker onColorChange={onColorChange} onClose={handleClose} textColor={textColor} backgroundColor={backgroundColor} />
+        <ToggleButtonGroup size="small" exclusive value={value} onChange={handleToggle} sx={{ bgcolor: 'background.default' }}>
+          <ToggleButton value="wolfram" onClick={openWolfram} disabled={!isOnline} sx={{ color: isOnline ? "#f96932" : undefined }}>
+            <WolframIcon />
+          </ToggleButton>
+          <ToggleButton component="label" value="draw" disabled={!isOnline}>
+            <Draw />
+          </ToggleButton>
+          {value === "draw" && <Collapse in={value === "draw"}>
+            <Paper sx={{
+              position: ['fixed', 'absolute'],
+              top: ['auto', 56],
+              bottom: [0.5, 'auto'],
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "calc(100% - 2px)",
+              height: 294.5,
+              maxWidth: 1000,
+              border: "1px solid",
+              borderColor: theme.palette.divider,
+              zIndex: 1000,
+              '& .layer-ui__wrapper, .App-toolbar .Stack > :not(:nth-child(7),:nth-child(10)), .mobile-misc-tools-container, .App-bottom-bar, .popover, .LaserToolOverlay': { display: 'none !important' },
+              '& canvas': { borderRadius: 1 },
+            }}>
+              <Excalidraw
+                excalidrawAPI={excalidrawAPIRefCallback}
+                initialData={{
+                  elements: [],
+                  appState: {
+                    activeTool: { type: "freedraw", lastActiveTool: null, customType: null, locked: true },
+                    currentItemStrokeWidth: 0.5,
+                  },
+                }}
+                theme={theme.palette.mode}
+                langCode='en'
+              />
+              <IconButton onClick={handleFreeHand} sx={{ position: "absolute", bottom: 8, right: 8, zIndex: 1000 }} disabled={loading}>
+                <Save />
+              </IconButton>
+              <LinearProgress sx={{ visibility: loading ? 'visible' : 'hidden', position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 1000 }} />
+            </Paper>
+          </Collapse>}
+        </ToggleButtonGroup>
         <FontSizePicker fontSize={fontSize} updateFontSize={updateFontSize} onBlur={restoreFocus} />
-        <ToggleButton value="menu"
-          onClick={(e) => {
-            const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
-            if (!mathfield) return;
-            const x = e.currentTarget.getBoundingClientRect().left;
-            const y = e.currentTarget.getBoundingClientRect().top + 40;
-            mathfield.showMenu({ location: { x, y }, modifiers: { alt: false, control: false, shift: false, meta: false } });
-            setTimeout(() => { setValue(null); }, 0);
-          }}>
-          <Menu />
-        </ToggleButton>
-      </ToggleButtonGroup>
+        <ToggleButtonGroup size="small" sx={{ bgcolor: 'background.default' }}>
+          <ColorPicker onColorChange={onColorChange} onClose={handleClose} textColor={textColor} backgroundColor={backgroundColor} />
+          <ToggleButton value="menu"
+            onClick={(e) => {
+              const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
+              if (!mathfield) return;
+              const x = e.currentTarget.getBoundingClientRect().left;
+              const y = e.currentTarget.getBoundingClientRect().top + 40;
+              mathfield.showMenu({ location: { x, y }, modifiers: { alt: false, control: false, shift: false, meta: false } });
+              setTimeout(() => { setValue(null); }, 0);
+            }}>
+            <Menu />
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
     </>
   )
 }

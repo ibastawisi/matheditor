@@ -26,7 +26,9 @@ function ScrollTop() {
       <Fab color="secondary" size="small" aria-label="scroll back to top" onClick={handleClick}
         sx={{
           position: 'fixed', bottom: 16, right: 16, displayPrint: "none", transition: 'bottom 0.3s',
-          '&:has(~.editor-container>.editor-input)': { bottom: [48, 16] }
+          '@media (max-width: 520px)': {
+            '&:has(~.editor-container .editor-toolbar #text-format-toggles)': { bottom: 48 }
+          }
         }}>
         <KeyboardArrowUp />
       </Fab>

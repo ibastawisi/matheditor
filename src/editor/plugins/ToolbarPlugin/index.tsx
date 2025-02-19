@@ -257,15 +257,9 @@ function ToolbarPlugin() {
   return (
     <>
       <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}
-        sx={{
-          background: 'var(--mui-palette-background-default) !important',
-          transition: 'none',
-        }}>
-        <Toolbar className="editor-toolbar" sx={{
-          position: "relative", displayPrint: 'none', alignItems: "center",
-          px: '0 !important', py: 1, backgroundColor: 'inherit',
-        }}>
-          <Container sx={{ display: "flex", gap: 0.5, justifyContent: "space-between", alignItems: "center", px: toolbarTrigger ? '' : '0 !important', backgroundColor: 'inherit', }}>
+        sx={{ background: 'var(--mui-palette-background-default) !important', transition: 'none', }}>
+        <Toolbar className="editor-toolbar" sx={{ position: "relative", displayPrint: 'none', alignItems: "center", px: '0 !important', py: 1, }}>
+          <Container sx={{ display: "flex", gap: 0.5, justifyContent: "space-between", alignItems: "center", px: toolbarTrigger ? '' : '0 !important', }}>
             <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
               <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
                 onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}>
@@ -276,7 +270,7 @@ function ToolbarPlugin() {
                 <Redo />
               </IconButton>
             </Box>
-            <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', flexWrap: "wrap", justifyContent: "center", backgroundColor: 'inherit' }}>
+            <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', flexWrap: "wrap", justifyContent: "center" }}>
               {showMathTools && <MathTools editor={activeEditor} node={selectedNode} />}
               {showImageTools && <ImageTools editor={activeEditor} node={selectedNode} />}
               {showTextTools && <>
@@ -290,8 +284,8 @@ function ToolbarPlugin() {
                   display: { xs: "flex", sm: "none", md: "none", lg: "flex" },
                   position: ['fixed', 'static'],
                   justifyContent: ['center', 'start'],
-                  bottom: 0.5, left: 0, right: 0, top: 'auto', zIndex: 1000,
-                  backgroundColor: 'inherit',
+                  inset: 'auto auto 4px', zIndex: 1000,
+                  bgcolor: 'background.default',
                 }} />}
               </>}
             </Box>

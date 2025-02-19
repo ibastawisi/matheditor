@@ -119,6 +119,7 @@ body:has(#app-toolbar) .editor-container :is([id], [target=_self]) {
   position: relative;
   tab-size: 1;
   outline: 0;
+  padding-bottom: 3rem;
 }
 
 .document-container,
@@ -130,6 +131,7 @@ body:has(#app-toolbar) .editor-container :is([id], [target=_self]) {
   position: relative;
   tab-size: 1;
   outline: 0;
+  padding-bottom: 3rem;
 }
 
 .document-thumbnail {
