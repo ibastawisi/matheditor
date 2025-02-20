@@ -79,7 +79,6 @@ function AIDialog({ editor }: { editor: LexicalEditor }) {
               <ListItemText>{label}</ListItemText>
               {fast && <Badge color="success" badgeContent="Fast" sx={{ ml: 1, '& .MuiBadge-badge': { position: 'static', transform: 'none' } }} />}
               {reason && <Badge color="warning" badgeContent="Reason" sx={{ ml: 1, '& .MuiBadge-badge': { position: 'static', transform: 'none' } }} />}
-              <Badge color="info" badgeContent="Unlimited" sx={{ ml: 1, '& .MuiBadge-badge': { position: 'static', transform: 'none' } }} />
             </MenuItem>
           ))}
         </Select>
