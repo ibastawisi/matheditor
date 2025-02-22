@@ -308,7 +308,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
             </Paper>
           </Collapse>}
         </ToggleButtonGroup>
-        <FontSizePicker fontSize={fontSize} updateFontSize={updateFontSize} onBlur={restoreFocus} />
+        <FontSizePicker fontSize={fontSize} updateFontSize={updateFontSize} onBlur={restoreFocus} sx={{ bgcolor: 'background.default' }} />
         <ToggleButtonGroup size="small" sx={{ bgcolor: 'background.default' }}>
           <ColorPicker onColorChange={onColorChange} onClose={handleClose} textColor={textColor} backgroundColor={backgroundColor} />
           <ToggleButton value="menu"

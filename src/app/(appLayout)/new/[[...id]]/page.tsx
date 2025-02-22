@@ -56,14 +56,14 @@ export default async function Page(
   const document = await getCachedUserDocument(documentId, searchParams.v);
   if (!document) return <NewDocument />;
   const isPublished = document.published;
+  const isPrivate = document.private;
+  const isCollab = document.collab;
   const session = await getCachedSession();
-  if (!session && !isPublished) return <SplashScreen title="This document is not published" subtitle="Please sign in to Fork it" />
+  if (!session && !isPublished && !isCollab) return <SplashScreen title="This document is not published" subtitle="Please sign in to Fork it" />
   const user = session && session.user;
   const isAuthor = user && user.id === document.author.id;
   const isCoauthor = user && document.coauthors.some(coauthor => coauthor.id === user.id);
-  if (!isAuthor && !isCoauthor) {
-    const isPrivate = document.private;
-    const isCollab = document.collab;
+  if (user && !isAuthor && !isCoauthor) {
     if (isPrivate) return <SplashScreen title="This document is private" subtitle="You are not authorized to Fork this document" />
     if (!isPublished && !isCollab) return <SplashScreen title="This document is not published" subtitle="You are not authorized to Fork this document" />
   }

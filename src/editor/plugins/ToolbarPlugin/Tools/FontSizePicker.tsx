@@ -1,14 +1,15 @@
 import { TextDecrease, TextIncrease } from "@mui/icons-material";
-import { Box, IconButton, TextField } from "@mui/material";
+import { Box, IconButton, SxProps, TextField, Theme } from "@mui/material";
 import { useCallback } from "react";
 
 const MIN_ALLOWED_FONT_SIZE = 8;
 const MAX_ALLOWED_FONT_SIZE = 72;
 
-export const FontSizePicker = ({ fontSize, updateFontSize, onBlur }: {
+export const FontSizePicker = ({ fontSize, updateFontSize, onBlur, sx }: {
   fontSize: string,
   updateFontSize: (fontSize: number) => void,
   onBlur: () => void,
+  sx?: SxProps<Theme> | undefined
 }) => {
   const increaseFontSize = useCallback(() => {
     const currentFontSize = parseInt(fontSize);
@@ -63,7 +64,7 @@ export const FontSizePicker = ({ fontSize, updateFontSize, onBlur }: {
   }, [fontSize, updateFontSize]);
 
   return (
-    (<Box sx={{ display: 'flex', alignItems: 'center', bgcolor: 'background.default' }} onClick={(e) => e.stopPropagation()}>
+    (<Box sx={{ display: 'flex', alignItems: 'center', ...sx }} onClick={(e) => e.stopPropagation()}>
       <IconButton
         disabled={parseInt(fontSize) <= MIN_ALLOWED_FONT_SIZE}
         onClick={e => {
