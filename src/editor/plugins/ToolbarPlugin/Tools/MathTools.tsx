@@ -3,7 +3,7 @@ import { LexicalEditor, } from "lexical";
 import { MathNode } from "@/editor/nodes/MathNode";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { $getNodeStyleValueForProperty, $patchStyle } from "@/editor/nodes/utils";
-import ColorPicker from "./ColorPicker";
+import ColorPicker, { textPalette, backgroundPalette } from "./ColorPicker";
 import type { MathfieldElement } from "mathlive";
 import useFixedBodyScroll from "@/hooks/useFixedBodyScroll";
 import { SxProps, Theme } from '@mui/material/styles';
@@ -54,16 +54,6 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
       const currentFontSize = computedStyle.getPropertyValue('font-size');
       const fontSize = $getNodeStyleValueForProperty(node, 'font-size', currentFontSize);
       setFontSize(fontSize);
-      if (mathfield.selectionIsCollapsed) {
-        const color = $getNodeStyleValueForProperty(node, 'color');
-        setTextColor(color);
-        const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color');
-        setBackgroundColor(backgroundColor);
-      } else {
-        // TODO: implement selection color
-        setTextColor('');
-        setBackgroundColor('');
-      }
       const mathTools = document.getElementById("math-tools");
       const virtualKeyboard = window.mathVirtualKeyboard;
       const container = (virtualKeyboard as any)?.element?.firstElementChild as HTMLElement;
@@ -110,7 +100,26 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
       const range = selection.ranges[0];
       mathfield.applyStyle(style, range);
     }
+    key === 'text' ? setTextColor(value) : setBackgroundColor(value);
   }, [applyStyleMath, node]);
+
+  const readMathfieldColor = useCallback(() => {
+    editor.getEditorState().read(() => {
+      const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
+      if (!mathfield) return;
+      if (mathfield.selectionIsCollapsed) {
+        const color = $getNodeStyleValueForProperty(node, 'color');
+        setTextColor(color);
+        const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color');
+        setBackgroundColor(backgroundColor);
+      } else {
+        const color = textPalette.find(color => mathfield.queryStyle({ color }) === "all") || '';
+        setTextColor(color);
+        const backgroundColor = backgroundPalette.find(backgroundColor => mathfield.queryStyle({ backgroundColor }) === "all") || '';
+        setBackgroundColor(backgroundColor);
+      }
+    });
+  }, [node, editor]);
 
   const [open, setOpen] = useState(false);
   const mathfieldValueRef = useRef<HTMLInputElement | null>(null);
@@ -309,8 +318,8 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
           </Collapse>}
         </ToggleButtonGroup>
         <FontSizePicker fontSize={fontSize} updateFontSize={updateFontSize} onBlur={restoreFocus} sx={{ bgcolor: 'background.default' }} />
-        <ToggleButtonGroup size="small" sx={{ bgcolor: 'background.default' }}>
-          <ColorPicker onColorChange={onColorChange} onClose={handleClose} textColor={textColor} backgroundColor={backgroundColor} />
+        <ToggleButtonGroup size="small" sx={{ bgcolor: 'background.default' }} exclusive value={value} onChange={handleToggle} >
+          <ColorPicker onColorChange={onColorChange} onClose={handleClose} textColor={textColor} backgroundColor={backgroundColor} onOpen={readMathfieldColor} />
           <ToggleButton value="menu"
             onClick={(e) => {
               const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;

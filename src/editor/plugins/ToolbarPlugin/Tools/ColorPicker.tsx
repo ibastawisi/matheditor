@@ -3,7 +3,7 @@ import * as React from 'react';
 import { MenuItem, ListItemText, ToggleButton, Menu, ListItemIcon } from '@mui/material';
 import { FormatColorFill, CircleOutlined, FormatClear, FormatColorReset, Circle } from '@mui/icons-material';
 
-const textPalette = [
+export const textPalette = [
   "#d7170b",
   "#fe8a2b",
   "#ffc02b",
@@ -20,7 +20,7 @@ const textPalette = [
   "#ffffff",
 ]
 
-const backgroundPalette = [
+export const backgroundPalette = [
   "#fbbbb6",
   "#ffe0c2",
   "#fff1c2",
@@ -37,9 +37,10 @@ const backgroundPalette = [
   "#ffffff",
 ];
 
-export default function ColorPicker({ onColorChange, onClose, toggle = "togglebutton", label = "Color", textColor, backgroundColor }
+export default function ColorPicker({ onColorChange, onOpen, onClose, toggle = "togglebutton", label = "Color", textColor, backgroundColor }
   : {
     onColorChange: (key: string, value: string) => void,
+    onOpen?: () => void,
     onClose?: () => void,
     toggle?: "togglebutton" | "menuitem",
     label?: string,
@@ -51,6 +52,7 @@ export default function ColorPicker({ onColorChange, onClose, toggle = "togglebu
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     setAnchorEl(open ? null : event.currentTarget);
+    !open && onOpen?.();
   };
   const handleClose = () => {
     setAnchorEl(null);
