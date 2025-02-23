@@ -4,7 +4,7 @@ import { $createCodeNode } from '@lexical/code';
 import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list';
 import { $createHeadingNode, $createQuoteNode, HeadingTagType, } from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
-import { $createParagraphNode, $getSelection, $isRangeSelection, $setSelection } from 'lexical';
+import { $createParagraphNode, $getPreviousSelection, $getSelection, $isRangeSelection, $setSelection } from 'lexical';
 
 import { Select, MenuItem, ListItemIcon, ListItemText, SvgIcon } from '@mui/material';
 import { ViewHeadline, FormatListBulleted, FormatListNumbered, PlaylistAddCheck, FormatQuote, Code } from '@mui/icons-material';
@@ -131,17 +131,11 @@ export function BlockFormatSelect({ editor, blockType }: {
 
   const handleClose = useCallback(() => {
     setTimeout(() => {
-      editor.update(
-        () => {
-          const selection = $getSelection();
-          if (!selection) return;
-          $setSelection(selection.clone());
-        },
-        {
-          discrete: true,
-          onUpdate() { editor.focus() }
-        }
-      );
+      editor.update(() => {
+        const selection = $getSelection() || $getPreviousSelection();
+        if (!selection) return;
+        $setSelection(selection.clone());
+      }, { discrete: true, onUpdate() { editor.focus() } });
     }, 0);
   }, [editor]);
 

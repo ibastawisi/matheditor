@@ -1,5 +1,5 @@
 "use client"
-import { $createParagraphNode, $createTextNode, $getSelection, $isRangeSelection, $setSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, TextNode, } from "lexical";
+import { $createParagraphNode, $createTextNode, $getPreviousSelection, $getSelection, $isRangeSelection, $setSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, TextNode, } from "lexical";
 import { mergeRegister } from "@lexical/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu, Button, MenuItem, ListItemText, Typography, TextField, CircularProgress, IconButton, ListItemIcon } from "@mui/material";
@@ -35,17 +35,13 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
   };
   const handleClose = useCallback(() => {
     setAnchorEl(null);
-    editor.update(
-      () => {
-        const selection = $getSelection();
+    setTimeout(() => {
+      editor.update(() => {
+        const selection = $getSelection() || $getPreviousSelection();
         if (!selection) return;
         $setSelection(selection.clone());
-      },
-      {
-        discrete: true,
-        onUpdate() { setTimeout(() => { editor.focus(); }, 0); }
-      }
-    );
+      }, { discrete: true, onUpdate() { editor.focus() } });
+    }, 0);
   }, [editor]);
 
   const promptRef = useRef<HTMLTextAreaElement>(null);

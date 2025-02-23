@@ -1,6 +1,6 @@
 "use client"
 import * as React from 'react';
-import { $getSelection, $isElementNode, $isParagraphNode, $isRangeSelection, $isTextNode, $setSelection, COMMAND_PRIORITY_CRITICAL, ElementFormatType, FORMAT_ELEMENT_COMMAND, INDENT_CONTENT_COMMAND, LexicalEditor, OUTDENT_CONTENT_COMMAND, SELECTION_CHANGE_COMMAND } from 'lexical';
+import { $getPreviousSelection, $getSelection, $isElementNode, $isParagraphNode, $isRangeSelection, $isTextNode, $setSelection, COMMAND_PRIORITY_CRITICAL, ElementFormatType, FORMAT_ELEMENT_COMMAND, INDENT_CONTENT_COMMAND, LexicalEditor, OUTDENT_CONTENT_COMMAND, SELECTION_CHANGE_COMMAND } from 'lexical';
 import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Divider } from '@mui/material';
 import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight, FormatAlignJustify, FormatIndentIncrease, FormatIndentDecrease } from '@mui/icons-material';
 import { useCallback, useEffect, useState } from 'react';
@@ -16,17 +16,11 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
   const handleClose = useCallback(() => {
     setAnchorEl(null);
     setTimeout(() => {
-      editor.update(
-        () => {
-          const selection = $getSelection();
-          if (!selection) return;
-          $setSelection(selection.clone());
-        },
-        {
-          discrete: true,
-          onUpdate() { editor.focus() }
-        }
-      );
+      editor.update(() => {
+        const selection = $getSelection() || $getPreviousSelection();
+        if (!selection) return;
+        $setSelection(selection.clone());
+      }, { discrete: true, onUpdate() { editor.focus() } });
     }, 0);
   }, [editor]);
 

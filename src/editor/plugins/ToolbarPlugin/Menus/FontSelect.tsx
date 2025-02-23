@@ -114,11 +114,13 @@ export default function FontSelect({ editor }: { editor: LexicalEditor }) {
   ];
 
   const restoreFocus = useCallback(() => {
-    editor.update(() => {
-      const selection = $getSelection();
-      if (!selection) return;
-      $setSelection(selection.clone());
-    }, { discrete: true, onUpdate() { setTimeout(() => editor.focus(), 0); } });
+    setTimeout(() => {
+      editor.update(() => {
+        const selection = $getSelection() || $getPreviousSelection();
+        if (!selection) return;
+        $setSelection(selection.clone());
+      }, { discrete: true, onUpdate() { editor.focus() } });
+    }, 0);
   }, [editor]);
 
   const handleClose = useCallback(() => {

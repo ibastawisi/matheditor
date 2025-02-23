@@ -1,6 +1,6 @@
 "use client"
 import * as React from 'react';
-import { $getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND, LexicalEditor, COMMAND_PRIORITY_CRITICAL, SELECTION_CHANGE_COMMAND, TextFormatType, KEY_MODIFIER_COMMAND, COMMAND_PRIORITY_NORMAL, $setSelection, } from "lexical";
+import { $getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND, LexicalEditor, COMMAND_PRIORITY_CRITICAL, SELECTION_CHANGE_COMMAND, TextFormatType, KEY_MODIFIER_COMMAND, COMMAND_PRIORITY_NORMAL, $setSelection, $getPreviousSelection, } from "lexical";
 import { $patchStyleText, } from '@lexical/selection';
 import { mergeRegister, IS_APPLE } from '@lexical/utils';
 import { $isLinkNode } from '@lexical/link';
@@ -129,11 +129,13 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
   }, [editor]);
 
   const restoreFocus = useCallback(() => {
-    editor.update(() => {
-      const selection = $getSelection();
-      if (!selection) return;
-      $setSelection(selection.clone());
-    }, { discrete: true, onUpdate() { setTimeout(() => editor.focus(), 0); } });
+    setTimeout(() => {
+      editor.update(() => {
+        const selection = $getSelection() || $getPreviousSelection();
+        if (!selection) return;
+        $setSelection(selection.clone());
+      }, { discrete: true, onUpdate() { editor.focus() } });
+    }, 0);
   }, [editor]);
 
 

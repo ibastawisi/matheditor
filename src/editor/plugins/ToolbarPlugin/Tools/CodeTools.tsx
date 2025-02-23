@@ -1,5 +1,5 @@
 "use client"
-import { $getSelection, $setSelection, ElementFormatType, LexicalEditor, } from "lexical";
+import { $getPreviousSelection, $getSelection, $setSelection, ElementFormatType, LexicalEditor, } from "lexical";
 import { useCallback, useEffect, useState } from "react";
 import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { CodeNode } from "@lexical/code";
@@ -43,17 +43,11 @@ export default function CodeTools({ editor, node }: { editor: LexicalEditor, nod
 
   const handleClose = useCallback(() => {
     setTimeout(() => {
-      editor.update(
-        () => {
-          const selection = $getSelection();
-          if (!selection) return;
-          $setSelection(selection.clone());
-        },
-        {
-          discrete: true,
-          onUpdate() { editor.focus() }
-        }
-      );
+      editor.update(() => {
+        const selection = $getSelection() || $getPreviousSelection();
+        if (!selection) return;
+        $setSelection(selection.clone());
+      }, { discrete: true, onUpdate() { editor.focus() } });
     }, 0);
   }, [editor]);
 

@@ -1,5 +1,5 @@
 "use client"
-import { $createParagraphNode, $getSelection, $isElementNode, $isParagraphNode, $isRangeSelection, $isTextNode, $setSelection, ElementFormatType, ElementNode, LexicalEditor, } from "lexical";
+import { $createParagraphNode, $getPreviousSelection, $getSelection, $isElementNode, $isParagraphNode, $isRangeSelection, $isTextNode, $setSelection, ElementFormatType, ElementNode, LexicalEditor, } from "lexical";
 import { useCallback, useEffect, useState } from "react";
 import { ToggleButtonGroup, ToggleButton, SvgIcon, Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, Divider } from "@mui/material";
 import { ViewHeadline, Delete, KeyboardArrowDown, TableChart, Texture } from "@mui/icons-material";
@@ -544,11 +544,13 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
   };
 
   const restoreFocus = useCallback(() => {
-    editor.update(() => {
-      const selection = $getSelection();
-      if (!selection) return;
-      $setSelection(selection.clone());
-    }, { discrete: true, onUpdate() { setTimeout(() => editor.focus(), 0); } });
+    setTimeout(() => {
+      editor.update(() => {
+        const selection = $getSelection() || $getPreviousSelection();
+        if (!selection) return;
+        $setSelection(selection.clone());
+      }, { discrete: true, onUpdate() { editor.focus() } });
+    }, 0);
   }, [editor]);
 
   const handleClose = useCallback(() => {
