@@ -235,7 +235,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     <>
       <ToggleButtonGroup size="small" sx={{ position: "relative", ...sx }} exclusive>
         <ToggleButton value="edit" onClick={openEditDialog}>
-          <Edit />
+          <Edit fontSize='small' />
         </ToggleButton>
         <Dialog open={open} onClose={handleClose} maxWidth="md" sx={{ '& .MuiDialog-paper': { width: '100%' } }}>
           <form onSubmit={handleEdit}>
@@ -262,7 +262,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
               node.remove();
             });
           }}>
-          <Delete />
+          <Delete fontSize='small' />
         </ToggleButton>
       </ToggleButtonGroup>
       <Box id="math-tools" sx={{
@@ -280,7 +280,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
             <WolframIcon />
           </ToggleButton>
           <ToggleButton component="label" value="draw" disabled={!isOnline}>
-            <Draw />
+            <Draw fontSize='small' />
           </ToggleButton>
           {value === "draw" && <Collapse in={value === "draw"}>
             <Paper sx={{
@@ -311,7 +311,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
                 langCode='en'
               />
               <IconButton onClick={handleFreeHand} sx={{ position: "absolute", bottom: 8, right: 8, zIndex: 1000 }} disabled={loading}>
-                <Save />
+                <Save fontSize='small' />
               </IconButton>
               <LinearProgress sx={{ visibility: loading ? 'visible' : 'hidden', position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 1000 }} />
             </Paper>
@@ -329,7 +329,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
               mathfield.showMenu({ location: { x, y }, modifiers: { alt: false, control: false, shift: false, meta: false } });
               setTimeout(() => { setValue(null); }, 0);
             }}>
-            <Menu />
+            <Menu fontSize='small' />
           </ToggleButton>
         </ToggleButtonGroup>
       </Box>

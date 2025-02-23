@@ -15,8 +15,8 @@ import { FormatBold, FormatItalic, FormatUnderlined, Code, FormatStrikethrough, 
 import { getSelectedNode } from '@/editor/utils/getSelectedNode';
 import { SET_DIALOGS_COMMAND } from '../Dialogs/commands';
 
-const Highlight = () => <SvgIcon viewBox='0 -960 960 960'>
-  <path xmlns="http://www.w3.org/2000/svg" d="M80 0v-160h800V0H80Zm504-480L480-584 320-424l103 104 161-160Zm-47-160 103 103 160-159-104-104-159 160Zm-84-29 216 216-189 190q-24 24-56.5 24T367-263l-27 23H140l126-125q-24-24-25-57.5t23-57.5l189-189Zm0 0 187-187q24-24 56.5-24t56.5 24l104 103q24 24 24 56.5T857-640L669-453 453-669Z" />
+const Highlight = () => <SvgIcon viewBox='0 -960 960 960' fontSize='small'>
+  <path xmlns="http://www.w3.org/2000/svg" d="M80 0v-160h800V0H80Zm504-480L480-584 320-424l103 104 161-160Zm-47-160 103 103 160-159-104-104-159 160Zm-84-29 216 216-189 190q-24 24-56.5 24T367-263l-27 23H140l126-125q-24-24-25-57.5t23-57.5l189-189Zm0 0 187-187q24-24 56.5-24t56.5 24l104 103q24 24 24 56.5T857-640L669-453 453-669Z" fontSize='small' />
 </SvgIcon>;
 
 export default function TextFormatToggles({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> | undefined }) {
@@ -134,7 +134,7 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
         const selection = $getSelection() || $getPreviousSelection();
         if (!selection) return;
         $setSelection(selection.clone());
-      }, { discrete: true, onUpdate() { editor.focus() } });
+      }, { discrete: true, onUpdate() { editor.focus(undefined, { defaultSelection: "rootStart" }) } });
     }, 0);
   }, [editor]);
 
@@ -143,31 +143,31 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
 
   return (<ToggleButtonGroup size="small" sx={{ ...sx }} value={formatKeys} onChange={handleFormat} aria-label="text formatting" id="text-format-toggles">
     <ToggleButton value="bold" title={IS_APPLE ? 'Bold (⌘B)' : 'Bold (Ctrl+B)'} aria-label={`Format text as bold. Shortcut: ${IS_APPLE ? '⌘B' : 'Ctrl+B'}`}>
-      <FormatBold />
+      <FormatBold fontSize='small' />
     </ToggleButton>
     <ToggleButton value="italic" title={IS_APPLE ? 'Italic (⌘I)' : 'Italic (Ctrl+I)'} aria-label={`Format text as italics. Shortcut: ${IS_APPLE ? '⌘I' : 'Ctrl+I'}`}>
-      <FormatItalic />
+      <FormatItalic fontSize='small' />
     </ToggleButton>
     <ToggleButton value="underline" title={IS_APPLE ? 'Underline (⌘U)' : 'Underline (Ctrl+U)'} aria-label={`Format text to underlined. Shortcut: ${IS_APPLE ? '⌘U' : 'Ctrl+U'}`}>
-      <FormatUnderlined />
+      <FormatUnderlined fontSize='small' />
     </ToggleButton>
     <ToggleButton value="highlight" title={IS_APPLE ? 'Highlight (⌘+⇧+H)' : 'Highlight (Ctrl+Shift+H)'} aria-label={`Format text as highlight. Shortcut: ${IS_APPLE ? '⌘+⇧+H' : 'Ctrl+Shift+H'}`}>
       <Highlight />
     </ToggleButton>
     <ToggleButton value="code" title={IS_APPLE ? 'Inline code (⌘E)' : 'Inline code (Ctrl+E)'} aria-label={`Format text as Inline code. Shortcut: ${IS_APPLE ? '⌘E' : 'Ctrl+E'}`}>
-      <Code />
+      <Code fontSize='small' />
     </ToggleButton>
     <ToggleButton value="strikethrough" title={IS_APPLE ? 'Strikethrough (⌘+⇧+S)' : 'Strikethrough (Ctrl+Shift+S)'} aria-label={`Format text as strikethrough. Shortcut: ${IS_APPLE ? '⌘+⇧+S' : 'Ctrl+Shift+S'}`}>
-      <FormatStrikethrough />
+      <FormatStrikethrough fontSize='small' />
     </ToggleButton>
     <ToggleButton value="subscript" title='Subscript' aria-label='Format text with subscript'>
-      <Subscript />
+      <Subscript fontSize='small' />
     </ToggleButton>
     <ToggleButton value="superscript" title='Superscript' aria-label='Format text with superscript'>
-      <Superscript />
+      <Superscript fontSize='small' />
     </ToggleButton>
     <ToggleButton value="link" title={IS_APPLE ? 'Insert Link (⌘K)' : 'Insert Link (Ctrl+K)'} aria-label={`Insert a link. Shortcut: ${IS_APPLE ? '⌘K' : 'Ctrl+K'}`} onClick={openLinkDialog}>
-      <Link />
+      <Link fontSize='small' />
     </ToggleButton>
     <ColorPicker onColorChange={onColorChange} textColor={textColor} backgroundColor={backgroundColor} onClose={restoreFocus} />
   </ToggleButtonGroup>)

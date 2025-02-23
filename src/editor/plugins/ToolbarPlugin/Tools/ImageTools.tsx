@@ -11,12 +11,12 @@ import { ToggleButtonGroup, ToggleButton, SvgIcon, Box } from "@mui/material";
 import { Edit, ClosedCaptionDisabled, ClosedCaption, ViewHeadline, Delete, Draw, FilterBAndW } from "@mui/icons-material";
 import { $isIFrameNode, IFrameNode } from "@/editor/nodes/IFrameNode";
 
-const FormatImageRight = () => <SvgIcon viewBox='0 -960 960 960'>
-  <path xmlns="http://www.w3.org/2000/svg" d="M450-285v-390h390v390H450Zm60-60h270v-270H510v270ZM120-120v-60h720v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h720v60H120Z" />
+const FormatImageRight = () => <SvgIcon viewBox='0 -960 960 960' fontSize='small'>
+  <path xmlns="http://www.w3.org/2000/svg" d="M450-285v-390h390v390H450Zm60-60h270v-270H510v270ZM120-120v-60h720v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h720v60H120Z" fontSize='small' />
 </SvgIcon>;
 
-const FormatImageLeft = () => <SvgIcon viewBox='0 -960 960 960'>
-  <path xmlns="http://www.w3.org/2000/svg" d="M120-285v-390h390v390H120Zm60-60h270v-270H180v270Zm-60-435v-60h720v60H120Zm450 165v-60h270v60H570Zm0 165v-60h270v60H570Zm0 165v-60h270v60H570ZM120-120v-60h720v60H120Z" />
+const FormatImageLeft = () => <SvgIcon viewBox='0 -960 960 960' fontSize='small'>
+  <path xmlns="http://www.w3.org/2000/svg" d="M120-285v-390h390v390H120Zm60-60h270v-270H180v270Zm-60-435v-60h720v60H120Zm450 165v-60h270v60H570Zm0 165v-60h270v60H570Zm0 165v-60h270v60H570ZM120-120v-60h720v60H120Z" fontSize='small' />
 </SvgIcon>;
 
 
@@ -63,11 +63,11 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
       }} >
         <ToggleButton value="edit" key="edit"
           onClick={openDialog}>
-          <Edit />
+          <Edit fontSize='small' />
         </ToggleButton>
         {isImageNode && <ToggleButton value="sketch" key="sketch"
           onClick={openSketchDialog}>
-          <Draw />
+          <Draw fontSize='small' />
         </ToggleButton>}
         <ToggleButton value="delete"
           onClick={() => {
@@ -76,7 +76,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
               node.remove();
             });
           }}>
-          <Delete />
+          <Delete fontSize='small' />
         </ToggleButton>
       </ToggleButtonGroup>
       <Box sx={{
@@ -91,13 +91,13 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
         <ToggleButtonGroup size="small" sx={{ bgcolor: 'background.default' }}>
         <ToggleButton value="caption" key="caption" selected={node.getShowCaption()}
           onClick={toggleShowCaption}>
-          {node.getShowCaption() ? <ClosedCaption /> : <ClosedCaptionDisabled />}
+          {node.getShowCaption() ? <ClosedCaption fontSize='small' /> : <ClosedCaptionDisabled fontSize='small' />}
         </ToggleButton>
         <ToggleButton value="filter-toggle" key="filter-toggle" selected={!style || style.filter !== "none"}
           onClick={() => {
             updateStyle({ "filter": style?.filter === "none" ? "" : "none" });
           }}>
-          <FilterBAndW />
+          <FilterBAndW fontSize='small' />
         </ToggleButton>
       </ToggleButtonGroup>
       <ToggleButtonGroup size="small" sx={{ bgcolor: 'background.default' }}>
@@ -111,7 +111,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
           onClick={() => {
             updateStyle({ "float": "none" });
           }}>
-          <ViewHeadline />
+          <ViewHeadline fontSize='small' />
         </ToggleButton>
         <ToggleButton value="float-right" key="float-right" selected={style?.float === "right"}
           onClick={() => {

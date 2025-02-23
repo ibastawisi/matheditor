@@ -96,7 +96,7 @@ export default function NoteTools({ editor, node }: { editor: LexicalEditor, nod
         sx={{
           color: 'text.primary',
           borderColor: 'divider',
-          height: 40,
+          height: 36,
           '& .MuiButton-startIcon': { mr: { xs: 0, sm: 0.5 } }
         }}
       >

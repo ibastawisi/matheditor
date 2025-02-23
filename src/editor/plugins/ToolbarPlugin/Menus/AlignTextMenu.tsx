@@ -20,7 +20,7 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
         const selection = $getSelection() || $getPreviousSelection();
         if (!selection) return;
         $setSelection(selection.clone());
-      }, { discrete: true, onUpdate() { editor.focus() } });
+      }, { discrete: true, onUpdate() { editor.focus(undefined, { defaultSelection: "rootStart" }) } });
     }, 0);
   }, [editor]);
 
@@ -64,10 +64,10 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
         aria-expanded={open ? 'true' : undefined}
         aria-label='Align Text'
         onClick={handleClick}>
-        {formatType === 'left' && <FormatAlignLeft />}
-        {formatType === 'center' && <FormatAlignCenter />}
-        {formatType === 'right' && <FormatAlignRight />}
-        {formatType === 'justify' && <FormatAlignJustify />}
+        {formatType === 'left' && <FormatAlignLeft fontSize='small' />}
+        {formatType === 'center' && <FormatAlignCenter fontSize='small' />}
+        {formatType === 'right' && <FormatAlignRight fontSize='small' />}
+        {formatType === 'justify' && <FormatAlignJustify fontSize='small' />}
       </IconButton>
       <Menu
         id="align-menu"

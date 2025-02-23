@@ -135,16 +135,16 @@ export function BlockFormatSelect({ editor, blockType }: {
         const selection = $getSelection() || $getPreviousSelection();
         if (!selection) return;
         $setSelection(selection.clone());
-      }, { discrete: true, onUpdate() { editor.focus() } });
+      }, { discrete: true, onUpdate() { editor.focus(undefined, { defaultSelection: "rootStart" }) } });
     }, 0);
   }, [editor]);
 
   return (
     <Select value={blockType} size='small'
       onClose={handleClose} sx={{
-        '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', py: 0.5 },
-        '& .MuiListItemIcon-root': { mr: { md: 0.5 }, minWidth: 20 },
-        '& .MuiListItemText-root': { display: { xs: "none", md: "flex" } },
+        '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', px: '10px', py: '6.5px', height: '0 !important' },
+        '& .MuiListItemIcon-root': { mr: { sm: 0.5 }, minWidth: 20 },
+        '& .MuiListItemText-root': { display: { xs: "none", sm: "flex" } },
         fieldset: { borderColor: 'divider' },
         '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
       }}

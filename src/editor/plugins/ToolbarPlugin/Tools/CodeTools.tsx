@@ -47,7 +47,7 @@ export default function CodeTools({ editor, node }: { editor: LexicalEditor, nod
         const selection = $getSelection() || $getPreviousSelection();
         if (!selection) return;
         $setSelection(selection.clone());
-      }, { discrete: true, onUpdate() { editor.focus() } });
+      }, { discrete: true, onUpdate() { editor.focus(undefined, { defaultSelection: "rootStart" }) } });
     }, 0);
   }, [editor]);
 
@@ -55,17 +55,16 @@ export default function CodeTools({ editor, node }: { editor: LexicalEditor, nod
     <Select size='small' onChange={onCodeLanguageSelect} value={codeLanguage}
       onClose={handleClose}
       sx={{
+        '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', px: '10px', py: '6.5px', height: '0 !important' },
+        '& .MuiListItemIcon-root': { mr: { sm: 0.5 }, minWidth: 20 },
+        '& .MuiListItemText-root': { display: { xs: "none", sm: "flex" } },
         fieldset: { borderColor: 'divider' },
         '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
       }}
       MenuProps={{
         slotProps: {
           root: { sx: { '& .MuiBackdrop-root': { userSelect: 'none' } } },
-          paper: {
-            sx: {
-              '& .MuiList-root': { pt: 0 },
-            }
-          }
+          paper: { sx: { '& .MuiList-root': { pt: 0 }, } }
         }
       }}
     >

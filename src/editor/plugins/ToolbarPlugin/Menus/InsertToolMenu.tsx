@@ -46,7 +46,7 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }) {
     <>
       <IconButton id="insert-button" aria-controls={open ? 'insert-menu' : undefined} aria-haspopup="true" aria-expanded={open ? 'true' : undefined} aria-label='Insert'
         onClick={handleClick}>
-        <Add />
+        <Add fontSize='small' />
       </IconButton>
       <Menu id="insert-menu" aria-labelledby="insert-button"
         anchorEl={anchorEl} open={open}

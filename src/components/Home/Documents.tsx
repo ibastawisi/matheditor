@@ -148,11 +148,11 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
         <Typography variant="h6" component="h2" sx={{ display: { xs: 'none', sm: 'block' } }}>Documents</Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center" }}>
-            <Button variant="outlined" startIcon={<UploadFile />} component="label">
+            <Button variant="outlined" sx={{ px: 1, "& .MuiButton-startIcon": { ml: 0 }}} startIcon={<UploadFile />} component="label">
               Import
               <input type="file" hidden accept=".me" multiple onChange={e => handleFilesChange(e.target.files)} />
             </Button>
-            <Button variant="outlined" startIcon={<Storage />} onClick={backup}>
+            <Button variant="outlined" sx={{ px: 1, "& .MuiButton-startIcon": { ml: 0 } }} startIcon={<Storage />} onClick={backup}>
               Backup
             </Button>
           </Box>

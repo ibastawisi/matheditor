@@ -40,7 +40,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
         const selection = $getSelection() || $getPreviousSelection();
         if (!selection) return;
         $setSelection(selection.clone());
-      }, { discrete: true, onUpdate() { editor.focus() } });
+      }, { discrete: true, onUpdate() { editor.focus(undefined, { defaultSelection: "rootStart" }) } });
     }, 0);
   }, [editor]);
 
@@ -346,15 +346,15 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       sx={{
         color: 'text.primary',
         borderColor: 'divider',
-        width: { xs: 66, md: 'auto' },
-        height: 40,
-        '& .MuiButton-startIcon': { mr: { xs: 0, md: 1 } },
+        width: { xs: 62, sm: 'auto' },
+        height: 36,
+        '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 } },
         '& .MuiButton-endIcon': { mr: -1, ml: isLoading ? 1 : 0 },
         '& .MuiButton-endIcon > svg': { fontSize: 24 },
       }}
       disabled={isLoading}
     >
-      <Typography variant="button" sx={{ display: { xs: "none", md: "block" } }}>AI</Typography>
+      <Typography variant="button" sx={{ display: { xs: "none", sm: "block" } }}>AI</Typography>
     </Button>
     <Menu id="ai-tools-menu" aria-label="Formatting options for ai"
       anchorEl={anchorEl}
@@ -407,7 +407,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
             },
           }}
         />
-        <ListItemIcon sx={{ position: 'absolute', right: 2, bottom: 6 }}>
+        <ListItemIcon sx={{ position: 'absolute', right: 4, bottom: 6 }}>
           <IconButton onClick={handleSubmit} disabled={isLoading} size="small">
             <Send />
           </IconButton>

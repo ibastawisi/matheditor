@@ -26,7 +26,7 @@ function ScrollTop() {
       <Fab color="secondary" size="small" aria-label="scroll back to top" onClick={handleClick}
         sx={{
           position: 'fixed', bottom: 16, right: 16, displayPrint: "none", transition: 'bottom 0.3s',
-          '@media (max-width: 520px)': {
+          '@media (max-width: 496px)': {
             '&:has(~.editor-container .editor-toolbar #text-format-toggles)': { bottom: 48 }
           }
         }}>

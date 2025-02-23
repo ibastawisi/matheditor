@@ -549,7 +549,7 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
         const selection = $getSelection() || $getPreviousSelection();
         if (!selection) return;
         $setSelection(selection.clone());
-      }, { discrete: true, onUpdate() { editor.focus() } });
+      }, { discrete: true, onUpdate() { editor.focus(undefined, { defaultSelection: "rootStart" }) } });
     }, 0);
   }, [editor]);
 
@@ -572,7 +572,7 @@ export default function TableTools({ editor, node }: { editor: LexicalEditor, no
         sx={{
           color: 'text.primary',
           borderColor: 'divider',
-          height: 40,
+          height: 36,
           '& .MuiButton-startIcon': { mr: { xs: 0, sm: 0.5 } }
         }}
       >

@@ -38,11 +38,12 @@ const DocumentSortControl: React.FC<{
           borderBottomRightRadius: 0,
           borderRight: 'none',
           borderColor: `rgb(from ${theme.vars.palette.primary.main} r g b / 0.5)`,
+          color: "primary.main",
           '&:hover': { borderColor: 'primary.main' },
         })}
         aria-label="sort direction"
       >
-        {sortDirection === 'asc' ? <ArrowUpward /> : <ArrowDownward />}
+        {sortDirection === 'asc' ? <ArrowUpward fontSize='small' /> : <ArrowDownward fontSize='small' />}
       </ToggleButton>
       <Select
         value={sortKey}
@@ -50,8 +51,10 @@ const DocumentSortControl: React.FC<{
         sx={theme => ({
           borderTopLeftRadius: 0,
           borderBottomLeftRadius: 0,
-          '& .MuiSelect-select': { display: 'flex', alignItems: 'center', py: 0.5 },
-          '& .MuiListItemIcon-root': { minWidth: 30 },
+          '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', px: '10px', py: '6.5px', height: '0 !important' },
+          '& .MuiListItemIcon-root': {  color: 'primary.main', mr: 0.5 , minWidth: 20 },
+          '& .MuiSelect-icon': { color: 'primary.main' },
+          '& .MuiListItemText-primary': { color: 'primary.main', fontWeight: 500, textTransform: 'uppercase', fontSize: '0.875rem' },
           '& .MuiOutlinedInput-notchedOutline': { borderWidth: 1, borderColor: `rgb(from ${theme.vars.palette.primary.main} r g b / 0.5)` },
           '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' }
         })}

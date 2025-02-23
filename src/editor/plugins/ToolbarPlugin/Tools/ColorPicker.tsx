@@ -72,7 +72,7 @@ export default function ColorPicker({ onColorChange, onOpen, onClose, toggle = "
       </MenuItem>
       }
       {toggle === "togglebutton" && <ToggleButton size='small' value="color" onClick={handleClick} className="MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal" selected={open}>
-        <FormatColorFill />
+        <FormatColorFill fontSize='small' />
       </ToggleButton>}
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose} disableRestoreFocus
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}

@@ -2,8 +2,7 @@
 import { $getNodeByKey, $getSelection, $isRangeSelection, isHTMLElement, LexicalEditor } from 'lexical';
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { SET_DIALOGS_COMMAND } from './commands';
-import { useTheme } from '@mui/material/styles';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, InputLabel, ListItemIcon, MenuItem, Radio, RadioGroup, Select, SelectChangeEvent, TextField, useMediaQuery } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, InputLabel, ListItemIcon, MenuItem, Radio, RadioGroup, Select, SelectChangeEvent, TextField } from '@mui/material';
 import { TOGGLE_LINK_COMMAND, type LinkNode } from '@lexical/link';
 import { LinkOff } from '@mui/icons-material';
 import { $isImageNode } from '@/editor/nodes/ImageNode';
@@ -12,8 +11,6 @@ import { $isTableNode } from '@/editor/nodes/TableNode';
 import { getEditorNodes } from '@/editor/utils/getEditorNodes';
 
 function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | null }) {
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [url, setUrl] = useState<string>('https://');
   const [rel, setRel] = useState<string | null>('external');
   const [target, setTarget] = useState<string | null>('_blank');
@@ -129,67 +126,65 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
   return (
     <Dialog
       open
-      fullScreen={fullScreen}
       onClose={handleClose}
       aria-labelledby="link-dialog-title"
       disableEscapeKeyDown
       fullWidth
       maxWidth="sm"
+      slotProps={{ paper: { component: 'form', onSubmit: handleSubmit, }, }}
     >
       <DialogTitle id="link-dialog-title">
         Insert Link
       </DialogTitle>
       <DialogContent>
-        <Box component="form" onSubmit={handleSubmit} noValidate>
-          <RadioGroup row aria-label="orientation" value={rel} onChange={updateRel}>
-            <FormControlLabel value="external" control={<Radio />} label="External" />
-            <FormControlLabel value="bookmark" control={<Radio />} label="Internal" />
-          </RadioGroup>
-          <TextField
-            margin='normal'
-            size="small"
-            fullWidth
-            value={url}
-            onChange={updateUrl}
-            label="URL"
-            autoFocus
-            autoComplete='off'
-          />
-          {rel === "bookmark" &&
-            <FormControl fullWidth margin='normal'>
-              <InputLabel>Figure</InputLabel>
-              <Select
-                size="small"
-                fullWidth
-                value={figure}
-                onChange={updateFigure}
-                label="Figure"
-              >
-                <MenuItem value="self">Self</MenuItem>
-                <MenuItem value="none">None</MenuItem>
-                {[...figures.keys()].map(key => (
-                  <MenuItem key={key} value={key}>
-                    <ListItemIcon
-                      sx={{
-                        display: 'block',
-                        width: '100%',
-                        '& figure': {
-                          '& img, & svg': { width: 40 }
-                        },
-                        '& figcaption': {
-                          display: 'none'
-                        },
-                        '& table': { tableLayout: 'auto', margin: 0, float: 'none' }
-                      }}
-                      dangerouslySetInnerHTML={{ __html: figures.get(key).outerHTML }}
-                    />
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          }
-          <button hidden type="submit">Submit</button>
-        </Box>
+        <RadioGroup row aria-label="orientation" value={rel} onChange={updateRel}>
+          <FormControlLabel value="external" control={<Radio />} label="External" />
+          <FormControlLabel value="bookmark" control={<Radio />} label="Internal" />
+        </RadioGroup>
+        <TextField
+          margin='normal'
+          size="small"
+          fullWidth
+          value={url}
+          onChange={updateUrl}
+          label="URL"
+          autoFocus
+          autoComplete='off'
+          inputRef={input => { input && setTimeout(() => input.focus(), 0) }}
+        />
+        {rel === "bookmark" &&
+          <FormControl fullWidth margin='normal'>
+            <InputLabel>Figure</InputLabel>
+            <Select
+              size="small"
+              fullWidth
+              value={figure}
+              onChange={updateFigure}
+              label="Figure"
+            >
+              <MenuItem value="self">Self</MenuItem>
+              <MenuItem value="none">None</MenuItem>
+              {[...figures.keys()].map(key => (
+                <MenuItem key={key} value={key}>
+                  <ListItemIcon
+                    sx={{
+                      display: 'block',
+                      width: '100%',
+                      '& figure': {
+                        '& img, & svg': { width: 40 }
+                      },
+                      '& figcaption': {
+                        display: 'none'
+                      },
+                      '& table': { tableLayout: 'auto', margin: 0, float: 'none' }
+                    }}
+                    dangerouslySetInnerHTML={{ __html: figures.get(key).outerHTML }}
+                  />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        }
       </DialogContent>
       <DialogActions>
         {node && <Button onClick={handleDelete} startIcon={<LinkOff />} color="error" sx={{ mr: 'auto' }}>Unlink</Button>}

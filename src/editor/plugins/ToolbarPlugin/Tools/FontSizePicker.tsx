@@ -73,8 +73,8 @@ export const FontSizePicker = ({ fontSize, updateFontSize, onBlur, sx }: {
           onBlur();
         }}
         sx={{
-          width: 40,
-          height: 40,
+          width: 36,
+          height: 36,
           borderRadius: 1,
           borderTopRightRadius: 0,
           borderBottomRightRadius: 0,
@@ -95,13 +95,15 @@ export const FontSizePicker = ({ fontSize, updateFontSize, onBlur, sx }: {
         autoComplete="off"
         spellCheck="false"
         sx={{
-          width: 48,
+          width: 40,
           fieldset: { borderColor: 'divider' },
           '& .MuiInputBase-root': {
             borderRadius: 0,
             '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
           },
           '& .MuiInputBase-input': {
+            px: 0.5,
+            py: '6.5px',
             textAlign: 'center',
             MozAppearance: 'textfield',
             '&::-webkit-inner-spin-button, &::-webkit-outer-spin-button': { appearance: 'none', margin: 0 },
@@ -148,8 +150,8 @@ export const FontSizePicker = ({ fontSize, updateFontSize, onBlur, sx }: {
           onBlur();
         }}
         sx={{
-          width: 40,
-          height: 40,
+          width: 36,
+          height: 36,
           borderRadius: 1,
           borderTopLeftRadius: 0,
           borderBottomLeftRadius: 0,

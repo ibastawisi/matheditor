@@ -263,11 +263,11 @@ function ToolbarPlugin() {
             <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
               <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
                 onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}>
-                <Undo />
+                <Undo fontSize='small' />
               </IconButton>
               <IconButton title={IS_APPLE ? 'Redo (⌘Y)' : 'Redo (Ctrl+Y)'} aria-label="Redo" disabled={!canRedo}
                 onClick={() => { activeEditor.dispatchCommand(REDO_COMMAND, undefined); }}>
-                <Redo />
+                <Redo fontSize='small' />
               </IconButton>
             </Box>
             <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', flexWrap: "wrap", justifyContent: "center" }}>
