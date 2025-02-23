@@ -155,7 +155,7 @@ export const EditorSkeleton: React.FC<PropsWithChildren> = ({ children }) => {
                 sx={{
                   color: 'text.primary',
                   borderColor: 'divider',
-                  width: { xs: 66, sm: 'auto' },
+                  width: { xs: 62, sm: 'auto' },
                   height: 36,
                   '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 } },
                   '& .MuiButton-endIcon': { mr: -1, ml: 0 },

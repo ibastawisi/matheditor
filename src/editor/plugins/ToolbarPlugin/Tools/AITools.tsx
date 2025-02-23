@@ -403,7 +403,6 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
           slotProps={{
             htmlInput: {
               onKeyDown: handlePrompt,
-
             },
           }}
         />

@@ -3,15 +3,12 @@ import type { LexicalEditor } from 'lexical';
 import { INSERT_TABLE_COMMAND } from '@/editor/nodes/TableNode';
 import React, { memo, useState } from 'react';
 import { SET_DIALOGS_COMMAND } from './commands';
-import { useTheme } from '@mui/material/styles';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, IconButton, Switch, TextField, useMediaQuery } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, IconButton, Switch, TextField } from '@mui/material';
 import { Remove, Add } from '@mui/icons-material';
 
 const initialFormData = { rows: '3', columns: '3', includeHeaders: true };
 
 function TableDialog({ editor }: { editor: LexicalEditor }) {
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [formData, setFormData] = useState(initialFormData);
 
   const setRows = (rows: number) => {
@@ -41,7 +38,6 @@ function TableDialog({ editor }: { editor: LexicalEditor }) {
 
   return <Dialog
     open
-    fullScreen={fullScreen}
     onClose={handleClose}
     aria-labelledby="table-dialog-title"
     disableEscapeKeyDown
