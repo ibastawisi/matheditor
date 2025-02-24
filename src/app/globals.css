@@ -230,6 +230,12 @@ body.fullscreen {
     display: none !important;
   }
 
+  .editor-input,
+  .document-container,
+  .diff-container {
+    padding-bottom: 0 !important;
+  }
+
 }
 
 @font-face {
