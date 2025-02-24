@@ -567,8 +567,8 @@ export const MATH: TextMatchTransformer = {
 
     return `$${node.getValue()}$`;
   },
-  importRegExp: /\$+(.*?)\$+/,
-  regExp: /\$+(.*?)\$+|\\\((.*?)\\\)/,
+  importRegExp: /\$+(.*?)\$+|\\\((.*?)\\\)|\\\[(.*?)\\\]/,
+  regExp: /\$+(.*?)\$+|\\\((.*?)\\\)|\\\[(.*?)\\\]/,
   replace: (textNode, match) => {
     const value = match[1] || match[2];
     const style = textNode.getStyle();
