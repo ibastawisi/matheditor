@@ -29,9 +29,7 @@ import {
 } from '@lexical/rich-text';
 import {
   $createLineBreakNode,
-  $createParagraphNode,
   $createTextNode,
-  $isTextNode,
   ElementNode,
   Klass,
   LexicalNode,
@@ -39,60 +37,109 @@ import {
   TextNode,
 } from 'lexical';
 
-import {
-  $convertFromMarkdownString,
-  $convertToMarkdownString,
-} from '.';
-import {
-  $isParagraphNode,
-  LexicalEditor,
-} from 'lexical';
-
-import {
-  $createHorizontalRuleNode,
-  $isHorizontalRuleNode,
-  HorizontalRuleNode,
-} from '@/editor/nodes/HorizontalRuleNode';
-
-import {
-  $createTableCellNode,
-  $createTableNode,
-  $createTableRowNode,
-  $isTableCellNode,
-  $isTableNode,
-  $isTableRowNode,
-  TableCellHeaderStates,
-  TableCellNode,
-  TableNode,
-  TableRowNode,
-} from '@/editor/nodes/TableNode';
-import { $createMathNode, $isMathNode, MathNode } from '@/editor/nodes/MathNode';
-import { $createImageNode, $isImageNode, ImageNode } from '@/editor/nodes/ImageNode';
-import { $createGraphNode, $isGraphNode, GraphNode } from '@/editor/nodes/GraphNode';
-import { $createSketchNode, $isSketchNode, SketchNode } from '@/editor/nodes/SketchNode';
-import { $createStickyNode, $isStickyNode, StickyNode } from '@/editor/nodes/StickyNode';
-
-
 export type Transformer =
   | ElementTransformer
+  | MultilineElementTransformer
   | TextFormatTransformer
   | TextMatchTransformer;
 
 export type ElementTransformer = {
   dependencies: Array<Klass<LexicalNode>>;
+  /**
+   * `export` is called when the `$convertToMarkdownString` is called to convert the editor state into markdown.
+   *
+   * @return return null to cancel the export, even though the regex matched. Lexical will then search for the next transformer.
+   */
   export: (
     node: LexicalNode,
     // eslint-disable-next-line no-shadow
     traverseChildren: (node: ElementNode) => string,
   ) => string | null;
   regExp: RegExp;
+  /**
+   * `replace` is called when markdown is imported or typed in the editor
+   *
+   * @return return false to cancel the transform, even though the regex matched. Lexical will then search for the next transformer.
+   */
   replace: (
     parentNode: ElementNode,
     children: Array<LexicalNode>,
     match: Array<string>,
+    /**
+     * Whether the match is from an import operation (e.g. through `$convertFromMarkdownString`) or not (e.g. through typing in the editor).
+     */
     isImport: boolean,
-  ) => void;
+  ) => boolean | void;
   type: 'element';
+};
+
+export type MultilineElementTransformer = {
+  /**
+   * Use this function to manually handle the import process, once the `regExpStart` has matched successfully.
+   * Without providing this function, the default behavior is to match until `regExpEnd` is found, or until the end of the document if `regExpEnd.optional` is true.
+   *
+   * @returns a tuple or null. The first element of the returned tuple is a boolean indicating if a multiline element was imported. The second element is the index of the last line that was processed. If null is returned, the next multilineElementTransformer will be tried. If undefined is returned, the default behavior will be used.
+   */
+  handleImportAfterStartMatch?: (args: {
+    lines: Array<string>;
+    rootNode: ElementNode;
+    startLineIndex: number;
+    startMatch: RegExpMatchArray;
+    transformer: MultilineElementTransformer;
+  }) => [boolean, number] | null | undefined;
+  dependencies: Array<Klass<LexicalNode>>;
+  /**
+   * `export` is called when the `$convertToMarkdownString` is called to convert the editor state into markdown.
+   *
+   * @return return null to cancel the export, even though the regex matched. Lexical will then search for the next transformer.
+   */
+  export?: (
+    node: LexicalNode,
+    // eslint-disable-next-line no-shadow
+    traverseChildren: (node: ElementNode) => string,
+  ) => string | null;
+  /**
+   * This regex determines when to start matching
+   */
+  regExpStart: RegExp;
+  /**
+   * This regex determines when to stop matching. Anything in between regExpStart and regExpEnd will be matched
+   */
+  regExpEnd?:
+  | RegExp
+  | {
+    /**
+     * Whether the end match is optional. If true, the end match is not required to match for the transformer to be triggered.
+     * The entire text from regexpStart to the end of the document will then be matched.
+     */
+    optional?: true;
+    regExp: RegExp;
+  };
+  /**
+   * `replace` is called only when markdown is imported in the editor, not when it's typed
+   *
+   * @return return false to cancel the transform, even though the regex matched. Lexical will then search for the next transformer.
+   */
+  replace: (
+    rootNode: ElementNode,
+    /**
+     * During markdown shortcut transforms, children nodes may be provided to the transformer. If this is the case, no `linesInBetween` will be provided and
+     * the children nodes should be used instead of the `linesInBetween` to create the new node.
+     */
+    children: Array<LexicalNode> | null,
+    startMatch: Array<string>,
+    endMatch: Array<string> | null,
+    /**
+     * linesInBetween includes the text between the start & end matches, split up by lines, not including the matches themselves.
+     * This is null when the transformer is triggered through markdown shortcuts (by typing in the editor)
+     */
+    linesInBetween: Array<string> | null,
+    /**
+     * Whether the match is from an import operation (e.g. through `$convertFromMarkdownString`) or not (e.g. through typing in the editor).
+     */
+    isImport: boolean,
+  ) => boolean | void;
+  type: 'multiline-element';
 };
 
 export type TextFormatTransformer = Readonly<{
@@ -104,19 +151,59 @@ export type TextFormatTransformer = Readonly<{
 
 export type TextMatchTransformer = Readonly<{
   dependencies: Array<Klass<LexicalNode>>;
-  export: (
+  /**
+   * Determines how a node should be exported to markdown
+   */
+  export?: (
     node: LexicalNode,
     // eslint-disable-next-line no-shadow
     exportChildren: (node: ElementNode) => string,
     // eslint-disable-next-line no-shadow
     exportFormat: (node: TextNode, textContent: string) => string,
   ) => string | null;
-  importRegExp: RegExp;
+  /**
+   * This regex determines what text is matched during markdown imports
+   */
+  importRegExp?: RegExp;
+  /**
+   * This regex determines what text is matched for markdown shortcuts while typing in the editor
+   */
   regExp: RegExp;
-  replace: (node: TextNode, match: RegExpMatchArray) => void;
-  trigger: string;
+  /**
+   * Determines how the matched markdown text should be transformed into a node during the markdown import process
+   *
+   * @returns nothing, or a TextNode that may be a child of the new node that is created.
+   * If a TextNode is returned, text format matching will be applied to it (e.g. bold, italic, etc.)
+   */
+  replace?: (node: TextNode, match: RegExpMatchArray) => void | TextNode;
+  /**
+   * For import operations, this function can be used to determine the end index of the match, after `importRegExp` has matched.
+   * Without this function, the end index will be determined by the length of the match from `importRegExp`. Manually determining the end index can be useful if
+   * the match from `importRegExp` is not the entire text content of the node. That way, `importRegExp` can be used to match only the start of the node, and `getEndIndex`
+   * can be used to match the end of the node.
+   *
+   * @returns The end index of the match, or false if the match was unsuccessful and a different transformer should be tried.
+   */
+  getEndIndex?: (node: TextNode, match: RegExpMatchArray) => number | false;
+  /**
+   * Single character that allows the transformer to trigger when typed in the editor. This does not affect markdown imports outside of the markdown shortcut plugin.
+   * If the trigger is matched, the `regExp` will be used to match the text in the second step.
+   */
+  trigger?: string;
   type: 'text-match';
 }>;
+
+const ORDERED_LIST_REGEX = /^(\s*)(\d{1,})\.\s/;
+const UNORDERED_LIST_REGEX = /^(\s*)[-*+]\s/;
+const CHECK_LIST_REGEX = /^(\s*)(?:-\s)?\s?(\[(\s|x)?\])\s/i;
+const HEADING_REGEX = /^(#{1,6})\s/;
+const QUOTE_REGEX = /^>\s/;
+const CODE_START_REGEX = /^[ \t]*```(\w+)?\s?/;
+const CODE_END_REGEX = /[ \t]*```\s?$/;
+const CODE_SINGLE_LINE_REGEX =
+  /^[ \t]*```[^`]+(?:(?:`{1,2}|`{4,})[^`]+)*```(?:[^`]|$)/;
+const TABLE_ROW_REG_EXP = /^(?:\|)(.+)(?:\|)\s?$/;
+const TABLE_ROW_DIVIDER_REG_EXP = /^(\| ?:?-*:? ?)+\|\s?$/;
 
 const createBlockNode = (
   createNode: (match: Array<string>) => ElementNode,
@@ -231,7 +318,7 @@ export const HEADING: ElementTransformer = {
     const level = Number(node.getTag().slice(1));
     return '#'.repeat(level) + ' ' + exportChildren(node);
   },
-  regExp: /^(#{1,6})\s/,
+  regExp: HEADING_REGEX,
   replace: createBlockNode((match) => {
     const tag = ('h' + match[1].length) as HeadingTagType;
     return $createHeadingNode(tag);
@@ -253,7 +340,7 @@ export const QUOTE: ElementTransformer = {
     }
     return output.join('\n');
   },
-  regExp: /^>\s/,
+  regExp: QUOTE_REGEX,
   replace: (parentNode, children, _match, isImport) => {
     if (isImport) {
       const previousNode = parentNode.getPreviousSibling();
@@ -276,7 +363,7 @@ export const QUOTE: ElementTransformer = {
   type: 'element',
 };
 
-export const CODE: ElementTransformer = {
+export const CODE: MultilineElementTransformer = {
   dependencies: [CodeNode],
   export: (node: LexicalNode) => {
     if (!$isCodeNode(node)) {
@@ -291,27 +378,72 @@ export const CODE: ElementTransformer = {
       '```'
     );
   },
-  regExp: /^[ \t]*```(\w{1,10})?/,
-  replace: (parentNode, children, match, isImport) => {
-    const codeNode = $createCodeNode(match ? match[1] : undefined);
-    parentNode.replace(codeNode);
-    if (isImport) {
-      const nextSiblings = codeNode.getNextSiblings();
-      const closingTagIndex = nextSiblings.findIndex((node) => node.getTextContent().endsWith('```'));
-      if (closingTagIndex === -1) return;
-      const nodesToReplace = nextSiblings.slice(0, closingTagIndex);
-      nodesToReplace.forEach((node, index) => {
-        const textContent = node.getTextContent();
-        const isLastNode = index === nodesToReplace.length - 1;
-        const textNode = $createTextNode(textContent + (isLastNode ? '' : '\n'));
-        codeNode.append(textNode);
-        node.remove();
-      });
-      const endNode = nextSiblings[closingTagIndex];
-      endNode.replace($createParagraphNode()).selectEnd();
+  regExpEnd: {
+    optional: true,
+    regExp: CODE_END_REGEX,
+  },
+  regExpStart: CODE_START_REGEX,
+  replace: (
+    rootNode,
+    children,
+    startMatch,
+    endMatch,
+    linesInBetween,
+    isImport,
+  ) => {
+    let codeBlockNode: CodeNode;
+    let code: string;
+
+    if (!children && linesInBetween) {
+      if (linesInBetween.length === 1) {
+        // Single-line code blocks
+        if (endMatch) {
+          // End match on same line. Example: ```markdown hello```. markdown should not be considered the language here.
+          codeBlockNode = $createCodeNode();
+          code = startMatch[1] + linesInBetween[0];
+        } else {
+          // No end match. We should assume the language is next to the backticks and that code will be typed on the next line in the future
+          codeBlockNode = $createCodeNode(startMatch[1]);
+          code = linesInBetween[0].startsWith(' ')
+            ? linesInBetween[0].slice(1)
+            : linesInBetween[0];
+        }
+      } else {
+        // Treat multi-line code blocks as if they always have an end match
+        codeBlockNode = $createCodeNode(startMatch[1]);
+
+        if (linesInBetween[0].trim().length === 0) {
+          // Filter out all start and end lines that are length 0 until we find the first line with content
+          while (linesInBetween.length > 0 && !linesInBetween[0].length) {
+            linesInBetween.shift();
+          }
+        } else {
+          // The first line already has content => Remove the first space of the line if it exists
+          linesInBetween[0] = linesInBetween[0].startsWith(' ')
+            ? linesInBetween[0].slice(1)
+            : linesInBetween[0];
+        }
+
+        // Filter out all end lines that are length 0 until we find the last line with content
+        while (
+          linesInBetween.length > 0 &&
+          !linesInBetween[linesInBetween.length - 1].length
+        ) {
+          linesInBetween.pop();
+        }
+
+        code = linesInBetween.join('\n');
+      }
+      const textNode = $createTextNode(code);
+      codeBlockNode.append(textNode);
+      rootNode.append(codeBlockNode);
+    } else if (children) {
+      createBlockNode((match) => {
+        return $createCodeNode(match ? match[1] : undefined);
+      })(rootNode, children, startMatch, isImport);
     }
   },
-  type: 'element',
+  type: 'multiline-element',
 };
 
 export const UNORDERED_LIST: ElementTransformer = {
@@ -319,7 +451,7 @@ export const UNORDERED_LIST: ElementTransformer = {
   export: (node, exportChildren) => {
     return $isListNode(node) ? listExport(node, exportChildren, 0) : null;
   },
-  regExp: /^(\s*)[-*+]\s/,
+  regExp: UNORDERED_LIST_REGEX,
   replace: listReplace('bullet'),
   type: 'element',
 };
@@ -329,7 +461,7 @@ export const CHECK_LIST: ElementTransformer = {
   export: (node, exportChildren) => {
     return $isListNode(node) ? listExport(node, exportChildren, 0) : null;
   },
-  regExp: /^(\s*)(?:-\s)?\s?(\[(\s|x)?\])\s/i,
+  regExp: CHECK_LIST_REGEX,
   replace: listReplace('check'),
   type: 'element',
 };
@@ -339,7 +471,7 @@ export const ORDERED_LIST: ElementTransformer = {
   export: (node, exportChildren) => {
     return $isListNode(node) ? listExport(node, exportChildren, 0) : null;
   },
-  regExp: /^(\s*)(\d{1,})\.\s/,
+  regExp: ORDERED_LIST_REGEX,
   replace: listReplace('number'),
   type: 'element',
 };
@@ -412,22 +544,19 @@ export const LINK: TextMatchTransformer = {
       return null;
     }
     const title = node.getTitle();
+
+    const textContent = exportChildren(node);
+
     const linkContent = title
-      ? `[${node.getTextContent()}](${node.getURL()} "${title}")`
-      : `[${node.getTextContent()}](${node.getURL()})`;
-    const firstChild = node.getFirstChild();
-    // Add text styles only if link has single text node inside. If it's more
-    // then one we ignore it as markdown does not support nested styles for links
-    if (node.getChildrenSize() === 1 && $isTextNode(firstChild)) {
-      return exportFormat(firstChild, linkContent);
-    } else {
-      return linkContent;
-    }
+      ? `[${textContent}](${node.getURL()} "${title}")`
+      : `[${textContent}](${node.getURL()})`;
+
+    return linkContent;
   },
   importRegExp:
     /(?:\[([^[]+)\])(?:\((?:([^()\s]+)(?:\s"((?:[^"]*\\")*[^"]*)"\s*)?)\))/,
   regExp:
-    /(?:\[([^[]+)\])(?:\((?:([^()\s]+)(?:\s"((?:[^"]*\\")*[^"]*)"\s*)?)\))/,
+    /(?:\[([^[]+)\])(?:\((?:([^()\s]+)(?:\s"((?:[^"]*\\")*[^"]*)"\s*)?)\))$/,
   replace: (textNode, match) => {
     const [, linkText, linkUrl, linkTitle] = match;
     const linkNode = $createLinkNode(linkUrl, { title: linkTitle });
@@ -435,18 +564,110 @@ export const LINK: TextMatchTransformer = {
     linkTextNode.setFormat(textNode.getFormat());
     linkNode.append(linkTextNode);
     textNode.replace(linkNode);
+
+    return linkTextNode;
   },
   trigger: ')',
   type: 'text-match',
 };
 
+export function normalizeMarkdown(
+  input: string,
+  shouldMergeAdjacentLines = false,
+): string {
+  const lines = input.split('\n');
+  let inCodeBlock = false;
+  const sanitizedLines: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const lastLine = sanitizedLines[sanitizedLines.length - 1];
+
+    // Code blocks of ```single line``` don't toggle the inCodeBlock flag
+    if (CODE_SINGLE_LINE_REGEX.test(line)) {
+      sanitizedLines.push(line);
+      continue;
+    }
+
+    // Detect the start or end of a code block
+    if (CODE_START_REGEX.test(line) || CODE_END_REGEX.test(line)) {
+      inCodeBlock = !inCodeBlock;
+      sanitizedLines.push(line);
+      continue;
+    }
+
+    // If we are inside a code block, keep the line unchanged
+    if (inCodeBlock) {
+      sanitizedLines.push(line);
+      continue;
+    }
+
+    // In markdown the concept of "empty paragraphs" does not exist.
+    // Blocks must be separated by an empty line. Non-empty adjacent lines must be merged.
+    if (
+      line === '' ||
+      lastLine === '' ||
+      !lastLine ||
+      HEADING_REGEX.test(lastLine) ||
+      HEADING_REGEX.test(line) ||
+      QUOTE_REGEX.test(line) ||
+      ORDERED_LIST_REGEX.test(line) ||
+      UNORDERED_LIST_REGEX.test(line) ||
+      CHECK_LIST_REGEX.test(line) ||
+      TABLE_ROW_REG_EXP.test(line) ||
+      TABLE_ROW_DIVIDER_REG_EXP.test(line) ||
+      !shouldMergeAdjacentLines
+    ) {
+      sanitizedLines.push(line);
+    } else {
+      sanitizedLines[sanitizedLines.length - 1] = lastLine + line;
+    }
+  }
+
+  return sanitizedLines.join('\n');
+}
+
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+
+import { $convertFromMarkdownString, $convertToMarkdownString } from '@lexical/markdown';
+import {
+  $createHorizontalRuleNode,
+  $isHorizontalRuleNode,
+  HorizontalRuleNode,
+} from '@/editor/nodes/HorizontalRuleNode';
+
+import {
+  $createTableCellNode,
+  $createTableNode,
+  $createTableRowNode,
+  $isTableCellNode,
+  $isTableNode,
+  $isTableRowNode,
+  TableCellHeaderStates,
+  TableCellNode,
+  TableNode,
+  TableRowNode,
+} from '@/editor/nodes/TableNode';
+import { $createMathNode, $isMathNode, MathNode } from '@/editor/nodes/MathNode';
+import { $createImageNode, $isImageNode, ImageNode } from '@/editor/nodes/ImageNode';
+import { $createGraphNode, $isGraphNode, GraphNode } from '@/editor/nodes/GraphNode';
+import { $createSketchNode, $isSketchNode, SketchNode } from '@/editor/nodes/SketchNode';
+import { $createStickyNode, $isStickyNode, StickyNode } from '@/editor/nodes/StickyNode';
+import { $isParagraphNode, $isTextNode, LexicalEditor } from 'lexical';
+
 
 export const HR: ElementTransformer = {
   dependencies: [HorizontalRuleNode],
   export: (node: LexicalNode) => {
-    return $isHorizontalRuleNode(node) ? '---' : null;
+    return $isHorizontalRuleNode(node) ? '***' : null;
   },
-  regExp: /^(---|===)\s?/,
+  regExp: /^(---+|\*\*\*+|___+|===+)\s?$/,
   replace: (parentNode, _1, _2, isImport) => {
     const line = $createHorizontalRuleNode();
 
@@ -457,7 +678,7 @@ export const HR: ElementTransformer = {
       parentNode.insertBefore(line);
     }
 
-    line.insertAfter($createParagraphNode()).selectEnd();
+    line.selectNext();
   },
   type: 'element',
 };
@@ -472,7 +693,7 @@ export const IMAGE: TextMatchTransformer = {
     return `![${node.getAltText()}](${node.getSrc()})`;
   },
   importRegExp: /!(?:\[([^[]*)\])(?:\(([^(]+)\))/,
-  regExp: /!(?:\[([^[]*)\])(?:\(([^(]+)\))/,
+  regExp: /!(?:\[([^[]*)\])(?:\(([^(]+)\))$/,
   replace: (textNode, match) => {
     const [, altText, src] = match;
     const imageNode = $createImageNode({
@@ -560,7 +781,7 @@ const svgtoBase64 = (dataURI: string) => {
 
 export const MATH: TextMatchTransformer = {
   dependencies: [MathNode],
-  export: (node, exportChildren, exportFormat) => {
+  export: (node) => {
     if (!$isMathNode(node)) {
       return null;
     }
@@ -568,7 +789,7 @@ export const MATH: TextMatchTransformer = {
     return `$${node.getValue()}$`;
   },
   importRegExp: /\$+(.*?)\$+|\\\((.*?)\\\)|\\\[(.*?)\\\]/,
-  regExp: /\$+(.*?)\$+|\\\((.*?)\\\)|\\\[(.*?)\\\]/,
+  regExp: /\$+(.*?)\$+/,
   replace: (textNode, match) => {
     const value = match[1] || match[2];
     const style = textNode.getStyle();
@@ -581,9 +802,6 @@ export const MATH: TextMatchTransformer = {
 };
 
 // Very primitive table setup
-const TABLE_ROW_REG_EXP = /^(?:\|)(.+)(?:\|)\s?$/;
-const TABLE_ROW_DIVIDER_REG_EXP = /^(\| ?:?-*:? ?)+\|\s?$/;
-
 export const TABLE: ElementTransformer = {
   dependencies: [TableNode, TableRowNode, TableCellNode],
   export: (node: LexicalNode) => {
@@ -604,10 +822,9 @@ export const TABLE: ElementTransformer = {
         // It's TableCellNode so it's just to make flow happy
         if ($isTableCellNode(cell)) {
           rowOutput.push(
-            $convertToMarkdownString(TRANSFORMERS, cell).replace(
-              /\n/g,
-              '\\n',
-            ),
+            $convertToMarkdownString(TRANSFORMERS, cell)
+              .replace(/\n/g, '\\n')
+              .trim(),
           );
           if (cell.__headerState === TableCellHeaderStates.ROW) {
             isHeaderRow = true;
@@ -643,7 +860,10 @@ export const TABLE: ElementTransformer = {
         if (!$isTableCellNode(cell)) {
           return;
         }
-        cell.toggleHeaderStyle(TableCellHeaderStates.ROW);
+        cell.setHeaderStyles(
+          TableCellHeaderStates.ROW,
+          TableCellHeaderStates.ROW,
+        );
       });
 
       // Remove line
@@ -696,7 +916,7 @@ export const TABLE: ElementTransformer = {
       table.append(tableRow);
 
       for (let i = 0; i < maxCells; i++) {
-        tableRow.append(i < cells.length ? cells[i] : createTableCell(''));
+        tableRow.append(i < cells.length ? cells[i] : $createTableCell(''));
       }
     }
 
@@ -721,7 +941,7 @@ function getTableColumnsSize(table: TableNode) {
   return $isTableRowNode(row) ? row.getChildrenSize() : 0;
 }
 
-const createTableCell = (textContent: string): TableCellNode => {
+const $createTableCell = (textContent: string): TableCellNode => {
   textContent = textContent.replace(/\\n/g, '\n');
   const cell = $createTableCellNode(TableCellHeaderStates.NO_STATUS);
   $convertFromMarkdownString(textContent, TRANSFORMERS, cell);
@@ -733,22 +953,25 @@ const mapToTableCells = (textContent: string): Array<TableCellNode> | null => {
   if (!match || !match[1]) {
     return null;
   }
-  return match[1].split('|').map((text) => createTableCell(text));
+  return match[1].split('|').map((text) => $createTableCell(text));
 };
-export const ELEMENT_TRANSFORMERS: Array<ElementTransformer> = [
+
+const ELEMENT_TRANSFORMERS: Array<ElementTransformer> = [
   HEADING,
   QUOTE,
-  CODE,
-  CHECK_LIST,
   UNORDERED_LIST,
   ORDERED_LIST,
+];
+
+const MULTILINE_ELEMENT_TRANSFORMERS: Array<MultilineElementTransformer> = [
+  CODE,
 ];
 
 // Order of text format transformers matters:
 //
 // - code should go first as it prevents any transformations inside
 // - then longer tags match (e.g. ** or __ should go before * or _)
-export const TEXT_FORMAT_TRANSFORMERS: Array<TextFormatTransformer> = [
+const TEXT_FORMAT_TRANSFORMERS: Array<TextFormatTransformer> = [
   INLINE_CODE,
   BOLD_ITALIC_STAR,
   BOLD_ITALIC_UNDERSCORE,
@@ -760,26 +983,30 @@ export const TEXT_FORMAT_TRANSFORMERS: Array<TextFormatTransformer> = [
   STRIKETHROUGH,
 ];
 
-export const TEXT_MATCH_TRANSFORMERS: Array<TextMatchTransformer> = [LINK];
+const TEXT_MATCH_TRANSFORMERS: Array<TextMatchTransformer> = [LINK];
 
 export const TRANSFORMERS: Array<Transformer> = [
   TABLE,
   HR,
   IMAGE,
+  CHECK_LIST,
   GRAPH,
   SKETCH,
   MATH,
   STICKY,
   ...ELEMENT_TRANSFORMERS,
+  ...MULTILINE_ELEMENT_TRANSFORMERS,
   ...TEXT_FORMAT_TRANSFORMERS,
   ...TEXT_MATCH_TRANSFORMERS,
 ];
 
-export default function createMarkdownTransformers(editor: LexicalEditor): Array<Transformer> {
+export function createTransformers(editor: LexicalEditor): Array<Transformer> {
   const TRANSFORMERS: Array<Transformer> = [
     HR,
+    CHECK_LIST,
     MATH,
     ...ELEMENT_TRANSFORMERS,
+    ...MULTILINE_ELEMENT_TRANSFORMERS,
     ...TEXT_FORMAT_TRANSFORMERS,
     ...TEXT_MATCH_TRANSFORMERS,
   ];

@@ -110,7 +110,7 @@ export async function POST(req: Request) {
 
   const result = streamText({ model, messages, maxTokens });
 
-  return result.toDataStreamResponse({
+  return result.toTextStreamResponse({
     status: 200,
     headers: {
       "Content-Type": "text/x-unknown",

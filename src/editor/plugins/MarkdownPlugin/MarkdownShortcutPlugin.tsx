@@ -1,4 +1,3 @@
-"use client"
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -7,18 +6,38 @@
  *
  */
 
-import { registerMarkdownShortcuts } from '.';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useEffect } from 'react';
-import createMarkdownTransformers from './MarkdownTransformers';
+import { useEffect, useMemo, type JSX } from 'react';
 
-export default function MarkdownPlugin(): null {
+import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
+import * as React from 'react';
+
+import { createTransformers } from './MarkdownTransformers';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { PASTE_COMMAND, $getSelection, LexicalNode, $createParagraphNode, COMMAND_PRIORITY_NORMAL, $isRangeSelection, $addUpdateTag, $setSelection } from 'lexical';
+import { $convertFromMarkdownString } from '.';
+
+export default function MarkdownPlugin(): JSX.Element {
   const [editor] = useLexicalComposerContext();
-  const transformers = createMarkdownTransformers(editor);
+  const transformers = useMemo(() => createTransformers(editor), [editor]);
 
   useEffect(() => {
-    return registerMarkdownShortcuts(editor, transformers);
-  }, [editor, transformers]);
+    return editor.registerCommand(
+      PASTE_COMMAND,
+      (event: ClipboardEvent) => {
+        if (!event.clipboardData) return false;
+        const selection = $getSelection();
+        if (!$isRangeSelection(selection)) return false;
+        const text = event.clipboardData.getData('text/plain');
+        const parent = $createParagraphNode();
+        $setSelection(null);
+        $convertFromMarkdownString(text, transformers, parent);
+        const children = parent.getChildren();
+        selection.insertNodes(children);
+        return true;
+      },
+      COMMAND_PRIORITY_NORMAL,
+    );
+  }, [editor])
 
-  return null;
+  return <MarkdownShortcutPlugin transformers={transformers} />;
 }
