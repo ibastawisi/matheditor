@@ -27,7 +27,6 @@ export async function POST(req: Request) {
           "You are asked to continue writing more text following user's " +
           "Use Markdown for text formatting when appropriate. " +
           "Write any math formulas in Latex surrounded by $ delimiters. " +
-          "Limit your response to no more than 200 characters, but make sure to construct complete sentences." +
           "Respond directly without any conversation starters.",
       },
       {
@@ -43,7 +42,6 @@ export async function POST(req: Request) {
           "You are asked to rewrite what user writes in another way. " +
           "Use Markdown for text formatting when appropriate. " +
           "Write any math formulas in Latex surrounded by $ delimiters. " +
-          "Limit your response to no more than 200 characters, but make sure to construct complete sentences." +
           "Respond directly without any conversation starters.",
       },
       {
@@ -104,8 +102,13 @@ export async function POST(req: Request) {
     .with("google", () => google(body.model || "gemini-2.0-flash-exp"))
     .run();
 
+  const maxTokens = match(body.provider)
+    .with("ollama", () => undefined)
+    .with("cloudflare", () => 2048)
+    .with("google", () => undefined)
+    .run();
 
-  const result = streamText({ model, messages, maxTokens: 2048, });
+  const result = streamText({ model, messages, maxTokens });
 
   return result.toDataStreamResponse({
     status: 200,

@@ -133,7 +133,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       const anchorNode = selection.anchor.getNode();
       let currentNode: LexicalNode | null | undefined = anchorNode;
       let textContent = "";
-      while (currentNode && textContent.length < 100) {
+      while (currentNode && textContent.length < 1024) {
         textContent = currentNode.getTextContent() + "\n\n" + textContent;
         currentNode = currentNode.getPreviousSibling() || currentNode.getParent()?.getPreviousSibling();
       }
