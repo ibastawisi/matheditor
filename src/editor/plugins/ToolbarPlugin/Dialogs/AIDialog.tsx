@@ -6,16 +6,15 @@ import { Badge, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, 
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { ViewHeadline } from '@mui/icons-material';
 
-const CLOUDFLARE_MODELS = [
-  { label: 'Meta Llama 3.1 8B', value: '@cf/meta/llama-3.1-8b-instruct-fast', fast: true, reason: false },
-];
-
-const OLLAMA_MODELS = [
-  { label: 'DeepScaleR 1.5B', value: 'deepscaler', fast: false, reason: true },
+const MODELS = [
+  { label: 'Gemini 2.0 Flash', provider: 'google', model: 'gemini-2.0-flash-exp', fast: true, reason: false },
+  { label: 'Gemini 2.0 Flash Thinking', provider: 'google', model: 'gemini-2.0-flash-thinking-exp-01-21', fast: true, reason: true },
+  { label: 'Meta Llama 3.1 8B', provider: 'cloudflare', model: '@cf/meta/llama-3.1-8b-instruct-fast', fast: true, reason: false },
+  { label: 'DeepScaleR 1.5B', provider: 'ollama', model: 'deepscaler', fast: false, reason: true },
 ];
 
 function AIDialog({ editor }: { editor: LexicalEditor }) {
-  const [llm, setLlm] = useLocalStorage('llm', { provider: 'cloudflare', model: '@cf/meta/llama-3.1-8b-instruct-fast' });
+  const [llm, setLlm] = useLocalStorage('llm', { provider: 'google', model: 'gemini-2.0-flash-exp' });
   const [formData, setFormData] = useState(llm);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
@@ -61,18 +60,8 @@ function AIDialog({ editor }: { editor: LexicalEditor }) {
           }}
           inputProps={{ 'aria-label': 'Language Model' }}
         >
-          {CLOUDFLARE_MODELS.map(({ label, value, fast, reason }) => (
-            <MenuItem key={value} value={value} onClick={() => setFormData({ provider: 'cloudflare', model: value })}>
-              <ListItemIcon>
-                <ViewHeadline fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>{label}</ListItemText>
-              {fast && <Badge color="success" badgeContent="Fast" sx={{ ml: 1, '& .MuiBadge-badge': { position: 'static', transform: 'none' } }} />}
-              {reason && <Badge color="warning" badgeContent="Reason" sx={{ ml: 1, '& .MuiBadge-badge': { position: 'static', transform: 'none' } }} />}
-            </MenuItem>
-          ))}
-          {OLLAMA_MODELS.map(({ label, value, fast, reason }) => (
-            <MenuItem key={value} value={value} onClick={() => setFormData({ provider: 'ollama', model: value })}>
+          {MODELS.map(({ label, provider, model, fast, reason }) => (
+            <MenuItem key={model} value={model} onClick={() => setFormData({ provider, model})}>
               <ListItemIcon>
                 <ViewHeadline fontSize="small" />
               </ListItemIcon>

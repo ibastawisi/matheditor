@@ -1,11 +1,12 @@
 import { CoreMessage, streamText } from 'ai';
 import { createOllama } from 'ollama-ai-provider';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+import { google } from '@ai-sdk/google';
 import { match } from "ts-pattern";
 
 export const runtime = "edge";
 
-const openai = createOpenAICompatible({
+const cloudflare = createOpenAICompatible({
   name: "cloudflare-workers-ai",
   baseURL: `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/matheditor/workers-ai/v1/`,
   headers: { Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY}` },
@@ -15,7 +16,7 @@ const ollama = createOllama({ baseURL: process.env.OLLAMA_API_URL });
 
 export async function POST(req: Request) {
 
-  const { prompt, option, command, provider, model } = await req.json();
+  const { prompt, option, command, ...body } = await req.json();
 
   const messages = match(option)
     .with("continue", () => [
@@ -97,11 +98,14 @@ export async function POST(req: Request) {
     ])
     .run() as CoreMessage[];
 
-  const result = streamText({
-    model: provider === "ollama" ? ollama(model || "llama3.2") : openai(model || "@cf/meta/llama-3.1-8b-instruct-fast"),
-    messages,
-    maxTokens: 2048,
-  });
+  const model = match(body.provider)
+    .with("ollama", () => ollama(body.model || "llama3.2"))
+    .with("cloudflare", () => cloudflare(body.model || "@cf/meta/llama-3.1-8b-instruct-fast"))
+    .with("google", () => google(body.model || "gemini-2.0-flash-exp"))
+    .run();
+
+
+  const result = streamText({ model, messages, maxTokens: 2048, });
 
   return result.toDataStreamResponse({
     status: 200,
