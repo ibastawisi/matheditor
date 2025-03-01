@@ -8,8 +8,8 @@ import { ViewHeadline } from '@mui/icons-material';
 
 const MODELS = [
   { label: 'Gemini 2.0 Flash', provider: 'google', model: 'gemini-2.0-flash-exp', fast: true, reason: false },
-  { label: 'Gemini 2.0 Flash Thinking', provider: 'google', model: 'gemini-2.0-flash-thinking-exp-01-21', fast: true, reason: true },
   { label: 'Meta Llama 3.1 8B', provider: 'cloudflare', model: '@cf/meta/llama-3.1-8b-instruct-fast', fast: true, reason: false },
+  { label: 'Gemini 2.0 Flash Thinking', provider: 'google', model: 'gemini-2.0-flash-thinking-exp-01-21', fast: false, reason: true },
   { label: 'DeepScaleR 1.5B', provider: 'ollama', model: 'deepscaler', fast: false, reason: true },
 ];
 

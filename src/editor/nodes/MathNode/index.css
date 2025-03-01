@@ -13,7 +13,7 @@ math-field {
 }
 
 math-field::part(container) {
-  padding: 0;
+  padding-inline: 0;
   pointer-events: inherit;
   --_text-font-family: inherit;
 }

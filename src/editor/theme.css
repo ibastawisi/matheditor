@@ -551,7 +551,7 @@ iframe {
 
 .LexicalTheme__math>.ML__latex {
   user-select: auto;
-  padding: 2px 3px 2px 1px;
+  padding: 6px 3px 6px 1px;
 }
 
 .LexicalTheme__math:hover {
@@ -879,4 +879,3 @@ iframe {
     filter: invert(1) !important;
   }
 }
-
