@@ -13,7 +13,7 @@ import { throttle } from "@/editor/utils/throttle";
 import { $convertFromMarkdownString, createTransformers } from "../../MarkdownPlugin";
 
 const getLlmConfig = () => {
-  const initialValue = { provider: 'cloudflare', model: '@cf/meta/llama-3.1-8b-instruct-fast' };
+  const initialValue = { provider: 'google', model: 'gemini-2.0-flash-exp' };
   try {
     const item = window.localStorage.getItem('llm');
     return item ? JSON.parse(item) : initialValue;

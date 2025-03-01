@@ -788,10 +788,11 @@ export const MATH: TextMatchTransformer = {
 
     return `$${node.getValue()}$`;
   },
-  importRegExp: /\$+(.*?)\$+|\\\((.*?)\\\)|\\\[(.*?)\\\]/,
+  importRegExp: /\$+(.*?)(?:\$+|$)|\\\((.*?)(?:\\\)|$)|\\\[(.*?)(?:\\\]|$)/,
   regExp: /\$+(.*?)\$+/,
-  replace: (textNode, match) => {
+  replace: (textNode, match,) => {
     const value = match[1] || match[2] || match[3];
+    if (!value && match[0] !== "$$") return;
     const style = textNode.getStyle();
     const mathNode = $createMathNode(value, style);
     textNode.replace(mathNode);
@@ -812,9 +813,9 @@ export const MULTILINE_MATH: MultilineElementTransformer = {
   },
   regExpEnd: {
     optional: true,
-    regExp: /\$\$\s?$|\\\]\s?$|\\\)\s?$/,
+    regExp: /\$+\s?$|\\\]\s?$|\\\)\s?$/,
   },
-  regExpStart: /^[ \t]*(\$\$|\\\[|\\\()\s?/,
+  regExpStart: /^[ \t]*(\$+|\\\[|\\\()\s+/,
   replace: (
     rootNode,
     children,
