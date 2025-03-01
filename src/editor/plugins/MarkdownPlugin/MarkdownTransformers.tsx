@@ -791,7 +791,7 @@ export const MATH: TextMatchTransformer = {
   importRegExp: /\$+(.*?)\$+|\\\((.*?)\\\)|\\\[(.*?)\\\]/,
   regExp: /\$+(.*?)\$+/,
   replace: (textNode, match) => {
-    const value = match[1] || match[2];
+    const value = match[1] || match[2] || match[3];
     const style = textNode.getStyle();
     const mathNode = $createMathNode(value, style);
     textNode.replace(mathNode);
@@ -799,6 +799,60 @@ export const MATH: TextMatchTransformer = {
   },
   trigger: '$',
   type: 'text-match',
+};
+
+export const MULTILINE_MATH: MultilineElementTransformer = {
+  dependencies: [MathNode],
+  export: (node: LexicalNode) => {
+    if (!$isMathNode(node)) {
+      return null;
+    }
+    const textContent = node.getValue();
+    return '$$\n' + textContent + '\n$$';
+  },
+  regExpEnd: {
+    optional: true,
+    regExp: /\$\$\s?$|\\\]\s?$/,
+  },
+  regExpStart: /^[ \t]*(\$\$|\\\[)\s?/,
+  replace: (
+    rootNode,
+    children,
+    startMatch,
+    endMatch,
+    linesInBetween,
+    isImport,
+  ) => {
+    if (!children && linesInBetween) {
+      const mathNode = $createMathNode('', '');
+      let math: string;
+
+      if (linesInBetween.length === 1) {
+        // Single-line math blocks
+        math = linesInBetween[0];
+      } else {
+        // Multi-line math blocks
+        // Filter out all start and end lines that are length 0 until we find the first line with content
+        while (linesInBetween.length > 0 && !linesInBetween[0].length) {
+          linesInBetween.shift();
+        }
+
+        // Filter out all end lines that are length 0 until we find the last line with content
+        while (
+          linesInBetween.length > 0 &&
+          !linesInBetween[linesInBetween.length - 1].length
+        ) {
+          linesInBetween.pop();
+        }
+
+        math = linesInBetween.join('\n');
+      }
+
+      mathNode.setValue(math);
+      rootNode.append(mathNode);
+    }
+  },
+  type: 'multiline-element',
 };
 
 // Very primitive table setup
@@ -965,6 +1019,7 @@ const ELEMENT_TRANSFORMERS: Array<ElementTransformer> = [
 
 const MULTILINE_ELEMENT_TRANSFORMERS: Array<MultilineElementTransformer> = [
   CODE,
+  MULTILINE_MATH,
 ];
 
 // Order of text format transformers matters:
@@ -1002,9 +1057,10 @@ export const TRANSFORMERS: Array<Transformer> = [
 
 export function createTransformers(editor: LexicalEditor): Array<Transformer> {
   const TRANSFORMERS: Array<Transformer> = [
+    MATH,
+    MULTILINE_MATH,
     HR,
     CHECK_LIST,
-    MATH,
     ...ELEMENT_TRANSFORMERS,
     ...MULTILINE_ELEMENT_TRANSFORMERS,
     ...TEXT_FORMAT_TRANSFORMERS,
