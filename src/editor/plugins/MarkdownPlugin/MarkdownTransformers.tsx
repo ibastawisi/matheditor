@@ -812,9 +812,9 @@ export const MULTILINE_MATH: MultilineElementTransformer = {
   },
   regExpEnd: {
     optional: true,
-    regExp: /\$\$\s?$|\\\]\s?$/,
+    regExp: /\$\$\s?$|\\\]\s?$|\\\)\s?$/,
   },
-  regExpStart: /^[ \t]*(\$\$|\\\[)\s?/,
+  regExpStart: /^[ \t]*(\$\$|\\\[|\\\()\s?/,
   replace: (
     rootNode,
     children,
