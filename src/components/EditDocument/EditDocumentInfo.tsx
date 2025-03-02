@@ -48,6 +48,7 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
 
   const isDiffViewOpen = useSelector(state => state.ui.diff.open);
   const toggleDiffView = async () => {
+    if (unsavedChanges) await createLocalRevision();
     const newRevisionId = documentRevisions[0]?.id;
     const oldRevisionId = documentRevisions[1]?.id ?? newRevisionId;
     dispatch(actions.setDiff({ open: !isDiffViewOpen, old: oldRevisionId, new: newRevisionId }));

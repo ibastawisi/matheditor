@@ -29,23 +29,22 @@ const DiffView = () => {
 
   useEffect(() => {
     const diffRevisions = async () => {
-      NProgress.start();
       const oldRevisionId = diff.old;
       const newRevisionId = diff.new;
       if (!oldRevisionId || !newRevisionId) return;
       const oldRevision = await getEditorDocumentRevision(oldRevisionId);
-      const newRevision = await getEditorDocumentRevision(newRevisionId);
-      if (!oldRevision || !newRevision) return;
+      if (!oldRevision) return;
       const oldHtml = await generateHtml(oldRevision.data);
+      if (oldRevisionId === newRevisionId) return setHtml(oldHtml);
+      const newRevision = await getEditorDocumentRevision(newRevisionId);
+      if (!newRevision) return;
       const newHtml = await generateHtml(newRevision.data);
       const html = HtmlDiff.execute(oldHtml, newHtml);
       setHtml(html);
-      NProgress.done();
     }
-    diffRevisions();
-    return () => {
-      NProgress.done();
-    }
+    NProgress.start();
+    diffRevisions().then(() => NProgress.done());
+    return () => { NProgress.done(); }
   }, [diff]);
 
   if (!diff.open) return null;
