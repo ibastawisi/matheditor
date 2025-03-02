@@ -11,7 +11,8 @@ export default memo(function ProgressBar() {
     NProgress.configure({ showSpinner: false });
 
     const handleAnchorClick = (event: MouseEvent) => {
-      if (event.metaKey ||
+      if (!navigator.onLine ||
+        event.metaKey ||
         event.ctrlKey ||
         event.shiftKey ||
         event.altKey
