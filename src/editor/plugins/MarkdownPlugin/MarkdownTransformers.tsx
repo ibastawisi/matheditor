@@ -815,7 +815,7 @@ export const MULTILINE_MATH: MultilineElementTransformer = {
     optional: true,
     regExp: /\$+\s?$|\\\]\s?$|\\\)\s?$/,
   },
-  regExpStart: /^[ \t]*(\$+|\\\[|\\\()\s+/,
+  regExpStart: /^[ \t]*(\$+|\\\[|\\\()\s?/,
   replace: (
     rootNode,
     children,
@@ -825,6 +825,11 @@ export const MULTILINE_MATH: MultilineElementTransformer = {
     isImport,
   ) => {
     if (!children && linesInBetween) {
+      // skip if joined text partially matches single line math
+      const total = startMatch[0] + linesInBetween.join('') + endMatch?.[0];
+      const partial = total.match(MATH.importRegExp!)?.[0];
+      if (total !== partial) return false;
+
       const mathNode = $createMathNode('', '');
       let math: string;
 
