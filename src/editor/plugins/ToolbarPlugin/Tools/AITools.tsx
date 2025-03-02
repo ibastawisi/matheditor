@@ -13,7 +13,7 @@ import { throttle } from "@/editor/utils/throttle";
 import { $convertFromMarkdownString, createTransformers } from "../../MarkdownPlugin";
 
 const getLlmConfig = () => {
-  const initialValue = { provider: 'google', model: 'gemini-2.0-flash-exp' };
+  const initialValue = { provider: 'google', model: 'gemini-2.0-flash' };
   try {
     const item = window.localStorage.getItem('llm');
     return item ? JSON.parse(item) : initialValue;
