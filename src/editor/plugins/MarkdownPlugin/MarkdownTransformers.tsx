@@ -29,10 +29,13 @@ import {
 } from '@lexical/rich-text';
 import {
   $createLineBreakNode,
+  $createParagraphNode,
   $createTextNode,
+  $isRootNode,
   ElementNode,
   Klass,
   LexicalNode,
+  ParagraphNode,
   TextFormatType,
   TextNode,
 } from 'lexical';
@@ -660,7 +663,7 @@ import { $createGraphNode, $isGraphNode, GraphNode } from '@/editor/nodes/GraphN
 import { $createSketchNode, $isSketchNode, SketchNode } from '@/editor/nodes/SketchNode';
 import { $createStickyNode, $isStickyNode, StickyNode } from '@/editor/nodes/StickyNode';
 import { $isParagraphNode, $isTextNode, LexicalEditor } from 'lexical';
-
+import { $wrapNodeInElement } from '@lexical/utils';
 
 export const HR: ElementTransformer = {
   dependencies: [HorizontalRuleNode],
@@ -826,7 +829,7 @@ export const MULTILINE_MATH: MultilineElementTransformer = {
   ) => {
     if (!children && linesInBetween) {
       // skip if joined text partially matches single line math
-      const total = startMatch[0] + linesInBetween.join('') + endMatch?.[0];
+      const total = (startMatch[0] + linesInBetween.join('') + endMatch?.[0]).trim();
       const partial = total.match(MATH.importRegExp!)?.[0];
       if (total !== partial) return false;
 
@@ -856,6 +859,15 @@ export const MULTILINE_MATH: MultilineElementTransformer = {
 
       mathNode.setValue(math);
       rootNode.append(mathNode);
+
+      if (mathNode.getParent()?.is(rootNode)) {
+        $wrapNodeInElement(mathNode, () => {
+          const paragraphNode = $createParagraphNode();
+          paragraphNode.setFormat('center');
+          return paragraphNode;
+        });
+        rootNode.append($createParagraphNode());
+      }
     }
   },
   type: 'multiline-element',

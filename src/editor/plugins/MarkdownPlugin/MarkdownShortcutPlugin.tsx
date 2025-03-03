@@ -13,7 +13,7 @@ import * as React from 'react';
 
 import { createTransformers } from './MarkdownTransformers';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { PASTE_COMMAND, $getSelection, LexicalNode, $createParagraphNode, COMMAND_PRIORITY_NORMAL, $isRangeSelection, $addUpdateTag, $setSelection } from 'lexical';
+import { PASTE_COMMAND, $getSelection, $createParagraphNode, COMMAND_PRIORITY_NORMAL, $isRangeSelection, $setSelection } from 'lexical';
 import { $convertFromMarkdownString } from '.';
 
 export default function MarkdownPlugin(): JSX.Element {

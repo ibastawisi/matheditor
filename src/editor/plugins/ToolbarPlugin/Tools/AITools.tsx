@@ -1,16 +1,18 @@
 "use client"
-import { $addUpdateTag, $createParagraphNode, $getPreviousSelection, $getSelection, $isRangeSelection, $setSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, ParagraphNode, SELECTION_CHANGE_COMMAND, TextNode, } from "lexical";
+import { $addUpdateTag, $getPreviousSelection, $getSelection, $isRangeSelection, $setSelection, BLUR_COMMAND, CLICK_COMMAND, COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND, LexicalEditor, LexicalNode, SELECTION_CHANGE_COMMAND, SerializedParagraphNode, } from "lexical";
 import { mergeRegister } from "@lexical/utils";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu, Button, MenuItem, ListItemText, Typography, TextField, CircularProgress, IconButton, ListItemIcon } from "@mui/material";
 import { AutoAwesome, UnfoldMore, UnfoldLess, PlayArrow, ImageSearch, Autorenew, ArrowDropDown, ArrowDropUp, Send, Settings } from "@mui/icons-material";
 import { SxProps, Theme } from '@mui/material/styles';
-import { useCompletion } from "ai/react";
+import { useCompletion } from "@ai-sdk/react";
 import { SET_DIALOGS_COMMAND } from "../Dialogs/commands";
 import { ANNOUNCE_COMMAND, UPDATE_DOCUMENT_COMMAND } from "@/editor/commands";
 import { Announcement } from "@/types";
 import { throttle } from "@/editor/utils/throttle";
 import { $convertFromMarkdownString, createTransformers } from "../../MarkdownPlugin";
+import { createHeadlessEditor } from "@lexical/headless";
+import { $generateNodesFromSerializedNodes } from "@lexical/clipboard";
 
 const getLlmConfig = () => {
   const initialValue = { provider: 'google', model: 'gemini-2.0-flash' };
@@ -21,6 +23,17 @@ const getLlmConfig = () => {
     console.log(error);
     return initialValue;
   }
+}
+
+const serializedParagraph: SerializedParagraphNode = {
+  children: [],
+  direction: null,
+  format: "",
+  indent: 0,
+  type: "paragraph",
+  version: 1,
+  textFormat: 0,
+  textStyle: ""
 }
 
 export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: SxProps<Theme> }) {
@@ -55,7 +68,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
   }, [editor]);
 
   const [isCollapsed, setIsCollapsed] = useState(true);
-  const offset = useRef(0);
+  const offsetRef = useRef(0);
 
   const handlePrompt = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget;
@@ -80,7 +93,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       const anchorNode = selection.anchor.getNode();
       let currentNode: LexicalNode | null | undefined = anchorNode;
       let textContent = "";
-      while (currentNode && textContent.length < 100) {
+      while (currentNode && textContent.length < 1024) {
         textContent = currentNode.getTextContent() + "\n\n" + textContent;
         currentNode = currentNode.getPreviousSibling() || currentNode.getParent()?.getPreviousSibling();
       }
@@ -146,48 +159,49 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
     editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ ocr: { open: true } }));
   }
 
-  const transformers = useMemo(() => createTransformers(editor), [editor]);
+  const convertMarkdownToJSON = useCallback((markdown: string) => {
+    const transformers = createTransformers(editor);
+    const nodes = Array.from(editor._nodes.values()).map(registry => registry.klass);
+    const config = { nodes };
+    const headlessEditor = createHeadlessEditor(config);
+    headlessEditor.update(() => {
+      $convertFromMarkdownString(markdown, transformers);
+    }, { discrete: true });
+    return headlessEditor.getEditorState().toJSON();
+  }, [editor]);
+
 
   useEffect(() => {
     if (completion.length === 0) return;
-    const isStarting = offset.current === 0;
+    if (!isLoading) { offsetRef.current = 0; return; }
     editor.update(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
-      if (!isStarting) $addUpdateTag("history-merge");
-      offset.current = completion.length;
-      const anchorNode = selection.anchor.getNode();
-      const isCollapsed = selection.isCollapsed();
-      if (!isCollapsed) selection.insertText("");
+      const offset = offsetRef.current;
+      if (offset) $addUpdateTag("history-merge");
+      if (offset) selection.anchor.getNode().getTopLevelElement()?.getPreviousSibling()?.remove();
+
       const isAtNewline = selection.anchor.offset === 0 && selection.focus.offset === 0;
-      const shouldInsertNewline = isStarting && !isAtNewline;
-      const elementNode = shouldInsertNewline ? selection.insertParagraph() : anchorNode.getTopLevelElement();
-      if (!elementNode) return;
-      $convertFromMarkdownString(completion, transformers, elementNode);
-      elementNode.selectEnd();
+      if (!offset && !isAtNewline) selection.insertParagraph();
+
+      const serializedEditorState = convertMarkdownToJSON(completion);
+      const serializedChildren = serializedEditorState.root.children;
+      const serializedNodes = serializedChildren.slice(offsetRef.current - 1);
+      serializedNodes.push(serializedParagraph);
+      if (serializedNodes.length === 0) return;
+      offsetRef.current = serializedChildren.length;
+
+      const nodes = $generateNodesFromSerializedNodes(serializedNodes);
+      selection.insertNodes(nodes);
+      const lastChild = nodes[nodes.length - 1];
+      lastChild.selectStart();
+
     }, { onUpdate: updateDocument });
-  }, [completion]);
+  }, [completion, isLoading]);
 
   const updateDocument = useCallback(throttle(() => {
     editor.dispatchCommand(UPDATE_DOCUMENT_COMMAND, undefined);
   }, 1000), [editor]);
-
-  useEffect(() => {
-    if (isLoading) return;
-    if (offset.current === 0) return;
-    offset.current = 0;
-    editor.update(() => {
-      const selection = $getSelection();
-      if (!$isRangeSelection(selection)) return;
-      const anchorNode = selection.anchor.getNode();
-      const elementNode = anchorNode.getTopLevelElement();
-      if (!elementNode) return;
-      const parent = elementNode.getParent<ParagraphNode>();
-      if (!parent) return;
-      const children = elementNode.getChildren();
-      parent.splice(elementNode.getIndexWithinParent(), 1, children);
-    }, { tag: "history-merge", onUpdate: updateDocument });
-  }, [isLoading]);
 
   useEffect(() => {
     return mergeRegister(
