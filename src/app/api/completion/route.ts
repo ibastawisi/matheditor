@@ -14,6 +14,12 @@ const cloudflare = createOpenAICompatible({
 
 const ollama = createOllama({ baseURL: process.env.OLLAMA_API_URL });
 
+const azure = createOpenAICompatible({
+  name: "azure-openai",
+  baseURL: "https://models.inference.ai.azure.com/",
+  apiKey: process.env.AZURE_API_KEY,
+});
+
 export async function POST(req: Request) {
 
   const { prompt, option, command, ...body } = await req.json();
@@ -100,12 +106,14 @@ export async function POST(req: Request) {
     .with("ollama", () => ollama(body.model || "llama3.2"))
     .with("cloudflare", () => cloudflare(body.model || "@cf/meta/llama-3.1-8b-instruct-fast"))
     .with("google", () => google(body.model || "gemini-2.0-flash-exp"))
+    .with("azure", () => azure(body.model || "Phi-4"))
     .run();
 
   const maxTokens = match(body.provider)
     .with("ollama", () => undefined)
     .with("cloudflare", () => 2048)
     .with("google", () => undefined)
+    .with("azure", () => undefined)
     .run();
 
   const result = streamText({ model, messages, maxTokens });

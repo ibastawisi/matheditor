@@ -9,10 +9,11 @@ import { ViewHeadline } from '@mui/icons-material';
 const MODELS = [
   { label: 'Gemini 2.0 Flash', provider: 'google', model: 'gemini-2.0-flash', fast: true, reason: false },
   { label: 'Gemini 2.0 Flash Lite', provider: 'google', model: 'gemini-2.0-flash-lite', fast: true, reason: false },
-  { label: 'Llama 3.1 8B', provider: 'cloudflare', model: '@cf/meta/llama-3.1-8b-instruct-fast', fast: true, reason: false },
-  { label: 'Phi 4 14B', provider: 'ollama', model: 'phi4', fast: false, reason: false },
+  { label: 'Llama 3.1', provider: 'cloudflare', model: '@cf/meta/llama-3.1-8b-instruct-fast', fast: true, reason: false },
+  { label: 'GPT 4o Mini', provider: 'azure', model: 'gpt-4o-mini', fast: true, reason: false },
+  { label: 'Phi 4', provider: 'ollama', model: 'phi4', fast: false, reason: false },
   { label: 'Gemini 2.0 Flash Thinking', provider: 'google', model: 'gemini-2.0-flash-thinking-exp-01-21', fast: false, reason: true },
-  { label: 'DeepScaleR 1.5B', provider: 'ollama', model: 'deepscaler', fast: false, reason: true },
+  { label: 'DeepScaleR', provider: 'ollama', model: 'deepscaler', fast: false, reason: true },
 ];
 
 function AIDialog({ editor }: { editor: LexicalEditor }) {

@@ -195,7 +195,6 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       selection.insertNodes(nodes);
       const lastChild = nodes[nodes.length - 1];
       lastChild.selectStart();
-
     }, { onUpdate: updateDocument });
   }, [completion, isLoading]);
 
