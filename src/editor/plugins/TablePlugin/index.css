@@ -11,3 +11,10 @@
   position: absolute;
   z-index: 1;
 }
+
+@media (pointer: coarse) {
+  .TableCellResizer__resizer {
+    background-color: #5fb7ff80;
+    mix-blend-mode: color;
+  }
+}
