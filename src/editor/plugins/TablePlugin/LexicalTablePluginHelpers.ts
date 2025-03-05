@@ -14,9 +14,14 @@ import {
 } from '@lexical/utils';
 import {
   $createParagraphNode,
+  $getPreviousSelection,
+  $isRangeSelection,
   $isTextNode,
+  CLICK_COMMAND,
   COMMAND_PRIORITY_EDITOR,
+  isHTMLElement,
   LexicalEditor,
+  LexicalNode,
   NodeKey,
 } from 'lexical';
 import invariant from '@/shared/invariant';
@@ -41,6 +46,8 @@ import {
   $createTableNodeWithDimensions,
   $getNodeTriplet,
   LexicalTableCellNode,
+  getDOMCellFromTarget,
+  TableDOMCell
 } from '@/editor/nodes/TableNode';
 
 function $insertTableCommandListener({
@@ -182,6 +189,40 @@ export function registerTableCellUnmergeTransform(
   });
 }
 
+function $findParentTableCellNodeInTable(
+  tableNode: LexicalNode,
+  node: LexicalNode | null,
+): TableCellNode | null {
+  for (
+    let currentNode = node, lastTableCellNode: TableCellNode | null = null;
+    currentNode !== null;
+    currentNode = currentNode.getParent()
+  ) {
+    if (tableNode.is(currentNode)) {
+      return lastTableCellNode;
+    } else if ($isTableCellNode(currentNode)) {
+      lastTableCellNode = currentNode;
+    }
+  }
+  return null;
+}
+
+function $getObserverCellFromCellNodeOrThrow(
+  tableObserver: TableObserver,
+  tableCellNode: TableCellNode,
+): TableDOMCell {
+  const { tableNode } = tableObserver.$lookup();
+  const currentCords = tableNode.getCordsFromCellNode(
+    tableCellNode,
+    tableObserver.table,
+  );
+  return tableNode.getDOMCellFromCordsOrThrow(
+    currentCords.x,
+    currentCords.y,
+    tableObserver.table,
+  );
+}
+
 export function registerTableSelectionObserver(
   editor: LexicalEditor,
   hasTabHandler: boolean = true,
@@ -203,6 +244,35 @@ export function registerTableSelectionObserver(
       editor,
       hasTabHandler,
     );
+    tableSelection.listenersToRemove.add(
+      editor.registerCommand(
+        CLICK_COMMAND,
+        (event: PointerEvent) => {
+          if (event.pointerType !== 'touch') return false;
+          if (!isHTMLElement(event.target)) return false;
+          const targetCell = getDOMCellFromTarget(event.target);
+          if (!targetCell) return false;
+          const prevSelection = $getPreviousSelection();
+          if (!$isRangeSelection(prevSelection)) return false;
+          const prevAnchorNode = prevSelection.anchor.getNode();
+          const prevAnchorCell = $findParentTableCellNodeInTable(
+            tableNode,
+            prevAnchorNode,
+          );
+          if (!prevAnchorCell) return false;
+          tableSelection.$setAnchorCellForSelection(
+            $getObserverCellFromCellNodeOrThrow(
+              tableSelection,
+              prevAnchorCell,
+            ),
+          );
+          tableSelection.$setFocusCellForSelection(targetCell);
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      )
+    );
+
     tableSelections.set(nodeKey, [tableSelection, tableElement]);
   };
 

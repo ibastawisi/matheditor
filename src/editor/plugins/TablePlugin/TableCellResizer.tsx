@@ -397,43 +397,38 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
           backgroundColor: 'none',
           cursor: 'row-resize',
           height: `${zoneWidth}px`,
-          left: `${window.pageXOffset + left}px`,
-          top: `${window.pageYOffset + top + height - zoneWidth / 2}px`,
+          left: `${window.scrollX + left}px`,
+          top: `${window.scrollY + top + height - zoneWidth / 2}px`,
           width: `${width}px`,
         },
         right: {
           backgroundColor: 'none',
           cursor: 'col-resize',
           height: `${height}px`,
-          left: `${window.pageXOffset + left + width - zoneWidth / 2}px`,
-          top: `${window.pageYOffset + top}px`,
+          left: `${window.scrollX + left + width - zoneWidth / 2}px`,
+          top: `${window.scrollY + top}px`,
           width: `${zoneWidth}px`,
         },
       };
 
       const tableRect = tableRectRef.current;
+      if (!tableRect) return styles;
+      styles.bottom.left = `${window.scrollX + tableRect.left}px`;
+      styles.bottom.width = `${tableRect.width}px`;
+      styles.right.top = `${window.scrollY + tableRect.top}px`;
+      styles.right.height = `${tableRect.height}px`;
 
-      if (draggingDirection && mouseCurrentPos && tableRect) {
-        if (isHeightChanging(draggingDirection)) {
-          styles[draggingDirection].left = `${window.pageXOffset + tableRect.left
-            }px`;
-          styles[draggingDirection].top = `${window.pageYOffset + mouseCurrentPos.y / zoom
-            }px`;
-          styles[draggingDirection].height = '3px';
-          styles[draggingDirection].width = `${tableRect.width}px`;
-        } else {
-          styles[draggingDirection].top = `${window.pageYOffset + tableRect.top
-            }px`;
-          styles[draggingDirection].left = `${window.pageXOffset + mouseCurrentPos.x / zoom
-            }px`;
-          styles[draggingDirection].width = '3px';
-          styles[draggingDirection].height = `${tableRect.height}px`;
-        }
-
-        styles[draggingDirection].backgroundColor = '#adf';
-        styles[draggingDirection].mixBlendMode = 'unset';
+      if (!(draggingDirection && mouseCurrentPos)) return styles;
+      if (isHeightChanging(draggingDirection)) {
+        styles[draggingDirection].top = `${window.scrollY + mouseCurrentPos.y / zoom}px`;
+        styles[draggingDirection].height = '2px';
+      } else {
+        styles[draggingDirection].left = `${window.scrollX + mouseCurrentPos.x / zoom}px`;
+        styles[draggingDirection].width = '2px';
       }
 
+      styles[draggingDirection].backgroundColor = '#adf';
+      styles[draggingDirection].mixBlendMode = 'unset';
       return styles;
     }
 
