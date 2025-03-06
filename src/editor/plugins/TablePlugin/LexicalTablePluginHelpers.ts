@@ -19,6 +19,7 @@ import {
   $isTextNode,
   CLICK_COMMAND,
   COMMAND_PRIORITY_EDITOR,
+  isDOMNode,
   isHTMLElement,
   LexicalEditor,
   LexicalNode,
@@ -244,11 +245,27 @@ export function registerTableSelectionObserver(
       editor,
       hasTabHandler,
     );
+    let pointerType = 'mouse';
+
+    const onPointerDown = (event: PointerEvent) => {
+      pointerType = event.pointerType;
+    }
+
+    tableElement.addEventListener(
+      'pointerdown',
+      onPointerDown,
+      tableSelection.listenerOptions,
+    );
+
+    tableSelection.listenersToRemove.add(() => {
+      tableElement.removeEventListener('pointerdown', onPointerDown);
+    });
+    
     tableSelection.listenersToRemove.add(
       editor.registerCommand(
         CLICK_COMMAND,
         (event: PointerEvent) => {
-          if (event.pointerType !== 'touch') return false;
+          if (pointerType !== 'touch') return false;
           if (!isHTMLElement(event.target)) return false;
           const targetCell = getDOMCellFromTarget(event.target);
           if (!targetCell) return false;
