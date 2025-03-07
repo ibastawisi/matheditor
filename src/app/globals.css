@@ -1,3 +1,7 @@
+:root {
+  --keyboard-inset-height: 0px;
+}
+
 body {
   overflow-x: hidden !important;
   overflow-y: scroll !important;

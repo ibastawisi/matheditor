@@ -58,7 +58,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
       const virtualKeyboard = window.mathVirtualKeyboard;
       const container = (virtualKeyboard as any)?.element?.firstElementChild as HTMLElement;
       if (!container || !mathTools) return;
-      mathTools.style.bottom = container.clientHeight + 4 + "px";
+      document.documentElement.style.setProperty('--keyboard-inset-height', container.clientHeight + "px");
       if (getComputedStyle(mathTools).position === "fixed") {
         const mathToolsBounds = mathTools.getBoundingClientRect();
         const mathfieldBounds = mathfield.getBoundingClientRect();
@@ -271,7 +271,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
         gap: 0.5,
         position: ['fixed', 'static'],
         justifyContent: ['center', 'start'],
-        inset: 'auto auto 4px',
+        inset: 'auto auto calc(var(--keyboard-inset-height) + 4px)',
         zIndex: 1000,
         transition: 'bottom 0.3s'
       }}>

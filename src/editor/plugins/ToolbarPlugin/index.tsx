@@ -259,7 +259,7 @@ function ToolbarPlugin() {
       <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}
         sx={{ background: 'var(--mui-palette-background-default) !important', transition: 'none', }}>
         <Toolbar className="editor-toolbar" sx={{ position: "relative", displayPrint: 'none', alignItems: "center", px: '0 !important', py: 1, }}>
-          <Container sx={{ display: "flex", gap: 0.5, justifyContent: "space-between", alignItems: "center", px: toolbarTrigger ? '' : '0 !important', }}>
+          <Container sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: toolbarTrigger ? '' : '0 !important', }}>
             <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
               <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
                 onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}>
@@ -284,7 +284,8 @@ function ToolbarPlugin() {
                   display: { xs: "flex", sm: "none", md: "none", lg: "flex" },
                   position: ['fixed', 'static'],
                   justifyContent: ['center', 'start'],
-                  inset: 'auto auto 4px', zIndex: 1000,
+                  inset: 'auto auto calc(var(--keyboard-inset-height) + 4px)',
+                  zIndex: 1000,
                   bgcolor: 'background.default',
                 }} />}
               </>}

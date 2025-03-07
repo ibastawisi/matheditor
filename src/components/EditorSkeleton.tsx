@@ -33,7 +33,7 @@ export const EditorSkeleton: React.FC<PropsWithChildren> = ({ children }) => {
           position: "relative", displayPrint: 'none', alignItems: "center",
           px: '0 !important', py: 1,
         }}>
-          <Container sx={{ display: "flex", gap: 0.5, justifyContent: "space-between", alignItems: "center", px: toolbarTrigger ? '' : '0 !important', }}>
+          <Container sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: toolbarTrigger ? '' : '0 !important', }}>
             <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
               <IconButton aria-label="Undo" disabled>
                 <Undo fontSize='small' />
@@ -45,17 +45,14 @@ export const EditorSkeleton: React.FC<PropsWithChildren> = ({ children }) => {
             <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', flexWrap: "wrap", justifyContent: "center" }}>
               <Select value="paragraph" aria-label="Formatting options for text style" size='small'
                 sx={{
-                  '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', px: '10px', py: '6.5px', height: '0 !important' },
+                  fieldset: { borderColor: 'divider' },
+                  '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', pl: 1, pr: '28px !important', py: 1, minHeight: '0 !important', height: '20px !important' },
+                  '& .MuiSelect-icon': { m: 0, fontSize: 20 },
                   '& .MuiListItemIcon-root': { mr: { sm: 0.5 }, minWidth: 20 },
                   '& .MuiListItemText-root': { display: { xs: "none", sm: "flex" } },
-                  fieldset: { borderColor: 'divider' },
                   '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
                 }}
-                MenuProps={{
-                  slotProps: {
-                    root: { sx: { '& .MuiBackdrop-root': { userSelect: 'none' } } },
-                  }
-                }}>
+              >
                 <MenuItem value='paragraph'>
                   <ListItemIcon>
                     <ViewHeadline fontSize="small" />
@@ -66,17 +63,12 @@ export const EditorSkeleton: React.FC<PropsWithChildren> = ({ children }) => {
               <Box sx={{ display: 'flex', gap: 0.5 }}>
                 <Select size='small'
                   sx={{
-                    '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', px: '10px', py: '6.5px', height: '0 !important' },
+                    fieldset: { borderColor: 'divider' },
+                    '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', pl: 1, pr: '28px !important', py: 1, minHeight: '0 !important', height: '20px !important' },
+                    '& .MuiSelect-icon': { m: 0, fontSize: 20 },
                     '& .MuiListItemIcon-root': { mr: { sm: 0.5 }, minWidth: 20 },
                     '& .MuiListItemText-root': { display: { xs: "none", sm: "flex" } },
-                    fieldset: { borderColor: 'divider' },
                     '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
-                  }}
-                  MenuProps={{
-                    slotProps: {
-                      root: { sx: { '& .MuiBackdrop-root': { userSelect: 'none' } } },
-                      paper: { sx: { '& .MuiList-root': { pt: 0 }, } }
-                    }
                   }}
                   value="Roboto"
                 >
@@ -155,11 +147,10 @@ export const EditorSkeleton: React.FC<PropsWithChildren> = ({ children }) => {
                 sx={{
                   color: 'text.primary',
                   borderColor: 'divider',
-                  width: { xs: 62, sm: 'auto' },
-                  height: 36,
-                  '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 } },
-                  '& .MuiButton-endIcon': { mr: -1, ml: 0 },
-                  '& .MuiButton-endIcon > svg': { fontSize: 24 },
+                  p: 1, minWidth: 0, height: 36,
+                  '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 }, ml: 0 },
+                  '& .MuiButton-endIcon': { mr: 0, ml: 0 },
+                  '& .MuiButton-endIcon > svg': { fontSize: 20 },
                 }}
               >
                 <Typography variant="button" sx={{ display: { xs: "none", sm: "block" } }}>AI</Typography>

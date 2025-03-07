@@ -258,11 +258,10 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       sx={{
         color: 'text.primary',
         borderColor: 'divider',
-        width: { xs: 62, sm: 'auto' },
-        height: 36,
-        '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 } },
-        '& .MuiButton-endIcon': { mr: -1, ml: isLoading ? 1 : 0 },
-        '& .MuiButton-endIcon > svg': { fontSize: 24 },
+        p: 1, minWidth: 0, height: 36,
+        '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 }, ml: 0 },
+        '& .MuiButton-endIcon': { mr: 0, ml: isLoading ? 1 : 0 },
+        '& .MuiButton-endIcon > svg': { fontSize: 20 },
       }}
       disabled={isLoading}
     >
@@ -283,6 +282,7 @@ export default function AITools({ editor, sx }: { editor: LexicalEditor, sx?: Sx
       sx={{
         '& .MuiList-root': { pt: 0, },
         '& .MuiBackdrop-root': { userSelect: 'none' },
+        '& .MuiMenuItem-root': { minHeight: 36 },
       }}>
       <MenuItem
         sx={{ p: 0, mb: 1, flexDirection: 'column', backgroundColor: 'transparent !important' }}

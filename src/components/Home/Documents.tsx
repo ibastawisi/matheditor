@@ -144,10 +144,10 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
         <Avatar sx={{ my: 2, bgcolor: 'primary.main' }}><PostAdd /></Avatar>
         <Button variant="outlined" component={RouterLink} prefetch={false} href="/new">New document</Button>
       </Box>
-      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { xs: "space-around", sm: "space-between" }, alignItems: "center", position: "sticky", top: { 'xs': 55.99, 'sm': 63.99 }, backgroundColor: 'var(--mui-palette-background-default)', zIndex: 5, py: 1 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: { sm: "space-between" }, alignItems: "center", position: "sticky", top: { 'xs': 55.99, 'sm': 63.99 }, backgroundColor: 'var(--mui-palette-background-default)', zIndex: 5, py: 1 }}>
         <Typography variant="h6" component="h2" sx={{ display: { xs: 'none', sm: 'block' } }}>Documents</Typography>
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center", mb: 1 }}>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, justifyContent: "center" }}>
+        <Box sx={{ display: "flex", gap: 0.5, width: ["100%","auto"], justifyContent: "center", mb: 1 }}>
+          <Box sx={{ display: "flex", gap: 0.5, justifyContent: "center" }}>
             <Button variant="outlined" sx={{ px: 1, "& .MuiButton-startIcon": { ml: 0 }}} startIcon={<UploadFile />} component="label">
               Import
               <input type="file" hidden accept=".me" multiple onChange={e => handleFilesChange(e.target.files)} />
@@ -208,7 +208,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initiali
           <DocumentCard userDocument={document} user={user} />
         </Grid>)}
       </Grid>
-      {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ position: "sticky", zIndex: 5, bottom: 0, mx: 'auto', '& .MuiPagination-ul': { backgroundColor: 'var(--mui-palette-AppBar-defaultBg)', p: 1, my: 1.5, borderRadius: 6 } }} />}
+      {pages > 1 && <Pagination count={pages} page={page} onChange={handlePageChange} sx={{ position: "sticky", zIndex: 5, bottom: 0, mx: 'auto', '& .MuiPagination-ul': { backgroundColor: 'var(--mui-palette-AppBar-defaultBg)', py: 0.5, my: 1.5, borderRadius: 6 } }} />}
     </Box>
   );
 });

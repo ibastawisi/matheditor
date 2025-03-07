@@ -84,7 +84,8 @@ export default function AlignTextMenu({ editor, isRTL }: { editor: LexicalEditor
           horizontal: 'center',
         }}
         sx={{
-          '& .MuiBackdrop-root': { userSelect: 'none' }
+          '& .MuiBackdrop-root': { userSelect: 'none' },
+          '& .MuiMenuItem-root': { minHeight: 36 },
         }}
       >
         <MenuItem selected={formatType === 'left'} onClick={() => {

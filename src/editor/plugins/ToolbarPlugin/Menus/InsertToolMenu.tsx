@@ -53,7 +53,10 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }) {
         onClose={handleClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center', }}
         transformOrigin={{ vertical: 'top', horizontal: 'center', }}
-        sx={{ '& .MuiBackdrop-root': { userSelect: 'none' } }}
+        sx={{
+          '& .MuiBackdrop-root': { userSelect: 'none' },
+          '& .MuiMenuItem-root': { minHeight: 36 },
+        }}
       >
         {editor.hasNode(HorizontalRuleNode) && <MenuItem onClick={() => { editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined,); handleClose(); }}>
           <ListItemIcon>

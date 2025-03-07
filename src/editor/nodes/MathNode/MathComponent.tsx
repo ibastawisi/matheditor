@@ -126,7 +126,7 @@ export default function MathComponent({ initialValue, nodeKey }: MathComponentPr
         const virtualKeyboard = window.mathVirtualKeyboard;
         const container = (virtualKeyboard as any)?.element?.firstElementChild as HTMLElement;
         if (!container || !mathTools) return;
-        mathTools.style.bottom = container.clientHeight + 4 + "px";
+        document.documentElement.style.setProperty('--keyboard-inset-height', container.clientHeight + "px");
         if (getComputedStyle(mathTools).position === "fixed") {
           const mathToolsBounds = mathTools.getBoundingClientRect();
           const mathfieldBounds = mathfield.getBoundingClientRect();
@@ -145,9 +145,7 @@ export default function MathComponent({ initialValue, nodeKey }: MathComponentPr
       if (relatedTarget?.closest(".editor-toolbar")) return;
       const mathVirtualKeyboard = window.mathVirtualKeyboard;
       mathVirtualKeyboard.hide();
-      const mathTools = document.getElementById("math-tools");
-      if (!mathTools) return;
-      mathTools.style.bottom = "4px";
+      document.documentElement.style.setProperty('--keyboard-inset-height', "0px");
     }
 
     function onKeydown(event: KeyboardEvent) {

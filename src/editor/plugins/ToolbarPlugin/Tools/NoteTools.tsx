@@ -2,16 +2,16 @@
 import { LexicalEditor, } from "lexical";
 import { useEffect, useState } from "react";
 import { ToggleButtonGroup, ToggleButton, SvgIcon, Menu, Button, MenuItem, ListItemIcon, ListItemText, Typography, Divider } from "@mui/material";
-import { Delete, KeyboardArrowDown, Note } from "@mui/icons-material";
+import { ArrowDropDown, Delete, Note } from "@mui/icons-material";
 import { $getNodeStyleValueForProperty, $patchStyle } from "@/editor/nodes/utils";
 import ColorPicker from "./ColorPicker";
 import { StickyNode } from "@/editor/nodes/StickyNode";
 
-const FormatImageRight = () => <SvgIcon viewBox='0 -960 960 960'>
+const FormatImageRight = () => <SvgIcon viewBox='0 -960 960 960' fontSize="small" >
   <path xmlns="http://www.w3.org/2000/svg" d="M450-285v-390h390v390H450Zm60-60h270v-270H510v270ZM120-120v-60h720v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h270v60H120Zm0-165v-60h720v60H120Z" />
 </SvgIcon>;
 
-const FormatImageLeft = () => <SvgIcon viewBox='0 -960 960 960'>
+const FormatImageLeft = () => <SvgIcon viewBox='0 -960 960 960' fontSize="small" >
   <path xmlns="http://www.w3.org/2000/svg" d="M120-285v-390h390v390H120Zm60-60h270v-270H180v270Zm-60-435v-60h720v60H120Zm450 165v-60h270v60H570Zm0 165v-60h270v60H570Zm0 165v-60h270v60H570ZM120-120v-60h720v60H120Z" />
 </SvgIcon>;
 
@@ -92,12 +92,14 @@ export default function NoteTools({ editor, node }: { editor: LexicalEditor, nod
         variant="outlined"
         onClick={handleClick}
         startIcon={<Note />}
-        endIcon={<KeyboardArrowDown />}
+        endIcon={<ArrowDropDown />}
         sx={{
           color: 'text.primary',
           borderColor: 'divider',
-          height: 36,
-          '& .MuiButton-startIcon': { mr: { xs: 0, sm: 0.5 } }
+          p: 1, minWidth: 0, height: 36,
+          '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 }, ml: 0 },
+          '& .MuiButton-endIcon': { mr: 0, ml: 0 },
+          '& .MuiButton-endIcon > svg': { fontSize: 20 },
         }}
       >
         <Typography variant="button" sx={{ display: { xs: "none", sm: "block" } }}>Note</Typography>
@@ -115,6 +117,7 @@ export default function NoteTools({ editor, node }: { editor: LexicalEditor, nod
           horizontal: 'center',
         }}
         sx={{
+          '& .MuiMenuItem-root': { minHeight: 36 },
           '& .MuiBackdrop-root': { userSelect: 'none' },
         }}
       >

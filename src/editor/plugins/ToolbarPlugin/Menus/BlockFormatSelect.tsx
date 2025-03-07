@@ -142,15 +142,16 @@ export function BlockFormatSelect({ editor, blockType }: {
   return (
     <Select value={blockType} size='small'
       onClose={handleClose} sx={{
-        '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', px: '10px', py: '6.5px', height: '0 !important' },
+        fieldset: { borderColor: 'divider' },
+        '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', pl: 1, pr: '28px !important', py: 1, minHeight: '0 !important', height: '20px !important' },
+        '& .MuiSelect-icon': { m: 0, fontSize: 20 },
         '& .MuiListItemIcon-root': { mr: { sm: 0.5 }, minWidth: 20 },
         '& .MuiListItemText-root': { display: { xs: "none", sm: "flex" } },
-        fieldset: { borderColor: 'divider' },
         '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
       }}
       MenuProps={{
         slotProps: {
-          root: { sx: { '& .MuiBackdrop-root': { userSelect: 'none' } } },
+          root: { sx: { '& .MuiBackdrop-root': { userSelect: 'none' }, '& .MuiMenuItem-root': { minHeight: 36 }, } }
         }
       }}
       inputProps={{ 'aria-label': 'block type' }}

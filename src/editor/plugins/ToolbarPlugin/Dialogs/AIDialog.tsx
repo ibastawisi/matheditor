@@ -58,13 +58,13 @@ function AIDialog({ editor }: { editor: LexicalEditor }) {
         }}
           MenuProps={{
             slotProps: {
-              root: { sx: { '& .MuiBackdrop-root': { userSelect: 'none' } } },
+              root: { sx: { '& .MuiBackdrop-root': { userSelect: 'none' }, '& .MuiMenuItem-root': { minHeight: 36 }, } }
             }
           }}
           inputProps={{ 'aria-label': 'Language Model' }}
         >
           {MODELS.map(({ label, provider, model, fast, reason }) => (
-            <MenuItem key={model} value={model} onClick={() => setFormData({ provider, model})}>
+            <MenuItem key={model} value={model} onClick={() => setFormData({ provider, model })}>
               <ListItemIcon>
                 <ViewHeadline fontSize="small" />
               </ListItemIcon>

@@ -47,8 +47,18 @@ const TopAppBar: React.FC = () => {
   const handlePrint = () => { window.print(); }
   const toggleDrawer = () => { dispatch(actions.toggleDrawer()); }
 
+  const handleResize = () => {
+    const keyboardInsetHeight = window.innerHeight - (window.visualViewport?.height || window.innerHeight);
+    document.documentElement.style.setProperty('--keyboard-inset-height', `${keyboardInsetHeight}px`);
+  };
+
   useEffect(() => {
     if (!initialized) dispatch(actions.load());
+    if (!window.visualViewport) return;
+    window.visualViewport.addEventListener("resize", handleResize);
+    return () => {
+      window.visualViewport?.removeEventListener("resize", handleResize);
+    }
   }, []);
 
   return (

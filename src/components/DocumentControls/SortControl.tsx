@@ -59,6 +59,11 @@ const DocumentSortControl: React.FC<{
           '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' }
         })}
         inputProps={{ 'aria-label': 'sort by' }}
+        MenuProps={{
+          slotProps: {
+            root: { sx: { '& .MuiBackdrop-root': { userSelect: 'none' }, '& .MuiMenuItem-root': { minHeight: 36 }, } }
+          }
+        }}
       >
         {sortOptions.map(option => (
           <MenuItem value={option.value} key={option.value}>
