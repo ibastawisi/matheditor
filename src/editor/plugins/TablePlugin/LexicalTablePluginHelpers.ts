@@ -245,11 +245,33 @@ export function registerTableSelectionObserver(
       editor,
       hasTabHandler,
     );
-    let pointerType = 'mouse';
 
     const onPointerDown = (event: PointerEvent) => {
-      pointerType = event.pointerType;
-    }
+      if (event.pointerType !== 'touch') return;
+      if (!isHTMLElement(event.target)) return;
+      const targetCell = getDOMCellFromTarget(event.target);
+      if (!targetCell) return;
+      editor.update(() => {
+        const prevSelection = $getPreviousSelection();
+        if (!$isRangeSelection(prevSelection)) return;
+        const prevAnchorNode = prevSelection.anchor.getNode();
+        const prevAnchorCell = $findParentTableCellNodeInTable(
+          tableNode,
+          prevAnchorNode,
+        );
+        if (!prevAnchorCell) return;
+        tableSelection.$setAnchorCellForSelection(
+          $getObserverCellFromCellNodeOrThrow(
+            tableSelection,
+            prevAnchorCell,
+          ),
+        );
+        tableSelection.$setFocusCellForSelection(targetCell);
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+      });
+    };
 
     tableElement.addEventListener(
       'pointerdown',
@@ -260,35 +282,6 @@ export function registerTableSelectionObserver(
     tableSelection.listenersToRemove.add(() => {
       tableElement.removeEventListener('pointerdown', onPointerDown);
     });
-    
-    tableSelection.listenersToRemove.add(
-      editor.registerCommand(
-        CLICK_COMMAND,
-        (event: PointerEvent) => {
-          if (pointerType !== 'touch') return false;
-          if (!isHTMLElement(event.target)) return false;
-          const targetCell = getDOMCellFromTarget(event.target);
-          if (!targetCell) return false;
-          const prevSelection = $getPreviousSelection();
-          if (!$isRangeSelection(prevSelection)) return false;
-          const prevAnchorNode = prevSelection.anchor.getNode();
-          const prevAnchorCell = $findParentTableCellNodeInTable(
-            tableNode,
-            prevAnchorNode,
-          );
-          if (!prevAnchorCell) return false;
-          tableSelection.$setAnchorCellForSelection(
-            $getObserverCellFromCellNodeOrThrow(
-              tableSelection,
-              prevAnchorCell,
-            ),
-          );
-          tableSelection.$setFocusCellForSelection(targetCell);
-          return true;
-        },
-        COMMAND_PRIORITY_EDITOR,
-      )
-    );
 
     tableSelections.set(nodeKey, [tableSelection, tableElement]);
   };

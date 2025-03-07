@@ -22,8 +22,8 @@ import {
   getDOMCellFromTarget,
   getTableElement,
 } from '@lexical/table';
-import { $getNearestNodeOfType, calculateZoomLevel, mergeRegister } from '@lexical/utils';
-import { $getNearestNodeFromDOMNode, $getSelection, $isRangeSelection, isHTMLElement } from 'lexical';
+import { calculateZoomLevel, mergeRegister } from '@lexical/utils';
+import { $getNearestNodeFromDOMNode, isHTMLElement } from 'lexical';
 import * as React from 'react';
 import {
   ReactPortal,
@@ -50,7 +50,6 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
   const targetRef = useRef<HTMLElement | null>(null);
   const resizerRef = useRef<HTMLDivElement | null>(null);
   const tableRectRef = useRef<ClientRect | null>(null);
-  const pointerTypeRef = useRef<string | null>(null);
   const [hasTable, setHasTable] = useState(false);
 
   const pointerStartPosRef = useRef<PointerPosition | null>(null);
@@ -106,20 +105,20 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
     }
 
     const onPointerMove = (event: PointerEvent) => {
-      if (event.pointerType === 'touch') return;
       const target = event.target;
       if (!isHTMLElement(target)) {
         return;
       }
 
       if (draggingDirection) {
+        event.preventDefault();
+        event.stopPropagation();
         updatePointerCurrentPos({
           x: event.clientX,
           y: event.clientY,
         });
         return;
       }
-
       if (resizerRef.current && resizerRef.current.contains(target)) {
         return;
       }
@@ -160,49 +159,29 @@ function TableCellResizer({ editor }: { editor: LexicalEditor }): JSX.Element {
     };
 
     const onPointerDown = (event: PointerEvent) => {
-      pointerTypeRef.current = event.pointerType;
-    };
-
-    const onClick = (event: MouseEvent) => {
-      const pointerType = pointerTypeRef.current;
-      if (pointerType === 'touch') {
-        const pointerEvent = new PointerEvent('pointermove', {
-          ...event,
-          bubbles: true,
-          cancelable: true,
-        });
-        const target = event.target;
-        target?.dispatchEvent(pointerEvent);
+      const isTouchEvent = event.pointerType === 'touch';
+      if (isTouchEvent) {
+        onPointerMove(event);
       }
     };
 
-    const onTouchMove = (event: TouchEvent) => {
-      event.preventDefault();
-      event.stopPropagation();
-      if (!event.touches || event.touches.length === 0) return;
-      const touch = event.touches[0];
-      updatePointerCurrentPos({
-        x: touch.clientX,
-        y: touch.clientY,
-      });
-    };
-
-    resizerRef.current?.addEventListener('touchmove', onTouchMove, { capture: true });
+    const resizerContainer = resizerRef.current;
+    resizerContainer?.addEventListener('pointermove', onPointerMove, {
+      capture: true,
+    });
 
     const removeRootListener = editor.registerRootListener(
       (rootElement, prevRootElement) => {
-        prevRootElement?.removeEventListener('pointerdown', onPointerDown);
         prevRootElement?.removeEventListener('pointermove', onPointerMove);
-        prevRootElement?.removeEventListener('click', onClick);
-        rootElement?.addEventListener('pointerdown', onPointerDown);
+        prevRootElement?.removeEventListener('pointerdown', onPointerDown);
         rootElement?.addEventListener('pointermove', onPointerMove);
-        rootElement?.addEventListener('click', onClick);
+        rootElement?.addEventListener('pointerdown', onPointerDown);
       },
     );
 
     return () => {
       removeRootListener();
-      resizerRef.current?.removeEventListener('touchmove', onTouchMove);
+      resizerContainer?.removeEventListener('pointermove', onPointerMove);
     };
   }, [activeCell, draggingDirection, editor, resetState, hasTable]);
 
