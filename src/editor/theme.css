@@ -455,7 +455,7 @@ iframe {
   margin-bottom: 0.5rem;
 }
 
-.LexicalTheme__imageUnfiltered svg {
+.LexicalTheme__image:not(.LexicalTheme__darkModeFilter) svg {
   background-color: white;
 }
 
@@ -766,7 +766,7 @@ iframe {
   background-color: rgba(0, 0, 0, 0.04);
 }
 
-[theme=light] .LexicalTheme__image:not(.LexicalTheme__imageUnfiltered) :is(img, svg) {
+[theme=light] .LexicalTheme__image.LexicalTheme__darkModeFilter :is(img, svg) {
   filter: none !important;
 }
 
@@ -812,7 +812,7 @@ iframe {
   background-color: rgba(255, 255, 255, 0.08);
 }
 
-[theme=dark] .LexicalTheme__image:not(.LexicalTheme__imageUnfiltered) :is(img, svg) {
+[theme=dark] .LexicalTheme__image.LexicalTheme__darkModeFilter :is(img, svg) {
   filter: invert(93%) hue-rotate(180deg);
 }
 
@@ -865,7 +865,7 @@ iframe {
     background-color: rgba(255, 255, 255, 0.08);
   }
 
-  .LexicalTheme__image:not(.LexicalTheme__imageUnfiltered) :is(img, svg) {
+  .LexicalTheme__image.LexicalTheme__darkModeFilter :is(img, svg) {
     filter: invert(93%) hue-rotate(180deg);
   }
 

@@ -54,7 +54,9 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
     });
   };
 
-  const isImageNode = !$isGraphNode(node) && !$isSketchNode(node) && !$isIFrameNode(node);
+  const isImageNode = node.__type === 'image';
+  const isGraphOrSketchNode = node.__type === 'graph' || node.__type === 'sketch';
+  const isFiltered = isGraphOrSketchNode ? style?.filter !== "none" : !!style && style.filter !== "none";
 
   return (
     <>
@@ -81,46 +83,46 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
       </ToggleButtonGroup>
       <Box sx={{
         display: 'flex',
-      flexWrap: 'wrap',
-      gap: 0.5,
-      position: ['fixed', 'static'],
-      justifyContent: ['center', 'start'],
-      inset: 'auto auto 4px',
-      zIndex: 1000,
+        flexWrap: 'wrap',
+        gap: 0.5,
+        position: ['fixed', 'static'],
+        justifyContent: ['center', 'start'],
+        inset: 'auto auto 4px',
+        zIndex: 1000,
       }}>
         <ToggleButtonGroup size="small" sx={{ bgcolor: 'background.default' }}>
-        <ToggleButton value="caption" key="caption" selected={node.getShowCaption()}
-          onClick={toggleShowCaption}>
-          {node.getShowCaption() ? <ClosedCaption fontSize='small' /> : <ClosedCaptionDisabled fontSize='small' />}
-        </ToggleButton>
-        <ToggleButton value="filter-toggle" key="filter-toggle" selected={!style || style.filter !== "none"}
-          onClick={() => {
-            updateStyle({ "filter": style?.filter === "none" ? "" : "none" });
-          }}>
-          <FilterBAndW fontSize='small' />
-        </ToggleButton>
-      </ToggleButtonGroup>
-      <ToggleButtonGroup size="small" sx={{ bgcolor: 'background.default' }}>
-        <ToggleButton value="float-left" key="float-left" selected={style?.float === "left"}
-          onClick={() => {
-            updateStyle({ "float": "left" });
-          }}>
-          <FormatImageLeft />
-        </ToggleButton>
-        <ToggleButton value="float-none" key="float-none" selected={!style?.float || style?.float === "none"}
-          onClick={() => {
-            updateStyle({ "float": "none" });
-          }}>
-          <ViewHeadline fontSize='small' />
-        </ToggleButton>
-        <ToggleButton value="float-right" key="float-right" selected={style?.float === "right"}
-          onClick={() => {
-            updateStyle({ "float": "right" });
-          }}>
-          <FormatImageRight />
-        </ToggleButton>
-      </ToggleButtonGroup>
-    </Box >
+          <ToggleButton value="caption" key="caption" selected={node.getShowCaption()}
+            onClick={toggleShowCaption}>
+            {node.getShowCaption() ? <ClosedCaption fontSize='small' /> : <ClosedCaptionDisabled fontSize='small' />}
+          </ToggleButton>
+          <ToggleButton value="filter-toggle" key="filter-toggle" selected={isFiltered}
+            onClick={() => {
+              updateStyle({ "filter": isFiltered ? "none" : "" });
+            }}>
+            <FilterBAndW fontSize='small' />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        <ToggleButtonGroup size="small" sx={{ bgcolor: 'background.default' }}>
+          <ToggleButton value="float-left" key="float-left" selected={style?.float === "left"}
+            onClick={() => {
+              updateStyle({ "float": "left" });
+            }}>
+            <FormatImageLeft />
+          </ToggleButton>
+          <ToggleButton value="float-none" key="float-none" selected={!style?.float || style?.float === "none"}
+            onClick={() => {
+              updateStyle({ "float": "none" });
+            }}>
+            <ViewHeadline fontSize='small' />
+          </ToggleButton>
+          <ToggleButton value="float-right" key="float-right" selected={style?.float === "right"}
+            onClick={() => {
+              updateStyle({ "float": "right" });
+            }}>
+            <FormatImageRight />
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Box >
     </>
   )
 }

@@ -60,7 +60,7 @@ const theme: EditorThemeClasses = {
     h6: 'LexicalTheme__h6',
   },
   image: 'LexicalTheme__image',
-  imageUnfiltered: 'LexicalTheme__imageUnfiltered',
+  darkModeFilter: 'LexicalTheme__darkModeFilter',
   indent: 'LexicalTheme__indent',
   layoutContainer: 'LexicalTheme__layoutContainer',
   layoutItem: 'LexicalTheme__layoutItem',
