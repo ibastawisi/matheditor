@@ -15,6 +15,7 @@ import {
 import {
   $createParagraphNode,
   $getPreviousSelection,
+  $getSelection,
   $isRangeSelection,
   $isTextNode,
   CLICK_COMMAND,
@@ -24,6 +25,7 @@ import {
   LexicalEditor,
   LexicalNode,
   NodeKey,
+  SELECTION_CHANGE_COMMAND,
 } from 'lexical';
 import invariant from '@/shared/invariant';
 
@@ -48,7 +50,8 @@ import {
   $getNodeTriplet,
   LexicalTableCellNode,
   getDOMCellFromTarget,
-  TableDOMCell
+  TableDOMCell,
+  $findCellNode
 } from '@/editor/nodes/TableNode';
 
 function $insertTableCommandListener({
@@ -246,32 +249,11 @@ export function registerTableSelectionObserver(
       hasTabHandler,
     );
 
+    let pointerType: string | null = null;
+
     const onPointerDown = (event: PointerEvent) => {
-      if (event.pointerType !== 'touch') return;
-      if (!isHTMLElement(event.target)) return;
-      const targetCell = getDOMCellFromTarget(event.target);
-      if (!targetCell) return;
-      editor.update(() => {
-        const prevSelection = $getPreviousSelection();
-        if (!$isRangeSelection(prevSelection)) return;
-        const prevAnchorNode = prevSelection.anchor.getNode();
-        const prevAnchorCell = $findParentTableCellNodeInTable(
-          tableNode,
-          prevAnchorNode,
-        );
-        if (!prevAnchorCell) return;
-        tableSelection.$setAnchorCellForSelection(
-          $getObserverCellFromCellNodeOrThrow(
-            tableSelection,
-            prevAnchorCell,
-          ),
-        );
-        tableSelection.$setFocusCellForSelection(targetCell);
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-      });
-    };
+      pointerType = event.pointerType;
+    }
 
     tableElement.addEventListener(
       'pointerdown',
@@ -282,6 +264,51 @@ export function registerTableSelectionObserver(
     tableSelection.listenersToRemove.add(() => {
       tableElement.removeEventListener('pointerdown', onPointerDown);
     });
+
+    tableSelection.listenersToRemove.add(
+      editor.registerCommand(
+        SELECTION_CHANGE_COMMAND,
+        () => {
+          if (pointerType !== 'touch') return false;
+          const selection = $getSelection();
+          const prevSelection = $getPreviousSelection();
+          if (
+            $isRangeSelection(selection) &&
+            selection.isCollapsed() &&
+            $isRangeSelection(prevSelection) &&
+            prevSelection.isCollapsed()
+          ) {
+            const anchorCellNode = $findParentTableCellNodeInTable(
+              tableNode,
+              prevSelection.anchor.getNode(),
+            );
+            const focusCellNode = $findParentTableCellNodeInTable(
+              tableNode,
+              selection.focus.getNode(),
+            );
+            if (anchorCellNode && focusCellNode && !anchorCellNode.is(focusCellNode)) {
+              tableSelection.$setAnchorCellForSelection(
+                $getObserverCellFromCellNodeOrThrow(
+                  tableSelection,
+                  anchorCellNode,
+                ),
+              );
+              tableSelection.$setFocusCellForSelection(
+                $getObserverCellFromCellNodeOrThrow(
+                  tableSelection,
+                  focusCellNode,
+                ),
+                true,
+              );
+              pointerType = null;
+              return true;
+            }
+          }
+          return false;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      )
+    );
 
     tableSelections.set(nodeKey, [tableSelection, tableElement]);
   };
