@@ -33,7 +33,7 @@ export default function MarkdownPlugin(): JSX.Element {
         $convertFromMarkdownString(text, transformers, parent);
         const children = parent.getChildren();
         selection.insertNodes(children);
-        return true;
+        return false;
       },
       COMMAND_PRIORITY_NORMAL,
     );
