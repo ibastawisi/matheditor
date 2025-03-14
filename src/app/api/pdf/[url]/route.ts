@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { chromium } from "playwright";
-import type { Browser, Page } from "playwright";
+import puppeteer, { PDFOptions } from "puppeteer";
 
 const browserWSEndpoint = process.env.BROWSERLESS_URL;
 
@@ -11,18 +10,15 @@ export async function GET(request: Request) {
     const handle = url.pathname.split("/").pop();
     if (url.hostname === 'localhost') url.protocol = 'http:'
     url.pathname = `/embed/${handle}`;
-
-    const browser: Browser = browserWSEndpoint
-      ? await chromium.connectOverCDP(browserWSEndpoint)
-      : await chromium.launch();
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    await page.goto(url.toString(), { waitUntil: "networkidle" });
+    const browser = browserWSEndpoint
+      ? await puppeteer.connect({ browserWSEndpoint })
+      : await puppeteer.launch();
+    const page = await browser.newPage()
+    await page.goto(url.toString(), { waitUntil: "networkidle0" });
     await page.waitForFunction('document.fonts.ready');
-
-    const options: Parameters<Page["pdf"]>[0] = {
+    const options: PDFOptions = {
       scale: Number(search.get("scale") || "1"),
-      format: (search.get("format") || "a4"),
+      format: search.get("format") as PDFOptions["format"] || "A4",
       landscape: search.get("landscape") === "true",
       printBackground: true,
       margin: {
@@ -32,10 +28,8 @@ export async function GET(request: Request) {
         left: "0.4in",
       },
     };
-
-    const pdf = await page.pdf(options);
-    await browser.close();
-
+    const pdf = await page.pdf(options)
+    await browser.close()
     return new Response(pdf, {
       headers: {
         "Content-Type": "application/pdf",
