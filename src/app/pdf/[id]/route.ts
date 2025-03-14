@@ -1,7 +1,5 @@
 import { findUserDocument } from "@/repositories/document";
 
-const PDF_WORKER_URL = process.env.PDF_WORKER_URL;
-
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
@@ -12,12 +10,7 @@ export async function GET(request: Request) {
     const document = await findUserDocument(handle, revision);
     if (!document || document.private) throw new Error("Document not found");
     if (!revision) url.searchParams.set('v', document.head);
-    if (PDF_WORKER_URL) {
-      url.hostname = PDF_WORKER_URL;
-      url.port = '';
-      url.pathname = url.pathname.split(".pdf")[0];
-    }
-    else url.pathname = `/api/pdf/${handle}`;
+    url.pathname = `/api/pdf/${handle}`;
     if (url.hostname === 'localhost') url.protocol = 'http:';
     const response = await fetch(url.toString(), { cache: 'force-cache', next: { tags: ['pdf'] } });
     if (!response.ok) throw new Error("Couldn't generate PDF");
