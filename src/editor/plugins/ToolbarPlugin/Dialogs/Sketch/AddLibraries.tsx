@@ -1,6 +1,6 @@
 import { useHandleLibrary } from "@excalidraw/excalidraw";
-import type { ExcalidrawImperativeAPI, LibraryItems_anyVersion } from "@excalidraw/excalidraw/types/types";
-import { ImportedDataState } from "@excalidraw/excalidraw/types/data/types";
+import { ImportedDataState } from "@excalidraw/excalidraw/data/types";
+import { ExcalidrawImperativeAPI, LibraryItems_anyVersion } from "@excalidraw/excalidraw/types";
 
 export const getLibraryItemsFromStorage = () => {
   try {

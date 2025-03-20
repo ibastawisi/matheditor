@@ -3,17 +3,18 @@ import type { LexicalEditor } from 'lexical';
 import { INSERT_SKETCH_COMMAND, InsertSketchPayload } from '@/editor/plugins/SketchPlugin';
 import { useEffect, useState, memo, useCallback } from 'react';
 import { $isSketchNode } from '@/editor/nodes/SketchNode';
-import type { ExcalidrawImperativeAPI, ExcalidrawProps, DataURL, LibraryItems, BinaryFiles, AppState, BinaryFileData } from '@excalidraw/excalidraw/types/types';
-import type { ImportedLibraryData } from '@excalidraw/excalidraw/types/data/types';
 import { SET_DIALOGS_COMMAND } from '../commands';
 import { getImageDimensions } from '@/editor/nodes/utils';
 import { useTheme } from '@mui/material/styles';
 import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, debounce } from '@mui/material';
 import dynamic from 'next/dynamic';
 import { ImageNode } from '@/editor/nodes/ImageNode';
-import type { ExcalidrawElement, ExcalidrawImageElement, FileId } from '@excalidraw/excalidraw/types/element/types';
 import { ALERT_COMMAND } from '@/editor/commands';
 import { v4 as uuid } from 'uuid';
+import { ExcalidrawElement, ExcalidrawImageElement, FileId } from '@excalidraw/excalidraw/element/types';
+import { ImportedLibraryData } from '@excalidraw/excalidraw/data/types';
+import type { ExcalidrawImperativeAPI, ExcalidrawProps, DataURL, LibraryItems, BinaryFiles, AppState, BinaryFileData } from '@excalidraw/excalidraw/types';
+import '@excalidraw/excalidraw/index.css';
 
 const Excalidraw = dynamic<ExcalidrawProps>(() => import('@excalidraw/excalidraw').then((module) => ({ default: module.Excalidraw })), { ssr: false });
 const AddLibraries = dynamic(() => import('./AddLibraries'), { ssr: false });
@@ -24,7 +25,8 @@ declare global {
     EXCALIDRAW_ASSET_PATH: string;
   }
 }
-window.EXCALIDRAW_ASSET_PATH = "/";
+
+window.EXCALIDRAW_ASSET_PATH = "/"
 
 export const useCallbackRefState = () => {
   const [refValue, setRefValue] =
@@ -236,7 +238,7 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
             updated: now,
             locked: false,
             link: null,
-          };
+          } as any;
 
           excalidrawAPI?.addFiles([
             {

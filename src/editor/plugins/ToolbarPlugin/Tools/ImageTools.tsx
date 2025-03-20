@@ -56,7 +56,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
 
   const isImageNode = node.__type === 'image';
   const isGraphOrSketchNode = node.__type === 'graph' || node.__type === 'sketch';
-  const isFiltered = isGraphOrSketchNode ? style?.filter !== "none" : !!style && style.filter !== "none";
+  const isFiltered = isGraphOrSketchNode ? style?.filter !== "none" : !!style?.filter && style.filter !== "none";
 
   return (
     <>

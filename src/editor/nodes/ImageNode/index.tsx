@@ -293,7 +293,9 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       const float = style.float;
       floatWrapperElement(dom, config, float);
       const filter = style.filter;
-      dom.classList.toggle(config.theme.darkModeFilter, filter !== "none");
+      const isGraphOrSketchNode = this.__type === 'graph' || this.__type === 'sketch';
+      const isFiltered = isGraphOrSketchNode ? filter !== "none" : !!filter && filter !== "none";
+      dom.classList.toggle(config.theme.darkModeFilter, isFiltered);
     }
     if (prevNode.__id !== this.__id) {
       dom.id = this.__id;

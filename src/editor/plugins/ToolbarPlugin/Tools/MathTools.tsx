@@ -14,7 +14,7 @@ import { ANNOUNCE_COMMAND } from "@/editor/commands";
 import { Announcement } from "@/types";
 
 import dynamic from "next/dynamic";
-import type { ExcalidrawImperativeAPI, ExcalidrawProps } from "@excalidraw/excalidraw/types/types";
+import type { ExcalidrawImperativeAPI, ExcalidrawProps } from "@excalidraw/excalidraw/types";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
 import { FontSizePicker } from "./FontSizePicker";
 

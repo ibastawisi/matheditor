@@ -7,7 +7,7 @@
  */
 
 import { DOMExportOutput, isHTMLElement, LexicalEditor, LexicalNode, NodeKey, Spread, } from 'lexical';
-import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
+import { NonDeleted, ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
 
 import { ImageNode, ImagePayload, SerializedImageNode } from '../ImageNode';
 import { $generateHtmlFromNodes } from "@lexical/html";

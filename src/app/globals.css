@@ -244,17 +244,17 @@ body.fullscreen {
 
 @font-face {
   font-family: Virgil;
-  src: url(/excalidraw-assets/Virgil.woff2);
+  src: url(/fonts/Virgil/Virgil-Regular.woff2);
 }
 
 @font-face {
   font-family: Cascadia;
-  src: url(/excalidraw-assets/Cascadia.woff2);
+  src: url(/fonts/Cascadia/CascadiaCode-Regular.woff2);
 }
 
 @font-face {
   font-family: Assistant;
-  src: url(/excalidraw-assets/Assistant-Regular.woff2);
+  src: url(/fonts/Assistant/Assistant-Regular.woff2);
 }
 
 @font-face {
