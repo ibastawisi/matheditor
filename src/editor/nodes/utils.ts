@@ -64,7 +64,7 @@ export function $addNodeStyle(node: LexicalNode): void {
 
 export function $patchNodeStyle(
   target: LexicalNode,
-  patch: Record<string, string>,
+  patch: Record<string, string | null>,
 ): void {
   if (!isStylableNode(target)) return;
   const prevStyles = getStyleObjectFromCSS(target.getStyle() || '');
@@ -87,7 +87,7 @@ export function $patchNodeStyle(
 
 export function $patchStyle(
   target: LexicalNode | LexicalNode[],
-  patch: Record<string, string>,
+  patch: Record<string, string | null>,
 ): void {
   if (Array.isArray(target)) return target.forEach(node => $patchNodeStyle(node, patch));
   $patchNodeStyle(target, patch);

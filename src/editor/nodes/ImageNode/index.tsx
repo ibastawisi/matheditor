@@ -33,7 +33,7 @@ import { $generateHtmlFromNodes } from "@lexical/html";
 import ImageComponent from './ImageComponent';
 import htmr from 'htmr';
 import { JSX } from "react";
-import { floatWrapperElement, getStyleObjectFromRawCSS } from '../utils';
+import { floatWrapperElement, getCSSFromStyleObject, getStyleObjectFromRawCSS } from '../utils';
 
 export interface ImagePayload {
   altText?: string;
@@ -233,7 +233,12 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   }
 
   getStyle(): string {
-    return this.__style;
+    const styleObject = getStyleObjectFromRawCSS(this.__style);
+    const isGraphOrSketchNode = this.__type === 'graph' || this.__type === 'sketch';
+    if (isGraphOrSketchNode && !styleObject.filter) {
+      styleObject.filter = 'auto';
+    }
+    return getCSSFromStyleObject(styleObject);
   }
 
   setStyle(style: string): this {
@@ -275,12 +280,11 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     const theme = config.theme;
     const className = theme.image;
     if (className) element.className = className;
-    const style = getStyleObjectFromRawCSS(this.__style);
+    const style = getStyleObjectFromRawCSS(this.getStyle());
     const float = style.float;
     floatWrapperElement(element, config, float);
     const filter = style.filter;
-    const isGraphOrSketchNode = this.__type === 'graph' || this.__type === 'sketch';
-    const isFiltered = isGraphOrSketchNode ? filter !== "none" : !!filter && filter !== "none";
+    const isFiltered = filter === "auto";
     element.classList.toggle(config.theme.darkModeFilter, isFiltered);
     if (this.__id) element.id = this.__id;
     this.__caption._parentEditor = editor;
@@ -289,12 +293,11 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 
   updateDOM(prevNode: ImageNode, dom: HTMLElement, config: EditorConfig): boolean {
     if (this.__style !== prevNode.__style) {
-      const style = getStyleObjectFromRawCSS(this.__style);
+      const style = getStyleObjectFromRawCSS(this.getStyle());
       const float = style.float;
       floatWrapperElement(dom, config, float);
       const filter = style.filter;
-      const isGraphOrSketchNode = this.__type === 'graph' || this.__type === 'sketch';
-      const isFiltered = isGraphOrSketchNode ? filter !== "none" : !!filter && filter !== "none";
+      const isFiltered = filter === "auto";
       dom.classList.toggle(config.theme.darkModeFilter, isFiltered);
     }
     if (prevNode.__id !== this.__id) {

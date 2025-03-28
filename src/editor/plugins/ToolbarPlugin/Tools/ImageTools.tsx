@@ -27,11 +27,11 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
   const openIFrameDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ iframe: { open: true } }));
   const openDialog = $isGraphNode(node) ? openGraphDialog : $isSketchNode(node) ? openSketchDialog : $isIFrameNode(node) ? openIFrameDialog : openImageDialog;
 
-  const [style, setStyle] = useState<Record<string, string> | null>();
+  const [style, setStyle] = useState<Record<string, string | null> | null>();
 
   useEffect(() => { setStyle(currentNodeStyle()); }, [node]);
 
-  function currentNodeStyle(): Record<string, string> | null {
+  function currentNodeStyle(): Record<string, string | null> | null {
     return editor.getEditorState().read(() => {
       if ('getStyle' in node === false) return null;
       const css = node.getStyle();
@@ -41,7 +41,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
     });
   }
 
-  function updateStyle(newStyle: Record<string, string>) {
+  function updateStyle(newStyle: Record<string, string | null>) {
     setStyle({ ...style, ...newStyle });
     editor.update(() => {
       $patchStyle(node, newStyle);
@@ -55,8 +55,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
   };
 
   const isImageNode = node.__type === 'image';
-  const isGraphOrSketchNode = node.__type === 'graph' || node.__type === 'sketch';
-  const isFiltered = isGraphOrSketchNode ? style?.filter !== "none" : !!style?.filter && style.filter !== "none";
+  const isFiltered = style?.filter === "auto";
 
   return (
     <>
@@ -97,7 +96,7 @@ export default function ImageTools({ editor, node, sx }: { editor: LexicalEditor
           </ToggleButton>
           <ToggleButton value="filter-toggle" key="filter-toggle" selected={isFiltered}
             onClick={() => {
-              updateStyle({ "filter": isFiltered ? "none" : "" });
+              updateStyle({ "filter": isFiltered ? "none" : "auto" });
             }}>
             <FilterBAndW fontSize='small' />
           </ToggleButton>
