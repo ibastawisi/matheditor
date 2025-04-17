@@ -13,7 +13,7 @@ import * as React from 'react';
 
 import { createTransformers } from './MarkdownTransformers';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { PASTE_COMMAND, $getSelection, $createParagraphNode, $isRangeSelection, $setSelection, COMMAND_PRIORITY_EDITOR } from 'lexical';
+import { PASTE_COMMAND, $getSelection, $createParagraphNode, $isRangeSelection, $setSelection, COMMAND_PRIORITY_LOW } from 'lexical';
 import { $convertFromMarkdownString } from '.';
 
 export default function MarkdownPlugin(): JSX.Element {
@@ -25,17 +25,19 @@ export default function MarkdownPlugin(): JSX.Element {
       PASTE_COMMAND,
       (event: ClipboardEvent) => {
         if (!event.clipboardData) return false;
+        const html = event.clipboardData.getData('text/html');
+        if (html) return false;
+        const text = event.clipboardData.getData('text/plain');
         const selection = $getSelection();
         if (!$isRangeSelection(selection)) return false;
-        const text = event.clipboardData.getData('text/plain');
         const parent = $createParagraphNode();
         $setSelection(null);
         $convertFromMarkdownString(text, transformers, parent);
         const children = parent.getChildren();
         selection.insertNodes(children);
-        return false;
+        return true;
       },
-      COMMAND_PRIORITY_EDITOR
+      COMMAND_PRIORITY_LOW
     );
   }, [editor])
 
