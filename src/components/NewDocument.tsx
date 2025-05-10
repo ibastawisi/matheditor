@@ -127,7 +127,7 @@ const NewDocument: React.FC<{ cloudDocument?: CloudDocument }> = ({ cloudDocumen
   }
 
   const updateHandle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const handle = event.target.value.toLowerCase().replace(/[^A-Za-z0-9\-_~:/?#\[\]@!$&'()*+,;=]/g, "-");
+    const handle = event.target.value.trim().toLowerCase().replace(/[^A-Za-z0-9]/g, "-");
     updateInput({ handle });
     if (!handle) return setValidationErrors({});
     if (handle.length < 3) {

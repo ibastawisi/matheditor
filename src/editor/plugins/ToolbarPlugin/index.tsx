@@ -228,7 +228,8 @@ function ToolbarPlugin() {
     const scrollIntoView = (behavior?: ScrollBehavior) => {
       const target = document.getElementById(hash.slice(1));
       if (target) return target.scrollIntoView({ block: 'start', behavior });
-      const anchor = document.querySelector(`[href="${hash}"][target="_self"]`);
+      const decodedHash = decodeURIComponent(hash.slice(1));
+      const anchor = Array.from(document.querySelectorAll('a')).find(a => a.getAttribute('href') === `#${decodedHash}` && a.getAttribute('target') === '_self');
       anchor?.scrollIntoView({ block: 'start', behavior });
     };
     scrollIntoView();
