@@ -15,7 +15,7 @@ import { createHeadlessEditor } from "@lexical/headless";
 import { $generateNodesFromSerializedNodes } from "@lexical/clipboard";
 
 const getLlmConfig = () => {
-  const initialValue = { provider: 'google', model: 'gemini-2.0-flash' };
+  const initialValue = { provider: 'google', model: 'gemini-2.5-flash' };
   try {
     const item = window.localStorage.getItem('llm');
     return item ? JSON.parse(item) : initialValue;

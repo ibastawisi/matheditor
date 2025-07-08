@@ -1,7 +1,7 @@
-import { CoreMessage, streamText } from 'ai';
-import { createOllama } from 'ollama-ai-provider';
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
-import { google } from '@ai-sdk/google';
+import { CoreMessage, streamText } from "ai";
+import { createOllama } from "ollama-ai-provider";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { google } from "@ai-sdk/google";
 import { match } from "ts-pattern";
 
 export const runtime = "edge";
@@ -21,7 +21,6 @@ const azure = createOpenAICompatible({
 });
 
 export async function POST(req: Request) {
-
   const { prompt, option, command, ...body } = await req.json();
 
   const messages = match(option)
@@ -104,9 +103,11 @@ export async function POST(req: Request) {
 
   const model = match(body.provider)
     .with("ollama", () => ollama(body.model || "llama3.2"))
-    .with("cloudflare", () => cloudflare(body.model || "@cf/meta/llama-3.1-8b-instruct-fast"))
-    .with("google", () => google(body.model || "gemini-2.0-flash-exp"))
-    .with("azure", () => azure(body.model || "Phi-4"))
+    .with("cloudflare", () =>
+      cloudflare(body.model || "@cf/meta/llama-4-scout-17b-16e-instruct")
+    )
+    .with("google", () => google(body.model || "gemini-2.5-flash"))
+    .with("azure", () => azure(body.model || "gpt-4o-mini"))
     .run();
 
   const maxTokens = match(body.provider)
