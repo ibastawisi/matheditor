@@ -218,6 +218,7 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
     const mathfield = editor.getElementByKey(node.__key)?.querySelector("math-field") as MathfieldElement | null;
     if (!mathfield) return;
     mathfield.executeCommand(["insert", latex]);
+    excalidrawAPI?.updateScene({ elements: [] });
     handleClose();
   }, [excalidrawAPI, node, ocr]);
 
