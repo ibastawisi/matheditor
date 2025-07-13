@@ -1,6 +1,6 @@
 import { UploadFile, ContentPaste } from "@mui/icons-material";
 import { Dialog, DialogTitle, DialogContent, Button, TextField, LinearProgress, DialogActions } from "@mui/material";
-import { $createParagraphNode, $createTextNode, $insertNodes, LexicalEditor } from "lexical";
+import { LexicalEditor, PASTE_COMMAND } from "lexical";
 import { useState, useCallback } from "react";
 import { SET_DIALOGS_COMMAND } from "./commands";
 import { Announcement } from "@/types";
@@ -91,14 +91,11 @@ const OCRDialog: React.FC<{  editor: LexicalEditor }> = ({ editor }) => {
 
   const handleSubmit = async () => {
     const { value } = formData;
-    editor.update(() => {
-      const nodes = value.split('\n').map((line) => {
-        const textNode = $createTextNode(line);
-        const paragraphNode = $createParagraphNode().append(textNode);
-        return paragraphNode;
-      });
-      $insertNodes(nodes)
-    })
+    const clipboardData = new DataTransfer();
+    clipboardData.setData('text/plain', value);
+    editor.dispatchCommand(PASTE_COMMAND, new ClipboardEvent('paste', {
+      clipboardData,
+    }));
     closeDialog();
   };
 
