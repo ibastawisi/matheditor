@@ -21,9 +21,9 @@ import { ViewHeadline } from "@mui/icons-material";
 
 const MODELS = [
   {
-    label: "Gemma 4",
+    label: "Gemini 3.1 Flash",
     provider: "google",
-    model: "gemma-4-31b-it",
+    model: "gemini-3.1-flash-lite",
     fast: true,
     reason: true,
   },
@@ -46,7 +46,7 @@ const MODELS = [
 function AIDialog({ editor }: { editor: LexicalEditor }) {
   const [llm, setLlm] = useLocalStorage("llm", {
     provider: "google",
-    model: "gemma-4-31b-it",
+    model: "gemini-3.1-flash-lite",
   });
   const [formData, setFormData] = useState(llm);
 

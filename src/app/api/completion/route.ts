@@ -106,7 +106,7 @@ export async function POST(req: Request) {
     .with("cloudflare", () =>
       cloudflare(body.model || "@cf/meta/llama-4-scout-17b-16e-instruct")
     )
-    .with("google", () => google(body.model || "gemma-4-31b-it"))
+    .with("google", () => google(body.model || "gemini-3.1-flash-lite"))
     .with("azure", () => azure(body.model || "gpt-4o-mini"))
     .run();
 
