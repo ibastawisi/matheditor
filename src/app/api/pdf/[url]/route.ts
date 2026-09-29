@@ -2,16 +2,18 @@ import { NextResponse } from "next/server";
 import puppeteer, { PDFOptions } from "puppeteer";
 
 const browserWSEndpoint = process.env.BROWSERLESS_URL;
+const PUBLIC_URL = process.env.PUBLIC_URL;
 
 export async function GET(request: Request) {
   try {
-    const url = new URL(request.url);
-    const search = url.searchParams;
-    const handle = url.pathname.split("/").pop();
+    const requestUrl = new URL(request.url);
+    const search = requestUrl.searchParams;
+    const handle = requestUrl.pathname.split("/").pop();
+    // browserless runs in its own container, so it can't reach request.url's host (localhost when self-hosted)
+    const url = new URL(`/embed/${handle}${requestUrl.search}`, PUBLIC_URL || requestUrl.origin);
     if (url.hostname === 'localhost') url.protocol = 'http:'
     // local browserless runs in docker, where localhost is the container itself
     if (url.hostname === 'localhost' && browserWSEndpoint && new URL(browserWSEndpoint).hostname === 'localhost') url.hostname = 'host.docker.internal'
-    url.pathname = `/embed/${handle}`;
     const browser = browserWSEndpoint
       ? await puppeteer.connect({ browserWSEndpoint })
       : await puppeteer.launch();
