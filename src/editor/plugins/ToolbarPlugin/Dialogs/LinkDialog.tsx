@@ -68,7 +68,7 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
     else setTarget(null);
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
     if (rel === 'bookmark' && figure) setNodeId(figure, url.slice(1));
     if (!node) editor.dispatchCommand(TOGGLE_LINK_COMMAND, { url, rel, target, });

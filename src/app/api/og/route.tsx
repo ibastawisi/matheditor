@@ -1,8 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from 'next/og';
 
-export const runtime = 'edge';
-
 export interface OgMetadata {
   id: string;
   title?: string;

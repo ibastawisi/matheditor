@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 
   const tag = request.nextUrl.searchParams.get('tag');
   if (tag) {
-    revalidateTag(tag)
+    revalidateTag(tag, { expire: 0 })
     return Response.json({ revalidated: tag, now: Date.now() })
   }
 
