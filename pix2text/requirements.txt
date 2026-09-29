@@ -1,0 +1,5 @@
+torch
+pix2text>=1.1,<1.2
+fastapi
+uvicorn
+python-multipart

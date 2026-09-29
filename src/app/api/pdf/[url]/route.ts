@@ -9,6 +9,8 @@ export async function GET(request: Request) {
     const search = url.searchParams;
     const handle = url.pathname.split("/").pop();
     if (url.hostname === 'localhost') url.protocol = 'http:'
+    // local browserless runs in docker, where localhost is the container itself
+    if (url.hostname === 'localhost' && browserWSEndpoint && new URL(browserWSEndpoint).hostname === 'localhost') url.hostname = 'host.docker.internal'
     url.pathname = `/embed/${handle}`;
     const browser = browserWSEndpoint
       ? await puppeteer.connect({ browserWSEndpoint })
