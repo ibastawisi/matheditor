@@ -45,6 +45,8 @@ services:
       - traefik.tcp.routers.matheditor-db.rule=HostSNI(`db.matheditor.me`)
       - traefik.tcp.routers.matheditor-db.entrypoints=websecure
       - traefik.tcp.routers.matheditor-db.tls.certresolver=letsencrypt
+      # accepts the "postgresql" ALPN that libpq 17+ sends; defined in /etc/dokploy/traefik/dynamic/postgres-tls.yml
+      - traefik.tcp.routers.matheditor-db.tls.options=postgres@file
       - traefik.tcp.services.matheditor-db.loadbalancer.server.port=5432
 
   fastapi:
