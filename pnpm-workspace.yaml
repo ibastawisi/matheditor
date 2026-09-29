@@ -1,13 +1,11 @@
-onlyBuiltDependencies:
-  - '@prisma/client'
-  - '@prisma/engines'
-  - prisma
-  - puppeteer
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  prisma: true
+  puppeteer: true
+  esbuild: false
+  sharp: false
 
 patchedDependencies:
   '@lexical/html': patches/@lexical__html.patch
   htmr@1.0.2: patches/htmr@1.0.2.patch
-
-ignoredBuiltDependencies:
-  - esbuild
-  - sharp
