@@ -1,7 +1,7 @@
-diff --git a/node_modules/@lexical/html/LexicalHtml.dev.js b/node_modules/@lexical/html/LexicalHtml.dev.js
+diff --git a/LexicalHtml.dev.js b/LexicalHtml.dev.js
 index 22b52eb..3b3868e 100644
---- a/node_modules/@lexical/html/LexicalHtml.dev.js
-+++ b/node_modules/@lexical/html/LexicalHtml.dev.js
+--- a/LexicalHtml.dev.js
++++ b/LexicalHtml.dev.js
 @@ -43,9 +43,6 @@ function $generateNodesFromDOM(editor, dom) {
    return lexicalNodes;
  }
@@ -12,10 +12,10 @@ index 22b52eb..3b3868e 100644
    const container = document.createElement('div');
    const root = lexical.$getRoot();
    const topLevelChildren = root.getChildren();
-diff --git a/node_modules/@lexical/html/LexicalHtml.dev.mjs b/node_modules/@lexical/html/LexicalHtml.dev.mjs
+diff --git a/LexicalHtml.dev.mjs b/LexicalHtml.dev.mjs
 index 8f9b547..94a041b 100644
---- a/node_modules/@lexical/html/LexicalHtml.dev.mjs
-+++ b/node_modules/@lexical/html/LexicalHtml.dev.mjs
+--- a/LexicalHtml.dev.mjs
++++ b/LexicalHtml.dev.mjs
 @@ -41,9 +41,6 @@ function $generateNodesFromDOM(editor, dom) {
    return lexicalNodes;
  }
