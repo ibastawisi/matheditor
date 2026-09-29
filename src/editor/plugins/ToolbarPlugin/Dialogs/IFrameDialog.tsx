@@ -54,9 +54,8 @@ function IFrameDialog({ editor, node }: { editor: LexicalEditor, node: IFrameNod
   return <Dialog
     open
     fullScreen={fullScreen}
-    onClose={handleClose}
+    onClose={(_, reason) => { if (reason !== 'escapeKeyDown') handleClose(); }}
     aria-labelledby="iFrame-dialog-title"
-    disableEscapeKeyDown
   >
     <DialogTitle id="iFrame-dialog-title">
       Insert IFrame

@@ -181,7 +181,7 @@ export const EditorSkeleton: React.FC<PropsWithChildren> = ({ children }) => {
                   <Superscript fontSize='small' />
                 </ToggleButton>
                 <ToggleButton value="link" >
-                  <Link fontSize='small' />
+                  <Link sx={{ fontSize: 'small' }} />
                 </ToggleButton>
                 <ToggleButton value="color">
                   <FormatColorFill fontSize='small' />
@@ -199,7 +199,10 @@ export const EditorSkeleton: React.FC<PropsWithChildren> = ({ children }) => {
           </Container>
         </Toolbar >
       </AppBar>
-      {toolbarTrigger && <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })} fontSize='small' />}
+      {toolbarTrigger && <Box
+        sx={[{
+          fontSize: 'small'
+        }, (theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })]} />}
       <div className="document-container">{children}</div>
     </>
   );

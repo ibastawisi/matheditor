@@ -7,7 +7,7 @@ import { memo, Suspense, useEffect } from "react";
 import { BackupDocument, User, UserDocument } from '@/types';
 import { validate } from "uuid";
 import documentDB, { revisionDB } from '@/indexeddb';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Box, Avatar, Button, Typography, Card, CardActionArea, CardHeader, Pagination } from '@mui/material';
 import { PostAdd, UploadFile, Help, Storage, Science, Pageview } from '@mui/icons-material';
 import DocumentSortControl from '../DocumentControls/SortControl';
@@ -50,10 +50,10 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
         try {
           const data: BackupDocument | BackupDocument[] = JSON.parse(reader.result as string);
           if (!Array.isArray(data)) {
-            validate(data.id) && await addDocument(data, shouldNavigate);
+            validate(data.id) && (await addDocument(data, shouldNavigate));
           } else {
             for (const document of data) {
-              validate(document.id) && await addDocument(document);
+              validate(document.id) && (await addDocument(document));
             }
           }
         } catch (error) {

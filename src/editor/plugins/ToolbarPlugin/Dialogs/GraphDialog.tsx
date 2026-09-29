@@ -179,23 +179,27 @@ function GraphDialog({ editor, node }: { editor: LexicalEditor, node: GraphNode 
     };
   }, []);
 
-  return <Dialog open fullScreen onClose={handleClose} disableEscapeKeyDown
-    TransitionProps={{
-      onEntered() { document.body.classList.add('fullscreen'); },
-    }}>
-    <DialogContent sx={{ p: 0, overflow: "hidden" }}>
-      {loading && <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>}
-      <GeogebraApplet parameters={parameters} />
-    </DialogContent>
-    <DialogActions>
-      <Button onClick={handleClose}>
-        Cancel
-      </Button>
-      <Button onClick={handleSubmit}>
-        {!node ? "Insert" : "Update"}
-      </Button>
-    </DialogActions>
-  </Dialog>;
+  return (
+    <Dialog open fullScreen onClose={(_, reason) => { if (reason !== 'escapeKeyDown') handleClose(); }}
+      slotProps={{
+        transition: {
+          onEntered() { document.body.classList.add('fullscreen'); },
+        }
+      }}>
+      <DialogContent sx={{ p: 0, overflow: "hidden" }}>
+        {loading && <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>}
+        <GeogebraApplet parameters={parameters} />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose}>
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit}>
+          {!node ? "Insert" : "Update"}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 }
 
 const GeogebraApplet = memo(({ parameters }: { parameters: any }) => {

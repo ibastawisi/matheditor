@@ -103,7 +103,7 @@ function IconMenu({ options, selectedIndex, setHighlightedIndex, selectOptionAnd
               {option.icon}
             </ListItemIcon>
             <ListItemText>{option.title}</ListItemText>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
               {option.keyboardShortcut}
             </Typography>
           </MenuItem>

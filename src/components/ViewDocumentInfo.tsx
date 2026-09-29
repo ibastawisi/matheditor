@@ -1,6 +1,6 @@
 "use client"
 import { CloudDocument, User } from '@/types';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Avatar, Badge, Box, Chip, Fab, IconButton, Portal, Typography, useScrollTrigger } from '@mui/material';
 import { Edit, FileCopy, Print, History } from '@mui/icons-material';
 import RouterLink from "next/link";
@@ -41,8 +41,8 @@ export default function ViewDocumentInfo({ cloudDocument, user }: { cloudDocumen
       <AppDrawer title="Document Info">
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: "start", justifyContent: "start", gap: 1, my: 3 }}>
           <Typography component="h2" variant="h6">{cloudDocument.name}</Typography>
-          <Typography variant="subtitle2" color="text.secondary">Created: {new Date(cloudDocument.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</Typography>
-          <Typography variant="subtitle2" color="text.secondary" gutterBottom>Updated: {new Date(cloudDocument.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</Typography>
+          <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>Created: {new Date(cloudDocument.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</Typography>
+          <Typography variant="subtitle2" gutterBottom sx={{ color: "text.secondary" }}>Updated: {new Date(cloudDocument.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</Typography>
           <Typography variant="subtitle2">Author <Chip clickable component={RouterLink} prefetch={false}
             href={`/user/${cloudDocument.author.handle || cloudDocument.author.id}`}
             avatar={<Avatar alt={cloudDocument.author.name} src={cloudDocument.author.image || undefined} />}

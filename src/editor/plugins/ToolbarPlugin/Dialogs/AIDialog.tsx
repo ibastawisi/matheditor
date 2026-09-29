@@ -73,9 +73,8 @@ function AIDialog({ editor }: { editor: LexicalEditor }) {
       open
       fullWidth
       maxWidth="xs"
-      onClose={handleClose}
+      onClose={(_, reason) => { if (reason !== 'escapeKeyDown') handleClose(); }}
       aria-labelledby="ai-dialog-title"
-      disableEscapeKeyDown
     >
       <DialogTitle id="ai-dialog-title">Configure AI Models</DialogTitle>
       <DialogContent>
@@ -83,9 +82,10 @@ function AIDialog({ editor }: { editor: LexicalEditor }) {
           <Typography
             variant="button"
             component="h3"
-            color="text.secondary"
-            sx={{ my: 1 }}
-          >
+            sx={{
+              color: "text.secondary",
+              my: 1
+            }}>
             Language Model
           </Typography>
           <Select

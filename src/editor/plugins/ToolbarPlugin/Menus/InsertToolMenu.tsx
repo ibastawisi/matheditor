@@ -63,35 +63,40 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }) {
             <HorizontalRule fontSize="small" />
           </ListItemIcon>
           <ListItemText>Divider</ListItemText>
-          <Typography variant="body2" color="text.secondary">---</Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>---</Typography>
         </MenuItem>}
         {editor.hasNode(PageBreakNode) && <MenuItem onClick={() => { editor.dispatchCommand(INSERT_PAGE_BREAK, undefined,); handleClose(); }}>
           <ListItemIcon>
             <InsertPageBreak fontSize="small" />
           </ListItemIcon>
           <ListItemText>Page</ListItemText>
-          <Typography variant="body2" color="text.secondary">/page</Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>/page</Typography>
         </MenuItem>}
         {editor.hasNode(MathNode) && <MenuItem onClick={() => { editor.dispatchCommand(INSERT_MATH_COMMAND, { value: '' },); handleClose(); }}>
           <ListItemIcon>
             <Functions fontSize="small" />
           </ListItemIcon>
           <ListItemText>Math</ListItemText>
-          <Typography variant="body2" color="text.secondary">$$</Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>$$</Typography>
         </MenuItem>}
         {editor.hasNode(GraphNode) && <MenuItem onClick={() => { openGraphDialog(); handleClose(); }}>
           <ListItemIcon>
             <Graph />
           </ListItemIcon>
           <ListItemText>Graph</ListItemText>
-          <Typography variant="body2" color="text.secondary">/plot</Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>/plot</Typography>
         </MenuItem>}
         {editor.hasNode(SketchNode) && <MenuItem onClick={() => { openSketchDialog(); handleClose(); }}>
           <ListItemIcon>
             <Brush fontSize="small" />
           </ListItemIcon>
           <ListItemText>Sketch</ListItemText>
-          <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>/sketch</Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+              ml: 1
+            }}>/sketch</Typography>
         </MenuItem>
         }
         {editor.hasNode(ImageNode) && <MenuItem onClick={() => { openImageDialog(); handleClose(); }}>
@@ -99,42 +104,42 @@ export default function InsertToolMenu({ editor }: { editor: LexicalEditor }) {
             <ImageIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Image</ListItemText>
-          <Typography variant="body2" color="text.secondary">/img</Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>/img</Typography>
         </MenuItem>}
         {editor.hasNode(TableNode) && <MenuItem onClick={() => { openTableDialog(); handleClose(); }}>
           <ListItemIcon>
             <TableChart fontSize="small" />
           </ListItemIcon>
           <ListItemText>Table</ListItemText>
-          <Typography variant="body2" color="text.secondary">/3x3</Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>/3x3</Typography>
         </MenuItem>}
         {editor.hasNode(LayoutContainerNode) && <MenuItem onClick={() => { openLayoutDialog(); handleClose(); }}>
           <ListItemIcon>
             <ViewColumn fontSize="small" />
           </ListItemIcon>
           <ListItemText>Columns</ListItemText>
-          <Typography variant="body2" color="text.secondary">/col</Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>/col</Typography>
         </MenuItem>}
         {editor.hasNode(StickyNode) && <MenuItem onClick={() => { editor.dispatchCommand(INSERT_STICKY_COMMAND, undefined); handleClose(); }}>
           <ListItemIcon>
             <StickyNote2 fontSize="small" />
           </ListItemIcon>
           <ListItemText>Note</ListItemText>
-          <Typography variant="body2" color="text.secondary">/note</Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>/note</Typography>
         </MenuItem>}
         {editor.hasNode(IFrameNode) && <MenuItem onClick={() => { openIFrameDialog(); handleClose(); }}>
           <ListItemIcon>
             <Web fontSize="small" />
           </ListItemIcon>
           <ListItemText>IFrame</ListItemText>
-          <Typography variant="body2" color="text.secondary">/iframe</Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>/iframe</Typography>
         </MenuItem>}
         {editor.hasNode(DetailsContainerNode) && <MenuItem onClick={() => { editor.dispatchCommand(INSERT_DETAILS_COMMAND, undefined); handleClose(); }}>
           <ListItemIcon>
             <Expand fontSize="small" />
           </ListItemIcon>
           <ListItemText>Details</ListItemText>
-          <Typography variant="body2" color="text.secondary">/details</Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>/details</Typography>
         </MenuItem>}
       </Menu>
     </>

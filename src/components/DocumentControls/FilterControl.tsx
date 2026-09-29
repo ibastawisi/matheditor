@@ -1,7 +1,7 @@
 import { User, UserDocument } from "@/types";
 import { FC, useState } from "react";
 import { Tab, Tabs } from "@mui/material";
-import { AccountCircle, Cloud, CloudDone, CloudSync, DoneAll, GroupWork, MobileFriendly, PeopleOutline, Public, Security, SupervisedUserCircle, Workspaces } from "@mui/icons-material";
+import { AccountCircle, Cloud, CloudDone, CloudSync, DoneAll, GroupWork, MobileFriendly, PeopleOutlined, Public, Security, SupervisedUserCircle, Workspaces } from "@mui/icons-material";
 import { SxProps, Theme } from '@mui/material/styles';
 
 export const filterDocuments = (documents: UserDocument[], user: User | undefined, value: number) => {
@@ -52,7 +52,7 @@ const DocumentFilterControl: FC<{
     { key: 7, label: 'Author', icon: <AccountCircle /> },
     { key: 8, label: 'Coauthor', icon: <SupervisedUserCircle /> },
     { key: 9, label: 'Collaborator', icon: <GroupWork /> },
-    { key: 10, label: 'Others', icon: <PeopleOutline /> },
+    { key: 10, label: 'Others', icon: <PeopleOutlined /> },
   ];
 
   const handleFilterChange = (optionKey: number) => {
@@ -80,7 +80,7 @@ const DocumentFilterControl: FC<{
           opacity: 1,
           color: "text.disabled"
         },
-        '& .MuiTabs-flexContainer': {
+        '& .MuiTabs-list': {
           height: "100%",
           gap: 1,
           alignItems: "center",

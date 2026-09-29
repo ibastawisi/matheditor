@@ -100,9 +100,8 @@ function ImageDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode 
   return <Dialog
     open
     fullScreen={fullScreen}
-    onClose={handleClose}
+    onClose={(_, reason) => { if (reason !== 'escapeKeyDown') handleClose(); }}
     aria-labelledby="image-dialog-title"
-    disableEscapeKeyDown
   >
     <DialogTitle id="image-dialog-title">
       Insert Image

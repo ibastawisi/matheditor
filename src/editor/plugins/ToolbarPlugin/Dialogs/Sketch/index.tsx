@@ -307,30 +307,34 @@ function SketchDialog({ editor, node }: { editor: LexicalEditor, node: ImageNode
     };
   }, []);
 
-  return <Dialog open fullScreen={true} onClose={handleClose} disableEscapeKeyDown
-    TransitionProps={{
-      onEntered() { document.body.classList.add('fullscreen') },
-    }}>
-    <DialogContent sx={{ p: 0, overflow: "hidden" }}>
-      {loading && <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>}
-      <Excalidraw
-        excalidrawAPI={excalidrawAPIRefCallback}
-        theme={theme.palette.mode}
-        onLibraryChange={onLibraryChange}
-        onChange={saveToLocalStorage}
-        langCode='en'
-      />
-      {excalidrawAPI && <AddLibraries excalidrawAPI={excalidrawAPI} />}
-    </DialogContent>
-    <DialogActions>
-      <Button autoFocus onClick={handleClose}>
-        Cancel
-      </Button>
-      <Button onClick={handleSubmit}>
-        {!node ? "Insert" : "Update"}
-      </Button>
-    </DialogActions>
-  </Dialog>;
+  return (
+    <Dialog open fullScreen={true} onClose={(_, reason) => { if (reason !== 'escapeKeyDown') handleClose(); }}
+      slotProps={{
+        transition: {
+          onEntered() { document.body.classList.add('fullscreen') },
+        }
+      }}>
+      <DialogContent sx={{ p: 0, overflow: "hidden" }}>
+        {loading && <Box sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}><CircularProgress size={36} disableShrink /></Box>}
+        <Excalidraw
+          excalidrawAPI={excalidrawAPIRefCallback}
+          theme={theme.palette.mode}
+          onLibraryChange={onLibraryChange}
+          onChange={saveToLocalStorage}
+          langCode='en'
+        />
+        {excalidrawAPI && <AddLibraries excalidrawAPI={excalidrawAPI} />}
+      </DialogContent>
+      <DialogActions>
+        <Button autoFocus onClick={handleClose}>
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit}>
+          {!node ? "Insert" : "Update"}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 }
 
 export default memo(SketchDialog);

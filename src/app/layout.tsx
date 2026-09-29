@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
 import ThemeProvider from '@/components/Layout/ThemeProvider';
 import RobotoLatin400 from '@fontsource/roboto/files/roboto-latin-400-normal.woff2?url';
 import RobotoLatin500 from '@fontsource/roboto/files/roboto-latin-500-normal.woff2?url';

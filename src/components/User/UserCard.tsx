@@ -39,7 +39,17 @@ const UserCard: React.FC<{ user?: User, showActions?: boolean }> = memo(({ user,
             <Typography component="span" variant="h6" sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {user ? user.name : <Skeleton variant="text" width={190} />}
             </Typography>
-            <Typography component="span" variant="subtitle1" color="text.secondary" sx={{ display: "block", lineHeight: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <Typography
+              component="span"
+              variant="subtitle1"
+              sx={{
+                color: "text.secondary",
+                display: "block",
+                lineHeight: 2,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis"
+              }}>
               {user ? user.email : <Skeleton variant="text" width={150} />}
             </Typography>
           </CardContent>

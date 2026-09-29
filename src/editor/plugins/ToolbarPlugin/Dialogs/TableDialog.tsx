@@ -38,9 +38,8 @@ function TableDialog({ editor }: { editor: LexicalEditor }) {
 
   return <Dialog
     open
-    onClose={handleClose}
+    onClose={(_, reason) => { if (reason !== 'escapeKeyDown') handleClose(); }}
     aria-labelledby="table-dialog-title"
-    disableEscapeKeyDown
   >
     <DialogTitle id="table-dialog-title">
       Insert Table

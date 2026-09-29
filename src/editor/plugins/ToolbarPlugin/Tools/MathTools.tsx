@@ -244,7 +244,13 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
             <DialogContent >
               <TextField margin="normal" size="small" fullWidth multiline id="value" value={formData.value} onChange={updateFormData} label="Latex Value" name="value" autoFocus inputRef={mathfieldValueRef} />
               <Box sx={{ display: "flex", flexDirection: "column" }}>
-                <Typography variant="button" component="h3" color="text.secondary" sx={{ my: 1 }}>
+                <Typography
+                  variant="button"
+                  component="h3"
+                  sx={{
+                    color: "text.secondary",
+                    my: 1
+                  }}>
                   Preview
                 </Typography>
                 <math-field ref={mathfieldRef} value={formData.value} style={{ width: "auto", margin: "0 auto" }} read-only></math-field>
@@ -335,5 +341,5 @@ export default function MathTools({ editor, node, sx }: { editor: LexicalEditor,
         </ToggleButtonGroup>
       </Box>
     </>
-  )
+  );
 }

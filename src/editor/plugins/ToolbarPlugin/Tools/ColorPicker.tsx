@@ -71,7 +71,7 @@ export default function ColorPicker({ onColorChange, onOpen, onClose, toggle = "
         <ListItemText>{label}</ListItemText>
       </MenuItem>
       }
-      {toggle === "togglebutton" && <ToggleButton size='small' value="color" onClick={handleClick} className="MuiToggleButtonGroup-grouped MuiToggleButtonGroup-groupedHorizontal" selected={open}>
+      {toggle === "togglebutton" && <ToggleButton size='small' value="color" onClick={handleClick} selected={open}>
         <FormatColorFill fontSize='small' />
       </ToggleButton>}
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose} disableRestoreFocus
