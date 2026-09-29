@@ -18,6 +18,6 @@ The project aims to make writing publication-quality documents easy and accessib
 ```
 git clone https://github.com/IBastawisi/matheditor.git
 cd matheditor
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```

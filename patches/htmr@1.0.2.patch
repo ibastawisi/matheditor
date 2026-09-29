@@ -1,7 +1,7 @@
-diff --git a/node_modules/htmr/src/types.ts b/node_modules/htmr/src/types.ts
+diff --git a/src/types.ts b/src/types.ts
 index c798df5..261116b 100644
---- a/node_modules/htmr/src/types.ts
-+++ b/node_modules/htmr/src/types.ts
+--- a/src/types.ts
++++ b/src/types.ts
 @@ -1,7 +1,7 @@
 -import React, { ReactHTML, ReactSVG, ReactNode, ComponentType } from "react";
 +import React, { JSX, ReactNode, ComponentType } from "react";
