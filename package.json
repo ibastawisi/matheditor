@@ -14,8 +14,8 @@
     "db:stop": "docker compose stop db",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
-    "fastapi:start": "docker compose up -d --build pix2text",
-    "fastapi:stop": "docker compose stop pix2text",
+    "fastapi:start": "docker compose up -d --build fastapi",
+    "fastapi:stop": "docker compose stop fastapi",
     "browserless:start": "docker compose up -d browserless",
     "browserless:stop": "docker compose stop browserless"
   },
