@@ -1,4 +1,8 @@
 .git
+# keep just enough of .git for next.config.ts to read the commit SHA
+!.git/HEAD
+!.git/refs/heads
+!.git/packed-refs
 .next
 .turbo
 .vscode

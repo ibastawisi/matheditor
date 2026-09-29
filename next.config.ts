@@ -1,6 +1,23 @@
 import type { NextConfig } from 'next'
 import withBundleAnalyzer from '@next/bundle-analyzer'
 import withPWA from './next-pwa'
+import { existsSync, readFileSync } from 'fs'
+
+// Vercel provides the commit SHA; elsewhere (Dokploy) read it from .git without needing the git binary
+function readGitCommitSha() {
+  try {
+    const head = readFileSync('.git/HEAD', 'utf8').trim();
+    if (!head.startsWith('ref: ')) return head;
+    const ref = head.slice(5);
+    if (existsSync(`.git/${ref}`)) return readFileSync(`.git/${ref}`, 'utf8').trim();
+    const packed = readFileSync('.git/packed-refs', 'utf8');
+    return packed.split('\n').find(line => line.endsWith(` ${ref}`))?.split(' ')[0];
+  } catch {
+    return undefined;
+  }
+}
+
+const COMMIT_SHA = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || readGitCommitSha();
 
 const IS_VERCEL = !!process.env.NEXT_PUBLIC_VERCEL_URL;
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
@@ -26,6 +43,7 @@ const withPWAConfig = {
 const nextConfig: NextConfig = {
   reactStrictMode: false,
   distDir: process.env.BUILD_DIR || '.next',
+  env: COMMIT_SHA ? { NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA: COMMIT_SHA } : {},
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals.push('canvas');
