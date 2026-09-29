@@ -4,8 +4,6 @@ import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { google } from "@ai-sdk/google";
 import { match } from "ts-pattern";
 
-export const runtime = "edge";
-
 const cloudflare = createOpenAICompatible({
   name: "cloudflare-workers-ai",
   baseURL: `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/matheditor/workers-ai/v1/`,
