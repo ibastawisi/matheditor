@@ -48,7 +48,7 @@ export function ImageCaption({
     <figcaption>
       <Suspense fallback={children}>
         <NestedEditor initialEditor={editor} initialNodes={editorConfig.nodes}
-          placeholder={<Typography color="text.secondary" className="nested-placeholder">Write a caption</Typography>}
+          placeholder={<Typography className="nested-placeholder" sx={{ color: "text.secondary" }}>Write a caption</Typography>}
         />
       </Suspense>
     </figcaption>

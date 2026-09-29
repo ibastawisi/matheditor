@@ -1,7 +1,7 @@
 import { LocalDocumentRevision, User, UserDocumentRevision } from '@/types';
 import RevisionCard from './EditRevisionCard';
 import { actions, useDispatch, useSelector } from '@/store';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Avatar, Badge, Box, Button, Chip, IconButton, Portal, Typography } from '@mui/material';
 import { Close, Compare, History, Preview, Print } from '@mui/icons-material';
 import type { LexicalEditor } from 'lexical';
@@ -83,8 +83,8 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: "start", justifyContent: "start", gap: 1, my: 3 }}>
           {localDocument && <>
             <Typography component="h2" variant="h6">{localDocument.name}</Typography>
-            <Typography variant="subtitle2" color="text.secondary">Created: {new Date(localDocument.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</Typography>
-            <Typography variant="subtitle2" color="text.secondary" gutterBottom>Updated: {new Date(localDocument.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</Typography>
+            <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>Created: {new Date(localDocument.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</Typography>
+            <Typography variant="subtitle2" gutterBottom sx={{ color: "text.secondary" }}>Updated: {new Date(localDocument.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</Typography>
             {!cloudDocument && <Typography variant="subtitle2">Author <Chip
               avatar={<Avatar />}
               label={user?.name ?? "Local User"}

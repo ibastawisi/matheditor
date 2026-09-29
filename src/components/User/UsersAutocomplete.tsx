@@ -100,14 +100,14 @@ export default function UsersAutocomplete({
           <ListItemText primary={option.name} secondary={option.email} />
         </ListItem>
       }}
-      renderTags={(tagValue, getTagProps) => {
+      renderValue={(tagValue, getItemProps) => {
         return tagValue.map((option, index) => {
           const name = typeof option === 'string' ? option : option.name;
           const email = typeof option === 'string' ? option : option.email;
           const altText = typeof option === 'string' ? option : option.name;
           const image = typeof option === 'string' ? undefined : option.image || undefined;
-          return <Chip {...getTagProps({ index })} key={email} label={name} avatar={<Avatar alt={altText} src={image} />} />
-        })
+          return <Chip {...getItemProps({ index })} key={email} label={name} avatar={<Avatar alt={altText} src={image} />} />;
+        });
       }}
       renderInput={(params) => (
         <TextField {...params} label={label} placeholder={placeholder} sx={sx} />

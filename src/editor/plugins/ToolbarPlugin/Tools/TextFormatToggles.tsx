@@ -141,34 +141,36 @@ export default function TextFormatToggles({ editor, sx }: { editor: LexicalEdito
 
   const openLinkDialog = () => editor.dispatchCommand(SET_DIALOGS_COMMAND, ({ link: { open: true } }));
 
-  return (<ToggleButtonGroup size="small" sx={{ ...sx }} value={formatKeys} onChange={handleFormat} aria-label="text formatting" id="text-format-toggles">
-    <ToggleButton value="bold" title={IS_APPLE ? 'Bold (⌘B)' : 'Bold (Ctrl+B)'} aria-label={`Format text as bold. Shortcut: ${IS_APPLE ? '⌘B' : 'Ctrl+B'}`}>
-      <FormatBold fontSize='small' />
-    </ToggleButton>
-    <ToggleButton value="italic" title={IS_APPLE ? 'Italic (⌘I)' : 'Italic (Ctrl+I)'} aria-label={`Format text as italics. Shortcut: ${IS_APPLE ? '⌘I' : 'Ctrl+I'}`}>
-      <FormatItalic fontSize='small' />
-    </ToggleButton>
-    <ToggleButton value="underline" title={IS_APPLE ? 'Underline (⌘U)' : 'Underline (Ctrl+U)'} aria-label={`Format text to underlined. Shortcut: ${IS_APPLE ? '⌘U' : 'Ctrl+U'}`}>
-      <FormatUnderlined fontSize='small' />
-    </ToggleButton>
-    <ToggleButton value="highlight" title={IS_APPLE ? 'Highlight (⌘+⇧+H)' : 'Highlight (Ctrl+Shift+H)'} aria-label={`Format text as highlight. Shortcut: ${IS_APPLE ? '⌘+⇧+H' : 'Ctrl+Shift+H'}`}>
-      <Highlight />
-    </ToggleButton>
-    <ToggleButton value="code" title={IS_APPLE ? 'Inline code (⌘E)' : 'Inline code (Ctrl+E)'} aria-label={`Format text as Inline code. Shortcut: ${IS_APPLE ? '⌘E' : 'Ctrl+E'}`}>
-      <Code fontSize='small' />
-    </ToggleButton>
-    <ToggleButton value="strikethrough" title={IS_APPLE ? 'Strikethrough (⌘+⇧+S)' : 'Strikethrough (Ctrl+Shift+S)'} aria-label={`Format text as strikethrough. Shortcut: ${IS_APPLE ? '⌘+⇧+S' : 'Ctrl+Shift+S'}`}>
-      <FormatStrikethrough fontSize='small' />
-    </ToggleButton>
-    <ToggleButton value="subscript" title='Subscript' aria-label='Format text with subscript'>
-      <Subscript fontSize='small' />
-    </ToggleButton>
-    <ToggleButton value="superscript" title='Superscript' aria-label='Format text with superscript'>
-      <Superscript fontSize='small' />
-    </ToggleButton>
-    <ToggleButton value="link" title={IS_APPLE ? 'Insert Link (⌘K)' : 'Insert Link (Ctrl+K)'} aria-label={`Insert a link. Shortcut: ${IS_APPLE ? '⌘K' : 'Ctrl+K'}`} onClick={openLinkDialog}>
-      <Link fontSize='small' />
-    </ToggleButton>
-    <ColorPicker onColorChange={onColorChange} textColor={textColor} backgroundColor={backgroundColor} onClose={restoreFocus} />
-  </ToggleButtonGroup>)
+  return (
+    <ToggleButtonGroup size="small" sx={{ ...sx }} value={formatKeys} onChange={handleFormat} aria-label="text formatting" id="text-format-toggles">
+      <ToggleButton value="bold" title={IS_APPLE ? 'Bold (⌘B)' : 'Bold (Ctrl+B)'} aria-label={`Format text as bold. Shortcut: ${IS_APPLE ? '⌘B' : 'Ctrl+B'}`}>
+        <FormatBold fontSize='small' />
+      </ToggleButton>
+      <ToggleButton value="italic" title={IS_APPLE ? 'Italic (⌘I)' : 'Italic (Ctrl+I)'} aria-label={`Format text as italics. Shortcut: ${IS_APPLE ? '⌘I' : 'Ctrl+I'}`}>
+        <FormatItalic fontSize='small' />
+      </ToggleButton>
+      <ToggleButton value="underline" title={IS_APPLE ? 'Underline (⌘U)' : 'Underline (Ctrl+U)'} aria-label={`Format text to underlined. Shortcut: ${IS_APPLE ? '⌘U' : 'Ctrl+U'}`}>
+        <FormatUnderlined fontSize='small' />
+      </ToggleButton>
+      <ToggleButton value="highlight" title={IS_APPLE ? 'Highlight (⌘+⇧+H)' : 'Highlight (Ctrl+Shift+H)'} aria-label={`Format text as highlight. Shortcut: ${IS_APPLE ? '⌘+⇧+H' : 'Ctrl+Shift+H'}`}>
+        <Highlight />
+      </ToggleButton>
+      <ToggleButton value="code" title={IS_APPLE ? 'Inline code (⌘E)' : 'Inline code (Ctrl+E)'} aria-label={`Format text as Inline code. Shortcut: ${IS_APPLE ? '⌘E' : 'Ctrl+E'}`}>
+        <Code fontSize='small' />
+      </ToggleButton>
+      <ToggleButton value="strikethrough" title={IS_APPLE ? 'Strikethrough (⌘+⇧+S)' : 'Strikethrough (Ctrl+Shift+S)'} aria-label={`Format text as strikethrough. Shortcut: ${IS_APPLE ? '⌘+⇧+S' : 'Ctrl+Shift+S'}`}>
+        <FormatStrikethrough fontSize='small' />
+      </ToggleButton>
+      <ToggleButton value="subscript" title='Subscript' aria-label='Format text with subscript'>
+        <Subscript fontSize='small' />
+      </ToggleButton>
+      <ToggleButton value="superscript" title='Superscript' aria-label='Format text with superscript'>
+        <Superscript fontSize='small' />
+      </ToggleButton>
+      <ToggleButton value="link" title={IS_APPLE ? 'Insert Link (⌘K)' : 'Insert Link (Ctrl+K)'} aria-label={`Insert a link. Shortcut: ${IS_APPLE ? '⌘K' : 'Ctrl+K'}`} onClick={openLinkDialog}>
+        <Link sx={{ fontSize: 'small' }} />
+      </ToggleButton>
+      <ColorPicker onColorChange={onColorChange} textColor={textColor} backgroundColor={backgroundColor} onClose={restoreFocus} />
+    </ToggleButtonGroup>
+  );
 }

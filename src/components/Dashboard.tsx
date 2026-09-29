@@ -1,7 +1,7 @@
 "use client"
 import { actions, useDispatch, useSelector } from '@/store';
 import UserCard from "./User/UserCard";
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Box, CircularProgress, Paper, Typography } from "@mui/material";
 import { useEffect, useState } from 'react';
 import { PieChart } from '@mui/x-charts/PieChart';
@@ -96,7 +96,7 @@ const StorageChart: React.FC = () => {
             ]}
             width={256}
             height={300}
-            slotProps={{ legend: { hidden: true } }}
+            hideLegend
             sx={{ mx: 'auto' }}
           />}
         </Paper>
@@ -140,7 +140,7 @@ const StorageChart: React.FC = () => {
             ]}
             width={256}
             height={300}
-            slotProps={{ legend: { hidden: true } }}
+            hideLegend
           />}
         </Paper>
       </Grid>

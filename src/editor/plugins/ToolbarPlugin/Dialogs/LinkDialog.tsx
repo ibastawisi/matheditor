@@ -126,9 +126,8 @@ function LinkDialog({ editor, node }: { editor: LexicalEditor, node: LinkNode | 
   return (
     <Dialog
       open
-      onClose={handleClose}
+      onClose={(_, reason) => { if (reason !== 'escapeKeyDown') handleClose(); }}
       aria-labelledby="link-dialog-title"
-      disableEscapeKeyDown
       fullWidth
       maxWidth="sm"
       slotProps={{ paper: { component: 'form', onSubmit: handleSubmit, }, }}

@@ -59,17 +59,32 @@ const DocumentCard: React.FC<{ userDocument?: UserDocument, user?: User, sx?: Sx
                 document ? <Avatar alt={author?.name ?? "Local User"} src={author?.image ?? undefined} />
                   : <Skeleton variant="circular" width={24} height={24} />}
                 label={document ? author?.name ?? "Local User" : <Skeleton variant="text" width={100} />} />
-              <Typography variant="overline" color="text.secondary"
-                sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <Typography
+                variant="overline"
+                sx={{
+                  color: "text.secondary",
+                  display: "block",
+                  lineHeight: 1.5,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis"
+                }}>
                 {document ? <Suspense key={hydrated ? 'local' : 'utc'}>
                   <time dateTime={new Date(document.createdAt).toISOString()}>
                     Created: {new Date(document.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
                   </time>
                 </Suspense> : <Skeleton variant="text" width={150} />}
               </Typography>
-              <Typography variant="overline" color="text.secondary"
-                sx={{ display: "block", lineHeight: 1.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
-              >
+              <Typography
+                variant="overline"
+                sx={{
+                  color: "text.secondary",
+                  display: "block",
+                  lineHeight: 1.5,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis"
+                }}>
                 {document ? <Suspense key={hydrated ? 'local' : 'utc'}>
                   <time dateTime={new Date(document.updatedAt).toISOString()}>
                     Updated: {new Date(document.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}

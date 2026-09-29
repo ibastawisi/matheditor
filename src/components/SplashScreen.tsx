@@ -9,7 +9,7 @@ const SplashScreen: React.FC<{ title?: string, subtitle?: string }> = ({ title, 
       <div className='splash-screen-content'>
         <Image src={logo} alt="Logo" width={192} height={192} priority />
         <Typography variant='overline' align="center" component='span'>{title}</Typography>
-        <Typography variant='subtitle2' align="center" color='text.secondary' component='span'>{subtitle}</Typography>
+        <Typography variant='subtitle2' align="center" component='span' sx={{ color: 'text.secondary' }}>{subtitle}</Typography>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { UserDocument } from '@/types';
 import DocumentCard from "../DocumentCard";
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Box, Pagination, Typography } from "@mui/material";
 import { Pageview } from "@mui/icons-material";
 import DocumentSortControl from "../DocumentControls/SortControl";

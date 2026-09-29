@@ -7,7 +7,7 @@ import { memo, Suspense, useEffect } from "react";
 import { BackupDocument, User, UserDocument } from '@/types';
 import { validate } from "uuid";
 import documentDB, { revisionDB } from '@/indexeddb';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Box, Avatar, Button, Typography, Card, CardActionArea, CardHeader, Pagination } from '@mui/material';
 import { PostAdd, UploadFile, Help, Storage, Science, Pageview } from '@mui/icons-material';
 import DocumentSortControl from '../DocumentControls/SortControl';
@@ -50,10 +50,10 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
         try {
           const data: BackupDocument | BackupDocument[] = JSON.parse(reader.result as string);
           if (!Array.isArray(data)) {
-            validate(data.id) && await addDocument(data, shouldNavigate);
+            validate(data.id) && (await addDocument(data, shouldNavigate));
           } else {
             for (const document of data) {
-              validate(document.id) && await addDocument(document);
+              validate(document.id) && (await addDocument(document));
             }
           }
         } catch (error) {
@@ -140,7 +140,7 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
 
   return (
     <>
-      <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5 }}>
+      <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 4 }}>
         <Avatar sx={{ my: 2, bgcolor: 'primary.main' }}><PostAdd /></Avatar>
         <Button variant="outlined" component={RouterLink} prefetch={false} href="/new">New document</Button>
       </Box>
@@ -197,7 +197,7 @@ const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initiali
   const pageDocuments = documents.slice((page - 1) * pageSize, page * pageSize);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: "column", flex: 1, justifyContent: 'space-between', mb: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: "column", flex: 1, justifyContent: 'space-between' }}>
       <Grid container spacing={2}>
         {showSkeletons && Array.from({ length: 6 }).map((_, i) => <Grid key={i} size={{ xs: 12, sm: 6, md: 4 }}><DocumentCard /></Grid>)}
         {showEmpty && <Grid size={{ xs: 12 }} sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>
