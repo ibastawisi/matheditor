@@ -19,9 +19,8 @@
     "browserless:stop": "docker compose stop browserless"
   },
   "dependencies": {
-    "@ai-sdk/google": "^1.1.27",
-    "@ai-sdk/openai-compatible": "^0.1.17",
-    "@ai-sdk/react": "^1.1.25",
+    "@ai-sdk/google": "^4.0.84",
+    "@ai-sdk/react": "^4.0.123",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
@@ -51,7 +50,7 @@
     "@types/node": "22.13.10",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "ai": "^4.1.65",
+    "ai": "^7.0.120",
     "docx": "^9.3.0",
     "entities": "^2.2.0",
     "htmr": "^1.0.2",
@@ -63,7 +62,6 @@
     "next": "^16.3.6",
     "next-auth": "^4.24.15",
     "nprogress": "^0.2.0",
-    "ollama-ai-provider": "^1.2.0",
     "prismjs": "^1.30.0",
     "puppeteer": "^24.4.0",
     "react": "19.3.0",
@@ -73,7 +71,7 @@
     "ts-pattern": "^5.6.2",
     "typescript": "5.8.2",
     "uuid": "^11.1.0",
-    "zod": "^3.24.2"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/nprogress": "^0.2.3",

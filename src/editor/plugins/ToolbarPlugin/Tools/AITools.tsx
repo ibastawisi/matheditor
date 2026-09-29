@@ -13,17 +13,7 @@ import { throttle } from "@/editor/utils/throttle";
 import { $convertFromMarkdownString, createTransformers } from "../../MarkdownPlugin";
 import { createHeadlessEditor } from "@lexical/headless";
 import { $generateNodesFromSerializedNodes } from "@lexical/clipboard";
-
-const getLlmConfig = () => {
-  const initialValue = { provider: 'google', model: 'gemini-3.1-flash-lite' };
-  try {
-    const item = window.localStorage.getItem('llm');
-    return item ? JSON.parse(item) : initialValue;
-  } catch (error) {
-    console.log(error);
-    return initialValue;
-  }
-}
+import { getLlmConfig } from "../models";
 
 const serializedParagraph: SerializedParagraphNode = {
   children: [],

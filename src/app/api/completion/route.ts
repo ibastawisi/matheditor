@@ -1,22 +1,7 @@
-import { CoreMessage, streamText } from "ai";
-import { createOllama } from "ollama-ai-provider";
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { ModelMessage, streamText } from "ai";
 import { google } from "@ai-sdk/google";
 import { match } from "ts-pattern";
-
-const cloudflare = createOpenAICompatible({
-  name: "cloudflare-workers-ai",
-  baseURL: `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/matheditor/workers-ai/v1/`,
-  headers: { Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY}` },
-});
-
-const ollama = createOllama({ baseURL: process.env.OLLAMA_API_URL });
-
-const azure = createOpenAICompatible({
-  name: "azure-openai",
-  baseURL: "https://models.inference.ai.azure.com/",
-  apiKey: process.env.AZURE_API_KEY,
-});
+import { resolveLlmConfig } from "@/editor/plugins/ToolbarPlugin/models";
 
 export async function POST(req: Request) {
   const { prompt, option, command, ...body } = await req.json();
@@ -97,25 +82,11 @@ export async function POST(req: Request) {
         content: `${command}${prompt ? `\n${prompt}` : ""}`,
       },
     ])
-    .run() as CoreMessage[];
+    .run() as ModelMessage[];
 
-  const model = match(body.provider)
-    .with("ollama", () => ollama(body.model || "llama3.2"))
-    .with("cloudflare", () =>
-      cloudflare(body.model || "@cf/meta/llama-4-scout-17b-16e-instruct")
-    )
-    .with("google", () => google(body.model || "gemini-3.1-flash-lite"))
-    .with("azure", () => azure(body.model || "gpt-4o-mini"))
-    .run();
+  const { model } = resolveLlmConfig(body);
 
-  const maxTokens = match(body.provider)
-    .with("ollama", () => undefined)
-    .with("cloudflare", () => 2048)
-    .with("google", () => undefined)
-    .with("azure", () => undefined)
-    .run();
-
-  const result = streamText({ model, messages, maxTokens });
+  const result = streamText({ model: google(model), messages, allowSystemInMessages: true });
 
   return result.toTextStreamResponse({
     status: 200,
