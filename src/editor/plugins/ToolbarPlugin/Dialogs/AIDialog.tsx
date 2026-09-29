@@ -18,37 +18,11 @@ import {
 } from "@mui/material";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { ViewHeadline } from "@mui/icons-material";
-
-const MODELS = [
-  {
-    label: "Gemini 3.1 Flash",
-    provider: "google",
-    model: "gemini-3.1-flash-lite",
-    fast: true,
-    reason: true,
-  },
-  {
-    label: "Llama 4 Scout",
-    provider: "cloudflare",
-    model: "@cf/meta/llama-4-scout-17b-16e-instruct",
-    fast: true,
-    reason: false,
-  },
-  {
-    label: "GPT 4o",
-    provider: "azure",
-    model: "gpt-4o",
-    fast: true,
-    reason: false,
-  },
-];
+import { DEFAULT_LLM, MODELS, resolveLlmConfig } from "../models";
 
 function AIDialog({ editor }: { editor: LexicalEditor }) {
-  const [llm, setLlm] = useLocalStorage("llm", {
-    provider: "google",
-    model: "gemini-3.1-flash-lite",
-  });
-  const [formData, setFormData] = useState(llm);
+  const [llm, setLlm] = useLocalStorage("llm", DEFAULT_LLM);
+  const [formData, setFormData] = useState(() => resolveLlmConfig(llm));
 
   const handleSubmit = (
     event:
