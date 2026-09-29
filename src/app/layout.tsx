@@ -70,6 +70,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
           </ThemeProvider>
         </AppRouterCacheProvider>
+        {/* Plain script so the footer's update button works without the app's JS, e.g. when a stale service worker breaks it */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.addEventListener('click', event => {
+              if (!event.target.closest('[data-check-for-updates]')) return;
+              if (!navigator.onLine) return;
+              navigator.serviceWorker.getRegistrations().then(registrations => {
+                return Promise.all(registrations.map(registration => registration.unregister()))
+              }).then(() => window.location.reload())
+            })`
+          }} />
       </body>
     </html>
   )
