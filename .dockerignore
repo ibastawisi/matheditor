@@ -1,0 +1,11 @@
+.git
+.next
+.turbo
+.vscode
+node_modules
+pix2text
+temp
+.env
+.env*.local
+*.tsbuildinfo
+.DS_Store

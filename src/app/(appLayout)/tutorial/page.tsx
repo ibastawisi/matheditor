@@ -4,6 +4,8 @@ import htmr from "htmr";
 import { findRevisionHtml } from "@/app/api/utils";
 import { findUserDocument } from "@/repositories/document";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Tutorial',
   description: 'Learn how to use Math Editor',

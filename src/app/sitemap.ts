@@ -1,6 +1,8 @@
 import { findPublishedDocuments } from '@/repositories/document';
 import { MetadataRoute } from 'next';
 
+export const dynamic = 'force-dynamic';
+
 const PUBLIC_URL = process.env.PUBLIC_URL;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

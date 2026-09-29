@@ -4,6 +4,8 @@ import htmr from "htmr";
 import { findUserDocument } from "@/repositories/document";
 import { findRevisionHtml } from "@/app/api/utils";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Playground",
   description: 'Test drive the editor',
