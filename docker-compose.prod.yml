@@ -1,0 +1,50 @@
+# Production stack, deployed by Dokploy. Variables come from Dokploy's Environment tab.
+services:
+  app:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_FASTAPI_URL: ${NEXT_PUBLIC_FASTAPI_URL}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/matheditor
+      BROWSERLESS_URL: ws://browserless:3000?token=${BROWSERLESS_TOKEN}
+    expose:
+      - "3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: matheditor
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  pix2text:
+    build: ./pix2text
+    restart: unless-stopped
+    expose:
+      - "8000"
+    volumes:
+      - pix2text-models:/root
+
+  browserless:
+    image: ghcr.io/browserless/chromium
+    restart: unless-stopped
+    environment:
+      TOKEN: ${BROWSERLESS_TOKEN:?BROWSERLESS_TOKEN is required}
+
+volumes:
+  db-data:
+  pix2text-models:
