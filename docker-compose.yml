@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-matheditor}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  pix2text:
+    build: ./pix2text
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - pix2text-models:/root
+
+  browserless:
+    image: ghcr.io/browserless/chromium
+    restart: unless-stopped
+    environment:
+      TOKEN: ${BROWSERLESS_TOKEN:-matheditor}
+    ports:
+      - "3001:3000"
+
+volumes:
+  db-data:
+  pix2text-models:

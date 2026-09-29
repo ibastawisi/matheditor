@@ -4,10 +4,20 @@
   "version": "0.7.0",
   "packageManager": "pnpm@12.6.0",
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "pnpm services:start && next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "services:start": "docker compose up -d --wait",
+    "services:stop": "docker compose stop",
+    "db:start": "docker compose up -d --wait db",
+    "db:stop": "docker compose stop db",
+    "db:migrate": "prisma migrate dev",
+    "db:reset": "prisma migrate reset",
+    "fastapi:start": "docker compose up -d --build pix2text",
+    "fastapi:stop": "docker compose stop pix2text",
+    "browserless:start": "docker compose up -d browserless",
+    "browserless:stop": "docker compose stop browserless"
   },
   "dependencies": {
     "@ai-sdk/google": "^1.1.27",
