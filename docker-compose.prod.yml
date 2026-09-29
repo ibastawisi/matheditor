@@ -1,4 +1,11 @@
 # Production stack, deployed by Dokploy. Variables come from Dokploy's Environment tab.
+# POSTGRES_PASSWORD and BROWSERLESS_TOKEN are embedded in URLs, so keep them URL-safe (e.g. openssl rand -hex 24).
+#
+# Public endpoints (routed by Dokploy's Traefik, all on port 443):
+#   app          matheditor.me            domain set in the Dokploy UI
+#   fastapi      fastapi.matheditor.me    HTTPS
+#   browserless  browserless.matheditor.me  WSS
+#   db           db.matheditor.me:443     Postgres over TLS, terminated by Traefik (clients need sslmode=require)
 services:
   app:
     build:
@@ -30,20 +37,57 @@ services:
       interval: 2s
       timeout: 5s
       retries: 30
+    networks:
+      - default
+      - dokploy-network
+    labels:
+      - traefik.enable=true
+      - traefik.tcp.routers.matheditor-db.rule=HostSNI(`db.matheditor.me`)
+      - traefik.tcp.routers.matheditor-db.entrypoints=websecure
+      - traefik.tcp.routers.matheditor-db.tls.certresolver=letsencrypt
+      - traefik.tcp.services.matheditor-db.loadbalancer.server.port=5432
 
-  pix2text:
-    build: ./pix2text
+  fastapi:
+    build: ./fastapi
     restart: unless-stopped
     expose:
       - "8000"
     volumes:
       - pix2text-models:/root
+    networks:
+      - default
+      - dokploy-network
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.matheditor-fastapi-web.rule=Host(`fastapi.matheditor.me`)
+      - traefik.http.routers.matheditor-fastapi-web.entrypoints=web
+      - traefik.http.routers.matheditor-fastapi-web.middlewares=redirect-to-https@file
+      - traefik.http.routers.matheditor-fastapi.rule=Host(`fastapi.matheditor.me`)
+      - traefik.http.routers.matheditor-fastapi.entrypoints=websecure
+      - traefik.http.routers.matheditor-fastapi.tls.certresolver=letsencrypt
+      - traefik.http.services.matheditor-fastapi.loadbalancer.server.port=8000
 
   browserless:
     image: ghcr.io/browserless/chromium
     restart: unless-stopped
     environment:
       TOKEN: ${BROWSERLESS_TOKEN:?BROWSERLESS_TOKEN is required}
+    networks:
+      - default
+      - dokploy-network
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.matheditor-browserless-web.rule=Host(`browserless.matheditor.me`)
+      - traefik.http.routers.matheditor-browserless-web.entrypoints=web
+      - traefik.http.routers.matheditor-browserless-web.middlewares=redirect-to-https@file
+      - traefik.http.routers.matheditor-browserless.rule=Host(`browserless.matheditor.me`)
+      - traefik.http.routers.matheditor-browserless.entrypoints=websecure
+      - traefik.http.routers.matheditor-browserless.tls.certresolver=letsencrypt
+      - traefik.http.services.matheditor-browserless.loadbalancer.server.port=3000
+
+networks:
+  dokploy-network:
+    external: true
 
 volumes:
   db-data:

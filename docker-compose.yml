@@ -16,8 +16,8 @@ services:
       timeout: 5s
       retries: 30
 
-  pix2text:
-    build: ./pix2text
+  fastapi:
+    build: ./fastapi
     restart: unless-stopped
     ports:
       - "8000:8000"
