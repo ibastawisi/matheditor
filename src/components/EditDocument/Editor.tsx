@@ -13,7 +13,7 @@ import Editor from "../Editor";
 
 const EditDocumentInfo = dynamic(() => import('@/components/EditDocument/EditDocumentInfo'), { ssr: false });
 
-const DocumentEditor: React.FC<React.PropsWithChildren> = ({ children }) => {
+const DocumentEditor: React.FC = () => {
   const [document, setDocument] = useState<EditorDocument>();
   const [error, setError] = useState<{ title: string, subtitle?: string }>();
   const dispatch = useDispatch();

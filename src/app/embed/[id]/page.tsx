@@ -1,5 +1,4 @@
 import type { OgMetadata } from "@/app/api/og/route";
-import htmr from 'htmr';
 import EmbedDocument from "@/components/EmbedDocument";
 import { findUserDocument } from '@/repositories/document';
 import SplashScreen from '@/components/SplashScreen';
@@ -59,7 +58,7 @@ export default async function Page(
     if (!validate(revisionId)) return <SplashScreen title="Revision not found" />;
     const html = await findRevisionHtml(revisionId);
     if (html === null) return <SplashScreen title="Something went wrong" subtitle="Please try again later" />;
-    return <EmbedDocument>{htmr(html)}</EmbedDocument>
+    return <EmbedDocument html={html} />
   } catch (error) {
     console.error(error);
     return <SplashScreen title="Something went wrong" subtitle="Please try again later" />;
