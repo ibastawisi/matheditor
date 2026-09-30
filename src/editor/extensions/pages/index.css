@@ -202,12 +202,13 @@
 
 /* A manual page break already ends a page and starts the next there, so the
    blocks after it do not show on the page before until the layout runs. The
-   server HTML stretches it to the end of its page, see static.tsx. */
+   server HTML stretches it to the end of its page, see static.tsx. Like the
+   layout, it spans the band with its bottom margin, so that the top margin of
+   the block after it collapses into it instead of moving that block down. */
 .Pages__host:not(:has(> .Pages__layer)) [type='page-break'] {
   position: relative;
   width: auto;
-  height: calc(var(--page-break-fill, 0px) + var(--page-margin-bottom) + var(--page-gap) + var(--page-margin-top));
-  margin: 0 calc(-1 * var(--page-margin-right)) 0 calc(-1 * var(--page-margin-left));
+  margin: 0 calc(-1 * var(--page-margin-right)) calc(var(--page-break-fill, 0px) + var(--page-margin-bottom) + var(--page-gap) + var(--page-margin-top)) calc(-1 * var(--page-margin-left));
 }
 
 .Pages__host:not(:has(> .Pages__layer)) [type='page-break']::before {
