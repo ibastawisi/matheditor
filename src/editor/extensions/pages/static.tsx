@@ -8,6 +8,8 @@ import { PAGE_SLOT_ATTRIBUTE, PAGE_VARIANT_ATTRIBUTE, parsePageSetupFromHtml } f
 import { PAGES_CSS, PagesLayout, type PagesLayoutSlotProvider } from "./layout";
 import { writeCountersIntoDOM } from "./nodes";
 import type { PageSetup, PageSlotKind, SlotHeights } from "./types";
+import { CodeGutters } from "@/editor/extensions/code/gutter";
+import theme from "@/editor/theme";
 
 type SlotKey = `${PageSlotKind}:${string}`;
 
@@ -117,7 +119,16 @@ export function StaticPages({ html }: { html: string }) {
     };
   }, [html, pageSetup]);
 
-  if (!pageSetup) return <div className="document-container" dangerouslySetInnerHTML={{ __html: html }} />;
+  // line numbers follow the rows that long lines of code wrap onto
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const gutters = new CodeGutters();
+    for (const code of root.querySelectorAll<HTMLElement>(`.${theme.code}`)) gutters.observe(code);
+    return () => gutters.dispose();
+  }, [html]);
+
+  if (!pageSetup) return <div ref={rootRef} className="document-container" dangerouslySetInnerHTML={{ __html: html }} />;
   return (
     <div className={`document-pages ${PAGES_CSS.host}`} style={frame}>
       <div ref={rootRef} className="document-container" dangerouslySetInnerHTML={{ __html: html }} />

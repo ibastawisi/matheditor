@@ -102,41 +102,23 @@
   tab-size: 2;
 }
 
+/* One number per line, then an empty row for each row a wrapped line takes
+   up, measured by the code gutter script */
 .LexicalTheme__code:before {
-  content: '';
+  content: var(--code-line-numbers, "");
   position: absolute;
   left: 0;
   top: 0;
-  bottom: 0;
+  /* grow with the numbers when a block taller than a page scrolls */
+  min-height: 100%;
+  box-sizing: border-box;
+  min-width: 33px;
+  padding: 8px 4px;
   border-right: 1px solid #ccc;
-  white-space: pre-wrap;
-  min-width: 32px;
-  counter-reset: line-number;
-}
-
-.LexicalTheme__code>span:first-child,
-.LexicalTheme__code>br:first-child,
-.LexicalTheme__code>br+span,
-.LexicalTheme__code>br+br {
-  counter-increment: line-number;
-}
-
-.LexicalTheme__code>span:first-child:before,
-.LexicalTheme__code>br+span:before,
-.LexicalTheme__code>br+br:before {
   color: #777;
-  content: counter(line-number);
+  text-align: center;
+  white-space: pre;
   user-select: none;
-  position: absolute;
-  left: 0;
-  min-width: 25px;
-  text-align: end;
-}
-
-.LexicalTheme__code>br+br {
-  display: block;
-  content: counter(line-number);
-  height: 20px;
 }
 
 .LexicalTheme__tableScrollableWrapper {
