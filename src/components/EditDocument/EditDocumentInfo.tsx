@@ -12,6 +12,7 @@ import DownloadDocument from '../DocumentActions/Download';
 import ForkDocument from '../DocumentActions/Fork';
 import EditDocument from '../DocumentActions/Edit';
 import AppDrawer from '../AppDrawer';
+import PageSetupSidebar from '@/editor/extensions/pages/sidebar';
 
 export default function EditDocumentInfo({ editorRef, documentId }: { editorRef: RefObject<LexicalEditor | null>, documentId: string }) {
   const dispatch = useDispatch();
@@ -142,6 +143,9 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
             {isAuthor && <EditDocument userDocument={userDocument} />}
           </Box>}
         </Box>
+        {editorRef.current && <Box sx={{ mb: 3 }}>
+          <PageSetupSidebar editor={editorRef.current} onClose={() => dispatch(actions.toggleDrawer(false))} />
+        </Box>}
         <Grid container spacing={1}>
           <Grid size={{ xs: 12 }} sx={{ display: 'flex', alignItems: 'center' }}>
             <History sx={{ mr: 1 }} />
