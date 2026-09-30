@@ -7,11 +7,13 @@
  *
  */
 
-import { $createCodeNode } from '@lexical/code-core';
+import { $createCodeNode, CodeNode } from '@lexical/code-core';
 import {
   INSERT_CHECK_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
+  ListItemNode,
+  ListNode,
 } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
@@ -20,14 +22,16 @@ import {
   useBasicTypeaheadTriggerMatch,
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
-import { $createHeadingNode, $createQuoteNode, HeadingTagType } from '@lexical/rich-text';
+import { $createHeadingNode, $createQuoteNode, HeadingNode, HeadingTagType, QuoteNode } from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
-import { INSERT_TABLE_COMMAND } from '@lexical/table';
+import { INSERT_TABLE_COMMAND, TableNode } from '@lexical/table';
 import {
   $getSelection,
   $isRangeSelection,
   ElementFormatType,
   FORMAT_ELEMENT_COMMAND,
+  Klass,
+  LexicalNode,
   TextNode,
 } from 'lexical';
 import { useCallback, useMemo, useState, JSX } from 'react';
@@ -40,6 +44,16 @@ import { INSERT_MATH_COMMAND } from '@/editor/extensions/math/commands';
 import { INSERT_STICKY_COMMAND } from '@/editor/extensions/sticky/commands';
 import { INSERT_PAGE_BREAK_COMMAND } from '@/editor/extensions/page-break/commands';
 import { INSERT_DETAILS_COMMAND } from '@/editor/extensions/details/commands';
+import { HorizontalRuleNode } from '@/editor/extensions/horizontal-rule/nodes';
+import { MathNode } from '@/editor/extensions/math/nodes';
+import { ImageNode } from '@/editor/extensions/image/nodes';
+import { GraphNode } from '@/editor/extensions/graph/nodes';
+import { SketchNode } from '@/editor/extensions/sketch/nodes';
+import { IFrameNode } from '@/editor/extensions/iframe/nodes';
+import { StickyNode } from '@/editor/extensions/sticky/nodes';
+import { LayoutContainerNode } from '@/editor/extensions/layout/nodes';
+import { PageBreakNode } from '@/editor/extensions/page-break/nodes';
+import { DetailsContainerNode } from '@/editor/extensions/details/nodes';
 import { setOpenDialog } from '@/editor/extensions/store';
 import { GraphIcon, HeadingIcon } from '@/editor/extensions/shared/icons';
 
@@ -97,6 +111,8 @@ class ComponentPickerOption extends MenuOption {
   keywords: Array<string>;
   // TBD
   keyboardShortcut?: string;
+  // Nodes the editor must register for this option to be offered
+  nodes: Array<Klass<LexicalNode>>;
   // What happens when you select this option?
   onSelect: (queryString: string) => void;
 
@@ -106,6 +122,7 @@ class ComponentPickerOption extends MenuOption {
       icon?: JSX.Element;
       keywords?: Array<string>;
       keyboardShortcut?: string;
+      nodes?: Array<Klass<LexicalNode>>;
       onSelect: (queryString: string) => void;
     },
   ) {
@@ -114,6 +131,7 @@ class ComponentPickerOption extends MenuOption {
     this.keywords = options.keywords || [];
     this.icon = options.icon;
     this.keyboardShortcut = options.keyboardShortcut;
+    this.nodes = options.nodes || [];
     this.onSelect = options.onSelect.bind(this);
   }
 }
@@ -154,6 +172,7 @@ export function ComponentPickerMenu() {
       options.push(
         new ComponentPickerOption(`${rows}x${columns} Table`, {
           icon: <TableChart />,
+          nodes: [TableNode],
           keywords: ['table'],
           keyboardShortcut: `${rows}x${columns}`,
           onSelect: () =>
@@ -168,6 +187,7 @@ export function ComponentPickerMenu() {
           (columns) =>
             new ComponentPickerOption(`${rows}x${columns} Table`, {
               icon: <TableChart />,
+              nodes: [TableNode],
               keywords: ['table'],
               keyboardShortcut: `${rows}x${columns}`,
               onSelect: () =>
@@ -186,6 +206,7 @@ export function ComponentPickerMenu() {
         (n) =>
           new ComponentPickerOption(`Heading ${n}`, {
             icon: <HeadingIcon level={n} />,
+            nodes: [HeadingNode],
             keywords: ['heading', 'header', `h${n}`],
             keyboardShortcut: '#'.repeat(n),
             onSelect: () =>
@@ -201,6 +222,7 @@ export function ComponentPickerMenu() {
       ),
       new ComponentPickerOption('Numbered List', {
         icon: <FormatListNumbered />,
+        nodes: [ListNode, ListItemNode],
         keywords: ['numbered list', 'ordered list', 'ol'],
         keyboardShortcut: '1.',
         onSelect: () =>
@@ -208,6 +230,7 @@ export function ComponentPickerMenu() {
       }),
       new ComponentPickerOption('Bulleted List', {
         icon: <FormatListBulleted />,
+        nodes: [ListNode, ListItemNode],
         keywords: ['bulleted list', 'unordered list', 'ul'],
         keyboardShortcut: '*',
         onSelect: () =>
@@ -215,6 +238,7 @@ export function ComponentPickerMenu() {
       }),
       new ComponentPickerOption('Check List', {
         icon: <PlaylistAddCheck />,
+        nodes: [ListNode, ListItemNode],
         keywords: ['check list', 'todo list'],
         keyboardShortcut: '[x]',
         onSelect: () =>
@@ -222,6 +246,7 @@ export function ComponentPickerMenu() {
       }),
       new ComponentPickerOption('Quote', {
         icon: <FormatQuote />,
+        nodes: [QuoteNode],
         keywords: ['block quote'],
         keyboardShortcut: '>',
         onSelect: () =>
@@ -234,6 +259,7 @@ export function ComponentPickerMenu() {
       }),
       new ComponentPickerOption('Code', {
         icon: <Code />,
+        nodes: [CodeNode],
         keywords: ['javascript', 'python', 'js', 'codeblock'],
         keyboardShortcut: '```',
         onSelect: () =>
@@ -254,6 +280,7 @@ export function ComponentPickerMenu() {
       }),
       new ComponentPickerOption('Divider', {
         icon: <HorizontalRule />,
+        nodes: [HorizontalRuleNode],
         keywords: ['horizontal rule', 'divider', 'hr'],
         keyboardShortcut: '---',
         onSelect: () =>
@@ -261,6 +288,7 @@ export function ComponentPickerMenu() {
       }),
       new ComponentPickerOption('Math', {
         icon: <Functions />,
+        nodes: [MathNode],
         keywords: ['equation', 'latex', 'math'],
         keyboardShortcut: '$$',
         onSelect: () =>
@@ -287,6 +315,7 @@ export function ComponentPickerMenu() {
     baseOptions.push(
       new ComponentPickerOption('Image', {
         icon: <ImageIcon />,
+        nodes: [ImageNode],
         keywords: ['image', 'photo', 'picture', 'img'],
         keyboardShortcut: '/img',
         onSelect: openImageDialog
@@ -296,6 +325,7 @@ export function ComponentPickerMenu() {
     baseOptions.push(
       new ComponentPickerOption('Graph', {
         icon: <GraphIcon />,
+        nodes: [GraphNode],
         keywords: ['geogebra', 'graph', 'plot', '2d', '3d'],
         keyboardShortcut: '/plot',
         onSelect: openGraphDialog,
@@ -305,6 +335,7 @@ export function ComponentPickerMenu() {
     baseOptions.push(
       new ComponentPickerOption('Sketch', {
         icon: <Brush />,
+        nodes: [SketchNode],
         keywords: ['excalidraw', 'sketch', 'drawing', 'diagram'],
         keyboardShortcut: '/sketch',
         onSelect: openSketchDialog,
@@ -314,6 +345,7 @@ export function ComponentPickerMenu() {
     baseOptions.push(
       new ComponentPickerOption('Note', {
         icon: <StickyNote2 />,
+        nodes: [StickyNode],
         keywords: ['sticky', 'note', 'sticky note'],
         keyboardShortcut: '/note',
         onSelect: () =>
@@ -324,6 +356,7 @@ export function ComponentPickerMenu() {
     baseOptions.push(
       new ComponentPickerOption('Table', {
         icon: <TableChart />,
+        nodes: [TableNode],
         keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
         keyboardShortcut: '/3x3',
         onSelect: openTableDialog,
@@ -333,6 +366,7 @@ export function ComponentPickerMenu() {
     baseOptions.push(
       new ComponentPickerOption('Columns', {
         icon: <ViewColumn />,
+        nodes: [LayoutContainerNode],
         keywords: ['columns', 'layout', 'col'],
         keyboardShortcut: '/col',
         onSelect: openLayoutDialog,
@@ -342,6 +376,7 @@ export function ComponentPickerMenu() {
     baseOptions.push(
       new ComponentPickerOption('Page Break', {
         icon: <InsertPageBreak />,
+        nodes: [PageBreakNode],
         keywords: ['page break', 'break', 'page'],
         keyboardShortcut: '/page',
         onSelect: () =>
@@ -352,6 +387,7 @@ export function ComponentPickerMenu() {
     baseOptions.push(
       new ComponentPickerOption('IFrame', {
         icon: <Web />,
+        nodes: [IFrameNode],
         keywords: ['iframe', 'embed'],
         keyboardShortcut: '/iframe',
         onSelect: openIFrameDialog,
@@ -361,18 +397,22 @@ export function ComponentPickerMenu() {
     baseOptions.push(
       new ComponentPickerOption('Details', {
         icon: <Expand />,
+        nodes: [DetailsContainerNode],
         keywords: ['details', 'summary', 'expand', 'collapse'],
         keyboardShortcut: '/details',
         onSelect: () =>
           editor.dispatchCommand(INSERT_DETAILS_COMMAND, undefined),
       }),
     );
-    const dynamicOptions = getDynamicOptions();
+    // offer only what this editor can hold
+    const isAvailable = (option: ComponentPickerOption) => editor.hasNodes(option.nodes);
+    const dynamicOptions = getDynamicOptions().filter(isAvailable);
+    const availableOptions = baseOptions.filter(isAvailable);
 
     return queryString
       ? [
         ...dynamicOptions,
-        ...baseOptions.filter((option) => {
+        ...availableOptions.filter((option) => {
           return new RegExp(queryString, 'gi').exec(option.title) ||
             option.keywords != null
             ? option.keywords.some((keyword) =>
@@ -381,7 +421,7 @@ export function ComponentPickerMenu() {
             : false;
         }),
       ]
-      : baseOptions;
+      : availableOptions;
   }, [editor, getDynamicOptions, queryString]);
 
   const onSelectOption = useCallback(
