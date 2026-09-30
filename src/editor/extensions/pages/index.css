@@ -163,7 +163,11 @@
    flow-root, contain or a flex or grid display would make it a formatting
    context and stop lines from flowing around the page breaks */
 .Pages__host>.editor-input {
-  padding: 0 var(--page-margin-right) 0 var(--page-margin-left);
+  padding: 1px var(--page-margin-right) 0 var(--page-margin-left);
+  /* the padding keeps the first block's top margin inside the root, where it
+     would otherwise move the root down and past the end of the first page;
+     the margin puts the content back where it was */
+  margin-top: -1px;
 }
 
 /* Clearing floats would clear the page breaks of every page too, and push
@@ -292,7 +296,7 @@
   .Pages__host>.editor-input {
     box-sizing: border-box;
     width: auto !important;
-    padding: 0 var(--page-margin-right) 0 var(--page-margin-left) !important;
+    padding: 1px var(--page-margin-right) 0 var(--page-margin-left) !important;
   }
 
   .Pages__gap {
