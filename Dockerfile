@@ -16,6 +16,9 @@ COPY . .
 # NEXT_PUBLIC_* values are inlined into the client bundle at build time
 ARG NEXT_PUBLIC_FASTAPI_URL
 ENV NEXT_PUBLIC_FASTAPI_URL=$NEXT_PUBLIC_FASTAPI_URL
+# metadataBase resolves Open Graph URLs in prerendered pages, so it's needed at build time too
+ARG PUBLIC_URL
+ENV PUBLIC_URL=$PUBLIC_URL
 RUN pnpm exec prisma generate && pnpm build
 
 FROM base
