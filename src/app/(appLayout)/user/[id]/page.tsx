@@ -48,7 +48,7 @@ const UserDocumentsWrapper = async ({ id, page, sortKey, sortDirection }: { id: 
   if (!user) notFound();
   const documentsResponse = await getCachedUserDocuments(user.id);
   const documents = documentsResponse.map(document => ({ id: document.id, cloud: document }));
-  const pageSize = 12;
+  const pageSize = 15;
   const pages = Math.ceil(documents.length / pageSize);
   const sortedDocuments = sortDocuments(documents, sortKey, sortDirection);
   const currentPage = Math.min(Math.max(1, parseInt(page)), pages);
