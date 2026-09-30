@@ -40,6 +40,8 @@ export function createInlineSvg(src: string, width: number, height: number): SVG
   else if (svgWidth) svg.setAttribute("width", svgWidth);
   if (height) svg.setAttribute("height", height.toString());
   else if (svgHeight) svg.setAttribute("height", svgHeight);
-  svg.innerHTML = parsed.innerHTML;
+  // Move the parsed children instead of reassigning innerHTML: linkedom parses
+  // innerHTML set on an svg element as HTML, leaving self-closing tags open.
+  svg.append(...parsed.childNodes);
   return svg;
 }
