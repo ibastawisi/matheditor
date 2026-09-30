@@ -399,10 +399,21 @@ export class PagesLayout {
     const rootTop = root.offsetTop;
     const writes: (() => void)[] = [];
     const floatBottom = this.measureFloats(geom, writes);
-    let count = computePageCount(Math.max(rootTop + root.offsetHeight, floatBottom), geom, this.breaks.length);
-    if (this.pinnedCount !== null) count = this.pinnedCount;
-    if (count !== this.pageCount) writes.push(() => this.applyPageCount(count));
-    for (const { el, isLast } of this.getPageBreaks()) {
+    const countAt = writes.length;
+    const breaks = this.getPageBreaks()
+      .map((pageBreak) => ({ ...pageBreak, top: pageBreak.el.offsetTop }))
+      .sort((a, b) => a.top - b.top);
+    // a margin that changes moves every later break: measure them where they
+    // will be, so that one pass places them all
+    let shift = 0;
+    // where the blocks after a break start now: past a margin that ends inside
+    // a band, they flow below the band, as if the margin were already right
+    const flowTop = (y: number) => {
+      const page = pageIndexAtY(y, geom);
+      if (page >= this.breaks.length || y < pageContentTop(page, geom) + pageContentHeight(geom, page)) return y;
+      return pageContentTop(page + 1, geom);
+    };
+    for (const { el, isLast, top } of breaks) {
       const current = parseFloat(el.dataset.pageBreakMargin ?? "") || 0;
       if (getParentElement(el) !== root) {
         // only top-level page breaks are stretched
@@ -416,7 +427,10 @@ export class PagesLayout {
       }
       // a break with nothing after it starts no page: its margin would
       // collapse through the root unseen on screen, yet print a blank page
-      const marginBottom = isLast ? 0 : computePageBreakMarginBottom(rootTop + el.offsetTop, el.offsetHeight, geom);
+      const height = el.offsetHeight;
+      const marginBottom = isLast ? 0 : computePageBreakMarginBottom(rootTop + top + shift, height, geom);
+      const bottom = rootTop + top + height;
+      shift = bottom + shift + marginBottom - flowTop(bottom + current);
       if (Math.abs(marginBottom - current) > MARGIN_EPSILON) {
         writes.push(() => {
           el.dataset.pageBreakMargin = String(marginBottom);
@@ -430,6 +444,9 @@ export class PagesLayout {
         });
       }
     }
+    let count = computePageCount(Math.max(rootTop + root.offsetHeight + shift, floatBottom), geom, this.breaks.length);
+    if (this.pinnedCount !== null) count = this.pinnedCount;
+    if (count !== this.pageCount) writes.splice(countAt, 0, () => this.applyPageCount(count));
     this.measureBlankSoftLines(geom, rootTop, writes);
     if (writes.length > 0) this.scheduleWrites(writes);
   }
