@@ -1,6 +1,6 @@
 "use client"
 import "./index.css";
-import { type CSSProperties, useLayoutEffect, useMemo, useRef } from "react";
+import { type CSSProperties, useId, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from "react";
 
 import { PAGE_GAP } from "./constants";
 import { computeGeometry, resolveSlotVariant } from "./geometry";
@@ -78,6 +78,77 @@ class StaticPageSlots implements PagesLayoutSlotProvider {
 }
 
 /**
+ * Runs inline from the server HTML, before the page's JavaScript: until the
+ * layout runs, each manual page break is stretched to the end of its page, so
+ * that the page before it is drawn at its full height from the first paint.
+ * The stretch is written to a stylesheet of its own, since the document HTML
+ * must stay as the server sent it for hydration.
+ *
+ * Serialized with `toString`, so it must not refer to anything outside itself.
+ */
+function stretchStaticPageBreaks(styleId: string) {
+  const host = document.currentScript?.previousElementSibling;
+  const root = host?.lastElementChild;
+  if (!(host instanceof HTMLElement) || !(root instanceof HTMLElement)) return;
+  const style = document.createElement("style");
+  style.id = styleId;
+  document.head.append(style);
+  const selector = `[data-static-pages="${CSS.escape(styleId)}"]>.document-container>`;
+  let fills: number[] = [];
+  const update = () => {
+    // the layout has taken over, see the `:not(:has(> .Pages__layer))` rules
+    if (!host.isConnected || host.querySelector(":scope > .Pages__layer")) return stop();
+    // a streamed boundary stays hidden until React reveals it
+    if (host.closest("[hidden]") || host.getClientRects().length === 0) return;
+    const vars = getComputedStyle(host);
+    const read = (name: string) => parseFloat(vars.getPropertyValue(name)) || 0;
+    const stride = read("--page-height") + read("--page-gap");
+    const contentBottom = read("--page-height") - read("--page-margin-bottom");
+    const hostTop = host.getBoundingClientRect().top;
+    const next: number[] = [];
+    let rules = "";
+    // the fills in place moved every later break down: take them out, and
+    // put the new ones in
+    let oldShift = 0;
+    let shift = 0;
+    for (let i = 0; i < root.children.length; i++) {
+      const el = root.children[i];
+      if (el.getAttribute("type") !== "page-break" || el.nextElementSibling === null) continue;
+      const top = el.getBoundingClientRect().top - hostTop - oldShift + shift;
+      let page = Math.floor(top / stride);
+      // a break below the end of a page's content lands on the next page
+      if (top > page * stride + contentBottom) page++;
+      const fill = Math.max(0, page * stride + contentBottom - top);
+      oldShift += fills[next.length] ?? 0;
+      shift += fill;
+      next.push(fill);
+      rules += `${selector}:nth-child(${i + 1}){--page-break-fill:${fill}px}`;
+    }
+    fills = next;
+    if (style.textContent !== rules) style.textContent = rules;
+  };
+  // React reveals a streamed boundary in an animation frame, and mutation
+  // callbacks run right after it, before that frame is painted
+  const observer = new MutationObserver(update);
+  observer.observe(document, { childList: true, subtree: true });
+  let frame = 0;
+  const loop = () => {
+    update();
+    // fonts and images loading change where the breaks fall
+    if (frame !== -1) frame = requestAnimationFrame(loop);
+  };
+  const stop = () => {
+    style.remove();
+    observer.disconnect();
+    cancelAnimationFrame(frame);
+    frame = -1;
+  };
+  loop();
+}
+
+const subscribeToNothing = () => () => {};
+
+/**
  * Exported HTML of a document, laid out on pages when the document is paged,
  * like the editor shows it. The server renders the page frame (its width and
  * margins); the page breaks, headers and footers are added before the first
@@ -85,6 +156,10 @@ class StaticPageSlots implements PagesLayoutSlotProvider {
  */
 export function StaticPages({ html }: { html: string }) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const styleId = `static-pages-${useId()}`;
+  // the script only runs from the server HTML: rendered on the client it would
+  // never run, so it is kept only while hydrating
+  const hydrating = useSyncExternalStore(subscribeToNothing, () => false, () => true);
   const pageSetup = useMemo(() => parsePageSetupFromHtml(html), [html]);
   const frame = useMemo(() => {
     if (!pageSetup) return undefined;
@@ -130,9 +205,16 @@ export function StaticPages({ html }: { html: string }) {
 
   if (!pageSetup) return <div ref={rootRef} className="document-container" dangerouslySetInnerHTML={{ __html: html }} />;
   return (
-    <div className={`document-pages ${PAGES_CSS.host}`} style={frame}>
-      <div ref={rootRef} className="document-container" dangerouslySetInnerHTML={{ __html: html }} />
-    </div>
+    <>
+      <div className={`document-pages ${PAGES_CSS.host}`} style={frame} data-static-pages={styleId}>
+        <div ref={rootRef} className="document-container" dangerouslySetInnerHTML={{ __html: html }} />
+      </div>
+      {hydrating && (
+        <script
+          dangerouslySetInnerHTML={{ __html: `(${stretchStaticPageBreaks})(${JSON.stringify(styleId)})` }}
+        />
+      )}
+    </>
   );
 }
 
