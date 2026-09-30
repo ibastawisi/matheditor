@@ -37,13 +37,14 @@ import {
 import { useCallback, useMemo, useState, JSX } from 'react';
 import * as ReactDOM from 'react-dom';
 import { Paper, MenuList, MenuItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
-import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight, FormatAlignJustify, FormatListNumbered, FormatListBulleted, PlaylistAddCheck, FormatQuote, Code, Image as ImageIcon, TableChart, HorizontalRule, Functions, Brush, StickyNote2, InsertPageBreak, Web, ViewColumn, ImageSearch, Expand } from '@mui/icons-material';
+import { FormatAlignLeft, FormatAlignCenter, FormatAlignRight, FormatAlignJustify, FormatListNumbered, FormatListBulleted, PlaylistAddCheck, FormatQuote, Code, Image as ImageIcon, TableChart, HorizontalRule, Functions, Brush, StickyNote2, InsertPageBreak, Web, ViewColumn, ImageSearch, Expand, Tag, Numbers } from '@mui/icons-material';
 
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@/editor/extensions/horizontal-rule/commands';
 import { INSERT_MATH_COMMAND } from '@/editor/extensions/math/commands';
 import { INSERT_STICKY_COMMAND } from '@/editor/extensions/sticky/commands';
 import { INSERT_PAGE_BREAK_COMMAND } from '@/editor/extensions/page-break/commands';
 import { INSERT_DETAILS_COMMAND } from '@/editor/extensions/details/commands';
+import { INSERT_PAGE_COUNT_COMMAND, INSERT_PAGE_NUMBER_COMMAND } from '@/editor/extensions/pages/commands';
 import { HorizontalRuleNode } from '@/editor/extensions/horizontal-rule/nodes';
 import { MathNode } from '@/editor/extensions/math/nodes';
 import { ImageNode } from '@/editor/extensions/image/nodes';
@@ -54,6 +55,7 @@ import { StickyNode } from '@/editor/extensions/sticky/nodes';
 import { LayoutContainerNode } from '@/editor/extensions/layout/nodes';
 import { PageBreakNode } from '@/editor/extensions/page-break/nodes';
 import { DetailsContainerNode } from '@/editor/extensions/details/nodes';
+import { PageCountNode, PageNumberNode } from '@/editor/extensions/pages/nodes';
 import { setOpenDialog } from '@/editor/extensions/store';
 import { GraphIcon, HeadingIcon } from '@/editor/extensions/shared/icons';
 
@@ -395,6 +397,28 @@ export function ComponentPickerMenu() {
     );
 
     baseOptions.push(
+      new ComponentPickerOption('Page Number', {
+        icon: <Tag />,
+        nodes: [PageNumberNode],
+        keywords: ['page number', 'page', 'number'],
+        keyboardShortcut: '/pagenum',
+        onSelect: () =>
+          editor.dispatchCommand(INSERT_PAGE_NUMBER_COMMAND, undefined),
+      }),
+    );
+
+    baseOptions.push(
+      new ComponentPickerOption('Page Count', {
+        icon: <Numbers />,
+        nodes: [PageCountNode],
+        keywords: ['page count', 'pages', 'total'],
+        keyboardShortcut: '/pages',
+        onSelect: () =>
+          editor.dispatchCommand(INSERT_PAGE_COUNT_COMMAND, undefined),
+      }),
+    );
+
+    baseOptions.push(
       new ComponentPickerOption('Details', {
         icon: <Expand />,
         nodes: [DetailsContainerNode],
@@ -404,7 +428,8 @@ export function ComponentPickerMenu() {
           editor.dispatchCommand(INSERT_DETAILS_COMMAND, undefined),
       }),
     );
-    // offer only what this editor can hold
+    // offer only what this editor can hold, since a page header registers
+    // fewer nodes than the document
     const isAvailable = (option: ComponentPickerOption) => editor.hasNodes(option.nodes);
     const dynamicOptions = getDynamicOptions().filter(isAvailable);
     const availableOptions = baseOptions.filter(isAvailable);

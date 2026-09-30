@@ -12,7 +12,10 @@ export const Editor: React.FC<{
   return (
     <Box className="editor-container" sx={{ position: "relative" }}>
       <ToolbarComponent />
-      <ContentEditable className="editor-input" ariaLabel="editor input" />
+      {/* the editor root's parent hosts the pages of a paged document */}
+      <div className="editor-pages">
+        <ContentEditable className="editor-input" ariaLabel="editor input" />
+      </div>
       {onChange && <OnChangePlugin ignoreHistoryMergeTagChange={ignoreHistoryMerge} ignoreSelectionChange onChange={onChange} />}
     </Box>
   );

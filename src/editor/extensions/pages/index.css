@@ -1,0 +1,322 @@
+/*
+ * Page layer, see layout.ts: the host is a block formatting context and the
+ * layer is not, so the layer's floats intrude into the editor root's line
+ * boxes. The `--page-*` custom properties are written on the host.
+ */
+.Pages__host {
+  --page-background: var(--mui-palette-background-paper, #fff);
+  --page-border: var(--mui-palette-divider, #ddd);
+  display: flow-root;
+  position: relative;
+  box-sizing: border-box;
+  width: var(--page-width);
+  max-width: none;
+  margin: 0 auto;
+  zoom: var(--page-zoom, 1);
+  background: var(--page-background);
+  box-shadow: 0 0 0 1px var(--page-border);
+}
+
+.Pages__layer {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.Pages__layer [data-page-slot] {
+  pointer-events: auto;
+}
+
+.Pages__header,
+.Pages__footer {
+  position: relative;
+  box-sizing: border-box;
+  /* clip, not hidden: a scroll container cannot be split for print and would
+     be pushed whole to the next page */
+  overflow: clip;
+  background: var(--page-background);
+  padding-left: var(--page-margin-left);
+  padding-right: var(--page-margin-right);
+}
+
+.Pages__header--first {
+  padding-top: var(--page-margin-top);
+}
+
+/* Zero-width float: occupies a page's content height without shortening any
+   line box, so the following break lands exactly one page lower */
+.Pages__spacer {
+  float: left;
+  clear: both;
+  width: 0;
+}
+
+/* A page boundary is three stacked full-width floats: footer band, gap and
+   header band, kept separate so that none of them straddles a printed page */
+.Pages__break,
+.Pages__gap,
+.Pages__breakHeader {
+  float: left;
+  clear: both;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.Pages__break>.Pages__footer {
+  height: 100%;
+  padding-bottom: var(--page-margin-bottom);
+}
+
+.Pages__gap {
+  height: var(--page-gap);
+  width: calc(100% + 2px);
+  margin-left: -1px;
+  background: var(--mui-palette-background-default, #eee);
+  border-top: 1px solid var(--page-border);
+  border-bottom: 1px solid var(--page-border);
+}
+
+.Pages__breakHeader {
+  break-inside: avoid;
+}
+
+.Pages__breakHeader>.Pages__header {
+  height: 100%;
+  padding-top: var(--page-margin-top);
+}
+
+.Pages__footer--last {
+  position: absolute;
+  left: 0;
+  right: 0;
+  padding-bottom: var(--page-margin-bottom);
+}
+
+/* Parked header and footer editors keep their layout, so that their heights
+   can be observed while they are not on a page */
+.Pages__parking {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
+  padding: 0 var(--page-margin-right) 0 var(--page-margin-left);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.Pages__slotContent {
+  min-height: 0;
+  outline: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Room between a band and the body, part of the slot content so that the
+   measured heights include it */
+.Pages__header[data-page-slot-enabled='true'] .Pages__slotContent,
+.Pages__parking [data-page-slot-editor^='header'] {
+  padding-bottom: 8px;
+}
+
+.Pages__footer[data-page-slot-enabled='true'] .Pages__slotContent,
+.Pages__parking [data-page-slot-editor^='footer'] {
+  padding-top: 8px;
+}
+
+.Pages__layer [data-page-slot][data-page-slot-enabled='true'] {
+  cursor: text;
+}
+
+.Pages__layer [data-page-slot][data-page-slot-enabled='false'],
+.Pages__layer[data-page-editable='false'] [data-page-slot] {
+  cursor: default;
+  pointer-events: none;
+}
+
+.Pages__slot--live {
+  user-select: text;
+  -webkit-user-select: text;
+  outline: 1px dashed var(--mui-palette-primary-main, #1976d2);
+  outline-offset: -1px;
+}
+
+.Pages__slotContent--live {
+  min-height: 1.5em;
+}
+
+.Pages__layer:not([data-page-editable='false']) [data-page-slot][data-page-slot-enabled='true'][data-empty='true']:not(.Pages__slot--live)::after {
+  content: 'Click to add a ' attr(data-page-slot);
+  position: absolute;
+  left: var(--page-margin-left);
+  right: var(--page-margin-right);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: var(--mui-palette-text-secondary, #999);
+  pointer-events: none;
+}
+
+/* The editor root inside a paged host must stay a plain block: overflow,
+   flow-root, contain or a flex or grid display would make it a formatting
+   context and stop lines from flowing around the page breaks */
+.Pages__host>.editor-input {
+  padding: 0 var(--page-margin-right) 0 var(--page-margin-left);
+}
+
+/* Clearing floats would clear the page breaks of every page too, and push
+   the block below the last page */
+.Pages__host .editor-input .LexicalTheme__hr,
+.Pages__host [type='page-break'] {
+  clear: none;
+}
+
+/* A float may not sit higher than any earlier float, and the page breaks of
+   every page come before the document, so floated images and notes would all
+   land on the last page. The layout places a stand-in float for each in the
+   layer instead, and moves the element over it from its static position.
+   Keep in sync with FLOATED_SELECTOR in layout.ts. */
+.Pages__host .editor-input :is(.LexicalTheme__floatLeft, .LexicalTheme__floatRight):not(:is(td, th, .LexicalTheme__layoutItem, .LexicalTheme__floatLeft, .LexicalTheme__floatRight, [data-lexical-decorator]) *) {
+  float: none;
+  position: absolute;
+  z-index: 1;
+  margin: var(--page-float-y, 0px) 0 0 var(--page-float-x, 0px);
+}
+
+.Pages__float {
+  box-sizing: border-box;
+}
+
+/* Manual page breaks are stretched to the next page by the layout, so the
+   pageless label is replaced by a selection affordance */
+.Pages__host [type='page-break'] {
+  width: 100%;
+  height: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.Pages__host [type='page-break']::before,
+.Pages__host [type='page-break']::after {
+  display: none;
+}
+
+.Pages__host .selected[type='page-break'] {
+  background-color: transparent;
+  border-top: 2px solid var(--mui-palette-primary-main, #1976d2);
+}
+
+/* A line that holds nothing but a line break has no width, and fits beside a
+   full-width float: it would land inside the break band instead of on the
+   next page. An empty block is such a line, so while empty it becomes a
+   formatting context and the float pushes it whole. Blocks with a blank soft
+   line are marked by the layout when that line reaches a band. */
+.Pages__host .editor-input :is(p, h1, h2, h3, h4, h5, h6, blockquote):has(> br:only-child),
+.Pages__host .editor-input>[data-page-keep-together] {
+  display: flow-root;
+  /* refuse to be narrowed beside a float, so the only option left is the
+     next page */
+  min-width: 1px;
+}
+
+/* Blocks that must never be split by a page break. A check list item draws
+   its box at its vertical middle, which a band could hide. */
+.Pages__host .editor-input li[role='checkbox'],
+.Pages__host .editor-input>[data-lexical-decorator] {
+  display: flow-root;
+}
+
+/* A formatting context is placed in the first space beside the floats that is
+   at least as wide as its min-content width, which is zero for a scroll
+   container: instead of being pushed below a break it would be squeezed to
+   nothing beside it. Refuse to be narrowed. */
+.Pages__host .editor-input :is(.LexicalTheme__tableScrollableWrapper,
+  .LexicalTheme__code,
+  .LexicalTheme__layoutContainer) {
+  min-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Whatever cannot be split must fit on one page: a block taller than the
+   content area fits nowhere and would be pushed past every break */
+.Pages__host .editor-input .LexicalTheme__code {
+  max-height: calc(var(--page-content-height) - 16px);
+}
+
+.Pages__host .editor-input .LexicalTheme__tableScrollableWrapper {
+  max-height: calc(var(--page-content-height) - 32px);
+}
+
+.Pages__host .editor-input .LexicalTheme__layoutContainer {
+  max-height: calc(var(--page-content-height) - 8px);
+  overflow-y: auto;
+}
+
+.Pages__host .editor-input>table.LexicalTheme__table {
+  display: block;
+  overflow: auto;
+  max-height: calc(var(--page-content-height) - 32px);
+}
+
+.Pages__host .editor-input>[data-lexical-decorator] {
+  max-height: calc(var(--page-content-height) - 32px);
+  overflow-y: clip;
+}
+
+.Pages__host .editor-input img,
+.Pages__host .editor-input iframe {
+  max-height: calc(var(--page-content-height) - 48px);
+  object-fit: contain;
+}
+
+/* Collapsible sections may be longer than a page, so let their lines flow
+   across page breaks instead of moving them whole */
+.Pages__host .editor-input .details__container {
+  display: block;
+}
+
+/* Print the on-screen layout as it is, one page per printed page. Only the
+   gap between pages collapses, and print.ts zeroes the @page margins. */
+@media print {
+  .Pages__host {
+    --page-gap: 0px !important;
+    --page-background: transparent;
+    zoom: 1 !important;
+    margin: 0;
+    box-shadow: none;
+    overflow: clip;
+  }
+
+  .Pages__host>.editor-input {
+    box-sizing: border-box;
+    width: auto !important;
+    padding: 0 var(--page-margin-right) 0 var(--page-margin-left) !important;
+  }
+
+  .Pages__gap {
+    border: 0;
+    background: transparent;
+  }
+
+  .Pages__slot--live {
+    outline: none;
+  }
+
+  .Pages__layer [data-page-slot][data-empty='true']::after {
+    display: none;
+  }
+
+  /* the stretched bottom margin already lands the next block on the next
+     page, and the break's own forced break would add an empty page */
+  .Pages__host [type='page-break'] {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+}
+
+@page {
+  size: var(--page-width) var(--page-height);
+  margin: var(--page-margin-top) var(--page-margin-right) var(--page-margin-bottom) var(--page-margin-left);
+}
