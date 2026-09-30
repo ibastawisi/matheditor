@@ -1,14 +1,12 @@
-import { StickyNode } from "@/editor/nodes/StickyNode";
+import { StickyNode } from "@/editor/extensions/sticky/nodes";
 import { Table, TableBorders, TableCell, TableRow } from "docx";
-import { $convertEditortoDocx } from ".";
-import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
+import { $convertChildrenToDocx } from ".";
 
 export function $convertStickyNode(node: StickyNode) {
-  const nestedEditor = node.__editor;
-  const children = nestedEditor.getEditorState().read($convertEditortoDocx);
-  const color = $getNodeStyleValueForProperty(node, 'color').replace('inherit', '') || undefined;
-  const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color', '#bceac4').replace('inherit', '');
-  const float = $getNodeStyleValueForProperty(node, 'float', 'right');
+  const children = $convertChildrenToDocx(node);
+  const color = node.getColor().replace('inherit', '') || undefined;
+  const backgroundColor = node.getBackgroundColor().replace('inherit', '');
+  const float = node.getFloat();
   return new Table({
     rows: [
       new TableRow({

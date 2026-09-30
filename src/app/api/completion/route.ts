@@ -1,7 +1,7 @@
 import { ModelMessage, streamText } from "ai";
 import { google } from "@ai-sdk/google";
 import { match } from "ts-pattern";
-import { resolveLlmConfig } from "@/editor/plugins/ToolbarPlugin/models";
+import { resolveLlmConfig } from "@/editor/extensions/ai/models";
 
 export async function POST(req: Request) {
   const { prompt, option, command, ...body } = await req.json();

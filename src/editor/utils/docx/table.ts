@@ -1,12 +1,13 @@
-import { TableCellHeaderStates, TableCellNode, TableNode, TableRowNode } from "@/editor/nodes/TableNode";
+import { TableCellHeaderStates, TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import { BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, IParagraphOptions, Paragraph, Table, TableCell, TableRow } from "docx";
 import { $convertNodeToDocx } from ".";
-import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
+import { $getId } from "@/editor/extensions/shared/states";
+import { $getTableCellColor, $getTableCellWritingMode, $getTableFloat } from "@/editor/extensions/table/states";
 
 export function $convertTableNode(node: TableNode) {
   const rows = node.getChildren<TableRowNode>().map($convertTableRowNode);
   const columnCount = node.getColumnCount();
-  const float = $getNodeStyleValueForProperty(node, 'float').replace('none', '');
+  const float = $getTableFloat(node).replace('none', '');
   const alignment = (node.getFormatType().replace('justify', 'both') || 'both') as IParagraphOptions['alignment'];
   const columnWidth = (float || alignment !== 'both') ? 75 * 15 : 600 * 15 / columnCount;
   const columnWidths = node.getColWidths()?.map(width => !width ? columnWidth : width);
@@ -39,7 +40,7 @@ export function $convertTableNode(node: TableNode) {
     alignment,
   });
 
-  const id = node.getId();
+  const id = $getId(node);
   if (!id) return [table, new Paragraph({ spacing: { before: float ? 0 : 8 * 15, after: 0, line: 0 } })];
   const linkId = bookmarkUniqueNumericIdGen()();
   return [
@@ -71,11 +72,11 @@ function $convertTableCellNode(node: TableCellNode) {
   const colSpan = node.getColSpan();
   const rowSpan = node.getRowSpan();
   const width = node.getWidth();
-  const writingMode = $getNodeStyleValueForProperty(node, 'writing-mode');
-  const color = $getNodeStyleValueForProperty(node, 'color').replace('inherit', '') || undefined;
+  const writingMode = $getTableCellWritingMode(node);
+  const color = $getTableCellColor(node).replace('inherit', '') || undefined;
   const isHeader = node.getHeaderStyles() !== TableCellHeaderStates.NO_STATUS;
-  const backgroundColor = $getNodeStyleValueForProperty(node, 'background-color', isHeader ? '#f5f5f5' : '').replace('inherit', '') || undefined;
-  const float = $getNodeStyleValueForProperty(TableNode, 'float').replace('none', '');
+  const backgroundColor = (node.getBackgroundColor() || (isHeader ? '#f5f5f5' : '')).replace('inherit', '') || undefined;
+  const float = $getTableFloat(TableNode).replace('none', '');
   const alignment = TableNode.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
   const cellCount = rowNode.getChildrenSize();
   const cellWidth = width ? width * 15 : (float || alignment !== 'both') ? 75 * 15 : undefined;

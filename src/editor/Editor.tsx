@@ -1,32 +1,20 @@
 "use client"
 import type { EditorState, LexicalEditor } from "lexical";
-import { LexicalComposer, InitialConfigType } from "@lexical/react/LexicalComposer";
-import { SharedHistoryContext } from "./context/SharedHistoryContext";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
-import ToolbarPlugin from "./plugins/ToolbarPlugin";
-import { editorConfig } from "./config";
-import { EditorPlugins } from "./plugins";
-import { MutableRefObject, RefCallback } from "react";
-import { EditorRefPlugin } from '@lexical/react/LexicalEditorRefPlugin';
+import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+import { Box } from "@mui/material";
+import { ToolbarComponent } from "./extensions/toolbar/component";
 
 export const Editor: React.FC<{
-  initialConfig: Partial<InitialConfigType>;
-  editorRef: MutableRefObject<LexicalEditor | null> | RefCallback<LexicalEditor>
   onChange?: (editorState: EditorState, editor: LexicalEditor, tags: Set<string>) => void;
   ignoreHistoryMerge?: boolean;
-}> = ({ initialConfig, onChange, editorRef, ignoreHistoryMerge }) => {
+}> = ({ onChange, ignoreHistoryMerge = true }) => {
   return (
-    <LexicalComposer initialConfig={{ ...editorConfig, ...initialConfig }}>
-      <SharedHistoryContext>
-        <ToolbarPlugin />
-        <EditorPlugins onChange={onChange} ignoreHistoryMerge={ignoreHistoryMerge}
-          contentEditable={
-            <ContentEditable className="editor-input" ariaLabel="editor input" />
-          }
-        />
-        <EditorRefPlugin editorRef={editorRef} />
-      </SharedHistoryContext>
-    </LexicalComposer>
+    <Box className="editor-container" sx={{ position: "relative" }}>
+      <ToolbarComponent />
+      <ContentEditable className="editor-input" ariaLabel="editor input" />
+      {onChange && <OnChangePlugin ignoreHistoryMergeTagChange={ignoreHistoryMerge} ignoreSelectionChange onChange={onChange} />}
+    </Box>
   );
 };
 

@@ -1,0 +1,120 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ *
+ */
+
+.LexicalTheme__image> :is(img, svg, iframe) {
+  scroll-margin-top: 88px;
+  scroll-margin-bottom: 24px;
+}
+
+.LexicalTheme__image>svg {
+  user-select: none;
+}
+
+[contenteditable="true"] .LexicalTheme__image> :is(img, svg) {
+  cursor: pointer;
+}
+
+[contenteditable="true"] .LexicalTheme__image>iframe {
+  cursor: pointer;
+}
+
+.image-control-wrapper {
+  position: absolute;
+  top: anchor(top);
+  right: anchor(right);
+  bottom: anchor(bottom);
+  left: anchor(left);
+  user-select: none;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.image-control-wrapper--resizing {
+  touch-action: none;
+}
+
+.image-control-wrapper--active {
+  outline: 2px solid rgb(95 183 255 / 75%);
+}
+
+.image-control-wrapper .image-resizer {
+  position: absolute;
+  touch-action: none;
+  pointer-events: all;
+  padding: 0;
+  color: rgb(95 183 255 / 75%) !important;
+}
+
+.image-control-wrapper .image-resizer svg {
+  min-width: initial;
+  filter: none;
+  background-color: unset;
+}
+
+.image-control-wrapper .image-resizer.image-resizer-n {
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  cursor: n-resize;
+}
+
+.image-control-wrapper .image-resizer.image-resizer-ne {
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+  cursor: ne-resize;
+}
+
+.image-control-wrapper .image-resizer.image-resizer-e {
+  bottom: 50%;
+  right: 0;
+  transform: translate(50%, 50%);
+  cursor: e-resize;
+}
+
+.image-control-wrapper .image-resizer.image-resizer-se {
+  bottom: 0;
+  right: 0;
+  transform: translate(50%, 50%);
+  cursor: nwse-resize;
+}
+
+.image-control-wrapper .image-resizer.image-resizer-s {
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  cursor: s-resize;
+}
+
+.image-control-wrapper .image-resizer.image-resizer-sw {
+  bottom: 0;
+  left: 0;
+  transform: translate(-50%, 50%);
+  cursor: sw-resize;
+}
+
+.image-control-wrapper .image-resizer.image-resizer-w {
+  bottom: 50%;
+  left: 0;
+  transform: translate(-50%, 50%);
+  cursor: w-resize;
+}
+
+.image-control-wrapper .image-resizer.image-resizer-nw {
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  cursor: nw-resize;
+}
+
+@media print {
+  .image-control-wrapper {
+    display: none !important;
+  }
+}

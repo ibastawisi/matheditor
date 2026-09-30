@@ -1,5 +1,5 @@
 import { convertInchesToTwip, Document, FileChild, IParagraphOptions, Packer, PageBreak, Paragraph, ParagraphChild, Table, TextRun } from "docx";
-import { $getRoot, LexicalNode, $isElementNode, $isTextNode, $isParagraphNode, $isLineBreakNode } from "lexical";
+import { $getRoot, ElementNode, LexicalNode, $isElementNode, $isTextNode, $isParagraphNode, $isLineBreakNode } from "lexical";
 import { $convertMathNode } from "./math";
 import { $convertCodeHighlightNode, $convertCodeNode } from "./code";
 import { $convertTableNode } from "./table";
@@ -12,20 +12,20 @@ import { $convertLayoutNode } from "./layout";
 import { $convertIFrameNode } from "./iframe";
 import { $convertStickyNode } from "./sticky";
 import { $convertDetailsNode } from "./details";
-import { $isCodeHighlightNode, $isCodeNode } from "@lexical/code";
+import { $isCodeHighlightNode, $isCodeNode } from "@lexical/code-core";
 import { $isHeadingNode, $isQuoteNode } from "@lexical/rich-text";
 import { $isListNode, $isListItemNode, ListNode } from "@lexical/list";
 import { $isLinkNode } from "@lexical/link";
 
-import { $isDetailsContainerNode } from "@/editor/nodes/DetailsNode";
-import { $isHorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
-import { $isIFrameNode } from "@/editor/nodes/IFrameNode";
-import { $isImageNode } from "@/editor/nodes/ImageNode";
-import { $isLayoutContainerNode } from "@/editor/nodes/LayoutNode";
-import { $isMathNode } from "@/editor/nodes/MathNode";
-import { $isPageBreakNode } from "@/editor/nodes/PageBreakNode";
-import { $isStickyNode } from "@/editor/nodes/StickyNode";
-import { $isTableNode } from "@/editor/nodes/TableNode";
+import { $isTableNode } from "@lexical/table";
+import { $isDetailsContainerNode } from "@/editor/extensions/details/nodes";
+import { $isHorizontalRuleNode } from "@/editor/extensions/horizontal-rule/nodes";
+import { $isIFrameNode } from "@/editor/extensions/iframe/nodes";
+import { $isImageNode } from "@/editor/extensions/image/nodes";
+import { $isLayoutContainerNode } from "@/editor/extensions/layout/nodes";
+import { $isMathNode } from "@/editor/extensions/math/nodes";
+import { $isPageBreakNode } from "@/editor/extensions/page-break/nodes";
+import { $isStickyNode } from "@/editor/extensions/sticky/nodes";
 
 const listNodes = new Map<string, ListNode>();
 
@@ -35,12 +35,19 @@ export function $convertEditortoDocx() {
   return elements as FileChild[];
 }
 
+/** Converts the children of an element that manages its own output, e.g. a sticky note */
+export function $convertChildrenToDocx(node: ElementNode) {
+  return node.getChildren().map($convertNodeToDocx).filter(Boolean).flat() as FileChild[];
+}
+
 export function $convertNodeToDocx(node: LexicalNode): FileChild | ParagraphChild | ParagraphChild[] | null {
   const element = $mapNodeToDocx(node);
   if (!$isElementNode(node)) return element;
   const childNodes = node.getChildren();
   const shouldSkipChildren = (
     $isLinkNode(node) ||
+    $isImageNode(node) ||
+    $isStickyNode(node) ||
     $isTableNode(node) ||
     $isLayoutContainerNode(node) ||
     $isDetailsContainerNode(node)

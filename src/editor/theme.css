@@ -471,14 +471,20 @@ iframe {
 }
 
 .LexicalTheme__image figcaption {
-  display: flex;
-  flex-direction: column;
+  display: block;
   width: 0;
   min-width: 100%;
   overflow: hidden;
   position: relative;
   padding: 10px;
   min-height: 44px;
+  text-align: center;
+  outline: none;
+  line-height: 1.5;
+}
+
+.LexicalTheme__image figcaption[hidden] {
+  display: none;
 }
 
 .sticky-note {
@@ -494,31 +500,6 @@ iframe {
   display: flex;
   flex-direction: column;
   margin: 0.5rem 0;
-}
-
-.sticky-note .nested-contentEditable {
-  flex: 1;
-  border: 0;
-  resize: none;
-  caret-color: rgb(5, 5, 5);
-  display: flow-root;
-  position: relative;
-  tab-size: 1;
-  outline: 0;
-}
-
-.sticky-note .nested-placeholder {
-  color: #999;
-  overflow: hidden;
-  position: absolute;
-  text-overflow: ellipsis;
-  top: 30px;
-  left: 20px;
-  width: 200px;
-  user-select: none;
-  white-space: nowrap;
-  display: inline-block;
-  pointer-events: none;
 }
 
 .LexicalTheme__hr {

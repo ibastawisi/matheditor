@@ -2,8 +2,8 @@
 import { useCallback } from "react";
 import { checkpoints } from "./checkpoints";
 import tutorialTemplate from './tutorial.json';
-import { $addUpdateTag, $getRoot, $getSelection, $isRangeSelection, COMMAND_PRIORITY_NORMAL, DELETE_CHARACTER_COMMAND, EditorState, LexicalEditor, LexicalNode } from "lexical";
-import { $isDetailsContainerNode, $isDetailsContentNode, $isDetailsSummaryNode } from "@/editor/nodes/DetailsNode";
+import { $addUpdateTag, $getRoot, $getSelection, $isRangeSelection, COMMAND_PRIORITY_NORMAL, DELETE_CHARACTER_COMMAND, EditorState, HISTORY_MERGE_TAG, LexicalEditor, LexicalNode } from "lexical";
+import { $isDetailsContainerNode, $isDetailsContentNode, $isDetailsSummaryNode } from "@/editor/extensions/details/nodes";
 import { $isListNode, $isListItemNode } from "@lexical/list";
 import { PropsWithChildren } from 'react';
 import { EditorDocument } from '@/types';
@@ -40,7 +40,7 @@ const TutorialEditor: React.FC<PropsWithChildren> = ({ children }) => {
           if (!$isListItemNode(checkListItem)) continue;
           const checked = checkpoints[i][j](nextSibling);
           checkListItem.setChecked(checked);
-          $addUpdateTag('history-merge');
+          $addUpdateTag(HISTORY_MERGE_TAG);
         };
       }
     }, { discrete: true, tag: 'checkpoint' })

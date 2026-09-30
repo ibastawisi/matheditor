@@ -1,8 +1,8 @@
-import { $isTableCellNode } from "@/editor/nodes/TableNode";
+import { $isTableCellNode } from "@lexical/table";
 import { $findMatchingParent } from "@lexical/utils";
 import { $isListItemNode } from "@lexical/list";
 import { $isLinkNode } from "@lexical/link";
-import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
+import { $getNodeStyleValueForProperty } from "@/editor/extensions/shared/utils";
 import { TextRun } from "docx";
 import { ElementNode, TextNode } from "lexical";
 

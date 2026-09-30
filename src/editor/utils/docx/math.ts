@@ -1,4 +1,4 @@
-import { MathNode } from "@/editor/nodes/MathNode";
+import { MathNode } from "@/editor/extensions/math/nodes";
 import { BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, ImportedXmlComponent } from "docx";
 import { convertLatexToMathMl } from "mathlive";
 import { mml2omml } from "./mathml2omml";

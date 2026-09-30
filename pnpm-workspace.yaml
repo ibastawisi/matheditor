@@ -7,5 +7,4 @@ allowBuilds:
   sharp: false
 
 patchedDependencies:
-  '@lexical/html': patches/@lexical__html.patch
   htmr@1.0.2: patches/htmr@1.0.2.patch
