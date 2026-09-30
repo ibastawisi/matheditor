@@ -1,22 +1,13 @@
 import type { SerializedEditorState } from "lexical";
-import { createHeadlessEditor } from "@lexical/headless";
-import { editorConfig } from "../config";
 import { $generateDocxBlob } from "./docx";
-import { parseHTML } from "linkedom";
+import { createHeadlessEditor } from "./createHeadlessEditor";
+import { withServerDOM } from "./withServerDOM";
 
-export const generateDocx = (data: SerializedEditorState) => new Promise<Blob>((resolve, reject) => {
-  try {
-    const dom = parseHTML("<!DOCTYPE html><html><head></head><body></body></html>");
-    global = dom;
-    global.document = dom.document;
-    global.DocumentFragment = dom.DocumentFragment;
-    global.Element = dom.Element;
-    const editor = createHeadlessEditor(editorConfig);
-    const editorState = editor.parseEditorState(data);
-    editor.setEditorState(editorState);
-    const blob = editorState.read($generateDocxBlob);
-    resolve(blob);
-  } catch (error) {
-    reject(error);
-  }
-});
+export const generateDocx = async (data: SerializedEditorState) => {
+  const editor = createHeadlessEditor();
+  const editorState = editor.parseEditorState(data);
+  editor.setEditorState(editorState);
+  // the document is converted synchronously, only packing it into a blob is async
+  const blob = withServerDOM(() => editor.read($generateDocxBlob));
+  return blob;
+};

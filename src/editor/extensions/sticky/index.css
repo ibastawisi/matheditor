@@ -1,0 +1,65 @@
+.sticky-note-content {
+  flex: 1;
+  display: flow-root;
+  position: relative;
+  tab-size: 1;
+  outline: 0;
+  caret-color: rgb(5, 5, 5);
+}
+
+.sticky-tools {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  padding: 0.25rem;
+  color: rgba(0, 0, 0, 0.87);
+  pointer-events: none;
+  user-select: none;
+}
+
+.sticky-tools button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  font-size: 1.125rem;
+  opacity: 0.5;
+  pointer-events: all;
+  z-index: 1;
+}
+
+.sticky-tools button:hover {
+  font-weight: bold;
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.sticky-tools button svg {
+  pointer-events: none;
+}
+
+.sticky-note .drag-btn {
+  cursor: grab;
+}
+
+.sticky-note .drag-btn:active {
+  cursor: grabbing;
+}
+
+@media (pointer: coarse) {
+  .sticky-note .drag-btn {
+    display: none;
+  }
+}
+
+@media print {
+  .sticky-tools {
+    display: none;
+  }
+}

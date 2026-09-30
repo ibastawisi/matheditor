@@ -1,15 +1,14 @@
-import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
+import { $getNodeStyleValueForProperty } from "@/editor/extensions/shared/utils";
 import { $isLinkNode } from "@lexical/link";
 import { LexicalNode, $isParagraphNode, $isTextNode } from "lexical";
-import { ImageNode } from "@/editor/nodes/ImageNode";
-import { $isCodeNode } from "@lexical/code";
-import { $isGraphNode } from "@/editor/nodes/GraphNode";
+import { $isCodeNode } from "@lexical/code-core";
+import { $isGraphNode } from "@/editor/extensions/graph/nodes";
 import { $isHeadingNode, $isQuoteNode } from "@lexical/rich-text";
-import { $isHorizontalRuleNode } from "@/editor/nodes/HorizontalRuleNode";
-import { $isMathNode } from "@/editor/nodes/MathNode";
-import { $isSketchNode } from "@/editor/nodes/SketchNode";
-import { $isStickyNode } from "@/editor/nodes/StickyNode";
-import { $isTableNode } from "@/editor/nodes/TableNode";
+import { $isHorizontalRuleNode } from "@/editor/extensions/horizontal-rule/nodes";
+import { $isMathNode } from "@/editor/extensions/math/nodes";
+import { $isSketchNode } from "@/editor/extensions/sketch/nodes";
+import { $isStickyNode } from "@/editor/extensions/sticky/nodes";
+import { $isTableNode } from "@lexical/table";
 import { $isListNode } from "@lexical/list";
 
 export const checkpoints: Array<Array<(node: LexicalNode) => boolean>> = [
@@ -46,8 +45,8 @@ export const checkpoints: Array<Array<(node: LexicalNode) => boolean>> = [
     (node) => $isParagraphNode(node) && node.getChildren().some($isMathNode),
     (node) => $isParagraphNode(node) && node.getChildren().some($isGraphNode),
     (node) => $isParagraphNode(node) && node.getChildren().some($isSketchNode),
-    (node) => $isParagraphNode(node) && node.getChildren().some(n => n.getType() === ImageNode.getType()),
+    (node) => $isParagraphNode(node) && node.getChildren().some(n => n.getType() === 'image'),
     (node) => $isTableNode(node) || $isTableNode(node.getNextSibling()),
-    (node) => $isParagraphNode(node) && node.getChildren().some($isStickyNode),
+    (node) => $isStickyNode(node) || $isStickyNode(node.getNextSibling()) || ($isParagraphNode(node) && node.getChildren().some($isStickyNode)),
   ]
 ];

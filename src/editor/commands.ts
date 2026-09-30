@@ -1,4 +1,3 @@
-"use client";
 import { Alert, Announcement } from '@/types';
 import { LexicalCommand, createCommand } from 'lexical';
 

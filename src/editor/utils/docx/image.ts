@@ -1,11 +1,10 @@
-import { ParagraphNode } from "lexical";
+import { ElementNode } from "lexical";
 import { $findMatchingParent } from "@lexical/utils";
 import { Bookmark, BookmarkEnd, BookmarkStart, bookmarkUniqueNumericIdGen, convertInchesToTwip, ImageRun, IParagraphOptions, Paragraph, Table, TableBorders, TableCell, TableRow, TextRun, TextWrappingType } from "docx";
-import { $convertEditortoDocx } from ".";
+import { $convertNodeToDocx } from ".";
 import sizeOf from 'image-size';
-import { $getNodeStyleValueForProperty } from "@/editor/nodes/utils";
-import { $isLayoutContainerNode, $isLayoutItemNode } from "@/editor/nodes/LayoutNode";
-import { ImageNode } from "@/editor/nodes/ImageNode";
+import { $isLayoutContainerNode, $isLayoutItemNode } from "@/editor/extensions/layout/nodes";
+import { ImageNode } from "@/editor/extensions/image/nodes";
 
 export function $convertImageNode(node: ImageNode) {
   const dataURI = node.getSrc();
@@ -17,7 +16,7 @@ export function $convertImageNode(node: ImageNode) {
   const width = node.getWidth() || dimensions.width as number;
   const height = node.getHeight() || dimensions.height as number;
   const aspect = height / width;
-  const float = $getNodeStyleValueForProperty(node, 'float');
+  const float = node.getFloat().replace('none', '');
   const nearesttLayoutContainer = $findMatchingParent(node, $isLayoutContainerNode);
   const layoutTemplate = nearesttLayoutContainer?.getTemplateColumns().split(' ').map(parseFloat);
   const LayoutItemNodeIndex = $findMatchingParent(node, $isLayoutItemNode)?.getIndexWithinParent();
@@ -42,14 +41,16 @@ export function $convertImageNode(node: ImageNode) {
     } : undefined,
   });
 
-  const caption = node.__caption;
-  const captionChildren = showCaption ? caption.getEditorState().read($convertEditortoDocx) : [];
+  const captionChildren = showCaption ? [new Paragraph({
+    alignment: 'center',
+    children: node.getChildren().map($convertNodeToDocx).filter(Boolean).flat() as any,
+  })] : [];
   const id = node.getId();
 
   if (!showCaption && !id) return [imageRun];
   const linkId = bookmarkUniqueNumericIdGen()();
   if (!showCaption) return [new BookmarkStart(id, linkId), imageRun, new BookmarkEnd(linkId), new TextRun({ text: '', break: 1, vanish: !showCaption }), ...captionChildren];
-  const parent = node.getParent() as ParagraphNode;
+  const parent = node.getParentOrThrow<ElementNode>();
   const alignment = parent.getFormatType().replace('justify', 'both') as IParagraphOptions['alignment'];
   const indent = parent.getIndent();
 
