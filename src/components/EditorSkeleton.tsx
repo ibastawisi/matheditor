@@ -25,44 +25,28 @@ export const EditorSkeleton: React.FC<{ html: string }> = ({ html }) => {
 
   return (
     <>
-      <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}
-        sx={{
-          background: 'var(--mui-palette-background-default) !important',
-          transition: 'none'
-        }}>
-        <Toolbar className="editor-toolbar" sx={{
-          position: "relative", displayPrint: 'none', alignItems: "center",
-          px: '0 !important', py: 1,
-        }}>
-          <Container sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: toolbarTrigger ? '' : '0 !important', }}>
-            <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
-              <IconButton aria-label="Undo" disabled>
-                <Undo fontSize='small' />
-              </IconButton>
-              <IconButton aria-label="Redo" disabled>
-                <Redo fontSize='small' />
-              </IconButton>
-            </Box>
-            <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', flexWrap: "wrap", justifyContent: "center" }}>
-              <Select value="paragraph" aria-label="Formatting options for text style" size='small'
-                sx={{
-                  fieldset: { borderColor: 'divider' },
-                  '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', pl: 1, pr: '28px !important', py: 1, minHeight: '0 !important', height: '20px !important' },
-                  '& .MuiSelect-icon': { m: 0, fontSize: 20 },
-                  '& .MuiListItemIcon-root': { mr: { sm: 0.5 }, minWidth: 20 },
-                  '& .MuiListItemText-root': { display: { xs: "none", sm: "flex" } },
-                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
-                }}
-              >
-                <MenuItem value='paragraph'>
-                  <ListItemIcon>
-                    <ViewHeadline fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Normal</ListItemText>
-                </MenuItem>
-              </Select>
-              <Box sx={{ display: 'flex', gap: 0.5 }}>
-                <Select size='small'
+      {/* keeps the toolbar's height in the flow while it is fixed */}
+      <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })}>
+        <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}
+          sx={{
+            background: 'var(--mui-palette-background-default) !important',
+            transition: 'none'
+          }}>
+          <Toolbar className="editor-toolbar" sx={{
+            position: "relative", displayPrint: 'none', alignItems: "center",
+            px: '0 !important', py: 1,
+          }}>
+            <Container sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: toolbarTrigger ? '' : '0 !important', }}>
+              <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
+                <IconButton aria-label="Undo" disabled>
+                  <Undo fontSize='small' />
+                </IconButton>
+                <IconButton aria-label="Redo" disabled>
+                  <Redo fontSize='small' />
+                </IconButton>
+              </Box>
+              <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', flexWrap: "wrap", justifyContent: "center" }}>
+                <Select value="paragraph" aria-label="Formatting options for text style" size='small'
                   sx={{
                     fieldset: { borderColor: 'divider' },
                     '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', pl: 1, pr: '28px !important', py: 1, minHeight: '0 !important', height: '20px !important' },
@@ -71,139 +55,154 @@ export const EditorSkeleton: React.FC<{ html: string }> = ({ html }) => {
                     '& .MuiListItemText-root': { display: { xs: "none", sm: "flex" } },
                     '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
                   }}
-                  value="Roboto"
                 >
-                  <MenuItem key={"Roboto"} value={"Roboto"}>
-                    <ListItemIcon sx={{ fontFamily: "Roboto", fontWeight: 500 }} color="action">Aa</ListItemIcon>
-                    <ListItemText sx={{ '& *': { fontFamily: "Roboto" } }}>Roboto</ListItemText>
+                  <MenuItem value='paragraph'>
+                    <ListItemIcon>
+                      <ViewHeadline fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Normal</ListItemText>
                   </MenuItem>
                 </Select>
-                <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
-                  <IconButton
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                  <Select size='small'
                     sx={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 1,
-                      borderTopRightRadius: 0,
-                      borderBottomRightRadius: 0,
-                      borderRight: 'none',
-                      borderWidth: 1,
-                      borderStyle: 'solid',
-                      borderColor: 'divider',
-                      '&:hover': { borderColor: 'primary.main' },
-                    }}
-                    aria-label="increase font size"
-                  >
-                    <TextDecrease fontSize="small" />
-                  </IconButton>
-                  <TextField
-                    hiddenLabel
-                    variant="outlined"
-                    size="small"
-                    autoComplete="off"
-                    spellCheck="false"
-                    sx={{
-                      width: 40,
                       fieldset: { borderColor: 'divider' },
-                      '& .MuiInputBase-root': {
-                        borderRadius: 0,
-                        '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
-                      },
-                      '& .MuiInputBase-input': {
-                        px: 0.5,
-                        py: '6.5px',
-                        textAlign: 'center',
-                        MozAppearance: 'textfield',
-                        '&::-webkit-inner-spin-button, &::-webkit-outer-spin-button': { appearance: 'none', margin: 0 },
-                      },
+                      '& .MuiSelect-select': { display: 'flex !important', alignItems: 'center', pl: 1, pr: '28px !important', py: 1, minHeight: '0 !important', height: '20px !important' },
+                      '& .MuiSelect-icon': { m: 0, fontSize: 20 },
+                      '& .MuiListItemIcon-root': { mr: { sm: 0.5 }, minWidth: 20 },
+                      '& .MuiListItemText-root': { display: { xs: "none", sm: "flex" } },
+                      '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
                     }}
-                    type="number"
-                    value={16}
-                  />
-                  <IconButton
-                    sx={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 1,
-                      borderTopLeftRadius: 0,
-                      borderBottomLeftRadius: 0,
-                      borderWidth: 1,
-                      borderStyle: 'solid',
-                      borderColor: 'divider',
-                      '&:hover': { borderColor: 'primary.main' },
-                    }}
-                    aria-label="decrease font size"
+                    value="Roboto"
                   >
-                    <TextIncrease fontSize="small" />
-                  </IconButton>
+                    <MenuItem key={"Roboto"} value={"Roboto"}>
+                      <ListItemIcon sx={{ fontFamily: "Roboto", fontWeight: 500 }} color="action">Aa</ListItemIcon>
+                      <ListItemText sx={{ '& *': { fontFamily: "Roboto" } }}>Roboto</ListItemText>
+                    </MenuItem>
+                  </Select>
+                  <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
+                    <IconButton
+                      sx={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: 1,
+                        borderTopRightRadius: 0,
+                        borderBottomRightRadius: 0,
+                        borderRight: 'none',
+                        borderWidth: 1,
+                        borderStyle: 'solid',
+                        borderColor: 'divider',
+                        '&:hover': { borderColor: 'primary.main' },
+                      }}
+                      aria-label="increase font size"
+                    >
+                      <TextDecrease fontSize="small" />
+                    </IconButton>
+                    <TextField
+                      hiddenLabel
+                      variant="outlined"
+                      size="small"
+                      autoComplete="off"
+                      spellCheck="false"
+                      sx={{
+                        width: 40,
+                        fieldset: { borderColor: 'divider' },
+                        '& .MuiInputBase-root': {
+                          borderRadius: 0,
+                          '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                        },
+                        '& .MuiInputBase-input': {
+                          px: 0.5,
+                          py: '6.5px',
+                          textAlign: 'center',
+                          MozAppearance: 'textfield',
+                          '&::-webkit-inner-spin-button, &::-webkit-outer-spin-button': { appearance: 'none', margin: 0 },
+                        },
+                      }}
+                      type="number"
+                      value={16}
+                    />
+                    <IconButton
+                      sx={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: 1,
+                        borderTopLeftRadius: 0,
+                        borderBottomLeftRadius: 0,
+                        borderWidth: 1,
+                        borderStyle: 'solid',
+                        borderColor: 'divider',
+                        '&:hover': { borderColor: 'primary.main' },
+                      }}
+                      aria-label="decrease font size"
+                    >
+                      <TextIncrease fontSize="small" />
+                    </IconButton>
+                  </Box>
                 </Box>
-              </Box>
 
-              <Button
-                id="ai-tools-button"
-                aria-haspopup="true"
-                variant="outlined"
-                startIcon={<AutoAwesome color={"action"} fontSize='small' />}
-                endIcon={<ArrowDropDown color={"action"} fontSize='small' />}
-                sx={{
-                  color: 'text.primary',
-                  borderColor: 'divider',
-                  p: 1, minWidth: 0, height: 36,
-                  '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 }, ml: 0 },
-                  '& .MuiButton-endIcon': { mr: 0, ml: 0 },
-                  '& .MuiButton-endIcon > svg': { fontSize: 20 },
-                }}
-              >
-                <Typography variant="button" sx={{ display: { xs: "none", sm: "block" } }}>AI</Typography>
-              </Button>
-              <ToggleButtonGroup size="small" sx={{ display: { xs: "none", lg: "flex" } }}>
-                <ToggleButton value="bold">
-                  <FormatBold fontSize='small' />
-                </ToggleButton>
-                <ToggleButton value="italic">
-                  <FormatItalic fontSize='small' />
-                </ToggleButton>
-                <ToggleButton value="underline">
-                  <FormatUnderlined fontSize='small' />
-                </ToggleButton>
-                <ToggleButton value="highlight">
-                  <Highlight />
-                </ToggleButton>
-                <ToggleButton value="code" >
-                  <Code fontSize='small' />
-                </ToggleButton>
-                <ToggleButton value="strikethrough" >
-                  <FormatStrikethrough fontSize='small' />
-                </ToggleButton>
-                <ToggleButton value="subscript" >
-                  <Subscript fontSize='small' />
-                </ToggleButton>
-                <ToggleButton value="superscript" >
-                  <Superscript fontSize='small' />
-                </ToggleButton>
-                <ToggleButton value="link" >
-                  <Link sx={{ fontSize: 'small' }} />
-                </ToggleButton>
-                <ToggleButton value="color">
-                  <FormatColorFill fontSize='small' />
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Box>
-            <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
-              <IconButton aria-label='Insert'>
-                <Add fontSize='small' />
-              </IconButton>
-              <IconButton aria-label='Align Text'>
-                <FormatAlignLeft fontSize='small' />
-              </IconButton>
-            </Box>
-          </Container>
-        </Toolbar >
-      </AppBar>
-      {toolbarTrigger && <Box
-        sx={[{
-          fontSize: 'small'
-        }, (theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })]} />}
+                <Button
+                  id="ai-tools-button"
+                  aria-haspopup="true"
+                  variant="outlined"
+                  startIcon={<AutoAwesome color={"action"} fontSize='small' />}
+                  endIcon={<ArrowDropDown color={"action"} fontSize='small' />}
+                  sx={{
+                    color: 'text.primary',
+                    borderColor: 'divider',
+                    p: 1, minWidth: 0, height: 36,
+                    '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 }, ml: 0 },
+                    '& .MuiButton-endIcon': { mr: 0, ml: 0 },
+                    '& .MuiButton-endIcon > svg': { fontSize: 20 },
+                  }}
+                >
+                  <Typography variant="button" sx={{ display: { xs: "none", sm: "block" } }}>AI</Typography>
+                </Button>
+                <ToggleButtonGroup size="small" sx={{ display: { xs: "none", lg: "flex" } }}>
+                  <ToggleButton value="bold">
+                    <FormatBold fontSize='small' />
+                  </ToggleButton>
+                  <ToggleButton value="italic">
+                    <FormatItalic fontSize='small' />
+                  </ToggleButton>
+                  <ToggleButton value="underline">
+                    <FormatUnderlined fontSize='small' />
+                  </ToggleButton>
+                  <ToggleButton value="highlight">
+                    <Highlight />
+                  </ToggleButton>
+                  <ToggleButton value="code" >
+                    <Code fontSize='small' />
+                  </ToggleButton>
+                  <ToggleButton value="strikethrough" >
+                    <FormatStrikethrough fontSize='small' />
+                  </ToggleButton>
+                  <ToggleButton value="subscript" >
+                    <Subscript fontSize='small' />
+                  </ToggleButton>
+                  <ToggleButton value="superscript" >
+                    <Superscript fontSize='small' />
+                  </ToggleButton>
+                  <ToggleButton value="link" >
+                    <Link sx={{ fontSize: 'small' }} />
+                  </ToggleButton>
+                  <ToggleButton value="color">
+                    <FormatColorFill fontSize='small' />
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+              <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
+                <IconButton aria-label='Insert'>
+                  <Add fontSize='small' />
+                </IconButton>
+                <IconButton aria-label='Align Text'>
+                  <FormatAlignLeft fontSize='small' />
+                </IconButton>
+              </Box>
+            </Container>
+          </Toolbar >
+        </AppBar>
+      </Box>
       <StaticPages html={html} />
     </>
   );
