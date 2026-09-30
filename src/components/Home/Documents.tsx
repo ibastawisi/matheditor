@@ -180,7 +180,7 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
           </Card>
         </Grid>
       </Grid>
-      <DocumentsGrid documents={documents.length ? sortedDocuments : staticDocuments} initialized={initialized} user={user} />
+      <DocumentsGrid documents={initialized ? sortedDocuments : staticDocuments} initialized={initialized} user={user} />
     </>
   )
 }
