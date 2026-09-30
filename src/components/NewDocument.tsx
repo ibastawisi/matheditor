@@ -13,6 +13,7 @@ import UsersAutocomplete from './User/UsersAutocomplete';
 import { debounce } from '@mui/material/utils';
 import type { SerializedParagraphNode, SerializedRootNode, SerializedTextNode } from "lexical";
 import type { SerializedHeadingNode } from "@lexical/rich-text";
+import { DEFAULT_PAGE_SETUP } from "@/editor/extensions/pages/constants";
 
 const getEditorData = (title: string) => {
   const headingText: SerializedTextNode = {
@@ -49,7 +50,9 @@ const getEditorData = (title: string) => {
     type: "root",
     version: 1,
     format: 'left',
-    indent: 0
+    indent: 0,
+    // new documents are paged
+    $: { pageSetup: DEFAULT_PAGE_SETUP },
   }
   return ({ root });
 }

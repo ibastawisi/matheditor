@@ -1,9 +1,11 @@
 "use client"
 import { $getSelection, $setSelection, CAN_REDO_COMMAND, CAN_UNDO_COMMAND, CLEAR_HISTORY_COMMAND, COMMAND_PRIORITY_BEFORE_CRITICAL, COMMAND_PRIORITY_CRITICAL, REDO_COMMAND, SELECTION_CHANGE_COMMAND, UNDO_COMMAND } from 'lexical';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { createLexicalComposerContext, LexicalComposerContext, type LexicalComposerContextWithEditor, useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue';
 import { IS_APPLE, mergeRegister } from '@lexical/utils';
 import { useHash } from 'react-use';
-import { useEffect, useRef } from 'react';
+import { type ReactNode, useEffect, useMemo, useRef } from 'react';
+import type { LexicalEditor } from 'lexical';
 import { useScrollTrigger, AppBar, Toolbar, Box, IconButton, Container } from '@mui/material';
 import { Redo, Undo } from '@mui/icons-material';
 import { useStore } from '@/editor/extensions/store/hooks';
@@ -27,11 +29,47 @@ import LinkDialog from '@/editor/extensions/link/dialog';
 import LayoutDialog from '@/editor/extensions/layout/dialog';
 import OCRDialog from '@/editor/extensions/ocr/dialog';
 import AIDialog from '@/editor/extensions/ai/dialog';
+import { PagesExtension } from '@/editor/extensions/pages';
 
-export function ToolbarComponent() {
+/**
+ * Gives the tools the editor of the open page header or footer, if any, so
+ * that they format and insert into it like into the document
+ */
+function ActiveEditorComposer({ editor, children }: { editor: LexicalEditor | null; children: ReactNode }) {
+  const [, context] = useLexicalComposerContext();
+  const value = useMemo<LexicalComposerContextWithEditor | null>(
+    () => editor && [editor, createLexicalComposerContext(null, context.getTheme())],
+    [editor, context]
+  );
+  if (value === null) return children;
+  return <LexicalComposerContext.Provider value={value}>{children}</LexicalComposerContext.Provider>;
+}
+
+function TextTools() {
+  const [isMath] = useStore("isMath");
+  const [isCodeBlock] = useStore("isCodeBlock");
+  const [selectedNodeKey] = useStore("selectedNodeKey");
+  const showTextTools = !isMath;
+  const showTextFormatTools = showTextTools && !(isCodeBlock && !!selectedNodeKey);
+  if (!showTextTools) return null;
+  return <>
+    <BlockFormatSelect />
+    {showTextFormatTools && <FontSelect />}
+    <AITools />
+    {showTextFormatTools && <TextFormatToggles sx={{
+      display: { xs: "flex", sm: "none", md: "none", lg: "flex" },
+      position: ['fixed', 'static'],
+      justifyContent: ['center', 'start'],
+      inset: 'auto auto calc(var(--keyboard-inset-height) + 4px)',
+      zIndex: 1000,
+      bgcolor: 'background.default',
+    }} />}
+  </>;
+}
+
+/** The tools of the selected node, and the dialogs of the editor */
+function ToolbarPopups() {
   const [editor] = useLexicalComposerContext();
-  const [canUndo] = useStore("canUndo");
-  const [canRedo] = useStore("canRedo");
   const [openDialog] = useStore("openDialog");
   const [selectedNodeKey] = useStore("selectedNodeKey");
   const [selectedLinkNodeKey] = useStore("selectedLinkNodeKey");
@@ -41,6 +79,50 @@ export function ToolbarComponent() {
   const [isCodeBlock] = useStore("isCodeBlock");
   const [tableNodeKey] = useStore("tableNodeKey");
   const [noteNodeKey] = useStore("noteNodeKey");
+
+  useEffect(() => {
+    if (openDialog !== null) return;
+    const selection = editor.getEditorState().read($getSelection);
+    if (!selection) return;
+    setTimeout(() => {
+      editor.update(() => { $setSelection(selection.clone()); });
+      editor.getRootElement()?.focus({ preventScroll: true });
+    }, 0);
+  }, [editor, openDialog]);
+
+  const showMathTools = isMath && !!selectedNodeKey;
+  const showImageTools = isImage && !!selectedNodeKey;
+  const showCodeTools = isCodeBlock && !!selectedNodeKey;
+  const showTableTools = !!tableNodeKey;
+  const showNoteTools = !!noteNodeKey;
+  const imageNodeKey = isImage ? selectedNodeKey : "";
+
+  return <>
+    {showMathTools && <MathTools nodeKey={selectedNodeKey} />}
+    {showImageTools && <ImageTools nodeKey={selectedNodeKey} />}
+    {showCodeTools && <CodeTools nodeKey={selectedNodeKey} />}
+    {showTableTools && <TableTools nodeKey={tableNodeKey} />}
+    {showNoteTools && <NoteTools nodeKey={noteNodeKey} />}
+    {openDialog === "image" && <ImageDialog nodeKey={imageType === "image" ? imageNodeKey : ""} />}
+    {openDialog === "graph" && <GraphDialog nodeKey={imageType === "graph" ? imageNodeKey : ""} />}
+    {openDialog === "sketch" && <SketchDialog nodeKey={imageNodeKey} />}
+    {openDialog === "table" && <TableDialog />}
+    {openDialog === "iframe" && <IFrameDialog nodeKey={imageType === "iframe" ? imageNodeKey : ""} />}
+    {openDialog === "link" && <LinkDialog nodeKey={selectedLinkNodeKey} />}
+    {openDialog === "layout" && <LayoutDialog />}
+    {openDialog === "ocr" && <OCRDialog />}
+    {openDialog === "ai" && <AIDialog />}
+  </>;
+}
+
+export function ToolbarComponent() {
+  const [editor] = useLexicalComposerContext();
+  const [canUndo] = useStore("canUndo");
+  const [canRedo] = useStore("canRedo");
+  // the history is the document's, even for header edits, but undo in an
+  // open header goes through its editor, which writes pending typing first
+  const activeSlotEditor = useExtensionSignalValue(PagesExtension, "activeSlotEditor");
+  const activeEditor = activeSlotEditor ?? editor;
   const isTouched = useRef<boolean>(false);
   const [hash] = useHash();
 
@@ -115,55 +197,24 @@ export function ToolbarComponent() {
     setTimeout(() => scrollIntoView('smooth'), 0);
   }, [hash]);
 
-  useEffect(() => {
-    if (openDialog !== null) return;
-    const selection = editor.getEditorState().read($getSelection);
-    if (!selection) return;
-    setTimeout(() => {
-      editor.update(() => { $setSelection(selection.clone()); });
-      editor.getRootElement()?.focus({ preventScroll: true });
-    }, 0);
-  }, [editor, openDialog]);
-
-  const showMathTools = isMath && !!selectedNodeKey;
-  const showImageTools = isImage && !!selectedNodeKey;
-  const showCodeTools = isCodeBlock && !!selectedNodeKey;
-  const showTableTools = !!tableNodeKey;
-  const showNoteTools = !!noteNodeKey;
-  const showTextTools = !isMath;
-  const showTextFormatTools = showTextTools && !showCodeTools;
-  const imageNodeKey = isImage ? selectedNodeKey : "";
-
   return (
-    <>
+    <ActiveEditorComposer editor={activeSlotEditor}>
       <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}
         sx={{ background: 'var(--mui-palette-background-default) !important', transition: 'none', }}>
         <Toolbar className="editor-toolbar" sx={{ position: "relative", displayPrint: 'none', alignItems: "center", px: '0 !important', py: 1, }}>
           <Container sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: toolbarTrigger ? '' : '0 !important', }}>
             <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
               <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
-                onClick={() => { editor.dispatchCommand(UNDO_COMMAND, undefined); }}>
+                onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}>
                 <Undo fontSize='small' />
               </IconButton>
               <IconButton title={IS_APPLE ? 'Redo (⌘Y)' : 'Redo (Ctrl+Y)'} aria-label="Redo" disabled={!canRedo}
-                onClick={() => { editor.dispatchCommand(REDO_COMMAND, undefined); }}>
+                onClick={() => { activeEditor.dispatchCommand(REDO_COMMAND, undefined); }}>
                 <Redo fontSize='small' />
               </IconButton>
             </Box>
             <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', flexWrap: "wrap", justifyContent: "center" }}>
-              {showTextTools && <>
-                <BlockFormatSelect />
-                {showTextFormatTools && <FontSelect />}
-                <AITools />
-                {showTextFormatTools && <TextFormatToggles sx={{
-                  display: { xs: "flex", sm: "none", md: "none", lg: "flex" },
-                  position: ['fixed', 'static'],
-                  justifyContent: ['center', 'start'],
-                  inset: 'auto auto calc(var(--keyboard-inset-height) + 4px)',
-                  zIndex: 1000,
-                  bgcolor: 'background.default',
-                }} />}
-              </>}
+              <TextTools />
             </Box>
             <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
               <InsertToolMenu />
@@ -173,21 +224,8 @@ export function ToolbarComponent() {
         </Toolbar >
       </AppBar>
       {toolbarTrigger && <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })} />}
-      {showMathTools && <MathTools nodeKey={selectedNodeKey} />}
-      {showImageTools && <ImageTools nodeKey={selectedNodeKey} />}
-      {showCodeTools && <CodeTools nodeKey={selectedNodeKey} />}
-      {showTableTools && <TableTools nodeKey={tableNodeKey} />}
-      {showNoteTools && <NoteTools nodeKey={noteNodeKey} />}
-      {openDialog === "image" && <ImageDialog nodeKey={imageType === "image" ? imageNodeKey : ""} />}
-      {openDialog === "graph" && <GraphDialog nodeKey={imageType === "graph" ? imageNodeKey : ""} />}
-      {openDialog === "sketch" && <SketchDialog nodeKey={imageNodeKey} />}
-      {openDialog === "table" && <TableDialog />}
-      {openDialog === "iframe" && <IFrameDialog nodeKey={imageType === "iframe" ? imageNodeKey : ""} />}
-      {openDialog === "link" && <LinkDialog nodeKey={selectedLinkNodeKey} />}
-      {openDialog === "layout" && <LayoutDialog />}
-      {openDialog === "ocr" && <OCRDialog />}
-      {openDialog === "ai" && <AIDialog />}
-    </>
+      <ToolbarPopups />
+    </ActiveEditorComposer>
   );
 }
 

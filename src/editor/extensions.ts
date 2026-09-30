@@ -25,6 +25,7 @@ import { PageBreakExtension } from "@/editor/extensions/page-break";
 import { DragDropPasteExtension } from "@/editor/extensions/drag-drop-paste";
 import { LegacyExtension } from "@/editor/extensions/legacy";
 import { HtmlExtension } from "@/editor/extensions/html";
+import { PagesExtension } from "@/editor/extensions/pages";
 
 /**
  * The nodes and behaviors of the editor, without any React UI,
@@ -71,5 +72,6 @@ export const FullEditorExtensions = defineExtension({
     MarkdownExtension,
     ShortcutsExtension,
     DragDropPasteExtension,
+    PagesExtension,
   ],
 });

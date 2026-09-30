@@ -8,6 +8,7 @@ import { ImageResizerExtension } from "./extensions/image/resizer";
 import { TableCellResizerExtension } from "./extensions/table/resizer";
 import { FloatingToolbarExtension } from "./extensions/floating-toolbar";
 import { ComponentPickerExtension } from "./extensions/component-picker";
+import { PageSlotEditorsExtension } from "./extensions/pages/slot-editors";
 
 /** React decorators rendered alongside the editor */
 const EditorUIExtensions = defineExtension({
@@ -18,6 +19,7 @@ const EditorUIExtensions = defineExtension({
     TableCellResizerExtension,
     FloatingToolbarExtension,
     ComponentPickerExtension,
+    PageSlotEditorsExtension,
   ],
 });
 
