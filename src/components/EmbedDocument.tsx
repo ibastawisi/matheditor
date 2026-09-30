@@ -1,4 +1,5 @@
 import { Container } from "@mui/material";
+import StaticPages from "@/editor/extensions/pages/static";
 
 const EmbedDocument: React.FC<{ html: string }> = ({ html }) => {
   return (
@@ -12,7 +13,7 @@ const EmbedDocument: React.FC<{ html: string }> = ({ html }) => {
         flex: 1,
         position: 'relative'
       }}>
-      <div className="document-container" dangerouslySetInnerHTML={{ __html: html }} />
+      <StaticPages html={html} />
     </Container>
   );
 }

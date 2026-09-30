@@ -55,6 +55,8 @@ const KEEP_TOGETHER_ATTRIBUTE = "data-page-keep-together";
 export const FLOATED_SELECTOR =
   ":is(.LexicalTheme__floatLeft, .LexicalTheme__floatRight)" +
   ":not(:is(td, th, .LexicalTheme__layoutItem, .LexicalTheme__floatLeft, .LexicalTheme__floatRight, [data-lexical-decorator]) *)";
+/** Manual page breaks, as the page break node renders and exports them */
+const PAGE_BREAK_SELECTOR = '[type="page-break"]';
 /** Marks a floated element that the layout has placed over its stand-in */
 const FLOAT_PLACED_ATTRIBUTE = "data-page-float";
 /** Room between a floated element and the text flowing around it */
@@ -136,6 +138,7 @@ interface FloatPlacement {
  *
  * All DOM reads happen in observer callbacks, after layout, and all writes
  * are deferred to the next animation frame. Nothing here updates the editor.
+ * Without an editor, it lays out static HTML of a document the same way.
  */
 export class PagesLayout {
   readonly win: Window & typeof globalThis;
@@ -174,7 +177,7 @@ export class PagesLayout {
   private disposed = false;
 
   constructor(
-    private readonly editor: LexicalEditor,
+    private readonly editor: LexicalEditor | null,
     readonly rootElement: HTMLElement,
     private readonly options: PagesLayoutOptions
   ) {
@@ -220,6 +223,13 @@ export class PagesLayout {
     }
     this.cleanup = mergeRegister(
       () => observers.forEach((observer) => observer.disconnect()),
+      editor ? this.registerEditorListeners(editor) : () => {}
+    );
+  }
+
+  private registerEditorListeners(editor: LexicalEditor): () => void {
+    const rootElement = this.rootElement;
+    return mergeRegister(
       editor.registerMutationListener(
         PageBreakNode,
         (mutations) => {
@@ -249,6 +259,24 @@ export class PagesLayout {
         }
       })
     );
+  }
+
+  /** The manual page breaks, and whether each ends the document */
+  private getPageBreaks(): { el: HTMLElement; isLast: boolean }[] {
+    const editor = this.editor;
+    if (editor === null) {
+      return Array.from(this.rootElement.querySelectorAll<HTMLElement>(PAGE_BREAK_SELECTOR), (el) => ({
+        el,
+        isLast: el.nextElementSibling === null,
+      }));
+    }
+    const breaks: { el: HTMLElement; isLast: boolean }[] = [];
+    for (const key of this.pageBreakKeys) {
+      const el = editor.getElementByKey(key);
+      // asked of the document, since the DOM may end in a decorator boundary
+      if (el) breaks.push({ el, isLast: editor.read("latest", () => $getNodeByKey(key)?.getNextSibling() === null) });
+    }
+    return breaks;
   }
 
   getPageCount(): number {
@@ -341,12 +369,9 @@ export class PagesLayout {
     if (this.writeRafId !== null) this.win.cancelAnimationFrame(this.writeRafId);
     this.measureRafIds.forEach((id) => this.win.cancelAnimationFrame(id));
     this.cleanup();
-    for (const key of this.pageBreakKeys) {
-      const el = this.editor.getElementByKey(key);
-      if (el) {
-        el.style.removeProperty("margin-bottom");
-        delete el.dataset.pageBreakMargin;
-      }
+    for (const { el } of this.getPageBreaks()) {
+      el.style.removeProperty("margin-bottom");
+      delete el.dataset.pageBreakMargin;
     }
     for (const el of this.keptTogether) el.removeAttribute(KEEP_TOGETHER_ATTRIBUTE);
     this.keptTogether.clear();
@@ -377,9 +402,7 @@ export class PagesLayout {
     let count = computePageCount(Math.max(rootTop + root.offsetHeight, floatBottom), geom, this.breaks.length);
     if (this.pinnedCount !== null) count = this.pinnedCount;
     if (count !== this.pageCount) writes.push(() => this.applyPageCount(count));
-    for (const key of this.pageBreakKeys) {
-      const el = this.editor.getElementByKey(key);
-      if (!el) continue;
+    for (const { el, isLast } of this.getPageBreaks()) {
       const current = parseFloat(el.dataset.pageBreakMargin ?? "") || 0;
       if (getParentElement(el) !== root) {
         // only top-level page breaks are stretched
@@ -393,7 +416,6 @@ export class PagesLayout {
       }
       // a break with nothing after it starts no page: its margin would
       // collapse through the root unseen on screen, yet print a blank page
-      const isLast = this.editor.read("latest", () => $getNodeByKey(key)?.getNextSibling() === null);
       const marginBottom = isLast ? 0 : computePageBreakMarginBottom(rootTop + el.offsetTop, el.offsetHeight, geom);
       if (Math.abs(marginBottom - current) > MARGIN_EPSILON) {
         writes.push(() => {
