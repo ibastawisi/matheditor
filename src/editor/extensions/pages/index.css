@@ -181,8 +181,9 @@
    every page come before the document, so floated images and notes would all
    land on the last page. The layout places a stand-in float for each in the
    layer instead, and moves the element over it from its static position.
+   Until the layout runs, as the server renders the pages, it floats in place.
    Keep in sync with FLOATED_SELECTOR in layout.ts. */
-.Pages__host :is(.editor-input, .document-container) :is(.LexicalTheme__floatLeft, .LexicalTheme__floatRight):not(:is(td, th, .LexicalTheme__layoutItem, .LexicalTheme__floatLeft, .LexicalTheme__floatRight, [data-lexical-decorator]) *) {
+.Pages__host:has(> .Pages__layer) :is(.editor-input, .document-container) :is(.LexicalTheme__floatLeft, .LexicalTheme__floatRight):not(:is(td, th, .LexicalTheme__layoutItem, .LexicalTheme__floatLeft, .LexicalTheme__floatRight, [data-lexical-decorator]) *) {
   float: none;
   position: absolute;
   z-index: 1;
