@@ -9,28 +9,14 @@ import { convertLatexToMarkup, type MathfieldElement } from "mathlive";
 
 import { buildPageSlotEditor, PagesExtension, PageSlotEditorExtension } from ".";
 import { StoreExtension } from "@/editor/extensions/store";
-import { useStore } from "@/editor/extensions/store/hooks";
 import { MathExtension } from "@/editor/extensions/math";
 import { FloatingToolbarExtension } from "@/editor/extensions/floating-toolbar";
 import { ComponentPickerExtension } from "@/editor/extensions/component-picker";
-import LinkDialog from "@/editor/extensions/link/dialog";
-import OCRDialog from "@/editor/extensions/ocr/dialog";
-
-/** The dialogs a header or footer can open, which the document toolbar renders for the document */
-function PageSlotDialogs() {
-  const [openDialog] = useStore("openDialog");
-  const [selectedLinkNodeKey] = useStore("selectedLinkNodeKey");
-  return (
-    <>
-      {openDialog === "link" && <LinkDialog nodeKey={selectedLinkNodeKey} />}
-      {openDialog === "ocr" && <OCRDialog />}
-    </>
-  );
-}
 
 /**
  * A header or footer editor with math, the floating toolbar and the component
- * picker, which offers the page number and page count
+ * picker, which offers the page number and page count. Its dialogs are opened
+ * by the document toolbar, which follows the open header or footer.
  */
 const ReactPageSlotEditorExtension = defineExtension({
   name: "page-slot-editor-react",
@@ -41,10 +27,7 @@ const ReactPageSlotEditorExtension = defineExtension({
     FloatingToolbarExtension,
     ComponentPickerExtension,
     ReactProviderExtension,
-    configExtension(ReactExtension, {
-      contentEditable: null,
-      decorators: [createElement(PageSlotDialogs)],
-    }),
+    configExtension(ReactExtension, { contentEditable: null }),
   ],
 });
 
