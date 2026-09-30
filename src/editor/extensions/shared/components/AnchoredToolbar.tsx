@@ -5,7 +5,7 @@ import type { NodeKey } from "lexical";
 import { createPortal } from "react-dom";
 import { getEditorContainer, getNodeAnchorName } from "@/editor/utils/getEditorContainer";
 
-export type AnchoredToolbarPlacement = "top" | "bottom" | "inside-top" | "inside-top-right";
+export type AnchoredToolbarPlacement = "top" | "bottom" | "inside-top-right";
 
 const placementStyles = (placement: AnchoredToolbarPlacement) => {
   switch (placement) {
@@ -20,11 +20,6 @@ const placementStyles = (placement: AnchoredToolbarPlacement) => {
         top: "calc(anchor(bottom) + 0.25rem)",
         justifySelf: "anchor-center",
         positionTryFallbacks: "flip-block",
-      };
-    case "inside-top":
-      return {
-        top: "calc(anchor(top) + 0.5rem)",
-        justifySelf: "anchor-center",
       };
     case "inside-top-right":
       return {

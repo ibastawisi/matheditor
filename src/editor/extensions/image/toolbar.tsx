@@ -32,7 +32,7 @@ export default function ImageTools({ nodeKey, sx }: { nodeKey: NodeKey, sx?: SxP
   const isFiltered = filter === "auto";
 
   return (
-    <AnchoredToolbar nodeKey={nodeKey} placement="inside-top" className="image-toolbar" sx={sx}>
+    <AnchoredToolbar nodeKey={nodeKey} placement="top" className="image-toolbar" sx={sx}>
       <ToggleButtonGroup size="small">
         <ToggleButton value="edit" key="edit" onClick={openDialog} title={`Edit ${imageType}`} aria-label={`Edit ${imageType}`}>
           <Edit fontSize='small' />
