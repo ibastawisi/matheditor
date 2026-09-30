@@ -200,6 +200,29 @@
   padding-bottom: var(--page-margin-bottom);
 }
 
+/* A manual page break already ends a page and starts the next there, so the
+   blocks after it do not show on the page before until the layout runs */
+.Pages__host:not(:has(> .Pages__layer)) [type='page-break'] {
+  position: relative;
+  width: auto;
+  height: calc(var(--page-margin-bottom) + var(--page-gap) + var(--page-margin-top));
+  margin: 0 calc(-1 * var(--page-margin-right)) 0 calc(-1 * var(--page-margin-left));
+}
+
+.Pages__host:not(:has(> .Pages__layer)) [type='page-break']::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: var(--page-margin-bottom);
+  left: -1px;
+  right: -1px;
+  box-sizing: border-box;
+  height: var(--page-gap);
+  background: var(--mui-palette-background-default, #eee);
+  border-top: 1px solid var(--page-border);
+  border-bottom: 1px solid var(--page-border);
+}
+
 /* Manual page breaks are stretched to the next page by the layout, so the
    pageless label is replaced by a selection affordance */
 .Pages__host [type='page-break'] {
