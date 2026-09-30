@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { getExtensionDependencyFromEditor, type ReadonlySignal } from "@lexical/extension";
 import { $addUpdateTag, type LexicalEditor, SKIP_DOM_SELECTION_TAG } from "lexical";
-import { Box, Button, FormControlLabel, FormHelperText, MenuItem, Switch, TextField, Typography } from "@mui/material";
+import { Box, Button, Collapse, FormControlLabel, FormHelperText, MenuItem, Switch, TextField, Typography } from "@mui/material";
 import { Description } from "@mui/icons-material";
 
 import { PagesExtension } from ".";
@@ -188,74 +188,81 @@ export function PageSetupSidebar({ editor, onClose }: { editor: LexicalEditor; o
   );
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <Box sx={{ display: "flex", alignItems: "center" }}>
-        <Description sx={{ mr: 1 }} />
-        <Typography variant="h6">Page Setup</Typography>
-      </Box>
-      <Box>
-        <FormControlLabel
-          label="Paged"
-          disabled={!isEditable}
-          control={<Switch checked={paged} onChange={() => updatePageSetup(paged ? null : lastPagedSetup.current)} />}
-        />
-        <FormHelperText sx={{ mt: 0 }}>
-          {paged ? "Document uses pages with a defined size and margins" : "Document is pageless and flows continuously"}
-        </FormHelperText>
-      </Box>
-      <TextField
-        select
-        size="small"
-        label="Page Size"
-        value={shown.pageSize}
-        disabled={disabled}
-        onChange={(e) => updatePageSetup({ pageSize: e.target.value as PageSize })}
-      >
-        {PAGE_SIZE_ORDER.map((size) => (
-          <MenuItem key={size} value={size}>{PAGE_SIZES[size].label}</MenuItem>
-        ))}
-      </TextField>
-      <TextField
-        select
-        size="small"
-        label="Orientation"
-        value={shown.orientation}
-        disabled={disabled}
-        onChange={(e) => updatePageSetup({ orientation: e.target.value as Orientation })}
-      >
-        <MenuItem value="portrait">Portrait</MenuItem>
-        <MenuItem value="landscape">Landscape</MenuItem>
-      </TextField>
-      <Box>
-        <Typography variant="subtitle2" gutterBottom>Margins (inches)</Typography>
-        <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1.5, pt: 1 }}>
-          {MARGIN_SIDES.map(({ label, side }) => (
-            <MarginInput
-              key={side}
-              label={label}
-              value={shown.margins[side]}
-              disabled={disabled}
-              onChange={(value) => updatePageSetup({ margins: { ...shown.margins, [side]: value } })}
-            />
-          ))}
+    <Box>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Description sx={{ mr: 1 }} />
+          <Typography variant="h6">Page Setup</Typography>
+        </Box>
+        <Box>
+          <FormControlLabel
+            label="Paged"
+            disabled={!isEditable}
+            control={<Switch checked={paged} onChange={() => updatePageSetup(paged ? null : lastPagedSetup.current)} />}
+          />
+          <FormHelperText sx={{ mt: 0 }}>
+            {paged ? "Document uses pages with a defined size and margins" : "Document is pageless and flows continuously"}
+          </FormHelperText>
         </Box>
       </Box>
-      <SlotSection
-        kind="header"
-        setup={shown.header}
-        pageCount={pageCount}
-        disabled={disabled}
-        onChange={(patch) => updateSlot("header", patch)}
-        onEdit={(variant) => editSlot("header", variant)}
-      />
-      <SlotSection
-        kind="footer"
-        setup={shown.footer}
-        pageCount={pageCount}
-        disabled={disabled}
-        onChange={(patch) => updateSlot("footer", patch)}
-        onEdit={(variant) => editSlot("footer", variant)}
-      />
+      {/* the page settings only apply to a paged document */}
+      <Collapse in={paged}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}>
+          <TextField
+            select
+            size="small"
+            label="Page Size"
+            value={shown.pageSize}
+            disabled={disabled}
+            onChange={(e) => updatePageSetup({ pageSize: e.target.value as PageSize })}
+          >
+            {PAGE_SIZE_ORDER.map((size) => (
+              <MenuItem key={size} value={size}>{PAGE_SIZES[size].label}</MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            select
+            size="small"
+            label="Orientation"
+            value={shown.orientation}
+            disabled={disabled}
+            onChange={(e) => updatePageSetup({ orientation: e.target.value as Orientation })}
+          >
+            <MenuItem value="portrait">Portrait</MenuItem>
+            <MenuItem value="landscape">Landscape</MenuItem>
+          </TextField>
+          <Box>
+            <Typography variant="subtitle2" gutterBottom>Margins (inches)</Typography>
+            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1.5, pt: 1 }}>
+              {MARGIN_SIDES.map(({ label, side }) => (
+                <MarginInput
+                  key={side}
+                  label={label}
+                  value={shown.margins[side]}
+                  disabled={disabled}
+                  onChange={(value) => updatePageSetup({ margins: { ...shown.margins, [side]: value } })}
+                />
+              ))}
+            </Box>
+          </Box>
+          <SlotSection
+            kind="header"
+            setup={shown.header}
+            pageCount={pageCount}
+            disabled={disabled}
+            onChange={(patch) => updateSlot("header", patch)}
+            onEdit={(variant) => editSlot("header", variant)}
+          />
+          <SlotSection
+            kind="footer"
+            setup={shown.footer}
+            pageCount={pageCount}
+            disabled={disabled}
+            onChange={(patch) => updateSlot("footer", patch)}
+            onEdit={(variant) => editSlot("footer", variant)}
+          />
+        </Box>
+      </Collapse>
     </Box>
   );
 }
