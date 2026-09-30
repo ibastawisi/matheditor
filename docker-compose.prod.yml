@@ -12,6 +12,7 @@ services:
       context: .
       args:
         NEXT_PUBLIC_FASTAPI_URL: ${NEXT_PUBLIC_FASTAPI_URL}
+        PUBLIC_URL: ${PUBLIC_URL}
     restart: unless-stopped
     env_file: .env
     environment:
