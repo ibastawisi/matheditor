@@ -206,7 +206,12 @@ export function StaticPages({ html }: { html: string }) {
   if (!pageSetup) return <div ref={rootRef} className="document-container" dangerouslySetInnerHTML={{ __html: html }} />;
   return (
     <>
-      <div className={`document-pages ${PAGES_CSS.host}`} style={frame} data-static-pages={styleId}>
+      {/* while the server HTML loads, the browser restores the scroll position
+          and then keeps what is on screen in place as the page breaks and
+          their styles come in; once loaded, it restores the position again
+          and the page jumps. Without scroll anchoring, the first restore
+          holds */}
+      <div className={`document-pages ${PAGES_CSS.host}`} style={hydrating ? { ...frame, overflowAnchor: "none" } : frame} data-static-pages={styleId}>
         <div ref={rootRef} className="document-container" dangerouslySetInnerHTML={{ __html: html }} />
       </div>
       {hydrating && (
