@@ -199,31 +199,33 @@ export function ToolbarComponent() {
 
   return (
     <ActiveEditorComposer editor={activeSlotEditor}>
-      <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}
-        sx={{ background: 'var(--mui-palette-background-default) !important', transition: 'none', }}>
-        <Toolbar className="editor-toolbar" sx={{ position: "relative", displayPrint: 'none', alignItems: "center", px: '0 !important', py: 1, }}>
-          <Container sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: toolbarTrigger ? '' : '0 !important', }}>
-            <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
-              <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
-                onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}>
-                <Undo fontSize='small' />
-              </IconButton>
-              <IconButton title={IS_APPLE ? 'Redo (⌘Y)' : 'Redo (Ctrl+Y)'} aria-label="Redo" disabled={!canRedo}
-                onClick={() => { activeEditor.dispatchCommand(REDO_COMMAND, undefined); }}>
-                <Redo fontSize='small' />
-              </IconButton>
-            </Box>
-            <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', flexWrap: "wrap", justifyContent: "center" }}>
-              <TextTools />
-            </Box>
-            <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
-              <InsertToolMenu />
-              <AlignTextMenu />
-            </Box>
-          </Container>
-        </Toolbar >
-      </AppBar>
-      {toolbarTrigger && <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })} />}
+      {/* keeps the toolbar's height in the flow while it is fixed */}
+      <Box sx={(theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })}>
+        <AppBar elevation={toolbarTrigger ? 4 : 0} position={toolbarTrigger ? 'fixed' : 'static'}
+          sx={{ background: 'var(--mui-palette-background-default) !important', transition: 'none', }}>
+          <Toolbar className="editor-toolbar" sx={{ position: "relative", displayPrint: 'none', alignItems: "center", px: '0 !important', py: 1, }}>
+            <Container sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: toolbarTrigger ? '' : '0 !important', }}>
+              <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
+                <IconButton title={IS_APPLE ? 'Undo (⌘Z)' : 'Undo (Ctrl+Z)'} aria-label="Undo" disabled={!canUndo}
+                  onClick={() => { activeEditor.dispatchCommand(UNDO_COMMAND, undefined); }}>
+                  <Undo fontSize='small' />
+                </IconButton>
+                <IconButton title={IS_APPLE ? 'Redo (⌘Y)' : 'Redo (Ctrl+Y)'} aria-label="Redo" disabled={!canRedo}
+                  onClick={() => { activeEditor.dispatchCommand(REDO_COMMAND, undefined); }}>
+                  <Redo fontSize='small' />
+                </IconButton>
+              </Box>
+              <Box sx={{ display: "flex", gap: 0.5, mx: 'auto', flexWrap: "wrap", justifyContent: "center" }}>
+                <TextTools />
+              </Box>
+              <Box sx={{ display: "flex", alignSelf: 'start', my: { xs: 0, sm: 0.5 } }}>
+                <InsertToolMenu />
+                <AlignTextMenu />
+              </Box>
+            </Container>
+          </Toolbar >
+        </AppBar>
+      </Box>
       <ToolbarPopups />
     </ActiveEditorComposer>
   );
