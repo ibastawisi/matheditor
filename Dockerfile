@@ -9,7 +9,6 @@ WORKDIR /app
 
 FROM base AS build
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY patches ./patches
 COPY prisma ./prisma
 RUN pnpm install --frozen-lockfile
 COPY . .
