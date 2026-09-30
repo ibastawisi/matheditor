@@ -37,6 +37,7 @@ const StorageChart: React.FC = () => {
 
   const [localStorageUsage, setLocalStorageUsage] = useState<storageUsage>({ loading: true, usage: 0, details: [] });
   const [cloudStorageUsage, setCloudStorageUsage] = useState<storageUsage>({ loading: true, usage: 0, details: [] });
+  const isCloudStorageLoading = cloudStorageUsage.loading || (!initialized && !cloudStorageUsage.usage);
 
   useEffect(() => {
     dispatch(actions.getLocalStorageUsage()).then(response => {
@@ -104,7 +105,7 @@ const StorageChart: React.FC = () => {
       <Grid size={{ xs: 12, sm: 6 }}>
         <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2 }}>
           <Typography variant='overline' gutterBottom sx={{ alignSelf: 'start', userSelect: 'none' }}>Cloud Storage</Typography>
-          {(cloudStorageUsage.loading || (!initialized && !cloudStorageUsage.usage)) && (
+          {isCloudStorageLoading && (
             <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
               <CircularProgress disableShrink />
             </Box>
@@ -115,7 +116,7 @@ const StorageChart: React.FC = () => {
               <Typography variant="overline" component="p" sx={{ userSelect: 'none' }}>Please login to use cloud storage</Typography>
             </Box>
           )}
-          {user && !cloudStorageUsage.loading && !cloudStorageUsage.usage && (
+          {user && !isCloudStorageLoading && !cloudStorageUsage.usage && (
             <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: 300, gap: 2 }}>
               <Cloud sx={{ width: 64, height: 64, fontSize: 64 }} />
               <Typography variant="overline" component="p" sx={{ userSelect: 'none' }}>Cloud storage is empty</Typography>
