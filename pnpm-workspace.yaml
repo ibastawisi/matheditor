@@ -5,6 +5,3 @@ allowBuilds:
   puppeteer: true
   esbuild: false
   sharp: false
-
-patchedDependencies:
-  htmr@1.0.2: patches/htmr@1.0.2.patch

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Playground from "@/components/Playground";
-import htmr from "htmr";
 import { findUserDocument } from "@/repositories/document";
 import { findRevisionHtml } from "@/app/api/utils";
 
@@ -17,7 +16,7 @@ const page = async () => {
   const revisionId = document.head;
   const html = await findRevisionHtml(revisionId);
   if (html === null) return <Playground />;
-  return <Playground>{htmr(html)}</Playground>
+  return <Playground html={html} />
 }
 
 export default page;

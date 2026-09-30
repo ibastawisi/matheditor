@@ -4,15 +4,15 @@ import { EditorSkeleton } from "../EditorSkeleton";
 import SplashScreen from "../SplashScreen";
 import dynamic from "next/dynamic";
 
-const Tutorial: React.FC<React.PropsWithChildren> = ({ children }) => {
+const Tutorial: React.FC<{ html?: string }> = ({ html }) => {
   const [isClient, setIsClient] = useState(false)
   useEffect(() => { setIsClient(true) }, [])
-  const fallback = children ? <EditorSkeleton>{children}</EditorSkeleton> : <SplashScreen title="Loading Document" />;
+  const fallback = html ? <EditorSkeleton html={html} /> : <SplashScreen title="Loading Document" />;
   if (!isClient) return fallback;
 
   const TutorialEditor = dynamic(() => import('./Editor'), { ssr: false, loading: () => fallback });
   return (
-    <TutorialEditor>{children}</TutorialEditor>
+    <TutorialEditor />
   );
 }
 

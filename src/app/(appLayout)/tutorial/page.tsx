@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Tutorial from "@/components/Tutorial";
-import htmr from "htmr";
 import { findRevisionHtml } from "@/app/api/utils";
 import { findUserDocument } from "@/repositories/document";
 
@@ -17,7 +16,7 @@ const page = async () => {
   const revisionId = document.head;
   const html = await findRevisionHtml(revisionId);
   if (html === null) return <Tutorial />;
-  return <Tutorial>{htmr(html)}</Tutorial>
+  return <Tutorial html={html} />
 }
 
 export default page;

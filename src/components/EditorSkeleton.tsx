@@ -1,14 +1,14 @@
 "use client"
 import { Undo, Redo, Add, FormatAlignLeft, ViewHeadline, ArrowDropDown, AutoAwesome, TextDecrease, TextIncrease, Code, FormatBold, FormatItalic, FormatStrikethrough, FormatUnderlined, Subscript, Superscript, Link, FormatColorFill } from "@mui/icons-material";
 import { AppBar, Toolbar, Box, IconButton, useScrollTrigger, Typography, ListItemIcon, ListItemText, MenuItem, Select, Button, TextField, ToggleButton, ToggleButtonGroup, SvgIcon, Container } from "@mui/material";
-import { PropsWithChildren, useEffect } from "react";
+import { useEffect } from "react";
 
 const Highlight = () => <SvgIcon viewBox='0 -960 960 960' fontSize='small'>
   <path xmlns="http://www.w3.org/2000/svg" d="M80 0v-160h800V0H80Zm504-480L480-584 320-424l103 104 161-160Zm-47-160 103 103 160-159-104-104-159 160Zm-84-29 216 216-189 190q-24 24-56.5 24T367-263l-27 23H136l126-125q-24-24-25-57.5t23-57.5l189-189Zm0 0 187-187q24-24 56.5-24t56.5 24l104 103q24 24 24 56.5T857-636L669-453 453-669Z" fontSize='small' />
 </SvgIcon>;
 
 
-export const EditorSkeleton: React.FC<PropsWithChildren> = ({ children }) => {
+export const EditorSkeleton: React.FC<{ html: string }> = ({ html }) => {
   const toolbarTrigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 32,
@@ -203,7 +203,7 @@ export const EditorSkeleton: React.FC<PropsWithChildren> = ({ children }) => {
         sx={[{
           fontSize: 'small'
         }, (theme) => ({ ...theme.mixins.toolbar, displayPrint: "none" })]} />}
-      <div className="document-container">{children}</div>
+      <div className="document-container" dangerouslySetInnerHTML={{ __html: html }} />
     </>
   );
 }

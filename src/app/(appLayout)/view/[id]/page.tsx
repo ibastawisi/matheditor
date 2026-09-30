@@ -1,7 +1,6 @@
 import type { OgMetadata } from "@/app/api/og/route";
 import { findUserDocument } from "@/repositories/document";
 import ViewDocument from "@/components/ViewDocument";
-import htmr from 'htmr';
 import { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -88,7 +87,7 @@ export default async function Page(
     }
     const html = await findRevisionHtml(revisionId);
     if (html === null) return <SplashScreen title="Something went wrong" subtitle="Please try again later" />;
-    return <ViewDocument cloudDocument={document} user={session?.user}>{htmr(html)}</ViewDocument>;
+    return <ViewDocument cloudDocument={document} user={session?.user} html={html} />;
   } catch (error) {
     console.error(error);
     return <SplashScreen title="Something went wrong" subtitle="Please try again later" />;

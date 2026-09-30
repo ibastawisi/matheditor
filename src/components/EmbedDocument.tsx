@@ -1,6 +1,6 @@
 import { Container } from "@mui/material";
 
-const EmbedDocument: React.FC<React.PropsWithChildren> = ({ children }) => {
+const EmbedDocument: React.FC<{ html: string }> = ({ html }) => {
   return (
     <Container
       className='editor-container'
@@ -12,7 +12,7 @@ const EmbedDocument: React.FC<React.PropsWithChildren> = ({ children }) => {
         flex: 1,
         position: 'relative'
       }}>
-      <div className="document-container">{children}</div>
+      <div className="document-container" dangerouslySetInnerHTML={{ __html: html }} />
     </Container>
   );
 }
