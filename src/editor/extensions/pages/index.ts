@@ -12,9 +12,7 @@ import {
 } from "@lexical/extension";
 import { RichTextExtension } from "@lexical/rich-text";
 import {
-  $insertNodes,
   type AnyLexicalExtension,
-  COMMAND_PRIORITY_EDITOR,
   configExtension,
   defineExtension,
   type LexicalEditor,
@@ -25,39 +23,13 @@ import {
 
 import { PageBreakExtension } from "@/editor/extensions/page-break";
 import { LinkExtension } from "@/editor/extensions/link";
-import { INSERT_PAGE_COUNT_COMMAND, INSERT_PAGE_NUMBER_COMMAND } from "./commands";
 import { PAGE_GAP } from "./constants";
 import { PagesLayout } from "./layout";
-import { $createPageCountNode, $createPageNumberNode, PageCountNode, PageNumberNode } from "./nodes";
+import { PageCountersExtension } from "./nodes";
 import { registerPrintHandlers } from "./print";
 import { PageSlots, type SlotCloneRenderer, type SlotEditorBuilder } from "./slots";
 import { $getPageSetup } from "./states";
 import type { ActivePageSlot } from "./types";
-
-/** Registers the page number and page count nodes and their insert commands */
-export const PageCountersExtension = defineExtension({
-  name: "page-counters",
-  nodes: () => [PageNumberNode, PageCountNode],
-  register: (editor) =>
-    mergeRegister(
-      editor.registerCommand(
-        INSERT_PAGE_NUMBER_COMMAND,
-        () => {
-          $insertNodes([$createPageNumberNode()]);
-          return true;
-        },
-        COMMAND_PRIORITY_EDITOR
-      ),
-      editor.registerCommand(
-        INSERT_PAGE_COUNT_COMMAND,
-        () => {
-          $insertNodes([$createPageCountNode()]);
-          return true;
-        },
-        COMMAND_PRIORITY_EDITOR
-      )
-    ),
-});
 
 /**
  * The default header/footer editor: rich text, links and page counters. It

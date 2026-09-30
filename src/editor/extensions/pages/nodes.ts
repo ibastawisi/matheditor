@@ -2,14 +2,19 @@ import {
   $create,
   $getRoot,
   $getSelection,
+  $insertNodes,
   $isRangeSelection,
   buildImportMap,
+  COMMAND_PRIORITY_EDITOR,
+  defineExtension,
   type EditorConfig,
   type LexicalEditor,
   type LexicalNode,
+  mergeRegister,
   type SerializedEditorState,
   TextNode,
 } from "lexical";
+import { INSERT_PAGE_COUNT_COMMAND, INSERT_PAGE_NUMBER_COMMAND } from "./commands";
 
 export const PAGE_NUMBER_ATTRIBUTE = "data-lexical-page-number";
 export const PAGE_COUNT_ATTRIBUTE = "data-lexical-page-count";
@@ -98,6 +103,31 @@ export function $createPageCountNode(): PageCountNode {
 export function $isPageCountNode(node: LexicalNode | null | undefined): node is PageCountNode {
   return node instanceof PageCountNode;
 }
+
+/** Registers the page number and page count nodes and their insert commands */
+export const PageCountersExtension = defineExtension({
+  name: "page-counters",
+  nodes: () => [PageNumberNode, PageCountNode],
+  register: (editor) =>
+    mergeRegister(
+      editor.registerCommand(
+        INSERT_PAGE_NUMBER_COMMAND,
+        () => {
+          $insertNodes([$createPageNumberNode()]);
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR
+      ),
+      editor.registerCommand(
+        INSERT_PAGE_COUNT_COMMAND,
+        () => {
+          $insertNodes([$createPageCountNode()]);
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR
+      )
+    ),
+});
 
 /**
  * Writes the page number and page count into the rendered DOM of a header or
