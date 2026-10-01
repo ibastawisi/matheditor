@@ -146,7 +146,7 @@ function GraphDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
     if (!navigation) return;
 
     const preventBackNavigation = (event: any) => {
-      if (event.navigationType === 'push') return;
+      if (event.navigationType !== 'traverse') return;
       event.preventDefault();
       handleClose();
     };
