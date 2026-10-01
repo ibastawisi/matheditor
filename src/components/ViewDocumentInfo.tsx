@@ -2,16 +2,24 @@
 import { CloudDocument, User } from '@/types';
 import Grid from '@mui/material/Grid';
 import { Avatar, Badge, Box, Button, Chip, Fab, Portal, Typography, useScrollTrigger } from '@mui/material';
-import { Edit, FileCopy, Print, History, Info, Share } from '@mui/icons-material';
+import { Edit, FileCopy, Print, History, Info, Search, Share, Toc } from '@mui/icons-material';
 import RouterLink from "next/link";
 import { ShareDocumentForm } from './DocumentActions/Share';
 import DownloadDocument from './DocumentActions/Download';
 import ForkDocument from './DocumentActions/Fork';
-import AppDrawer from './AppDrawer';
+import AppDrawer, { type AppDrawerTab } from './AppDrawer';
 import ViewRevisionCard from './ViewRevisionCard';
 import { useSearchParams } from 'next/navigation';
+import { useAppStore } from '@/store';
+import { StaticTableOfContentsPanel } from '@/editor/extensions/table-of-contents/static';
+import { useStaticSearch } from '@/editor/extensions/search/static';
+import SearchPanel from '@/editor/extensions/search/panel';
+import useSearchShortcut from '@/hooks/useSearchShortcut';
 
-export default function ViewDocumentInfo({ cloudDocument, user }: { cloudDocument: CloudDocument, user?: User }) {
+export default function ViewDocumentInfo({ cloudDocument, user, container }: { cloudDocument: CloudDocument, user?: User, container: HTMLElement | null }) {
+  const toggleDrawer = useAppStore(state => state.toggleDrawer);
+  const search = useStaticSearch(container);
+  useSearchShortcut(!!search);
   const slideTrigger = useScrollTrigger({ disableHysteresis: true });
   const handle = cloudDocument.handle || cloudDocument.id;
   const isAuthor = cloudDocument.author.id === user?.id;
@@ -91,13 +99,23 @@ export default function ViewDocumentInfo({ cloudDocument, user }: { cloudDocumen
     </Grid>
   );
 
+  const tabs: AppDrawerTab[] = [{ value: "details", label: "Details", icon: <Info />, content: details }];
+  if (container) tabs.push({
+    value: "contents", label: "Contents", icon: <Toc />,
+    content: <StaticTableOfContentsPanel container={container} onNavigate={() => toggleDrawer(false)} />
+  });
+  if (search) tabs.push({
+    value: "search", label: "Search", icon: <Search />,
+    content: <SearchPanel search={search} onNavigate={() => toggleDrawer(false)} />
+  });
+  tabs.push(
+    { value: "share", label: "Share", icon: <Share />, content: <ShareDocumentForm userDocument={userDocument} /> },
+    { value: "revisions", label: "Revisions", icon: <History />, badge: showRevisionsBadge ? revisionsBadgeContent : undefined, content: revisionsTab },
+  );
+
   return (
     <>
-      <AppDrawer title="Document Info" tabs={[
-        { value: "details", label: "Details", icon: <Info />, content: details },
-        { value: "share", label: "Share", icon: <Share />, content: <ShareDocumentForm userDocument={userDocument} /> },
-        { value: "revisions", label: "Revisions", icon: <History />, badge: showRevisionsBadge ? revisionsBadgeContent : undefined, content: revisionsTab },
-      ]} />
+      <AppDrawer title="Document Info" tabs={tabs} />
       {showFork && <Fab variant="extended" size='medium' component={RouterLink} prefetch={false} href={href}
         sx={{ position: 'fixed', right: slideTrigger ? 64 : 24, bottom: 16, px: 2, displayPrint: 'none', transition: `right 225ms ease-in-out` }}>
         {isEditable ? <Edit sx={{ mr: 1 }} /> : <FileCopy sx={{ mr: 1 }} />}{isEditable ? 'Edit' : 'Fork'}

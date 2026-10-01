@@ -2,7 +2,7 @@
 import { Badge, Box, IconButton, SwipeableDrawer, Tab, Tabs, Typography } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { useAppStore } from '@/store';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 export interface AppDrawerTab {
   value: string;
@@ -12,16 +12,24 @@ export interface AppDrawerTab {
   content: React.ReactNode;
 }
 
+/** The most tabs whose labels fit side by side in the drawer */
+const MAX_FULL_WIDTH_TABS = 5;
+
 const AppDrawer: React.FC<{ title: string, tabs: AppDrawerTab[], onChange?: (value: string) => void }> = ({ title, tabs, onChange }) => {
   const open = useAppStore(state => state.drawer);
   const toggleDrawer = useAppStore(state => state.toggleDrawer);
   const handleToggle = () => { toggleDrawer(); }
-  const [selected, setSelected] = useState(tabs[0]?.value);
+  // in the store, so that a shortcut can open the drawer on a tab
+  const selected = useAppStore(state => state.drawerTab);
+  const setDrawerTab = useAppStore(state => state.setDrawerTab);
   // a tab can go away, like the page setup before the editor is ready
   const activeTab = tabs.find(tab => tab.value === selected) ?? tabs[0];
 
   useEffect(() => {
-    return () => { toggleDrawer(false); }
+    return () => {
+      toggleDrawer(false);
+      setDrawerTab(null);
+    }
   }, []);
 
   return (
@@ -39,8 +47,11 @@ const AppDrawer: React.FC<{ title: string, tabs: AppDrawerTab[], onChange?: (val
       </Box>
       <Tabs
         value={activeTab?.value ?? false}
-        onChange={(_, value) => { setSelected(value); onChange?.(value); }}
-        variant="fullWidth"
+        onChange={(_, value) => { setDrawerTab(value); onChange?.(value); }}
+        // the tabs share the width while their labels fit, and scroll beyond that
+        variant={tabs.length > MAX_FULL_WIDTH_TABS ? "scrollable" : "fullWidth"}
+        scrollButtons="auto"
+        allowScrollButtonsMobile
         aria-label={title}
         sx={{ flexShrink: 0, borderBottom: 1, borderColor: 'divider' }}
       >

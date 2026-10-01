@@ -3,7 +3,6 @@ import { $getSelection, $setSelection, CAN_REDO_COMMAND, CAN_UNDO_COMMAND, CLEAR
 import { createLexicalComposerContext, LexicalComposerContext, type LexicalComposerContextWithEditor, useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useExtensionSignalValue } from '@lexical/react/useExtensionSignalValue';
 import { IS_APPLE, mergeRegister } from '@lexical/utils';
-import { useHash } from 'react-use';
 import { type ReactNode, useEffect, useMemo, useRef } from 'react';
 import type { LexicalEditor } from 'lexical';
 import { useScrollTrigger, AppBar, Toolbar, Box, IconButton, Container } from '@mui/material';
@@ -124,7 +123,6 @@ export function ToolbarComponent() {
   const activeSlotEditor = useExtensionSignalValue(PagesExtension, "activeSlotEditor");
   const activeEditor = activeSlotEditor ?? editor;
   const isTouched = useRef<boolean>(false);
-  const [hash] = useHash();
 
   // history created before the user touches the document (e.g. restoring a revision) should not be undoable
   useEffect(() => {
@@ -183,19 +181,6 @@ export function ToolbarComponent() {
       darkThemeMeta.setAttribute('content', toolbarTrigger ? '#121212' : '#272727');
     }
   }, [toolbarTrigger]);
-
-  useEffect(() => {
-    if (!hash) return;
-    const scrollIntoView = (behavior?: ScrollBehavior) => {
-      const target = document.getElementById(hash.slice(1));
-      if (target) return target.scrollIntoView({ block: 'start', behavior });
-      const decodedHash = decodeURIComponent(hash.slice(1));
-      const anchor = Array.from(document.querySelectorAll('a')).find(a => a.getAttribute('href') === `#${decodedHash}` && a.getAttribute('target') === '_self');
-      anchor?.scrollIntoView({ block: 'start', behavior });
-    };
-    scrollIntoView();
-    setTimeout(() => scrollIntoView('smooth'), 0);
-  }, [hash]);
 
   return (
     <ActiveEditorComposer editor={activeSlotEditor}>

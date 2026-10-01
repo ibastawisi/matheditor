@@ -1,0 +1,8 @@
+::highlight(search-match) {
+  background-color: rgb(255 213 0 / 0.4);
+}
+
+::highlight(search-match-active) {
+  background-color: rgb(255 150 0);
+  color: #000;
+}

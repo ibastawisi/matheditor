@@ -108,11 +108,11 @@ header {
   }
 }
 
-.editor-container :is([id], [target=_self]) {
+.editor-container :is([id], [target=_self], h1, h2, h3, h4, h5, h6) {
   scroll-margin-top: 1rem;
 }
 
-body:has(#app-toolbar) .editor-container :is([id], [target=_self]) {
+body:has(#app-toolbar) .editor-container :is([id], [target=_self], h1, h2, h3, h4, h5, h6) {
   scroll-margin-top: calc(56px + 1rem);
 }
 
@@ -204,7 +204,7 @@ body.fullscreen {
 }
 
 @media (min-width: 600px) {
-  body:has(#app-toolbar) .editor-container :is([id], [target=_self]) {
+  body:has(#app-toolbar) .editor-container :is([id], [target=_self], h1, h2, h3, h4, h5, h6) {
     scroll-margin-top: calc(64px + 1rem);
   }
 }

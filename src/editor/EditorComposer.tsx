@@ -10,8 +10,11 @@ import { TableCellResizerExtension } from "./extensions/table/resizer";
 import { FloatingToolbarExtension } from "./extensions/floating-toolbar";
 import { ComponentPickerExtension } from "./extensions/component-picker";
 import { PageSlotEditorsExtension } from "./extensions/pages/slot-editors";
+import { TableOfContentsExtension } from "./extensions/table-of-contents";
+import { SearchExtension } from "./extensions/search";
+import { HashNavigationExtension } from "./extensions/hash-navigation";
 
-/** React decorators rendered alongside the editor */
+/** React decorators rendered alongside the editor, and the behaviors that need the browser */
 const EditorUIExtensions = defineExtension({
   name: "@matheditor/ui",
   dependencies: [
@@ -21,6 +24,9 @@ const EditorUIExtensions = defineExtension({
     FloatingToolbarExtension,
     ComponentPickerExtension,
     PageSlotEditorsExtension,
+    TableOfContentsExtension,
+    SearchExtension,
+    HashNavigationExtension,
   ],
 });
 
