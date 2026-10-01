@@ -1,5 +1,5 @@
 "use client"
-import { useDispatch, actions, useSelector } from "@/store";
+import { useAppStore } from "@/store";
 import { DocumentUpdateInput, User, UserDocument } from "@/types";
 import { CloudOff, ContentCopy, Share } from "@mui/icons-material";
 import { IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Tabs, Tab, FormControl, FormLabel, FormControlLabel, Checkbox, FormHelperText, Slider, RadioGroup, Radio, useMediaQuery, ListItemIcon, ListItemText, MenuItem, Select, Typography, Switch } from "@mui/material";
@@ -9,10 +9,11 @@ import { useTheme } from "@mui/material/styles";
 import useFixedBodyScroll from "@/hooks/useFixedBodyScroll";
 import UploadDocument from "./Upload";
 import { useSearchParams } from "next/navigation";
+import { enqueueSnackbar } from 'notistack';
 
 const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
-  const dispatch = useDispatch();
-  const user = useSelector(state => state.user);
+  const updateCloudDocument = useAppStore(state => state.updateCloudDocument);
+  const user = useAppStore(state => state.user);
   const localDocument = userDocument?.local;
   const cloudDocument = userDocument?.cloud;
   const isCloud = !!cloudDocument;
@@ -69,16 +70,16 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
     const url = getShareUrl(new FormData(shareForm));
     try {
       await navigator.clipboard.writeText(url.toString());
-      dispatch(actions.announce({ message: { title: "Link Copied to Clipboard" } }));
+      enqueueSnackbar("Link Copied to Clipboard");
     } catch (err) {
-      dispatch(actions.announce({ message: { title: "Failed to Copy Link to Clipboard" } }));
+      enqueueSnackbar("Failed to Copy Link to Clipboard");
     }
   };
 
   const handleShare = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formdata = new FormData(event.currentTarget);
-    if (!isCloud) return dispatch(actions.announce({ message: { title: "Document is not saved to the cloud", subtitle: "Please save document to the cloud first" } }));
+    if (!isCloud) return enqueueSnackbar("Document is not saved to the cloud", { description: "Please save document to the cloud first" });
     const url = getShareUrl(formdata);
     const shareData = { title: name, url: url.toString() };
     closeShareDialog();
@@ -90,39 +91,33 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
   };
 
   const togglePrivate = async () => {
-    if (!isCloud) return dispatch(actions.announce({ message: { title: "Document is not saved to the cloud", subtitle: "Please save document to the cloud first" } }));
+    if (!isCloud) return enqueueSnackbar("Document is not saved to the cloud", { description: "Please save document to the cloud first" });
     const payload: { id: string, partial: DocumentUpdateInput } = { id, partial: { private: !isPrivate } };
     if (isPublished) payload.partial.published = false;
     if (isCollab) payload.partial.collab = false;
-    const response = await dispatch(actions.updateCloudDocument(payload));
-    if (response.type === actions.updateCloudDocument.fulfilled.type) {
-      dispatch(actions.announce({
-        message: {
-          title: "Document Privacy Updated",
-          subtitle: `Document is now ${payload.partial.private ? "private" : "shared by link"}`
-        }
-      }));
+    const { data: updatedDocument } = await updateCloudDocument(payload);
+    if (updatedDocument) {
+      enqueueSnackbar("Document Privacy Updated", {
+        description: `Document is now ${payload.partial.private ? "private" : "shared by link"}`
+      });
     }
   }
 
   const toggleCollab = async () => {
-    if (!isCloud) return dispatch(actions.announce({ message: { title: "Document is not saved to the cloud", subtitle: "Please save document to the cloud first" } }));
+    if (!isCloud) return enqueueSnackbar("Document is not saved to the cloud", { description: "Please save document to the cloud first" });
     const payload = { id, partial: { collab: !isCollab } };
-    const response = await dispatch(actions.updateCloudDocument(payload));
-    if (response.type === actions.updateCloudDocument.fulfilled.type) {
-      dispatch(actions.announce({
-        message: {
-          title: "Document Collaboration Updated",
-          subtitle: `Document is now ${payload.partial.collab ? "collaborative" : "shared by link"}`
-        }
-      }));
+    const { data: updatedDocument } = await updateCloudDocument(payload);
+    if (updatedDocument) {
+      enqueueSnackbar("Document Collaboration Updated", {
+        description: `Document is now ${payload.partial.collab ? "collaborative" : "shared by link"}`
+      });
     }
   };
 
   const updateCoauthors = (users: (User | string)[]) => {
-    if (!cloudDocument) return dispatch(actions.announce({ message: { title: "Document is not saved to the cloud", subtitle: "Please save document to the cloud first" } }));
+    if (!cloudDocument) return enqueueSnackbar("Document is not saved to the cloud", { description: "Please save document to the cloud first" });
     const coauthors = users.map(u => typeof u === "string" ? u : u.email);
-    dispatch(actions.updateCloudDocument({ id: cloudDocument.id, partial: { coauthors } }));
+    updateCloudDocument({ id: cloudDocument.id, partial: { coauthors } });
   }
 
   useFixedBodyScroll(shareDialogOpen);

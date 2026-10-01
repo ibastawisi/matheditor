@@ -1,12 +1,13 @@
 "use client"
-import { useDispatch, actions } from "@/store";
+import { useAppStore } from "@/store";
 import { UserDocument } from "@/types";
 import { Delete, DeleteForever } from "@mui/icons-material";
 import { IconButton, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
-import { v4 as uuid } from "uuid";
+import { alert } from "@/shared/alert";
 
 const DeleteDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
-  const dispatch = useDispatch();
+  const deleteLocalDocument = useAppStore(state => state.deleteLocalDocument);
+  const deleteCloudDocument = useAppStore(state => state.deleteCloudDocument);
   const localDocument = userDocument.local;
   const cloudDocument = userDocument.cloud;
   const isLocal = !!localDocument;
@@ -17,17 +18,14 @@ const DeleteDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem
 
   const handleDelete = async () => {
     if (closeMenu) closeMenu();
-    const alert = {
+    const confirmed = await alert({
       title: `Delete ${isLocal ? "Local" : "Cloud"} Document`,
-      content: `Are you sure you want to delete ${name}?`,
-      actions: [
-        { label: "Cancel", id: uuid() },
-        { label: "Delete", id: uuid() },
-      ]
-    };
-    const response = await dispatch(actions.alert(alert));
-    if (response.payload === alert.actions[1].id) {
-      dispatch(isLocal ? actions.deleteLocalDocument(id) : actions.deleteCloudDocument(id));
+      description: `Are you sure you want to delete ${name}?`,
+      confirmText: "Delete",
+      buttonVariant: "destructive",
+    });
+    if (confirmed) {
+      isLocal ? deleteLocalDocument(id) : deleteCloudDocument(id);
     }
   };
 

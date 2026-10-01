@@ -1,5 +1,5 @@
 "use client"
-import { useDispatch, actions, useSelector } from "@/store";
+import { useAppStore } from "@/store";
 import { UserDocument, CheckHandleResponse, DocumentUpdateInput, User } from "@/types";
 import { CloudOff, Settings } from "@mui/icons-material";
 import { IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControlLabel, Checkbox, FormHelperText, useMediaQuery, ListItemIcon, ListItemText, MenuItem, TextField, Box, Typography } from "@mui/material";
@@ -11,10 +11,12 @@ import { debounce } from '@mui/material/utils';
 import UploadDocument from "./Upload";
 import UsersAutocomplete from "../User/UsersAutocomplete";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
+import { enqueueSnackbar } from 'notistack';
 
 const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
-  const dispatch = useDispatch();
-  const user = useSelector(state => state.user);
+  const updateLocalDocument = useAppStore(state => state.updateLocalDocument);
+  const updateCloudDocument = useAppStore(state => state.updateCloudDocument);
+  const user = useAppStore(state => state.user);
   const isOnline = useOnlineStatus();
   const localDocument = userDocument?.local;
   const cloudDocument = userDocument?.cloud;
@@ -128,19 +130,11 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
     }
     if (Object.keys(partial).length === 0) return;
     if (isLocal) {
-      try {
-        dispatch(actions.updateLocalDocument({ id, partial }));
-      } catch (err) {
-        dispatch(actions.announce({
-          message: {
-            title: "Error Updating Document",
-            subtitle: "An error occurred while updating local document"
-          }
-        }));
-      }
+      const { error } = await updateLocalDocument({ id, partial });
+      if (error) enqueueSnackbar("Error Updating Document", { description: "An error occurred while updating local document" });
     }
     if (isUploaded || isCloud) {
-      await dispatch(actions.updateCloudDocument({ id, partial }));
+      await updateCloudDocument({ id, partial });
     }
   };
 

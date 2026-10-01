@@ -1,47 +1,42 @@
 "use client"
-import { useDispatch, actions } from "@/store";
+import { useAppStore } from "@/store";
 import { BackupDocument, UserDocument } from "@/types";
 import { Download } from "@mui/icons-material";
 import { IconButton, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
+import { enqueueSnackbar } from 'notistack';
 
 const DownloadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
-  const dispatch = useDispatch();
+  const getLocalDocument = useAppStore(state => state.getLocalDocument);
+  const getCloudDocument = useAppStore(state => state.getCloudDocument);
+  const getLocalDocumentRevisions = useAppStore(state => state.getLocalDocumentRevisions);
   const localDocument = userDocument?.local;
   const isLocal = !!localDocument;
   const id = userDocument.id;
 
   const getEditorDocument = async () => {
     if (isLocal) {
-      const response = await dispatch(actions.getLocalDocument(id));
-      if (response.type === actions.getLocalDocument.fulfilled.type) {
-        const editorDocument = response.payload as ReturnType<typeof actions.getLocalDocument.fulfilled>["payload"];
-        return editorDocument;
-      }
-    } else {
-      const response = await dispatch(actions.getCloudDocument(id));
-      if (response.type === actions.getCloudDocument.fulfilled.type) {
-        const { cloudDocument, ...editorDocument } = response.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>["payload"];
-        return editorDocument;
-      }
+      const { data: editorDocument } = await getLocalDocument(id);
+      return editorDocument;
     }
+    const { data: cloudResponse } = await getCloudDocument(id);
+    if (!cloudResponse) return;
+    const { cloudDocument, ...editorDocument } = cloudResponse;
+    return editorDocument;
   };
 
   const getBackupDocument = async () => {
     const editorDocument = await getEditorDocument();
     if (!editorDocument) return null;
     const backupDocument: BackupDocument = { ...editorDocument, revisions: [] };
-    const revisionsResponse = await dispatch(actions.getLocalDocumentRevisions(id));
-    if (revisionsResponse.type === actions.getLocalDocumentRevisions.fulfilled.type) {
-      const revisions = revisionsResponse.payload as ReturnType<typeof actions.getLocalDocumentRevisions.fulfilled>["payload"];
-      backupDocument.revisions = revisions.filter(revision => revision.id !== editorDocument.head);
-    }
+    const { data: revisions } = await getLocalDocumentRevisions(id);
+    if (revisions) backupDocument.revisions = revisions.filter(revision => revision.id !== editorDocument.head);
     return backupDocument;
   };
 
   const handleSave = async () => {
     if (closeMenu) closeMenu();
     const backupDocument = await getBackupDocument();
-    if (!backupDocument) return dispatch(actions.announce({ message: { title: "Document Not Found" } }));
+    if (!backupDocument) return enqueueSnackbar("Document Not Found");
     const blob = new Blob([JSON.stringify(backupDocument)], { type: "text/json" });
     const link = window.document.createElement("a");
 

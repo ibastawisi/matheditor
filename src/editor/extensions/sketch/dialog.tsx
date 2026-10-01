@@ -11,7 +11,7 @@ import useColorMode from '@/hooks/useColorMode';
 import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, debounce } from '@mui/material';
 import dynamic from 'next/dynamic';
 import { ALERT_COMMAND } from '@/editor/commands';
-import { v4 as uuid } from 'uuid';
+import type { Alert } from '@/types';
 import { ExcalidrawElement, ExcalidrawImageElement, FileId } from '@excalidraw/excalidraw/element/types';
 import { ImportedLibraryData } from '@excalidraw/excalidraw/data/types';
 import type { ExcalidrawImperativeAPI, ExcalidrawProps, DataURL, LibraryItems, BinaryFiles, AppState, BinaryFileData } from '@excalidraw/excalidraw/types';
@@ -103,7 +103,7 @@ function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
     setOpenDialog(editor, null);
   }
 
-  const handleClose = async () => {
+  const handleClose = () => {
     function discard() {
       clearLocalStorage();
       closeDialog();
@@ -113,26 +113,14 @@ function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
     }
     const unsavedScene = localStorage.getItem("excalidraw");
     if (unsavedScene) {
-      const alert = {
+      const alert: Alert = {
         title: "Discard unsaved Changes",
-        content: "Are you sure you want to discard unsaved changes?",
-        actions: [
-          { label: "Cancel", id: uuid() },
-          { label: "Discard", id: uuid() },
-        ]
+        description: "Are you sure you want to discard unsaved changes?",
+        confirmText: "Discard",
+        buttonVariant: "destructive",
+        onConfirm: discard,
       };
       editor.dispatchCommand(ALERT_COMMAND, alert);
-      const id = await new Promise((resolve) => {
-        const handler = (event: MouseEvent): any => {
-          const target = event.target as HTMLElement;
-          const button = target.closest("button");
-          const paper = target.closest(".MuiDialog-paper");
-          if (paper && !button) return document.addEventListener("click", handler, { once: true });
-          resolve(button?.id ?? null);
-        };
-        setTimeout(() => { document.addEventListener("click", handler, { once: true }); }, 0);
-      });
-      if (id === alert.actions[1].id) discard();
     } else cancel();
   }
 
@@ -148,33 +136,21 @@ function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
     return excalidrawAPI?.updateScene({ elements, appState: { theme: colorMode } });
   }
 
-  const loadSceneOrLibrary = async () => {
+  const loadSceneOrLibrary = () => {
     const unsavedScene = localStorage.getItem("excalidraw");
     if (unsavedScene) {
-      const alert = {
+      const alert: Alert = {
         title: "Restore last unsaved Changes",
-        content: "You've unsaved changes from last session. Do you want to restore them?",
-        actions: [
-          { label: "Discard", id: uuid() },
-          { label: "Restore", id: uuid() },
-        ]
+        description: "You've unsaved changes from last session. Do you want to restore them?",
+        confirmText: "Restore",
+        cancelText: "Discard",
+        onConfirm: () => { restoreSerializedScene(unsavedScene); },
+        onCancel: () => {
+          clearLocalStorage();
+          tryLoadSceneFromNode();
+        },
       };
       editor.dispatchCommand(ALERT_COMMAND, alert);
-      const id = await new Promise((resolve) => {
-        const handler = (event: MouseEvent): any => {
-          const target = event.target as HTMLElement;
-          const button = target.closest("button");
-          const paper = target.closest(".MuiDialog-paper");
-          if (paper && !button) return document.addEventListener("click", handler, { once: true });
-          resolve(button?.id ?? null);
-        };
-        setTimeout(() => { document.addEventListener("click", handler, { once: true }); }, 0);
-      });
-      if (!id || id === alert.actions[0].id) {
-        clearLocalStorage();
-        tryLoadSceneFromNode();
-      }
-      if (id === alert.actions[1].id) restoreSerializedScene(unsavedScene);
     } else tryLoadSceneFromNode();
   };
 

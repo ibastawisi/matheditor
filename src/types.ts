@@ -4,30 +4,22 @@ import type { Session } from 'next-auth';
 
 export interface Alert {
   title: string;
-  content: string;
-  actions: { label: string; id: string }[];
+  description?: string;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirm?: () => void | Promise<void>;
+  onCancel?: () => void | Promise<void>;
+  buttonVariant?: "default" | "destructive";
 }
 export interface Announcement {
-  message?: { title: string; subtitle?: string; }
+  type?: "success" | "error" | "warning" | "info";
+  message: { title: string; subtitle?: string; };
   action?: {
     label: string;
-    onClick: string;
+    onClick: () => void;
   };
   timeout?: number;
 }
-export interface AppState {
-  user?: User;
-  documents: UserDocument[];
-  ui: {
-    announcements: Announcement[];
-    alerts: Alert[];
-    initialized: boolean;
-    drawer: boolean;
-    page: number;
-    diff: { open: boolean; old?: string; new?: string; };
-  },
-}
-
 export interface DocumentStorageUsage {
   id: string;
   name: string;

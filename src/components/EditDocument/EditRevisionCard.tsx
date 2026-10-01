@@ -3,23 +3,34 @@ import * as React from 'react';
 import { UserDocumentRevision } from '@/types';
 import { memo } from 'react';
 import { SxProps, Theme } from '@mui/material/styles';
-import { Card, CardActionArea, CardHeader, Avatar, CardActions, Chip, IconButton } from '@mui/material';
+import { Card, CardActionArea, CardHeader, Avatar, CardActions, Chip, IconButton, Button } from '@mui/material';
 import { Cloud, CloudSync, CloudUpload, Delete, DeleteForever, History, MobileFriendly, Update } from '@mui/icons-material';
-import { actions, useDispatch, useSelector } from '@/store';
+import { useAppStore } from '@/store';
 import { CLEAR_HISTORY_COMMAND, type LexicalEditor } from 'lexical';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
 import NProgress from 'nprogress';
-import { v4 as uuid } from 'uuid';
+import { enqueueSnackbar } from 'notistack';
+import { alert } from '@/shared/alert';
+import { signIn } from 'next-auth/react';
 
 const RevisionCard: React.FC<{
   revision: UserDocumentRevision,
   editorRef: React.RefObject<LexicalEditor | null>,
   sx?: SxProps<Theme> | undefined
 }> = memo(({ revision, editorRef, sx }) => {
-  const dispatch = useDispatch();
-  const user = useSelector(state => state.user);
+  const setDiff = useAppStore(state => state.setDiff);
+  const getLocalRevision = useAppStore(state => state.getLocalRevision);
+  const getCloudRevision = useAppStore(state => state.getCloudRevision);
+  const createLocalRevision = useAppStore(state => state.createLocalRevision);
+  const createCloudDocument = useAppStore(state => state.createCloudDocument);
+  const createCloudRevision = useAppStore(state => state.createCloudRevision);
+  const updateCloudDocument = useAppStore(state => state.updateCloudDocument);
+  const deleteLocalRevision = useAppStore(state => state.deleteLocalRevision);
+  const deleteCloudRevision = useAppStore(state => state.deleteCloudRevision);
+  const user = useAppStore(state => state.user);
+  const login = () => signIn("google", undefined, { prompt: "select_account" });
   const isOnline = useOnlineStatus();
-  const userDocument = useSelector(state => state.documents.find(d => d.id === revision.documentId));
+  const userDocument = useAppStore(state => state.documents.find(d => d.id === revision.documentId));
   const localDocument = userDocument?.local;
   const cloudDocument = userDocument?.cloud;
   const isLocalDocument = !!localDocument;
@@ -40,7 +51,7 @@ const RevisionCard: React.FC<{
 
   const isDocumentAuthor = isCloudDocument ? user?.id === cloudDocument.author.id : true;
   const isRevisionAuthor = isCloudRevision ? user?.id === cloudRevision.author.id : true;
-  const diff = useSelector(state => state.ui.diff);
+  const diff = useAppStore(state => state.diff);
   const showLocal = !diff.open && (isLocalRevision || isLocalHead);
   const showCloud = !diff.open && isCloudRevision;
   const showCreate = !diff.open && !isCloudRevision;
@@ -50,27 +61,21 @@ const RevisionCard: React.FC<{
   const isOld = diff.old === revision.id;
   const isNew = diff.new === revision.id;
 
-  const setAsOld = () => dispatch(actions.setDiff({ old: revision.id }));
-  const setAsNew = () => dispatch(actions.setDiff({ new: revision.id }));
+  const setAsOld = () => setDiff({ old: revision.id });
+  const setAsNew = () => setDiff({ new: revision.id });
 
   const getEditorDocumentRevision = async () => {
-    const localResponse = await dispatch(actions.getLocalRevision(revision.id));
-    if (localResponse.type === actions.getLocalRevision.fulfilled.type) {
-      const editorDocumentRevision = localResponse.payload as ReturnType<typeof actions.getLocalRevision.fulfilled>['payload'];
-      return editorDocumentRevision;
-    } else {
-      const cloudResponse = await dispatch(actions.getCloudRevision(revision.id));
-      if (cloudResponse.type === actions.getCloudRevision.fulfilled.type) {
-        const editorDocumentRevision = cloudResponse.payload as ReturnType<typeof actions.getCloudRevision.fulfilled>['payload'];
-        dispatch(actions.createLocalRevision(editorDocumentRevision));
-        return editorDocumentRevision;
-      }
-    }
+    const { data: localRevision } = await getLocalRevision(revision.id);
+    if (localRevision) return localRevision;
+    const { data: cloudRevision } = await getCloudRevision(revision.id);
+    if (!cloudRevision) return;
+    createLocalRevision(cloudRevision);
+    return cloudRevision;
   }
 
   const getLocalEditorData = () => editorRef.current?.getEditorState().toJSON();
 
-  const createLocalRevision = async () => {
+  const saveEditorRevision = async () => {
     if (!localDocument) return;
     const data = getLocalEditorData();
     if (!data) return;
@@ -80,56 +85,43 @@ const RevisionCard: React.FC<{
       createdAt: localDocument.updatedAt,
       data,
     }
-    const response = await dispatch(actions.createLocalRevision(payload));
-    if (response.type === actions.createLocalRevision.rejected.type) return;
-    return response.payload as ReturnType<typeof actions.createLocalRevision.fulfilled>['payload'];
+    const { data: localRevision } = await createLocalRevision(payload);
+    return localRevision;
   }
 
   const createRevision = async () => {
-    if (unsavedChanges) await createLocalRevision();
+    if (unsavedChanges) await saveEditorRevision();
     if (!isOnline) {
-      dispatch(actions.announce({
-        message: {
-          title: "You are offline",
-          subtitle: "Please connect to the internet to save to cloud storage"
-        },
-        action: { label: "Reload", onClick: "window.location.reload()" }
-      }));
+      enqueueSnackbar("You are offline", {
+        description: "Please connect to the internet to save to cloud storage",
+        action: <Button color="secondary" size="small" onClick={() => window.location.reload()}>Reload</Button>,
+      });
       return;
     }
     if (!user) {
-      dispatch(actions.announce({
-        message: {
-          title: "You are not signed in",
-          subtitle: "Please sign in to save your revision to the cloud"
-        },
-        action: { label: "Login", onClick: "login()" }
-      }));
+      enqueueSnackbar("You are not signed in", {
+        description: "Please sign in to save your revision to the cloud",
+        action: <Button color="secondary" size="small" onClick={login}>Login</Button>,
+      });
       return;
     }
     const editorDocumentRevision = await getEditorDocumentRevision();
     if (!editorDocumentRevision) {
-      dispatch(actions.announce({
-        message: {
-          title: "Revision Not Found",
-          subtitle: "Please try again later"
-        }
-      }));
+      enqueueSnackbar("Revision Not Found", { description: "Please try again later" });
       return;
     }
     if (isLocalDocument && !isCloudDocument) {
       const editorDocument = { ...localDocument, data: editorDocumentRevision.data, revisions: [] };
-      return dispatch(actions.createCloudDocument(editorDocument));
+      return createCloudDocument(editorDocument);
     }
-    const response = await dispatch(actions.createCloudRevision(editorDocumentRevision));
-    if (response.type === actions.createCloudRevision.rejected.type) return;
-    return response.payload as ReturnType<typeof actions.createCloudRevision.fulfilled>['payload'];
+    const { data: cloudRevision } = await createCloudRevision(editorDocumentRevision);
+    return cloudRevision;
   }
 
   const viewRevision = async () => {
     NProgress.start();
-    if (unsavedChanges) await createLocalRevision();
-    if (diff.open) dispatch(actions.setDiff({ old: revision.id, new: revision.id }));
+    if (unsavedChanges) await saveEditorRevision();
+    if (diff.open) setDiff({ old: revision.id, new: revision.id });
     const editorDocumentRevision = await getEditorDocumentRevision();
     if (!editorDocumentRevision) return NProgress.done();
     const editor = editorRef.current;
@@ -146,23 +138,20 @@ const RevisionCard: React.FC<{
   const updateCloudHead = async () => {
     if (!isLocalHead) viewRevision();
     const payload = { id: revision.documentId, partial: { head: revision.id, updatedAt: revision.createdAt } };
-    await dispatch(actions.updateCloudDocument(payload));
+    await updateCloudDocument(payload);
   }
 
   const deleteRevision = async () => {
     const variant = isLocalRevision ? 'Local' : 'Cloud';
-    const alert = {
+    const confirmed = await alert({
       title: `Delete ${variant} Revision?`,
-      content: `Are you sure you want to delete this ${variant} revision?`,
-      actions: [
-        { label: "Cancel", id: uuid() },
-        { label: "Delete", id: uuid() },
-      ]
-    };
-    const response = await dispatch(actions.alert(alert));
-    if (response.payload === alert.actions[1].id) {
-      if (isLocalRevision) dispatch(actions.deleteLocalRevision({ id: revision.id, documentId: revision.documentId }));
-      else dispatch(actions.deleteCloudRevision({ id: revision.id, documentId: revision.documentId }));
+      description: `Are you sure you want to delete this ${variant} revision?`,
+      confirmText: "Delete",
+      buttonVariant: "destructive",
+    });
+    if (confirmed) {
+      if (isLocalRevision) deleteLocalRevision({ id: revision.id, documentId: revision.documentId });
+      else deleteCloudRevision({ id: revision.id, documentId: revision.documentId });
     }
   }
 

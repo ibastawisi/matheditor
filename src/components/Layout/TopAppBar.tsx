@@ -4,7 +4,7 @@ import RouterLink from 'next/link'
 import { useEffect } from 'react';
 import logo from "@public/logo.svg";
 import Image from 'next/image';
-import { useDispatch, actions, useSelector } from '@/store';
+import { useAppStore } from '@/store';
 import { useScrollTrigger, Zoom, Box, AppBar, Toolbar, Typography, IconButton, Avatar, Fab, Link } from '@mui/material';
 import { Print, KeyboardArrowUp, Info } from '@mui/icons-material';
 
@@ -37,15 +37,16 @@ function ScrollTop() {
 }
 
 const TopAppBar: React.FC = () => {
-  const dispatch = useDispatch();
+  const toggleDrawer = useAppStore(state => state.toggleDrawer);
+  const load = useAppStore(state => state.load);
   const pathname = usePathname();
   const showPrintButton = !!['/edit', '/view', '/playground'].find(path => pathname.startsWith(path));
   const showDrawerButton = !!['/edit', '/view'].find(path => pathname.startsWith(path));
-  const initialized = useSelector(state => state.ui.initialized);
-  const user = useSelector(state => state.user);
+  const initialized = useAppStore(state => state.initialized);
+  const user = useAppStore(state => state.user);
 
   const handlePrint = () => { window.print(); }
-  const toggleDrawer = () => { dispatch(actions.toggleDrawer()); }
+  const handleToggleDrawer = () => { toggleDrawer(); }
 
   const handleResize = () => {
     const keyboardInsetHeight = window.innerHeight - (window.visualViewport?.height || window.innerHeight);
@@ -53,7 +54,7 @@ const TopAppBar: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!initialized) dispatch(actions.load());
+    if (!initialized) load();
     if (!window.visualViewport) return;
     window.visualViewport.addEventListener("resize", handleResize);
     return () => {
@@ -80,7 +81,7 @@ const TopAppBar: React.FC = () => {
             {showPrintButton && <IconButton aria-label="Print" color="inherit" onClick={handlePrint}>
               <Print />
             </IconButton>}
-            {showDrawerButton && <IconButton id="document-info" aria-label="Document Info" color='inherit' onClick={toggleDrawer}
+            {showDrawerButton && <IconButton id="document-info" aria-label="Document Info" color='inherit' onClick={handleToggleDrawer}
               sx={{ '& >.MuiBadge-root': { height: '1em', userSelect: 'none', zIndex: -1 } }} ><Info /></IconButton>}
           </Toolbar>
         </AppBar>

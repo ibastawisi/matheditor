@@ -1,7 +1,7 @@
 "use client"
 import * as React from 'react';
 import { CheckHandleResponse, User } from '@/types';
-import { useDispatch, actions } from '@/store';
+import { useAppStore } from '@/store';
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import useFixedBodyScroll from '@/hooks/useFixedBodyScroll';
@@ -12,7 +12,7 @@ import { validate } from 'uuid';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
 
 function UserActionMenu({ user }: { user: User }) {
-  const dispatch = useDispatch();
+  const updateUser = useAppStore(state => state.updateUser);
   const isOnline = useOnlineStatus();
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
@@ -79,8 +79,8 @@ function UserActionMenu({ user }: { user: User }) {
     const partial: Partial<User> = {};
     if (input.handle !== user.handle) partial.handle = input.handle || null;
     if (Object.keys(partial).length === 0) return;
-    const result = await dispatch(actions.updateUser({ id: user.id, partial }));
-    if (result.type === actions.updateUser.fulfilled.type) {
+    const { data: updatedUser } = await updateUser({ id: user.id, partial });
+    if (updatedUser) {
       if (shouldNavigate) navigate(`/user/${input.handle || user.id}`);
     }
   };

@@ -1,13 +1,19 @@
 "use client"
-import { useDispatch, actions, useSelector } from "@/store";
-import { EditorDocument, UserDocument } from "@/types";
+import { useAppStore } from "@/store";
+import { UserDocument } from "@/types";
 import { CloudSync, CloudUpload } from "@mui/icons-material";
 import { Button, IconButton, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
 import { SxProps, Theme } from '@mui/material/styles';
+import { enqueueSnackbar } from 'notistack';
+import { signIn } from 'next-auth/react';
 
 const UploadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'button' | 'iconbutton', closeMenu?: () => void, sx?: SxProps<Theme> | undefined }> = ({ userDocument, variant = 'iconbutton', closeMenu, sx }) => {
-  const dispatch = useDispatch();
-  const user = useSelector(state => state.user);
+  const getLocalDocument = useAppStore(state => state.getLocalDocument);
+  const createLocalRevision = useAppStore(state => state.createLocalRevision);
+  const createCloudDocument = useAppStore(state => state.createCloudDocument);
+  const updateCloudDocument = useAppStore(state => state.updateCloudDocument);
+  const user = useAppStore(state => state.user);
+  const login = () => signIn("google", undefined, { prompt: "select_account" });
   const localDocument = userDocument?.local;
   const cloudDocument = userDocument?.cloud;
   const isLocal = !!localDocument;
@@ -23,42 +29,34 @@ const UploadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem
 
   const handleCreate = async () => {
     if (closeMenu) closeMenu();
-    if (!user) return dispatch(actions.announce({
-      message: {
-        title: "You are not signed in",
-        subtitle: "Please sign in to save your revision to the cloud"
-      },
-      action: { label: "Login", onClick: "login()" }
-    }));
-    const localResponse = await dispatch(actions.getLocalDocument(id));
-    if (localResponse.type === actions.getLocalDocument.rejected.type) return dispatch(actions.announce({ message: { title: "Document Not Found" } }));
-    const editorDocument = localResponse.payload as EditorDocument;
+    if (!user) return enqueueSnackbar("You are not signed in", {
+      description: "Please sign in to save your revision to the cloud",
+      action: <Button color="secondary" size="small" onClick={login}>Login</Button>,
+    });
+    const { data: editorDocument } = await getLocalDocument(id);
+    if (!editorDocument) return enqueueSnackbar("Document Not Found");
     if (!isHeadLocalRevision) {
       const editorDocumentRevision = { id: editorDocument.head, documentId: editorDocument.id, createdAt: editorDocument.updatedAt, data: editorDocument.data };
-      await dispatch(actions.createLocalRevision(editorDocumentRevision));
+      await createLocalRevision(editorDocumentRevision);
     }
-    return dispatch(actions.createCloudDocument(editorDocument));
+    return createCloudDocument(editorDocument);
   };
 
   const handleUpdate = async () => {
     if (closeMenu) closeMenu();
-    if (!user) return dispatch(actions.announce({
-      message: {
-        title: "You are not signed in",
-        subtitle: "Please sign in to save your revision to the cloud"
-      },
-      action: { label: "Login", onClick: "login()" }
-    }));
-    if (isUpToDate) return dispatch(actions.announce({ message: { title: "Document is already Up to Date" } }));
-    if (isHeadCloudRevision && isHeadOutOfSync) return dispatch(actions.updateCloudDocument({ id, partial: { head: localDocument.head, updatedAt: localDocument.updatedAt } }));
-    const localResponse = await dispatch(actions.getLocalDocument(id));
-    if (localResponse.type === actions.getLocalDocument.rejected.type) return dispatch(actions.announce({ message: { title: "Document Not Found" } }));
-    const editorDocument = localResponse.payload as ReturnType<typeof actions.getLocalDocument.fulfilled>["payload"];
+    if (!user) return enqueueSnackbar("You are not signed in", {
+      description: "Please sign in to save your revision to the cloud",
+      action: <Button color="secondary" size="small" onClick={login}>Login</Button>,
+    });
+    if (isUpToDate) return enqueueSnackbar("Document is already Up to Date");
+    if (isHeadCloudRevision && isHeadOutOfSync) return updateCloudDocument({ id, partial: { head: localDocument.head, updatedAt: localDocument.updatedAt } });
+    const { data: editorDocument } = await getLocalDocument(id);
+    if (!editorDocument) return enqueueSnackbar("Document Not Found");
     if (!isHeadLocalRevision) {
       const editorDocumentRevision = { id: editorDocument.head, documentId: editorDocument.id, createdAt: editorDocument.updatedAt, data: editorDocument.data };
-      await dispatch(actions.createLocalRevision(editorDocumentRevision));
+      await createLocalRevision(editorDocumentRevision);
     }
-    return dispatch(actions.updateCloudDocument({ id, partial: editorDocument }));
+    return updateCloudDocument({ id, partial: editorDocument });
   };
 
   if (variant === 'menuitem') return (

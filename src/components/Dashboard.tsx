@@ -1,5 +1,5 @@
 "use client"
-import { actions, useDispatch, useSelector } from '@/store';
+import { useAppStore } from '@/store';
 import UserCard from "./User/UserCard";
 import Grid from '@mui/material/Grid';
 import { Box, CircularProgress, Paper, Typography } from "@mui/material";
@@ -8,7 +8,7 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import { Cloud, Login, Storage } from '@mui/icons-material';
 
 const Dashboard: React.FC = () => {
-  const user = useSelector(state => state.user);
+  const user = useAppStore(state => state.user);
 
   return (
     <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -31,18 +31,18 @@ type storageUsage = {
 };
 
 const StorageChart: React.FC = () => {
-  const dispatch = useDispatch();
-  const user = useSelector(state => state.user);
-  const initialized = useSelector(state => state.ui.initialized);
+  const getLocalStorageUsage = useAppStore(state => state.getLocalStorageUsage);
+  const getCloudStorageUsage = useAppStore(state => state.getCloudStorageUsage);
+  const user = useAppStore(state => state.user);
+  const initialized = useAppStore(state => state.initialized);
 
   const [localStorageUsage, setLocalStorageUsage] = useState<storageUsage>({ loading: true, usage: 0, details: [] });
   const [cloudStorageUsage, setCloudStorageUsage] = useState<storageUsage>({ loading: true, usage: 0, details: [] });
   const isCloudStorageLoading = cloudStorageUsage.loading || (!initialized && !cloudStorageUsage.usage);
 
   useEffect(() => {
-    dispatch(actions.getLocalStorageUsage()).then(response => {
-      if (response.type === actions.getLocalStorageUsage.fulfilled.type) {
-        const localStorageUsage = response.payload as ReturnType<typeof actions.getLocalStorageUsage.fulfilled>['payload'];
+    getLocalStorageUsage().then(({ data: localStorageUsage }) => {
+      if (localStorageUsage) {
         const localUsage = localStorageUsage.reduce((acc, document) => acc + document.size, 0) / 1024 / 1024;
         const localUsageDetails = localStorageUsage.map(document => {
           return { value: document.size / 1024 / 1024, label: document.name };
@@ -50,9 +50,8 @@ const StorageChart: React.FC = () => {
         setLocalStorageUsage({ loading: false, usage: localUsage, details: localUsageDetails });
       }
     });
-    dispatch(actions.getCloudStorageUsage()).then(response => {
-      if (response.type === actions.getCloudStorageUsage.fulfilled.type) {
-        const cloudStorageUsage = response.payload as ReturnType<typeof actions.getCloudStorageUsage.fulfilled>['payload'];
+    getCloudStorageUsage().then(({ data: cloudStorageUsage }) => {
+      if (cloudStorageUsage) {
         const cloudUsage = cloudStorageUsage.reduce((acc, document) => acc + document.size, 0) / 1024 / 1024;
         const cloudUsageDetails = cloudStorageUsage.map(document => {
           return { value: (document.size ?? 0) / 1024 / 1024, label: document.name };

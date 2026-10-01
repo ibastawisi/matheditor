@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import SplashScreen from "../SplashScreen";
 import { EditorDocument } from '@/types';
-import { useDispatch, actions, useSelector } from '@/store';
+import { useAppStore } from '@/store';
 import { usePathname } from "next/navigation";
 import type { EditorState, LexicalEditor } from "lexical";
 import { v4 as uuidv4 } from 'uuid';
@@ -16,14 +16,19 @@ const EditDocumentInfo = dynamic(() => import('@/components/EditDocument/EditDoc
 const DocumentEditor: React.FC = () => {
   const [document, setDocument] = useState<EditorDocument>();
   const [error, setError] = useState<{ title: string, subtitle?: string }>();
-  const dispatch = useDispatch();
+  const updateLocalDocument = useAppStore(state => state.updateLocalDocument);
+  const getLocalDocument = useAppStore(state => state.getLocalDocument);
+  const getCloudDocument = useAppStore(state => state.getCloudDocument);
+  const createLocalDocument = useAppStore(state => state.createLocalDocument);
+  const createLocalRevision = useAppStore(state => state.createLocalRevision);
+  const setDiff = useAppStore(state => state.setDiff);
   const pathname = usePathname();
   const id = pathname.split('/')[2]?.toLowerCase();
   const editorRef = useRef<LexicalEditor>(null);
-  const showDiff = useSelector(state => state.ui.diff.open);
+  const showDiff = useAppStore(state => state.diff.open);
 
   const debouncedUpdateLocalDocument = useCallback(debounce((id: string, partial: Partial<EditorDocument>) => {
-    dispatch(actions.updateLocalDocument({ id, partial }));
+    updateLocalDocument({ id, partial });
   }, 300), [document]);
 
   function handleChange(editorState: EditorState, editor: LexicalEditor, tags: Set<string>) {
@@ -39,26 +44,19 @@ const DocumentEditor: React.FC = () => {
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
-      const localResponse = await dispatch(actions.getLocalDocument(id));
-      if (localResponse.type === actions.getLocalDocument.fulfilled.type) {
-        const editorDocument = localResponse.payload as EditorDocument;
-        setDocument(editorDocument);
-      } else {
-        const cloudResponse = await dispatch(actions.getCloudDocument(id));
-        if (cloudResponse.type === actions.getCloudDocument.fulfilled.type) {
-          const { cloudDocument, ...editorDocument } = cloudResponse.payload as ReturnType<typeof actions.getCloudDocument.fulfilled>['payload'];
-          setDocument(editorDocument);
-          dispatch(actions.createLocalDocument(editorDocument));
-          const editorDocumentRevision = { id: editorDocument.head, documentId: editorDocument.id, createdAt: editorDocument.updatedAt, data: editorDocument.data };
-          dispatch(actions.createLocalRevision(editorDocumentRevision));
-        } else if (cloudResponse.type === actions.getCloudDocument.rejected.type) {
-          setError(cloudResponse.payload as { title: string, subtitle?: string });
-        }
-      }
+      const { data: localDocument } = await getLocalDocument(id);
+      if (localDocument) return setDocument(localDocument);
+      const { data: cloudResponse, error } = await getCloudDocument(id);
+      if (!cloudResponse) return setError(error);
+      const { cloudDocument, ...editorDocument } = cloudResponse;
+      setDocument(editorDocument);
+      createLocalDocument(editorDocument);
+      const editorDocumentRevision = { id: editorDocument.head, documentId: editorDocument.id, createdAt: editorDocument.updatedAt, data: editorDocument.data };
+      createLocalRevision(editorDocumentRevision);
     }
     id ? loadDocument(id) : setError({ title: "Document Not Found" });
     return () => {
-      dispatch(actions.setDiff({ open: false }));
+      setDiff({ open: false });
     }
   }, []);
 

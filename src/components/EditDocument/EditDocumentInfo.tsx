@@ -1,6 +1,6 @@
 import { LocalDocumentRevision, User, UserDocumentRevision } from '@/types';
 import RevisionCard from './EditRevisionCard';
-import { actions, useDispatch, useSelector } from '@/store';
+import { useAppStore } from '@/store';
 import Grid from '@mui/material/Grid';
 import { Avatar, Badge, Box, Button, Chip, IconButton, Portal, Typography } from '@mui/material';
 import { Close, Compare, History, Preview, Print } from '@mui/icons-material';
@@ -15,9 +15,11 @@ import AppDrawer from '../AppDrawer';
 import PageSetupSidebar from '@/editor/extensions/pages/sidebar';
 
 export default function EditDocumentInfo({ editorRef, documentId }: { editorRef: RefObject<LexicalEditor | null>, documentId: string }) {
-  const dispatch = useDispatch();
-  const user = useSelector(state => state.user);
-  const userDocument = useSelector(state => state.documents.find(d => d.id === documentId));
+  const setDiff = useAppStore(state => state.setDiff);
+  const createLocalRevision = useAppStore(state => state.createLocalRevision);
+  const toggleDrawer = useAppStore(state => state.toggleDrawer);
+  const user = useAppStore(state => state.user);
+  const userDocument = useAppStore(state => state.documents.find(d => d.id === documentId));
   const localDocument = userDocument?.local;
   const cloudDocument = userDocument?.cloud;
   const isCloud = !!cloudDocument;
@@ -47,23 +49,23 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
   const revisionsBadgeContent = revisions.length;
   const showRevisionsBadge = revisionsBadgeContent > 0;
 
-  const isDiffViewOpen = useSelector(state => state.ui.diff.open);
+  const isDiffViewOpen = useAppStore(state => state.diff.open);
   const toggleDiffView = async () => {
-    if (unsavedChanges) await createLocalRevision();
+    if (unsavedChanges) await saveEditorRevision();
     const newRevisionId = documentRevisions[0]?.id;
     const oldRevisionId = documentRevisions[1]?.id ?? newRevisionId;
-    dispatch(actions.setDiff({ open: !isDiffViewOpen, old: oldRevisionId, new: newRevisionId }));
+    setDiff({ open: !isDiffViewOpen, old: oldRevisionId, new: newRevisionId });
   }
 
   const viewLocalDocument = async () => {
-    if (isDiffViewOpen) return dispatch(actions.setDiff({ open: false }));
-    if (unsavedChanges) await createLocalRevision();
-    dispatch(actions.setDiff({ open: true, old: localDocument?.head, new: localDocument?.head }));
+    if (isDiffViewOpen) return setDiff({ open: false });
+    if (unsavedChanges) await saveEditorRevision();
+    setDiff({ open: true, old: localDocument?.head, new: localDocument?.head });
   }
 
   const getLocalEditorData = () => editorRef.current?.getEditorState().toJSON();
 
-  const createLocalRevision = async () => {
+  const saveEditorRevision = async () => {
     if (!localDocument) return;
     const data = getLocalEditorData();
     if (!data) return;
@@ -73,9 +75,8 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
       createdAt: localDocument.updatedAt,
       data,
     }
-    const response = await dispatch(actions.createLocalRevision(payload));
-    if (response.type === actions.createLocalRevision.rejected.type) return;
-    return response.payload as ReturnType<typeof actions.createLocalRevision.fulfilled>['payload'];
+    const { data: localRevision } = await createLocalRevision(payload);
+    return localRevision;
   }
 
   return (
@@ -144,7 +145,7 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
           </Box>}
         </Box>
         {editorRef.current && <Box sx={{ mb: 3 }}>
-          <PageSetupSidebar editor={editorRef.current} onClose={() => dispatch(actions.toggleDrawer(false))} />
+          <PageSetupSidebar editor={editorRef.current} onClose={() => toggleDrawer(false)} />
         </Box>}
         <Grid container spacing={1}>
           <Grid size={{ xs: 12 }} sx={{ display: 'flex', alignItems: 'center' }}>

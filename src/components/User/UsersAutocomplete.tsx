@@ -5,9 +5,10 @@ import Autocomplete from '@mui/material/Autocomplete';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { CloudDocument, User } from '@/types';
-import { actions, useDispatch, useSelector } from '@/store';
+import { useAppStore } from '@/store';
 import { Avatar, Chip, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import { SxProps, Theme } from '@mui/material/styles';
+import { enqueueSnackbar } from 'notistack';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -27,9 +28,8 @@ export default function UsersAutocomplete({
   disabled?: boolean;
   sx?: SxProps<Theme>;
 }) {
-  const dispatch = useDispatch();
-  const user = useSelector(state => state.user);
-  const documents = useSelector(state => state.documents);
+  const user = useAppStore(state => state.user);
+  const documents = useAppStore(state => state.documents);
   const cloudDocuments = documents.filter(d => !!d.cloud).map(d => d.cloud) as CloudDocument[];
 
   const users: User[] = cloudDocuments.reduce((users, document) => {
@@ -55,7 +55,7 @@ export default function UsersAutocomplete({
   const userValue = value.map(u => typeof u === "string" ? users.find(user => user.email === u) || u : u);
   const handleChange = (event: React.SyntheticEvent, newValue: (User | string)[]) => {
     const invalidEmails = newValue.filter(u => typeof u === "string" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(u));
-    if (invalidEmails.length > 0) return dispatch(actions.announce({ message: { title: "Invalid Email Address", subtitle: "Please enter a valid email address." } }));
+    if (invalidEmails.length > 0) return enqueueSnackbar("Invalid Email Address", { description: "Please enter a valid email address." });
     onChange(newValue);
   };
 

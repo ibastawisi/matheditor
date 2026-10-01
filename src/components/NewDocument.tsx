@@ -4,7 +4,7 @@ import { v4 as uuidv4, validate } from "uuid";
 import * as React from 'react';
 import { CheckHandleResponse, CloudDocument, DocumentCreateInput, User, UserDocument } from '@/types';
 import { useCallback, useEffect, useState } from 'react';
-import { useDispatch, actions, useSelector } from '@/store';
+import { useAppStore } from '@/store';
 import DocumentCard from './DocumentCard';
 import { Container, Box, Avatar, Typography, TextField, Button, FormControlLabel, FormHelperText, Switch, Checkbox } from '@mui/material';
 import { Article, Add } from '@mui/icons-material';
@@ -58,8 +58,8 @@ const getEditorData = (title: string) => {
 }
 
 const NewDocument: React.FC<{ cloudDocument?: CloudDocument }> = ({ cloudDocument }) => {
-  const initialized = useSelector(state => state.ui.initialized);
-  const user = useSelector(state => state.user);
+  const initialized = useAppStore(state => state.initialized);
+  const user = useAppStore(state => state.user);
   const unauthenticated = initialized && !user;
   const isOnline = useOnlineStatus();
   const [input, setInput] = useState<Partial<DocumentCreateInput>>({});
@@ -67,7 +67,10 @@ const NewDocument: React.FC<{ cloudDocument?: CloudDocument }> = ({ cloudDocumen
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const hasErrors = Object.keys(validationErrors).length > 0;
   const [saveToCloud, setSaveToCloud] = useState(false);
-  const dispatch = useDispatch();
+  const forkLocalDocument = useAppStore(state => state.forkLocalDocument);
+  const forkCloudDocument = useAppStore(state => state.forkCloudDocument);
+  const createLocalDocument = useAppStore(state => state.createLocalDocument);
+  const createCloudDocument = useAppStore(state => state.createCloudDocument);
   const pathname = usePathname();
   const baseId = pathname.split('/')[2]?.toLowerCase();
   const searchParams = useSearchParams();
@@ -76,21 +79,19 @@ const NewDocument: React.FC<{ cloudDocument?: CloudDocument }> = ({ cloudDocumen
 
   useEffect(() => {
     const loadDocument = async (id: string) => {
-      const localResponse = await dispatch(actions.forkLocalDocument({ id, revisionId }));
-      if (localResponse.type === actions.forkLocalDocument.fulfilled.type) {
-        const editorDocument = localResponse.payload as ReturnType<typeof actions.forkLocalDocument.fulfilled>["payload"];
+      const { data: editorDocument } = await forkLocalDocument({ id, revisionId });
+      if (editorDocument) {
         const { data, ...rest } = editorDocument;
         const localDocument = { ...rest, revisions: [] };
         setBase({ ...base, id: editorDocument.id, local: localDocument });
         setInput({ ...input, data, baseId: editorDocument.id });
-      } else {
-        const cloudResponse = await dispatch(actions.forkCloudDocument({ id, revisionId }));
-        if (cloudResponse.type === actions.forkCloudDocument.fulfilled.type) {
-          const { data, ...userDocument } = cloudResponse.payload as ReturnType<typeof actions.forkCloudDocument.fulfilled>["payload"];
-          setBase(userDocument);
-          setInput({ ...input, data, baseId: userDocument.id });
-        }
+        return;
       }
+      const { data: forkedDocument } = await forkCloudDocument({ id, revisionId });
+      if (!forkedDocument) return;
+      const { data, ...userDocument } = forkedDocument;
+      setBase(userDocument);
+      setInput({ ...input, data, baseId: userDocument.id });
     }
     baseId && loadDocument(baseId);
   }, []);
@@ -112,9 +113,9 @@ const NewDocument: React.FC<{ cloudDocument?: CloudDocument }> = ({ cloudDocumen
       createdAt,
       updatedAt: createdAt,
     };
-    const response = await dispatch(actions.createLocalDocument(payload));
-    if (response.type === actions.createLocalDocument.fulfilled.type) {
-      if (saveToCloud) dispatch(actions.createCloudDocument(payload));
+    const { data: localDocument } = await createLocalDocument(payload);
+    if (localDocument) {
+      if (saveToCloud) createCloudDocument(payload);
       const href = `/edit/${payload.handle || payload.id}`;
       navigate(href);
     }
