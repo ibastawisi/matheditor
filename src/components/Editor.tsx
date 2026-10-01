@@ -5,10 +5,12 @@ import { mergeRegister } from '@lexical/utils';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import type { EditorDocument } from '@/types';
 import { ANNOUNCE_COMMAND, UPDATE_DOCUMENT_COMMAND, ALERT_COMMAND } from '@/editor/commands';
-import { actions, useDispatch } from '@/store';
 import type { EditorState, LexicalEditor } from 'lexical';
 import { EditorComposer } from '@/editor/EditorComposer';
 import Editor from '@/editor/Editor';
+import { alert } from '@/shared/alert';
+import { enqueueSnackbar } from 'notistack';
+import { Button } from '@mui/material';
 
 type EditorRefCallback = (editor: LexicalEditor) => void | (() => void);
 type OnChange = (editorState: EditorState, editor: LexicalEditor, tags: Set<string>) => void;
@@ -18,7 +20,6 @@ const EditorListeners: React.FC<{
   onChange?: OnChange;
 }> = ({ editorRef, onChange }) => {
   const [editor] = useLexicalComposerContext();
-  const dispatch = useDispatch();
 
   useEffect(() => {
     if (typeof editorRef === 'function') return editorRef(editor) || undefined;
@@ -30,7 +31,12 @@ const EditorListeners: React.FC<{
       editor.registerCommand(
         ANNOUNCE_COMMAND,
         (payload) => {
-          dispatch((actions.announce(payload)))
+          enqueueSnackbar(payload.message.title, {
+            variant: payload.type,
+            description: payload.message.subtitle,
+            action: payload.action && <Button color="secondary" size="small" onClick={payload.action.onClick}>{payload.action.label}</Button>,
+            autoHideDuration: payload.timeout,
+          });
           return false;
         },
         COMMAND_PRIORITY_LOW
@@ -38,7 +44,7 @@ const EditorListeners: React.FC<{
       editor.registerCommand(
         ALERT_COMMAND,
         (payload) => {
-          dispatch(actions.alert(payload));
+          alert(payload);
           return false;
         },
         COMMAND_PRIORITY_LOW
@@ -53,7 +59,7 @@ const EditorListeners: React.FC<{
         COMMAND_PRIORITY_LOW
       ),
     );
-  }, [editor, dispatch, onChange]);
+  }, [editor, onChange]);
 
   return null;
 }

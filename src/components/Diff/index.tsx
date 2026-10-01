@@ -1,28 +1,24 @@
 "use client"
 import HtmlDiff from './Diff';
 import { useEffect, useState } from 'react';
-import { actions, useDispatch, useSelector } from '@/store';
+import { useAppStore } from '@/store';
 import { generateHtml } from '@/editor/utils/generateHtml';
 import NProgress from 'nprogress';
 
 const DiffView = () => {
-  const dispatch = useDispatch();
-  const diff = useSelector(state => state.ui.diff);
+  const getLocalRevision = useAppStore(state => state.getLocalRevision);
+  const getCloudRevision = useAppStore(state => state.getCloudRevision);
+  const createLocalRevision = useAppStore(state => state.createLocalRevision);
+  const diff = useAppStore(state => state.diff);
   const [html, setHtml] = useState<string>('');
 
   const getEditorDocumentRevision = async (revisionId: string) => {
-    const localResponse = await dispatch(actions.getLocalRevision(revisionId));
-    if (localResponse.type === actions.getLocalRevision.fulfilled.type) {
-      const editorDocumentRevision = localResponse.payload as ReturnType<typeof actions.getLocalRevision.fulfilled>['payload'];
-      return editorDocumentRevision;
-    } else {
-      const cloudResponse = await dispatch(actions.getCloudRevision(revisionId));
-      if (cloudResponse.type === actions.getCloudRevision.fulfilled.type) {
-        const editorDocumentRevision = cloudResponse.payload as ReturnType<typeof actions.getCloudRevision.fulfilled>['payload'];
-        dispatch(actions.createLocalRevision(editorDocumentRevision));
-        return editorDocumentRevision;
-      }
-    }
+    const { data: localRevision } = await getLocalRevision(revisionId);
+    if (localRevision) return localRevision;
+    const { data: cloudRevision } = await getCloudRevision(revisionId);
+    if (!cloudRevision) return;
+    createLocalRevision(cloudRevision);
+    return cloudRevision;
   }
 
 

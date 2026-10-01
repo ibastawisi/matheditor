@@ -49,7 +49,6 @@
     "@next/bundle-analyzer": "16.3.6",
     "@next/third-parties": "16.3.6",
     "@prisma/client": "^6.5.0",
-    "@reduxjs/toolkit": "^2.6.1",
     "@types/node": "22.13.10",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
@@ -63,17 +62,18 @@
     "mathml2omml": "^0.5.0",
     "next": "^16.3.6",
     "next-auth": "^4.24.15",
+    "notistack": "^3.0.2",
     "nprogress": "^0.2.0",
     "prismjs": "^1.30.0",
     "puppeteer": "^24.4.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "react-redux": "^9.2.0",
     "react-use": "^17.6.0",
     "ts-pattern": "^5.6.2",
     "typescript": "5.8.2",
     "uuid": "^11.1.0",
-    "zod": "^4.6.5"
+    "zod": "^4.6.5",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@types/nprogress": "^0.2.3",

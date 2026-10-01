@@ -9,7 +9,7 @@ import { getImageDimensions } from '@/editor/extensions/image/utils';
 import { setOpenDialog } from '@/editor/extensions/store';
 import { Dialog, DialogContent, Box, CircularProgress, DialogActions, Button, debounce } from '@mui/material';
 import { ALERT_COMMAND } from '@/editor/commands';
-import { v4 as uuid } from 'uuid';
+import type { Alert } from '@/types';
 
 function GraphDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
   const [editor] = useLexicalComposerContext();
@@ -54,32 +54,18 @@ function GraphDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
     loadGgbBase64();
   }, [geogebraAPI]);
 
-  const loadGgbBase64 = async () => {
+  const loadGgbBase64 = () => {
     const unsavedValue = localStorage.getItem("geogebra");
     if (unsavedValue) {
-      const alert = {
+      const alert: Alert = {
         title: "Restore last unsaved Changes",
-        content: "You've unsaved changes from last session. Do you want to restore them?",
-        actions: [
-          { label: "Discard", id: uuid() },
-          { label: "Restore", id: uuid() },
-        ]
+        description: "You've unsaved changes from last session. Do you want to restore them?",
+        confirmText: "Restore",
+        cancelText: "Discard",
+        onConfirm: () => { geogebraAPI.setBase64(unsavedValue); },
+        onCancel: clearLocalStorage,
       };
       editor.dispatchCommand(ALERT_COMMAND, alert);
-      const id = await new Promise((resolve) => {
-        const handler = (event: MouseEvent): any => {
-          const target = event.target as HTMLElement;
-          const button = target.closest("button");
-          const paper = target.closest(".MuiDialog-paper");
-          if (paper && !button) return document.addEventListener("click", handler, { once: true });
-          resolve(button?.id ?? null);
-        };
-        setTimeout(() => { document.addEventListener("click", handler, { once: true }); }, 0);
-      });
-      if (!id || id === alert.actions[0].id) {
-        clearLocalStorage();
-      }
-      if (id === alert.actions[1].id) geogebraAPI.setBase64(unsavedValue);
     }
   };
 
@@ -132,7 +118,7 @@ function GraphDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
     setOpenDialog(editor, null);
   }
 
-  const handleClose = async () => {
+  const handleClose = () => {
     function discard() {
       clearLocalStorage();
       closeDialog();
@@ -142,26 +128,14 @@ function GraphDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
     }
     const unsavedValue = localStorage.getItem("geogebra");
     if (unsavedValue) {
-      const alert = {
+      const alert: Alert = {
         title: "Discard unsaved Changes",
-        content: "Are you sure you want to discard unsaved changes?",
-        actions: [
-          { label: "Cancel", id: uuid() },
-          { label: "Discard", id: uuid() },
-        ]
+        description: "Are you sure you want to discard unsaved changes?",
+        confirmText: "Discard",
+        buttonVariant: "destructive",
+        onConfirm: discard,
       };
       editor.dispatchCommand(ALERT_COMMAND, alert);
-      const id = await new Promise((resolve) => {
-        const handler = (event: MouseEvent): any => {
-          const target = event.target as HTMLElement;
-          const button = target.closest("button");
-          const paper = target.closest(".MuiDialog-paper");
-          if (paper && !button) return document.addEventListener("click", handler, { once: true });
-          resolve(button?.id ?? null);
-        };
-        setTimeout(() => { document.addEventListener("click", handler, { once: true }); }, 0);
-      });
-      if (id === alert.actions[1].id) discard();
     } else cancel();
   }
 

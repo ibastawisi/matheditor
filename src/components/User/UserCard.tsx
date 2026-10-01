@@ -1,18 +1,18 @@
 "use client"
 import { User } from '@/types';
-import { useDispatch, actions, useSelector } from '@/store';
+import { useAppStore } from '@/store';
 import RouterLink from 'next/link'
 import { memo } from 'react';
 import { signIn, signOut } from "next-auth/react";
 import UserActionMenu from './UserActionMenu';
 import { Card, Box, CardActionArea, CardContent, Typography, Skeleton, CardActions, Button, IconButton, Avatar } from '@mui/material';
 import { Google, Share } from '@mui/icons-material';
+import { enqueueSnackbar } from 'notistack';
 
 const UserCard: React.FC<{ user?: User, showActions?: boolean }> = memo(({ user, showActions }) => {
-  const dispatch = useDispatch();
   const login = () => signIn("google", undefined, { prompt: "select_account" });
   const logout = () => signOut();
-  const initialized = useSelector(state => state.ui.initialized);
+  const initialized = useAppStore(state => state.initialized);
   const showLogout = showActions && user;
   const showLogin = showActions && initialized && !user;
 
@@ -25,7 +25,7 @@ const UserCard: React.FC<{ user?: User, showActions?: boolean }> = memo(({ user,
       await navigator.share(shareData)
     } catch (err) {
       navigator.clipboard.writeText(shareData.url);
-      dispatch(actions.announce({ message: { title: "Link copied to clipboard" } }));
+      enqueueSnackbar("Link copied to clipboard");
     }
   };
 

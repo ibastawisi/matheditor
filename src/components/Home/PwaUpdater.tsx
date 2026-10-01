@@ -1,6 +1,7 @@
 "use client"
-import { useDispatch, actions } from '@/store';
 import { useEffect } from "react";
+import { enqueueSnackbar } from 'notistack';
+import { Button } from '@mui/material';
 import type { Workbox } from 'workbox-window';
 
 declare global {
@@ -10,7 +11,6 @@ declare global {
 }
 
 const PwaUpdater = () => {
-  const dispatch = useDispatch();
 
   useEffect(() => {
     if (
@@ -23,30 +23,20 @@ const PwaUpdater = () => {
         wb.messageSkipWaiting()
       });
       wb.addEventListener("controlling", (event) => {
-        dispatch(actions.announce({
-          message:
-          {
-            title: event.isUpdate ? "Update Complete" : "App Installed",
-            subtitle: "Please refresh to use the latest version"
-          },
-          timeout: 6000,
-          action: {
-            label: "Refresh",
-            onClick: "window.location.reload()"
-          }
-        }));
+        enqueueSnackbar(event.isUpdate ? "Update Complete" : "App Installed", {
+          description: "Please refresh to use the latest version",
+          autoHideDuration: 6000,
+          action: <Button color="secondary" size="small" onClick={() => window.location.reload()}>Refresh</Button>,
+        });
       });
 
       wb.register().then((registration) => {
         if (!registration) return;
         registration.onupdatefound = () => {
-          dispatch(actions.announce({
-            message: {
-              title: "Downloading Update",
-              subtitle: "App is being updated in the background"
-            },
-            timeout: 3000
-          }));
+          enqueueSnackbar("Downloading Update", {
+            description: "App is being updated in the background",
+            autoHideDuration: 3000,
+          });
         }
       });
     }

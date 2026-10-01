@@ -1,16 +1,16 @@
 "use client"
 import { Box, IconButton, SwipeableDrawer, Typography } from '@mui/material';
 import { Article, Close } from '@mui/icons-material';
-import { actions, useDispatch, useSelector } from '@/store';
+import { useAppStore } from '@/store';
 import { useEffect } from 'react';
 
 const AppDrawer: React.FC<React.PropsWithChildren<{ title: string }>> = ({ title, children }) => {
-  const open = useSelector(state => state.ui.drawer);
-  const dispatch = useDispatch();
-  const toggleDrawer = () => { dispatch(actions.toggleDrawer()); }
+  const open = useAppStore(state => state.drawer);
+  const toggleDrawer = useAppStore(state => state.toggleDrawer);
+  const handleToggle = () => { toggleDrawer(); }
 
   useEffect(() => {
-    return () => { dispatch(actions.toggleDrawer(false)); }
+    return () => { toggleDrawer(false); }
   }, []);
   
   return (
@@ -18,15 +18,15 @@ const AppDrawer: React.FC<React.PropsWithChildren<{ title: string }>> = ({ title
       <SwipeableDrawer
         anchor="right"
         open={open}
-        onOpen={toggleDrawer}
-        onClose={toggleDrawer}
+        onOpen={handleToggle}
+        onClose={handleToggle}
         sx={{ displayPrint: 'none' }}
       >
         <Box sx={{ p: 2, width: 300 }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Article sx={{ mr: 1 }} />
             <Typography variant="h6">{title}</Typography>
-            <IconButton onClick={toggleDrawer} sx={{ ml: "auto" }}><Close /></IconButton>
+            <IconButton onClick={handleToggle} sx={{ ml: "auto" }}><Close /></IconButton>
           </Box>
           {children}
         </Box>

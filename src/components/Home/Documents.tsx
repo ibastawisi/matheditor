@@ -1,7 +1,7 @@
 "use client"
 import { useRouter } from 'next/navigation';
 import RouterLink from 'next/link'
-import { useDispatch, useSelector, actions } from '@/store';
+import { useAppStore } from '@/store';
 import DocumentCard from "../DocumentCard";
 import { memo, Suspense, useEffect } from "react";
 import { BackupDocument, User, UserDocument } from '@/types';
@@ -14,16 +14,19 @@ import DocumentSortControl from '../DocumentControls/SortControl';
 import { sortDocuments } from "../DocumentControls/sortDocuments";
 import DocumentFilterControl, { filterDocuments } from '../DocumentControls/FilterControl';
 import { v4 as uuid } from 'uuid';
+import { alert } from '@/shared/alert';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { useHydration } from '@/hooks/useHydration';
+import { enqueueSnackbar } from 'notistack';
 
 const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocuments }) => {
-  const user = useSelector(state => state.user);
-  const dispatch = useDispatch();
+  const user = useAppStore(state => state.user);
+  const updateLocalDocument = useAppStore(state => state.updateLocalDocument);
+  const createLocalDocument = useAppStore(state => state.createLocalDocument);
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
-  const initialized = useSelector(state => state.ui.initialized);
-  const documents = useSelector(state => state.documents);
+  const initialized = useAppStore(state => state.initialized);
+  const documents = useAppStore(state => state.documents);
 
   useEffect(() => {
     if ("launchQueue" in window && "LaunchParams" in window) {
@@ -57,7 +60,7 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
             }
           }
         } catch (error) {
-          dispatch(actions.announce({ message: { title: "Invalid file", subtitle: "Please select a valid .me file" } }));
+          enqueueSnackbar("Invalid file", { description: "Please select a valid .me file" });
         } finally {
           resolve();
         }
@@ -81,20 +84,16 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
       ];
     }
     if (documents.find(d => d.id === document.id && d.local)) {
-      const alert = {
+      const confirmed = await alert({
         title: `Document already exists`,
-        content: `Do you want to overwrite ${document.name}?`,
-        actions: [
-          { label: "Cancel", id: uuid() },
-          { label: "Overwrite", id: uuid() }
-        ]
-      };
-      const response = await dispatch(actions.alert(alert));
-      if (response.payload === alert.actions[1].id) {
-        dispatch(actions.updateLocalDocument({ id: document.id, partial: document })).then(() => { if (shouldNavigate) navigate(`/edit/${document.id}`) });
+        description: `Do you want to overwrite ${document.name}?`,
+        confirmText: "Overwrite",
+      });
+      if (confirmed) {
+        updateLocalDocument({ id: document.id, partial: document }).then(() => { if (shouldNavigate) navigate(`/edit/${document.id}`) });
       }
     } else {
-      dispatch(actions.createLocalDocument(document)).then(() => {
+      createLocalDocument(document).then(() => {
         shouldNavigate && navigate(`/edit/${document.id}`);
       });
     }
@@ -126,7 +125,7 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
       link.dispatchEvent(evt);
       link.remove();
     } catch (error) {
-      dispatch(actions.announce({ message: { title: "Backup failed", subtitle: "Please try again" } }));
+      enqueueSnackbar("Backup failed", { description: "Please try again" });
     };
   };
 
@@ -186,14 +185,14 @@ const Documents: React.FC<{ staticDocuments: UserDocument[] }> = ({ staticDocume
 }
 
 const DocumentsGrid: React.FC<{ documents: UserDocument[], user?: User, initialized: boolean }> = memo(({ documents, user, initialized }) => {
-  const dispatch = useDispatch();
+  const setPage = useAppStore(state => state.setPage);
   const showSkeletons = !initialized && !documents.length;
   const showEmpty = initialized && !documents.length;
   const pageSize = 12;
   const pages = Math.ceil(documents.length / pageSize);
-  const savedPage = useSelector(state => state.ui.page);
+  const savedPage = useAppStore(state => state.page);
   const page = Math.min(savedPage, pages);
-  const handlePageChange = (_: any, value: number) => dispatch(actions.setPage(value));
+  const handlePageChange = (_: any, value: number) => setPage(value);
   const pageDocuments = documents.slice((page - 1) * pageSize, page * pageSize);
 
   return (
