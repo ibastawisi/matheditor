@@ -126,8 +126,7 @@ body:has(#app-toolbar) .editor-container :is([id], [target=_self]) {
   padding-bottom: 3rem;
 }
 
-.document-container,
-.diff-container {
+.document-container {
   user-select: text;
   white-space: pre-wrap;
   word-break: break-word;
@@ -180,6 +179,10 @@ body.fullscreen {
   transform: none !important;
 }
 
+.diff-container {
+  display: contents;
+}
+
 .diff-container ins {
   background-color: rgb(200 255 200 / 50%);
   text-decoration: none;
@@ -187,11 +190,6 @@ body.fullscreen {
 
 .diff-container del {
   background-color: rgb(255 200 200 / 50%)
-}
-
-.diff-container~.editor-input,
-.diff-container~.MuiAppBar-root {
-  display: none;
 }
 
 @media screen and (prefers-color-scheme: dark) {
@@ -235,8 +233,7 @@ body.fullscreen {
   }
 
   .editor-input,
-  .document-container,
-  .diff-container {
+  .document-container {
     padding-bottom: 0 !important;
   }
 
