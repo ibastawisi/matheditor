@@ -12,6 +12,11 @@ import './theme.css';
 
 const theme: EditorThemeClasses = {
   blockCursor: 'LexicalTheme__blockCursor',
+  // styled by the collab extension, whose plugin draws the other users' cursors
+  collaboration: {
+    cursor: 'editor-collab-cursor',
+    cursorName: 'editor-collab-cursor-name',
+  },
   characterLimit: 'LexicalTheme__characterLimit',
   code: 'LexicalTheme__code',
   codeHighlight: {

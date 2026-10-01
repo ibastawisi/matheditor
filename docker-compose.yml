@@ -24,6 +24,23 @@ services:
     volumes:
       - pix2text-models:/root
 
+  collab:
+    build: ./collab
+    restart: unless-stopped
+    environment:
+      COLLAB_SECRET: ${COLLAB_SECRET:-matheditor}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-matheditor}
+    ports:
+      - "1234:1234"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:1234/health').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
   browserless:
     image: ghcr.io/browserless/chromium
     restart: unless-stopped

@@ -12,6 +12,7 @@ The project aims to make writing publication-quality documents easy and accessib
 - Math: Integrates with [Mathlive](https://cortexjs.io/mathlive) for writing LaTeX with a Virtual Keyboard.
 - Graph: Integrates with [Geogebra](https://www.geogebra.org) for graphing functions and shapes.
 - Sketch: Integrates with [Excalidraw](https://excalidraw.com/) for hand-drawn like sketches.
+- Live collaboration: Authors, coauthors and collaborators edit cloud documents together in real time, with each other's cursors, powered by [Yjs](https://yjs.dev).
 
 ## Getting Started
 
@@ -21,3 +22,5 @@ cd matheditor
 pnpm install
 pnpm dev
 ```
+
+`pnpm dev` starts Postgres and the other services with Docker Compose, including the live editing server in `collab/`. Copy `.env.example` to `.env`; `COLLAB_URL` and `COLLAB_SECRET` there must match the `collab` service. Without them, documents are edited on each device only.

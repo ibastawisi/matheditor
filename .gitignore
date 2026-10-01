@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/collab/node_modules
 /.pnp
 .pnp.js
 

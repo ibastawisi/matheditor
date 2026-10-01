@@ -82,7 +82,8 @@ export class CodeGutters {
   }
 
   dispose() {
-    cancelAnimationFrame(this.frame);
+    // headless editors on the server never request a frame, and have no cancelAnimationFrame
+    if (this.frame) cancelAnimationFrame(this.frame);
     this.observer?.disconnect();
     this.pending.clear();
   }

@@ -145,6 +145,38 @@ export interface PatchDocumentResponse {
   error?: { title: string, subtitle?: string }
 }
 
+export interface CollabSession {
+  /** The live editing server */
+  url: string;
+  /** Lets the user into the document's live session for a few minutes */
+  token: string;
+  user: Pick<User, "id" | "name" | "image">;
+  /** The session was started from the copy the client sent */
+  seededFromCopy?: boolean;
+}
+
+/** Sent when joining a live session, the client's own copy, to start the session from if it is newer */
+export interface PostCollabSessionInput {
+  data?: SerializedEditorState;
+  updatedAt?: string | Date;
+}
+
+/** Someone else editing the document live */
+export interface Collaborator {
+  clientId: number;
+  id: string;
+  name: string;
+  image: string | null;
+  color: string;
+}
+
+export type CollabStatus = "connecting" | "connected" | "disconnected";
+
+export interface PostCollabSessionResponse {
+  data?: CollabSession;
+  error?: { title: string, subtitle?: string }
+}
+
 export interface DeleteDocumentResponse {
   data?: string;
   error?: { title: string, subtitle?: string }
