@@ -52,7 +52,7 @@ const registerBackNavigationGuard = () => {
   if (!navigation || !IS_MOBILE) return;
 
   const preventBackNavigation = (event: any) => {
-    if (event.navigationType === "push") return;
+    if (event.navigationType !== "traverse") return;
     const mathVirtualKeyboard = window.mathVirtualKeyboard;
     if (!mathVirtualKeyboard?.visible) return;
     event.preventDefault();
