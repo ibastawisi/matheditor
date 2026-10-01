@@ -11,6 +11,10 @@ import Editor from '@/editor/Editor';
 import { alert } from '@/shared/alert';
 import { enqueueSnackbar } from 'notistack';
 import { Button } from '@mui/material';
+import dynamic from 'next/dynamic';
+import type { LiveCollaborationProps } from '@/editor/extensions/collab/plugin';
+
+const LiveCollaborationPlugin = dynamic(() => import('@/editor/extensions/collab/plugin'), { ssr: false });
 
 type EditorRefCallback = (editor: LexicalEditor) => void | (() => void);
 type OnChange = (editorState: EditorState, editor: LexicalEditor, tags: Set<string>) => void;
@@ -69,11 +73,15 @@ const Container: React.FC<{
   editorRef?: RefObject<LexicalEditor | null> | EditorRefCallback,
   onChange?: OnChange;
   ignoreHistoryMerge?: boolean;
-}> = ({ document, editorRef, onChange, ignoreHistoryMerge }) => {
+  /** Edits the document in its live session, which the content comes from, instead of `document.data` */
+  live?: LiveCollaborationProps;
+}> = ({ document, editorRef, onChange, ignoreHistoryMerge, live }) => {
   return (
-    <EditorComposer initialState={JSON.stringify(document.data)}>
+    <EditorComposer initialState={JSON.stringify(document.data)} collab={!!live}>
       <EditorListeners editorRef={editorRef} onChange={onChange} />
-      <Editor onChange={onChange} ignoreHistoryMerge={ignoreHistoryMerge} />
+      <Editor onChange={onChange} ignoreHistoryMerge={ignoreHistoryMerge}>
+        {live && <LiveCollaborationPlugin {...live} />}
+      </Editor>
     </EditorComposer>
   );
 }

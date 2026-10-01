@@ -1,0 +1,37 @@
+/* remote cursors are placed relative to this box, at the editor container's corner */
+.editor-collab-cursors {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.editor-collab-cursor {
+  background-color: var(--lexical-cursor-color);
+  pointer-events: none;
+}
+
+.editor-collab-cursor-name {
+  position: absolute;
+  top: -1.4em;
+  left: -1px;
+  padding: 1px 4px;
+  border-radius: 4px 4px 4px 0;
+  background-color: var(--lexical-cursor-color);
+  color: #fff;
+  font-family: Roboto, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+  user-select: none;
+}
+
+@media print {
+  .editor-collab-cursors {
+    display: none;
+  }
+}

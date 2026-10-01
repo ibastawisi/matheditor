@@ -41,6 +41,7 @@
     "@lexical/selection": "^0.52.0",
     "@lexical/table": "^0.52.0",
     "@lexical/utils": "^0.52.0",
+    "@lexical/yjs": "^0.52.0",
     "@mui/icons-material": "^9.4.0",
     "@mui/material": "^9.4.0",
     "@mui/material-nextjs": "^9.4.0",
@@ -72,6 +73,9 @@
     "ts-pattern": "^5.6.2",
     "typescript": "5.8.2",
     "uuid": "^11.1.0",
+    "y-protocols": "^1.0.7",
+    "y-websocket": "^3.1.0",
+    "yjs": "^13.6.33",
     "zod": "^4.6.5",
     "zustand": "^5.0.15"
   },

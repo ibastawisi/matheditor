@@ -8,6 +8,7 @@
 .vscode
 node_modules
 fastapi
+collab
 temp
 .env
 .env*.local

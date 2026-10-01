@@ -1,7 +1,8 @@
 "use client"
 import { LexicalExtensionComposer } from "@lexical/react/LexicalExtensionComposer";
 import { EditorRefPlugin } from "@lexical/react/LexicalEditorRefPlugin";
-import { defineExtension, type InitialEditorStateType } from "lexical";
+import { configExtension, defineExtension, type InitialEditorStateType } from "lexical";
+import { HistoryExtension } from "@lexical/history";
 import { useMemo } from "react";
 import { FullEditorExtensions } from "./extensions";
 import { ImageResizerExtension } from "./extensions/image/resizer";
@@ -27,20 +28,25 @@ export const EditorComposer: React.FC<
   React.PropsWithChildren<{
     initialState?: InitialEditorStateType;
     editable?: boolean;
+    /**
+     * The document is edited live: it starts empty and gets its content from
+     * the session, whose history replaces the editor's own
+     */
+    collab?: boolean;
     editorRef?: React.ComponentProps<typeof EditorRefPlugin>["editorRef"];
   }>
-> = ({ initialState, editable = true, editorRef, children }) => {
+> = ({ initialState, editable = true, collab = false, editorRef, children }) => {
   // the initial state is only read when the editor is created
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const extension = useMemo(
     () =>
       defineExtension({
         name: "@matheditor/root",
-        $initialEditorState: initialState,
+        $initialEditorState: collab ? null : initialState,
         editable,
-        dependencies: [EditorUIExtensions],
+        dependencies: collab ? [EditorUIExtensions, configExtension(HistoryExtension, { disabled: true })] : [EditorUIExtensions],
       }),
-    [editable]
+    [editable, collab]
   );
 
   return (

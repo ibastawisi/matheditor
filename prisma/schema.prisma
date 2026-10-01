@@ -8,22 +8,31 @@ datasource db {
 }
 
 model Document {
-  id        String              @id @default(uuid()) @db.Uuid
-  handle    String?             @unique
-  name      String
-  head      String              @db.Uuid
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @default(now())
-  authorId  String              @db.Uuid
-  published Boolean             @default(false)
-  collab    Boolean             @default(false)
-  private   Boolean             @default(false)
-  baseId    String?             @db.Uuid
-  base      Document?           @relation("BaseForks", fields: [baseId], references: [id])
-  forks     Document[]          @relation("BaseForks")
-  revisions Revision[]
-  author    User                @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  coauthors DocumentCoauthers[]
+  id          String              @id @default(uuid()) @db.Uuid
+  handle      String?             @unique
+  name        String
+  head        String              @db.Uuid
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @default(now())
+  authorId    String              @db.Uuid
+  published   Boolean             @default(false)
+  collab      Boolean             @default(false)
+  private     Boolean             @default(false)
+  baseId      String?             @db.Uuid
+  base        Document?           @relation("BaseForks", fields: [baseId], references: [id])
+  forks       Document[]          @relation("BaseForks")
+  revisions   Revision[]
+  author      User                @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  coauthors   DocumentCoauthers[]
+  collabState CollabState?
+}
+
+// The shared Yjs state of a document that is being edited live
+model CollabState {
+  documentId String   @id @db.Uuid
+  data       Bytes
+  updatedAt  DateTime @default(now())
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 }
 
 model Revision {

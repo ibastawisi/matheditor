@@ -1,10 +1,12 @@
 # Production stack, deployed by Dokploy. Variables come from Dokploy's Environment tab.
 # POSTGRES_PASSWORD and BROWSERLESS_TOKEN are embedded in URLs, so keep them URL-safe (e.g. openssl rand -hex 24).
+# COLLAB_SECRET signs the tokens that let editors into live sessions (e.g. openssl rand -hex 32).
 #
 # Public endpoints (routed by Dokploy's Traefik, all on port 443):
 #   app          matheditor.me            domain set in the Dokploy UI
 #   fastapi      fastapi.matheditor.me    HTTPS
 #   browserless  browserless.matheditor.me  WSS
+#   collab       collab.matheditor.me     WSS, live editing
 #   db           db.matheditor.me:443     Postgres over TLS, terminated by Traefik (clients need sslmode=require)
 services:
   app:
@@ -18,6 +20,8 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/matheditor
       BROWSERLESS_URL: ws://browserless:3000?token=${BROWSERLESS_TOKEN}
+      COLLAB_URL: wss://collab.matheditor.me
+      COLLAB_SECRET: ${COLLAB_SECRET:?COLLAB_SECRET is required}
     expose:
       - "3000"
     depends_on:
@@ -69,6 +73,30 @@ services:
       - traefik.http.routers.matheditor-fastapi.entrypoints=websecure
       - traefik.http.routers.matheditor-fastapi.tls.certresolver=letsencrypt
       - traefik.http.services.matheditor-fastapi.loadbalancer.server.port=8000
+
+  collab:
+    build: ./collab
+    restart: unless-stopped
+    environment:
+      COLLAB_SECRET: ${COLLAB_SECRET:?COLLAB_SECRET is required}
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/matheditor
+    expose:
+      - "1234"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - default
+      - dokploy-network
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.matheditor-collab-web.rule=Host(`collab.matheditor.me`)
+      - traefik.http.routers.matheditor-collab-web.entrypoints=web
+      - traefik.http.routers.matheditor-collab-web.middlewares=redirect-to-https@file
+      - traefik.http.routers.matheditor-collab.rule=Host(`collab.matheditor.me`)
+      - traefik.http.routers.matheditor-collab.entrypoints=websecure
+      - traefik.http.routers.matheditor-collab.tls.certresolver=letsencrypt
+      - traefik.http.services.matheditor-collab.loadbalancer.server.port=1234
 
   browserless:
     image: ghcr.io/browserless/chromium

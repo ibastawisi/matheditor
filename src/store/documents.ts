@@ -6,6 +6,7 @@ import type {
   BackupDocument,
   CloudDocument,
   CloudDocumentRevision,
+  CollabSession,
   DeleteDocumentResponse,
   DeleteRevisionResponse,
   DocumentCreateInput,
@@ -21,6 +22,7 @@ import type {
   LocalDocument,
   LocalDocumentRevision,
   PatchDocumentResponse,
+  PostCollabSessionResponse,
   PostDocumentsResponse,
   PostRevisionResponse,
   UserDocument,
@@ -48,6 +50,7 @@ export interface DocumentsSlice {
   updateCloudDocument: (input: { id: string, partial: DocumentUpdateInput }) => Promise<Result<CloudDocument>>;
   deleteCloudDocument: (id: string) => Promise<Result<string>>;
   forkCloudDocument: (input: { id: string, revisionId?: string | null }) => Promise<Result<NonNullable<ForkDocumentResponse["data"]>>>;
+  getCollabSession: (id: string, copy?: Pick<EditorDocument, "data" | "updatedAt">) => Promise<Result<CollabSession>>;
 
   getLocalDocumentRevisions: (id: string) => Promise<Result<EditorDocumentRevision[]>>;
   getLocalRevision: (id: string) => Promise<Result<EditorDocumentRevision>>;
@@ -280,6 +283,21 @@ export const createDocumentsSlice: StateCreator<AppStore, [], [], DocumentsSlice
       return announceFailure(failure(error));
     } finally {
       NProgress.done();
+    }
+  },
+  // quietly fails for documents that are not in the cloud or that the user cannot edit, which are edited offline
+  getCollabSession: async (id, copy) => {
+    try {
+      const response = await fetch(`/api/documents/${id}/collab`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(copy ? { data: copy.data, updatedAt: copy.updatedAt } : {}),
+      });
+      const { data, error } = await response.json() as PostCollabSessionResponse;
+      if (error || !data) return { error: error ?? { title: "Something went wrong", subtitle: "live editing is not available" } };
+      return { data };
+    } catch (error) {
+      return { error: { title: "Something went wrong", subtitle: (error as Error)?.message } };
     }
   },
 
