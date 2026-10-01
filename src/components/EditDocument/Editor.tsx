@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import SplashScreen from "../SplashScreen";
 import { Collaborator, CollabSession, CollabStatus, EditorDocument } from '@/types';
 import { useAppStore } from '@/store';
@@ -11,6 +11,9 @@ import DiffView from "../Diff";
 import { Box, debounce } from "@mui/material";
 import { enqueueSnackbar } from "notistack";
 import Editor from "../Editor";
+import { EditorHandoff } from "../EditorHandoff";
+import { EditorSkeleton } from "../EditorSkeleton";
+import { generateDocumentHtml, serializeDocumentHtml } from "@/editor/utils/generateDocumentHtml";
 
 const EditDocumentInfo = dynamic(() => import('@/components/EditDocument/EditDocumentInfo'), { ssr: false });
 
@@ -46,6 +49,7 @@ const DocumentEditor: React.FC = () => {
   const showDiff = useAppStore(state => state.diff.open);
   /** The live content has arrived, before that the editor is empty */
   const synced = useRef(false);
+  const [liveLoaded, setLiveLoaded] = useState(false);
   const connected = useRef(false);
   /** This device's copy as it was loaded, until the live session first changes it */
   const offlineCopy = useRef<EditorDocument | null>(null);
@@ -102,6 +106,8 @@ const DocumentEditor: React.FC = () => {
         const editorDocumentRevision = { id: editorDocument.head, documentId: editorDocument.id, createdAt: editorDocument.updatedAt, data: editorDocument.data };
         createLocalRevision(editorDocumentRevision);
       }
+      // the live editor's code loads while the session is requested
+      if (navigator.onLine) void import('@/editor/extensions/collab/plugin');
       // a copy with changes the session may not have can start a session that does not exist yet
       const copy = offlineCopy.current && readLiveHead(editorDocument.id) !== editorDocument.head ? editorDocument : undefined;
       // documents the user cannot edit in the cloud, or that are not there, are edited on this device only
@@ -132,6 +138,9 @@ const DocumentEditor: React.FC = () => {
     };
   }, [session]);
 
+  // the copy on this device stands in for the live editor until the session's content arrives
+  const placeholderHtml = useMemo(() => document && session ? serializeDocumentHtml(generateDocumentHtml(document.data)) : "", [document, session]);
+
   if (error) return <SplashScreen title={error.title} subtitle={error.subtitle} />;
   if (!document || session === undefined) return <SplashScreen title="Loading Document" />;
 
@@ -145,7 +154,9 @@ const DocumentEditor: React.FC = () => {
       setLive({ status: synced.current && status === "connecting" ? "disconnected" : status });
     },
     onSync: (isSynced: boolean) => {
-      if (isSynced) synced.current = true;
+      if (!isSynced) return;
+      synced.current = true;
+      setLiveLoaded(true);
     },
     onClosed: () => leaveLiveSession("You left the live session", "Your changes are saved on this device"),
     onCollaborators: (collaborators: Collaborator[]) => setLive({ collaborators }),
@@ -157,7 +168,11 @@ const DocumentEditor: React.FC = () => {
     {/* hidden rather than unmounted, so that it keeps its history and selection */}
     <Box sx={{ display: showDiff ? "none" : "contents" }}>
       {/* a new editor when the live session is left before it synced */}
-      <Editor key={session ? "live" : "local"} document={document} editorRef={editorRef} onChange={handleChange} live={live} />
+      {session ?
+        <EditorHandoff key="live" fallback={<EditorSkeleton html={placeholderHtml} />} loaded={liveLoaded}>
+          <Editor document={document} editorRef={editorRef} onChange={handleChange} live={live} />
+        </EditorHandoff> :
+        <Editor key="local" document={document} editorRef={editorRef} onChange={handleChange} />}
     </Box>
     <EditDocumentInfo documentId={document.id} editorRef={editorRef} />
   </>;
