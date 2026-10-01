@@ -11,7 +11,11 @@ import UploadDocument from "./Upload";
 import { useSearchParams } from "next/navigation";
 import { enqueueSnackbar } from 'notistack';
 
-const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
+/**
+ * The share settings and links of a document. `variant` picks the layout: a
+ * dialog's title, content and actions, or a plain panel with its own buttons.
+ */
+export const ShareDocumentForm: React.FC<{ userDocument: UserDocument, variant?: 'dialog' | 'panel', onClose?: () => void }> = ({ userDocument, variant = 'panel', onClose }) => {
   const updateCloudDocument = useAppStore(state => state.updateCloudDocument);
   const user = useAppStore(state => state.user);
   const localDocument = userDocument?.local;
@@ -27,25 +31,10 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
 
   const formats = ['view', 'embed', 'pdf', 'docx'];
   if (isAuthor || isCollab) formats.push('edit');
-  const [format, setFormat] = useState("view");
-  const [revision, setRevision] = useState(cloudDocument?.head ?? null);
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const [shareDialogOpen, setShareDialogOpen] = useState(false);
-  const shareFormRef = useRef<HTMLFormElement>(null);
   const searchParams = useSearchParams();
-
-  const openShareDialog = () => {
-    if (closeMenu) closeMenu();
-    setFormat(cloudDocument?.collab ? "edit" : "view");
-    const v = searchParams.get("v");
-    setRevision(v || (cloudDocument?.head ?? null));
-    setShareDialogOpen(true);
-  };
-
-  const closeShareDialog = () => {
-    setShareDialogOpen(false);
-  };
+  const [format, setFormat] = useState(cloudDocument?.collab ? "edit" : "view");
+  const [revision, setRevision] = useState(searchParams.get("v") || (cloudDocument?.head ?? null));
+  const shareFormRef = useRef<HTMLFormElement>(null);
 
   function getShareUrl(formdata: FormData) {
     const url = new URL(window.location.origin);
@@ -82,7 +71,7 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
     if (!isCloud) return enqueueSnackbar("Document is not saved to the cloud", { description: "Please save document to the cloud first" });
     const url = getShareUrl(formdata);
     const shareData = { title: name, url: url.toString() };
-    closeShareDialog();
+    onClose?.();
     await navigator.share(shareData);
   };
 
@@ -120,6 +109,167 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
     updateCloudDocument({ id: cloudDocument.id, partial: { coauthors } });
   }
 
+  const shareDisabled = !cloudDocument || (isPrivate && (format === "embed" || format === "pdf" || format === "docx"));
+
+  // the drawer's panel already has its own padding
+  const sectionSx = variant === 'panel' ? { py: 2 } : { p: 2 };
+
+  const fields = <>
+    <Tabs
+      variant="scrollable"
+      allowScrollButtonsMobile
+      value={format}
+      onChange={handleChange}
+      aria-label="Share tabs"
+    >
+      {formats.map(format => <Tab key={format} label={format} value={format} />)}
+    </Tabs>
+    {!cloudDocument && <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>
+      <CloudOff sx={{ width: 64, height: 64, fontSize: 64 }} />
+      <Typography variant="overline" component="p">Please save document to the cloud first</Typography>
+      <UploadDocument userDocument={userDocument} variant="button" />
+    </Box>}
+    {cloudDocument && <>
+      {formats.includes("view") && format === "view" && <Box sx={sectionSx}>
+        <FormControl fullWidth sx={{ gap: 1, mb: 2 }}>
+          <FormLabel>Revision</FormLabel>
+          <Select size="small" value={revision} onChange={e => setRevision(e.target.value)}>
+            {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</MenuItem>)}
+          </Select>
+        </FormControl>
+        <FormControl fullWidth disabled={!isAuthor}>
+          <FormLabel>Permissions</FormLabel>
+          <FormControlLabel
+            control={<Switch checked={!isPrivate} onChange={togglePrivate} />}
+            label={!isPrivate ? "Anyone with the link" : "Only author and coauthors"}
+          />
+        </FormControl>
+      </Box>}
+      {formats.includes("embed") && format === "embed" && <Box sx={sectionSx}>
+        <FormControl fullWidth sx={{ gap: 1, mb: 2 }} disabled={isPrivate}>
+          <FormLabel>Revision</FormLabel>
+          <Select size="small" value={revision} onChange={e => setRevision(e.target.value)}>
+            {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</MenuItem>)}
+          </Select>
+        </FormControl>
+        <FormControl fullWidth disabled={!isAuthor}>
+          <FormLabel>Permissions</FormLabel>
+          <FormControlLabel
+            control={<Switch checked={!isPrivate} onChange={togglePrivate} />}
+            label={!isPrivate ? "Anyone with the link" : "Only author and coauthors"}
+          />
+          {isPrivate && <FormHelperText>Private documents can not be embedded</FormHelperText>}
+        </FormControl>
+      </Box>}
+      {formats.includes("pdf") && format === "pdf" && <Box sx={sectionSx}>
+        <FormControl fullWidth sx={{ gap: 1, mb: 2 }} disabled={isPrivate}>
+          <FormLabel>Revision</FormLabel>
+          <Select size="small" value={revision} onChange={e => setRevision(e.target.value)}>
+            {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</MenuItem>)}
+          </Select>
+        </FormControl>
+        <FormControl fullWidth disabled={!isAuthor}>
+          <FormLabel>Permissions</FormLabel>
+          <FormControlLabel
+            control={<Switch checked={!isPrivate} onChange={togglePrivate} />}
+            label={!isPrivate ? "Anyone with the link" : "Only author and coauthors"}
+          />
+          {isPrivate && <FormHelperText>Private documents can not be shared as PDF</FormHelperText>}
+        </FormControl>
+        <FormControl fullWidth disabled={isPrivate}>
+          <FormLabel>Scale</FormLabel>
+          <Slider
+            name='scale'
+            aria-label="scale"
+            defaultValue={1}
+            valueLabelDisplay="auto"
+            step={0.1}
+            marks
+            min={0.1}
+            max={2}
+            disabled={isPrivate}
+          />
+        </FormControl>
+        <FormControl fullWidth disabled={isPrivate}>
+          <FormLabel>Orientation</FormLabel>
+          <RadioGroup row aria-label="orientation" name="landscape" defaultValue="false">
+            <FormControlLabel value="false" control={<Radio />} label="Portrait" />
+            <FormControlLabel value="true" control={<Radio />} label="Landscape" />
+          </RadioGroup>
+        </FormControl>
+        <FormControl fullWidth disabled={isPrivate}>
+          <FormLabel>Size</FormLabel>
+          <RadioGroup row aria-label="size" name="format" defaultValue="a4">
+            <FormControlLabel value="letter" control={<Radio />} label="Letter" />
+            <FormControlLabel value="a4" control={<Radio />} label="A4" />
+          </RadioGroup>
+        </FormControl>
+      </Box>}
+      {formats.includes("docx") && format === "docx" && <Box sx={sectionSx}>
+        <FormControl fullWidth sx={{ gap: 1, mb: 2 }} disabled={isPrivate}>
+          <FormLabel>Revision</FormLabel>
+          <Select size="small" value={revision} onChange={e => setRevision(e.target.value)}>
+            {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</MenuItem>)}
+          </Select>
+        </FormControl>
+        <FormControl fullWidth disabled={!isAuthor}>
+          <FormLabel>Permissions</FormLabel>
+          <FormControlLabel
+            control={<Switch checked={!isPrivate} onChange={togglePrivate} />}
+            label={!isPrivate ? "Anyone with the link" : "Only author and coauthors"}
+          />
+          {isPrivate && <FormHelperText>Private documents can not be shared as DOCx</FormHelperText>}
+        </FormControl>
+      </Box>}
+      {formats.includes("edit") && format === "edit" && <Box sx={sectionSx}>
+        <FormControl fullWidth sx={{ gap: 1, mb: 2 }} disabled={!isAuthor}>
+          <FormLabel sx={{ mb: 0.5 }}>Permissions</FormLabel>
+          <UsersAutocomplete label='Coauthors' placeholder='Email' value={cloudDocument?.coauthors ?? []} onChange={updateCoauthors} disabled={!isAuthor} />
+          <FormControlLabel
+            control={<Switch checked={isCollab} onChange={toggleCollab} />}
+            label={isCollab ? "Anyone with the link" : "Only author and coauthors"}
+          />
+        </FormControl>
+      </Box>}
+      {isCloud && <Box sx={{ ...sectionSx, display: 'flex', gap: 1 }}>
+        <Button
+          startIcon={<ContentCopy />}
+          variant="outlined"
+          disabled={shareDisabled}
+          onClick={copyLink} fullWidth>Copy Link</Button>
+        {variant === 'panel' && <Button type='submit' variant="contained" startIcon={<Share />} disabled={shareDisabled} fullWidth>Share</Button>}
+      </Box>}
+    </>}
+  </>;
+
+  if (variant === 'dialog') return (
+    <Box component="form" onSubmit={handleShare} ref={shareFormRef} sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
+      <DialogTitle>Share Document</DialogTitle>
+      <DialogContent>{fields}</DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button type='submit' disabled={shareDisabled}>Share</Button>
+      </DialogActions>
+    </Box>
+  );
+
+  return <Box component="form" onSubmit={handleShare} ref={shareFormRef}>{fields}</Box>;
+}
+
+const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+
+  const openShareDialog = () => {
+    if (closeMenu) closeMenu();
+    setShareDialogOpen(true);
+  };
+
+  const closeShareDialog = () => {
+    setShareDialogOpen(false);
+  };
+
   useFixedBodyScroll(shareDialogOpen);
 
   return <>
@@ -128,139 +278,7 @@ const ShareDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem'
       <ListItemText>Share</ListItemText>
     </MenuItem> : <IconButton aria-label="Share Document" onClick={openShareDialog} size="small"><Share /></IconButton>}
     <Dialog open={shareDialogOpen} onClose={closeShareDialog} fullWidth maxWidth="sm" fullScreen={fullScreen}>
-      <Box component="form" onSubmit={handleShare} ref={shareFormRef} sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
-        <DialogTitle>Share Document</DialogTitle>
-        <DialogContent>
-          <Tabs
-            variant="scrollable"
-            allowScrollButtonsMobile
-            value={format}
-            onChange={handleChange}
-            aria-label="Share tabs"
-          >
-            {formats.map(format => <Tab key={format} label={format} value={format} />)}
-          </Tabs>
-          {!cloudDocument && <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 5, gap: 2 }}>
-            <CloudOff sx={{ width: 64, height: 64, fontSize: 64 }} />
-            <Typography variant="overline" component="p">Please save document to the cloud first</Typography>
-            <UploadDocument userDocument={userDocument} variant="button" />
-          </Box>}
-          {cloudDocument && <>
-            {formats.includes("view") && format === "view" && <Box sx={{ p: 2 }}>
-              <FormControl fullWidth sx={{ gap: 1, mb: 2 }}>
-                <FormLabel>Revision</FormLabel>
-                <Select size="small" value={revision} onChange={e => setRevision(e.target.value)}>
-                  {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</MenuItem>)}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth disabled={!isAuthor}>
-                <FormLabel>Permissions</FormLabel>
-                <FormControlLabel
-                  control={<Switch checked={!isPrivate} onChange={togglePrivate} />}
-                  label={!isPrivate ? "Anyone with the link" : "Only author and coauthors"}
-                />
-              </FormControl>
-            </Box>}
-            {formats.includes("embed") && format === "embed" && <Box sx={{ p: 2 }}>
-              <FormControl fullWidth sx={{ gap: 1, mb: 2 }} disabled={isPrivate}>
-                <FormLabel>Revision</FormLabel>
-                <Select size="small" value={revision} onChange={e => setRevision(e.target.value)}>
-                  {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</MenuItem>)}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth disabled={!isAuthor}>
-                <FormLabel>Permissions</FormLabel>
-                <FormControlLabel
-                  control={<Switch checked={!isPrivate} onChange={togglePrivate} />}
-                  label={!isPrivate ? "Anyone with the link" : "Only author and coauthors"}
-                />
-                {isPrivate && <FormHelperText>Private documents can not be embedded</FormHelperText>}
-              </FormControl>
-            </Box>}
-            {formats.includes("pdf") && format === "pdf" && <Box sx={{ p: 2 }}>
-              <FormControl fullWidth sx={{ gap: 1, mb: 2 }} disabled={isPrivate}>
-                <FormLabel>Revision</FormLabel>
-                <Select size="small" value={revision} onChange={e => setRevision(e.target.value)}>
-                  {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</MenuItem>)}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth disabled={!isAuthor}>
-                <FormLabel>Permissions</FormLabel>
-                <FormControlLabel
-                  control={<Switch checked={!isPrivate} onChange={togglePrivate} />}
-                  label={!isPrivate ? "Anyone with the link" : "Only author and coauthors"}
-                />
-                {isPrivate && <FormHelperText>Private documents can not be shared as PDF</FormHelperText>}
-              </FormControl>
-              <FormControl fullWidth disabled={isPrivate}>
-                <FormLabel>Scale</FormLabel>
-                <Slider
-                  name='scale'
-                  aria-label="scale"
-                  defaultValue={1}
-                  valueLabelDisplay="auto"
-                  step={0.1}
-                  marks
-                  min={0.1}
-                  max={2}
-                  disabled={isPrivate}
-                />
-              </FormControl>
-              <FormControl fullWidth disabled={isPrivate}>
-                <FormLabel>Orientation</FormLabel>
-                <RadioGroup row aria-label="orientation" name="landscape" defaultValue="false">
-                  <FormControlLabel value="false" control={<Radio />} label="Portrait" />
-                  <FormControlLabel value="true" control={<Radio />} label="Landscape" />
-                </RadioGroup>
-              </FormControl>
-              <FormControl fullWidth disabled={isPrivate}>
-                <FormLabel>Size</FormLabel>
-                <RadioGroup row aria-label="size" name="format" defaultValue="a4">
-                  <FormControlLabel value="letter" control={<Radio />} label="Letter" />
-                  <FormControlLabel value="a4" control={<Radio />} label="A4" />
-                </RadioGroup>
-              </FormControl>
-            </Box>}
-            {formats.includes("docx") && format === "docx" && <Box sx={{ p: 2 }}>
-              <FormControl fullWidth sx={{ gap: 1, mb: 2 }} disabled={isPrivate}>
-                <FormLabel>Revision</FormLabel>
-                <Select size="small" value={revision} onChange={e => setRevision(e.target.value)}>
-                  {cloudDocument.revisions.map(revision => <MenuItem key={revision.id} value={revision.id}>{new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</MenuItem>)}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth disabled={!isAuthor}>
-                <FormLabel>Permissions</FormLabel>
-                <FormControlLabel
-                  control={<Switch checked={!isPrivate} onChange={togglePrivate} />}
-                  label={!isPrivate ? "Anyone with the link" : "Only author and coauthors"}
-                />
-                {isPrivate && <FormHelperText>Private documents can not be shared as DOCx</FormHelperText>}
-              </FormControl>
-            </Box>}
-            {formats.includes("edit") && format === "edit" && <Box sx={{ p: 2 }}>
-              <FormControl fullWidth sx={{ gap: 1, mb: 2 }} disabled={!isAuthor}>
-                <FormLabel sx={{ mb: 0.5 }}>Permissions</FormLabel>
-                <UsersAutocomplete label='Coauthors' placeholder='Email' value={cloudDocument?.coauthors ?? []} onChange={updateCoauthors} disabled={!isAuthor} />
-                <FormControlLabel
-                  control={<Switch checked={isCollab} onChange={toggleCollab} />}
-                  label={isCollab ? "Anyone with the link" : "Only author and coauthors"}
-                />
-              </FormControl>
-            </Box>}
-            {isCloud && <Box sx={{ p: 2 }}>
-              <Button
-                startIcon={<ContentCopy />}
-                variant="outlined"
-                disabled={!cloudDocument || (isPrivate && (format === "embed" || format === "pdf" || format === "docx"))}
-                onClick={copyLink} fullWidth>Copy Link</Button>
-            </Box>}
-          </>}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeShareDialog}>Cancel</Button>
-          <Button type='submit' disabled={!cloudDocument || (isPrivate && (format === "embed" || format === "pdf" || format === "docx"))}>Share</Button>
-        </DialogActions>
-      </Box>
+      <ShareDocumentForm userDocument={userDocument} variant="dialog" onClose={closeShareDialog} />
     </Dialog>
   </>
 }

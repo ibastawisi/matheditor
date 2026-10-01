@@ -2,17 +2,18 @@ import { LocalDocumentRevision, User, UserDocumentRevision } from '@/types';
 import RevisionCard from './EditRevisionCard';
 import { useAppStore } from '@/store';
 import Grid from '@mui/material/Grid';
-import { Avatar, Badge, Box, Button, Chip, IconButton, Portal, Typography } from '@mui/material';
-import { Close, Compare, History, Preview, Print } from '@mui/icons-material';
+import { Avatar, Badge, Box, Button, Chip, Divider, MenuItem, Portal, TextField, Typography } from '@mui/material';
+import { Compare, Description, History, Info, Print, Settings, Share } from '@mui/icons-material';
 import type { LexicalEditor } from 'lexical';
 import { RefObject } from 'react';
 import RouterLink from "next/link";
-import ShareDocument from '../DocumentActions/Share';
+import { ShareDocumentForm } from '../DocumentActions/Share';
 import DownloadDocument from '../DocumentActions/Download';
 import ForkDocument from '../DocumentActions/Fork';
-import EditDocument from '../DocumentActions/Edit';
-import AppDrawer from '../AppDrawer';
+import { EditDocumentForm } from '../DocumentActions/Edit';
+import AppDrawer, { type AppDrawerTab } from '../AppDrawer';
 import PageSetupSidebar from '@/editor/extensions/pages/sidebar';
+import useOnlineStatus from '@/hooks/useOnlineStatus';
 
 export default function EditDocumentInfo({ editorRef, documentId }: { editorRef: RefObject<LexicalEditor | null>, documentId: string }) {
   const setDiff = useAppStore(state => state.setDiff);
@@ -49,18 +50,20 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
   const revisionsBadgeContent = revisions.length;
   const showRevisionsBadge = revisionsBadgeContent > 0;
 
-  const isDiffViewOpen = useAppStore(state => state.diff.open);
-  const toggleDiffView = async () => {
+  const diff = useAppStore(state => state.diff);
+  const isDiffViewOpen = diff.open;
+  const isOnline = useOnlineStatus();
+  const openDiffView = async () => {
     if (unsavedChanges) await saveEditorRevision();
     const newRevisionId = documentRevisions[0]?.id;
     const oldRevisionId = documentRevisions[1]?.id ?? newRevisionId;
-    setDiff({ open: !isDiffViewOpen, old: oldRevisionId, new: newRevisionId });
+    setDiff({ open: true, old: oldRevisionId, new: newRevisionId });
   }
 
-  const viewLocalDocument = async () => {
-    if (isDiffViewOpen) return setDiff({ open: false });
-    if (unsavedChanges) await saveEditorRevision();
-    setDiff({ open: true, old: localDocument?.head, new: localDocument?.head });
+  // the diff view is shown while the diff tab is selected
+  const handleTabChange = (value: string) => {
+    if (value === "diff") openDiffView();
+    else if (isDiffViewOpen) setDiff({ open: false });
   }
 
   const getLocalEditorData = () => editorRef.current?.getEditorState().toJSON();
@@ -79,85 +82,118 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
     return localRevision;
   }
 
+  const details = (
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: "start", justifyContent: "start", gap: 1 }}>
+      {localDocument && <>
+        <Typography component="h2" variant="h6">{localDocument.name}</Typography>
+        <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>Created: {new Date(localDocument.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</Typography>
+        <Typography variant="subtitle2" gutterBottom sx={{ color: "text.secondary" }}>Updated: {new Date(localDocument.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</Typography>
+        {!cloudDocument && <Typography variant="subtitle2">Author <Chip
+          avatar={<Avatar />}
+          label={user?.name ?? "Local User"}
+          variant="outlined"
+        />
+        </Typography>}
+      </>}
+      {cloudDocument && <>
+        <Typography variant="subtitle2">Author <Chip clickable component={RouterLink} prefetch={false}
+          href={`/user/${cloudDocument.author.handle || cloudDocument.author.id}`}
+          avatar={<Avatar alt={cloudDocument.author.name} src={cloudDocument.author.image || undefined} />}
+          label={cloudDocument.author.name}
+          variant="outlined"
+        />
+        </Typography>
+        {cloudDocument.coauthors.length > 0 && <>
+          <Typography component="h3" variant="subtitle2">Coauthors</Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            {cloudDocument.coauthors.map(coauthor => (
+              <Chip clickable component={RouterLink} prefetch={false}
+                href={`/user/${coauthor.handle || coauthor.id}`}
+                key={coauthor.id}
+                avatar={<Avatar alt={coauthor.name} src={coauthor.image || undefined} />}
+                label={coauthor.name}
+                variant="outlined"
+              />
+            ))}
+          </Box>
+        </>}
+        {collaborators.length > 0 && <>
+          <Typography component="h3" variant="subtitle2">Collaborators</Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            {collaborators.map(user => (
+              <Chip clickable component={RouterLink} prefetch={false}
+                href={`/user/${user.handle || user.id}`}
+                key={user.id}
+                avatar={<Avatar alt={user.name} src={user.image || undefined} />}
+                label={user.name}
+                variant="outlined"
+              />
+            ))}
+          </Box>
+        </>}
+      </>}
+      {userDocument && <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2, alignSelf: 'stretch', '& > *': { flex: '1 1 auto' } }}>
+        <Button variant="outlined" onClick={() => { window.print(); }} startIcon={<Print />}>Print</Button>
+        <ForkDocument userDocument={userDocument} variant="button" />
+        <DownloadDocument userDocument={userDocument} variant="button" />
+      </Box>}
+      {userDocument && isAuthor && <>
+        <Divider flexItem sx={{ my: 2 }} />
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Settings sx={{ mr: 1 }} />
+          <Typography component="h3" variant="h6">Settings</Typography>
+        </Box>
+        <Box sx={{ alignSelf: 'stretch' }}>
+          <EditDocumentForm userDocument={userDocument} />
+        </Box>
+      </>}
+    </Box>
+  );
+
+  const revisionsTab = (
+    <Grid container spacing={1}>
+      {documentRevisions.map(revision => <Grid size={{ xs: 12 }} key={revision.id}><RevisionCard revision={revision} editorRef={editorRef} /></Grid>)}
+    </Grid>
+  );
+
+  const formatRevisionDate = (revision: UserDocumentRevision) => new Date(revision.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+  // a cloud revision has to be fetched before it can be compared
+  const isRevisionAvailable = (revision: UserDocumentRevision) => isOnline || localDocumentRevisions.some(r => r.id === revision.id);
+
+  const diffTab = (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      {(["old", "new"] as const).map(side => (
+        <TextField
+          key={side}
+          select
+          size="small"
+          label={side === "old" ? "Old revision" : "New revision"}
+          value={isDiffViewOpen && documentRevisions.some(r => r.id === diff[side]) ? diff[side] : ''}
+          onChange={e => setDiff({ [side]: e.target.value })}
+        >
+          {documentRevisions.map(revision => (
+            <MenuItem key={revision.id} value={revision.id} disabled={!isRevisionAvailable(revision)}>{formatRevisionDate(revision)}</MenuItem>
+          ))}
+        </TextField>
+      ))}
+    </Box>
+  );
+
+  const tabs: AppDrawerTab[] = [{ value: "details", label: "Details", icon: <Info />, content: details }];
+  if (editorRef.current) tabs.push({
+    value: "page", label: "Page", icon: <Description />,
+    content: <PageSetupSidebar editor={editorRef.current} onClose={() => toggleDrawer(false)} />
+  });
+  if (userDocument) tabs.push({ value: "share", label: "Share", icon: <Share />, content: <ShareDocumentForm userDocument={userDocument} /> });
+  tabs.push({ value: "diff", label: "Diff", icon: <Compare />, content: diffTab });
+  tabs.push({
+    value: "revisions", label: "Revisions", icon: <History />,
+    badge: showRevisionsBadge ? revisionsBadgeContent : undefined, content: revisionsTab
+  });
+
   return (
     <>
-      <AppDrawer title="Document Info">
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: "start", justifyContent: "start", gap: 1, my: 3 }}>
-          {localDocument && <>
-            <Typography component="h2" variant="h6">{localDocument.name}</Typography>
-            <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>Created: {new Date(localDocument.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</Typography>
-            <Typography variant="subtitle2" gutterBottom sx={{ color: "text.secondary" }}>Updated: {new Date(localDocument.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</Typography>
-            {!cloudDocument && <Typography variant="subtitle2">Author <Chip
-              avatar={<Avatar />}
-              label={user?.name ?? "Local User"}
-              variant="outlined"
-            />
-            </Typography>}
-          </>}
-          {cloudDocument && <>
-            <Typography variant="subtitle2">Author <Chip clickable component={RouterLink} prefetch={false}
-              href={`/user/${cloudDocument.author.handle || cloudDocument.author.id}`}
-              avatar={<Avatar alt={cloudDocument.author.name} src={cloudDocument.author.image || undefined} />}
-              label={cloudDocument.author.name}
-              variant="outlined"
-            />
-            </Typography>
-            {cloudDocument.coauthors.length > 0 && <>
-              <Typography component="h3" variant="subtitle2">Coauthors</Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {cloudDocument.coauthors.map(coauthor => (
-                  <Chip clickable component={RouterLink} prefetch={false}
-                    href={`/user/${coauthor.handle || coauthor.id}`}
-                    key={coauthor.id}
-                    avatar={<Avatar alt={coauthor.name} src={coauthor.image || undefined} />}
-                    label={coauthor.name}
-                    variant="outlined"
-                  />
-                ))}
-              </Box>
-            </>}
-            {collaborators.length > 0 && <>
-              <Typography component="h3" variant="subtitle2">Collaborators</Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {collaborators.map(user => (
-                  <Chip clickable component={RouterLink} prefetch={false}
-                    href={`/user/${user.handle || user.id}`}
-                    key={user.id}
-                    avatar={<Avatar alt={user.name} src={user.image || undefined} />}
-                    label={user.name}
-                    variant="outlined"
-                  />
-                ))}
-              </Box>
-            </>}
-          </>}
-          {userDocument && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2, alignSelf: "flex-end" }}>
-            <IconButton aria-label="Print" onClick={() => { window.print(); }}><Print /></IconButton>
-            <IconButton aria-label="View" onClick={viewLocalDocument} sx={isDiffViewOpen ? {
-              color: "primary.contrastText",
-              backgroundColor: "primary.main",
-              '&:hover': { backgroundColor: "primary.dark" }
-            } : undefined}><Preview /></IconButton>
-            <ShareDocument userDocument={userDocument} />
-            <ForkDocument userDocument={userDocument} />
-            <DownloadDocument userDocument={userDocument} />
-            {isAuthor && <EditDocument userDocument={userDocument} />}
-          </Box>}
-        </Box>
-        {editorRef.current && <Box sx={{ mb: 3 }}>
-          <PageSetupSidebar editor={editorRef.current} onClose={() => toggleDrawer(false)} />
-        </Box>}
-        <Grid container spacing={1}>
-          <Grid size={{ xs: 12 }} sx={{ display: 'flex', alignItems: 'center' }}>
-            <History sx={{ mr: 1 }} />
-            <Typography variant="h6">Revisions</Typography>
-            <Button sx={{ ml: 'auto' }} onClick={toggleDiffView} endIcon={isDiffViewOpen ? <Close /> : <Compare />}>
-              {isDiffViewOpen ? "Exit" : "Compare"}
-            </Button>
-          </Grid>
-          {documentRevisions.map(revision => <Grid size={{ xs: 12 }} key={revision.id}><RevisionCard revision={revision} editorRef={editorRef} /></Grid>)}
-        </Grid>
-      </AppDrawer>
+      <AppDrawer title="Document Info" tabs={tabs} onChange={handleTabChange} />
       {showRevisionsBadge && <Portal container={document.querySelector('#document-info')}>
         <Badge badgeContent={revisionsBadgeContent} color="secondary"></Badge>
       </Portal>}

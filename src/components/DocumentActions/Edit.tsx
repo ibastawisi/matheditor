@@ -13,7 +13,12 @@ import UsersAutocomplete from "../User/UsersAutocomplete";
 import useOnlineStatus from "@/hooks/useOnlineStatus";
 import { enqueueSnackbar } from 'notistack';
 
-const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
+/**
+ * The settings of a document: its name, handle, coauthors and visibility.
+ * `variant` picks the layout: a dialog's title, content and actions, or a
+ * plain panel with its own save button.
+ */
+export const EditDocumentForm: React.FC<{ userDocument: UserDocument, variant?: 'dialog' | 'panel', onClose?: () => void }> = ({ userDocument, variant = 'panel', onClose }) => {
   const updateLocalDocument = useAppStore(state => state.updateLocalDocument);
   const updateCloudDocument = useAppStore(state => state.updateCloudDocument);
   const user = useAppStore(state => state.user);
@@ -42,7 +47,6 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
   const [validating, setValidating] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const hasErrors = Object.keys(validationErrors).length > 0;
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   useEffect(() => {
     setInput({
@@ -55,17 +59,7 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
     });
     setValidating(false);
     setValidationErrors({});
-  }, [userDocument, editDialogOpen]);
-
-  const openEditDialog = () => {
-    if (closeMenu) closeMenu();
-    setEditDialogOpen(true);
-  };
-
-  const closeEditDialog = () => {
-    setEditDialogOpen(false);
-  };
-
+  }, [userDocument]);
 
   const updateInput = (partial: Partial<DocumentUpdateInput>) => {
     setInput(input => ({ ...input, ...partial }));
@@ -107,7 +101,7 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    closeEditDialog();
+    onClose?.();
     const partial: Partial<DocumentUpdateInput> = {};
     if (input.name !== name) {
       partial.name = input.name;
@@ -138,6 +132,87 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
     }
   };
 
+  const fields = <>
+    <TextField margin="normal" size="small" fullWidth autoFocus={variant === 'dialog'}
+      label="Document Name"
+      value={input.name || ""}
+      onChange={e => updateInput({ name: e.target.value })}
+      sx={{ '& .MuiInputBase-root': { height: 40 } }}
+    />
+    <TextField margin="normal" size="small" fullWidth
+      label="Document Handle"
+      disabled={!isOnline}
+      value={input.handle || ""}
+      onChange={updateHandle}
+      error={!validating && !!validationErrors.handle}
+      helperText={
+        validating ? "Validating..."
+          : validationErrors.handle ? validationErrors.handle
+            : input.handle ? `https://matheditor.me/view/${input.handle}`
+              : "This will be used in the URL of your document"
+      }
+    />
+    {!cloudDocument && <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 1, gap: 1 }}>
+      <FormHelperText>
+        Save the document to cloud to unlock the following options
+      </FormHelperText>
+      <UploadDocument userDocument={userDocument} variant="button" />
+    </Box>}
+    {isAuthor && <UsersAutocomplete label='Coauthors' placeholder='Email' value={input.coauthors ?? []} onChange={updateCoauthors} sx={{ my: 2 }} disabled={!isOnline || !isCloud} />}
+    {isAuthor && <FormControlLabel label="Private"
+      control={<Checkbox checked={input.private} disabled={!isOnline || !isCloud} onChange={() => updateInput({ private: !input.private, published: input.published && input.private, collab: input.collab && input.private })} />}
+    />}
+    <FormHelperText>
+      Private documents are only accessible to authors and coauthors.
+    </FormHelperText>
+    {isAuthor && <FormControlLabel label="Published"
+      control={<Checkbox checked={input.published} disabled={!isOnline || !isCloud || input.private} onChange={() => updateInput({ published: !input.published })} />}
+    />}
+    <FormHelperText>
+      Published documents are showcased on the homepage, can be forked by anyone, and can be found by search engines.
+    </FormHelperText>
+    {isAuthor && <FormControlLabel label="Collab"
+      control={<Checkbox checked={input.collab} disabled={!isOnline || !isCloud || input.private} onChange={() => updateInput({ collab: !input.collab })} />}
+    />}
+    <FormHelperText>
+      Collab documents are open for anyone to edit.
+    </FormHelperText>
+  </>;
+
+  const formProps = { onSubmit: handleSubmit, noValidate: true, autoComplete: "off", spellCheck: false };
+  const helperTextSx = { "& .MuiFormHelperText-root": { overflow: "hidden", textOverflow: "ellipsis" } };
+
+  if (variant === 'dialog') return (
+    <Box component="form" {...formProps} sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
+      <DialogTitle>Edit Document</DialogTitle>
+      <DialogContent sx={helperTextSx}>{fields}</DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button type='submit' disabled={validating || hasErrors}>Save</Button>
+      </DialogActions>
+    </Box>
+  );
+
+  return (
+    <Box component="form" {...formProps} sx={helperTextSx}>
+      {fields}
+      <Button type='submit' variant="contained" fullWidth disabled={validating || hasErrors} sx={{ mt: 2 }}>Save</Button>
+    </Box>
+  );
+}
+
+const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+
+  const openEditDialog = () => {
+    if (closeMenu) closeMenu();
+    setEditDialogOpen(true);
+  };
+
+  const closeEditDialog = () => {
+    setEditDialogOpen(false);
+  };
+
   useFixedBodyScroll(editDialogOpen);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -148,59 +223,7 @@ const EditDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' 
       <ListItemText>Edit</ListItemText>
     </MenuItem> : <IconButton aria-label="Edit Document" onClick={openEditDialog} size="small"><Settings /></IconButton>}
     <Dialog open={editDialogOpen} onClose={closeEditDialog} fullWidth maxWidth="xs" fullScreen={fullScreen}>
-      <Box component="form" onSubmit={handleSubmit} noValidate autoComplete="off" spellCheck="false" sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
-        <DialogTitle>Edit Document</DialogTitle>
-        <DialogContent sx={{ "& .MuiFormHelperText-root": { overflow: "hidden", textOverflow: "ellipsis" } }}>
-          <TextField margin="normal" size="small" fullWidth autoFocus
-            label="Document Name"
-            value={input.name || ""}
-            onChange={e => updateInput({ name: e.target.value })}
-            sx={{ '& .MuiInputBase-root': { height: 40 } }}
-          />
-          <TextField margin="normal" size="small" fullWidth
-            label="Document Handle"
-            disabled={!isOnline}
-            value={input.handle || ""}
-            onChange={updateHandle}
-            error={!validating && !!validationErrors.handle}
-            helperText={
-              validating ? "Validating..."
-                : validationErrors.handle ? validationErrors.handle
-                  : input.handle ? `https://matheditor.me/view/${input.handle}`
-                    : "This will be used in the URL of your document"
-            }
-          />
-          {!cloudDocument && <Box sx={{ display: 'flex', flexDirection: "column", alignItems: "center", my: 1, gap: 1 }}>
-            <FormHelperText>
-              Save the document to cloud to unlock the following options
-            </FormHelperText>
-            <UploadDocument userDocument={userDocument} variant="button" />
-          </Box>}
-          {isAuthor && <UsersAutocomplete label='Coauthors' placeholder='Email' value={input.coauthors ?? []} onChange={updateCoauthors} sx={{ my: 2 }} disabled={!isOnline || !isCloud} />}
-          {isAuthor && <FormControlLabel label="Private"
-            control={<Checkbox checked={input.private} disabled={!isOnline || !isCloud} onChange={() => updateInput({ private: !input.private, published: input.published && input.private, collab: input.collab && input.private })} />}
-          />}
-          <FormHelperText>
-            Private documents are only accessible to authors and coauthors.
-          </FormHelperText>
-          {isAuthor && <FormControlLabel label="Published"
-            control={<Checkbox checked={input.published} disabled={!isOnline || !isCloud || input.private} onChange={() => updateInput({ published: !input.published })} />}
-          />}
-          <FormHelperText>
-            Published documents are showcased on the homepage, can be forked by anyone, and can be found by search engines.
-          </FormHelperText>
-          {isAuthor && <FormControlLabel label="Collab"
-            control={<Checkbox checked={input.collab} disabled={!isOnline || !isCloud || input.private} onChange={() => updateInput({ collab: !input.collab })} />}
-          />}
-          <FormHelperText>
-            Collab documents are open for anyone to edit.
-          </FormHelperText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeEditDialog}>Cancel</Button>
-          <Button type='submit' disabled={validating || hasErrors}>Save</Button>
-        </DialogActions>
-      </Box>
+      <EditDocumentForm userDocument={userDocument} variant="dialog" onClose={closeEditDialog} />
     </Dialog>
   </>
 }
