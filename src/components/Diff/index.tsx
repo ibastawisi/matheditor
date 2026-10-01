@@ -2,8 +2,27 @@
 import HtmlDiff from './Diff';
 import { useEffect, useState } from 'react';
 import { useAppStore } from '@/store';
-import { generateHtml } from '@/editor/utils/generateHtml';
+import { generateDocumentHtml, serializeDocumentHtml, type DocumentHtml } from '@/editor/utils/generateDocumentHtml';
+import StaticPages from '@/editor/extensions/pages/static';
 import NProgress from 'nprogress';
+
+/**
+ * The changes between two revisions, laid out on the pages of the new one.
+ * Each header and footer is compared with the one the old revision showed in
+ * its place: the same variant, or the default one if it had none.
+ */
+const diffDocumentHtml = (oldDocument: DocumentHtml, newDocument: DocumentHtml): DocumentHtml => {
+  const findOldSlot = (kind: string, variant: string) =>
+    oldDocument.slots.find(slot => slot.kind === kind && slot.variant === variant);
+  return {
+    html: HtmlDiff.execute(oldDocument.html, newDocument.html),
+    pageSetup: newDocument.pageSetup,
+    slots: newDocument.slots.map(slot => {
+      const oldSlot = findOldSlot(slot.kind, slot.variant) ?? findOldSlot(slot.kind, "default");
+      return { ...slot, html: HtmlDiff.execute(oldSlot?.html ?? '', slot.html) };
+    }),
+  };
+}
 
 const DiffView = () => {
   const getLocalRevision = useAppStore(state => state.getLocalRevision);
@@ -29,13 +48,12 @@ const DiffView = () => {
       if (!oldRevisionId || !newRevisionId) return;
       const oldRevision = await getEditorDocumentRevision(oldRevisionId);
       if (!oldRevision) return;
-      const oldHtml = await generateHtml(oldRevision.data);
-      if (oldRevisionId === newRevisionId) return setHtml(oldHtml);
+      const oldDocument = generateDocumentHtml(oldRevision.data);
+      if (oldRevisionId === newRevisionId) return setHtml(serializeDocumentHtml(oldDocument));
       const newRevision = await getEditorDocumentRevision(newRevisionId);
       if (!newRevision) return;
-      const newHtml = await generateHtml(newRevision.data);
-      const html = HtmlDiff.execute(oldHtml, newHtml);
-      setHtml(html);
+      const newDocument = generateDocumentHtml(newRevision.data);
+      setHtml(serializeDocumentHtml(diffDocumentHtml(oldDocument, newDocument)));
     }
     NProgress.start();
     diffRevisions().then(() => NProgress.done());
@@ -46,7 +64,9 @@ const DiffView = () => {
   if (!html) return null;
 
   return (
-    <div className='diff-container' dangerouslySetInnerHTML={{ __html: html }} />
+    <div className='diff-container'>
+      <StaticPages html={html} />
+    </div>
   );
 }
 

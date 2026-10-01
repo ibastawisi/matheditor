@@ -8,7 +8,7 @@ import type { EditorState, LexicalEditor } from "lexical";
 import { v4 as uuidv4 } from 'uuid';
 import dynamic from "next/dynamic";
 import DiffView from "../Diff";
-import { debounce } from "@mui/material";
+import { Box, debounce } from "@mui/material";
 import Editor from "../Editor";
 
 const EditDocumentInfo = dynamic(() => import('@/components/EditDocument/EditDocumentInfo'), { ssr: false });
@@ -66,7 +66,10 @@ const DocumentEditor: React.FC = () => {
   return <>
     <title>{document.name}</title>
     {showDiff && <DiffView />}
-    <Editor document={document} editorRef={editorRef} onChange={handleChange} />
+    {/* hidden rather than unmounted, so that it keeps its history and selection */}
+    <Box sx={{ display: showDiff ? "none" : "contents" }}>
+      <Editor document={document} editorRef={editorRef} onChange={handleChange} />
+    </Box>
     <EditDocumentInfo documentId={document.id} editorRef={editorRef} />
   </>;
 }
