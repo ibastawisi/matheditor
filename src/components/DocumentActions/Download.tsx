@@ -2,10 +2,10 @@
 import { useAppStore } from "@/store";
 import { BackupDocument, UserDocument } from "@/types";
 import { Download } from "@mui/icons-material";
-import { IconButton, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
+import { Button, IconButton, ListItemIcon, ListItemText, MenuItem } from "@mui/material";
 import { enqueueSnackbar } from 'notistack';
 
-const DownloadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
+const DownloadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuitem' | 'button' | 'iconbutton', closeMenu?: () => void }> = ({ userDocument, variant = 'iconbutton', closeMenu }) => {
   const getLocalDocument = useAppStore(state => state.getLocalDocument);
   const getCloudDocument = useAppStore(state => state.getCloudDocument);
   const getLocalDocumentRevisions = useAppStore(state => state.getLocalDocumentRevisions);
@@ -62,6 +62,7 @@ const DownloadDocument: React.FC<{ userDocument: UserDocument, variant?: 'menuit
       <ListItemText>Download</ListItemText>
     </MenuItem>
   );
+  if (variant === 'button') return <Button variant="outlined" onClick={handleSave} startIcon={<Download />}>Download</Button>;
   return <IconButton aria-label="Download Document" onClick={handleSave} size="small"><Download /></IconButton>
 }
 

@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { getExtensionDependencyFromEditor, type ReadonlySignal } from "@lexical/extension";
 import { $addUpdateTag, type LexicalEditor, SKIP_DOM_SELECTION_TAG } from "lexical";
 import { Box, Button, Collapse, FormControlLabel, FormHelperText, MenuItem, Switch, TextField, Typography } from "@mui/material";
-import { Description } from "@mui/icons-material";
 
 import { PagesExtension } from ".";
 import { EDIT_PAGE_SLOT_COMMAND } from "./commands";
@@ -189,21 +188,15 @@ export function PageSetupSidebar({ editor, onClose }: { editor: LexicalEditor; o
 
   return (
     <Box>
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Description sx={{ mr: 1 }} />
-          <Typography variant="h6">Page Setup</Typography>
-        </Box>
-        <Box>
-          <FormControlLabel
-            label="Paged"
-            disabled={!isEditable}
-            control={<Switch checked={paged} onChange={() => updatePageSetup(paged ? null : lastPagedSetup.current)} />}
-          />
-          <FormHelperText sx={{ mt: 0 }}>
-            {paged ? "Document uses pages with a defined size and margins" : "Document is pageless and flows continuously"}
-          </FormHelperText>
-        </Box>
+      <Box>
+        <FormControlLabel
+          label="Paged"
+          disabled={!isEditable}
+          control={<Switch checked={paged} onChange={() => updatePageSetup(paged ? null : lastPagedSetup.current)} />}
+        />
+        <FormHelperText sx={{ mt: 0 }}>
+          {paged ? "Document uses pages with a defined size and margins" : "Document is pageless and flows continuously"}
+        </FormHelperText>
       </Box>
       {/* the page settings only apply to a paged document */}
       <Collapse in={paged}>
