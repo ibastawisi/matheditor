@@ -14,11 +14,10 @@ import { ALERT_COMMAND } from '@/editor/commands';
 import type { Alert } from '@/types';
 import { ExcalidrawElement, ExcalidrawImageElement, FileId } from '@excalidraw/excalidraw/element/types';
 import { ImportedLibraryData } from '@excalidraw/excalidraw/data/types';
-import type { ExcalidrawImperativeAPI, ExcalidrawProps, DataURL, LibraryItems, BinaryFiles, AppState, BinaryFileData } from '@excalidraw/excalidraw/types';
+import type { ExcalidrawImperativeAPI, ExcalidrawProps, DataURL, LibraryItem, LibraryItems, LibraryItems_anyVersion, BinaryFiles, AppState, BinaryFileData } from '@excalidraw/excalidraw/types';
 import '@excalidraw/excalidraw/index.css';
 
 const Excalidraw = dynamic<ExcalidrawProps>(() => import('@excalidraw/excalidraw').then((module) => ({ default: module.Excalidraw })), { ssr: false });
-const AddLibraries = dynamic(() => import('./AddLibraries'), { ssr: false });
 
 export type ExcalidrawElementFragment = { isDeleted?: boolean; };
 declare global {
@@ -28,6 +27,89 @@ declare global {
 }
 
 window.EXCALIDRAW_ASSET_PATH = "/"
+
+const getLibraryItemsFromStorage = () => {
+  try {
+    const libraryItems: LibraryItems = JSON.parse(localStorage.getItem("excalidraw-library") as string);
+    return libraryItems || [];
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
+// the libraries that come with the app, offered until the user has a library of their own
+const getDefaultLibraryItems = async () => {
+  const LogicGates = await import("./libs/logic.json");
+  const CircuitComponents = await import("./libs/circuits.json");
+  return [...LogicGates.library, ...CircuitComponents.libraryItems] as any as LibraryItems_anyVersion;
+};
+
+/**
+ * @returns `true` if the URL is valid, throws otherwise.
+ */
+const validateLibraryUrl = (libraryUrl: string, allowedUrls = ["excalidraw.com"]): true => {
+  const { hostname, pathname } = new URL(libraryUrl);
+  const isAllowed = allowedUrls.some((allowedUrlDef) => {
+    const allowedUrl = new URL(`https://${allowedUrlDef.replace(/^https?:\/\//, "")}`);
+    return (
+      new RegExp(`(^|\\.)${allowedUrl.hostname}$`).test(hostname) &&
+      new RegExp(`^${allowedUrl.pathname.replace(/\/+$/, "")}(/+|$)`).test(pathname)
+    );
+  });
+  if (isAllowed) return true;
+  throw new Error(`Invalid or disallowed library URL: "${libraryUrl}"`);
+};
+
+const importLibraryFromURL = async (excalidrawAPI: ExcalidrawImperativeAPI, libraryUrl: string) => {
+  const libraryPromise = async () => {
+    libraryUrl = decodeURIComponent(libraryUrl);
+    validateLibraryUrl(libraryUrl);
+    const request = await fetch(libraryUrl);
+    return request.blob();
+  };
+
+  try {
+    await excalidrawAPI.updateLibrary({
+      libraryItems: libraryPromise,
+      prompt: false,
+      merge: true,
+      defaultStatus: "published",
+      openLibraryMenu: true,
+    });
+  } catch (error: any) {
+    excalidrawAPI.updateScene({ appState: { errorMessage: error.message } });
+    throw error;
+  }
+};
+
+// loads the saved library, and installs a library linked from the URL hash,
+// which is where the libraries site sends one when "Add to Excalidraw" is clicked
+const useHandleLibrary = (excalidrawAPI: ExcalidrawImperativeAPI | null) => {
+  useEffect(() => {
+    if (!excalidrawAPI) return;
+    // the libraries site targets this window by its name to send a library back
+    window.name = excalidrawAPI.id;
+    const libraryItems = getLibraryItemsFromStorage();
+    Promise.resolve(libraryItems.length ? libraryItems : getDefaultLibraryItems()).then((libraryItems) => {
+      excalidrawAPI.updateLibrary({ libraryItems, merge: true });
+    });
+  }, [excalidrawAPI]);
+
+  useEffect(() => {
+    if (!excalidrawAPI) return;
+    const importLibraryFromHash = async () => {
+      const { parseLibraryTokensFromUrl } = await import('@excalidraw/excalidraw');
+      const libraryUrlTokens = parseLibraryTokensFromUrl();
+      if (!libraryUrlTokens) return;
+      window.history.replaceState(null, "", location.pathname + location.search);
+      importLibraryFromURL(excalidrawAPI, libraryUrlTokens.libraryUrl).catch(console.error);
+    };
+    importLibraryFromHash();
+    window.addEventListener("hashchange", importLibraryFromHash);
+    return () => window.removeEventListener("hashchange", importLibraryFromHash);
+  }, [excalidrawAPI]);
+};
 
 export const useCallbackRefState = () => {
   const [refValue, setRefValue] =
@@ -60,6 +142,8 @@ function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
   const [excalidrawAPI, excalidrawAPIRefCallback] = useCallbackRefState();
   const [lastSceneVersion, setLastSceneVersion] = useState(0);
   const colorMode = useColorMode();
+
+  useHandleLibrary(excalidrawAPI);
 
   useEffect(() => {
     if (!excalidrawAPI) return;
@@ -157,21 +241,19 @@ function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
   async function tryLoadSceneFromNode() {
     const src = node?.src;
     if (!src) return;
-    const blob = await (await fetch(src)).blob();
     try {
-      const loadSceneOrLibraryFromBlob = await import('@excalidraw/excalidraw').then((module) => module.loadSceneOrLibraryFromBlob);
-      const MIME_TYPES = await import('@excalidraw/excalidraw').then((module) => module.MIME_TYPES);
-      const getSceneVersion = await import('@excalidraw/excalidraw').then((module) => module.getSceneVersion);
+      const { loadSceneOrLibraryFromBlob, MIME_TYPES, hashElementsVersion } = await import('@excalidraw/excalidraw');
       if (node?.isSketch) {
         const elements = node.value;
         if (elements) {
-          setLastSceneVersion(getSceneVersion(elements));
+          setLastSceneVersion(hashElementsVersion(elements));
           excalidrawAPI?.updateScene({ elements, appState: { theme: colorMode } })
         } else {
-          const contents = await loadSceneOrLibraryFromBlob(blob, null, elements ?? null);
+          const blob = await (await fetch(src)).blob();
+          const contents = await loadSceneOrLibraryFromBlob(blob, null, null);
           if (contents.type === MIME_TYPES.excalidraw) {
             excalidrawAPI?.addFiles(Object.values(contents.data.files));
-            setLastSceneVersion(getSceneVersion(contents.data.elements));
+            setLastSceneVersion(hashElementsVersion(contents.data.elements));
             excalidrawAPI?.updateScene({ ...contents.data as any, appState: { theme: colorMode } });
           } else if (contents.type === MIME_TYPES.excalidrawlib) {
             excalidrawAPI?.updateLibrary({
@@ -196,7 +278,7 @@ function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
       dimensions.width = size.width;
       dimensions.height = size.height;
     }
-    const getSceneVersion = await import('@excalidraw/excalidraw').then((module) => module.getSceneVersion);
+    const hashElementsVersion = await import('@excalidraw/excalidraw').then((module) => module.hashElementsVersion);
     fetch(src).then((res) => res.blob()).then((blob) => {
       const mimeType = blob.type;
       const reader = new FileReader();
@@ -243,7 +325,7 @@ function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
               lastRetrieved: now,
             },
           ]);
-          setLastSceneVersion(getSceneVersion([imageElement]));
+          setLastSceneVersion(hashElementsVersion([imageElement]));
           excalidrawAPI?.updateScene({
             elements: [imageElement],
             appState: {
@@ -258,20 +340,32 @@ function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
     });
   }
 
+  // an item is a duplicate when an earlier item is made of the same elements
+  const isUniqueItem = (items: LibraryItems, item: LibraryItem, index: number) => {
+    const elementIds = item.elements.map((element) => element.id);
+    const firstIndex = items.findIndex((other) => other.elements.every((element) => elementIds.includes(element.id)));
+    return firstIndex === -1 || index === firstIndex;
+  };
+
   const onLibraryChange = async (items: LibraryItems) => {
-    if (!items.length) {
-      localStorage.removeItem("excalidraw-library");
-      return;
+    try {
+      const previousItems = localStorage.getItem("excalidraw-library") || "[]";
+      const uniqueItems = items.filter((item, index) => isUniqueItem(items, item, index));
+      const serializedItems = JSON.stringify(uniqueItems);
+      if (serializedItems === previousItems) return;
+      if (!uniqueItems.length) return localStorage.removeItem("excalidraw-library");
+      localStorage.setItem("excalidraw-library", serializedItems);
+      if (uniqueItems.length !== items.length) excalidrawAPI?.updateLibrary({ libraryItems: uniqueItems, merge: false });
+    } catch (error) {
+      console.error(error);
     }
-    const serializedItems = JSON.stringify(items);
-    localStorage.setItem("excalidraw-library", serializedItems);
   };
 
   const saveToLocalStorage = debounce(async (elements: readonly ExcalidrawElement[], appState: AppState, files: BinaryFiles) => {
     if (elements.length === 0) return;
     const scene = { elements, files };
-    const getSceneVersion = await import('@excalidraw/excalidraw').then((module) => module.getSceneVersion);
-    const sceneVersion = getSceneVersion(elements);
+    const hashElementsVersion = await import('@excalidraw/excalidraw').then((module) => module.hashElementsVersion);
+    const sceneVersion = hashElementsVersion(elements);
     if (lastSceneVersion && sceneVersion === lastSceneVersion) return;
     setLastSceneVersion(sceneVersion);
     const serialized = JSON.stringify(scene);
@@ -283,6 +377,32 @@ function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
   };
 
   const loading = !excalidrawAPI;
+
+  const isCanvasIdle = () => {
+    const appState = excalidrawAPI?.getAppState();
+    if (!appState) return true;
+    return !appState.newElement && !appState.multiElement && !appState.editingTextElement && !appState.editingLinearElement && !appState.croppingElementId
+      && !appState.openDialog && !appState.openMenu && !appState.openPopup && !appState.contextMenu;
+  };
+
+  // escape steps out one layer at a time: an error, then the sidebar, then the dialog.
+  // the canvas consumes every escape, so this runs in the capture phase, before it does,
+  // and leaves the key to the canvas while it has something of its own to cancel, like a line or a menu
+  const handleEscape = (event: React.KeyboardEvent) => {
+    if (event.key !== 'Escape') return;
+    const appState = excalidrawAPI?.getAppState();
+    if (appState?.errorMessage) {
+      event.stopPropagation();
+      return excalidrawAPI?.updateScene({ appState: { errorMessage: null } });
+    }
+    if (appState?.openSidebar) {
+      event.stopPropagation();
+      return excalidrawAPI?.toggleSidebar({ name: appState.openSidebar.name, force: false });
+    }
+    if (!isCanvasIdle()) return;
+    event.stopPropagation();
+    handleClose();
+  };
 
   useEffect(() => {
     const navigation = (window as any).navigation;
@@ -303,7 +423,9 @@ function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
 
   return (
     <Dialog open fullScreen={true} onClose={(_, reason) => { if (reason !== 'escapeKeyDown') handleClose(); }}
+      onKeyDownCapture={handleEscape}
       slotProps={{
+        paper: { 'aria-label': node ? "Edit Sketch" : "Insert Sketch" },
         transition: {
           onEntered() { document.body.classList.add('fullscreen') },
         }
@@ -317,7 +439,6 @@ function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
           onChange={saveToLocalStorage}
           langCode='en'
         />
-        {excalidrawAPI && <AddLibraries excalidrawAPI={excalidrawAPI} />}
       </DialogContent>
       <DialogActions>
         <Button autoFocus onClick={handleClose}>
