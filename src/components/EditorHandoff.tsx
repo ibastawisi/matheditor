@@ -22,13 +22,17 @@ const HIDDEN: CSSProperties = {
  * and grow for a few frames, and the page layout follows them a frame later:
  * shown right away, everything below them would move.
  */
-export const EditorHandoff: React.FC<PropsWithChildren<{ fallback: ReactNode }>> = ({ fallback, children }) => {
+export const EditorHandoff: React.FC<PropsWithChildren<{
+  fallback: ReactNode;
+  /** The editor has its content, so its size means something; a live editor starts empty */
+  loaded?: boolean;
+}>> = ({ fallback, loaded = true, children }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || ready) return;
+    if (!el || ready || !loaded) return;
     const show = () => setReady(true);
     let quiet = 0;
     const cap = window.setTimeout(show, MAX_WAIT_MS);
@@ -44,7 +48,7 @@ export const EditorHandoff: React.FC<PropsWithChildren<{ fallback: ReactNode }>>
       window.clearTimeout(quiet);
       window.clearTimeout(cap);
     };
-  }, [ready]);
+  }, [ready, loaded]);
 
   return (
     <div style={{ position: "relative" }}>
