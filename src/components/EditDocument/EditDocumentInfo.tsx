@@ -3,7 +3,7 @@ import RevisionCard from './EditRevisionCard';
 import { useAppStore } from '@/store';
 import Grid from '@mui/material/Grid';
 import { Avatar, Badge, Box, Button, Chip, Divider, MenuItem, Portal, TextField, Typography } from '@mui/material';
-import { Compare, Description, History, Info, Print, Settings, Share } from '@mui/icons-material';
+import { Compare, Description, History, Info, Print, Search, Settings, Share, Toc } from '@mui/icons-material';
 import type { LexicalEditor } from 'lexical';
 import { RefObject } from 'react';
 import RouterLink from "next/link";
@@ -13,9 +13,12 @@ import ForkDocument from '../DocumentActions/Fork';
 import { EditDocumentForm } from '../DocumentActions/Edit';
 import AppDrawer, { type AppDrawerTab } from '../AppDrawer';
 import PageSetupSidebar from '@/editor/extensions/pages/sidebar';
+import { EditorTableOfContentsPanel } from '@/editor/extensions/table-of-contents/panel';
+import { EditorSearchPanel } from '@/editor/extensions/search/panel';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
+import useSearchShortcut from '@/hooks/useSearchShortcut';
 
-export default function EditDocumentInfo({ editorRef, documentId }: { editorRef: RefObject<LexicalEditor | null>, documentId: string }) {
+export default function EditDocumentInfo({ editorRef, editor, documentId }: { editorRef: RefObject<LexicalEditor | null>, editor: LexicalEditor | null, documentId: string }) {
   const setDiff = useAppStore(state => state.setDiff);
   const createLocalRevision = useAppStore(state => state.createLocalRevision);
   const toggleDrawer = useAppStore(state => state.toggleDrawer);
@@ -65,6 +68,8 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
     if (value === "diff") openDiffView();
     else if (isDiffViewOpen) setDiff({ open: false });
   }
+
+  useSearchShortcut(!!editor, () => handleTabChange("search"));
 
   const getLocalEditorData = () => editorRef.current?.getEditorState().toJSON();
 
@@ -180,9 +185,15 @@ export default function EditDocumentInfo({ editorRef, documentId }: { editorRef:
   );
 
   const tabs: AppDrawerTab[] = [{ value: "details", label: "Details", icon: <Info />, content: details }];
-  if (editorRef.current) tabs.push({
+  if (editor) tabs.push({
+    value: "contents", label: "Contents", icon: <Toc />,
+    content: <EditorTableOfContentsPanel editor={editor} onNavigate={() => toggleDrawer(false)} />
+  }, {
+    value: "search", label: "Search", icon: <Search />,
+    content: <EditorSearchPanel editor={editor} onNavigate={() => toggleDrawer(false)} />
+  }, {
     value: "page", label: "Page", icon: <Description />,
-    content: <PageSetupSidebar editor={editorRef.current} onClose={() => toggleDrawer(false)} />
+    content: <PageSetupSidebar editor={editor} onClose={() => toggleDrawer(false)} />
   });
   if (userDocument) tabs.push({ value: "share", label: "Share", icon: <Share />, content: <ShareDocumentForm userDocument={userDocument} /> });
   tabs.push({ value: "diff", label: "Diff", icon: <Compare />, content: diffTab });

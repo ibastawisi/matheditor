@@ -2,7 +2,7 @@
 import { $getNodeByKey, $getSelection, $isRangeSelection, isHTMLElement, LexicalNode, NodeKey } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, InputLabel, ListItemIcon, MenuItem, Radio, RadioGroup, Select, SelectChangeEvent, TextField } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, InputLabel, ListItemIcon, ListItemText, ListSubheader, MenuItem, Radio, RadioGroup, Select, SelectChangeEvent, TextField } from '@mui/material';
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { $isTableNode } from '@lexical/table';
 import { LinkOff } from '@mui/icons-material';
@@ -11,8 +11,13 @@ import { $isMathNode } from '@/editor/extensions/math/nodes';
 import { $setId } from '@/editor/extensions/shared/states';
 import { setOpenDialog } from '@/editor/extensions/store';
 import { getEditorNodes } from '@/editor/utils/getEditorNodes';
+import { $getTableOfContents, formatId } from '@/editor/extensions/table-of-contents';
 
 const $isFigureNode = (node: LexicalNode | null | undefined) => $isImageNode(node) || $isMathNode(node) || $isTableNode(node);
+
+/** The target of a link to a heading, which is found by its text rather than given an id */
+const HEADING_TARGET = 'heading:';
+const decodeBookmark = (url: string) => { try { return decodeURIComponent(url.slice(1)); } catch { return url.slice(1); } };
 
 function LinkDialog({ nodeKey }: { nodeKey: NodeKey | null }) {
   const [editor] = useLexicalComposerContext();
@@ -35,6 +40,8 @@ function LinkDialog({ nodeKey }: { nodeKey: NodeKey | null }) {
     }, new Map<string, HTMLElement>()));
   }, [editor]);
 
+  const headings = useMemo(() => editor.read($getTableOfContents), [editor]);
+
   useEffect(() => {
     setUrl(node?.url ?? 'https://');
     setRel(node?.rel ?? 'external');
@@ -43,10 +50,11 @@ function LinkDialog({ nodeKey }: { nodeKey: NodeKey | null }) {
       const id = node.url.slice(1);
       const figureKey = [...figures.entries()].find(([, element]) => element.id === id)?.[0];
       const target = node.target;
-      const figure = figureKey ? figureKey : target === '_self' ? 'self' : 'none';
+      const heading = target === '_self' ? undefined : headings.find(heading => heading.id === formatId(decodeBookmark(node.url)));
+      const figure = figureKey ? figureKey : heading ? HEADING_TARGET + heading.key : target === '_self' ? 'self' : 'none';
       setFigure(figure);
     }
-  }, [node, figures]);
+  }, [node, figures, headings]);
 
   const updateUrl = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.trim().toLowerCase();
@@ -71,11 +79,13 @@ function LinkDialog({ nodeKey }: { nodeKey: NodeKey | null }) {
     setFigure(value);
     if (value === 'self') setTarget('_self');
     else setTarget(null);
+    const heading = headings.find(heading => HEADING_TARGET + heading.key === value);
+    if (heading) setUrl(`#${heading.id}`);
   }
 
   const handleSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
-    if (rel === 'bookmark' && figure) setNodeId(figure, url.slice(1));
+    if (rel === 'bookmark' && figure && !figure.startsWith(HEADING_TARGET)) setNodeId(figure, url.slice(1));
     if (!node || !nodeKey) editor.dispatchCommand(TOGGLE_LINK_COMMAND, { url, rel, target, });
     else editor.update(() => {
       const linkNode = $getNodeByKey(nodeKey);
@@ -152,16 +162,23 @@ function LinkDialog({ nodeKey }: { nodeKey: NodeKey | null }) {
         />
         {rel === "bookmark" &&
           <FormControl fullWidth margin='normal'>
-            <InputLabel>Figure</InputLabel>
+            <InputLabel>Target</InputLabel>
             <Select
               size="small"
               fullWidth
               value={figure}
               onChange={updateFigure}
-              label="Figure"
+              label="Target"
             >
               <MenuItem value="self">Self</MenuItem>
               <MenuItem value="none">None</MenuItem>
+              {headings.length > 0 && <ListSubheader>Headings</ListSubheader>}
+              {headings.map(heading => (
+                <MenuItem key={heading.key} value={HEADING_TARGET + heading.key} sx={{ pl: 2 * Number(heading.tag.slice(1)) }}>
+                  <ListItemText primary={heading.text} slotProps={{ primary: { noWrap: true } }} />
+                </MenuItem>
+              ))}
+              {figures.size > 0 && <ListSubheader>Figures</ListSubheader>}
               {[...figures.keys()].map(key => (
                 <MenuItem key={key} value={key}>
                   <ListItemIcon

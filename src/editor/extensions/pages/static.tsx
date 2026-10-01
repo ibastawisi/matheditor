@@ -1,6 +1,6 @@
 "use client"
 import "./index.css";
-import { type CSSProperties, useId, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from "react";
+import { type CSSProperties, useCallback, useId, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from "react";
 
 import { PAGE_GAP } from "./constants";
 import { computeGeometry, resolveSlotVariant } from "./geometry";
@@ -154,8 +154,16 @@ const subscribeToNothing = () => () => {};
  * margins); the page breaks, headers and footers are added before the first
  * paint in the browser.
  */
-export function StaticPages({ html }: { html: string }) {
+export function StaticPages({ html, containerRef }: {
+  html: string;
+  /** Receives the element that holds the document's blocks, for reading it */
+  containerRef?: (container: HTMLDivElement | null) => void;
+}) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const setRoot = useCallback((root: HTMLDivElement | null) => {
+    rootRef.current = root;
+    containerRef?.(root);
+  }, [containerRef]);
   const styleId = `static-pages-${useId()}`;
   // the script only runs from the server HTML: rendered on the client it would
   // never run, so it is kept only while hydrating
@@ -203,7 +211,7 @@ export function StaticPages({ html }: { html: string }) {
     return () => gutters.dispose();
   }, [html]);
 
-  if (!pageSetup) return <div ref={rootRef} className="document-container" dangerouslySetInnerHTML={{ __html: html }} />;
+  if (!pageSetup) return <div ref={setRoot} className="document-container" dangerouslySetInnerHTML={{ __html: html }} />;
   return (
     <>
       {/* while the server HTML loads, the browser restores the scroll position
@@ -212,7 +220,7 @@ export function StaticPages({ html }: { html: string }) {
           and the page jumps. Without scroll anchoring, the first restore
           holds */}
       <div className={`document-pages ${PAGES_CSS.host}`} style={hydrating ? { ...frame, overflowAnchor: "none" } : frame} data-static-pages={styleId}>
-        <div ref={rootRef} className="document-container" dangerouslySetInnerHTML={{ __html: html }} />
+        <div ref={setRoot} className="document-container" dangerouslySetInnerHTML={{ __html: html }} />
       </div>
       {hydrating && (
         <script

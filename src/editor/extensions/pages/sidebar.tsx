@@ -1,21 +1,16 @@
 "use client"
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { getExtensionDependencyFromEditor, type ReadonlySignal } from "@lexical/extension";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { getExtensionDependencyFromEditor } from "@lexical/extension";
 import { $addUpdateTag, type LexicalEditor, SKIP_DOM_SELECTION_TAG } from "lexical";
 import { Box, Button, Collapse, FormControlLabel, FormHelperText, MenuItem, Switch, TextField, Typography } from "@mui/material";
 
+import { useSignalValue } from "@/editor/extensions/shared/hooks";
 import { PagesExtension } from ".";
 import { EDIT_PAGE_SLOT_COMMAND } from "./commands";
 import { DEFAULT_PAGE_SETUP, PAGE_SIZE_ORDER, PAGE_SIZES } from "./constants";
 import { resolveSlotVariant } from "./geometry";
 import { $setPageSetup } from "./states";
 import type { Orientation, PageSetup, PageSize, PageSlotKind, PageSlotSetup, PageSlotVariant } from "./types";
-
-/** Subscribes to a signal outside the editor's composer, where the drawer is rendered */
-function useSignalValue<T>(signal: ReadonlySignal<T>): T {
-  const [subscribe, getSnapshot] = useMemo(() => [signal.subscribe.bind(signal), signal.peek.bind(signal)], [signal]);
-  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-}
 
 type MarginSide = keyof PageSetup["margins"];
 const MARGIN_SIDES: { label: string; side: MarginSide }[] = [

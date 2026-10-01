@@ -46,6 +46,16 @@ const DocumentEditor: React.FC = () => {
   const pathname = usePathname();
   const id = pathname.split('/')[2]?.toLowerCase();
   const editorRef = useRef<LexicalEditor>(null);
+  // the drawer's tabs that work on the editor show once it is created
+  const [editor, setEditor] = useState<LexicalEditor | null>(null);
+  const handleEditor = useCallback((editor: LexicalEditor) => {
+    editorRef.current = editor;
+    setEditor(editor);
+    return () => {
+      editorRef.current = null;
+      setEditor(null);
+    };
+  }, []);
   const showDiff = useAppStore(state => state.diff.open);
   /** The live content has arrived, before that the editor is empty */
   const synced = useRef(false);
@@ -170,11 +180,11 @@ const DocumentEditor: React.FC = () => {
       {/* a new editor when the live session is left before it synced */}
       {session ?
         <EditorHandoff key="live" fallback={<EditorSkeleton html={placeholderHtml} />} loaded={liveLoaded}>
-          <Editor document={document} editorRef={editorRef} onChange={handleChange} live={live} />
+          <Editor document={document} editorRef={handleEditor} onChange={handleChange} live={live} />
         </EditorHandoff> :
-        <Editor key="local" document={document} editorRef={editorRef} onChange={handleChange} />}
+        <Editor key="local" document={document} editorRef={handleEditor} onChange={handleChange} />}
     </Box>
-    <EditDocumentInfo documentId={document.id} editorRef={editorRef} />
+    <EditDocumentInfo documentId={document.id} editorRef={editorRef} editor={editor} />
   </>;
 }
 
