@@ -1,5 +1,6 @@
 import { Prisma, prisma } from "@/lib/prisma";
 import { validate } from "uuid";
+import { deleteCollabState } from "./collab";
 import { deleteRevisionData } from "./revision";
 
 const findUser = async (handle: string) => {
@@ -26,14 +27,23 @@ const updateUser = async (id: string, data: Prisma.UserUpdateInput) => {
 }
 
 const deleteUser = async (id: string) => {
-  const revisions = await prisma.revision.findMany({
-    where: { OR: [{ authorId: id }, { document: { authorId: id } }] },
-    select: { id: true },
-  });
+  const [documents, revisions] = await Promise.all([
+    prisma.document.findMany({
+      where: { authorId: id },
+      select: { id: true },
+    }),
+    prisma.revision.findMany({
+      where: { OR: [{ authorId: id }, { document: { authorId: id } }] },
+      select: { id: true },
+    }),
+  ]);
   const user = await prisma.user.delete({
     where: { id }
   });
-  await deleteRevisionData(revisions.map((revision) => revision.id));
+  await Promise.all([
+    deleteRevisionData(revisions.map((revision) => revision.id)),
+    deleteCollabState(documents.map((document) => document.id)),
+  ]);
   return user;
 }
 

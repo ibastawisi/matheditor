@@ -24,15 +24,6 @@ model Document {
   revisions   Revision[]
   author      User                @relation(fields: [authorId], references: [id], onDelete: Cascade)
   coauthors   DocumentCoauthers[]
-  collabState CollabState?
-}
-
-// The shared Yjs state of a document that is being edited live
-model CollabState {
-  documentId String   @id @db.Uuid
-  data       Bytes
-  updatedAt  DateTime @default(now())
-  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 }
 
 model Revision {

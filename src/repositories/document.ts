@@ -1,6 +1,7 @@
 import { Prisma, prisma } from "@/lib/prisma";
 import { CloudDocument, EditorDocument } from "@/types";
 import { validate } from "uuid";
+import { deleteCollabState } from "./collab";
 import { deleteRevisionData, getCachedRevision, getRevisionDataUrl } from "./revision";
 
 const findPublishedDocuments = async (limit?: number) => {
@@ -574,7 +575,10 @@ const deleteDocument = async (handle: string) => {
       revisions: { select: { id: true } },
     },
   });
-  await deleteRevisionData(document.revisions.map((revision) => revision.id));
+  await Promise.all([
+    deleteRevisionData(document.revisions.map((revision) => revision.id)),
+    deleteCollabState(document.id),
+  ]);
   return document;
 }
 
