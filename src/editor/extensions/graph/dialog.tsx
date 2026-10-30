@@ -7,17 +7,26 @@ import { memo, useEffect, useId, useRef, useState } from 'react';
 import Script from 'next/script';
 import { getImageDimensions } from '@/editor/extensions/image/utils';
 import { setOpenDialog } from '@/editor/extensions/store';
+import { useServices } from '@/editor/extensions/services/hooks';
 import { Dialog, DialogContent, Box, CircularProgress, DialogActions, Button, debounce } from '@mui/material';
-import { ALERT_COMMAND } from '@/editor/commands';
+import { ANNOUNCE_COMMAND, ALERT_COMMAND } from '@/editor/commands';
 import type { Alert } from '@/types';
 
 function GraphDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
   const [editor] = useLexicalComposerContext();
+  const { uploadImage, getImageSignedUrl } = useServices();
   const key = useId();
   const [node] = useState(() => editor.read(() => {
     const node = nodeKey ? $getNodeByKey(nodeKey) : null;
     if (!$isGraphNode(node)) return null;
-    return { value: node.getValue(), showCaption: node.getShowCaption(), id: node.getId(), float: node.getFloat(), filter: node.getFilter() };
+    return {
+      value: node.getValue(),
+      altText: node.getAltText(),
+      showCaption: node.getShowCaption(),
+      id: node.getId(),
+      float: node.getFloat(),
+      filter: node.getFilter(),
+    };
   }));
   const [geogebraAPI, setGeogebraAPI] = useState<any>(null);
 
@@ -83,12 +92,44 @@ function GraphDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
 
   const handleSubmit = async () => {
     const app = geogebraAPI;
-    const src = await getBase64Src();
+    const dataUrl = await getBase64Src();
     const value = app.getBase64();
-    const dimensions = await getImageDimensions(src);
+    const dimensions = await getImageDimensions(dataUrl);
     const showCaption = node?.showCaption ?? true;
+    const altText = node?.altText || "Graph";
     const id = node?.id ?? "";
-    insertGraph({ src, value, showCaption, ...dimensions, id, float: node?.float, filter: node?.filter });
+    let payloadSrc = dataUrl;
+    let signedUrl: string | undefined = undefined;
+    try {
+      const isSvg = dataUrl.startsWith("data:image/svg+xml");
+      const mimeType = isSvg ? "image/svg+xml" : "image/png";
+      const extension = isSvg ? "svg" : "png";
+      const blob = isSvg
+        ? new Blob([decodeURIComponent(dataUrl.slice(dataUrl.indexOf(",") + 1))], { type: mimeType })
+        : await fetch(dataUrl).then((res) => res.blob());
+      const file = new File([blob], `${altText}.${extension}`, { type: mimeType });
+      const { data, error } = await uploadImage(file);
+      if (error || !data) throw new Error("Uploading image failed");
+      payloadSrc = `/images/${data.path}`;
+      const { data: signedUrlData } = await getImageSignedUrl(data.path);
+      signedUrl = signedUrlData?.signedUrl;
+    } catch {
+      editor.dispatchCommand(ANNOUNCE_COMMAND, {
+        type: "error",
+        message: { title: "Uploading image failed", subtitle: "Please try again later" },
+      });
+    }
+    insertGraph({
+      src: payloadSrc,
+      signedUrl,
+      value,
+      showCaption,
+      altText,
+      ...dimensions,
+      id,
+      float: node?.float,
+      filter: node?.filter,
+    });
     clearLocalStorage();
     closeDialog();
   };

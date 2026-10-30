@@ -18,10 +18,12 @@ import {
   LexicalParseJSON,
   RangeSelection,
   SerializedElementNode,
+  setDOMUnmanaged,
   StateConfigValue,
   StateValueOrUpdater,
 } from "lexical";
 import { addClassNamesToElement, removeClassNamesFromElement } from "@lexical/utils";
+import { getSignedUrlMapFromEditor } from "@/editor/extensions/services";
 
 import type { ImagePayload } from "./types";
 import {
@@ -84,6 +86,8 @@ function floatElement(dom: HTMLElement, config: EditorConfig, float: string) {
 }
 
 export class ImageNode extends ElementNode {
+  __signedUrl?: string;
+
   $config() {
     return this.config("image", {
       extends: ElementNode,
@@ -119,6 +123,11 @@ export class ImageNode extends ElementNode {
     });
   }
 
+  afterCloneFrom(prev: this): void {
+    super.afterCloneFrom(prev);
+    this.__signedUrl = prev.__signedUrl;
+  }
+
   updateFromJSON(serializedNode: LexicalParseJSON<SerializedElementNode>): this {
     const node = super.updateFromJSON(serializedNode);
     // images used to be decorators, with a nested caption editor and a css style string instead of children
@@ -148,7 +157,14 @@ export class ImageNode extends ElementNode {
   createMediaElement(editor: LexicalEditor): HTMLElement | SVGSVGElement {
     const isEditable = editor.isEditable();
     const img = document.createElement("img");
-    img.src = this.getSrc();
+    const signedUrl = this.getSignedUrl();
+    if (signedUrl) {
+      img.src = signedUrl;
+    } else if (this.getSrc().startsWith("/images/")) {
+      img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+    } else {
+      img.src = this.getSrc();
+    }
     img.alt = this.getAltText();
     const width = this.getWidth();
     const height = this.getHeight();
@@ -170,6 +186,7 @@ export class ImageNode extends ElementNode {
     const id = this.getId();
     if (id) figure.id = id;
     figure.dataset.type = this.getType();
+    figure.dataset.src = this.getSrc();
     figure.dataset.altText = this.getAltText();
     figure.dataset.width = this.getWidth().toString();
     figure.dataset.height = this.getHeight().toString();
@@ -210,6 +227,7 @@ export class ImageNode extends ElementNode {
     if (isEditable) figure.contentEditable = "false";
 
     const media = this.createMediaElement(editor);
+    setDOMUnmanaged(media as HTMLElement);
     media.setAttribute("data-image-media", "true");
     media.style.setProperty("anchor-name", `--node-anchor-${this.getKey()}`);
     if (isEditable) {
@@ -239,6 +257,7 @@ export class ImageNode extends ElementNode {
   /** Whether a change between the two versions requires the media element to be recreated */
   shouldRecreateMedia(prevNode: this): boolean {
     return (
+      this.__signedUrl !== prevNode.__signedUrl ||
       $getStateChange(this, prevNode, imageSrcState) !== null ||
       $getStateChange(this, prevNode, imageAltTextState) !== null ||
       $getStateChange(this, prevNode, imageWidthState) !== null ||
@@ -347,7 +366,28 @@ export class ImageNode extends ElementNode {
     if (payload.float !== undefined) writable.setFloat(payload.float);
     if (payload.filter !== undefined) writable.setFilter(payload.filter);
     if (payload.id !== undefined) writable.setId(payload.id);
+    if (payload.signedUrl !== undefined) writable.setSignedUrl(payload.signedUrl);
     if (payload.showCaption !== undefined) writable.setShowCaption(payload.showCaption);
+    return writable;
+  }
+
+  getSignedUrl() {
+    const src = this.getSrc();
+    const signedUrlMap = getSignedUrlMapFromEditor();
+    const cachedSignedUrl = signedUrlMap.get(src);
+    if (cachedSignedUrl) {
+      return cachedSignedUrl;
+    } else if (this.__signedUrl) {
+      signedUrlMap.set(src, this.__signedUrl);
+    }
+    return this.__signedUrl;
+  }
+
+  setSignedUrl(signedUrl: string | undefined): this {
+    const signedUrlMap = getSignedUrlMapFromEditor();
+    signedUrlMap.set(this.getSrc(), signedUrl);
+    const writable = this.getWritable();
+    writable.__signedUrl = signedUrl;
     return writable;
   }
 
@@ -402,6 +442,7 @@ export function $createImageNode({
   filter = "none",
   id = "",
   showCaption = false,
+  signedUrl,
 }: ImagePayload): ImageNode {
   return $create(ImageNode)
     .setSrc(src)
@@ -411,7 +452,8 @@ export function $createImageNode({
     .setFloat(float)
     .setFilter(filter)
     .setId(id)
-    .setShowCaption(showCaption);
+    .setShowCaption(showCaption)
+    .setSignedUrl(signedUrl);
 }
 
 export function $isImageNode(node: LexicalNode | null | undefined): node is ImageNode {

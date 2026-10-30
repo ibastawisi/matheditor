@@ -57,8 +57,10 @@ export class GraphNode extends ImageNode {
 
   createMediaElement(editor: LexicalEditor) {
     const src = this.getSrc();
-    if (!src.startsWith("data:image/svg+xml")) return super.createMediaElement(editor);
-    return createInlineSvg(src, this.getWidth(), this.getHeight());
+    if (!src.startsWith("data:image/svg+xml") && !src.endsWith(".svg")) {
+      return super.createMediaElement(editor);
+    }
+    return createInlineSvg(src, this.getWidth(), this.getHeight(), this.getSignedUrl());
   }
 
   shouldRecreateMedia(prevNode: this): boolean {
@@ -90,6 +92,7 @@ export function $createGraphNode({
   filter = "auto",
   id = "",
   showCaption = false,
+  signedUrl,
 }: GraphPayload): GraphNode {
   return $create(GraphNode)
     .setSrc(src)
@@ -100,7 +103,8 @@ export function $createGraphNode({
     .setFloat(float)
     .setFilter(filter)
     .setId(id)
-    .setShowCaption(showCaption);
+    .setShowCaption(showCaption)
+    .setSignedUrl(signedUrl);
 }
 
 export function $isGraphNode(node: LexicalNode | null | undefined): node is GraphNode {

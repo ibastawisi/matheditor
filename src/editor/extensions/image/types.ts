@@ -10,4 +10,5 @@ export type ImagePayload = {
   filter?: ImageFilter;
   id?: string;
   showCaption?: boolean;
+  signedUrl?: string;
 };

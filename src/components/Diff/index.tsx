@@ -3,6 +3,7 @@ import HtmlDiff from './Diff';
 import { useEffect, useState } from 'react';
 import { useAppStore } from '@/store';
 import { generateDocumentHtml, serializeDocumentHtml, type DocumentHtml } from '@/editor/utils/generateDocumentHtml';
+import { addSignedUrls } from '@/editor/utils/addSignedUrls';
 import StaticPages from '@/editor/extensions/pages/static';
 import NProgress from 'nprogress';
 
@@ -48,10 +49,12 @@ const DiffView = () => {
       if (!oldRevisionId || !newRevisionId) return;
       const oldRevision = await getEditorDocumentRevision(oldRevisionId);
       if (!oldRevision) return;
+      await addSignedUrls(JSON.stringify(oldRevision.data));
       const oldDocument = generateDocumentHtml(oldRevision.data);
       if (oldRevisionId === newRevisionId) return setHtml(serializeDocumentHtml(oldDocument));
       const newRevision = await getEditorDocumentRevision(newRevisionId);
       if (!newRevision) return;
+      await addSignedUrls(JSON.stringify(newRevision.data));
       const newDocument = generateDocumentHtml(newRevision.data);
       setHtml(serializeDocumentHtml(diffDocumentHtml(oldDocument, newDocument)));
     }

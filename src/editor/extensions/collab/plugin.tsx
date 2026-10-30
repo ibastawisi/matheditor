@@ -1,11 +1,22 @@
 "use client"
 import { CollaborationPlugin } from "@lexical/react/LexicalCollaborationPlugin";
 import { LexicalCollaboration } from "@lexical/react/LexicalCollaborationContext";
+import type { ExcludedProperties } from "@lexical/yjs";
+import type { Klass, LexicalNode } from "lexical";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { WebsocketProvider } from "y-websocket";
 import type { Collaborator, CollabSession, CollabStatus } from "@/types";
+import { ImageNode } from "@/editor/extensions/image/nodes";
+import { SketchNode } from "@/editor/extensions/sketch/nodes";
+import { GraphNode } from "@/editor/extensions/graph/nodes";
 import { createProviderFactory } from "./provider";
 import "./index.css";
+
+const excludedProperties: ExcludedProperties = new Map<Klass<LexicalNode>, Set<string>>([
+  [ImageNode, new Set(["__signedUrl"])],
+  [SketchNode, new Set(["__signedUrl"])],
+  [GraphNode, new Set(["__signedUrl"])],
+]);
 
 /** Cursor colors that read on both light and dark pages */
 const COLORS = ["#e53935", "#8e24aa", "#3949ab", "#039be5", "#00897b", "#43a047", "#f4511e", "#6d4c41", "#d81b60", "#5e35b1"];
@@ -90,6 +101,7 @@ export const LiveCollaborationPlugin: React.FC<LiveCollaborationProps> = (props)
           providerFactory={factory}
           // the server starts every session from the document's saved content
           shouldBootstrap={false}
+          excludedProperties={excludedProperties}
           username={session.user.name}
           cursorColor={color}
           awarenessData={awarenessData}
