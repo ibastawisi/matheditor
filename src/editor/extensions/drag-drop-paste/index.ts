@@ -15,6 +15,7 @@ export const DragDropPasteExtension = defineExtension({
   register: (editor) => {
     const uploadImageFile = async (file: File) => {
       const { uploadImage, getImageSignedUrl } = getServicesFromEditor(editor);
+      if (!uploadImage || !getImageSignedUrl) return null;
       const { data, error } = await uploadImage(file);
       if (error || !data) {
         throw new Error(`Uploading ${file.name} failed`);
@@ -41,7 +42,7 @@ export const DragDropPasteExtension = defineExtension({
               try {
                 const payload = await uploadImageFile(file);
                 editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-                  ...payload,
+                  ...(payload ?? { src: result }),
                   altText,
                   showCaption: true,
                   ...dimensions,

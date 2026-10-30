@@ -18,8 +18,7 @@
     "browserless:start": "docker compose up -d browserless",
     "browserless:stop": "docker compose stop browserless",
     "s3:start": "docker compose up -d s3",
-    "s3:stop": "docker compose stop s3",
-    "storage:migrate": "tsx scripts/migrate-storage.ts"
+    "s3:stop": "docker compose stop s3"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.84",
@@ -93,7 +92,6 @@
     "fast-glob": "^3.3.3",
     "prisma": "^6.5.0",
     "terser-webpack-plugin": "^5.3.14",
-    "tsx": "^4.23.15",
     "webpack": "^5.97.1",
     "workbox-webpack-plugin": "^7.3.0",
     "workbox-window": "^7.3.0"

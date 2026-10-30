@@ -242,6 +242,7 @@ export function registerStorageService(editor: LexicalEditor, Klass: Klass<Image
 
   const uploadDataUrl = async (dataUrl: string, filename: string, mimeType: string) => {
     const { uploadImage, getImageSignedUrl } = getServicesFromEditor(editor);
+    if (!uploadImage || !getImageSignedUrl) throw new Error("Uploading image failed");
     const blob = await fetch(dataUrl).then((response) => response.blob());
     const file = new File([blob], filename, { type: mimeType });
     const { data: uploadData, error: uploadError } = await uploadImage(file);
@@ -257,7 +258,7 @@ export function registerStorageService(editor: LexicalEditor, Klass: Klass<Image
   };
 
   const handleImageNode = async (key: string, node: ImageNode): Promise<void> => {
-    const { getImageSignedUrl } = getServicesFromEditor(editor);
+    const { uploadImage, getImageSignedUrl } = getServicesFromEditor(editor);
     try {
       const [src, signedUrl, altText] = editor.read(() => [
         node.getSrc(),
@@ -266,7 +267,7 @@ export function registerStorageService(editor: LexicalEditor, Klass: Klass<Image
       ]);
 
       if (src.startsWith("/images/")) {
-        if (signedUrl) return;
+        if (signedUrl || !getImageSignedUrl) return;
 
         const fileName = src.split("/").pop()!;
         const { data, error } = await getImageSignedUrl(fileName);
@@ -285,6 +286,7 @@ export function registerStorageService(editor: LexicalEditor, Klass: Klass<Image
           );
         }
       } else if (src.startsWith("data:image/")) {
+        if (!uploadImage || !getImageSignedUrl) return;
         const header = src.split(",")[0];
         const mimeType = header.split(";")[0].split(":")[1];
         const extension = mimeType.split("/")[1].split("+")[0];
@@ -318,6 +320,7 @@ export function registerStorageService(editor: LexicalEditor, Klass: Klass<Image
   };
 
   const imageMutationListener: MutationListener = (mutations) => {
+    const { uploadImage, getImageSignedUrl } = getServicesFromEditor(editor);
     editor.read(() => {
       for (const [key, mutation] of mutations) {
         if (mutation === "created" || mutation === "updated") {
@@ -325,8 +328,13 @@ export function registerStorageService(editor: LexicalEditor, Klass: Klass<Image
           const node = $getNodeByKey(key);
           if (!$isImageNode(node)) continue;
           const src = node.getSrc();
-          if (src.startsWith("/images/") && node.getSignedUrl()) continue;
-          if (!src.startsWith("/images/") && !src.startsWith("data:image/")) continue;
+          if (src.startsWith("/images/")) {
+            if (!getImageSignedUrl || node.getSignedUrl()) continue;
+          } else if (src.startsWith("data:image/")) {
+            if (!uploadImage || !getImageSignedUrl) continue;
+          } else {
+            continue;
+          }
           processingNodeKeys.add(key);
           void handleImageNode(key, node);
         }

@@ -183,18 +183,20 @@ function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
     const id = node?.id ?? "";
     let payloadSrc = dataUrl;
     let signedUrl: string | undefined = undefined;
-    try {
-      const file = new File([serialized], `${altText}.svg`, { type: "image/svg+xml" });
-      const { data, error } = await uploadImage(file);
-      if (error || !data) throw new Error("Uploading image failed");
-      payloadSrc = `/images/${data.path}`;
-      const { data: signedUrlData } = await getImageSignedUrl(data.path);
-      signedUrl = signedUrlData?.signedUrl;
-    } catch {
-      editor.dispatchCommand(ANNOUNCE_COMMAND, {
-        type: "error",
-        message: { title: "Uploading image failed", subtitle: "Please try again later" },
-      });
+    if (uploadImage && getImageSignedUrl) {
+      try {
+        const file = new File([serialized], `${altText}.svg`, { type: "image/svg+xml" });
+        const { data, error } = await uploadImage(file);
+        if (error || !data) throw new Error("Uploading image failed");
+        payloadSrc = `/images/${data.path}`;
+        const { data: signedUrlData } = await getImageSignedUrl(data.path);
+        signedUrl = signedUrlData?.signedUrl;
+      } catch {
+        editor.dispatchCommand(ANNOUNCE_COMMAND, {
+          type: "error",
+          message: { title: "Uploading image failed", subtitle: "Please try again later" },
+        });
+      }
     }
     insertSketch({
       src: payloadSrc,
@@ -269,7 +271,7 @@ function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
     let src = node?.signedUrl || node?.src;
     if (!src) return;
     try {
-      if (src.startsWith("/images/")) {
+      if (src.startsWith("/images/") && getImageSignedUrl) {
         const filename = src.split("/").pop()!;
         const { data } = await getImageSignedUrl(filename);
         if (data?.signedUrl) src = data.signedUrl;
