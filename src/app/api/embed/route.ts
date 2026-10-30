@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { generateServerHtml } from "@/editor/utils/generateServerHtml";
+import { resolveStoredImagesForHtml } from "@/repositories/storage";
 
 export async function POST(request: Request) {
   try {
@@ -7,7 +8,8 @@ export async function POST(request: Request) {
     if (!body) {
       return NextResponse.json({ error: { title: "Invalid request", subtitle: "Please try again later" } }, { status: 400 })
     }
-    const html = await generateServerHtml(body);
+    const resolved = await resolveStoredImagesForHtml(body);
+    const html = await generateServerHtml(resolved);
     return new Response(html, {
       headers: {
         "Content-Type": "text/html",

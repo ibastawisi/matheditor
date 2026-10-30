@@ -1,5 +1,5 @@
 import { authOptions } from "@/lib/auth";
-import { deleteRevision, findRevisionAuthorId, getCachedRevision } from "@/repositories/revision";
+import { deleteRevision, findRevisionAuthorId, findStoredRevision } from "@/repositories/revision";
 import { DeleteRevisionResponse, GetRevisionResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server"
@@ -10,7 +10,8 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
   const params = await props.params;
   const response: GetRevisionResponse = {};
   try {
-    const revision = await getCachedRevision(params.id);
+    // the client downloads the data from storage
+    const revision = await findStoredRevision(params.id);
     if (!revision) {
       response.error = { title: "Document Revision not found" }
       return NextResponse.json(response, { status: 404 })

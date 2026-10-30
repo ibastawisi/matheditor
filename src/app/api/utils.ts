@@ -22,7 +22,7 @@ const getRevisionHtml = async (id: string) => {
   }
 }
 
-const findRevisionHtml = unstable_cache(getRevisionHtml, [], { tags: ["html"] });
+const findRevisionHtml = unstable_cache(getRevisionHtml, [], { tags: ["html"], revalidate: 3600 });
 
 const getRevisionThumbnail = async (id: string) => {
   try {
@@ -44,7 +44,7 @@ const getRevisionThumbnail = async (id: string) => {
   }
 }
 
-const findRevisionThumbnail = unstable_cache(getRevisionThumbnail, [], { tags: ["thumbnail"] });
+const findRevisionThumbnail = unstable_cache(getRevisionThumbnail, [], { tags: ["thumbnail"], revalidate: 3600 });
 
 export {
   findRevisionHtml,

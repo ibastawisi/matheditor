@@ -3,7 +3,6 @@ import { createRevision } from "@/repositories/revision";
 import { EditorDocumentRevision, PostRevisionResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { Prisma } from "@/lib/prisma"
 import { findUserDocument } from "@/repositories/document";
 
 export const dynamic = "force-dynamic";
@@ -41,15 +40,17 @@ export async function POST(request: Request) {
       return NextResponse.json(response, { status: 403 })
     }
 
-    const input: Prisma.RevisionUncheckedCreateInput = {
+    if (!body.id || !body.data) {
+      response.error = { title: "Bad Request", subtitle: "No revision data provided" }
+      return NextResponse.json(response, { status: 400 })
+    }
+
+    const revision = await createRevision({
       id: body.id,
       authorId: user.id,
       documentId: body.documentId,
       createdAt: body.createdAt,
-      data: body.data as unknown as Prisma.JsonObject,
-    };
-
-    const revision = await createRevision(input);
+    }, body.data);
     response.data = {
       id: revision.id,
       documentId: revision.documentId,

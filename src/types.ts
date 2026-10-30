@@ -76,6 +76,9 @@ export interface EditorDocumentRevision {
   createdAt: string | Date;
 }
 
+/** A revision whose data is kept in object storage, and downloaded from the signed url */
+export type StoredDocumentRevision = Omit<EditorDocumentRevision, "data"> & { url: string };
+
 export type LocalDocumentRevision = Omit<EditorDocumentRevision, "data">;
 export type CloudDocumentRevision = Omit<EditorDocumentRevision, "data"> & { author: User; };
 export type UserDocumentRevision = LocalDocumentRevision | CloudDocumentRevision;
@@ -130,8 +133,9 @@ export interface GetPublishedDocumentsResponse {
   error?: { title: string, subtitle?: string }
 }
 
+/** The data of the document is downloaded from the signed url */
 export interface GetDocumentResponse {
-  data?: EditorDocument & { cloudDocument: CloudDocument };
+  data?: Omit<EditorDocument, "data"> & { url: string; cloudDocument: CloudDocument };
   error?: { title: string, subtitle?: string }
 }
 
@@ -182,8 +186,9 @@ export interface DeleteDocumentResponse {
   error?: { title: string, subtitle?: string }
 }
 
+/** The data of the document is downloaded from the signed url */
 export interface ForkDocumentResponse {
-  data?: UserDocument & { data: SerializedEditorState };
+  data?: UserDocument & { url: string };
   error?: { title: string, subtitle?: string }
 }
 
@@ -193,7 +198,7 @@ export interface CheckHandleResponse {
 }
 
 export interface GetRevisionResponse {
-  data?: EditorDocumentRevision;
+  data?: StoredDocumentRevision;
   error?: { title: string, subtitle?: string }
 }
 
@@ -209,5 +214,27 @@ export interface DeleteRevisionResponse {
 
 export interface Pix2textResponse {
   data?: { generated_text: string; };
+  error?: { title: string, subtitle?: string }
+}
+
+export interface GetImageSignedUrlResponse {
+  data?: { signedUrl: string };
+  error?: { title: string, subtitle?: string }
+}
+
+export interface PostImageUploadInput {
+  hash?: string;
+  contentType: string;
+}
+
+/** The image is uploaded to the signed url when not already stored, then referenced by its path */
+export interface PostImageUploadResponse {
+  data?: {
+    id: string;
+    path: string;
+    fullPath: string;
+    signedUrl: string;
+    uploadUrl?: string;
+  };
   error?: { title: string, subtitle?: string }
 }
