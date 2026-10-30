@@ -28,10 +28,7 @@ model Document {
 
 model Revision {
   id         String   @id @default(uuid()) @db.Uuid
-  /// @deprecated the data is kept in object storage at `revisions/<id>.json`, this only holds revisions that are not migrated yet
-  data       Json?
-  /// the size of the data in object storage, null while the data is still in the database
-  size       Int?
+  size       Int      @default(0)
   createdAt  DateTime @default(now())
   documentId String   @db.Uuid
   document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)

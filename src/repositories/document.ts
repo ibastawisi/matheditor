@@ -168,7 +168,7 @@ const findCloudStorageUsageByAuthorId = async (authorId: string) => {
     SELECT
       d.id,
       d.name,
-      (pg_column_size(d.*) + COALESCE(SUM(pg_column_size(r.*) + COALESCE(r."size", 0)), 0))::float AS size
+      (pg_column_size(d.*) + COALESCE(SUM(pg_column_size(r.*) + r."size"), 0))::float AS size
     FROM
       "Document" d
     LEFT JOIN
