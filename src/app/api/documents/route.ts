@@ -1,5 +1,6 @@
 import { authOptions } from "@/lib/auth";
 import { createDocument, findDocumentsByAuthorId, findPublishedDocuments, findUserDocument } from "@/repositories/document";
+import { prepareRevision } from "@/repositories/revision";
 import { DocumentCreateInput, GetDocumentsResponse, PostDocumentsResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
@@ -67,14 +68,6 @@ export async function POST(request: Request) {
       published: body.published,
       collab: body.collab,
       private: body.private,
-      revisions: {
-        create: {
-          id: body.head || undefined,
-          data: body.data as unknown as Prisma.JsonObject,
-          authorId: user.id,
-          createdAt: body.updatedAt,
-        }
-      }
     };
     if (body.handle) {
       input.handle = body.handle.toLowerCase();
@@ -114,6 +107,15 @@ export async function POST(request: Request) {
       const baseDocument = await findUserDocument(body.baseId);
       if (baseDocument) input.baseId = body.baseId;
     }
+
+    // the data is stored once the document is valid
+    input.revisions = {
+      create: await prepareRevision({
+        id: body.head,
+        authorId: user.id,
+        createdAt: body.updatedAt,
+      }, body.data),
+    };
 
     response.data = await createDocument(input);
     return NextResponse.json(response, { status: 200 })

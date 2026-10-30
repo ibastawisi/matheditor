@@ -8,6 +8,7 @@ import { $isImageNode } from './nodes';
 import type { ImagePayload } from './types';
 import { getImageDimensions } from './utils';
 import { setOpenDialog } from '@/editor/extensions/store';
+import { useServices } from '@/editor/extensions/services/hooks';
 import { useTheme } from '@mui/material/styles';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Switch, TextField, Typography, useMediaQuery } from '@mui/material';
 import { UploadFile } from '@mui/icons-material';
@@ -25,9 +26,12 @@ const DEFAULT_PAYLOAD: ImagePayload = { src: '', altText: '', width: 0, height: 
 
 function ImageDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
   const [editor] = useLexicalComposerContext();
+  const { uploadImage, getImageSignedUrl } = useServices();
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [formData, setFormData] = useState<ImagePayload>(DEFAULT_PAYLOAD);
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     const payload = editor.read(() => {
@@ -39,19 +43,28 @@ function ImageDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
         width: node.getWidth(),
         height: node.getHeight(),
         showCaption: node.getShowCaption(),
+        signedUrl: node.getSignedUrl(),
       };
     });
     setFormData(payload);
+    setFile(null);
   }, [editor, nodeKey]);
 
   const updateFormData = async (event: any) => {
     const { name, value } = event.target;
     if (name === 'src') {
+      setFile(null);
+      let signedUrl: string | undefined = undefined;
       try {
-        const dimensions = await getImageDimensions(value);
-        setFormData({ ...formData, ...dimensions, [name]: value });
+        if (typeof value === 'string' && value.startsWith('/images/')) {
+          const filename = value.split('/').pop()!;
+          const { data: signedUrlData } = await getImageSignedUrl(filename);
+          signedUrl = signedUrlData?.signedUrl;
+        }
+        const dimensions = await getImageDimensions(signedUrl ?? value);
+        setFormData({ ...formData, ...dimensions, signedUrl, [name]: value });
       } catch (e) {
-        setFormData({ ...formData, [name]: value });
+        setFormData({ ...formData, signedUrl, [name]: value });
       }
     } else if (name === 'showCaption') {
       setFormData({ ...formData, [name]: event.target.checked });
@@ -68,11 +81,13 @@ function ImageDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
     );
     for (const { file, result } of filesResult) {
       if (isMimeType(file, ACCEPTABLE_IMAGE_TYPES)) {
+        setFile(file);
+        const altText = file.name.replace(/\.[^/.]+$/, "");
         try {
           const dimensions = await getImageDimensions(result);
-          setFormData({ ...formData, src: result, altText: files![0].name.replace(/\.[^/.]+$/, ""), ...dimensions });
+          setFormData({ ...formData, src: result, altText, ...dimensions });
         } catch (e) {
-          setFormData({ ...formData, src: result, altText: files![0].name.replace(/\.[^/.]+$/, "") });
+          setFormData({ ...formData, src: result, altText });
         }
       } else {
         editor.dispatchCommand(ANNOUNCE_COMMAND, { message: { title: "Uploading image failed", subtitle: "Unsupported file type" } });
@@ -80,7 +95,7 @@ function ImageDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
     }
   };
 
-  const isDisabled = formData.src === '';
+  const isDisabled = formData.src === '' || isUploading;
 
   const insertImage = (payload: ImagePayload) => {
     const node = editor.read(() => nodeKey ? $getNodeByKey(nodeKey) : null);
@@ -93,7 +108,32 @@ function ImageDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
   }
 
   const handleSubmit = async () => {
-    insertImage({ ...formData, width: Number(formData.width) || 0, height: Number(formData.height) || 0 });
+    let payload: ImagePayload = {
+      ...formData,
+      width: Number(formData.width) || 0,
+      height: Number(formData.height) || 0,
+    };
+    if (file) {
+      setIsUploading(true);
+      try {
+        const { data, error } = await uploadImage(file);
+        if (error || !data) throw new Error("Uploading image failed");
+        const { data: signedUrlData } = await getImageSignedUrl(data.path);
+        payload = {
+          ...payload,
+          src: `/images/${data.path}`,
+          signedUrl: signedUrlData?.signedUrl,
+        };
+      } catch {
+        editor.dispatchCommand(ANNOUNCE_COMMAND, {
+          type: "error",
+          message: { title: "Uploading image failed", subtitle: "Please try again later" },
+        });
+      } finally {
+        setIsUploading(false);
+      }
+    }
+    insertImage(payload);
     closeDialog();
   };
 

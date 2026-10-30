@@ -1,5 +1,6 @@
 import { generateDocx } from "@/editor/utils/generateDocx";
 import { getCachedRevision } from "@/repositories/revision";
+import { inlineStoredImages } from "@/repositories/storage";
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
@@ -12,7 +13,8 @@ export async function GET(request: Request) {
     if (!revision) {
       return NextResponse.json({ error: { title: "Something went wrong", subtitle: "Revision not found" } }, { status: 404 })
     }
-    const blob = await generateDocx(revision.data);
+    const data = await inlineStoredImages(revision.data, { svgOnly: false });
+    const blob = await generateDocx(data);
     return new Response(blob, {
       headers: {
         "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",

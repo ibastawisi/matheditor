@@ -2,6 +2,7 @@ import { authOptions } from "@/lib/auth";
 import { getCollabConfig, signCollabToken } from "@/lib/collab";
 import { createCollabState, hasCollabState } from "@/repositories/collab";
 import { findEditorDocument, findUserDocument } from "@/repositories/document";
+import { offloadDataUrls } from "@/repositories/storage";
 import { createYjsState } from "@/editor/utils/createYjsState";
 import { PostCollabSessionInput, PostCollabSessionResponse } from "@/types";
 import { getServerSession } from "next-auth";
@@ -65,7 +66,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
     if (!await hasCollabState(params.id)) {
       const copy: PostCollabSessionInput = await request.json().catch(() => ({}));
       const isNewerCopy = !!copy.data?.root && !!copy.updatedAt && new Date(copy.updatedAt) > new Date(userDocument.updatedAt);
-      const copyState = isNewerCopy ? tryCreateYjsState(copy.data!) : null;
+      const copyState = isNewerCopy ? tryCreateYjsState(await offloadDataUrls(copy.data!)) : null;
       if (copyState) {
         seededFromCopy = await createCollabState(params.id, copyState);
       } else {

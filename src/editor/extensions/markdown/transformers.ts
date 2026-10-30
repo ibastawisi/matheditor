@@ -92,7 +92,7 @@ export const GRAPH: TextMatchTransformer = {
     }
     const src = node.getSrc();
     const altText = node.getType();
-    const url = src.startsWith("data:image/svg+xml") ? svgtoBase64(src) : src;
+    const url = src.startsWith("data:image/svg+xml,") ? svgtoBase64(src) : src;
     return `![${altText}](${url})`;
   },
   importRegExp: /<graph src="([^"]+?)" value="([^"]+?)"\s?\/>\s?/,
@@ -114,7 +114,7 @@ export const SKETCH: TextMatchTransformer = {
     }
     const src = node.getSrc();
     const altText = node.getType();
-    const url = svgtoBase64(src);
+    const url = src.startsWith("data:image/svg+xml,") ? svgtoBase64(src) : src;
     return `![${altText}](${url})`;
   },
   importRegExp: /<sketch src="([^"]+?)"\s?\/>\s?/,

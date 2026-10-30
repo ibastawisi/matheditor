@@ -53,7 +53,7 @@ export class SketchNode extends ImageNode {
   }
 
   createMediaElement() {
-    return createInlineSvg(this.getSrc(), this.getWidth(), this.getHeight());
+    return createInlineSvg(this.getSrc(), this.getWidth(), this.getHeight(), this.getSignedUrl());
   }
 
   /** @deprecated The scene is now embedded in the src */
@@ -77,6 +77,7 @@ export function $createSketchNode({
   filter = "auto",
   id = "",
   showCaption = false,
+  signedUrl,
 }: SketchPayload): SketchNode {
   return $create(SketchNode)
     .setSrc(src)
@@ -86,7 +87,8 @@ export function $createSketchNode({
     .setFloat(float)
     .setFilter(filter)
     .setId(id)
-    .setShowCaption(showCaption);
+    .setShowCaption(showCaption)
+    .setSignedUrl(signedUrl);
 }
 
 export function $isSketchNode(node: LexicalNode | null | undefined): node is SketchNode {

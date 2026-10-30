@@ -1,7 +1,7 @@
 import { Prisma, prisma } from "@/lib/prisma";
 import { CloudDocument, EditorDocument } from "@/types";
 import { validate } from "uuid";
-import { getCachedRevision } from "./revision";
+import { deleteRevisionData, getCachedRevision, getRevisionDataUrl } from "./revision";
 
 const findPublishedDocuments = async (limit?: number) => {
   const documents = await prisma.document.findMany({
@@ -167,7 +167,7 @@ const findCloudStorageUsageByAuthorId = async (authorId: string) => {
     SELECT
       d.id,
       d.name,
-      (pg_column_size(d.*) + SUM(pg_column_size(r.*)))::float AS size
+      (pg_column_size(d.*) + COALESCE(SUM(pg_column_size(r.*) + COALESCE(r."size", 0)), 0))::float AS size
     FROM
       "Document" d
     LEFT JOIN
@@ -450,6 +450,30 @@ const findEditorDocument = async (handle: string) => {
   return editorDocument;
 }
 
+const findStoredDocument = async (handle: string) => {
+  const document = await prisma.document.findUnique({
+    where: validate(handle) ? { id: handle } : { handle: handle.toLowerCase() },
+    select: {
+      id: true,
+      handle: true,
+      name: true,
+      createdAt: true,
+      updatedAt: true,
+      published: true,
+      collab: true,
+      private: true,
+      baseId: true,
+      head: true,
+    },
+  });
+
+  if (!document) return null;
+  const url = await getRevisionDataUrl(document.head);
+  if (!url) return null;
+
+  return { ...document, url };
+}
+
 
 const findUserDocument = async (handle: string, revisions?: "all" | string | null) => {
   const document = await prisma.document.findUnique({
@@ -543,9 +567,15 @@ const updateDocument = async (handle: string, data: Prisma.DocumentUncheckedUpda
 }
 
 const deleteDocument = async (handle: string) => {
-  return prisma.document.delete({
+  const document = await prisma.document.delete({
     where: validate(handle) ? { id: handle } : { handle: handle.toLowerCase() },
+    select: {
+      id: true,
+      revisions: { select: { id: true } },
+    },
   });
+  await deleteRevisionData(document.revisions.map((revision) => revision.id));
+  return document;
 }
 
 export {
@@ -556,6 +586,7 @@ export {
   findPublishedDocumentsByAuthorId,
   findUserDocument,
   findEditorDocument,
+  findStoredDocument,
   createDocument,
   updateDocument,
   deleteDocument,

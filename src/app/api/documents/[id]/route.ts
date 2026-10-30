@@ -1,5 +1,6 @@
 import { authOptions } from "@/lib/auth";
-import { deleteDocument, findEditorDocument, findUserDocument, updateDocument } from "@/repositories/document";
+import { deleteDocument, findStoredDocument, findUserDocument, updateDocument } from "@/repositories/document";
+import { prepareRevision, revisionExists } from "@/repositories/revision";
 import { DeleteDocumentResponse, DocumentUpdateInput, GetDocumentResponse, PatchDocumentResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server"
@@ -37,12 +38,12 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
         return NextResponse.json(response, { status: 403 })
       }
     }
-    const editorDocument = await findEditorDocument(params.id);
-    if (!editorDocument) {
+    const storedDocument = await findStoredDocument(params.id);
+    if (!storedDocument) {
       response.error = { title: "Document not found" }
       return NextResponse.json(response, { status: 404 })
     }
-    response.data = { ...editorDocument, cloudDocument: userDocument };
+    response.data = { ...storedDocument, cloudDocument: userDocument };
     return NextResponse.json(response, { status: 200 })
   } catch (error) {
     console.log(error);
@@ -134,16 +135,16 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
       };
     }
 
-    if (body.data) {
+    // revisions never change, the data is only stored for a new head
+    if (body.data && body.head && !(await revisionExists(body.head))) {
       input.revisions = {
         connectOrCreate: {
           where: { id: body.head },
-          create: {
+          create: await prepareRevision({
             id: body.head,
             authorId: user.id,
             createdAt: body.updatedAt,
-            data: body.data as unknown as Prisma.InputJsonObject,
-          }
+          }, body.data),
         }
       }
     }

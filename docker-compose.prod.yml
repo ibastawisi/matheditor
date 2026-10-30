@@ -7,6 +7,7 @@
 #   fastapi      fastapi.matheditor.me    HTTPS
 #   browserless  browserless.matheditor.me  WSS
 #   collab       collab.matheditor.me     WSS, live editing
+#   s3           s3.matheditor.me         HTTPS, S3 object storage
 #   db           db.matheditor.me:443     Postgres over TLS, terminated by Traefik (clients need sslmode=require)
 services:
   app:
@@ -22,11 +23,18 @@ services:
       BROWSERLESS_URL: ws://browserless:3000?token=${BROWSERLESS_TOKEN}
       COLLAB_URL: wss://collab.matheditor.me
       COLLAB_SECRET: ${COLLAB_SECRET:?COLLAB_SECRET is required}
+      S3_ENDPOINT: http://s3:9000
+      S3_PUBLIC_ENDPOINT: https://s3.matheditor.me
+      S3_BUCKET: ${S3_BUCKET:-matheditor}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?S3_ACCESS_KEY_ID is required}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?S3_SECRET_ACCESS_KEY is required}
     expose:
       - "3000"
     depends_on:
       db:
         condition: service_healthy
+      s3:
+        condition: service_started
 
   db:
     image: postgres:17-alpine
@@ -116,6 +124,35 @@ services:
       - traefik.http.routers.matheditor-browserless.tls.certresolver=letsencrypt
       - traefik.http.services.matheditor-browserless.loadbalancer.server.port=3000
 
+  s3:
+    image: rustfs/rustfs:latest
+    restart: unless-stopped
+    environment:
+      RUSTFS_VOLUMES: /data
+      RUSTFS_ADDRESS: 0.0.0.0:9000
+      RUSTFS_CONSOLE_ADDRESS: 0.0.0.0:9001
+      RUSTFS_CONSOLE_ENABLE: "true"
+      RUSTFS_ACCESS_KEY: ${S3_ACCESS_KEY_ID:?S3_ACCESS_KEY_ID is required}
+      RUSTFS_SECRET_KEY: ${S3_SECRET_ACCESS_KEY:?S3_SECRET_ACCESS_KEY is required}
+      RUSTFS_CORS_ALLOWED_ORIGINS: "*"
+      RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS: "*"
+    expose:
+      - "9000"
+    volumes:
+      - s3-data:/data
+    networks:
+      - default
+      - dokploy-network
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.matheditor-s3-web.rule=Host(`s3.matheditor.me`)
+      - traefik.http.routers.matheditor-s3-web.entrypoints=web
+      - traefik.http.routers.matheditor-s3-web.middlewares=redirect-to-https@file
+      - traefik.http.routers.matheditor-s3.rule=Host(`s3.matheditor.me`)
+      - traefik.http.routers.matheditor-s3.entrypoints=websecure
+      - traefik.http.routers.matheditor-s3.tls.certresolver=letsencrypt
+      - traefik.http.services.matheditor-s3.loadbalancer.server.port=9000
+
 networks:
   dokploy-network:
     external: true
@@ -123,3 +160,4 @@ networks:
 volumes:
   db-data:
   pix2text-models:
+  s3-data:

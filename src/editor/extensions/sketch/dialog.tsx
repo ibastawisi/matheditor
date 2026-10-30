@@ -7,10 +7,11 @@ import { $isSketchNode } from './nodes';
 import { $isImageNode } from '@/editor/extensions/image/nodes';
 import { getImageDimensions } from '@/editor/extensions/image/utils';
 import { setOpenDialog } from '@/editor/extensions/store';
+import { useServices } from '@/editor/extensions/services/hooks';
 import useColorMode from '@/hooks/useColorMode';
 import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, debounce } from '@mui/material';
 import dynamic from 'next/dynamic';
-import { ALERT_COMMAND } from '@/editor/commands';
+import { ANNOUNCE_COMMAND, ALERT_COMMAND } from '@/editor/commands';
 import type { Alert } from '@/types';
 import { ExcalidrawElement, ExcalidrawImageElement, FileId } from '@excalidraw/excalidraw/element/types';
 import { ImportedLibraryData } from '@excalidraw/excalidraw/data/types';
@@ -123,6 +124,7 @@ export const useCallbackRefState = () => {
 
 function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
   const [editor] = useLexicalComposerContext();
+  const { uploadImage, getImageSignedUrl } = useServices();
   const [node] = useState(() => editor.read(() => {
     const node = nodeKey ? $getNodeByKey(nodeKey) : null;
     if (!$isImageNode(node)) return null;
@@ -130,6 +132,7 @@ function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
       isSketch: $isSketchNode(node),
       value: $isSketchNode(node) ? node.getValue() : null,
       src: node.getSrc(),
+      signedUrl: node.getSignedUrl(),
       width: node.getWidth(),
       height: node.getHeight(),
       altText: node.getAltText(),
@@ -173,12 +176,36 @@ function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
     });
 
     const serialized = new XMLSerializer().serializeToString(element);
-    const src = "data:image/svg+xml," + encodeURIComponent(serialized);
-    const dimensions = await getImageDimensions(src);
+    const dataUrl = "data:image/svg+xml," + encodeURIComponent(serialized);
+    const dimensions = await getImageDimensions(dataUrl);
     const showCaption = node?.showCaption ?? true;
-    const altText = node?.altText;
+    const altText = node?.altText || "Sketch";
     const id = node?.id ?? "";
-    insertSketch({ src, showCaption, ...dimensions, altText, id, float: node?.float, filter: node?.isSketch ? node.filter : undefined });
+    let payloadSrc = dataUrl;
+    let signedUrl: string | undefined = undefined;
+    try {
+      const file = new File([serialized], `${altText}.svg`, { type: "image/svg+xml" });
+      const { data, error } = await uploadImage(file);
+      if (error || !data) throw new Error("Uploading image failed");
+      payloadSrc = `/images/${data.path}`;
+      const { data: signedUrlData } = await getImageSignedUrl(data.path);
+      signedUrl = signedUrlData?.signedUrl;
+    } catch {
+      editor.dispatchCommand(ANNOUNCE_COMMAND, {
+        type: "error",
+        message: { title: "Uploading image failed", subtitle: "Please try again later" },
+      });
+    }
+    insertSketch({
+      src: payloadSrc,
+      signedUrl,
+      showCaption,
+      ...dimensions,
+      altText,
+      id,
+      float: node?.float,
+      filter: node?.isSketch ? node.filter : undefined,
+    });
     clearLocalStorage();
     closeDialog();
   };
@@ -239,9 +266,14 @@ function SketchDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
   };
 
   async function tryLoadSceneFromNode() {
-    const src = node?.src;
+    let src = node?.signedUrl || node?.src;
     if (!src) return;
     try {
+      if (src.startsWith("/images/")) {
+        const filename = src.split("/").pop()!;
+        const { data } = await getImageSignedUrl(filename);
+        if (data?.signedUrl) src = data.signedUrl;
+      }
       const { loadSceneOrLibraryFromBlob, MIME_TYPES, hashElementsVersion } = await import('@excalidraw/excalidraw');
       if (node?.isSketch) {
         const elements = node.value;

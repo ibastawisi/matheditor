@@ -13,6 +13,9 @@ import { PageSlotEditorsExtension } from "./extensions/pages/slot-editors";
 import { TableOfContentsExtension } from "./extensions/table-of-contents";
 import { SearchExtension } from "./extensions/search";
 import { HashNavigationExtension } from "./extensions/hash-navigation";
+import { ServicesExtension } from "./extensions/services";
+import { defaultServices } from "./extensions/services/constants";
+import type { Services } from "./extensions/services/types";
 
 /** React decorators rendered alongside the editor, and the behaviors that need the browser */
 const EditorUIExtensions = defineExtension({
@@ -34,6 +37,7 @@ export const EditorComposer: React.FC<
   React.PropsWithChildren<{
     initialState?: InitialEditorStateType;
     editable?: boolean;
+    services?: Services;
     /**
      * The document is edited live: it starts empty and gets its content from
      * the session, whose history replaces the editor's own
@@ -41,7 +45,7 @@ export const EditorComposer: React.FC<
     collab?: boolean;
     editorRef?: React.ComponentProps<typeof EditorRefPlugin>["editorRef"];
   }>
-> = ({ initialState, editable = true, collab = false, editorRef, children }) => {
+> = ({ initialState, editable = true, services = defaultServices, collab = false, editorRef, children }) => {
   // the initial state is only read when the editor is created
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const extension = useMemo(
@@ -50,9 +54,13 @@ export const EditorComposer: React.FC<
         name: "@matheditor/root",
         $initialEditorState: collab ? null : initialState,
         editable,
-        dependencies: collab ? [EditorUIExtensions, configExtension(HistoryExtension, { disabled: true })] : [EditorUIExtensions],
+        dependencies: [
+          EditorUIExtensions,
+          configExtension(ServicesExtension, { services }),
+          ...(collab ? [configExtension(HistoryExtension, { disabled: true })] : []),
+        ],
       }),
-    [editable, collab]
+    [editable, collab, services]
   );
 
   return (

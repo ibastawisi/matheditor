@@ -16,11 +16,16 @@
     "fastapi:start": "docker compose up -d --build fastapi",
     "fastapi:stop": "docker compose stop fastapi",
     "browserless:start": "docker compose up -d browserless",
-    "browserless:stop": "docker compose stop browserless"
+    "browserless:stop": "docker compose stop browserless",
+    "s3:start": "docker compose up -d s3",
+    "s3:stop": "docker compose stop s3",
+    "storage:migrate": "tsx scripts/migrate-storage.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.84",
     "@ai-sdk/react": "^4.0.123",
+    "@aws-sdk/client-s3": "^3.1159.0",
+    "@aws-sdk/s3-request-presigner": "^3.1159.0",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
@@ -88,6 +93,7 @@
     "fast-glob": "^3.3.3",
     "prisma": "^6.5.0",
     "terser-webpack-plugin": "^5.3.14",
+    "tsx": "^4.23.15",
     "webpack": "^5.97.1",
     "workbox-webpack-plugin": "^7.3.0",
     "workbox-window": "^7.3.0"

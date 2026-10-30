@@ -1,7 +1,16 @@
-import { createYjsBinding, syncLexicalUpdateToYjs, type Provider } from "@lexical/yjs";
-import type { SerializedEditorState } from "lexical";
+import { createYjsBinding, syncLexicalUpdateToYjs, type ExcludedProperties, type Provider } from "@lexical/yjs";
+import type { Klass, LexicalNode, SerializedEditorState } from "lexical";
 import { Doc, encodeStateAsUpdate } from "yjs";
+import { ImageNode } from "@/editor/extensions/image/nodes";
+import { SketchNode } from "@/editor/extensions/sketch/nodes";
+import { GraphNode } from "@/editor/extensions/graph/nodes";
 import { createHeadlessEditor } from "./createHeadlessEditor";
+
+const excludedProperties: ExcludedProperties = new Map<Klass<LexicalNode>, Set<string>>([
+  [ImageNode, new Set(["__signedUrl"])],
+  [SketchNode, new Set(["__signedUrl"])],
+  [GraphNode, new Set(["__signedUrl"])],
+]);
 
 /** Seeding only writes the document, so nothing reads the provider's awareness */
 const noopProvider = {
@@ -30,7 +39,7 @@ export function createYjsState(data: SerializedEditorState): Uint8Array {
   const doc = new Doc();
   // the content goes in the doc's default root, which every binding reads whatever its id
   const id = "seed";
-  const binding = createYjsBinding({ editor, id, doc, docMap: new Map([[id, doc]]) });
+  const binding = createYjsBinding({ editor, id, doc, docMap: new Map([[id, doc]]), excludedProperties });
   const unregister = editor.registerUpdateListener(
     ({ prevEditorState, editorState, dirtyElements, dirtyLeaves, normalizedNodes, tags }) => {
       syncLexicalUpdateToYjs(

@@ -45,11 +45,11 @@ export interface DocumentsSlice {
   deleteLocalDocument: (id: string) => Promise<Result<string>>;
   forkLocalDocument: (input: { id: string, revisionId?: string | null }) => Promise<Result<EditorDocument>>;
 
-  getCloudDocument: (id: string) => Promise<Result<NonNullable<GetDocumentResponse["data"]>>>;
+  getCloudDocument: (id: string) => Promise<Result<EditorDocument & { cloudDocument: CloudDocument }>>;
   createCloudDocument: (input: DocumentCreateInput) => Promise<Result<CloudDocument>>;
   updateCloudDocument: (input: { id: string, partial: DocumentUpdateInput }) => Promise<Result<CloudDocument>>;
   deleteCloudDocument: (id: string) => Promise<Result<string>>;
-  forkCloudDocument: (input: { id: string, revisionId?: string | null }) => Promise<Result<NonNullable<ForkDocumentResponse["data"]>>>;
+  forkCloudDocument: (input: { id: string, revisionId?: string | null }) => Promise<Result<UserDocument & { data: EditorDocument["data"] }>>;
   getCollabSession: (id: string, copy?: Pick<EditorDocument, "data" | "updatedAt">) => Promise<Result<CollabSession>>;
 
   getLocalDocumentRevisions: (id: string) => Promise<Result<EditorDocumentRevision[]>>;
@@ -213,9 +213,12 @@ export const createDocumentsSlice: StateCreator<AppStore, [], [], DocumentsSlice
       const response = await fetch(`/api/documents/${id}`);
       const { data, error } = await response.json() as GetDocumentResponse;
       if (error || !data) return { error: error ?? { title: "Something went wrong", subtitle: "document not found" } };
-      const { cloudDocument: cloud } = data;
+      const { url, cloudDocument: cloud, ...document } = data;
+      const revisionResponse = await fetch(url);
+      if (!revisionResponse.ok) return { error: { title: "Something went wrong", subtitle: "revision not found" } };
+      const revisionData = await revisionResponse.json() as EditorDocument["data"];
       set(state => ({ documents: upsertDocument(state.documents, { id: cloud.id, cloud }) }));
-      return { data };
+      return { data: { ...document, data: revisionData, cloudDocument: cloud } };
     } catch (error) {
       return failure(error);
     } finally {
@@ -278,7 +281,11 @@ export const createDocumentsSlice: StateCreator<AppStore, [], [], DocumentsSlice
       const response = await fetch(`/api/documents/new/${id}${revisionId ? `?v=${revisionId}` : ''}`);
       const { data, error } = await response.json() as ForkDocumentResponse;
       if (error || !data) return announceFailure({ error: error ?? { title: "Something went wrong", subtitle: "document not found" } });
-      return { data };
+      const { url, ...document } = data;
+      const revisionResponse = await fetch(url);
+      if (!revisionResponse.ok) return announceFailure({ error: { title: "Something went wrong", subtitle: "revision not found" } });
+      const revisionData = await revisionResponse.json() as EditorDocument["data"];
+      return { data: { ...document, data: revisionData } };
     } catch (error) {
       return announceFailure(failure(error));
     } finally {
@@ -324,7 +331,11 @@ export const createDocumentsSlice: StateCreator<AppStore, [], [], DocumentsSlice
       const response = await fetch(`/api/revisions/${id}`);
       const { data, error } = await response.json() as GetRevisionResponse;
       if (error || !data) return announceFailure({ error: error ?? { title: "Something went wrong", subtitle: "revision not found" } });
-      return { data };
+      const { url, ...revision } = data;
+      const revisionResponse = await fetch(url);
+      if (!revisionResponse.ok) return announceFailure({ error: { title: "Something went wrong", subtitle: "revision not found" } });
+      const revisionData = await revisionResponse.json() as EditorDocumentRevision["data"];
+      return { data: { ...revision, data: revisionData } };
     } catch (error) {
       return announceFailure(failure(error));
     } finally {
