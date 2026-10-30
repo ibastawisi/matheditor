@@ -1,6 +1,6 @@
 import { Prisma, prisma } from "@/lib/prisma";
-import { CloudDocument } from "@/types";
 import { validate } from "uuid";
+import { deleteRevisionData } from "./revision";
 
 const findUser = async (handle: string) => {
   return prisma.user.findUnique({
@@ -26,9 +26,15 @@ const updateUser = async (id: string, data: Prisma.UserUpdateInput) => {
 }
 
 const deleteUser = async (id: string) => {
-  return prisma.user.delete({
+  const revisions = await prisma.revision.findMany({
+    where: { OR: [{ authorId: id }, { document: { authorId: id } }] },
+    select: { id: true },
+  });
+  const user = await prisma.user.delete({
     where: { id }
   });
+  await deleteRevisionData(revisions.map((revision) => revision.id));
+  return user;
 }
 
 
