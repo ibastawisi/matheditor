@@ -29,12 +29,15 @@ services:
     restart: unless-stopped
     environment:
       COLLAB_SECRET: ${COLLAB_SECRET:-matheditor}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-matheditor}
+      S3_ENDPOINT: http://s3:9000
+      S3_BUCKET: ${S3_BUCKET:-matheditor}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-rustfsadmin}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-rustfsadmin}
     ports:
       - "1234:1234"
     depends_on:
-      db:
-        condition: service_healthy
+      s3:
+        condition: service_started
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:1234/health').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
       interval: 2s

@@ -1,7 +1,7 @@
 /**
  * Live editing server. Relays Yjs document updates and awareness (cursors and
  * presence) between the editors of a document, speaking the y-websocket
- * protocol, and stores each document's Yjs state in Postgres.
+ * protocol, and stores each document's Yjs state in S3 object storage.
  *
  * The app seeds a document's state and signs a short-lived token for each
  * user it lets in, so this server only checks the token and never reads
@@ -9,21 +9,39 @@
  */
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { createServer } from "node:http";
+import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { WebSocketServer, type WebSocket } from "ws";
 import * as Y from "yjs";
 import * as syncProtocol from "y-protocols/sync";
 import * as awarenessProtocol from "y-protocols/awareness";
 import * as encoding from "lib0/encoding";
 import * as decoding from "lib0/decoding";
-import pg from "pg";
 
 const PORT = Number(process.env.PORT ?? 1234);
 const SECRET = process.env.COLLAB_SECRET;
-const DATABASE_URL = process.env.DATABASE_URL;
-if (!SECRET || !DATABASE_URL) {
-  console.error("COLLAB_SECRET and DATABASE_URL are required");
+if (!SECRET) {
+  console.error("COLLAB_SECRET is required");
   process.exit(1);
 }
+
+const S3_BUCKET = process.env.S3_BUCKET || "matheditor";
+const S3_REGION = process.env.S3_REGION || "us-east-1";
+const S3_ENDPOINT = process.env.S3_ENDPOINT || "http://localhost:9000";
+const S3_FORCE_PATH_STYLE = process.env.S3_FORCE_PATH_STYLE ? process.env.S3_FORCE_PATH_STYLE === "true" : true;
+const S3_ACCESS_KEY_ID = process.env.S3_ACCESS_KEY_ID || "rustfsadmin";
+const S3_SECRET_ACCESS_KEY = process.env.S3_SECRET_ACCESS_KEY || "rustfsadmin";
+
+const s3 = new S3Client({
+  region: S3_REGION,
+  endpoint: S3_ENDPOINT,
+  forcePathStyle: S3_FORCE_PATH_STYLE,
+  credentials: {
+    accessKeyId: S3_ACCESS_KEY_ID,
+    secretAccessKey: S3_SECRET_ACCESS_KEY,
+  },
+});
+
+const getCollabKey = (id: string) => `collab/${id}.bin`;
 
 /** Wait this long after the last update before storing a document */
 const PERSIST_DEBOUNCE_MS = 2000;
@@ -40,8 +58,6 @@ const MESSAGE_AWARENESS = 1;
 const CLOSE_UNAUTHORIZED = 4401;
 const CLOSE_NOT_FOUND = 4404;
 const CLOSE_SERVER_ERROR = 1011;
-
-const pool = new pg.Pool({ connectionString: DATABASE_URL, max: 5 });
 
 interface Room {
   id: string;
@@ -90,10 +106,23 @@ async function persist(room: Room): Promise<void> {
   if (!room.dirty) return;
   room.dirty = false;
   const state = Y.encodeStateAsUpdate(room.doc);
-  room.persisting = pool
-    .query(`UPDATE "CollabState" SET "data" = $2, "updatedAt" = NOW() WHERE "documentId" = $1`, [room.id, Buffer.from(state)])
+  room.persisting = s3
+    .send(
+      new PutObjectCommand({
+        Bucket: S3_BUCKET,
+        Key: getCollabKey(room.id),
+        Body: state,
+        ContentType: "application/octet-stream",
+        IfMatch: "*",
+      })
+    )
     .then(() => {})
     .catch((error) => {
+      const status = (error as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode;
+      const name = (error as Error).name;
+      if (status === 404 || status === 412 || name === "NoSuchKey" || name === "NotFound" || name === "PreconditionFailed") {
+        return;
+      }
       console.error(`failed to store ${room.id}`, error);
       room.dirty = true;
       schedulePersist(room);
@@ -114,10 +143,19 @@ function schedulePersist(room: Room) {
 }
 
 async function loadRoom(id: string): Promise<Room | null> {
-  const result = await pool.query<{ data: Buffer }>(`SELECT "data" FROM "CollabState" WHERE "documentId" = $1`, [id]);
-  if (result.rowCount === 0) return null;
+  let data: Uint8Array;
+  try {
+    const response = await s3.send(new GetObjectCommand({ Bucket: S3_BUCKET, Key: getCollabKey(id) }));
+    if (!response.Body) return null;
+    data = await response.Body.transformToByteArray();
+  } catch (error) {
+    const status = (error as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode;
+    const name = (error as Error).name;
+    if (status === 404 || name === "NoSuchKey" || name === "NotFound") return null;
+    throw error;
+  }
   const doc = new Y.Doc();
-  Y.applyUpdate(doc, new Uint8Array(result.rows[0].data));
+  Y.applyUpdate(doc, data);
   const awareness = new awarenessProtocol.Awareness(doc);
   // the server holds no awareness state of its own
   awareness.setLocalState(null);
@@ -284,7 +322,7 @@ async function shutdown() {
   await Promise.allSettled(
     loaded.flatMap((result) => (result.status === "fulfilled" && result.value ? [persist(result.value)] : []))
   );
-  await pool.end();
+  s3.destroy();
   process.exit(0);
 }
 

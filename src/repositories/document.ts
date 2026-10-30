@@ -1,6 +1,7 @@
 import { Prisma, prisma } from "@/lib/prisma";
 import { CloudDocument, EditorDocument } from "@/types";
 import { validate } from "uuid";
+import { deleteCollabState } from "./collab";
 import { deleteRevisionData, getCachedRevision, getRevisionDataUrl } from "./revision";
 
 const findPublishedDocuments = async (limit?: number) => {
@@ -167,7 +168,7 @@ const findCloudStorageUsageByAuthorId = async (authorId: string) => {
     SELECT
       d.id,
       d.name,
-      (pg_column_size(d.*) + COALESCE(SUM(pg_column_size(r.*) + COALESCE(r."size", 0)), 0))::float AS size
+      (pg_column_size(d.*) + COALESCE(SUM(pg_column_size(r.*) + r."size"), 0))::float AS size
     FROM
       "Document" d
     LEFT JOIN
@@ -574,7 +575,10 @@ const deleteDocument = async (handle: string) => {
       revisions: { select: { id: true } },
     },
   });
-  await deleteRevisionData(document.revisions.map((revision) => revision.id));
+  await Promise.all([
+    deleteRevisionData(document.revisions.map((revision) => revision.id)),
+    deleteCollabState(document.id),
+  ]);
   return document;
 }
 

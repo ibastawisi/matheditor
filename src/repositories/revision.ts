@@ -24,15 +24,6 @@ const readRevisionData = async (id: string) => {
   return JSON.parse(json) as RevisionData;
 };
 
-/** Moves the data of a revision that is still in the database to object storage */
-const migrateRevision = async (id: string) => {
-  const revision = await prisma.revision.findUnique({ where: { id }, select: { data: true, size: true } });
-  if (!revision || revision.size !== null || revision.data === null) return revision?.size ?? null;
-  const size = await storeRevisionData(id, revision.data as unknown as RevisionData);
-  await prisma.revision.update({ where: { id }, data: { data: Prisma.DbNull, size } });
-  return size;
-};
-
 const findRevisionMetadata = async (id: string) => {
   return prisma.revision.findUnique({
     where: { id },
@@ -40,25 +31,14 @@ const findRevisionMetadata = async (id: string) => {
       id: true,
       documentId: true,
       createdAt: true,
-      size: true,
     },
   });
 };
 
 const findRevisionById = async (id: string) => {
-  const revision = await findRevisionMetadata(id);
-  if (!revision) return null;
-  const { size, ...metadata } = revision;
-  let data: RevisionData | null = null;
-  if (size === null) {
-    // not migrated yet
-    const legacy = await prisma.revision.findUnique({ where: { id }, select: { data: true } });
-    data = (legacy?.data ?? null) as unknown as RevisionData | null;
-  } else {
-    data = await readRevisionData(id);
-  }
-  if (!data) return null;
-  const DocumentRevision: EditorDocumentRevision = { ...metadata, data };
+  const [revision, data] = await Promise.all([findRevisionMetadata(id), readRevisionData(id)]);
+  if (!revision || !data) return null;
+  const DocumentRevision: EditorDocumentRevision = { ...revision, data };
   return DocumentRevision;
 }
 
@@ -66,12 +46,12 @@ const getCachedRevision = unstable_cache(findRevisionById, [], { tags: ["revisio
 
 /** The revision with a signed url that the client downloads its data from */
 const findStoredRevision = async (id: string) => {
-  const revision = await findRevisionMetadata(id);
+  const [revision, url] = await Promise.all([
+    findRevisionMetadata(id),
+    getSignedDownloadUrl(getRevisionKey(id), REVISION_URL_EXPIRY),
+  ]);
   if (!revision) return null;
-  const { size, ...metadata } = revision;
-  if (size === null) await migrateRevision(id);
-  const url = await getSignedDownloadUrl(getRevisionKey(id), REVISION_URL_EXPIRY);
-  const storedRevision: StoredDocumentRevision = { ...metadata, url };
+  const storedRevision: StoredDocumentRevision = { ...revision, url };
   return storedRevision;
 };
 
@@ -95,7 +75,7 @@ const revisionExists = async (id: string) => {
   return count > 0;
 };
 
-type RevisionInput = Omit<Prisma.RevisionUncheckedCreateInput, "data" | "size"> & { id: string };
+type RevisionInput = Omit<Prisma.RevisionUncheckedCreateInput, "size"> & { id: string };
 
 /** Stores the data of a new revision, the result is used to create the revision in the database */
 const prepareRevision = async <T extends { id: string }>(input: T, data: RevisionData) => {
@@ -133,7 +113,6 @@ export {
   createRevision,
   deleteRevision,
   deleteRevisionData,
-  migrateRevision,
   storeRevisionData,
   readRevisionData,
 };

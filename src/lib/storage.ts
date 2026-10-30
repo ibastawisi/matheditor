@@ -105,6 +105,26 @@ export const putObject = async (key: string, body: Uint8Array | string, contentT
   );
 };
 
+export const putObjectIfAbsent = async (key: string, body: Uint8Array | string, contentType: string) => {
+  await ensureBucket();
+  try {
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: S3_BUCKET,
+        Key: key,
+        Body: body,
+        ContentType: contentType,
+        IfNoneMatch: "*",
+      })
+    );
+    return true;
+  } catch (error) {
+    const status = (error as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode;
+    if (status === 412 || (error as Error).name === "PreconditionFailed") return false;
+    throw error;
+  }
+};
+
 export const objectExists = async (key: string) => {
   await ensureBucket();
   try {
