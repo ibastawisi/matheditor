@@ -100,24 +100,26 @@ function GraphDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
     const id = node?.id ?? "";
     let payloadSrc = dataUrl;
     let signedUrl: string | undefined = undefined;
-    try {
-      const isSvg = dataUrl.startsWith("data:image/svg+xml");
-      const mimeType = isSvg ? "image/svg+xml" : "image/png";
-      const extension = isSvg ? "svg" : "png";
-      const blob = isSvg
-        ? new Blob([decodeURIComponent(dataUrl.slice(dataUrl.indexOf(",") + 1))], { type: mimeType })
-        : await fetch(dataUrl).then((res) => res.blob());
-      const file = new File([blob], `${altText}.${extension}`, { type: mimeType });
-      const { data, error } = await uploadImage(file);
-      if (error || !data) throw new Error("Uploading image failed");
-      payloadSrc = `/images/${data.path}`;
-      const { data: signedUrlData } = await getImageSignedUrl(data.path);
-      signedUrl = signedUrlData?.signedUrl;
-    } catch {
-      editor.dispatchCommand(ANNOUNCE_COMMAND, {
-        type: "error",
-        message: { title: "Uploading image failed", subtitle: "Please try again later" },
-      });
+    if (uploadImage && getImageSignedUrl) {
+      try {
+        const isSvg = dataUrl.startsWith("data:image/svg+xml");
+        const mimeType = isSvg ? "image/svg+xml" : "image/png";
+        const extension = isSvg ? "svg" : "png";
+        const blob = isSvg
+          ? new Blob([decodeURIComponent(dataUrl.slice(dataUrl.indexOf(",") + 1))], { type: mimeType })
+          : await fetch(dataUrl).then((res) => res.blob());
+        const file = new File([blob], `${altText}.${extension}`, { type: mimeType });
+        const { data, error } = await uploadImage(file);
+        if (error || !data) throw new Error("Uploading image failed");
+        payloadSrc = `/images/${data.path}`;
+        const { data: signedUrlData } = await getImageSignedUrl(data.path);
+        signedUrl = signedUrlData?.signedUrl;
+      } catch {
+        editor.dispatchCommand(ANNOUNCE_COMMAND, {
+          type: "error",
+          message: { title: "Uploading image failed", subtitle: "Please try again later" },
+        });
+      }
     }
     insertGraph({
       src: payloadSrc,

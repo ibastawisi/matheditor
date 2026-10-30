@@ -56,7 +56,7 @@ function ImageDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
       setFile(null);
       let signedUrl: string | undefined = undefined;
       try {
-        if (typeof value === 'string' && value.startsWith('/images/')) {
+        if (typeof value === 'string' && value.startsWith('/images/') && getImageSignedUrl) {
           const filename = value.split('/').pop()!;
           const { data: signedUrlData } = await getImageSignedUrl(filename);
           signedUrl = signedUrlData?.signedUrl;
@@ -113,7 +113,7 @@ function ImageDialog({ nodeKey }: { nodeKey: NodeKey | null; }) {
       width: Number(formData.width) || 0,
       height: Number(formData.height) || 0,
     };
-    if (file) {
+    if (file && uploadImage && getImageSignedUrl) {
       setIsUploading(true);
       try {
         const { data, error } = await uploadImage(file);

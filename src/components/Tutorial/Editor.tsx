@@ -6,9 +6,11 @@ import { $addUpdateTag, $getRoot, $getSelection, $isRangeSelection, COMMAND_PRIO
 import { $isDetailsContainerNode, $isDetailsContentNode, $isDetailsSummaryNode } from "@/editor/extensions/details/nodes";
 import { $isListNode, $isListItemNode } from "@lexical/list";
 import { EditorDocument } from '@/types';
+import type { Services } from '@/editor/extensions/services/types';
 import Editor from "../Editor";
 
 const document = tutorialTemplate as unknown as EditorDocument;
+const localServices: Services = {};
 
 const TutorialEditor: React.FC = () => {
 
@@ -84,7 +86,7 @@ const TutorialEditor: React.FC = () => {
   }, []);
 
   return (
-    <Editor document={document} onChange={onChange} editorRef={registerListeners} ignoreHistoryMerge={false} />
+    <Editor document={document} onChange={onChange} editorRef={registerListeners} ignoreHistoryMerge={false} services={localServices} />
   );
 }
 

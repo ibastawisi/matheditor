@@ -1,5 +1,5 @@
 export type Services = {
-  uploadImage: (file: File) => Promise<{
+  uploadImage?: (file: File) => Promise<{
     error: unknown;
     data: {
       id: string;
@@ -7,7 +7,7 @@ export type Services = {
       fullPath: string;
     } | null;
   }>;
-  getImageSignedUrl: (path: string) => Promise<{
+  getImageSignedUrl?: (path: string) => Promise<{
     error: unknown;
     data: {
       signedUrl: string;

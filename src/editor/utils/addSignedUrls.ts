@@ -12,12 +12,14 @@ import { forEachImageSource, isStoredImageSrc } from "@/shared/storage";
 export const addSignedUrls = async (
   initialEditorState: InitialEditorStateType,
   services: {
-    getImageSignedUrl: Services["getImageSignedUrl"];
+    getImageSignedUrl?: Services["getImageSignedUrl"];
   } = defaultServices
 ) => {
   try {
     if (!initialEditorState) return null;
     const editor = createHeadlessEditor(initialEditorState);
+    if (!services.getImageSignedUrl) return editor.getEditorState();
+    const getImageSignedUrl = services.getImageSignedUrl;
     const editorState = editor.getEditorState();
     const signedUrlMap = getSignedUrlMapFromEditor(editor);
     const [storedImageNodes, slotSources] = editor.read(() => {
@@ -43,7 +45,7 @@ export const addSignedUrls = async (
           return;
         }
         const fileName = src.split("/").pop()!;
-        const { data, error } = await services.getImageSignedUrl(fileName);
+        const { data, error } = await getImageSignedUrl(fileName);
         if (error) throw error;
         if (data) {
           if (src.endsWith(".svg")) {
@@ -64,7 +66,7 @@ export const addSignedUrls = async (
           return;
         }
         const fileName = src.split("/").pop()!;
-        const { data, error } = await services.getImageSignedUrl(fileName);
+        const { data, error } = await getImageSignedUrl(fileName);
         if (error) throw error;
         if (data) {
           signedUrlMap.set(src, data.signedUrl);
