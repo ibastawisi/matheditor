@@ -3,7 +3,7 @@ import { getCollabConfig, signCollabToken } from "@/lib/collab";
 import { createCollabState, hasCollabState } from "@/repositories/collab";
 import { findEditorDocument, findUserDocument } from "@/repositories/document";
 import { offloadDataUrls } from "@/repositories/storage";
-import { createYjsState } from "@/editor/utils/createYjsState";
+import { createDocNodeState } from "@/editor/utils/createDocNodeState";
 import { PostCollabSessionInput, PostCollabSessionResponse } from "@/types";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
@@ -13,9 +13,9 @@ import type { SerializedEditorState } from "lexical";
 export const dynamic = "force-dynamic";
 
 /** A copy sent by the client that does not parse starts nothing */
-function tryCreateYjsState(data: SerializedEditorState) {
+function tryCreateDocNodeState(data: SerializedEditorState) {
   try {
-    return createYjsState(data);
+    return createDocNodeState(data);
   } catch (error) {
     console.log(error);
     return null;
@@ -66,7 +66,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
     if (!await hasCollabState(params.id)) {
       const copy: PostCollabSessionInput = await request.json().catch(() => ({}));
       const isNewerCopy = !!copy.data?.root && !!copy.updatedAt && new Date(copy.updatedAt) > new Date(userDocument.updatedAt);
-      const copyState = isNewerCopy ? tryCreateYjsState(await offloadDataUrls(copy.data!)) : null;
+      const copyState = isNewerCopy ? tryCreateDocNodeState(await offloadDataUrls(copy.data!)) : null;
       if (copyState) {
         seededFromCopy = await createCollabState(params.id, copyState);
       } else {
@@ -75,7 +75,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
           response.error = { title: "Document not found" }
           return NextResponse.json(response, { status: 404 })
         }
-        await createCollabState(params.id, createYjsState(editorDocument.data));
+        await createCollabState(params.id, createDocNodeState(editorDocument.data));
       }
     }
     response.data = {

@@ -1,21 +1,17 @@
 /**
- * Live editing server. Relays Yjs document updates and awareness (cursors and
- * presence) between the editors of a document, speaking the y-websocket
- * protocol, and stores each document's Yjs state in S3 object storage.
+ * Live editing server. Relays DocNode document operations and presence
+ * (cursors and selections) between the editors of a document, and stores each
+ * document's DocNode snapshot in S3 object storage.
  *
  * The app seeds a document's state and signs a short-lived token for each
  * user it lets in, so this server only checks the token and never reads
  * sessions or permissions itself.
  */
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import { createServer } from "node:http";
 import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { defineNode, defineState, Doc, type JsonDoc, type Operations } from "@docukit/docnode";
 import { WebSocketServer, type WebSocket } from "ws";
-import * as Y from "yjs";
-import * as syncProtocol from "y-protocols/sync";
-import * as awarenessProtocol from "y-protocols/awareness";
-import * as encoding from "lib0/encoding";
-import * as decoding from "lib0/decoding";
 
 const PORT = Number(process.env.PORT ?? 1234);
 const SECRET = process.env.COLLAB_SECRET;
@@ -41,7 +37,7 @@ const s3 = new S3Client({
   },
 });
 
-const getCollabKey = (id: string) => `collab/${id}.bin`;
+const getCollabKey = (id: string) => `collab/${id}.json`;
 
 /** Wait this long after the last update before storing a document */
 const PERSIST_DEBOUNCE_MS = 2000;
@@ -51,26 +47,63 @@ const PING_INTERVAL_MS = 30000;
 /** Documents may hold images as data URLs */
 const MAX_PAYLOAD_BYTES = 64 * 1024 * 1024;
 
-const MESSAGE_SYNC = 0;
-const MESSAGE_AWARENESS = 1;
-
-/** Close codes in 4400-4499 stop y-websocket clients from reconnecting on their own */
 const CLOSE_UNAUTHORIZED = 4401;
 const CLOSE_NOT_FOUND = 4404;
 const CLOSE_SERVER_ERROR = 1011;
 
+interface ClientUser {
+  id: string;
+  name: string;
+  image: string | null;
+  color: string;
+}
+
+interface PresenceSelection {
+  anchor: { key: string; offset: number };
+  focus: { key: string; offset: number };
+  name: string;
+  color: string;
+}
+
+interface ClientPresence {
+  user: ClientUser;
+  selection?: PresenceSelection;
+}
+
+type ClientMessage =
+  | { type: "ops"; operations: Operations }
+  | { type: "presence"; user: ClientUser; selection?: PresenceSelection };
+
+type ServerMessage =
+  | { type: "init"; clientId: string; doc: JsonDoc; presence: Record<string, ClientPresence> }
+  | { type: "ops"; operations: Operations }
+  | { type: "presence"; clientId: string; state: ClientPresence | null };
+
 interface Room {
   id: string;
-  doc: Y.Doc;
-  awareness: awarenessProtocol.Awareness;
-  /** Each connection and the awareness clients it controls */
-  conns: Map<WebSocket, Set<number>>;
+  doc: Doc;
+  conns: Map<WebSocket, string>;
+  presence: Map<string, ClientPresence>;
   dirty: boolean;
   persistTimer: ReturnType<typeof setTimeout> | null;
   firstDirtyAt: number;
   persisting: Promise<void> | null;
 }
 
+const LexicalRootDocNode = defineNode({
+  type: "docnode-lexical",
+  state: { r: defineState({ fromJSON: (json) => json ?? null }) },
+});
+
+const LexicalDocNode = defineNode({
+  type: "l",
+  state: { j: defineState({ fromJSON: (json) => json ?? {} }) },
+});
+
+const docConfig = {
+  type: "docnode-lexical",
+  extensions: [{ nodes: [LexicalRootDocNode, LexicalDocNode] }],
+};
 const rooms = new Map<string, Promise<Room | null>>();
 
 function verifyToken(token: string, documentId: string): boolean {
@@ -87,15 +120,19 @@ function verifyToken(token: string, documentId: string): boolean {
   }
 }
 
-function send(conn: WebSocket, message: Uint8Array) {
+function send(conn: WebSocket, message: ServerMessage | string) {
   if (conn.readyState !== conn.OPEN) return;
-  conn.send(message, (error) => {
+  const payload = typeof message === "string" ? message : JSON.stringify(message);
+  conn.send(payload, (error) => {
     if (error) conn.terminate();
   });
 }
 
-function broadcast(room: Room, message: Uint8Array) {
-  for (const conn of room.conns.keys()) send(conn, message);
+function broadcast(room: Room, message: ServerMessage, except?: WebSocket) {
+  const payload = JSON.stringify(message);
+  for (const conn of room.conns.keys()) {
+    if (conn !== except) send(conn, payload);
+  }
 }
 
 async function persist(room: Room): Promise<void> {
@@ -105,14 +142,14 @@ async function persist(room: Room): Promise<void> {
   while (room.persisting) await room.persisting;
   if (!room.dirty) return;
   room.dirty = false;
-  const state = Y.encodeStateAsUpdate(room.doc);
+  const state = JSON.stringify(room.doc.toJSON());
   room.persisting = s3
     .send(
       new PutObjectCommand({
         Bucket: S3_BUCKET,
         Key: getCollabKey(room.id),
         Body: state,
-        ContentType: "application/octet-stream",
+        ContentType: "application/json",
         IfMatch: "*",
       })
     )
@@ -143,46 +180,29 @@ function schedulePersist(room: Room) {
 }
 
 async function loadRoom(id: string): Promise<Room | null> {
-  let data: Uint8Array;
+  let text: string;
   try {
     const response = await s3.send(new GetObjectCommand({ Bucket: S3_BUCKET, Key: getCollabKey(id) }));
     if (!response.Body) return null;
-    data = await response.Body.transformToByteArray();
+    text = await response.Body.transformToString();
   } catch (error) {
     const status = (error as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode;
     const name = (error as Error).name;
     if (status === 404 || name === "NoSuchKey" || name === "NotFound") return null;
     throw error;
   }
-  const doc = new Y.Doc();
-  Y.applyUpdate(doc, data);
-  const awareness = new awarenessProtocol.Awareness(doc);
-  // the server holds no awareness state of its own
-  awareness.setLocalState(null);
-  const room: Room = { id, doc, awareness, conns: new Map(), dirty: false, persistTimer: null, firstDirtyAt: 0, persisting: null };
-
-  doc.on("update", (update: Uint8Array) => {
-    const encoder = encoding.createEncoder();
-    encoding.writeVarUint(encoder, MESSAGE_SYNC);
-    syncProtocol.writeUpdate(encoder, update);
-    broadcast(room, encoding.toUint8Array(encoder));
-    schedulePersist(room);
-  });
-
-  awareness.on("update", ({ added, updated, removed }: { added: number[]; updated: number[]; removed: number[] }, origin: unknown) => {
-    const changed = [...added, ...updated, ...removed];
-    const controlled = room.conns.get(origin as WebSocket);
-    if (controlled) {
-      for (const client of added) controlled.add(client);
-      for (const client of removed) controlled.delete(client);
-    }
-    const encoder = encoding.createEncoder();
-    encoding.writeVarUint(encoder, MESSAGE_AWARENESS);
-    encoding.writeVarUint8Array(encoder, awarenessProtocol.encodeAwarenessUpdate(awareness, changed));
-    broadcast(room, encoding.toUint8Array(encoder));
-  });
-
-  return room;
+  const doc = Doc.fromJSON(docConfig, JSON.parse(text) as JsonDoc);
+  doc.forceCommit();
+  return {
+    id,
+    doc,
+    conns: new Map(),
+    presence: new Map(),
+    dirty: false,
+    persistTimer: null,
+    firstDirtyAt: 0,
+    persisting: null,
+  };
 }
 
 function getRoom(id: string): Promise<Room | null> {
@@ -197,40 +217,43 @@ function getRoom(id: string): Promise<Room | null> {
 }
 
 async function closeConnection(room: Room, conn: WebSocket) {
-  const controlled = room.conns.get(conn);
-  if (!controlled) return;
+  const clientId = room.conns.get(conn);
+  if (!clientId) return;
   room.conns.delete(conn);
-  awarenessProtocol.removeAwarenessStates(room.awareness, Array.from(controlled), null);
+  if (room.presence.delete(clientId)) {
+    broadcast(room, { type: "presence", clientId, state: null });
+  }
   if (room.conns.size > 0) return;
   await persist(room);
   // someone may have joined while the document was being stored
   if (room.conns.size > 0) return;
   rooms.delete(room.id);
-  room.awareness.destroy();
-  room.doc.destroy();
+  room.doc.dispose();
 }
 
-function onMessage(room: Room, conn: WebSocket, message: Uint8Array) {
-  const decoder = decoding.createDecoder(message);
-  const encoder = encoding.createEncoder();
-  const type = decoding.readVarUint(decoder);
-  switch (type) {
-    case MESSAGE_SYNC:
-      encoding.writeVarUint(encoder, MESSAGE_SYNC);
-      syncProtocol.readSyncMessage(decoder, encoder, room.doc, conn);
-      // a reply holds more than the message type
-      if (encoding.length(encoder) > 1) send(conn, encoding.toUint8Array(encoder));
+function onMessage(room: Room, conn: WebSocket, raw: string) {
+  const clientId = room.conns.get(conn);
+  if (!clientId) return;
+  const message = JSON.parse(raw) as ClientMessage;
+  switch (message.type) {
+    case "ops":
+      room.doc.applyOperations(message.operations, { skipUndo: true });
+      broadcast(room, { type: "ops", operations: message.operations }, conn);
+      schedulePersist(room);
       break;
-    case MESSAGE_AWARENESS:
-      awarenessProtocol.applyAwarenessUpdate(room.awareness, decoding.readVarUint8Array(decoder), conn);
+    case "presence": {
+      const state: ClientPresence = { user: message.user, selection: message.selection };
+      room.presence.set(clientId, state);
+      broadcast(room, { type: "presence", clientId, state }, conn);
       break;
+    }
   }
 }
 
 async function onConnection(conn: WebSocket, documentId: string) {
   // hold messages that arrive while the document loads
-  const pending: Uint8Array[] = [];
-  const queue = (data: Buffer) => pending.push(new Uint8Array(data));
+  const pending: string[] = [];
+  const queue = (data: Buffer) => pending.push(data.toString("utf8"));
   conn.on("message", queue);
 
   let room: Room | null;
@@ -247,12 +270,13 @@ async function onConnection(conn: WebSocket, documentId: string) {
   }
   if (conn.readyState !== conn.OPEN) return;
   const joined = room;
-  joined.conns.set(conn, new Set());
+  const clientId = randomUUID();
+  joined.conns.set(conn, clientId);
 
   conn.off("message", queue);
   conn.on("message", (data: Buffer) => {
     try {
-      onMessage(joined, conn, new Uint8Array(data));
+      onMessage(joined, conn, data.toString("utf8"));
     } catch (error) {
       console.error(`bad message for ${documentId}`, error);
       conn.close(CLOSE_SERVER_ERROR);
@@ -272,20 +296,15 @@ async function onConnection(conn: WebSocket, documentId: string) {
   }, PING_INTERVAL_MS);
   conn.on("close", () => clearInterval(ping));
 
-  // start the sync, and show who is already here
-  const encoder = encoding.createEncoder();
-  encoding.writeVarUint(encoder, MESSAGE_SYNC);
-  syncProtocol.writeSyncStep1(encoder, joined.doc);
-  send(conn, encoding.toUint8Array(encoder));
-  const states = joined.awareness.getStates();
-  if (states.size > 0) {
-    const awarenessEncoder = encoding.createEncoder();
-    encoding.writeVarUint(awarenessEncoder, MESSAGE_AWARENESS);
-    encoding.writeVarUint8Array(awarenessEncoder, awarenessProtocol.encodeAwarenessUpdate(joined.awareness, Array.from(states.keys())));
-    send(conn, encoding.toUint8Array(awarenessEncoder));
-  }
+  // send the current snapshot and who is already here
+  send(conn, {
+    type: "init",
+    clientId,
+    doc: joined.doc.toJSON(),
+    presence: Object.fromEntries(joined.presence),
+  });
 
-  for (const message of pending) onMessage(joined, conn, message);
+  for (const raw of pending) onMessage(joined, conn, raw);
 }
 
 const server = createServer((request, response) => {
@@ -300,7 +319,6 @@ const wss = new WebSocketServer({ noServer: true, maxPayload: MAX_PAYLOAD_BYTES 
 
 server.on("upgrade", (request, socket, head) => {
   const url = new URL(request.url ?? "/", "http://localhost");
-  // y-websocket clients connect to `${serverUrl}/${documentId}`
   const documentId = decodeURIComponent(url.pathname.slice(1));
   const token = url.searchParams.get("token") ?? "";
   wss.handleUpgrade(request, socket, head, (conn) => {

@@ -9,10 +9,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1159.0",
-    "lib0": "^0.2.102",
-    "ws": "^8.22.0",
-    "y-protocols": "^1.0.7",
-    "yjs": "^13.6.33"
+    "@docukit/docnode": "^0.4.1",
+    "ws": "^8.22.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
