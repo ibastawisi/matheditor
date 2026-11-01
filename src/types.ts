@@ -167,7 +167,6 @@ export interface PostCollabSessionInput {
 
 /** Someone else editing the document live */
 export interface Collaborator {
-  clientId: number;
   id: string;
   name: string;
   image: string | null;

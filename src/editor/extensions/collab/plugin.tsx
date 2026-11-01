@@ -1,22 +1,12 @@
 "use client"
-import { CollaborationPlugin } from "@lexical/react/LexicalCollaborationPlugin";
-import { LexicalCollaboration } from "@lexical/react/LexicalCollaborationContext";
-import type { ExcludedProperties } from "@lexical/yjs";
-import type { Klass, LexicalNode } from "lexical";
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { WebsocketProvider } from "y-websocket";
+import type { Doc } from "@docukit/docnode";
+import type { Presence, PresenceSelection } from "@docukit/docnode-lexical";
+import { DocNodePlugin } from "@docukit/docnode-lexical/react";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Collaborator, CollabSession, CollabStatus } from "@/types";
-import { ImageNode } from "@/editor/extensions/image/nodes";
-import { SketchNode } from "@/editor/extensions/sketch/nodes";
-import { GraphNode } from "@/editor/extensions/graph/nodes";
-import { createProviderFactory } from "./provider";
-import "./index.css";
-
-const excludedProperties: ExcludedProperties = new Map<Klass<LexicalNode>, Set<string>>([
-  [ImageNode, new Set(["__signedUrl"])],
-  [SketchNode, new Set(["__signedUrl"])],
-  [GraphNode, new Set(["__signedUrl"])],
-]);
+import { syncRootStateWithDoc } from "./docConfig";
+import { createCollabProvider, type CollabProvider } from "./provider";
 
 /** Cursor colors that read on both light and dark pages */
 const COLORS = ["#e53935", "#8e24aa", "#3949ab", "#039be5", "#00897b", "#43a047", "#f4511e", "#6d4c41", "#d81b60", "#5e35b1"];
@@ -26,29 +16,6 @@ export function getCollaboratorColor(userId: string) {
   let hash = 0;
   for (let i = 0; i < userId.length; i++) hash = (hash * 31 + userId.charCodeAt(i)) | 0;
   return COLORS[Math.abs(hash) % COLORS.length];
-}
-
-interface AwarenessUser {
-  name?: string;
-  color?: string;
-  awarenessData?: { id?: string; image?: string | null };
-}
-
-/** The other users in the session, once each however many tabs they have open */
-function getCollaborators(provider: WebsocketProvider, userId: string): Collaborator[] {
-  const collaborators = new Map<string, Collaborator>();
-  for (const [clientId, state] of provider.awareness.getStates() as Map<number, AwarenessUser>) {
-    const id = state.awarenessData?.id;
-    if (clientId === provider.awareness.clientID || !id || id === userId || collaborators.has(id)) continue;
-    collaborators.set(id, {
-      clientId,
-      id,
-      name: state.name ?? "",
-      image: state.awarenessData?.image ?? null,
-      color: state.color ?? getCollaboratorColor(id),
-    });
-  }
-  return [...collaborators.values()];
 }
 
 export interface LiveCollaborationProps {
@@ -70,46 +37,61 @@ export interface LiveCollaborationProps {
  */
 export const LiveCollaborationPlugin: React.FC<LiveCollaborationProps> = (props) => {
   const { documentId, session } = props;
+  const [editor] = useLexicalComposerContext();
   const latest = useRef(props);
   latest.current = props;
-  const cursorsRef = useRef<HTMLDivElement>(null);
 
-  // created once: a new factory would make the plugin replace its provider
-  const [{ factory, destroy }] = useState(() =>
-    createProviderFactory({
+  const [doc, setDoc] = useState<Doc | null>(null);
+  const [presence, setPresenceState] = useState<Presence>();
+
+  const color = useMemo(() => getCollaboratorColor(session.user.id), [session.user.id]);
+  const user = useMemo(() => ({ name: session.user.name, color }), [session.user.name, color]);
+  const providerRef = useRef<CollabProvider | null>(null);
+  const setPresence = useCallback((selection: PresenceSelection | undefined) => {
+    providerRef.current?.setPresence(selection);
+  }, []);
+
+  useEffect(() => {
+    const provider = createCollabProvider({
       url: session.url,
+      documentId,
       token: session.token,
+      user: {
+        id: session.user.id,
+        name: session.user.name,
+        image: session.user.image,
+        color: getCollaboratorColor(session.user.id),
+      },
       refreshToken: () => latest.current.refreshToken(),
+      onDoc: (nextDoc) => setDoc(nextDoc),
+      onPresence: (nextPresence) => setPresenceState(nextPresence),
       onStatus: (status) => latest.current.onStatus(status),
       onSync: (synced) => latest.current.onSync(synced),
       onClosed: () => latest.current.onClosed(),
-      onAwareness: (provider) => latest.current.onCollaborators(getCollaborators(provider, session.user.id)),
-    })
-  );
-  useEffect(() => destroy, [destroy]);
+      onCollaborators: (collaborators) => latest.current.onCollaborators(collaborators),
+    });
+    providerRef.current = provider;
+    return () => {
+      providerRef.current = null;
+      provider.destroy();
+    };
+  }, [documentId, session.url, session.token, session.user.id, session.user.name, session.user.image]);
 
-  // the plugin reconnects whenever these change identity
-  const color = useMemo(() => getCollaboratorColor(session.user.id), [session.user.id]);
-  const awarenessData = useMemo(() => ({ id: session.user.id, image: session.user.image }), [session.user.id, session.user.image]);
+  // registered before DocNodePlugin's effect so root attribute updates batch into its transaction
+  useEffect(() => {
+    if (!doc) return;
+    return syncRootStateWithDoc(editor, doc);
+  }, [editor, doc]);
+
+  if (!doc) return null;
 
   return (
-    <>
-      <div ref={cursorsRef} className="editor-collab-cursors" />
-      <LexicalCollaboration>
-        <CollaborationPlugin
-          id={documentId}
-          providerFactory={factory}
-          // the server starts every session from the document's saved content
-          shouldBootstrap={false}
-          excludedProperties={excludedProperties}
-          username={session.user.name}
-          cursorColor={color}
-          awarenessData={awarenessData}
-          cursorsContainerRef={cursorsRef}
-          selectionHighlight
-        />
-      </LexicalCollaboration>
-    </>
+    <DocNodePlugin
+      doc={doc}
+      presence={presence}
+      setPresence={setPresence}
+      user={user}
+    />
   );
 };
 

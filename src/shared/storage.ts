@@ -42,8 +42,8 @@ export const getImageKey = (src: string) => `images/${src.slice(STORED_IMAGE_PRE
 /** The object key of the data of a revision */
 export const getRevisionKey = (id: string) => `revisions/${id}.json`;
 
-/** The object key of the shared Yjs state of a document */
-export const getCollabKey = (id: string) => `collab/${id}.bin`;
+/** The object key of the shared DocNode state of a document */
+export const getCollabKey = (id: string) => `collab/${id}.json`;
 
 export const getImageExtension = (mimeType: string) => {
   const type = mimeType.toLowerCase();

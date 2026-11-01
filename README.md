@@ -12,7 +12,7 @@ The project aims to make writing publication-quality documents easy and accessib
 - Math: Integrates with [Mathlive](https://cortexjs.io/mathlive) for writing LaTeX with a Virtual Keyboard.
 - Graph: Integrates with [Geogebra](https://www.geogebra.org) for graphing functions and shapes.
 - Sketch: Integrates with [Excalidraw](https://excalidraw.com/) for hand-drawn like sketches.
-- Live collaboration: Authors, coauthors and collaborators edit cloud documents together in real time, with each other's cursors, powered by [Yjs](https://yjs.dev).
+- Live collaboration: Authors, coauthors and collaborators edit cloud documents together in real time, with each other's cursors, powered by [DocNode](https://www.docukit.dev/docnode).
 
 ## Getting Started
 
