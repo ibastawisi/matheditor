@@ -1,5 +1,6 @@
 torch
 pix2text>=1.1,<1.2
+rapidocr<3.10
 fastapi
 uvicorn
 python-multipart
